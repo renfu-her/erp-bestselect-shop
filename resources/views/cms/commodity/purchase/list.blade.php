@@ -209,7 +209,7 @@
                             <th scope="col">入庫狀態</th>
                             <th scope="col">訂金單號</th>
                             <th scope="col">尾款單號</th>
-                            
+
                             <th scope="col" class="text-center">刪除</th>
                         </tr>
                     </thead>
@@ -219,13 +219,13 @@
                             <tr>
                                 <th scope="row">{{ $key + 1 }}</th>
                                 <td class="text-center">
-                                    {{--                            @can('admin.purchase.edit')--}}
+                                    @can('cms.purchase.edit')
                                     <a href="{{ Route('cms.purchase.edit', ['id' => $data->id], true) }}"
                                        data-bs-toggle="tooltip" title="編輯"
                                        class="icon icon-btn fs-5 text-primary rounded-circle border-0">
                                         <i class="bi bi-pencil-square"></i>
                                     </a>
-                                    {{--                            @endcan--}}
+                                    @endcan
                                 </td>
                                 <td>{{ $data->sn }}</td>
                                 <td class="wrap">
@@ -239,13 +239,13 @@
                                 <td>{{ $data->final_pay_num }}</td>
 
                                 <td class="text-center">
-                                    {{--                            @can('admin.purchase.delete')--}}
+                                    @can('cms.purchase.delete')
                                     <a href="javascript:void(0)" data-href="{{ Route('cms.purchase.delete', ['id' => $data->id], true) }}"
                                        data-bs-toggle="modal" data-bs-target="#confirm-delete"
                                        class="icon -del icon-btn fs-5 text-danger rounded-circle border-0">
                                         <i class="bi bi-trash"></i>
                                     </a>
-                                    {{--                            @endcan--}}
+                                    @endcan
                                 </td>
                             </tr>
                             <tr>

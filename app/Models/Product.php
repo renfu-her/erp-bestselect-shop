@@ -4,8 +4,6 @@ namespace App\Models;
 
 use App\Enums\Customer\Identity;
 use App\Enums\Globals\ApiStatusMessage;
-use App\Enums\Globals\AppEnvClass;
-use App\Enums\Globals\ImageDomain;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -181,7 +179,7 @@ class Product extends Model
                     ->whereNotIn('product.id', function ($q) {
                         $q->select('prd_product_shipment.product_id')
                             ->from('prd_product_shipment')
-                            //category_id = 1 宅配
+                        //category_id = 1 宅配
                             ->where('prd_product_shipment.category_id', '=', 1);
                     })
                     ->addSelect(
@@ -440,6 +438,11 @@ class Product extends Model
                 if (in_array('out_of_stock', $stock_status)) {
                     $_q->orWhere('s.in_stock', '=', 0);
                 }
+
+                if (in_array('in_stock', $stock_status)) {
+                    $_q->orWhere(DB::raw('s.in_stock + s.overbought'), '>', 0);
+                }
+
             });
         }
 
@@ -517,6 +520,15 @@ class Product extends Model
                 $re->where('p.offline', 1);
             }
         }
+        // 僅顯示有物流的商品
+        if (isset($options['shipment']) && $options['shipment'] == '1') {
+            $re->leftJoin('prd_product_shipment as shipment', 'p.id', '=', 'shipment.product_id')
+                ->leftJoinSub(DB::table('prd_pickup')->select('product_id_fk')->selectRaw('count(*) as pickup_count')->groupBy('product_id_fk'), 'pickup', 'pickup.product_id_fk', '=', 'p.id')
+                ->where(function ($query) {
+                    $query->whereNotNull('shipment.product_id')
+                        ->orWhere('pickup.pickup_count', '>', 0);
+                });
+        }
 
         return $re;
 
@@ -530,37 +542,37 @@ class Product extends Model
     public static function isLiquor($sku)
     {
         $collectionExist = DB::table('collection')
-                        ->where([
-                            ['is_public', '=', '1'],
-                            ['is_liquor', '=', '1'],
-                        ])
-                        ->select('id')
-                        ->get()
-                        ->first();
+            ->where([
+                ['is_public', '=', '1'],
+                ['is_liquor', '=', '1'],
+            ])
+            ->select('id')
+            ->get()
+            ->first();
 
         if (!$collectionExist) {
             return false;
         }
 
         $collections = DB::table('collection')
-                                ->where([
-                                    ['is_public', '=', '1'],
-                                    ['is_liquor', '=', '1'],
-                                ])
-                                ->select('id')
-                                ->get();
+            ->where([
+                ['is_public', '=', '1'],
+                ['is_liquor', '=', '1'],
+            ])
+            ->select('id')
+            ->get();
 
         $sale_channel_id = 1;
         $skuData = [];
         foreach ($collections as $collection) {
             $temp = Product::productList(null, null, [
-                    'collection'      => $collection->id,
-                    'public'          => '1',
-                    'active_date'     => '1',
-                    'online'          => 'online',
-                    'sale_channel_id' => $sale_channel_id,
-                ])
-                    ->get();
+                'collection' => $collection->id,
+                'public' => '1',
+                'active_date' => '1',
+                'online' => 'online',
+                'sale_channel_id' => $sale_channel_id,
+            ])
+                ->get();
             if ($temp) {
                 foreach ($temp as $data) {
                     $skuData[] = $data->sku;
@@ -593,7 +605,7 @@ class Product extends Model
             ->where('p.sale_channel_id', $sale_channel_id)
             ->whereNull('s.deleted_at')
             ->whereNotNull('s.sku')
-            ->where('s.is_active','1')
+            ->where('s.is_active', '1')
             ->select('s.product_id')
             ->selectRaw($concatString . ' as styles')
             ->groupBy('s.product_id');
@@ -629,7 +641,7 @@ class Product extends Model
             ->mergeBindings($styleQuery)
             ->mergeBindings($imgQuery)
             ->where('sku', $sku)
-          // ->where('s.is_active','1')
+        // ->where('s.is_active','1')
             ->whereNull('p.deleted_at')
             ->whereNotNull('s.styles')
             ->where(function ($query) {
@@ -666,12 +678,7 @@ class Product extends Model
 
         if ($re->imgs) {
             $output['info']['image'] = array_map(function ($n) {
-                if (App::environment(AppEnvClass::Release) ||
-                    App::environment(AppEnvClass::Development)) {
-                    $n->url = ImageDomain::CDN . $n->url;
-                } else {
-                    $n->url = asset($n->url);
-                }
+                $n->url = getImageUrl($n->url);
                 return $n;
             }, json_decode($re->imgs));
         }
@@ -1025,9 +1032,9 @@ class Product extends Model
     public static function getSkuByType(string $type = '0')
     {
         $productQueries = DB::table('prd_products as prd')
-                                ->join('collection_prd', function ($join) {
-                                    $join->on('collection_prd.product_id_fk', '=', 'prd.id');
-                                });
+            ->join('collection_prd', function ($join) {
+                $join->on('collection_prd.product_id_fk', '=', 'prd.id');
+            });
         if ($type === '0') {
             $productQueries->join('collection', function ($join_x) use ($type) {
                 $join_x->on('collection.id', '=', 'collection_prd.collection_id_fk')
@@ -1168,7 +1175,7 @@ class Product extends Model
             )
             ->orderBy('price', $isPriceDescend ? 'desc' : 'asc')
             ->get()
-        //用groupBy(product_id)及transform min(price, origin_price) 取得product_id的不同款式中價錢最小
+            //用groupBy(product_id)及transform min(price, origin_price) 取得product_id的不同款式中價錢最小
             ->groupBy('id')
             ->transform(function ($item) {
                 return [
@@ -1201,12 +1208,7 @@ class Product extends Model
         $productData = [];
         foreach ($productQueries as $productQuery) {
             if (!is_null($productQuery['img_url'])) {
-                if (App::environment(AppEnvClass::Release) ||
-                    App::environment(AppEnvClass::Development)) {
-                    $imageUrl = ImageDomain::CDN . $productQuery['img_url'];
-                } else {
-                    $imageUrl = asset($productQuery['img_url']);
-                }
+                $imageUrl = getImageUrl($productQuery['img_url']);
             } else {
                 $imageUrl = '';
             }
@@ -1236,11 +1238,73 @@ class Product extends Model
         ]);
     }
 
-
     public static function update_product_taxation($parm)
     {
         self::where('id', $parm['product_id'])->update([
             'has_tax' => $parm['taxation'],
         ]);
     }
+
+    public static function cloneInfo($product_id, $from_id)
+    {
+        $fromProduct = self::where('id', $from_id)->get()->first();
+        $product = self::where('id', $product_id)->get()->first();
+        if (!$fromProduct || !$product) {
+            return;
+        }
+
+        DB::beginTransaction();
+
+        self::where('id', $product_id)->update([
+            'feature' => $fromProduct->feature,
+            'slogan' => $fromProduct->slogan,
+            'desc' => $fromProduct->desc,
+        ]);
+
+        // img
+
+        $fromImg = ProductImg::where('product_id', $from_id)->get()->toArray();
+        ProductImg::where('product_id', $product_id)->delete();
+        if (count($fromImg) > 0) {
+            ProductImg::insert(array_map(function ($n) use ($product_id) {
+                return [
+                    'product_id' => $product_id,
+                    'url' => $n['url'],
+                    'sort' => $n['sort'],
+                ];
+            }, $fromImg));
+        }
+
+        // spec list
+        $fromList = ProductSpecList::where('product_id', $from_id)->get()->toArray();
+        ProductSpecList::where('product_id', $product_id)->delete();
+        if (count($fromList) > 0) {
+            ProductSpecList::insert(array_map(function ($n) use ($product_id) {
+                return [
+                    'product_id' => $product_id,
+                    'title' => $n['title'],
+                    'content' => $n['content'],
+                    'sort' => $n['sort'],
+                ];
+            }, $fromList));
+        }
+
+        // shipment
+
+        $shipList = DB::table('prd_product_shipment')->where('product_id', $from_id)->get()->toArray();
+        DB::table('prd_product_shipment')->where('product_id', $product_id)->delete();
+        if (count($shipList) > 0) {
+            DB::table('prd_product_shipment')->insert(array_map(function ($n) use ($product_id) {
+                return [
+                    'product_id' => $product_id,
+                    'category_id' => $n->category_id,
+                    'group_id' => $n->group_id,
+                ];
+            }, $shipList));
+        }
+
+        DB::commit();
+
+    }
+
 }

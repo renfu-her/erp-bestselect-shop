@@ -142,7 +142,7 @@
                                 <th scope="row">{{ $key + 1 }}</th>
                                 <td>{{ $data->consignment_sn }}</td>
                                 <td class="text-center">
-                                    @can('admin.consignment.edit')
+                                    @can('cms.consignment.edit')
                                     <a href="{{ Route('cms.consignment.edit', ['id' => $data->consignment_id], true) }}"
                                        data-bs-toggle="tooltip" title="編輯"
                                        class="icon icon-btn fs-5 text-primary rounded-circle border-0">
@@ -162,7 +162,7 @@
                                 <td>{{ $data->receive_depot_name }}</td>
 
                                 <td class="text-center">
-                                    @can('admin.consignment.delete')
+                                    @can('cms.consignment.delete')
                                     <a href="javascript:void(0)" data-href="{{ Route('cms.consignment.delete', ['id' => $data->consignment_id], true) }}"
                                        data-bs-toggle="modal" data-bs-target="#confirm-delete"
                                        class="icon -del icon-btn fs-5 text-danger rounded-circle border-0">

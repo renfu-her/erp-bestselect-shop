@@ -61,7 +61,6 @@
                     <div class="input-group has-validation">
                         <input type="number" step="1" min="0" class="form-control @error('authamt_min_price') is-invalid @enderror" 
                             name="authamt_min_price" value="{{ $cond['authamt_min_price'] }}" aria-label="刷卡起始金額" placeholder="起始金額">
-                        <span class="input-group-text">~</span>
                         <input type="number" step="1" min="0" class="form-control @error('authamt_max_price') is-invalid @enderror" 
                             name="authamt_max_price" value="{{ $cond['authamt_max_price'] }}" aria-label="刷卡結束金額" placeholder="結束金額">
                         <div class="invalid-feedback">
@@ -202,21 +201,11 @@
                             <td><a href="{{ route('cms.credit_manager.record', ['id'=>$data->credit_card_received_id])}}">{{ $data->credit_card_number }}</a></td>
                             <td>{{ number_format($data->credit_card_price) }}</td>
                             <td>{{ $data->credit_card_status_code == 0 ? '刷卡' : ($data->credit_card_status_code == 1 ? '請款' : '入款') }}</td>
-                            <td>{{ $data->credit_card_checkout_date ? date('Y-m-d', strtotime($data->credit_card_checkout_date)) : '' }}</td>
+                            <td>{{ $data->credit_card_checkout_date ? date('Y/m/d', strtotime($data->credit_card_checkout_date)) : '' }}</td>
                             <td>{{ $data->credit_card_type }}</td>
-                            <td>
-                                @if($data->ro_source_type == 'ord_orders')
-                                <a href="{{ route('cms.collection_received.receipt', ['id' => $data->ro_source_id]) }}">{{ $data->ro_sn }}</a>
-                                @elseif($data->ro_source_type == 'csn_orders')
-                                <a href="{{ route('cms.ar_csnorder.receipt', ['id' => $data->ro_source_id]) }}">{{ $data->ro_sn }}</a>
-                                @elseif($data->ro_source_type == 'ord_received_orders')
-                                <a href="{{ route('cms.account_received.ro-receipt', ['id' => $data->ro_source_id]) }}">{{ $data->ro_sn }}</a>
-                                @elseif($data->ro_source_type == 'acc_request_orders')
-                                <a href="{{ route('cms.request.ro-receipt', ['id' => $data->ro_source_id]) }}">{{ $data->ro_sn }}</a>
-                                @endif
-                            </td>
+                            <td><a href="{{ $data->link }}">{{ $data->ro_sn }}</a></td>
                             <td>{!! $data->credit_card_checkout_mode == 'online' ? '<i class="bi bi-check-lg"></i>' : '<i class="bi bi-x-lg"></i>' !!}</td>
-                            <td>{{ $data->credit_card_posting_date ? date('Y-m-d', strtotime($data->credit_card_posting_date)) : '' }}</td>
+                            <td>{{ $data->credit_card_posting_date ? date('Y/m/d', strtotime($data->credit_card_posting_date)) : '' }}</td>
                             <td><a href="{{ $data->io_id ? route('cms.credit_manager.income-detail', ['id' => $data->io_id]) : 'javascript:void(0);'}}">{{ $data->io_sn }}</a></td>
                             <td>{{ $data->credit_card_area }}</td>
                             <td>{{ $data->bank_name }}</td>

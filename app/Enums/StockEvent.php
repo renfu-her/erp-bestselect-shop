@@ -5,9 +5,17 @@ namespace App\Enums;
 use BenSampo\Enum\Enum;
 
 /**
- * @method static static OptionOne()
- * @method static static OptionTwo()
- * @method static static OptionThree()
+ * @method static static order()
+ * @method static static combo()
+ * @method static static inbound()
+ * @method static static sale()
+ * @method static static inbound_del()
+ * @method static static consignment()
+ * @method static static consume()
+ * @method static static send_back()
+ * @method static static send_back_cancle()
+ * @method static static element_to_combo()
+ * @method static static combo_to_element()
  */
 final class StockEvent extends Enum
 {
@@ -20,6 +28,8 @@ final class StockEvent extends Enum
     const consume = 'consume';
     const send_back = 'send_back';
     const send_back_cancle = 'send_back_cancle';
+    const element_to_combo = 'element_to_combo';
+    const combo_to_element = 'combo_to_element';
 
     public static function getDescription($value): string
     {
@@ -51,6 +61,12 @@ final class StockEvent extends Enum
                 break;
             case self::send_back_cancle:
                 $result = '刪除退回';
+                break;
+            case self::element_to_combo:
+                $result = '合成組合包';
+                break;
+            case self::combo_to_element:
+                $result = '分解組合包';
                 break;
             default:
                 $result = parent::getDescription($value);

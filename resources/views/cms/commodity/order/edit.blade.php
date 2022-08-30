@@ -1,6 +1,6 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h2 class="mb-3">新增訂單</h2>
+    <h2 class="mb-4">新增訂單</h2>
 
     <form id="form1" method="post" action="{{ route('cms.order.create', $query) }}">
         @method('POST')
@@ -1105,7 +1105,8 @@
                 const _URL = `${Laravel.apiUrl.productStyles}?page=${page}`;
                 const Data = {
                     keyword: $('#addProduct .-searchBar input').val(),
-                    price: $('#salechannel').val()
+                    price: $('#salechannel').val(),
+                    stock_status: 'in_stock'
                 };
                 resetAddProductModal();
 

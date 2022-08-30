@@ -89,6 +89,10 @@ class CreditManagerCtrl extends Controller
                 $posting_date
             )->paginate($page)->appends($query);
 
+        foreach($data_list as $value){
+            $value->link = ReceivedOrder::received_order_link($value->ro_source_type, $value->ro_source_id);
+        }
+
         $bank = CrdBank::orderBy('id', 'asc')->pluck('title', 'id')->toArray();
         $checkout_area = Area::get_key_value();
 
@@ -116,6 +120,9 @@ class CreditManagerCtrl extends Controller
         ]);
 
         $record = IncomeOrder::get_credit_card_received_list([$id])->first();
+        if($record){
+            $record->link = ReceivedOrder::received_order_link($record->ro_source_type, $record->ro_source_id);
+        }
 
         if($request->isMethod('post')){
             if($record->credit_card_status_code == 0){
@@ -253,6 +260,9 @@ class CreditManagerCtrl extends Controller
         }
 
         $data_list = IncomeOrder::get_credit_card_received_list([], 0)->get();
+        foreach($data_list as $value){
+            $value->link = ReceivedOrder::received_order_link($value->ro_source_type, $value->ro_source_id);
+        }
 
         return view('cms.settings.credit_manager.ask', [
             'form_action'=>route('cms.credit_manager.ask'),
@@ -297,6 +307,9 @@ class CreditManagerCtrl extends Controller
         }
 
         $data_list = IncomeOrder::get_credit_card_received_list([], 1)->get();
+        foreach($data_list as $value){
+            $value->link = ReceivedOrder::received_order_link($value->ro_source_type, $value->ro_source_id);
+        }
 
         return view('cms.settings.credit_manager.claim', [
             'form_action'=>route('cms.credit_manager.claim'),

@@ -1,7 +1,7 @@
 @extends('layouts.main')
 
 @section('sub-content')
-    <h2 class="mb-3">電子發票</h2>
+    <h2 class="mb-4">電子發票</h2>
     <a href="{{ Route('cms.order.detail', ['id' => $invoice->source_id]) }}" class="btn btn-primary" role="button">
         <i class="bi bi-arrow-left"></i> 返回上一頁
     </a>
@@ -24,7 +24,7 @@
                         </tr>
                         <tr>
                             <td class="col-8">統一編號：{{ $invoice->buyer_ubn }}</td>
-                            <td class="text-end pe-4">開立日期：{{ date('Y-m-d', strtotime($invoice->created_at)) }}</td>
+                            <td class="text-end pe-4">開立日期：{{ date('Y/m/d', strtotime($invoice->created_at)) }}</td>
                         </tr>
                         <tr>
                             <td class="col-8">電子郵件：{{ $invoice->buyer_email }}</td>

@@ -71,14 +71,20 @@ class ReceivedOrder extends Model
                         "received_method":"\', acc_received.received_method, \'",
                         "received_method_id":"\', COALESCE(acc_received.received_method_id, ""), \'",
                         "all_grades_id":"\', acc_received.all_grades_id, \'",
+                        "grade_code":"\', grade.code, \'",
+                        "grade_name":"\', grade.name, \'",
                         "tw_price":"\', acc_received.tw_price, \'",
                         "summary":"\', COALESCE(acc_received.summary, ""),\'",
                         "note":"\', COALESCE(acc_received.note, ""),\'",
                         "created_at":"\', acc_received.created_at,\'",
+                        "cheque_ticket_number":"\', COALESCE(_cheque.ticket_number, ""),\'",
+                        "cheque_due_date":"\', COALESCE(_cheque.due_date, ""),\'",
+                        "remit_memo":"\', COALESCE(_remit.memo, ""),\'",
                         "credit_card_number":"\', COALESCE(_credit.cardnumber, ""),\'",
-                        "remit_memo":"\', COALESCE(_remit.memo, ""),\'"
+                        "credit_card_owner":"\', COALESCE(_credit.card_owner_name, ""),\'"
                     }\' ORDER BY acc_received.id), \']\') AS received_list
                 FROM acc_received
+                LEFT JOIN (' . $sq . ') AS grade ON acc_received.all_grades_id = grade.id
                 LEFT JOIN acc_received_account AS _account ON acc_received.received_method_id = _account.id AND acc_received.received_method = "account_received"
                 LEFT JOIN acc_received_credit AS _credit ON acc_received.received_method_id = _credit.id AND acc_received.received_method = "credit_card"
                 LEFT JOIN acc_received_cheque AS _cheque ON acc_received.received_method_id = _cheque.id AND acc_received.received_method = "cheque"
@@ -650,7 +656,16 @@ class ReceivedOrder extends Model
                     NoteReceivableLog::create_cheque_log($request['received_method_id'], $request['status_code']);
 
                     if($request['cashing_date'] && $request['status_code'] == 'cashed'){
-                        NoteReceivableOrder::store_note_receivable_order($request['cashing_date']);
+                        // DB::table('acc_received_cheque')->where('id', $request['received_method_id'])->update([
+                        //     'amt_net'=>0,
+                        // ]);
+
+                        $note_receivable_order = NoteReceivableOrder::store_note_receivable_order($request['cashing_date']);
+
+                        DB::table('acc_received_cheque')->where('id', $request['received_method_id'])->update([
+                            'note_receivable_order_id'=>$note_receivable_order->id,
+                            'sn'=>$note_receivable_order->sn,
+                        ]);
                     }
                 }
 
@@ -1146,5 +1161,98 @@ class ReceivedOrder extends Model
         }
 
         return $check_result;
+    }
+
+
+    public static function received_order_link($source_type, $source_id)
+    {
+        $link = 'javascript:void(0);';
+
+        if($source_type == 'ord_orders'){
+            $link = route('cms.collection_received.receipt', ['id' => $source_id]);
+
+        } else if($source_type == 'csn_orders'){
+            $link = route('cms.ar_csnorder.receipt', ['id' => $source_id]);
+
+        } else if($source_type == 'ord_received_orders'){
+            $link = route('cms.account_received.ro-receipt', ['id' => $source_id]);
+
+        } else if($source_type == 'acc_request_orders'){
+            $link = route('cms.request.ro-receipt', ['id' => $source_id]);
+        }
+
+        return $link;
+    }
+
+
+    public static function drawee($id, $name)
+    {
+        $client = (object)[
+            'id'=>'',
+            'name'=>'',
+            'phone'=>'',
+            'address'=>'',
+        ];
+
+        $client = User::where([
+                'id'=>$id,
+            ])
+            ->where('name', 'LIKE', "%{$name}%")
+            ->select(
+                'id',
+                'name',
+                'email'
+            )
+            ->selectRaw('
+                IF(id IS NOT NULL, "", "") AS phone,
+                IF(id IS NOT NULL, "", "") AS address
+            ')
+            ->first();
+
+        if(! $client){
+            $client = Customer::leftJoin('usr_customers_address AS customer_add', function ($join) {
+                    $join->on('usr_customers.id', '=', 'customer_add.usr_customers_id_fk');
+                    $join->where([
+                        'customer_add.is_default_addr'=>1,
+                    ]);
+                })->where([
+                    'usr_customers.id'=>$id,
+                ])
+                ->where('usr_customers.name', 'LIKE', "%{$name}%")
+                ->select(
+                    'usr_customers.id',
+                    'usr_customers.name',
+                    'usr_customers.phone AS phone',
+                    'usr_customers.email',
+                    'customer_add.address AS address'
+                )->first();
+
+            if(! $client){
+                $client = Depot::where('id', '=', $id)
+                    ->where('name', 'LIKE', "%{$name}%")
+                    ->select(
+                        'depot.id',
+                        'depot.name',
+                        'depot.tel AS phone',
+                        'depot.address AS address'
+                    )->first();
+
+                if(! $client){
+                    $client = Supplier::where([
+                        'id'=>$id,
+                    ])
+                    ->where('name', 'LIKE', "%{$name}%")
+                    ->select(
+                        'id',
+                        'name',
+                        'contact_tel AS phone',
+                        'email',
+                        'contact_address AS address'
+                    )->first();
+                }
+            }
+        }
+
+        return $client;
     }
 }

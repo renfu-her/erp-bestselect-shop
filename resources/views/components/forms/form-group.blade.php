@@ -1,5 +1,5 @@
-<div class="form-group {{ $class }}@if ($border === true) border-bottom @endif">
-    <label for="{{ $name }}" class="col-form-label">
+<div class="form-group mb-2 {{ $class }}@if ($border === true) border-bottom @endif">
+    <label for="{{ $name }}" class="form-label">
         {{ $title }}
         @if($required === true)
             <span class="text-danger">*</span>

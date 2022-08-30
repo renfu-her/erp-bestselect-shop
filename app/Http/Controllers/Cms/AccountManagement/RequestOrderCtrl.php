@@ -12,6 +12,7 @@ use App\Enums\Received\ChequeStatus;
 use App\Models\AllGrade;
 use App\Models\Customer;
 use App\Models\CrdCreditCard;
+use App\Models\DayEnd;
 use App\Models\Depot;
 use App\Models\GeneralLedger;
 use App\Models\OrderPayCreditCard;
@@ -106,64 +107,7 @@ class RequestOrderCtrl extends Controller
             $client_key = explode('|', request('client_key'));
 
             if(count($client_key) > 1){
-                $client = User::where([
-                        'id'=>$client_key[0],
-                    ])
-                    ->where('name', 'LIKE', "%{$client_key[1]}%")
-                    ->select(
-                        'id',
-                        'name',
-                        'email'
-                    )
-                    ->selectRaw('
-                        IF(id IS NOT NULL, "", "") AS phone,
-                        IF(id IS NOT NULL, "", "") AS address
-                    ')
-                    ->first();
-
-                if(! $client){
-                    $client = Customer::leftJoin('usr_customers_address AS customer_add', function ($join) {
-                            $join->on('usr_customers.id', '=', 'customer_add.usr_customers_id_fk');
-                            $join->where([
-                                'customer_add.is_default_addr'=>1,
-                            ]);
-                        })->where([
-                            'usr_customers.id'=>$client_key[0],
-                        ])
-                        ->where('usr_customers.name', 'LIKE', "%{$client_key[1]}%")
-                        ->select(
-                            'usr_customers.id',
-                            'usr_customers.name',
-                            'usr_customers.phone AS phone',
-                            'usr_customers.email',
-                            'customer_add.address AS address'
-                        )->first();
-
-                    if(! $client){
-                        $client = Depot::where('id', '=', $client_key[0])
-                            ->where('name', 'LIKE', "%{$client_key[1]}%")
-                            ->select(
-                                'depot.id',
-                                'depot.name',
-                                'depot.tel AS phone',
-                                'depot.address AS address'
-                            )->first();
-
-                        if(! $client){
-                            $client = Supplier::where([
-                                'id'=>$client_key[0],
-                            ])
-                            ->where('name', 'LIKE', "%{$client_key[1]}%")
-                            ->select(
-                                'id',
-                                'name',
-                                'contact_tel AS phone',
-                                'email',
-                                'contact_address AS address'
-                            )->first();
-                        }
-                    }
-                }
+                $client = ReceivedOrder::drawee($client_key[0], $client_key[1]);
 
                 $parm = [
                     'price' =>request('price'),
@@ -205,11 +149,58 @@ class RequestOrderCtrl extends Controller
 
         $currency = DB::table('acc_currency')->get();
 
-        return view('cms.account_management.request.edit', [
+        return view('cms.account_management.request.create', [
             'form_action'=>route('cms.request.create'),
             'client' => $client_merged,
             'total_grades' => $total_grades,
             'currency' => $currency,
+        ]);
+    }
+
+
+    public function edit(Request $request, $id)
+    {
+        $request_order = RequestOrder::findOrFail($id);
+
+        if($request->isMethod('post')){
+            $request->validate([
+                'client_key' => 'required|string',
+            ]);
+
+            $client_key = explode('|', request('client_key'));
+
+            if(count($client_key) > 1){
+                $client = ReceivedOrder::drawee($client_key[0], $client_key[1]);
+
+                $request_order->update([
+                    'client_id' =>$client->id,
+                    'client_name' =>$client->name,
+                    'client_phone' =>$client->phone,
+                    'client_address' =>$client->address,
+                ]);
+
+                wToast(__('請款單更新成功'));
+
+                return redirect()->route('cms.request.show', [
+                    'id'=>$request_order->id,
+                ]);
+            }
+
+            wToast(__('請款單更新失敗', ['type'=>'danger']));
+            return redirect()->back();
+        }
+
+        $user = User::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+        $customer = Customer::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+        $depot = Depot::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+        $supplier = Supplier::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+        $client_merged = array_merge($user, $customer, $depot, $supplier);
+
+
+        return view('cms.account_management.request.edit', [
+            'form_action'=>route('cms.request.edit', ['id'=>$id]),
+            'client' => $client_merged,
+            'request_order' => $request_order,
         ]);
     }
 
@@ -420,8 +411,10 @@ class RequestOrderCtrl extends Controller
 
                 $EncArray['more_info'] = $data[$data['acc_transact_type_fk']];
 
-            } else if($data['acc_transact_type_fk'] == ReceivedMethod::AccountsReceivable){
-                //
+            } else if($data['acc_transact_type_fk'] == ReceivedMethod::Cheque){
+                $request->validate([
+                    request('acc_transact_type_fk') . 'ticket_number'=>'required|unique:acc_received_cheque,ticket_number|regex:/^[A-Z]{2}[0-9]{7}$/'
+                ]);
             }
 
             $result_id = ReceivedOrder::store_received_method($data);
@@ -497,8 +490,12 @@ class RequestOrderCtrl extends Controller
         $accountant = User::find($received_order->accountant_id) ? User::find($received_order->accountant_id)->name : null;
 
         $zh_price = num_to_str($received_order->price);
+        $view = 'cms.account_management.request.ro_receipt';
+        if (request('action') == 'print') {
+            $view = 'doc.print_account_management_request_ro_receipt';
+        }
 
-        return view('cms.account_management.request.ro_receipt', [
+        return view($view, [
             'breadcrumb_data' => ['id' => $request_order->id],
             'request_grade' => $request_grade,
             'request_order' => $request_order,
@@ -560,6 +557,8 @@ class RequestOrderCtrl extends Controller
                     }
                 }
 
+                DayEnd::match_day_end_status(request('receipt_date'), $received_order->sn);
+
                 DB::commit();
                 wToast(__('入帳日期更新成功'));
 
@@ -582,9 +581,11 @@ class RequestOrderCtrl extends Controller
                 }
 
                 $received_order->update([
-                    'accountant_id'=>null,
-                    'receipt_date'=>null,
+                    'accountant_id' => null,
+                    'receipt_date' => null,
                 ]);
+
+                DayEnd::match_day_end_status($received_order->receipt_date, $received_order->sn);
 
                 wToast(__('入帳日期已取消'));
                 return redirect()->route('cms.request.ro-receipt', ['id'=>request('id')]);

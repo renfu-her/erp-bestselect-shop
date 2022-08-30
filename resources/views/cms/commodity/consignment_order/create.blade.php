@@ -13,7 +13,7 @@
 
     @php
         $consignmentData = $consignmentData ?? null;
-        
+
         $editable = false == (isset($delivery) && isset($delivery->audit_date));
     @endphp
 
@@ -25,8 +25,8 @@
         @endif
         @if ($received_order_data)
             @if(!in_array($consignmentData->status, ['已入款', '結案']))
-                <a href="javascript:void(0)" role="button" data-bs-toggle="modal" data-bs-target="#confirm-delete" 
-                    data-href="{{ Route('cms.ar_csnorder.delete', ['id' => $received_order_data->id], true) }}" 
+                <a href="javascript:void(0)" role="button" data-bs-toggle="modal" data-bs-target="#confirm-delete"
+                    data-href="{{ Route('cms.ar_csnorder.delete', ['id' => $received_order_data->id], true) }}"
                     class="btn btn-sm btn-danger">刪除收款單</a>
             @else
                 <button type="button" class="btn btn-sm btn-danger" disabled>刪除收款單</button>
@@ -205,6 +205,9 @@
                     @elseif(0 < count(old('item_id', $consignmentItemData?? [])))
                         @foreach (old('item_id', $consignmentItemData ?? []) as $psItemKey => $psItemVal)
                             <tr class="-cloneElem --selectedP">
+                                @php
+                                    $price = old('price.'. $psItemKey, $psItemVal->price?? '');
+                                @endphp
                                 <th class="text-center">
                                     <button type="button" @if (!$editable) disabled @endif
                                             class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
@@ -215,7 +218,7 @@
                                     <input type="hidden" name="name[]" value="{{ old('name.'. $psItemKey, $psItemVal->title?? '') }}">
                                     <input type="hidden" name="prd_type[]" value="{{ old('prd_type.'. $psItemKey, $psItemVal->prd_type?? '') }}">
                                     <input type="hidden" name="sku[]" value="{{ old('sku.'. $psItemKey, $psItemVal->sku?? '') }}">
-                                    <input type="hidden" name="price[]" value="{{ old('price.'. $psItemKey, $psItemVal->price?? '') }}">
+                                    <input type="hidden" name="price[]" value="{{ $price }}">
                                 </th>
                                 <td data-td="name">{{ old('name.'. $psItemKey, $psItemVal->title?? '') }}</td>
                                 <td data-td="sku">{{ old('sku.'. $psItemKey, $psItemVal->sku?? '') }}</td>
@@ -228,7 +231,7 @@
                                         <input type="hidden" name="num[]" value="{{ $psItemVal->num }}">
                                     @endif
                                 </td>
-                                <td data-td="price" class="text-end">{{ old('price.'. $psItemKey, '$'.number_format($psItemVal->price)?? '') }}</td>
+                                <td data-td="price" class="text-end">{{ old('price.'. $psItemKey, '$'.number_format($price)?? '') }}</td>
                                 <td data-td="total" class="text-end">$ 0</td>
                                 <td>
                                     @if ($editable)

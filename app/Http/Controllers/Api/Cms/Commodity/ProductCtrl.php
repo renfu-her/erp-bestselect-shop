@@ -15,10 +15,8 @@ class ProductCtrl extends Controller
     {
         $validator = Validator::make($request->all(), [
             //   'supplier_id' => ['required'],
-         //   'price' => 'numeric|required',
+            //   'price' => 'numeric|required',
         ]);
-
-        
 
         if ($validator->fails()) {
             return response()->json([
@@ -27,14 +25,13 @@ class ProductCtrl extends Controller
             ]);
         }
         $d = $request->all();
-        
+
         $options = [];
         if (isset($d['price'])) {
             $options['price'] = $d['price'];
             $options['salechannel'] = $d['price'];
         }
 
-    
         if (isset($d['supplier_id'])) {
             $options['supplier'] = ['condition' => $d['supplier_id']];
         }
@@ -43,17 +40,32 @@ class ProductCtrl extends Controller
             $options['consume'] = $d['consume'];
         }
 
-        
+        if (isset($d['public'])) {
+            $options['public'] = $d['public'];
+        }
+
+        if (isset($d['stock_status'])) {
+            $stock_status = [$d['stock_status']];
+
+        } else {
+            $stock_status = [];
+        }
+
+        // 僅顯示有物流的 1
+        if (isset($d['shipment'])) {
+            $options['shipment'] = 1;
+        }
+       // $options['shipment'] = 1;
 
         // Arr::get($d, 'supplier_id',''),
 
         $re = Product::productStyleList(
             Arr::get($d, 'keyword', ''),
             Arr::get($d, 'type', ''),
-            [],
+            $stock_status,
             $options,
 
-        )->where('s.is_active','1')->paginate(10)->toArray();
+        )->where('s.is_active', '1')->paginate(10)->toArray();
         $re['status'] = '0';
         //   $re['data'] = json_decode(json_encode($re['data']), true);
         return response()->json($re);
@@ -115,7 +127,7 @@ class ProductCtrl extends Controller
     {
         $validator = Validator::make($request->all(), [
             'sku' => ['required'],
-            'm_class' => ['nullable', 'string', 'regex:/^(customer|employee|company)$/']
+            'm_class' => ['nullable', 'string', 'regex:/^(customer|employee|company)$/'],
         ]);
 
         if ($validator->fails()) {

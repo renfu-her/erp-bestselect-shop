@@ -66,10 +66,4 @@
 
         </style>
     @endpush
-    @push('sub-scripts')
-        <script>
-
-
-        </script>
-    @endpush
 @endonce

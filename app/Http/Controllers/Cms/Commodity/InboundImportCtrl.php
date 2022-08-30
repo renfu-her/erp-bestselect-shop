@@ -281,7 +281,7 @@ class InboundImportCtrl extends Controller
 
         $cond['data_per_page'] = getPageCount(Arr::get($query, 'data_per_page', 100));
 
-        $param = ['event' => null, 'purchase_sn' => $cond['purchase_sn'], 'inbound_sn' => $cond['inbound_sn'], 'title' => $cond['title']];
+        $param = ['event' => null, 'purchase_sn' => $cond['purchase_sn'], 'inbound_sn' => $cond['inbound_sn'], 'keyword' => $cond['title']];
         $inboundList_purchase = PurchaseInbound::getInboundListWithEventSn(app(Purchase::class)->getTable(), [Event::purchase()->value], $param);
         $inboundList_order = PurchaseInbound::getInboundListWithEventSn(app(SubOrders::class)->getTable(), [Event::order()->value, Event::ord_pickup()->value], $param);
         $inboundList_consignment = PurchaseInbound::getInboundListWithEventSn(app(Consignment::class)->getTable(), [Event::consignment()->value], $param);
@@ -321,6 +321,7 @@ class InboundImportCtrl extends Controller
             })
             ->leftJoin(app(ProductStyle::class)->getTable(). ' as style', 'style.id', '=', 'inbound.product_style_id')
             ->select('event.sn as event_sn', 'style.sku', 'inbound.*'
+                , DB::raw('DATE_FORMAT(inbound.expiry_date,"%Y-%m-%d") as expiry_date')
                 , DB::raw('(inbound.inbound_num - inbound.sale_num - inbound.csn_num - inbound.consume_num - inbound.back_num - inbound.scrap_num) as remaining_qty') //庫存剩餘數量
             )
             ->first();
@@ -336,13 +337,15 @@ class InboundImportCtrl extends Controller
     {
         $request->validate([
             'id' => 'required|numeric',
-            'update_num' => 'required|numeric|not_in:0',
+            'update_num' => 'required|numeric',
+            'expiry_date' => 'nullable|date_format:"Y-m-d"',
             'memo' => 'required|string',
         ]);
         $update_num = $request->input('update_num', 0);
+        $expiry_date = $request->input('expiry_date', null);
         $memo = $request->input('memo', null);
 
-        $updIb = PurchaseInbound::updateInbound($inbound_id, $update_num, $memo, $request->user()->id, $request->user()->name);
+        $updIb = PurchaseInbound::updateInbound($inbound_id, $update_num, $expiry_date, $memo, $request->user()->id, $request->user()->name);
         if ($updIb['success'] == '1') {
             wToast('儲存成功');
             return Redirect::away($request->get('backUrl'));

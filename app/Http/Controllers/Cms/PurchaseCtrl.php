@@ -9,6 +9,7 @@ use App\Enums\Payable\ChequeStatus;
 use App\Http\Controllers\Controller;
 
 use App\Models\AllGrade;
+use App\Models\DayEnd;
 use App\Models\Depot;
 use App\Models\PayingOrder;
 use App\Models\Purchase;
@@ -509,6 +510,10 @@ class PurchaseCtrl extends Controller
 
             $result = DB::transaction(function () use ($inboundItemReq, $id, $depot_id, $depot, $request, $style_arr
             ) {
+                $purchase = Purchase::where('id', '=', $id)->first();
+                if (AuditStatus::veto()->value == $purchase->audit_status) {
+                    return ['success' => 0, 'error_msg' => "否決後 不可入庫"];
+                }
                 foreach ($style_arr as $key => $val) {
                     $re = PurchaseInbound::createInbound(
                         Event::purchase()->value,
@@ -652,7 +657,6 @@ class PurchaseCtrl extends Controller
         $purchaseItemData = PurchaseItem::getPurchaseItemsByPurchaseId($id);
 
         $purchaseData = Purchase::getPurchase($id)->first();
-        $supplier = Supplier::where('id', '=', $purchaseData->supplier_id)->get()->first();
 
         $purchaseChargemanList = PurchaseItem::getPurchaseChargemanList($id)->get()->unique('user_id');
         $chargemanListArray = [];
@@ -692,16 +696,18 @@ class PurchaseCtrl extends Controller
                             ->name;
         }
 
-        // session([
-        //     '_url'=>request()->fullUrl()
-        // ]);
         if($validatedReq['type'] === '0'){
             $zh_price = num_to_str($depositPaymentData->price);
         } else {
             $zh_price = num_to_str($paymentPrice['finalPaymentPrice']);
         }
 
-        return view('cms.commodity.purchase.pay_order', [
+        $view = 'cms.commodity.purchase.pay_order';
+        if (request('action') == 'print') {
+            $view = 'doc.print_purchase_order_pay';
+        }
+
+        return view($view, [
             'id' => $id,
             'accountant' => $accountant ?? '',
             'accountPayableId' => $accountPayable->id ?? null,
@@ -709,7 +715,6 @@ class PurchaseCtrl extends Controller
             'type' => ($validatedReq['type'] === '0') ? 'deposit' : 'final',
             'breadcrumb_data' => ['id' => $id, 'sn' => $purchaseData->purchase_sn, 'type' => $validatedReq['type']],
             'formAction' => Route('cms.purchase.index', ['id' => $id,]),
-            'supplierUrl' => Route('cms.supplier.edit', ['id' => $supplier->id,]),
             'purchaseData' => $purchaseData,
             'pay_off' => $pay_off,
             'pay_off_date' => $pay_off_date,
@@ -724,7 +729,6 @@ class PurchaseCtrl extends Controller
             'chargemen' => $chargemen,
             'undertaker' => $undertaker,
             'appliedCompanyData' => $appliedCompanyData,
-            'supplier' => $supplier,
             'zh_price' => $zh_price,
         ]);
     }
@@ -769,8 +773,11 @@ class PurchaseCtrl extends Controller
             $pay_list = AccountPayable::where('pay_order_id', request('pay_order_id'))->get();
             if (count($pay_list) > 0 && $paying_order->price == $pay_list->sum('tw_price')) {
                 $paying_order->update([
-                    'balance_date'=>date('Y-m-d H:i:s'),
+                    'balance_date' => date('Y-m-d H:i:s'),
+                    'payment_date' => $req['payment_date'],
                 ]);
+
+                DayEnd::match_day_end_status($req['payment_date'], $paying_order->sn);
             }
 
             if (PayingOrder::find(request('pay_order_id')) && PayingOrder::find(request('pay_order_id'))->balance_date) {
@@ -924,12 +931,6 @@ class PurchaseCtrl extends Controller
             'breadcrumb_data' => ['id' => $id, 'sn' => $purchaseData->purchase_sn],
             'formAction' => Route('cms.purchase.pay-order', ['id' => $id,]),
         ]);
-    }
-    
-    // 列印－付款單
-    public function print_payment()
-    {
-        return view('doc.print_payment', []);
     }
 
     /**

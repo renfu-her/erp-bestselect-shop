@@ -102,19 +102,19 @@
                         <span class="text-danger">*</span>
                     </h6>
                     @php
-                      $isFirst = true;
+                        $isFirst = true;
                     @endphp
                     @foreach($receivedMethods as $name => $receivedMethod)
                         <div class="form-check form-check-inline">
                             <label class="form-check-label transactType" data-type="{{ $name }}">
                                 <input class="form-check-input" name="acc_transact_type_fk" type="radio"
-                                       @if($isFirst)
-                                           checked
-                                       @endif
-                                       @php
-                                           $isFirst = false;
-                                       @endphp
-                                       value="{{ $name }}">{{ $receivedMethod }}</label>
+                                    @if($isFirst)
+                                        checked
+                                    @endif
+                                    @php
+                                        $isFirst = false;
+                                    @endphp
+                                    value="{{ $name }}">{{ $receivedMethod }}</label>
                         </div>
                     @endforeach
                 </fieldset>
@@ -135,21 +135,25 @@
                         <select name="{{$methodName}}[grade]"
                                 class="form-select -select2 -single {{$methodName}} @error($methodName) is-invalid @enderror"
                                 required data-placeholder="請選擇會計科目">
-                            <option value="" selected disabled>請選擇</option>
+                            @php
+                                $check_first = true;
+                            @endphp
                             @foreach($defaultData as $gradeId => $data)
                                 <option value="{{ $gradeId }}"
-                                        @if($data['grade_num'] === 1)
+                                    @if($data['grade_num'] === 1)
                                         class="grade_1"
-                                        @elseif($data['grade_num'] === 2)
+                                    @elseif($data['grade_num'] === 2)
                                         class="grade_2"
-                                        @elseif($data['grade_num'] === 3)
+                                    @elseif($data['grade_num'] === 3)
                                         class="grade_3"
-                                        @elseif($data['grade_num'] === 4)
+                                    @elseif($data['grade_num'] === 4)
                                         class="grade_4"
                                     @endif
-                                >
-                                    {{ $data['code'] . ' ' . $data['name'] }}
-                                </option>
+                                    {{ $check_first ? 'selected' : '' }}
+                                >{{ $data['code'] . ' ' . $data['name'] }}</option>
+                                @php
+                                    $check_first = false;
+                                @endphp
                             @endforeach
                         </select>
                     </div>
@@ -514,6 +518,16 @@
                     }
                 });
 
+                $('form').submit(function(e) {
+                    if($('input[name="acc_transact_type_fk"]:checked').val() == 'cheque'){
+                        const reg = new RegExp(/^[A-Z]{2}[0-9]{7}$/);
+                        if(! reg.test($('input[name="cheque[ticket_number]"]').val())){
+                            $('input[name="cheque[ticket_number]"]').addClass('is-invalid');
+                            e.preventDefault();
+                            return false;
+                        }
+                    }
+                });
             });
         </script>
     @endpush

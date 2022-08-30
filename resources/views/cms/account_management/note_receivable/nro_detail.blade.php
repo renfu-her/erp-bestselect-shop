@@ -2,10 +2,10 @@
 @section('sub-content')
     <h2 class="mb-4">兌現明細清單</h2>
     
-    <div class="card shadow p-4 mb-4">
-        <div class="border rounded p-3 mb-3">
+    <div id="DivIdToPrint" class="card shadow p-4 mb-4">
+        <div class="border rounded p-3 mb-3 text-center">
             <h5>喜鴻國際企業股份有限公司</h5>
-            <p class="m-0 lh-1">{{ request('qd') ? date('Y-m-d', strtotime(request('qd'))) : '' }} 兌現之應收票據清單</p>
+            <p class="m-0 lh-1">{{ request('qd') ? date('Y/m/d', strtotime(request('qd'))) : '' }} 兌現之應收票據清單</p>
         </div>
     
         <div class="table-responsive tableOverBox">
@@ -26,7 +26,7 @@
                     @php
                         $d_count = 0;
                     @endphp
-                    @if($note_receivable_order)
+                    @if(count($data_list) > 0 && $note_receivable_order)
                         <tr>
                             <th>{{ $d_count + 1 }}</th>
                             <td>{{ $note_receivable_order->code . ' ' . $note_receivable_order->name }}</td>
@@ -68,6 +68,7 @@
     </div>
     
     <div class="col-auto">
+        <button type="button" id="print" class="btn btn-warning px-4">列印畫面</button>
         <a href="{{ $previous_url }}" class="btn btn-outline-primary px-4" role="button">
             返回上一頁
         </a>
@@ -83,7 +84,11 @@
 
     @push('sub-scripts')
         <script>
-
+            const cssLink1 = @json(Asset('dist/css/app.css'));
+            const cssLink2 = @json(Asset('dist/css/sub-content.css')) + '?1.0';
+            $('#print').on('click',  function () {
+                printDiv('#DivIdToPrint', [cssLink1, cssLink2]);
+            });
         </script>
     @endpush
 @endonce

@@ -1,9 +1,9 @@
 @extends('layouts.main')
 @section('sub-content')
     @if ($method === 'edit')
-        <h2 class="mb-3">活動名稱</h2>
+        <h2 class="mb-4">活動名稱</h2>
     @else
-        <h2 class="mb-3">新增 全館優惠</h2>
+        <h2 class="mb-4">新增 全館優惠</h2>
     @endif
 
     <form id="form1" method="post" action="{{ $formAction }}">

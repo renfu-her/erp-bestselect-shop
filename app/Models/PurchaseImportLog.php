@@ -93,6 +93,7 @@ class PurchaseImportLog extends Model
         $supplier = DB::table(app(Supplier::class)->getTable(). ' as supplier')
             ->where(function ($query) use ($val_pcs) {
                 $query->where('supplier.vat_no', $val_pcs['supplier_vat_no']);
+                $query->orWhere('supplier.name', $val_pcs['supplier_name']);
             })->first();
         if (false == isset($supplier)) {
             return ['success' => '0', 'error_msg' => '無此廠商:'. $val_pcs['supplier_name'][0]. ' '. $val_pcs['supplier_vat_no'][0]. ' '. '請先新增廠商'];

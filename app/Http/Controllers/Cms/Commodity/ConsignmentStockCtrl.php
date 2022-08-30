@@ -58,7 +58,7 @@ class ConsignmentStockCtrl extends Controller
             'data_per_page' => $data_per_page,
             'productStyle' => $productStyle,
             'purchaseLog' => $logPurchase,
-            'returnAction' => Route('cms.consignment-stock.stocklist', [], true),
+            'returnAction' => Route('cms.consignment-stock.index', [], true),
             'title' => $title,
             'breadcrumb_data' => $title . ' ' . $productStyle->sku,
         ]);

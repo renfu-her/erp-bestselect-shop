@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 Route::group(['prefix' => 'request', 'as' => 'request.'], function () {
     Route::get('', [RequestOrderCtrl::class, 'index'])->name('index')->middleware('permission:cms.request.index');
     Route::match(['get', 'post'], 'create', [RequestOrderCtrl::class, 'create'])->name('create')->middleware('permission:cms.request.create');
+    Route::match(['get', 'post'], 'edit/{id}', [RequestOrderCtrl::class, 'edit'])->name('edit')->middleware('permission:cms.request.edit');
     Route::get('show/{id}', [RequestOrderCtrl::class, 'show'])->name('show')->middleware('permission:cms.request.show');
 
     Route::get('ro_edit/{id}', [RequestOrderCtrl::class, 'ro_edit'])->name('ro-edit');

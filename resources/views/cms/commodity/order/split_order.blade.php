@@ -1,6 +1,6 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h2 class="mb-3">#{{ $order->sn }} 分割訂單</h2>
+    <h2 class="mb-4">#{{ $order->sn }} 分割訂單</h2>
 
     <form action="{{ route('cms.order.split-order', ['id' => $order->id]) }}" method="post">
         @csrf

@@ -9,6 +9,7 @@ use App\Models\GeneralLedger;
 use App\Models\NoteReceivableOrder;
 use App\Models\NoteReceivableLog;
 use App\Models\User;
+use App\Models\ReceivedOrder;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -131,6 +132,8 @@ class NoteReceivableCtrl extends Controller
         $cheque = NoteReceivableOrder::get_cheque_received_list($id)->first();
         if(! $cheque){
             return abort(404);
+        } else {
+            $cheque->link = ReceivedOrder::received_order_link($cheque->ro_source_type, $cheque->ro_source_id);
         }
 
         return view('cms.account_management.note_receivable.record', [
@@ -260,21 +263,21 @@ class NoteReceivableCtrl extends Controller
             return view('cms.account_management.note_receivable.detail', [
                 'breadcrumb_data' => ['title'=>$title],
                 'previous_url' => route('cms.note_receivable.ask', ['type'=>$type]),
-                'type'=>$type,
+                'type' => $type,
                 'data_list' => $data_list,
             ]);
 
         } else if($type == 'cashed'){
-            $data_list = NoteReceivableOrder::get_cheque_received_list(null, $type, null, null, null, null, null, null, null, null, null, [request('qd'), request('qd')])->get();
+            $data_list = NoteReceivableOrder::get_cheque_received_list(null, $type, null, null, null, null, null, null, null, null, null, [request('qd'), request('qd')])->whereNotNull('_cheque.sn')->get();
 
             $note_receivable_order = NoteReceivableOrder::leftJoinSub(GeneralLedger::getAllGrade(), 'grade', function($join) {
                 $join->on('grade.primary_id', 'acc_note_receivable_orders.net_grade_id');
-            })->whereDate('acc_note_receivable_orders.cashing_date', request('qd'))->first();
+            })->whereDate('acc_note_receivable_orders.cashing_date', '=', request('qd'))->first();
 
             return view('cms.account_management.note_receivable.nro_detail', [
                 'breadcrumb_data' => ['title'=>$title],
                 'previous_url' => route('cms.note_receivable.ask', ['type'=>$type]),
-                'type'=>$type,
+                'type' => $type,
                 'data_list' => $data_list,
                 'note_receivable_order' => $note_receivable_order,
             ]);

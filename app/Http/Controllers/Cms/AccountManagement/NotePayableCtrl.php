@@ -9,6 +9,7 @@ use App\Models\GeneralLedger;
 use App\Models\NotePayableOrder;
 use App\Models\NotePayableLog;
 use App\Models\PayableDefault;
+use App\Models\PayingOrder;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -116,6 +117,8 @@ class NotePayableCtrl extends Controller
         $cheque = NotePayableOrder::get_cheque_payable_list($id)->first();
         if(! $cheque){
             return abort(404);
+        } else {
+            $cheque->link = PayingOrder::paying_order_link($cheque->po_source_type, $cheque->po_source_id, $cheque->po_source_sub_id, $cheque->po_type);
         }
 
         return view('cms.account_management.note_payable.record', [
@@ -214,16 +217,16 @@ class NotePayableCtrl extends Controller
         if($type == 'cashed'){
             $title = '兌現明細';
 
-            $data_list = NotePayableOrder::get_cheque_payable_list(null, $type, null, null, null, null, null, [request('qd'), request('qd')])->get();
+            $data_list = NotePayableOrder::get_cheque_payable_list(null, $type, null, null, null, null, null, [request('qd'), request('qd')])->whereNotNull('_cheque.sn')->get();
 
             $note_payable_order = NotePayableOrder::leftJoinSub(GeneralLedger::getAllGrade(), 'grade', function($join) {
                 $join->on('grade.primary_id', 'acc_note_payable_orders.net_grade_id');
-            })->whereDate('acc_note_payable_orders.cashing_date', request('qd'))->first();
+            })->whereDate('acc_note_payable_orders.cashing_date', '=', request('qd'))->first();
 
             return view('cms.account_management.note_payable.npo_detail', [
                 'breadcrumb_data' => ['title'=>$title],
                 'previous_url' => route('cms.note_payable.ask', ['type'=>$type]),
-                'type'=>$type,
+                'type' => $type,
                 'data_list' => $data_list,
                 'note_payable_order' => $note_payable_order,
             ]);

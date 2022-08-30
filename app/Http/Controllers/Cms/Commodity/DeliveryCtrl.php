@@ -8,6 +8,7 @@ use App\Enums\Delivery\LogisticStatus;
 use App\Enums\Order\OrderStatus;
 use App\Enums\Purchase\LogEventFeature;
 use App\Enums\Payable\ChequeStatus;
+use App\Enums\StockEvent;
 use App\Enums\Supplier\Payment;
 use App\Http\Controllers\Controller;
 use App\Models\AllGrade;
@@ -17,6 +18,7 @@ use App\Models\ConsignmentItem;
 use App\Models\CsnOrder;
 use App\Models\CsnOrderFlow;
 use App\Models\CsnOrderItem;
+use App\Models\DayEnd;
 use App\Models\Delivery;
 use App\Models\Depot;
 use App\Models\DlvBack;
@@ -597,22 +599,12 @@ class DeliveryCtrl extends Controller
                             $update_arr['sale_num'] = DB::raw("sale_num - $rcv_depot_item->back_qty");
                             //TODO 自取可能有入庫 若有入庫過 則需判斷退貨的數量 不得大於後面入庫扣除售出之類的數量
                             // 並須把後面入庫單的退貨數量更新
-                            if (Event::ord_pickup()->value == $delivery->event) {
-                                DB::rollBack();
-                                return ['success' => 0, 'error_msg' => '訂單自取暫無退貨入庫功能'];
-                                $pcsInbound = DB::table(app(PurchaseInbound::class)->getTable(). ' as inbound')
-                                    ->where('inbound.event', '=', Event::ord_pickup()->value)
-                                    ->where('inbound.event_id', '=', $rcv_depot_item->id)
-                                    ->whereNull('inbound.deleted_at')
-                                    ->select(
-                                        'inbound.event'
-                                        , 'inbound.event_id'
-                                        , DB::raw('(sum(inbound.inbound_num) - sum(inbound.sale_num) - sum(inbound.csn_num) - sum(inbound.consume_num) - sum(inbound.back_num) - sum(inbound.scrap_num)) as total_qty')
-                                    )
-                                    ->groupBy('inbound.event')
-                                    ->groupBy('inbound.event_id')
-                                    ->groupBy('inbound.product_style_id')
-                                ;
+                            if ('pickup' == $delivery->ship_category) {
+                                $pcsInbound_pickup = $this->getPickUpInboundLessThenBackQtyList($rcv_depot_item->id, $rcv_depot_item->back_qty);
+                                if (isset($pcsInbound_pickup) && 0 < count($pcsInbound_pickup)) {
+                                    DB::rollBack();
+                                    return ['success' => 0, 'error_msg' => '訂單自取暫無退貨入庫功能'];
+                                }
                             }
                         } else if (Event::consignment()->value == $delivery->event) {
                             DB::rollBack();
@@ -635,29 +627,27 @@ class DeliveryCtrl extends Controller
                             DB::rollBack();
                             return $rePcsLSC;
                         }
-                        //20220804 在前面取消訂單時 就會把可售數量加回 所以後面不用再做
-//                        //訂單、寄倉 須將通路庫存加回
-//                        //若為理貨倉can_tally 需修改通路庫存
-//                        $inboundData = DB::table('pcs_purchase_inbound as inbound')
-//                            ->leftJoin('depot', 'depot.id', 'inbound.depot_id')
-//                            ->where('inbound.id', '=', $rcv_depot_item->inbound_id)
-//                            ->whereNull('inbound.deleted_at');
-//                        $inboundDataGet = $inboundData->get()->first();
-//                        if ($inboundDataGet->can_tally
-//                            && (Event::order()->value == $delivery->event
-//                                || Event::ord_pickup()->value == $delivery->event
-//                                || Event::consignment()->value == $delivery->event)
-//                        ) {
-//                            $memo = $rcv_depot_item->memo ?? '';
-//                            $rePSSC = ProductStock::stockChange($inboundDataGet->product_style_id, $rcv_depot_item->back_qty
-//                                , StockEvent::send_back()->value, $delivery->event_id
-//                                , $request->user()->name. ' '. $delivery->sn. ' ' . $memo
-//                                , false, $inboundDataGet->can_tally);
-//                            if ($rePSSC['success'] == 0) {
-//                                DB::rollBack();
-//                                return $rePSSC;
-//                            }
-//                        }
+                        //訂單、寄倉 須將通路庫存加回
+                        //若為理貨倉can_tally 需修改通路庫存
+                        $inboundData = DB::table('pcs_purchase_inbound as inbound')
+                            ->leftJoin('depot', 'depot.id', 'inbound.depot_id')
+                            ->where('inbound.id', '=', $rcv_depot_item->inbound_id)
+                            ->whereNull('inbound.deleted_at');
+                        $inboundDataGet = $inboundData->get()->first();
+                        if (isset($inboundDataGet)
+                            && (Event::order()->value == $delivery->event
+                                || Event::consignment()->value == $delivery->event)
+                        ) {
+                            $memo = $rcv_depot_item->memo ?? '';
+                            $rePSSC = ProductStock::stockChange($inboundDataGet->product_style_id, $rcv_depot_item->back_qty
+                                , StockEvent::send_back()->value, $delivery->event_id
+                                , $request->user()->name. ' '. $delivery->sn. ' ' . $memo
+                                , false, $inboundDataGet->can_tally);
+                            if ($rePSSC['success'] == 0) {
+                                DB::rollBack();
+                                return $rePSSC;
+                            }
+                        }
                     }
                 }
                 return ['success' => 1];
@@ -674,6 +664,27 @@ class DeliveryCtrl extends Controller
         } else {
             throw ValidationException::withMessages(['error_msg' => $bdcisc['error_msg']]);
         }
+    }
+
+    //找自取倉已入庫 且數量小於欲退數量資料
+    private function getPickUpInboundLessThenBackQtyList($rcv_depot_id, $back_qty) {
+        $pcsInbound_sub = DB::table(app(PurchaseInbound::class)->getTable(). ' as inbound')
+            ->where('inbound.event', '=', Event::ord_pickup()->value)
+            ->where('inbound.event_id', '=', $rcv_depot_id)
+            ->whereNull('inbound.deleted_at')
+            ->select(
+                'inbound.event'
+                , 'inbound.event_id'
+                , 'inbound.product_style_id'
+                , DB::raw('(sum(inbound.inbound_num) - sum(inbound.sale_num) - sum(inbound.csn_num) - sum(inbound.consume_num) - sum(inbound.back_num) - sum(inbound.scrap_num)) as total_qty')
+            )
+            ->groupBy('inbound.event')
+            ->groupBy('inbound.event_id')
+            ->groupBy('inbound.product_style_id');
+        $pcsInbound_pickup = DB::query()->fromSub($pcsInbound_sub, 'sub_tb')
+            ->where('sub_tb.total_qty', '<', $back_qty)
+            ->get();
+        return $pcsInbound_pickup;
     }
 
     public function back_inbound_delete(Request $request, int $delivery_id) {
@@ -730,8 +741,11 @@ class DeliveryCtrl extends Controller
                         //TODO 自取可能有入庫 若有入庫過 則需判斷退貨的數量 不得大於後面入庫扣除售出之類的數量
                         // 並須把後面入庫單的退貨數量更新
                         if (Event::ord_pickup()->value == $delivery->event) {
-                            DB::rollBack();
-                            return ['success' => 0, 'error_msg' => '訂單自取暫無退貨入庫功能'];
+                            $pcsInbound_pickup = $this->getPickUpInboundLessThenBackQtyList($val_rcv->id, $val_rcv->back_qty);
+                            if (isset($pcsInbound_pickup) && 0 < count($pcsInbound_pickup)) {
+                                DB::rollBack();
+                                return ['success' => 0, 'error_msg' => '訂單自取暫無退貨入庫功能'];
+                            }
                         }
                     } else if (Event::consignment()->value == $delivery->event) {
                         DB::rollBack();
@@ -754,29 +768,27 @@ class DeliveryCtrl extends Controller
                         return $rePcsLSC;
                     }
 
-                    //20220804 在前面取消訂單時 就會把可售數量加回 所以後面不用再做
-//                    //訂單、寄倉 須將通路庫存減回
-//                    //若為理貨倉can_tally 需修改通路庫存
-//                    $inboundData = DB::table('pcs_purchase_inbound as inbound')
-//                        ->leftJoin('depot', 'depot.id', 'inbound.depot_id')
-//                        ->where('inbound.id', '=', $val_rcv->inbound_id)
-//                        ->whereNull('inbound.deleted_at');
-//                    $inboundDataGet = $inboundData->get()->first();
-//                    if (isset($inboundDataGet) && isset($inboundDataGet->can_tally) && $inboundDataGet->can_tally
-//                        && (Event::order()->value == $delivery->event
-//                            || Event::ord_pickup()->value == $delivery->event
-//                            || Event::consignment()->value == $delivery->event)
-//                    ) {
-//                        $memo = '';
-//                        $rePSSC = ProductStock::stockChange($inboundDataGet->product_style_id, $val_rcv->back_qty * -1
-//                            , StockEvent::send_back_cancle()->value, $delivery->event_id
-//                            , $request->user()->name. ' '. $delivery->sn. ' ' . $memo
-//                            , false, $inboundDataGet->can_tally);
-//                        if ($rePSSC['success'] == 0) {
-//                            DB::rollBack();
-//                            return $rePSSC;
-//                        }
-//                    }
+                    //訂單、寄倉 須將通路庫存減回
+                    //若為理貨倉can_tally 需修改通路庫存
+                    $inboundData = DB::table('pcs_purchase_inbound as inbound')
+                        ->leftJoin('depot', 'depot.id', 'inbound.depot_id')
+                        ->where('inbound.id', '=', $val_rcv->inbound_id)
+                        ->whereNull('inbound.deleted_at');
+                    $inboundDataGet = $inboundData->get()->first();
+                    if (isset($inboundDataGet)
+                        && (Event::order()->value == $delivery->event
+                            || Event::consignment()->value == $delivery->event)
+                    ) {
+                        $memo = '';
+                        $rePSSC = ProductStock::stockChange($inboundDataGet->product_style_id, $val_rcv->back_qty * -1
+                            , StockEvent::send_back_cancle()->value, $delivery->event_id
+                            , $request->user()->name. ' '. $delivery->sn. ' ' . $memo
+                            , false, $inboundDataGet->can_tally);
+                        if ($rePSSC['success'] == 0) {
+                            DB::rollBack();
+                            return $rePSSC;
+                        }
+                    }
                 }
 
                 return ['success' => 1];
@@ -873,7 +885,11 @@ class DeliveryCtrl extends Controller
 
         $zh_price = num_to_str($paying_order->price);
 
-        return view('cms.commodity.delivery.return_pay_order', [
+        $view = 'cms.commodity.delivery.return_pay_order';
+        if (request('action') == 'print') {
+            $view = 'doc.print_delivery_return_order_pay';
+        }
+        return view($view, [
             'breadcrumb_data' => ['event' => $delivery->delivery_event, 'eventId' => $delivery->delivery_event_id, 'sn' => $delivery->delivery_event_sn],
 
             'paying_order' => $paying_order,
@@ -960,8 +976,11 @@ class DeliveryCtrl extends Controller
             $payable_data = PayingOrder::get_payable_detail($paying_order->id);
             if (count($payable_data) > 0 && $paying_order->price == $payable_data->sum('tw_price')) {
                 $paying_order->update([
-                    'balance_date'=>date('Y-m-d H:i:s'),
+                    'balance_date' => date('Y-m-d H:i:s'),
+                    'payment_date' => $req['payment_date'],
                 ]);
+
+                DayEnd::match_day_end_status($req['payment_date'], $paying_order->sn);
             }
 
             if (PayingOrder::find($paying_order->id) && PayingOrder::find($paying_order->id)->balance_date) {

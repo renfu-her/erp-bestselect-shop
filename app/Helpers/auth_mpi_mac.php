@@ -6,13 +6,17 @@ if(env('APP_ENV') == 'local' || env('APP_ENV') == 'dev'){
 
     $str_url = 'https://testepos.ctbcbank.com/mauth/SSLAuthUI.jsp';
 
+    $auth_key = 'LPCvSznVxZ4CFjnWbtg4mUWo';
+
 } else {
     // formal env
-    $str_mer_id = '77725';
-    $str_merchant_id = '8220300000043';
-    $str_terminal_id = '90300043';
+    $str_mer_id = '80492';
+    $str_merchant_id = '8220158811357';
+    $str_terminal_id = '99720375';
 
-    $str_url = 'https://testepos.ctbcbank.com/mauth/SSLAuthUI.jsp';
+    $str_url = 'https://epos.ctbcbank.com/mauth/SSLAuthUI.jsp';
+
+    $auth_key = 'GI6CewF1uE9Khvl4B0zSQYw6';
 }
 
 if (!function_exists("agF1gTdKEBPd6CaJ")) {

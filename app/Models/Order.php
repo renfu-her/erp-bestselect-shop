@@ -848,11 +848,6 @@ class Order extends Model
         // 返還訂購商品數量
         $items = OrderItem::where('order_id', $order_id)->get();
 
-        foreach ($items as $item) {
-            ProductStock::stockChange($item->product_style_id,
-                $item->qty, 'order', $order_id, $item->sku . "取消訂單");
-        }
-
         // 返還使用的優惠券
         CustomerCoupon::where('order_id', $order_id)->update(['used' => 0, 'order_id' => null]);
 
@@ -1127,11 +1122,7 @@ class Order extends Model
 
             self::getSendMailAddressInfo($order_id, $orderer, $receiver);
 
-            $email = 'pntcwz@gmail.com';
-            if (AppEnvClass::Release() == AppEnvClass::fromValue(env('APP_ENV'))) {
-                $email = $order->email;
-            }
-
+            $email = $order->email;
             $data = [
                 'order_name' => $orderer->name ?? ''
                 , 'sn' => $order->sn ?? ''
@@ -1154,11 +1145,7 @@ class Order extends Model
 
             self::getSendMailAddressInfo($order_id, $orderer, $receiver);
 
-            $email = 'pntcwz@gmail.com';
-            if (AppEnvClass::Release() == AppEnvClass::fromValue(env('APP_ENV'))) {
-                $email = $order->email;
-            }
-
+            $email = $order->email;
             $data = [
                 'order_name' => $orderer->name ?? ''
                 , 'sn' => $order->sn ?? ''
@@ -1188,10 +1175,7 @@ class Order extends Model
                 ->where('sub_order_id', '=', $sub_order_id)
                 ->get();
 
-            $email = 'pntcwz@gmail.com';
-            if (AppEnvClass::Release() == AppEnvClass::fromValue(env('APP_ENV'))) {
-                $email = $order->email;
-            }
+            $email = $order->email;
             $data = [
                 'order_name' => $orderer->name ?? ''
                 , 'sn' => $order->sn ?? ''

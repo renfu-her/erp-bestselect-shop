@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\AllGrade;
 use App\Models\CrdCreditCard;
 use App\Models\Customer;
+use App\Models\DayEnd;
 use App\Models\GeneralLedger;
 use App\Models\IncomeOrder;
 use App\Models\OrderPayCreditCard;
@@ -50,8 +51,8 @@ abstract class AccountReceivedPapaCtrl extends Controller
 
     abstract public function doDestroy($source_id);
 
-    abstract public function doReviewWhenReceived($id);
-    abstract public function doReviewWhenReceiptCancle($id);
+    abstract public function doReviewWhenReceived($id, $received_order);
+    abstract public function doReviewWhenReceiptCancle($id, $received_order);
 
     abstract public function doTaxationWhenGet();
     abstract public function doTaxationWhenUpdate();
@@ -271,21 +272,7 @@ abstract class AccountReceivedPapaCtrl extends Controller
                 $value->debit = $debit;
                 $value->credit = $credit;
 
-                if($value->ro_source_type == 'ord_orders'){
-                    $value->ro_url_link = route('cms.collection_received.receipt', ['id' => $value->ro_source_id]);
-
-                } else if($value->ro_source_type == 'csn_orders'){
-                    $value->ro_url_link = route('cms.ar_csnorder.receipt', ['id' => $value->ro_source_id]);
-
-                } else if($value->ro_source_type == 'ord_received_orders'){
-                    $value->ro_url_link = route('cms.account_received.ro-receipt', ['id' => $value->ro_source_id]);
-
-                } else if($value->ro_source_type == 'acc_request_orders'){
-                    $value->ro_url_link = route('cms.request.ro-receipt', ['id' => $value->ro_source_id]);
-
-                } else {
-                    $value->ro_url_link = "javascript:void(0);";
-                }
+                $value->link = ReceivedOrder::received_order_link($value->ro_source_type, $value->ro_source_id);
             }
         // accounting classification end
 
@@ -504,8 +491,10 @@ abstract class AccountReceivedPapaCtrl extends Controller
 
                 $EncArray['more_info'] = $data[$data['acc_transact_type_fk']];
 
-            } else if($data['acc_transact_type_fk'] == ReceivedMethod::AccountsReceivable){
-                //
+            } else if($data['acc_transact_type_fk'] == ReceivedMethod::Cheque){
+                $request->validate([
+                    request('acc_transact_type_fk') . 'ticket_number'=>'required|unique:acc_received_cheque,ticket_number|regex:/^[A-Z]{2}[0-9]{7}$/'
+                ]);
             }
 
             $result_id = ReceivedOrder::store_received_method($data);
@@ -601,7 +590,12 @@ abstract class AccountReceivedPapaCtrl extends Controller
 
         $zh_price = num_to_str($received_order_collection->first()->price);
 
-        return view($this->getViewReceipt(), [
+        $view = $this->getViewReceipt();
+        if (request('action') == 'print') {
+            // 列印－收款單
+            $view = 'doc.print_received';
+        }
+        return view($view, [
             'breadcrumb_data' => ['id'=>$order->id, 'sn'=>$order->sn],
 
             'received_order'=>$received_order_collection->first(),
@@ -671,7 +665,7 @@ abstract class AccountReceivedPapaCtrl extends Controller
                     }
                 }
 
-                $this->doReviewWhenReceived($id);
+                $this->doReviewWhenReceived($id, $received_order);
 	            //修改子訂單物流配送狀態為檢貨中
 	            $sub_orders = SubOrders::where('order_id', '=', $id)->get();
 	            if (isset($sub_orders) && 0 < count($sub_orders)) {
@@ -690,6 +684,8 @@ abstract class AccountReceivedPapaCtrl extends Controller
 	                    }
 	                }
 	            }
+
+                DayEnd::match_day_end_status(request('receipt_date'), $received_order->sn);
 
                 DB::commit();
                 wToast(__('入帳日期更新成功'));
@@ -714,11 +710,14 @@ abstract class AccountReceivedPapaCtrl extends Controller
                 }
 
                 $received_order->update([
-                    'accountant_id'=>null,
-                    'receipt_date'=>null,
+                    'accountant_id' => null,
+                    'receipt_date' => null,
                 ]);
 
-                $this->doReviewWhenReceiptCancle($id);
+                $this->doReviewWhenReceiptCancle($id, $received_order);
+
+                DayEnd::match_day_end_status($received_order->receipt_date, $received_order->sn);
+
                 wToast(__('入帳日期已取消'));
                 return redirect()->route($this->getRouteReceipt(), ['id'=>request('id')]);
 

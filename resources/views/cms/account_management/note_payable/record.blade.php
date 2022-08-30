@@ -20,32 +20,7 @@
                         </tr>
                         <tr>
                             <th class="table-light" style="width:15%">付款單編號</th>
-                            <td style="width:35%">
-                                @php
-                                    if($cheque->po_source_type == 'pcs_purchase'){
-                                        $url_link = route('cms.purchase.view-pay-order', ['id' => $cheque->po_source_id, 'type' => $cheque->po_type]);
-
-                                    } else if($cheque->po_source_type == 'ord_orders' && $cheque->po_source_sub_id != null){
-                                        $url_link = route('cms.order.logistic-po', ['id' => $cheque->po_source_id, 'sid' => $cheque->po_source_sub_id]);
-
-                                    } else if($cheque->po_source_type == 'acc_stitute_orders'){
-                                        $url_link = route('cms.stitute.po-show', ['id' => $cheque->po_source_id]);
-
-                                    } else if($cheque->po_source_type == 'ord_orders' && $cheque->po_source_sub_id == null){
-                                        $url_link = route('cms.order.return-pay-order', ['id' => $cheque->po_source_id]);
-
-                                    } else if($cheque->po_source_type == 'dlv_delivery'){
-                                        $url_link = route('cms.delivery.return-pay-order', ['id' => $cheque->po_source_id]);
-
-                                    } else if($cheque->po_source_type == 'pcs_paying_orders'){
-                                        $url_link = route('cms.accounts_payable.po-show', ['id' => $cheque->po_source_id]);
-
-                                    } else {
-                                        $url_link = "javascript:void(0);";
-                                    }
-                                @endphp
-                                <a href="{{ $url_link }}">{{ $cheque->po_sn }}</a>
-                            </td>
+                            <td style="width:35%"><a href="{{ $cheque->link }}">{{ $cheque->po_sn }}</a></td>
                             <th class="table-light" style="width:15%">兌現清單</th>
                             <td style="width:35%"><a href="{{ $cheque->cheque_sn && $cheque->cheque_cashing_date ? route('cms.note_payable.detail', ['type' => $cheque->cheque_status_code, 'qd' => date('Y-m-d', strtotime($cheque->cheque_cashing_date))]) : 'javascript:void(0);' }}">{{ $cheque->cheque_sn }}</a></td>
                         </tr>

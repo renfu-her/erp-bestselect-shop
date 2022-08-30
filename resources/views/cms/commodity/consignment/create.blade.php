@@ -1,6 +1,6 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h2 class="mb-3">新增寄倉單</h2>
+    <h2 class="mb-4">新增寄倉單</h2>
 
     @php
         $hasCreatedFinalPayment = $hasCreatedFinalPayment ?? false;

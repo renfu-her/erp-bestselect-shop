@@ -42,18 +42,22 @@
                     <span class="badge"></span>
                 </div>
                 <div class="row col-auto py-1">
-                    <a href="#" data-bs-toggle="tooltip" title="編輯"
-                        class="icon -edit icon-btn col-auto fs-5 text-primary rounded-circle border-0 p-0">
-                        <i class="bi bi-pencil-square"></i>
-                    </a>
-                    <span class="icon -move icon-btn col-auto fs-5 text-primary rounded-circle border-0 p-0"
-                        data-bs-toggle="tooltip" title="拖曳排序">
-                        <i class="bi bi-arrows-move"></i>
-                    </span>
-                    <span class="icon -del icon-btn col-auto fs-5 text-danger rounded-circle border-0 p-0"
-                        data-bs-toggle="tooltip" title="刪除">
-                        <i class="bi bi-trash"></i>
-                    </span>
+                    @can('cms.navinode.edit')
+                        <a href="#" data-bs-toggle="tooltip" title="編輯"
+                            class="icon -edit icon-btn col-auto fs-5 text-primary rounded-circle border-0 p-0">
+                            <i class="bi bi-pencil-square"></i>
+                        </a>
+                        <span class="icon -move icon-btn col-auto fs-5 text-primary rounded-circle border-0 p-0"
+                            data-bs-toggle="tooltip" title="拖曳排序">
+                            <i class="bi bi-arrows-move"></i>
+                        </span>
+                    @endcan
+                    @can('cms.navinode.delete')
+                        <span class="icon -del icon-btn col-auto fs-5 text-danger rounded-circle border-0 p-0"
+                            data-bs-toggle="tooltip" title="刪除">
+                            <i class="bi bi-trash"></i>
+                        </span>
+                    @endcan
                 </div>
             </div>
 
@@ -66,17 +70,21 @@
 
             {{-- 新增鈕 --}}
             <div class="d-grid gap-2">
-                <a href="{{ Route('cms.navinode.create') }}" class="btn btn-outline-primary border-dashed"
-                    style="font-weight: 500;">
-                    <i class="bi bi-plus-circle"></i> 新增
-                </a>
+                @can('cms.navinode.create')
+                    <a href="{{ Route('cms.navinode.create') }}" class="btn btn-outline-primary border-dashed"
+                        style="font-weight: 500;">
+                        <i class="bi bi-plus-circle"></i> 新增
+                    </a>
+                @endcan
             </div>
         </div>
         <div>
             <div class="col-auto">
                 <input type="hidden" name="del_id">
                 <input type="hidden" name="data">
-                <button type="button" id="navi_save" class="btn btn-primary px-4">儲存</button>
+                @can('cms.navinode.edit')
+                    <button type="button" id="navi_save" class="btn btn-primary px-4">儲存</button>
+                @endcan
                 <mark class="text-danger fst-italic ms-1">* 刪除或拖曳排序需要儲存後才生效唷！</mark>
             </div>
         </div>
@@ -152,7 +160,6 @@
                 width: 100%;
                 margin-bottom: .75rem;
             }
-
         </style>
     @endpush
     @push('sub-scripts')
@@ -174,7 +181,7 @@
                 // 刪除 btn
                 let del_id = []; // 包含子項id
                 bindNaviDelBtn(null, '', function($del) {
-                    $del.closest('li.col-12').find('span.-del').each(function (index, element) {
+                    $del.closest('li.col-12').find('span.-del').each(function(index, element) {
                         // element == this
                         const id = $(element).data('id');
                         if (id) {

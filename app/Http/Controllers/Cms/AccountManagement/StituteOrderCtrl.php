@@ -11,6 +11,7 @@ use App\Enums\Payable\ChequeStatus;
 use App\Models\AllGrade;
 use App\Models\AccountPayable;
 use App\Models\Customer;
+use App\Models\DayEnd;
 use App\Models\Depot;
 use App\Models\GeneralLedger;
 use App\Models\PayableDefault;
@@ -111,64 +112,7 @@ class StituteOrderCtrl extends Controller
             $client_key = explode('|', request('client_key'));
 
             if(count($client_key) > 1){
-                $client = User::where([
-                        'id'=>$client_key[0],
-                    ])
-                    ->where('name', 'LIKE', "%{$client_key[1]}%")
-                    ->select(
-                        'id',
-                        'name',
-                        'email'
-                    )
-                    ->selectRaw('
-                        IF(id IS NOT NULL, "", "") AS phone,
-                        IF(id IS NOT NULL, "", "") AS address
-                    ')
-                    ->first();
-
-                if(! $client){
-                    $client = Customer::leftJoin('usr_customers_address AS customer_add', function ($join) {
-                            $join->on('usr_customers.id', '=', 'customer_add.usr_customers_id_fk');
-                            $join->where([
-                                'customer_add.is_default_addr'=>1,
-                            ]);
-                        })->where([
-                            'usr_customers.id'=>$client_key[0],
-                        ])
-                        ->where('usr_customers.name', 'LIKE', "%{$client_key[1]}%")
-                        ->select(
-                            'usr_customers.id',
-                            'usr_customers.name',
-                            'usr_customers.phone AS phone',
-                            'usr_customers.email',
-                            'customer_add.address AS address'
-                        )->first();
-
-                    if(! $client){
-                        $client = Depot::where('id', '=', $client_key[0])
-                            ->where('name', 'LIKE', "%{$client_key[1]}%")
-                            ->select(
-                                'depot.id',
-                                'depot.name',
-                                'depot.tel AS phone',
-                                'depot.address AS address'
-                            )->first();
-
-                        if(! $client){
-                            $client = Supplier::where([
-                                'id'=>$client_key[0],
-                            ])
-                            ->where('name', 'LIKE', "%{$client_key[1]}%")
-                            ->select(
-                                'id',
-                                'name',
-                                'contact_tel AS phone',
-                                'email',
-                                'contact_address AS address'
-                            )->first();
-                        }
-                    }
-                }
+                $client = PayingOrder::payee($client_key[0], $client_key[1]);
 
                 $parm = [
                     'price' =>request('price'),
@@ -210,11 +154,57 @@ class StituteOrderCtrl extends Controller
 
         $currency = DB::table('acc_currency')->get();
 
-        return view('cms.account_management.stitute.edit', [
+        return view('cms.account_management.stitute.create', [
             'form_action'=>route('cms.stitute.create'),
             'client' => $client_merged,
             'total_grades' => $total_grades,
             'currency' => $currency,
+        ]);
+    }
+
+
+    public function edit(Request $request, $id)
+    {
+        $stitute_order = StituteOrder::findOrFail($id);
+
+        if($request->isMethod('post')){
+            $request->validate([
+                'client_key' => 'required|string',
+            ]);
+
+            $client_key = explode('|', request('client_key'));
+
+            if(count($client_key) > 1){
+                $client = PayingOrder::payee($client_key[0], $client_key[1]);
+
+                $stitute_order->update([
+                    'client_id' =>$client->id,
+                    'client_name' =>$client->name,
+                    'client_phone' =>$client->phone,
+                    'client_address' =>$client->address,
+                ]);
+
+                wToast(__('代墊單更新成功'));
+
+                return redirect()->route('cms.stitute.show', [
+                    'id'=>$stitute_order->id,
+                ]);
+            }
+
+            wToast(__('代墊單更新失敗', ['type'=>'danger']));
+            return redirect()->back();
+        }
+
+        $user = User::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+        $customer = Customer::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+        $depot = Depot::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+        $supplier = Supplier::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+        $client_merged = array_merge($user, $customer, $depot, $supplier);
+
+        return view('cms.account_management.stitute.edit', [
+            'form_action'=>route('cms.stitute.edit', ['id'=>$id]),
+            'client' => $client_merged,
+            'stitute_order' => $stitute_order,
         ]);
     }
 
@@ -390,8 +380,11 @@ class StituteOrderCtrl extends Controller
         $payable_data = PayingOrder::get_payable_detail($paying_order->id);
         if (count($payable_data) > 0 && $paying_order->price == $payable_data->sum('tw_price')) {
             $paying_order->update([
-                'balance_date'=>date('Y-m-d H:i:s'),
+                'balance_date' => date('Y-m-d H:i:s'),
+                'payment_date' => $data['payment_date'],
             ]);
+
+            DayEnd::match_day_end_status($data['payment_date'], $paying_order->sn);
         }
 
         if (PayingOrder::find($paying_order->id) && PayingOrder::find($paying_order->id)->balance_date) {
@@ -441,7 +434,12 @@ class StituteOrderCtrl extends Controller
         $accountant = array_unique($accountant->pluck('name')->toArray());
         asort($accountant);
 
-        return view('cms.account_management.stitute.po_show', [
+        $view = 'cms.account_management.stitute.po_show';
+        if (request('action') == 'print') {
+            $view = 'doc.print_account_management_stitute_pay';
+        }
+
+        return view($view, [
             'breadcrumb_data' => ['id' => $stitute_order->id],
             'applied_company' => $applied_company,
             'stitute_order' => $stitute_order,

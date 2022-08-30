@@ -67,10 +67,7 @@ class PurchaseInbound extends Model
         });
     }
 
-    public static function updateInbound($inbound_id, int $add_qty, $memo, $update_user_id, $update_user_name) {
-        if (0 == $add_qty) {
-            return ['success' => 0, 'error_msg' => '增加數量不應為零'];
-        }
+    public static function updateInbound($inbound_id, int $add_qty, $expiry_date, $memo, $update_user_id, $update_user_name) {
         if (false == isset($memo)) {
             return ['success' => 0, 'error_msg' => '備註不可為空'];
         }
@@ -84,9 +81,10 @@ class PurchaseInbound extends Model
         }
         $can_tally = Depot::can_tally($inboundGet->depot_id);
 
-        return DB::transaction(function () use ($inboundGet, $can_tally, $inbound_id, $add_qty, $memo, $update_user_id, $update_user_name) {
+        return DB::transaction(function () use ($inboundGet, $can_tally, $inbound_id, $add_qty, $expiry_date, $memo, $update_user_id, $update_user_name) {
             PurchaseInbound::where('id', '=', $inbound_id)->update([
                 'inbound_num' => DB::raw("inbound_num + $add_qty")
+                , 'expiry_date' => $expiry_date
             ]);
 
             $updateLog = PurchaseInbound::updateLog(LogEventFeature::inbound_update()->value, $inboundGet->id, $inboundGet->event, $inboundGet->event_id, $inboundGet->event_item_id, $inboundGet->product_style_id
@@ -484,9 +482,8 @@ class PurchaseInbound extends Model
             $keyword = $param['keyword'];
             $result->where(function ($q) use ($keyword) {
                 if ($keyword) {
-                    $q->where('product.title', 'like', "%$keyword%");
-                    $q->orWhere('style.title', 'like', "%$keyword%");
-                    $q->orWhere('style.sku', 'like', "%$keyword%");
+                    $q->where('inbound.title', 'like', "%$keyword%");
+                    $q->orWhere('inbound.sku', 'like', "%$keyword%");
                 }
             });
         }
@@ -502,12 +499,6 @@ class PurchaseInbound extends Model
         }
         if (isset($param['inbound_sn'])) {
             $result->where('inbound.sn', '=', $param['inbound_sn']);
-        }
-        if (isset($param['title'])) {
-            $result->where(function ($q) use ($param) {
-                $q->where('product.title', 'like', "%{$param['title']}%")
-                    ->orWhere('style.title', 'like', "%{$param['title']}%");
-            });
         }
         return $result;
     }
@@ -710,7 +701,8 @@ class PurchaseInbound extends Model
                 $join->where('dlv_delivery.event', Event::consignment()->value);
             })
             ->select(
-                'consignment.send_depot_id as depot_id'
+                'dlv_delivery.id as dlv_id'
+                , 'consignment.send_depot_id as depot_id'
                 , 'items.product_style_id as product_style_id'
                 , 'items.title as product_title'
             )
@@ -737,7 +729,8 @@ class PurchaseInbound extends Model
                 $join->on('dlv_receive_depot.delivery_id', '=', 'dlv_delivery.id');
             })
             ->select(//'dlv_receive_depot.inbound_id as inbound_id'
-                'dlv_receive_depot.depot_id as depot_id'
+                'dlv_delivery.id as dlv_id'
+                , 'dlv_receive_depot.depot_id as depot_id'
                 , 'dlv_receive_depot.product_style_id as product_style_id'
                 , 'dlv_receive_depot.product_title as product_title'
             )

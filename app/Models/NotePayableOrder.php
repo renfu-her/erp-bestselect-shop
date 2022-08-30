@@ -71,6 +71,7 @@ class NotePayableOrder extends Model
                 //
             ])
             ->whereNotNull('po.balance_date')
+            ->whereNotNull('po.payment_date')
             ->whereNotNull('payable.payment_date')
 
             ->selectRaw('

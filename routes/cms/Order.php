@@ -5,12 +5,12 @@ use Illuminate\Support\Facades\Route;
 
 Route::group(['prefix' => 'order', 'as' => 'order.'], function () {
     Route::get('', [OrderCtrl::class, 'index'])->name('index')->middleware('permission:cms.order.index');
-    Route::get('create', [OrderCtrl::class, 'create'])->name('create')->middleware('permission:cms.order.create');
+    Route::get('create', [OrderCtrl::class, 'create'])->name('create');
     Route::post('create', [OrderCtrl::class, 'store']);
-
+    // 編輯訂單
     Route::get('edit-item/{id}/', [OrderCtrl::class, 'editItem'])->name('edit-item')->middleware('permission:cms.order.edit-item');
     Route::post('edit-item/{id}/', [OrderCtrl::class, 'updateItem']);
-
+    // 訂單明細
     Route::get('detail/{id}/{subOrderId?}', [OrderCtrl::class, 'detail'])->name('detail')->middleware('permission:cms.order.detail');
     Route::post('detail/{id}', [OrderCtrl::class, 'update']);
     Route::get('delete/{id}', [OrderCtrl::class, 'destroy'])->name('delete')->middleware('permission:cms.order.delete');
@@ -32,14 +32,16 @@ Route::group(['prefix' => 'order', 'as' => 'order.'], function () {
     Route::post('ajax-detail', [OrderCtrl::class, '_order_detail'])->name('ajax-detail');
     Route::get('invoice/{id}/show', [OrderCtrl::class, 'show_invoice'])->name('show-invoice');
     Route::get('invoice/{id}/re_send', [OrderCtrl::class, 're_send_invoice'])->name('re-send-invoice');
+    // 獎金毛利
+    Route::get('bonus-gross/{id}', [OrderCtrl::class, 'bonus_gross'])->name('bonus-gross')->middleware('permission:cms.order.bonus-gross');
 
-    Route::get('bonus-gross/{id}', [OrderCtrl::class, 'bonus_gross'])->name('bonus-gross');
     Route::get('personal-bonus/{id}', [OrderCtrl::class, 'personal_bonus'])->name('personal-bonus');
-
-    Route::post('change-bonus-owner/{id}', [OrderCtrl::class, 'change_bonus_owner'])->name('change-bonus-owner');
-
-    Route::get('cancel-order/{id}', [OrderCtrl::class, 'cancel_order'])->name('cancel-order');
-    Route::get('split-order/{id}', [OrderCtrl::class, 'split_order'])->name('split-order');
+    // 更換業務員
+    Route::post('change-bonus-owner/{id}', [OrderCtrl::class, 'change_bonus_owner'])->name('change-bonus-owner')->middleware('permission:cms.order.change_bonus_owner');
+    // 取消訂單
+    Route::get('cancel-order/{id}', [OrderCtrl::class, 'cancel_order'])->name('cancel-order')->middleware('permission:cms.order.cancel_order');
+    // 分割訂單
+    Route::get('split-order/{id}', [OrderCtrl::class, 'split_order'])->name('split-order')->middleware('permission:cms.order.split_order');
     Route::post('split-order/{id}', [OrderCtrl::class, 'update_split_order']);
 
 

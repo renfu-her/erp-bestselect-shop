@@ -265,6 +265,8 @@ class DepotCtrl extends Controller
             $products = Product::productStyleList(
                 $keyword,
                 $type,
+                null,
+                ['public' => 1]
             )
             ->whereNotIn('s.id', $selected_product)
             ->orderBy('product_id', 'ASC')

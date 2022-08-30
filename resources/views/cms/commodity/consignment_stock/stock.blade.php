@@ -1,8 +1,8 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h2 class="mb-3">寄倉庫存</h2>
+    <h2 class="mb-4">寄倉庫存</h2>
 
-    <form id="search" action="{{ Route('cms.consignment-stock.stocklist') }}" method="GET">
+    <form id="search" action="{{ Route('cms.consignment-stock.index') }}" method="GET">
         <div class="card shadow p-4 mb-4">
             <h6>搜尋條件</h6>
             <div class="row">

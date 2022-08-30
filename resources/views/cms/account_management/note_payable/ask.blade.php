@@ -2,7 +2,6 @@
 @section('sub-content')
     <h2 class="mb-4">整批{{ $type == 'cashed' ? '兌現' : '' }}</h2>
 
-
     <form method="POST" action="{{ $form_action }}">
         @csrf
         <div class="card shadow p-4 mb-4">
@@ -29,7 +28,7 @@
                         </tr>
                     </thead>
 
-                    <tbody class="card_list">
+                    <tbody class="pool">
                         @foreach ($data_list as $key => $value)
                             <tr>
                                 <th class="text-center">
@@ -45,9 +44,9 @@
                                 <td>{{ number_format($value->tw_price) }}</td>
                                 <td>{{ $value->cheque_status }}</td>
                                 <td>{{ $value->po_sn }}</td>
-                                <td>{{ $value->payment_date ? date('Y-m-d', strtotime($value->payment_date)) : '' }}</td>
-                                <td>{{ $value->cheque_due_date ? date('Y-m-d', strtotime($value->cheque_due_date)) : '' }}</td>
-                                <td>{{ $value->cheque_cashing_date ? date('Y-m-d', strtotime($value->cheque_cashing_date)) : '' }}</td>
+                                <td>{{ $value->payment_date ? date('Y/m/d', strtotime($value->payment_date)) : '' }}</td>
+                                <td>{{ $value->cheque_due_date ? date('Y/m/d', strtotime($value->cheque_due_date)) : '' }}</td>
+                                <td>{{ $value->cheque_cashing_date ? date('Y/m/d', strtotime($value->cheque_cashing_date)) : '' }}</td>
                                 <td>{{ $value->po_payable_grade_code . ' ' . $value->po_payable_grade_name }}</td>
                                 <td>{{ $value->po_target_name }}</td>
                                 <td></td>
@@ -98,7 +97,7 @@
             $(function() {
                 $('#checkAll').change(function(){
                     $all = $(this)[0];
-                    $('.card_list tr').each(function( index ) {
+                    $('.pool tr').each(function( index ) {
                         if($(this).is(':visible')){
                             $(this).find('th input.single_select').prop('checked', $all.checked);
 

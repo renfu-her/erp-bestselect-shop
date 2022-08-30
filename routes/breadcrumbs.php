@@ -39,6 +39,11 @@ Breadcrumbs::for('cms.product.create', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.product.index');
     $trail->push('新增商品');
 });
+// 瀏覽 - 商品資訊
+Breadcrumbs::for('cms.product.show', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.product.index');
+    $trail->push('[' . $value->title . '] 資訊');
+});
 // 編輯 - 商品資訊
 Breadcrumbs::for('cms.product.edit', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.product.index');
@@ -398,13 +403,13 @@ Breadcrumbs::for('cms.consignment-order.edit', function (BreadcrumbTrail $trail,
 });
 
 //寄倉庫存
-Breadcrumbs::for('cms.consignment-stock.stocklist', function (BreadcrumbTrail $trail) {
+Breadcrumbs::for('cms.consignment-stock.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
-    $trail->push('寄倉庫存', route('cms.consignment-stock.stocklist'));
+    $trail->push('寄倉庫存', route('cms.consignment-stock.index'));
 });
 // 寄倉庫存明細
 Breadcrumbs::for('cms.consignment-stock.stock_detail_log', function (BreadcrumbTrail $trail, $value) {
-    $trail->parent('cms.consignment-stock.stocklist');
+    $trail->parent('cms.consignment-stock.index');
     $trail->push('#' . $value . ' 明細');
 });
 
@@ -761,6 +766,11 @@ Breadcrumbs::for('cms.collection_payment.index', function (BreadcrumbTrail $trai
     $trail->parent('cms.dashboard');
     $trail->push('付款作業', route('cms.collection_payment.index'));
 });
+// 付款作業
+Breadcrumbs::for('cms.collection_payment.edit', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.collection_payment.index', route('cms.collection_payment.index'));
+    $trail->push('編輯付款單');
+});
 
 // 代墊單作業
 Breadcrumbs::for('cms.stitute.index', function (BreadcrumbTrail $trail) {
@@ -771,6 +781,11 @@ Breadcrumbs::for('cms.stitute.index', function (BreadcrumbTrail $trail) {
 Breadcrumbs::for('cms.stitute.create', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.stitute.index');
     $trail->push('新增代墊單');
+});
+// 編輯代墊單
+Breadcrumbs::for('cms.stitute.edit', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.stitute.index');
+    $trail->push('編輯代墊單');
 });
 // 代墊單
 Breadcrumbs::for('cms.stitute.show', function (BreadcrumbTrail $trail) {
@@ -804,6 +819,11 @@ Breadcrumbs::for('cms.request.index', function (BreadcrumbTrail $trail) {
 Breadcrumbs::for('cms.request.create', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.request.index');
     $trail->push('新增請款單');
+});
+// 編輯請款單
+Breadcrumbs::for('cms.request.edit', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.request.index');
+    $trail->push('編輯請款單');
 });
 // 請款單
 Breadcrumbs::for('cms.request.show', function (BreadcrumbTrail $trail) {
@@ -942,6 +962,38 @@ Breadcrumbs::for('cms.note_receivable.ask', function (BreadcrumbTrail $trail, $v
 Breadcrumbs::for('cms.note_receivable.detail', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.note_receivable.index');
     $trail->push($value['title']);
+});
+
+// 日結作業
+Breadcrumbs::for('cms.day_end.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('日結作業', route('cms.day_end.index'));
+});
+Breadcrumbs::for('cms.day_end.detail', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.day_end.index');
+    $trail->push('日結清單');
+});
+Breadcrumbs::for('cms.day_end.balance', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.day_end.index');
+    $trail->push('現金/銀行存款餘額', route('cms.day_end.balance'));
+});
+Breadcrumbs::for('cms.day_end.balance_check', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.day_end.balance');
+    $trail->push('餘額明細');
+});
+Breadcrumbs::for('cms.day_end.show', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.day_end.index');
+    $trail->push('日結明細');
+});
+
+// 分類帳
+Breadcrumbs::for('cms.ledger.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('分類帳', route('cms.ledger.index'));
+});
+Breadcrumbs::for('cms.ledger.detail', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.ledger.index');
+    $trail->push('分類帳明細', route('cms.ledger.detail'));
 });
 
 // 信用卡作業管理

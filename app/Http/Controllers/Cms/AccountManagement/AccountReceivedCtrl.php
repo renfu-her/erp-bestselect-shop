@@ -10,6 +10,7 @@ use App\Enums\Received\ReceivedMethod;
 use App\Enums\Received\ChequeStatus;
 
 use App\Models\CrdCreditCard;
+use App\Models\DayEnd;
 use App\Models\GeneralLedger;
 use App\Models\OrderPayCreditCard;
 use App\Models\ReceivedDefault;
@@ -60,6 +61,10 @@ class AccountReceivedCtrl extends Controller
                 $authamt_price,
                 $ro_created_date
             )->paginate($page)->appends($query);
+
+        foreach($data_list as $value){
+            $value->link = ReceivedOrder::received_order_link($value->ro_source_type, $value->ro_source_id);
+        }
 
         $account_received_grade = ReceivedDefault::leftJoinSub(GeneralLedger::getAllGrade(), 'grade', function($join) {
                 $join->on('grade.primary_id', 'acc_received_default.default_grade_id');
@@ -113,7 +118,7 @@ class AccountReceivedCtrl extends Controller
             if(count($compare) == 0){
                 $source_type = app(ReceivedOrder::class)->getTable();
                 // $n_id = DB::select("SHOW TABLE STATUS FROM 'shop-dev' LIKE '" . $source_type . "'")[0]->Auto_increment;
-                $n_id = ReceivedOrder::get()->count() + 1;
+                $n_id = ReceivedOrder::withTrashed()->get()->count() + 1;
                 $account_received_id = current(request('account_received_id'));
                 $received = DB::table('acc_received')->where([
                     'received_method'=>'account_received',
@@ -141,6 +146,9 @@ class AccountReceivedCtrl extends Controller
         }
 
         $data_list = ReceivedOrder::get_account_received_list([], 0, null, $grade_id, null, null, $ro_target)->get();
+        foreach($data_list as $value){
+            $value->link = ReceivedOrder::received_order_link($value->ro_source_type, $value->ro_source_id);
+        }
 
         return view('cms.account_management.account_received.claim', [
             'form_action'=>route('cms.account_received.claim', ['type'=>$type, 'id'=>$id, 'key'=>$key]),
@@ -305,8 +313,10 @@ class AccountReceivedCtrl extends Controller
 
                 $EncArray['more_info'] = $data[$data['acc_transact_type_fk']];
 
-            } else if($data['acc_transact_type_fk'] == ReceivedMethod::AccountsReceivable){
-                //
+            } else if($data['acc_transact_type_fk'] == ReceivedMethod::Cheque){
+                $request->validate([
+                    request('acc_transact_type_fk') . 'ticket_number'=>'required|unique:acc_received_cheque,ticket_number|regex:/^[A-Z]{2}[0-9]{7}$/'
+                ]);
             }
 
             $result_id = ReceivedOrder::store_received_method($data);
@@ -391,7 +401,12 @@ class AccountReceivedCtrl extends Controller
 
         $zh_price = num_to_str($received_order->price);
 
-        return view('cms.account_management.account_received.ro_receipt', [
+        $view = 'cms.account_management.account_received.ro_receipt';
+        if (request('action') == 'print') {
+            $view = 'doc.print_account_management_account_received_ro_receipt';
+        }
+
+        return view($view, [
             'order_list_data' => $order_list_data,
             'received_order' => $received_order,
             'received_data' => $received_data,
@@ -449,6 +464,8 @@ class AccountReceivedCtrl extends Controller
                     }
                 }
 
+                DayEnd::match_day_end_status(request('receipt_date'), $received_order->sn);
+
                 DB::commit();
                 wToast(__('入帳日期更新成功'));
 
@@ -471,9 +488,11 @@ class AccountReceivedCtrl extends Controller
                 }
 
                 $received_order->update([
-                    'accountant_id'=>null,
-                    'receipt_date'=>null,
+                    'accountant_id' => null,
+                    'receipt_date' => null,
                 ]);
+
+                DayEnd::match_day_end_status($received_order->receipt_date, $received_order->sn);
 
                 wToast(__('入帳日期已取消'));
                 return redirect()->route('cms.account_received.ro-receipt', ['id'=>request('id')]);

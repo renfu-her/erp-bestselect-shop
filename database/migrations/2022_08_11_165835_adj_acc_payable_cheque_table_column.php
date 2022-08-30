@@ -15,7 +15,7 @@ class AdjAccPayableChequeTableColumn extends Migration
     {
         Schema::create('acc_note_payable_orders', function (Blueprint $table) {
             $table->id();
-            $table->string('sn')->nullable()->comment('兌現單號');//BSG220808 ASG+Ymd
+            $table->string('sn')->nullable()->comment('兌現單號');
             $table->decimal('amt_total_net', 12, 2)->default(0)->comment('兌現金額總計');
 
             $table->unsignedBigInteger('net_grade_id')->comment('支票兌現會計科目');

@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\Delivery\Event;
 use App\Enums\Delivery\LogisticStatus;
 use App\Enums\Purchase\LogEventFeature;
+use App\Enums\StockEvent;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -307,9 +308,12 @@ class ReceiveDepot extends Model
                             DB::rollBack();
                             return $reSD;
                         } else {
-                            $rcvDepot_elements = ReceiveDepot::where('delivery_id', $delivery_id)
-                                ->where('event_item_id', $element->event_item_id)
-                                ->where('prd_type', 'ce');
+                            $rcvDepot_elements = DB::table(app(ReceiveDepot::class)->getTable(). ' as rcv_depot')
+                                ->where('rcv_depot.delivery_id', $delivery_id)
+                                ->where('rcv_depot.event_item_id', $element->event_item_id)
+                                ->where('rcv_depot.prd_type', 'ce')
+                                ->whereNull('rcv_depot.deleted_at')
+                            ;
 
                             $reStockChange =PurchaseLog::stockChange($event_id, $element->product_style_id, $event, $reSD['id'],
                                 LogEventFeature::combo()->value, null, $element->num * -1, null, $element->title, 'c', $user_id, $user_name);
@@ -318,8 +322,22 @@ class ReceiveDepot extends Model
                                 return $reStockChange;
                             }
                             $rcvDepot_elements->update([
-                                'combo_id' => $reSD['id'],
+                                'rcv_depot.combo_id' => $reSD['id'],
                             ]);
+                            $rcvDepot_elements_get = $rcvDepot_elements
+                                ->leftJoin(app(Depot::class)->getTable(). ' as depot', function ($join) {
+                                    $join->on('depot.id', '=', 'rcv_depot.product_style_id');
+                                })
+                                ->get();
+                            //寫入可售數量
+                            foreach ($rcvDepot_elements_get as $val_rd_ele) {
+                                $rePSSC = ProductStock::stockChange($val_rd_ele->product_style_id,
+                                    $val_rd_ele->qty * -1, StockEvent::element_to_combo()->value, $val_rd_ele->combo_id, $val_rd_ele->sku . StockEvent::getDescription(StockEvent::element_to_combo), false, $val_rd_ele->can_tally);
+                                if ($rePSSC['success'] == 0) {
+                                    DB::rollBack();
+                                    return $rePSSC;
+                                }
+                            }
                         }
                     }
                 }

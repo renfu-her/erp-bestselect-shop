@@ -170,10 +170,12 @@
                         <tr>
                             <th scope="row">{{ $key + 1 }}</th>
                             <td class="text-center">
-                                <a href="{{ Route('cms.order.detail', ['id' => $data->id]) }}" data-bs-toggle="tooltip"
-                                    title="明細" class="icon icon-btn fs-5 text-primary rounded-circle border-0">
-                                    <i class="bi bi-card-list"></i>
-                                </a>
+                                @can('cms.order.detail')
+                                    <a href="{{ Route('cms.order.detail', ['id' => $data->id]) }}" data-bs-toggle="tooltip"
+                                        title="明細" class="icon icon-btn fs-5 text-primary rounded-circle border-0">
+                                        <i class="bi bi-card-list"></i>
+                                    </a>
+                                @endcan
                             </td>
                             <td>{{ $data->order_sn }}</td>
                             <td class="wrap">
@@ -258,7 +260,7 @@
             Object.keys(shipmentStatus).forEach((key) => {
                 all_shipmentStatus[key] = shipmentStatus[key];
             });
-           
+
             let Chips_shipment = new ChipElem($('#chip-group-shipment'));
 
             // 初始化

@@ -101,14 +101,14 @@ class AccountReceivedCsnOrderCtrl extends AccountReceivedPapaCtrl
         CsnOrder::change_order_payment_status($source_id, PaymentStatus::Unpaid(), (object) $r_method);
     }
 
-    public function doReviewWhenReceived($id)
+    public function doReviewWhenReceived($id, $received_order)
     {
         CsnOrderFlow::changeOrderStatus($id, OrderStatus::Received());
         // 配發啟用日期
 //            CsnOrder::assign_dividend_active_date($id);
     }
 
-    public function doReviewWhenReceiptCancle($id)
+    public function doReviewWhenReceiptCancle($id, $received_order)
     {
         CsnOrderFlow::changeOrderStatus($id, OrderStatus::Paided());
     }

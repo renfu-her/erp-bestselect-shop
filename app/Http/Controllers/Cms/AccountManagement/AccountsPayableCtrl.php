@@ -17,6 +17,7 @@ use App\Enums\Payable\ChequeStatus;
 use App\Models\AllGrade;
 use App\Models\AccountPayable;
 use App\Models\Customer;
+use App\Models\DayEnd;
 use App\Models\Depot;
 use App\Models\Order;
 use App\Models\PayableAccount;
@@ -73,6 +74,10 @@ class AccountsPayableCtrl extends Controller
                 $po_created_date
             )->paginate($page)->appends($query);
 
+        foreach($data_list as $value){
+            $value->link = PayingOrder::paying_order_link($value->po_source_type, $value->po_source_id, $value->po_source_sub_id, $value->po_type);
+        }
+
         $accounts_payable_grade = PayableDefault::leftJoinSub(GeneralLedger::getAllGrade(), 'grade', function($join) {
                 $join->on('grade.primary_id', 'acc_payable_default.default_grade_id');
             })
@@ -125,7 +130,7 @@ class AccountsPayableCtrl extends Controller
             if(count($compare) == 0){
                 $source_type = app(PayingOrder::class)->getTable();
                 // $n_id = DB::select("SHOW TABLE STATUS FROM 'shop-dev' LIKE '" . $source_type . "'")[0]->Auto_increment;
-                $n_id = PayingOrder::get()->count() + 1;
+                $n_id = PayingOrder::withTrashed()->get()->count() + 1;
                 $accounts_payable_id = current(request('accounts_payable_id'));
                 $payable = DB::table('acc_payable')->where([
                     'acc_income_type_fk'=>5,
@@ -174,6 +179,9 @@ class AccountsPayableCtrl extends Controller
         }
 
         $data_list = PayingOrder::get_accounts_payable_list(null, 0, null, $grade_id, null, null, $po_target)->get();
+        foreach($data_list as $value){
+            $value->link = PayingOrder::paying_order_link($value->po_source_type, $value->po_source_id, $value->po_source_sub_id, $value->po_type);
+        }
 
         return view('cms.account_management.accounts_payable.claim', [
             'form_action'=>route('cms.accounts_payable.claim', ['type'=>$type, 'id'=>$id, 'key'=>$key]),
@@ -276,8 +284,11 @@ class AccountsPayableCtrl extends Controller
         $payable_data = PayingOrder::get_payable_detail($id);
         if (count($payable_data) > 0 && $paying_order->price == $payable_data->sum('tw_price')) {
             $paying_order->update([
-                'balance_date'=>date('Y-m-d H:i:s'),
+                'balance_date' => date('Y-m-d H:i:s'),
+                'payment_date' => $data['payment_date'],
             ]);
+
+            DayEnd::match_day_end_status($data['payment_date'], $paying_order->sn);
         }
 
         if (PayingOrder::find($paying_order->id) && PayingOrder::find($paying_order->id)->balance_date) {
@@ -337,7 +348,12 @@ class AccountsPayableCtrl extends Controller
         $accountant = array_unique($accountant->pluck('name')->toArray());
         asort($accountant);
 
-        return view('cms.account_management.accounts_payable.po_show', [
+        $view = 'cms.account_management.accounts_payable.po_show';
+        if (request('action') == 'print') {
+            $view = 'doc.print_accounts_payable_delivery_pay';
+        }
+
+        return view($view, [
             'breadcrumb_data' => ['id' => $paying_order->id],
             'applied_company' => $applied_company,
             'paying_order' => $paying_order,

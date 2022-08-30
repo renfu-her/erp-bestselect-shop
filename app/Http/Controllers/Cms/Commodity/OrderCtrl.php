@@ -17,6 +17,7 @@ use App\Models\AllGrade;
 use App\Models\Customer;
 use App\Models\CustomerDividend;
 use App\Models\CustomerProfit;
+use App\Models\DayEnd;
 use App\Models\Delivery;
 use App\Models\Depot;
 use App\Models\Discount;
@@ -707,8 +708,12 @@ class OrderCtrl extends Controller
         $undertaker = User::find($paying_order->usr_users_id);
 
         $zh_price = num_to_str($paying_order->price);
+        $view = 'cms.commodity.order.logistic_po';
+        if (request('action') == 'print') {
+            $view = 'doc.print_order_logistic_pay';
+        }
 
-        return view('cms.commodity.order.logistic_po', [
+        return view($view, [
             'breadcrumb_data' => ['id' => $id, 'sn' => $order->sn],
 
             'paying_order' => $paying_order,
@@ -791,7 +796,10 @@ class OrderCtrl extends Controller
             if (count($payable_data) > 0 && $paying_order->price == $payable_data->sum('tw_price')) {
                 $paying_order->update([
                     'balance_date' => date('Y-m-d H:i:s'),
+                    'payment_date' => $req['payment_date'],
                 ]);
+
+                DayEnd::match_day_end_status($req['payment_date'], $paying_order->sn);
             }
 
             if (PayingOrder::find($paying_order->id) && PayingOrder::find($paying_order->id)->balance_date) {
@@ -955,7 +963,12 @@ class OrderCtrl extends Controller
 
         $zh_price = num_to_str($paying_order->price);
 
-        return view('cms.commodity.order.return_pay_order', [
+        $view = 'cms.commodity.order.return_pay_order';
+        if (request('action') == 'print') {
+            $view = 'doc.print_order_return_order_pay';
+        }
+
+        return view($view, [
             'breadcrumb_data' => ['id' => $id, 'sn' => $order->sn],
 
             'paying_order' => $paying_order,
@@ -1041,7 +1054,10 @@ class OrderCtrl extends Controller
             if (count($payable_data) > 0 && $paying_order->price == $payable_data->sum('tw_price')) {
                 $paying_order->update([
                     'balance_date' => date('Y-m-d H:i:s'),
+                    'payment_date' => $req['payment_date'],
                 ]);
+
+                DayEnd::match_day_end_status($req['payment_date'], $paying_order->sn);
             }
 
             if (PayingOrder::find($paying_order->id) && PayingOrder::find($paying_order->id)->balance_date) {
@@ -1280,7 +1296,7 @@ class OrderCtrl extends Controller
                         'count' => $i_value->qty,
                         'price' => number_format($i_value->price),
                         'amt' => number_format($i_value->total_price),
-                        'tax' => $i_value->product_taxation == 1 ? '應稅' : '未稅',
+                        'tax' => $i_value->product_taxation == 1 ? '應稅' : '免稅',
                     ];
                 }
             }
@@ -1291,7 +1307,7 @@ class OrderCtrl extends Controller
                     'count' => 1,
                     'price' => number_format($n_order->dlv_fee),
                     'amt' => number_format($n_order->dlv_fee),
-                    'tax' => $n_order->dlv_taxation == 1 ? '應稅' : '未稅',
+                    'tax' => $n_order->dlv_taxation == 1 ? '應稅' : '免稅',
                 ];
             }
             foreach ($n_order_discount as $d_value) {
@@ -1301,7 +1317,7 @@ class OrderCtrl extends Controller
                     'count' => 1,
                     'price' => -number_format($d_value->discount_value),
                     'amt' => -number_format($d_value->discount_value),
-                    'tax' => $d_value->discount_taxation == 1 ? '應稅' : '未稅',
+                    'tax' => $d_value->discount_taxation == 1 ? '應稅' : '免稅',
                 ];
             }
         }

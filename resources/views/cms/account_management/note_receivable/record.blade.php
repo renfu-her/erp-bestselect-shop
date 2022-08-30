@@ -22,17 +22,7 @@
                         </tr>
                         <tr>
                             <th class="table-light" style="width:15%">收款單編號</th>
-                            <td style="width:35%">
-                                @if($cheque->ro_source_type == 'ord_orders')
-                                <a href="{{ route('cms.collection_received.receipt', ['id' => $cheque->ro_source_id]) }}">{{ $cheque->ro_sn }}</a>
-                                @elseif($cheque->ro_source_type == 'csn_orders')
-                                <a href="{{ route('cms.ar_csnorder.receipt', ['id' => $cheque->ro_source_id]) }}">{{ $cheque->ro_sn }}</a>
-                                @elseif($cheque->ro_source_type == 'ord_received_orders')
-                                <a href="{{ route('cms.account_received.ro-receipt', ['id' => $cheque->ro_source_id]) }}">{{ $cheque->ro_sn }}</a>
-                                @elseif($cheque->ro_source_type == 'acc_request_orders')
-                                <a href="{{ route('cms.request.ro-receipt', ['id' => $cheque->ro_source_id]) }}">{{ $cheque->ro_sn }}</a>
-                                @endif
-                            </td>
+                            <td style="width:35%"><a href="{{ $cheque->link }}">{{ $cheque->ro_sn }}</a></td>
                             <th class="table-light" style="width:15%">兌現清單</th>
                             <td style="width:35%"><a href="{{ $cheque->cheque_sn && $cheque->cheque_cashing_date ? route('cms.note_receivable.detail', ['type' => $cheque->cheque_status_code, 'qd' => date('Y-m-d', strtotime($cheque->cheque_cashing_date))]) : 'javascript:void(0);' }}">{{ $cheque->cheque_sn }}</a></td>
                         </tr>

@@ -1,26 +1,33 @@
 @extends('layouts.main')
 
 @section('sub-content')
-    <h2 class="mb-3">收款單</h2>
-    <a href="{{ Route('cms.consignment-order.edit', ['id' => $received_order->source_id]) }}" class="btn btn-primary" role="button">
-        <i class="bi bi-arrow-left"></i> 返回上一頁
-    </a>
-    @if(! $received_order->receipt_date)
-    <a href="{{ route('cms.ar_csnorder.review', ['id' => $received_order->source_id]) }}" class="btn btn-primary px-4" role="button">收款單入款審核</a>
-    @else
-        @if(! $data_status_check)
-        <a href="{{ route('cms.ar_csnorder.review', ['id' => $received_order->source_id]) }}" class="btn btn-outline-success px-4" role="button">取消入帳</a>
-        @endif
-    @endif
-    <a href="{{ route('cms.ar_csnorder.taxation', ['id' => $received_order->source_id]) }}" class="btn btn-outline-success px-4" role="button">修改摘要/稅別</a>
-    {{--
-    <button type="submit" class="btn btn-danger">中一刀列印畫面</button>
-    <button type="submit" class="btn btn-danger">A4列印畫面</button>
-    <button type="submit" class="btn btn-danger">修改記錄</button>
-    <button type="submit" class="btn btn-danger">明細修改記錄</button>
-    --}}
+    <h2 class="mb-4">收款單</h2>
 
-    <br>
+
+    <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
+        <div class="p-1 pe-2">
+            @if(! $received_order->receipt_date)
+            <a href="{{ route('cms.ar_csnorder.review', ['id' => $received_order->source_id]) }}" 
+                class="btn btn-primary px-4" role="button">收款單入款審核</a>
+            @else
+                @if(! $data_status_check)
+                <a href="{{ route('cms.ar_csnorder.review', ['id' => $received_order->source_id]) }}" 
+                    class="btn btn-outline-success px-4" role="button">取消入帳</a>
+                @endif
+            @endif
+            <a href="{{ route('cms.ar_csnorder.taxation', ['id' => $received_order->source_id]) }}" 
+                class="btn btn-outline-success px-4" role="button">修改摘要/稅別</a>
+
+            <a href="{{ url()->full() . '?action=print' }}" target="_blank" class="btn btn-danger" 
+                rel="noopener noreferrer">中一刀列印畫面</a>
+            {{--
+            <button type="submit" class="btn btn-danger">中一刀列印畫面</button>
+            <button type="submit" class="btn btn-danger">A4列印畫面</button>
+            <button type="submit" class="btn btn-danger">修改記錄</button>
+            <button type="submit" class="btn btn-danger">明細修改記錄</button>
+            --}}
+        </div>
+    </nav>
 
     <div class="card shadow mb-4 -detail -detail-primary">
         <div class="card-body px-4">
@@ -75,9 +82,7 @@
                 <div class="col">
                     <dt>收款對象：
                         {{--
-                            <a href="{{ $supplierUrl }}" target="_blank"> {{ $supplier->name }}
-                                <span class="icon"><i class="bi bi-box-arrow-up-right"></i></span>
-                            </a>
+                            <a href="{{ $supplierUrl }}" target="_blank">{{ $supplier->name }}</a>
                         --}}
                     </dt>
                     <dd></dd>
@@ -104,7 +109,7 @@
                         @foreach($order_list_data as $value)
                             <tr>
                                 <td>{{ $product_grade_name }} --- {{ $value->product_title }}{{'（' . $value->product_price . ' * ' . $value->product_qty . '）'}}</td>
-                                <td>{{ $value->product_qty }}</td>
+                                <td>{{ number_format($value->product_qty) }}</td>
                                 <td>{{ number_format($value->product_price, 2) }}</td>
                                 <td>{{ number_format($value->product_origin_price) }}</td>
                                 <td>{{ $received_order->memo }} <a href="{{ Route('cms.consignment-order.edit', ['id' => $order->id], true) }}">{{ $order->sn }}</a> {{ $value->product_taxation == 1 ? '應稅' : '免稅' }} {{ $order->note }}</td>
@@ -188,6 +193,11 @@
                 </div>
             </dl>
         </div>
+    </div>
+
+    <div class="col-auto">
+        <a href="{{ Route('cms.consignment-order.edit', ['id' => $received_order->source_id]) }}" 
+            class="btn btn-primary" role="button">返回上一頁</a>
     </div>
 @endsection
 

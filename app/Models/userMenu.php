@@ -61,7 +61,7 @@ return
             [
                 "title" => "寄倉庫存",
                 "controller_name" => "ConsignmentStockCtrl",
-                "route_name" => "cms.consignment-stock.stocklist",
+                "route_name" => "cms.consignment-stock.index",
             ],
         ],
     ],
@@ -79,11 +79,6 @@ return
                 "title" => "全館優惠",
                 "controller_name" => "DiscountCtrl",
                 "route_name" => "cms.discount.index",
-            ],
-            [
-                "title" => "Google數位行銷",
-                "controller_name" => "GoogleMarketingCtrl",
-                "route_name" => "cms.google_marketing.index",
             ],
         ],
     ],
@@ -231,11 +226,16 @@ return
                 "controller_name" => "OrderInvoiceManagerCtrl",
                 "route_name" => "cms.order_invoice_manager.index",
             ],
-            // [
-            //     "title" => "日結作業",
-            //     "controller_name" => "OrderInvoiceManagerCtrl",
-            //     "route_name" => "cms.order_invoice_manager.index",
-            // ],
+            [
+                "title" => "日結作業",
+                "controller_name" => "DayEndCtrl",
+                "route_name" => "cms.day_end.index",
+            ],
+            [
+                "title" => "分類帳",
+                "controller_name" => "LedgerCtrl",
+                "route_name" => "cms.ledger.index",
+            ],
             [
                 "title" => "分潤報表",
                 "controller_name" => "OrderBonusCtrl",

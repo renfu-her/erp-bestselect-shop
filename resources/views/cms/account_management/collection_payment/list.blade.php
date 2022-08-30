@@ -30,8 +30,10 @@
                 <div class="col-12 mb-3">
                     <label class="form-label">付款金額</label>
                     <div class="input-group has-validation">
-                        <input type="number" step="1" min="0" class="form-control @error('po_min_price') is-invalid @enderror" name="po_min_price" value="{{ $cond['po_min_price'] }}" aria-label="付款起始金額">
-                        <input type="number" step="1" min="0" class="form-control @error('po_max_price') is-invalid @enderror" name="po_max_price" value="{{ $cond['po_max_price'] }}" aria-label="付款結束金額">
+                        <input type="number" step="1" min="0" class="form-control @error('po_min_price') is-invalid @enderror" 
+                            name="po_min_price" value="{{ $cond['po_min_price'] }}" placeholder="起始金額" aria-label="付款起始金額">
+                        <input type="number" step="1" min="0" class="form-control @error('po_max_price') is-invalid @enderror" 
+                            name="po_max_price" value="{{ $cond['po_max_price'] }}" placeholder="結束金額" aria-label="付款結束金額">
                         <div class="invalid-feedback">
                             @error('po_min_price')
                                 {{ $message }}
@@ -44,7 +46,6 @@
                 </div>
 
                 <div class="col-12 mb-3">
-                    {{-- last payment_date field of acc_payable table --}}
                     <label class="form-label">付款日期起訖</label>
                     <div class="input-group has-validation">
                         <input type="date" class="form-control -startDate @error('po_sdate') is-invalid @enderror" name="po_sdate" value="{{ $cond['po_sdate'] }}" aria-label="付款起始日期">
@@ -65,7 +66,7 @@
                     </div>
                 </div>
 
-                <fieldset class="col-12 col-sm-4 mb-3">
+                <fieldset class="col-12 mb-3">
                     <legend class="col-form-label p-0 mb-2">付款狀態</legend>
                     <div class="px-1 pt-1">
                         @foreach ($check_balance_status as $key => $value)
@@ -102,28 +103,27 @@
         </div>
 
         <div class="table-responsive tableOverBox">
-            <table class="table table-striped tableList">
-                <thead>
+            <table class="table tableList border-bottom">
+                <thead class="small align-middle">
                     <tr>
-                        <th scope="col">編號</th>
+                        <th scope="col" style="width:40px">#</th>
                         <th scope="col">付款單號</th>
-                        <th scope="col">付款對象</th>
+                        <th scope="col">付款<br class="d-block d-lg-none">對象</th>
                         <th scope="col">會計科目</th>
                         <th scope="col">摘要</th>
-                        <th scope="col">
-                            <span class="d-flex flex-row">
-                                <span class="w-50">借方</span>
-                                <span class="w-50">貸方</span>
-                            </span>
-                        </th>
+                        <th scope="col" class="text-end">借方</th>
+                        <th scope="col" class="text-end">貸方</th>
                         <th scope="col">付款日期</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($dataList as $key => $data)
+                        @php
+                            $rows = count($data->debit) + count($data->credit) + 1;
+                        @endphp
                         <tr>
-                            <td>{{ $key + 1 }}</td>
-                            <td>
+                            <td rowspan="{{ $rows }}">{{ $key + 1 }}</td>
+                            <td rowspan="{{ $rows }}">
                                 @php
                                     $po_sn = explode(',', $data->po_sn);
                                     $po_type = explode(',', $data->po_type);
@@ -138,20 +138,21 @@
                                 </span>
                                 @endforeach
                             </td>
-                            <td>{{ $data->po_target_name }}</td>
-                            <td class="p-0">
-                                @foreach($data->debit as $d_value)
-                                <span class="border-bottom d-block bg-warning p-2">{{$d_value->account_code}} {{$d_value->account_name}}</span>
-                                @endforeach
+                            <td rowspan="{{ $rows }}" class="wrap">{{ $data->po_target_name }}</td>
 
-                                @foreach($data->credit as $c_value)
-                                <span class="border-bottom d-block bg-white p-2">{{$c_value->account_code}} {{$c_value->account_name}}</span>
-                                @endforeach
-                            </td>
+                            <td class="p-0 border-bottom-0" height="0"></td>
+                            <td class="p-0 border-bottom-0" height="0"></td>
+                            <td class="p-0 border-bottom-0" height="0"></td>
+                            <td class="p-0 border-bottom-0" height="0"></td>
 
-                            <td class="p-0">
-                                @foreach($data->debit as $d_value)
-                                <span class="border-bottom d-block bg-warning p-2">
+                            <td rowspan="{{ $rows }}">{{ $data->payment_date ? date('Y/m/d', strtotime($data->payment_date)) : '-' }}</td>
+                        </tr>
+                        @foreach ($data->debit as $d_value)
+                            <tr>
+                                <td class="table-warning wrap ps-2">
+                                    {{$d_value->account_code}} {{$d_value->account_name}}
+                                </td>
+                                <td class="table-warning wrap">
                                     @if($d_value->d_type == 'logistics')
                                         {{$d_value->account_name}} {{ $data->source_sn }}
                                     @elseif($d_value->d_type == 'discount')
@@ -159,36 +160,31 @@
                                     @else
                                         {{$d_value->product_title}}({{ $d_value->product_price }} * {{$d_value->product_qty}})({{ $d_value->product_owner }}) - {{$data->source_sn}}
                                     @endif
-                                </span>
-                                @endforeach
-
-                                @foreach($data->credit as $c_value)
-                                @if($c_value->payable_type == 0)
-                                <span class="border-bottom d-block bg-white p-2">{{$c_value->method_name}}{{$c_value->note ? ' - ' . $c_value->note : ''}} - {{ $data->source_sn }} - {{ $po_sn[0] }}</span>
-                                @else
-                                <span class="border-bottom d-block bg-white p-2">{{$c_value->method_name}}{{$c_value->note ? ' - ' . $c_value->note : ''}} - {{ $data->source_sn }} - {{ count($po_sn) > 1 ? $po_sn[1] : $po_sn[0]  }}</span>
-                                @endif
-                                @endforeach
-                            </td>
-
-                            <td class="p-0 text-end">
-                                @foreach($data->debit as $d_value)
-                                <span class="border-bottom d-flex flex-row" style="min-width:150px">
-                                    <span class="bg-warning d-block p-2 w-50">{{ number_format($d_value->price) }}</span>
-                                    <span class="bg-warning d-block p-2 w-50"></span>
-                                </span>
-                                @endforeach
-
-                                @foreach($data->credit as $c_value)
-                                <span class="border-bottom d-flex flex-row" style="min-width:150px">
-                                    <span class="d-block bg-white p-2 w-50"></span>
-                                    <span class="d-block bg-white p-2 w-50">{{ number_format($c_value->price) }}</span>
-                                </span>
-                                @endforeach
-                            </td>
-
-                            <td class="">{{ $data->po_balance_date ? date('Y-m-d', strtotime($data->payment_date)) : '0000-00-00' }}</td>
-                        </tr>
+                                </td>
+                                <td class="table-warning wrap text-end">
+                                    {{ number_format($d_value->price) }}
+                                </td>
+                                <td class="table-warning wrap pe-2 text-end"></td>
+                            </tr>
+                        @endforeach
+                        @foreach ($data->credit as $c_value)
+                            <tr>
+                                <td class="wrap ps-2">
+                                    {{$c_value->account_code}} {{$c_value->account_name}}
+                                </td>
+                                <td class="wrap">
+                                    @if($c_value->payable_type == 0)
+                                    {{$c_value->method_name}}{{$c_value->note ? ' - ' . $c_value->note : ''}} - {{ $data->source_sn }} - {{ $po_sn[0] }}
+                                    @else
+                                    {{$c_value->method_name}}{{$c_value->note ? ' - ' . $c_value->note : ''}} - {{ $data->source_sn }} - {{ count($po_sn) > 1 ? $po_sn[1] : $po_sn[0]  }}
+                                    @endif
+                                </td>
+                                <td class="wrap text-end"></td>
+                                <td class="wrap pe-2 text-end">
+                                    {{ number_format($c_value->price) }}
+                                </td>
+                            </tr>
+                        @endforeach
                     @endforeach
                 </tbody>
             </table>
@@ -207,10 +203,27 @@
 @endsection
 
 @once
-    @push('styles')
+    @push('sub-styles')
         <style>
-            tr td > span:last-child {
-                border: none !important;
+            .table-warning {
+                --bs-table-bg: #fff3cd;
+                --bs-table-striped-bg: #f2e7c3;
+                --bs-table-striped-color: #000;
+                --bs-table-active-bg: #e6dbb9;
+                --bs-table-active-color: #000;
+                --bs-table-hover-bg: #ece1be;
+                --bs-table-hover-color: #000;
+                color: #000;
+                background-color: var(--bs-table-bg);
+            }
+            .tableList > tbody th, .tableList > tbody td {
+                vertical-align: top;
+            }
+            .tableList > :not(caption) > * > * {
+                line-height: initial;
+            }
+            .tableList > tbody > * > * {
+                line-height: 1.6;
             }
         </style>
     @endpush

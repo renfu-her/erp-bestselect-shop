@@ -2,7 +2,6 @@
 @section('sub-content')
     <h2 class="mb-4">信用卡整批入款</h2>
 
-
     <form method="POST" action="{{ $form_action }}">
         @csrf
         <div class="card shadow p-4 mb-4">
@@ -27,7 +26,7 @@
                         </tr>
                     </thead>
 
-                    <tbody class="card_list">
+                    <tbody class="pool">
                         @foreach ($data_list as $key => $value)
                             <tr>
                                 <th class="text-center">
@@ -44,19 +43,9 @@
                                 <td class="text-end">${{ $value->credit_card_price - round($value->credit_card_price * $value->bank_percent) }}</td>
 
                                 <td>{{ $value->credit_card_status_code == 0 ? '刷卡' : ($value->credit_card_status_code == 1 ? '請款' : '入款') }}</td>
-                                <td>{{ date('Y-m-d', strtotime($value->credit_card_checkout_date)) }}</td>
+                                <td>{{ date('Y/m/d', strtotime($value->credit_card_checkout_date)) }}</td>
                                 <td>{{ $value->credit_card_type }}</td>
-                                <td>
-                                    @if($value->ro_source_type == 'ord_orders')
-                                    <a href="{{ route('cms.collection_received.receipt', ['id' => $value->ro_source_id]) }}">{{ $value->ro_sn }}</a>
-                                    @elseif($value->ro_source_type == 'csn_orders')
-                                    <a href="{{ route('cms.ar_csnorder.receipt', ['id' => $value->ro_source_id]) }}">{{ $value->ro_sn }}</a>
-                                    @elseif($value->ro_source_type == 'ord_received_orders')
-                                    <a href="{{ route('cms.account_received.ro-receipt', ['id' => $value->ro_source_id]) }}">{{ $value->ro_sn }}</a>
-                                    @elseif($value->ro_source_type == 'acc_request_orders')
-                                    <a href="{{ route('cms.request.ro-receipt', ['id' => $value->ro_source_id]) }}">{{ $value->ro_sn }}</a>
-                                    @endif
-                                </td>
+                                <td><a href="{{ $value->link }}">{{ $value->ro_sn }}</a></td>
                                 <td>{{ $value->bank_name}}</td>
                             </tr>
                         @endforeach
@@ -106,7 +95,7 @@
             $(function() {
                 $('#checkAll').change(function(){
                     $all = $(this)[0];
-                    $('.card_list tr').each(function( index ) {
+                    $('.pool tr').each(function( index ) {
                         if($(this).is(':visible')){
                             $(this).find('th input.single_select').prop('checked', $all.checked);
 
@@ -127,14 +116,14 @@
 
                 // $('#keyword').on('keyup', function () {
                 //     let keyword = $(this).val().toLowerCase();
-                //     $('.card_list tr').filter(function () {
+                //     $('.pool tr').filter(function () {
                 //         $(this).toggle($(this).children('td:eq(0)').text().toLowerCase().indexOf(keyword) > -1 || $(this).children('td:eq(2)').text().toLowerCase().indexOf(keyword) > -1)
                 //     });
                 // });
 
                 // $('.reset').on('click', function(){
                 //     $('#keyword').val('');
-                //     $('.card_list tr').css('display', '');
+                //     $('.pool tr').css('display', '');
                 // });
             });
         </script>

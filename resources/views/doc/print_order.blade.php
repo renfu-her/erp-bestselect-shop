@@ -22,7 +22,6 @@
         }
         @page {
             size: 214.9mm 140mm;
-            /* A4 直向 */
             margin: 0;
             /* 邊界 */
         }
@@ -40,6 +39,12 @@
         @media print {
             * {
                 font-weight: lighter;
+            }
+            a,
+            a:active,
+            a:visited {
+                color: #000000;
+                text-decoration: none;
             }
             .print {
                 display: none;

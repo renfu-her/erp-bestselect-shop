@@ -103,6 +103,10 @@ class PayingOrder extends Model
                 'paying_order.memo as memo',
                 'paying_order.price as price',
                 'paying_order.balance_date as balance_date',
+                'paying_order.payee_id as payee_id',
+                'paying_order.payee_name as payee_name',
+                'paying_order.payee_phone as payee_phone',
+                'paying_order.payee_address as payee_address',
             )
             ->selectRaw('DATE_FORMAT(paying_order.created_at,"%Y-%m-%d") as created_at')
             ->where([
@@ -164,6 +168,7 @@ class PayingOrder extends Model
                     GROUP_CONCAT(DISTINCT logistics_grade_id) AS logistics_grade_id,
                     GROUP_CONCAT(DISTINCT product_grade_id) AS product_grade_id,
                     CASE WHEN COUNT(*) = COUNT(balance_date) THEN MAX(balance_date) END AS balance_date,
+                    CASE WHEN COUNT(*) = COUNT(payment_date) THEN MAX(payment_date) END AS payment_date,
                     payee_id,
                     payee_name,
                     payee_phone,
@@ -177,19 +182,27 @@ class PayingOrder extends Model
             ->leftJoin(DB::raw('(
                 SELECT pay_order_id,
                 SUM(tw_price) AS payable_price,
-                MAX(payment_date) AS payment_date,
                 CONCAT(\'[\', GROUP_CONCAT(\'{
                         "payable_type":"\', v_po.type, \'",
+                        "payable_method":"\', COALESCE(i_type.type, ""), \'",
                         "acc_income_type_fk":"\', acc_income_type_fk, \'",
                         "payable_id":"\', payable_id, \'",
                         "all_grades_id":"\', all_grades_id, \'",
+                        "grade_code":"\', COALESCE(grade.code, ""), \'",
+                        "grade_name":"\', COALESCE(grade.name, ""), \'",
                         "tw_price":"\', tw_price, \'",
-                        "payment_date":"\', payment_date, \'",
+                        "payment_date":"\', acc_payable.payment_date, \'",
                         "accountant_id_fk":"\', accountant_id_fk, \'",
                         "summary":"\', COALESCE(acc_payable.summary, ""), \'",
-                        "note":"\', COALESCE(note, ""), \'"
+                        "note":"\', COALESCE(note, ""), \'",
+                        "cheque_ticket_number":"\', COALESCE(_cheque.ticket_number, ""),\'",
+                        "cheque_due_date":"\', COALESCE(_cheque.due_date, ""),\'"
                     }\' ORDER BY acc_payable.id), \']\') AS pay_list
                 FROM acc_payable
+                LEFT JOIN (' . $sq . ') AS grade ON grade.id = acc_payable.all_grades_id
+                LEFT JOIN acc_income_type AS i_type ON i_type.id = acc_payable.acc_income_type_fk
+                LEFT JOIN acc_payable_cheque AS _cheque ON acc_payable.payable_id = _cheque.id AND acc_payable.acc_income_type_fk = 2
+
                 LEFT JOIN pcs_paying_orders AS v_po ON v_po.id = acc_payable.pay_order_id WHERE v_po.deleted_at IS NULL
                 GROUP BY v_po.source_type, v_po.source_id, v_po.source_sub_id
                 ) AS payable_table'), function ($join){
@@ -397,12 +410,12 @@ class PayingOrder extends Model
                 'po.logistics_grade_id as po_logistics_grade_id',
                 'po.product_grade_id as po_product_grade_id',
                 'po.balance_date AS po_balance_date',
+                'po.payment_date AS payment_date',// 付款單完成付款日期
                 'po.payee_id AS po_target_id',
                 'po.payee_name AS po_target_name',
                 'po.payee_phone AS po_target_phone',
                 'po.payee_address AS po_target_address',
 
-                'payable_table.payment_date as payment_date',// 付款單完成付款日期
                 'payable_table.payable_price as payable_price',// 付款單金額(實付)
                 'payable_table.pay_list as payable_list',
 
@@ -532,10 +545,10 @@ class PayingOrder extends Model
             $e_payment_date = $po_payment_date[1] ? date('Y-m-d', strtotime($po_payment_date[1] . ' +1 day')) : null;
 
             if($s_payment_date){
-                $query->where('payable_table.payment_date', '>=', $s_payment_date);
+                $query->where('po.payment_date', '>=', $s_payment_date);
             }
             if($e_payment_date){
-                $query->where('payable_table.payment_date', '<', $e_payment_date);
+                $query->where('po.payment_date', '<', $e_payment_date);
             }
         }
 
@@ -551,7 +564,23 @@ class PayingOrder extends Model
     }
 
 
-    public static function get_payable_detail($pay_order_id = null, int $method_id = null)
+    public static function delete_paying_order($id)
+    {
+        $target = self::findOrFail($id);
+
+        $target->delete();
+
+        // if($target->payment_date){
+        //     $target = null;
+        // } else {
+        //     $target->delete();
+        // }
+
+        return $target;
+    }
+
+
+    public static function get_payable_detail($pay_order_id = null, $method_id = null)
     {
         $query = DB::table('acc_payable AS payable')
             ->leftJoin('pcs_paying_orders AS po', function($join){
@@ -733,6 +762,7 @@ class PayingOrder extends Model
                 'po.deleted_at'=>null,
             ])
             ->whereNotNull('po.balance_date')
+            ->whereNotNull('po.payment_date')
             ->whereNotNull('payable.payment_date')
 
             ->selectRaw('
@@ -877,5 +907,104 @@ class PayingOrder extends Model
                 'updated_at'=>date('Y-m-d H:i:s'),
             ]);
         }
+    }
+
+
+    public static function paying_order_link($source_type, $source_id, $source_sub_id = null, $type)
+    {
+        $link = 'javascript:void(0);';
+
+        if($source_type == 'pcs_purchase'){
+            $link = route('cms.purchase.view-pay-order', ['id' => $source_id, 'type' => $type]);
+
+        } else if($source_type == 'ord_orders' && $source_sub_id != null){
+            $link = route('cms.order.logistic-po', ['id' => $source_id, 'sid' => $source_sub_id]);
+
+        } else if($source_type == 'acc_stitute_orders'){
+            $link = route('cms.stitute.po-show', ['id' => $source_id]);
+
+        } else if($source_type == 'ord_orders' && $source_sub_id == null){
+            $link = route('cms.order.return-pay-order', ['id' => $source_id]);
+
+        } else if($source_type == 'dlv_delivery'){
+            $link = route('cms.delivery.return-pay-order', ['id' => $source_id]);
+
+        } else if($source_type == 'pcs_paying_orders'){
+            $link = route('cms.accounts_payable.po-show', ['id' => $source_id]);
+        }
+
+        return $link;
+    }
+
+
+    public static function payee($id, $name)
+    {
+        $client = (object)[
+            'id'=>'',
+            'name'=>'',
+            'phone'=>'',
+            'address'=>'',
+        ];
+
+        $client = User::where([
+                'id'=>$id,
+            ])
+            ->where('name', 'LIKE', "%{$name}%")
+            ->select(
+                'id',
+                'name',
+                'email'
+            )
+            ->selectRaw('
+                IF(id IS NOT NULL, "", "") AS phone,
+                IF(id IS NOT NULL, "", "") AS address
+            ')
+            ->first();
+
+        if(! $client){
+            $client = Customer::leftJoin('usr_customers_address AS customer_add', function ($join) {
+                    $join->on('usr_customers.id', '=', 'customer_add.usr_customers_id_fk');
+                    $join->where([
+                        'customer_add.is_default_addr'=>1,
+                    ]);
+                })->where([
+                    'usr_customers.id'=>$id,
+                ])
+                ->where('usr_customers.name', 'LIKE', "%{$name}%")
+                ->select(
+                    'usr_customers.id',
+                    'usr_customers.name',
+                    'usr_customers.phone AS phone',
+                    'usr_customers.email',
+                    'customer_add.address AS address'
+                )->first();
+
+            if(! $client){
+                $client = Depot::where('id', '=', $id)
+                    ->where('name', 'LIKE', "%{$name}%")
+                    ->select(
+                        'depot.id',
+                        'depot.name',
+                        'depot.tel AS phone',
+                        'depot.address AS address'
+                    )->first();
+
+                if(! $client){
+                    $client = Supplier::where([
+                        'id'=>$id,
+                    ])
+                    ->where('name', 'LIKE', "%{$name}%")
+                    ->select(
+                        'id',
+                        'name',
+                        'contact_tel AS phone',
+                        'email',
+                        'contact_address AS address'
+                    )->first();
+                }
+            }
+        }
+
+        return $client;
     }
 }

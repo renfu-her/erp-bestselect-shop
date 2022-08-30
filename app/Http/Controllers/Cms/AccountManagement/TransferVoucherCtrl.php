@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Cms\AccountManagement;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
+use App\Models\DayEnd;
 use App\Models\GeneralLedger;
 use App\Models\User;
 use App\Models\TransferVoucher;
@@ -140,6 +141,9 @@ class TransferVoucherCtrl extends Controller
                     'credit_price' => $credit_price,
                 ]);
 
+
+                DayEnd::match_day_end_status($voucher->created_at, $voucher->sn);
+
                 DB::commit();
                 wToast(__('轉帳傳票儲存成功'));
 
@@ -264,11 +268,14 @@ class TransferVoucherCtrl extends Controller
                     'debit_credit_code' => 'credit',
                 ])->sum('final_price');
 
-                TransferVoucher::find($id)->update([
+                $voucher = TransferVoucher::find($id);
+                $voucher->update([
                     'voucher_date' => request('voucher_date'),
                     'debit_price' => $debit_price,
                     'credit_price' => $credit_price,
                 ]);
+
+                DayEnd::match_day_end_status($voucher->created_at, $voucher->sn);
 
                 DB::commit();
                 wToast(__('轉帳傳票更新成功'));
