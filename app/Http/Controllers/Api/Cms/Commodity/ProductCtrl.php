@@ -51,6 +51,12 @@ class ProductCtrl extends Controller
             $stock_status = [];
         }
 
+        // 僅顯示有物流的 1
+        if (isset($d['shipment'])) {
+            $options['shipment'] = 1;
+        }
+       // $options['shipment'] = 1;
+
         // Arr::get($d, 'supplier_id',''),
 
         $re = Product::productStyleList(

@@ -109,21 +109,25 @@
                         <select name="{{$methodName}}[grade]"
                                 class="form-select -select2 -single {{$methodName}} @error($methodName) is-invalid @enderror"
                                 required data-placeholder="請選擇會計科目">
-                            <option value="" selected disabled>請選擇</option>
+                            @php
+                                $check_first = true;
+                            @endphp
                             @foreach($defaultData as $gradeId => $data)
                                 <option value="{{ $gradeId }}"
-                                        @if($data['grade_num'] === 1)
+                                    @if($data['grade_num'] === 1)
                                         class="grade_1"
-                                        @elseif($data['grade_num'] === 2)
+                                    @elseif($data['grade_num'] === 2)
                                         class="grade_2"
-                                        @elseif($data['grade_num'] === 3)
+                                    @elseif($data['grade_num'] === 3)
                                         class="grade_3"
-                                        @elseif($data['grade_num'] === 4)
+                                    @elseif($data['grade_num'] === 4)
                                         class="grade_4"
                                     @endif
-                                >
-                                    {{ $data['code'] . ' ' . $data['name'] }}
-                                </option>
+                                    {{ $check_first ? 'selected' : '' }}
+                                >{{ $data['code'] . ' ' . $data['name'] }}</option>
+                                @php
+                                    $check_first = false;
+                                @endphp
                             @endforeach
                         </select>
                     </div>

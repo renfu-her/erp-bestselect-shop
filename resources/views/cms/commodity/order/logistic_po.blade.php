@@ -56,10 +56,7 @@
                             {{ $paying_order->payee_name }}
                             {{--
                             @if($paying_order->payee_id)
-                            <a href="{{ Route('cms.supplier.edit', ['id' => $paying_order->payee_id,]) }}" target="_blank">
-                                {{ $paying_order->payee_name }}
-                                <span class="icon"><i class="bi bi-box-arrow-up-right"></i></span>
-                            </a>
+                            <a href="{{ Route('cms.supplier.edit', ['id' => $paying_order->payee_id,]) }}" target="_blank">{{ $paying_order->payee_name }}</a>
                             @endif
                             --}}
                         </dd>

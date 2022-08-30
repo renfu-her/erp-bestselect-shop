@@ -4,8 +4,6 @@ namespace App\Models;
 
 use App\Enums\Customer\Identity;
 use App\Enums\Globals\ApiStatusMessage;
-use App\Enums\Globals\AppEnvClass;
-use App\Enums\Globals\ImageDomain;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -445,7 +443,6 @@ class Product extends Model
                     $_q->orWhere(DB::raw('s.in_stock + s.overbought'), '>', 0);
                 }
 
-
             });
         }
 
@@ -522,6 +519,15 @@ class Product extends Model
             } else {
                 $re->where('p.offline', 1);
             }
+        }
+        // 僅顯示有物流的商品
+        if (isset($options['shipment']) && $options['shipment'] == '1') {
+            $re->leftJoin('prd_product_shipment as shipment', 'p.id', '=', 'shipment.product_id')
+                ->leftJoinSub(DB::table('prd_pickup')->select('product_id_fk')->selectRaw('count(*) as pickup_count')->groupBy('product_id_fk'), 'pickup', 'pickup.product_id_fk', '=', 'p.id')
+                ->where(function ($query) {
+                    $query->whereNotNull('shipment.product_id')
+                        ->orWhere('pickup.pickup_count', '>', 0);
+                });
         }
 
         return $re;

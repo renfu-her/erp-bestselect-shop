@@ -218,7 +218,7 @@
                                 <td>{{ number_format($value->total_price) }}</td>
                                 <td>{{ $value->qty }}</td>
                                 <td></td>
-                                <td>{{ $value->product_taxation == 1 ? '應稅' : '未稅'}}</td>
+                                <td>{{ $value->product_taxation == 1 ? '應稅' : '免稅'}}</td>
                             </tr>
                             @endforeach
                         @endforeach
@@ -230,7 +230,7 @@
                                 <td>{{ number_format($order->dlv_fee) }}</td>
                                 <td>1</td>
                                 <td></td>
-                                <td>{{ $order->dlv_taxation == 1 ? '應稅' : '未稅'}}</td>
+                                <td>{{ $order->dlv_taxation == 1 ? '應稅' : '免稅'}}</td>
                             </tr>
                         @endif
 
@@ -242,7 +242,7 @@
                                 <td>-{{ number_format($value->discount_value) }}</td>
                                 <td>1</td>
                                 <td></td>
-                                <td>{{ $value->discount_taxation == 1 ? '應稅' : '未稅'}}</td>
+                                <td>{{ $value->discount_taxation == 1 ? '應稅' : '免稅'}}</td>
                             </tr>
                             @endforeach
                         @endif
