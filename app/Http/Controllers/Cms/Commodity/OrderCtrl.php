@@ -1296,7 +1296,7 @@ class OrderCtrl extends Controller
                         'count' => $i_value->qty,
                         'price' => number_format($i_value->price),
                         'amt' => number_format($i_value->total_price),
-                        'tax' => $i_value->product_taxation == 1 ? '應稅' : '未稅',
+                        'tax' => $i_value->product_taxation == 1 ? '應稅' : '免稅',
                     ];
                 }
             }
@@ -1307,7 +1307,7 @@ class OrderCtrl extends Controller
                     'count' => 1,
                     'price' => number_format($n_order->dlv_fee),
                     'amt' => number_format($n_order->dlv_fee),
-                    'tax' => $n_order->dlv_taxation == 1 ? '應稅' : '未稅',
+                    'tax' => $n_order->dlv_taxation == 1 ? '應稅' : '免稅',
                 ];
             }
             foreach ($n_order_discount as $d_value) {
@@ -1317,7 +1317,7 @@ class OrderCtrl extends Controller
                     'count' => 1,
                     'price' => -number_format($d_value->discount_value),
                     'amt' => -number_format($d_value->discount_value),
-                    'tax' => $d_value->discount_taxation == 1 ? '應稅' : '未稅',
+                    'tax' => $d_value->discount_taxation == 1 ? '應稅' : '免稅',
                 ];
             }
         }

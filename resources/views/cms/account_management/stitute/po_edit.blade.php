@@ -115,12 +115,17 @@
                     <label class="form-label cash">會計科目
                         <span class="text-danger">*</span>
                     </label>
-                    <select name="cash[grade_id_fk]" required data-placeholder="請選擇會計科目"
-                        class="form-select -select2 -single cash @error('cash[grade_id_fk]') is-invalid @enderror">
-                        <option value="" selected disabled>請選擇</option>
+                    <select name="cash[grade_id_fk]" class="form-select -select2 -single cash @error('cash[grade_id_fk]') is-invalid @enderror" 
+                        required data-placeholder="請選擇會計科目">
+                        @php
+                            $cash_first = true;
+                        @endphp
                         @foreach($total_grades as $value)
                             @if(in_array($value['primary_id'], $cashDefault))
-                            <option value="{{ $value['primary_id'] }}">{{ $value['code'] . ' ' . $value['name'] }}</option>
+                            <option value="{{ $value['primary_id'] }}" {{ $cash_first ? 'selected' : '' }}>{{ $value['code'] . ' ' . $value['name'] }}</option>
+                            @php
+                                $cash_first = false;
+                            @endphp
                             @endif
                         @endforeach
                     </select>
@@ -134,12 +139,17 @@
                     <label class="form-label cheque">支存銀行
                         <span class="text-danger">*</span>
                     </label>
-                    <select name="cheque[grade_id_fk]" required data-placeholder="請選擇支存銀行"
-                        class="form-select -select2 -single cheque @error('cheque[grade_id_fk]') is-invalid @enderror">
-                        <option value="" selected disabled>請選擇</option>
+                    <select name="cheque[grade_id_fk]" class="form-select -select2 -single cheque @error('cheque[grade_id_fk]') is-invalid @enderror" 
+                        required data-placeholder="請選擇支存銀行">
+                        @php
+                            $cheque_first = true;
+                        @endphp
                         @foreach($total_grades as $value)
                             @if(in_array($value['primary_id'], $chequeDefault))
-                            <option value="{{ $value['primary_id'] }}">{{ $value['code'] . ' ' . $value['name'] }}</option>
+                            <option value="{{ $value['primary_id'] }}" {{ $cheque_first ? 'selected' : '' }}>{{ $value['code'] . ' ' . $value['name'] }}</option>
+                            @php
+                                $cheque_first = false;
+                            @endphp
                             @endif
                         @endforeach
                     </select>
@@ -197,12 +207,17 @@
                     <label class="form-label remit">匯款銀行
                         <span class="text-danger">*</span>
                     </label>
-                    <select name="remit[grade_id_fk]" required data-placeholder="請選擇匯款銀行"
-                        class="form-select -select2 -single remit @error('remit[grade_id_fk]') is-invalid @enderror">
-                        <option value="" selected disabled>請選擇</option>
+                    <select name="remit[grade_id_fk]" class="form-select -select2 -single remit @error('remit[grade_id_fk]') is-invalid @enderror" 
+                        required data-placeholder="請選擇匯款銀行">
+                        @php
+                            $remit_first = true;
+                        @endphp
                         @foreach($total_grades as $value)
                             @if(in_array($value['primary_id'], $remitDefault))
-                                <option value="{{ $value['primary_id'] }}">{{ $value['code'] . ' ' . $value['name'] }}</option>
+                                <option value="{{ $value['primary_id'] }}" {{ $remit_first ? 'selected' : '' }}>{{ $value['code'] . ' ' . $value['name'] }}</option>
+                                @php
+                                    $remit_first = false;
+                                @endphp
                             @endif
                         @endforeach
                     </select>
@@ -258,12 +273,17 @@
                     <label class="form-label foreign_currency">會計科目
                         <span class="text-danger">*</span>
                     </label>
-                    <select name="foreign_currency[grade_id_fk]" required data-placeholder="請選擇會計科目"
-                        class="form-select -select2 -single foreign_currency @error('foreign_currency[grade_id_fk]') is-invalid @enderror">
-                        <option value="" selected disabled>請選擇</option>
+                    <select name="foreign_currency[grade_id_fk]" class="form-select -select2 -single foreign_currency 
+                        @error('foreign_currency[grade_id_fk]') is-invalid @enderror" required data-placeholder="請選擇會計科目">
+                        @php
+                            $foreign_first = true;
+                        @endphp
                         @foreach($total_grades as $value)
                             @if(in_array($value['primary_id'], $currencyDefault))
-                                <option value="{{ $value['primary_id'] }}">{{ $value['code'] . ' ' . $value['name'] }}</option>
+                                <option value="{{ $value['primary_id'] }}" {{ $foreign_first ? 'selected' : '' }}>{{ $value['code'] . ' ' . $value['name'] }}</option>
+                                @php
+                                    $foreign_first = false;
+                                @endphp
                             @endif
                         @endforeach
                     </select>
@@ -277,12 +297,17 @@
                     <label class="form-label payable_account">會計科目
                         <span class="text-danger">*</span>
                     </label>
-                    <select name="payable_account[grade_id_fk]" required data-placeholder="請選擇會計科目"
-                        class="form-select -select2 -single payable_account @error('payable_account[grade_id_fk]') is-invalid @enderror">
-                        <option value="" selected disabled>請選擇</option>
+                    <select name="payable_account[grade_id_fk]" class="form-select -select2 -single payable_account 
+                        @error('payable_account[grade_id_fk]') is-invalid @enderror" required data-placeholder="請選擇會計科目">
+                        @php
+                            $account_first = true;
+                        @endphp
                         @foreach($total_grades ?? [] as $value)
                             @if(in_array($value['primary_id'], $accountPayableDefault))
-                                <option value="{{ $value['primary_id'] }}">{{ $value['code'] . ' ' . $value['name'] }}</option>
+                                <option value="{{ $value['primary_id'] }}" {{ $account_first ? 'selected' : '' }}>{{ $value['code'] . ' ' . $value['name'] }}</option>
+                                @php
+                                    $account_first = false;
+                                @endphp
                             @endif
                         @endforeach
                     </select>
@@ -296,11 +321,16 @@
                     <label class="form-label other">會計科目
                         <span class="text-danger">*</span>
                     </label>
-                    <select name="other[grade_id_fk]" required data-placeholder="請選擇會計科目"
-                        class="form-select -select2 -single other @error('other[grade_id_fk]') is-invalid @enderror">
-                        <option value="" selected disabled>請選擇</option>
+                    <select name="other[grade_id_fk]" class="form-select -select2 -single other 
+                        @error('other[grade_id_fk]') is-invalid @enderror" required data-placeholder="請選擇會計科目">
+                        @php
+                            $other_first = true;
+                        @endphp
                         @foreach($total_grades as $otherData)
-                            <option value="{{ $otherData['primary_id'] }}">{{ $otherData['code'] . ' ' . $otherData['name'] }}</option>
+                            <option value="{{ $otherData['primary_id'] }}" {{ $other_first ? 'selected' : '' }}>{{ $otherData['code'] . ' ' . $otherData['name'] }}</option>
+                            @php
+                                $other_first = false;
+                            @endphp
                         @endforeach
                     </select>
                     @error('other[grade_id_fk]')
