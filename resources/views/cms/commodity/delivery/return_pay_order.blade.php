@@ -4,6 +4,8 @@
 
     <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
         <div class="p-1 pe-2">
+            <a href="{{ route('cms.collection_payment.edit', ['id' => $delivery->po_id]) }}" class="btn btn-sm btn-success px-3" role="button">修改</a>
+
             @if(! $delivery->po_balance_date)
                 <a href="{{ Route('cms.delivery.return-pay-create', ['id' => $delivery->delivery_id]) }}" 
                     class="btn btn-primary" role="button">付款</a>

@@ -4,6 +4,8 @@
 
     <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
         <div class="p-1 pe-2">
+            <a href="{{ route('cms.collection_payment.edit', ['id' => $paying_order->id]) }}" class="btn btn-sm btn-success px-3" role="button">修改</a>
+
             <a href="{{ url()->full() . '?action=print' }}" target="_blank" 
                 class="btn btn-sm btn-warning" rel="noopener noreferrer">中一刀列印畫面</a>
         </div>

@@ -4,6 +4,8 @@
 
     <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
         <div class="p-1 pe-2">
+            <a href="{{ route('cms.collection_payment.edit', ['id' => $paying_order->id]) }}" class="btn btn-sm btn-success px-3" role="button">修改</a>
+
             @if(! $paying_order->balance_date)
                 <a href="{{ Route('cms.order.return-pay-create', ['id' => $paying_order->source_id, 'sid' => $paying_order->source_sub_id]) }}" 
                     class="btn btn-primary" role="button">付款</a>
