@@ -521,7 +521,7 @@ class Product extends Model
             }
         }
         // 僅顯示有物流的商品
-        if (isset($options['shipment'])) {
+        if (isset($options['shipment']) && $options['shipment'] == '1') {
             $re->leftJoin('prd_product_shipment as shipment', 'p.id', '=', 'shipment.product_id')
                 ->leftJoinSub(DB::table('prd_pickup')->select('product_id_fk')->selectRaw('count(*) as pickup_count')->groupBy('product_id_fk'), 'pickup', 'pickup.product_id_fk', '=', 'p.id')
                 ->where(function ($query) {
