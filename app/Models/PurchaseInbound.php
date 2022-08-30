@@ -484,9 +484,8 @@ class PurchaseInbound extends Model
             $keyword = $param['keyword'];
             $result->where(function ($q) use ($keyword) {
                 if ($keyword) {
-                    $q->where('product.title', 'like', "%$keyword%");
-                    $q->orWhere('style.title', 'like', "%$keyword%");
-                    $q->orWhere('style.sku', 'like', "%$keyword%");
+                    $q->where('inbound.title', 'like', "%$keyword%");
+                    $q->orWhere('inbound.sku', 'like', "%$keyword%");
                 }
             });
         }
@@ -502,12 +501,6 @@ class PurchaseInbound extends Model
         }
         if (isset($param['inbound_sn'])) {
             $result->where('inbound.sn', '=', $param['inbound_sn']);
-        }
-        if (isset($param['title'])) {
-            $result->where(function ($q) use ($param) {
-                $q->where('product.title', 'like', "%{$param['title']}%")
-                    ->orWhere('style.title', 'like', "%{$param['title']}%");
-            });
         }
         return $result;
     }
