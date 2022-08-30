@@ -124,7 +124,7 @@ class OrderCtrl extends Controller
             'purchAmt' => $order->total_price,
             'txType' => '0',
             'Option' => 0,
-            'Key' => 'LPCvSznVxZ4CFjnWbtg4mUWo',
+            'Key' => $auth_key,
             'MerchantName' => mb_convert_encoding($order->sale_title, 'BIG5', ['BIG5', 'UTF-8']),
             'AuthResURL' => route('api.web.order.credit_card_checkout', ['id' => $id, 'unique_id' => $unique_id]),
             'OrderDetail' => mb_convert_encoding($order->note, 'BIG5', ['BIG5', 'UTF-8']),
@@ -204,9 +204,8 @@ class OrderCtrl extends Controller
 
             $EncRes = request('URLResEnc') ? request('URLResEnc') : null;
             if ($EncRes) {
-                $Key = 'LPCvSznVxZ4CFjnWbtg4mUWo';
                 $debug = '0';
-                $EncArray = gendecrypt($EncRes, $Key, $debug);
+                $EncArray = gendecrypt($EncRes, $auth_key, $debug);
 
                 if (is_array($EncArray) && count($EncArray) > 0) {
                     $status = isset($EncArray['status']) ? $EncArray['status'] : '';
@@ -590,7 +589,7 @@ class OrderCtrl extends Controller
             'purchAmt' => $order->total_price,
             'txType' => '0',
             'Option' => 0,
-            'Key' => 'LPCvSznVxZ4CFjnWbtg4mUWo',
+            'Key' => $auth_key,
             'MerchantName' => mb_convert_encoding($order->sale_title, 'BIG5', ['BIG5', 'UTF-8']),
             'AuthResURL' => route('api.web.order.credit_card_checkout_api', ['id' => $order->id]),
             'OrderDetail' => mb_convert_encoding($order->note, 'BIG5', ['BIG5', 'UTF-8']),
@@ -631,9 +630,8 @@ class OrderCtrl extends Controller
 
         $EncRes = request('URLResEnc') ? request('URLResEnc') : null;
         if ($EncRes) {
-            $Key = 'LPCvSznVxZ4CFjnWbtg4mUWo';
             $debug = '0';
-            $EncArray = gendecrypt($EncRes, $Key, $debug);
+            $EncArray = gendecrypt($EncRes, $auth_key, $debug);
 
             if (is_array($EncArray) && count($EncArray) > 0) {
                 $status = isset($EncArray['status']) ? $EncArray['status'] : '';

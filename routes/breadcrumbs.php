@@ -777,6 +777,11 @@ Breadcrumbs::for('cms.stitute.create', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.stitute.index');
     $trail->push('新增代墊單');
 });
+// 編輯代墊單
+Breadcrumbs::for('cms.stitute.edit', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.stitute.index');
+    $trail->push('編輯代墊單');
+});
 // 代墊單
 Breadcrumbs::for('cms.stitute.show', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.stitute.index');
