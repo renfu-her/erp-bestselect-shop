@@ -111,17 +111,20 @@ class CollectionReceivedCtrl extends AccountReceivedPapaCtrl
         Order::change_order_payment_status($source_id, PaymentStatus::Unpaid(), (object) $r_method);
     }
 
-    public function doReviewWhenReceived($id)
+    public function doReviewWhenReceived($id, $received_order)
     {
         OrderFlow::changeOrderStatus($id, OrderStatus::Received());
         // 配發啟用日期
         Order::assign_dividend_active_date($id);
         Order::sendMail_OrderPaid($id);
+
+        Customer::updateOrderSpends($received_order->drawee_id, $received_order->price);
     }
 
-    public function doReviewWhenReceiptCancle($id)
+    public function doReviewWhenReceiptCancle($id, $received_order)
     {
         OrderFlow::changeOrderStatus($id, OrderStatus::Paided());
+        Customer::updateOrderSpends($received_order->drawee_id, $received_order->price * -1);
     }
 
     public function doTaxationWhenGet()

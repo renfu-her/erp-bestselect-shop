@@ -51,8 +51,8 @@ abstract class AccountReceivedPapaCtrl extends Controller
 
     abstract public function doDestroy($source_id);
 
-    abstract public function doReviewWhenReceived($id);
-    abstract public function doReviewWhenReceiptCancle($id);
+    abstract public function doReviewWhenReceived($id, $received_order);
+    abstract public function doReviewWhenReceiptCancle($id, $received_order);
 
     abstract public function doTaxationWhenGet();
     abstract public function doTaxationWhenUpdate();
@@ -665,7 +665,7 @@ abstract class AccountReceivedPapaCtrl extends Controller
                     }
                 }
 
-                $this->doReviewWhenReceived($id);
+                $this->doReviewWhenReceived($request, $id, $received_order);
 	            //修改子訂單物流配送狀態為檢貨中
 	            $sub_orders = SubOrders::where('order_id', '=', $id)->get();
 	            if (isset($sub_orders) && 0 < count($sub_orders)) {
@@ -714,7 +714,7 @@ abstract class AccountReceivedPapaCtrl extends Controller
                     'receipt_date' => null,
                 ]);
 
-                $this->doReviewWhenReceiptCancle($id);
+                $this->doReviewWhenReceiptCancle($request, $id, $received_order);
 
                 DayEnd::match_day_end_status($received_order->receipt_date, $received_order->sn);
 

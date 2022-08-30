@@ -336,4 +336,27 @@ class Customer extends Authenticatable
         DB::commit();
         echo "更新{$c}筆mcode";
     }
+
+    //更新總花費
+    public static function updateOrderSpends($customer_id, $total_spend) {
+        if (isset($customer_id) && isset($total_spend)) {
+            $count = 1;
+            if (0 > $total_spend) {
+                $count = -1;
+            }
+            self::where('id', $customer_id)->update([
+                'order_counts' => DB::raw("order_counts + ". $count)
+                , 'total_spending' => DB::raw("total_spending + $total_spend")
+            ]);
+        }
+    }
+
+    //更新最近消費時間
+    public static function updateLatestOrderTime($customer_id, $latest_order_time) {
+        if (isset($customer_id) && isset($latest_order_time)) {
+            self::where('id', $customer_id)->update([
+                'latest_order' => $latest_order_time
+            ]);
+        }
+    }
 }
