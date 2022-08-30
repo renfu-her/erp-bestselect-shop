@@ -935,6 +935,13 @@ class PayingOrder extends Model
 
     public static function payee($id, $name)
     {
+        $client = (object)[
+            'id'=>'',
+            'name'=>'',
+            'phone'=>'',
+            'address'=>'',
+        ];
+
         $client = User::where([
                 'id'=>$id,
             ])

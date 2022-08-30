@@ -1183,4 +1183,76 @@ class ReceivedOrder extends Model
 
         return $link;
     }
+
+
+    public static function drawee($id, $name)
+    {
+        $client = (object)[
+            'id'=>'',
+            'name'=>'',
+            'phone'=>'',
+            'address'=>'',
+        ];
+
+        $client = User::where([
+                'id'=>$id,
+            ])
+            ->where('name', 'LIKE', "%{$name}%")
+            ->select(
+                'id',
+                'name',
+                'email'
+            )
+            ->selectRaw('
+                IF(id IS NOT NULL, "", "") AS phone,
+                IF(id IS NOT NULL, "", "") AS address
+            ')
+            ->first();
+
+        if(! $client){
+            $client = Customer::leftJoin('usr_customers_address AS customer_add', function ($join) {
+                    $join->on('usr_customers.id', '=', 'customer_add.usr_customers_id_fk');
+                    $join->where([
+                        'customer_add.is_default_addr'=>1,
+                    ]);
+                })->where([
+                    'usr_customers.id'=>$id,
+                ])
+                ->where('usr_customers.name', 'LIKE', "%{$name}%")
+                ->select(
+                    'usr_customers.id',
+                    'usr_customers.name',
+                    'usr_customers.phone AS phone',
+                    'usr_customers.email',
+                    'customer_add.address AS address'
+                )->first();
+
+            if(! $client){
+                $client = Depot::where('id', '=', $id)
+                    ->where('name', 'LIKE', "%{$name}%")
+                    ->select(
+                        'depot.id',
+                        'depot.name',
+                        'depot.tel AS phone',
+                        'depot.address AS address'
+                    )->first();
+
+                if(! $client){
+                    $client = Supplier::where([
+                        'id'=>$id,
+                    ])
+                    ->where('name', 'LIKE', "%{$name}%")
+                    ->select(
+                        'id',
+                        'name',
+                        'contact_tel AS phone',
+                        'email',
+                        'contact_address AS address'
+                    )->first();
+                }
+            }
+        }
+
+        return $client;
+    }
 }

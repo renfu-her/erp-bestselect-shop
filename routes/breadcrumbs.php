@@ -815,6 +815,11 @@ Breadcrumbs::for('cms.request.create', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.request.index');
     $trail->push('新增請款單');
 });
+// 編輯請款單
+Breadcrumbs::for('cms.request.edit', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.request.index');
+    $trail->push('編輯請款單');
+});
 // 請款單
 Breadcrumbs::for('cms.request.show', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.request.index');
