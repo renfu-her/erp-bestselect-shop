@@ -117,22 +117,13 @@ class CollectionReceivedCtrl extends AccountReceivedPapaCtrl
         // 配發啟用日期
         Order::assign_dividend_active_date($id);
         Order::sendMail_OrderPaid($id);
-
-        //判斷為消費者 則為訂單 此時才做計算
-        $customer = Customer::where('id', '=', $received_order->drawee_id)->where('name', '=', $received_order->drawee_name)->first();
-        if (isset($customer)) {
-            Customer::updateOrderSpends($received_order->drawee_id, $received_order->price);
-        }
+        Customer::updateOrderSpends($received_order->drawee_id, $received_order->price);
     }
 
     public function doReviewWhenReceiptCancle($id, $received_order)
     {
         OrderFlow::changeOrderStatus($id, OrderStatus::Paided());
-        //判斷為消費者 則為訂單 此時才做計算
-        $customer = Customer::where('id', '=', $received_order->drawee_id)->where('name', '=', $received_order->drawee_name)->first();
-        if (isset($customer)) {
-            Customer::updateOrderSpends($received_order->drawee_id, $received_order->price * -1);
-        }
+        Customer::updateOrderSpends($received_order->drawee_id, $received_order->price * -1);
     }
 
     public function doTaxationWhenGet()
