@@ -33,6 +33,12 @@
                        name="update_num" value="0" min="{{ $inboundData->remaining_qty ? $inboundData->remaining_qty * -1 : 0 }}"
                        required/>
             </x-b-form-group>
+            <x-b-form-group name="remaining_qty" title="調整效期" required="false">
+                <input type="date"
+                       class="form-control form-control-sm @error('expiry_date') is-invalid @enderror"
+                       name="expiry_date" value="{{ $inboundData->expiry_date ?? '' }}"
+                       required/>
+            </x-b-form-group>
             <x-b-form-group name="note" title="備註" required="false" class="col-12 col-sm-6 mb-3">
                 <input class="form-control @error('memo') is-invalid @enderror"
                        name="memo"
