@@ -363,6 +363,7 @@ class Order extends Model
      */
     public static function createOrder($email, $sale_channel_id, $address, $items, $mcode = null, $note = null, $coupon_obj = null, $payinfo = null, ReceivedMethod $payment = null, $dividend = [], $operator_user)
     {
+        
         return DB::transaction(function () use ($email, $sale_channel_id, $address, $items, $mcode, $note, $coupon_obj, $payinfo, $payment, $dividend, $operator_user) {
 
             $customer = Customer::where('email', $email)->get()->first();
@@ -376,7 +377,7 @@ class Order extends Model
                 $mcode = null;
             }
             $order = OrderCart::cartFormater($items, $sale_channel_id, $coupon_obj, true, $customer, $dividend);
-
+           
             if ($order['success'] != 1) {
                 DB::rollBack();
                 return $order;
@@ -425,7 +426,7 @@ class Order extends Model
             $order_id = self::create($updateData)->id;
             $order['order_id'] = $order_id;
             Discount::createOrderDiscount('main', $order_id, $customer, $order['discounts']);
-
+          
             foreach ($address as $key => $user) {
 
                 $addr = Addr::addrFormating($user['address']);

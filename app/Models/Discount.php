@@ -95,7 +95,7 @@ class Discount extends Model
             'sub.coupon_id',
             'sub.coupon_title',
             'sub.discount_grade_id',
-            'sub.active'
+            'sub.active',
         ];
 
         $re = DB::table(DB::raw("({$sub->toSql()}) as sub"))
@@ -103,7 +103,7 @@ class Discount extends Model
             ->mergeBindings($sub)
             ->where('sub.status_code', DisStatus::D01()->value)
             ->where('sub.active', 1);
-       
+
         if ($product_id) {
             $re->leftJoin('dis_discount_collection as dc', 'sub.id', '=', 'dc.discount_id')
                 ->leftJoin('collection_prd as cp', 'dc.collection_id', '=', 'cp.collection_id_fk')
@@ -310,6 +310,12 @@ class Discount extends Model
             ->where('status_code', DisStatus::D01()->value)
             ->where('category_code', DisCategory::code()->value)
             ->where('sub.sn', $sn)
+            ->where(function ($query) {
+                $query->where('max_usage', 0)
+                    ->orWhere(function ($query) {
+                        $query->where('usage_count', '<', DB::raw('max_usage'));
+                    });
+            })
             ->get()->first();
 
         if (!$re) {
@@ -529,11 +535,17 @@ class Discount extends Model
             }
             // 處理coupon 使用優惠券
             if ($n->category_code == DisCategory::coupon() && !$sub_order_id && !$order_item_id) {
-               
+
                 CustomerCoupon::where('id', $n->user_coupon_id)->update([
                     'used' => 1,
                     'used_at' => now(),
                     'order_id' => $order_id,
+                ]);
+            }
+            // 僅主訂單處理一次 優惠代碼
+            if ($n->category_code == DisCategory::code() && $type == 'main') {
+                self::where('id', $n->id)->update([
+                    'usage_count' => DB::raw('usage_count +1'),
                 ]);
             }
 
@@ -547,15 +559,14 @@ class Discount extends Model
     {
         return DB::table('ord_discounts')->where('order_type', $type)
             ->where('order_id', $order_id);
-           
-    }
 
+    }
 
     public static function update_order_discount_taxation($parm)
     {
         DB::table('ord_discounts')->where('id', $parm['discount_id'])->update([
-            'discount_grade_id'=>$parm['grade_id'],
-            'discount_taxation'=>$parm['taxation'],
+            'discount_grade_id' => $parm['grade_id'],
+            'discount_taxation' => $parm['taxation'],
         ]);
     }
 }
