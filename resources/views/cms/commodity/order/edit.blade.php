@@ -1110,7 +1110,8 @@
                 const Data = {
                     keyword: $('#addProduct .-searchBar input').val(),
                     price: $('#salechannel').val(),
-                    stock_status: 'in_stock'
+                    stock_status: 'in_stock',
+                    shipment: '1'
                 };
                 resetAddProductModal();
 
