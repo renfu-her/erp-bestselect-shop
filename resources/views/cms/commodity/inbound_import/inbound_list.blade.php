@@ -59,17 +59,18 @@
         </div>
 
         <div class="table-responsive tableOverBox">
-            <table class="table table-striped tableList">
-                <thead>
+            <table class="table table-striped tableList table-sm small">
+                <thead class="align-middle">
                     <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">編輯</th>
-                        <th scope="col">採購單號</th>
-                        <th scope="col">SKU</th>
-                        <th scope="col">商品款式名稱</th>
-                        <th scope="col">入庫單</th>
-                        <th scope="col">庫存剩餘數量</th>
-                        <th scope="col">單價</th>
+                        <th scope="col" style="width:40px">#</th>
+                        <th scope="col" style="width:40px" class="text-center">編輯</th>
+                        <td scope="col" class="wrap">
+                            <div class="fw-bold">採購單號</div>
+                            <div>入庫單</div>
+                        </td>
+                        <th scope="col">商品款式</th>
+                        <th scope="col" class="wrap lh-1 text-center">庫存剩餘數量</th>
+                        <th scope="col" class="text-end">單價</th>
                         <th scope="col">效期</th>
                         <th scope="col">倉庫</th>
                     </tr>
@@ -87,14 +88,18 @@
                                 </a>
                                 @endcan
                             </td>
-                            <td>{{ $data->event_sn }}</td>
-                            <td>{{ $data->style_sku }}</td>
-                            <td>{{ $data->product_title }}</td>
-                            <td>{{ $data->inbound_sn }}</td>
+                            <td class="wrap">
+                                <div class="fw-bold">{{ $data->event_sn }}</div>
+                                <div>{{ $data->inbound_sn ?? '-' }}</div>
+                            </td>
+                            <td class="wrap">
+                                <div class="lh-1 text-nowrap text-secondary">{{ $data->style_sku }}</div>
+                                <div class="lh-lg">{{ $data->product_title }}</div>
+                            </td>
                             <td class="text-end">{{ number_format($data->qty) }}</td>
                             <td class="text-end">{{ ($data->unit_cost) }}</td>
                             <td>{{ $data->expiry_date ? date('Y/m/d', strtotime($data->expiry_date)) : '' }}</td>
-                            <td>{{ $data->depot_name }}</td>
+                            <td class="wrap" style="min-width:80px;">{{ $data->depot_name }}</td>
                         </tr>
                     @endforeach
                 </tbody>
