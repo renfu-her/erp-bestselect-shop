@@ -19,7 +19,7 @@ class CustomerProfit extends Model
     {
         $re = DB::table('usr_customer_profit as profit')
             ->leftJoin('usr_customers as customer', 'profit.customer_id', '=', 'customer.id')
-            ->select(['profit.*', 'customer.name', 'customer.sn']);
+            ->select(['profit.*', 'customer.name', 'customer.sn','customer.id as customer_id']);
 
         if ($status) {
             $re->where('profit.status', $status);
