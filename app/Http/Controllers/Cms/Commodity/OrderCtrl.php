@@ -436,6 +436,7 @@ class OrderCtrl extends Controller
             'canCancel' => Order::checkCanCancel($id, 'backend'),
             'delivery' => $delivery,
             'canSplit' => Order::checkCanSplit($id),
+            'po_check' => $delivery ? PayingOrder::source_confirmation(app(Delivery::class)->getTable(), $delivery->id) : true,
         ]);
     }
 
