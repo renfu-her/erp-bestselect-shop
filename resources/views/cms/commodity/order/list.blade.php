@@ -26,11 +26,12 @@
                 </div> --}}
                 <div class="col-12 col-sm-6 col-xxl-3 mb-3">
                     <label class="form-label">分潤人姓名</label>
-                    <select name="" class="form-select">
-                        <option value="" selected>請選擇採購廠商</option>
-                        <option value="1">item 1</option>
-                        <option value="2">item 2</option>
-                        <option value="3">item 3</option>
+                    <select name="profit_user" class="form-select">
+                        <option value="" selected>請選擇</option>
+                        @foreach ($profitUsers as $key => $user)
+                            <option value="{{ $user->customer_id }}" @if ($cond['profit_user'] == $user->customer_id) selected @endif>
+                                {{ $user->name }}</option>
+                        @endforeach
                     </select>
                 </div>
                 <div class="col-12 col-xxl-6 mb-3">
