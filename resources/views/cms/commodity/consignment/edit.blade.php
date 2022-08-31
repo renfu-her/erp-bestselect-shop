@@ -250,7 +250,13 @@
                 </div>
                 <div class="col">
                     <dt>運費付款單</dt>
-                    <dd>(待處理)</dd>
+                    <dd>@if ($consignmentData->group_name == '')
+                            尚未設定物流
+                        @else
+                            <a
+                                href="">新增付款單
+                            </a>
+                        @endif</dd>
                 </div>
             </dl>
             <dl class="row">
