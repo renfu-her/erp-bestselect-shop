@@ -7,9 +7,8 @@ use App\Enums\Delivery\Event;
 use App\Enums\Delivery\LogisticStatus;
 use App\Enums\Discount\DividendCategory;
 use App\Enums\Order\UserAddrType;
-use App\Enums\Supplier\Payment;
 use App\Enums\Payable\ChequeStatus;
-
+use App\Enums\Supplier\Payment;
 use App\Http\Controllers\Controller;
 use App\Models\AccountPayable;
 use App\Models\Addr;
@@ -75,6 +74,7 @@ class OrderCtrl extends Controller
         $cond['sale_channel_id'] = Arr::get($query, 'sale_channel_id', []);
         $cond['order_sdate'] = Arr::get($query, 'order_sdate', null);
         $cond['order_edate'] = Arr::get($query, 'order_edate', null);
+        $cond['profit_user'] = Arr::get($query, 'profit_user', null);
 
         $order_date = null;
         if ($cond['order_sdate'] && $cond['order_edate']) {
@@ -87,14 +87,20 @@ class OrderCtrl extends Controller
             $cond['shipment_status'] = [];
         }
 
-        $dataList = Order::orderList($cond['keyword'], $cond['order_status'], $cond['sale_channel_id'], $order_date, $cond['shipment_status'])
+        $dataList = Order::orderList($cond['keyword'],
+            $cond['order_status'],
+            $cond['sale_channel_id'],
+            $order_date,
+            $cond['shipment_status'],
+            $cond['profit_user'])
             ->paginate($page)->appends($query);
 
         $orderStatus = [];
         foreach (\App\Enums\Order\OrderStatus::asArray() as $key => $val) {
             $orderStatus[$val] = \App\Enums\Order\OrderStatus::getDescription($val);
         }
-        //  dd(LogisticStatus::asArray());
+
+        $profitUsers = CustomerProfit::dataList(null, null, 'success')->get();
 
         return view('cms.commodity.order.list', [
             'dataList' => $dataList,
@@ -102,7 +108,8 @@ class OrderCtrl extends Controller
             'orderStatus' => $orderStatus,
             'shipmentStatus' => LogisticStatus::asArray(),
             'saleChannels' => SaleChannel::select('id', 'title')->get()->toArray(),
-            'data_per_page' => $page]);
+            'data_per_page' => $page,
+            'profitUsers' => $profitUsers]);
     }
 
     /**
@@ -189,8 +196,8 @@ class OrderCtrl extends Controller
             ->where('is_default_addr', '=', 0)
             ->select([
                 'usr_customers.id',
-                'usr_customers.name',
-                'usr_customers.phone',
+                'usr_customers_address.name',
+                'usr_customers_address.phone',
                 'usr_customers_address.id as customer_addr_id',
                 'is_default_addr',
                 'address',
@@ -352,7 +359,7 @@ class OrderCtrl extends Controller
                     break;
             }
         }
-        if(isset($re['error_msg']) && '0' == $re['success']) {
+        if (isset($re['error_msg']) && '0' == $re['success']) {
             $errors['error_msg'] = $re['error_msg'];
         }
 
@@ -436,6 +443,7 @@ class OrderCtrl extends Controller
             'canCancel' => Order::checkCanCancel($id, 'backend'),
             'delivery' => $delivery,
             'canSplit' => Order::checkCanSplit($id),
+            'po_check' => $delivery ? PayingOrder::source_confirmation(app(Delivery::class)->getTable(), $delivery->id) : true,
         ]);
     }
 
@@ -703,9 +711,9 @@ class OrderCtrl extends Controller
         $logistics_grade_name = AllGrade::find($paying_order->logistics_grade_id)->eachGrade->code . ' ' . AllGrade::find($paying_order->logistics_grade_id)->eachGrade->name;
 
         if ($sub_order->projlgt_order_sn) {
-            $logistics_grade_name = $logistics_grade_name. ' #'. $sub_order->projlgt_order_sn;
+            $logistics_grade_name = $logistics_grade_name . ' #' . $sub_order->projlgt_order_sn;
         } else {
-            $logistics_grade_name = $logistics_grade_name. ' #'. $sub_order->package_sn;
+            $logistics_grade_name = $logistics_grade_name . ' #' . $sub_order->package_sn;
         }
 
         $payable_data = PayingOrder::get_payable_detail($paying_order->id);
@@ -783,7 +791,7 @@ class OrderCtrl extends Controller
                     break;
                 case Payment::Cheque:
                     $request->validate([
-                        'cheque.ticket_number'=>'required|unique:acc_payable_cheque,ticket_number|regex:/^[A-Z]{2}[0-9]{7}$/'
+                        'cheque.ticket_number' => 'required|unique:acc_payable_cheque,ticket_number|regex:/^[A-Z]{2}[0-9]{7}$/',
                     ]);
                     PayableCheque::storePayableCheque($req);
                     break;
@@ -1041,7 +1049,7 @@ class OrderCtrl extends Controller
                     break;
                 case Payment::Cheque:
                     $request->validate([
-                        'cheque.ticket_number'=>'required|unique:acc_payable_cheque,ticket_number|regex:/^[A-Z]{2}[0-9]{7}$/'
+                        'cheque.ticket_number' => 'required|unique:acc_payable_cheque,ticket_number|regex:/^[A-Z]{2}[0-9]{7}$/',
                     ]);
                     PayableCheque::storePayableCheque($req);
                     break;

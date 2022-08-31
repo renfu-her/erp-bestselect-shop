@@ -19,7 +19,7 @@
     @enderror
 
     <div class="col-12 d-flex justify-content mt-2 flex-wrap">
-        @if(! $back_item->po_sn)
+        @if(! $back_item->po_sn && $po_check)
             <a class="btn btn-sm btn-primary -in-header mb-1" href="{{ Route('cms.delivery.return-pay-order', ['id' => $delivery_id]) }}">新增退貨付款單</a>
         @endif
     </div>

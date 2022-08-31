@@ -1007,4 +1007,34 @@ class PayingOrder extends Model
 
         return $client;
     }
+
+
+    public static function source_confirmation($source_type, $source_id)
+    {
+        $result = true;
+        $po = null;
+
+        if($source_type == app(Order::class)->getTable()){
+            $po = self::where([
+                'source_type'=>$source_type,
+                'source_id'=>$source_id,
+                'source_sub_id'=>null,
+                'type'=>9,
+            ])->first();
+
+        } else if($source_type == app(Delivery::class)->getTable()){
+            $po = self::where([
+                'source_type'=>$source_type,
+                'source_id'=>$source_id,
+                'source_sub_id'=>null,
+                'type'=>9,
+            ])->first();
+        }
+
+        if($po){
+            $result = false;
+        }
+
+        return $result;
+    }
 }

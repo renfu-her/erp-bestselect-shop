@@ -53,7 +53,7 @@
             @endif
 
 
-            @if (!$order->return_pay_order_id && in_array($order->status, ['取消']))
+            @if (!$order->return_pay_order_id && in_array($order->status, ['取消']) && $po_check)
                 <a href="{{ Route('cms.order.return-pay-order', ['id' => $order->id]) }}" role="button"
                     class="btn btn-primary btn-sm my-1 ms-1">新增退貨付款單</a>
             @endif

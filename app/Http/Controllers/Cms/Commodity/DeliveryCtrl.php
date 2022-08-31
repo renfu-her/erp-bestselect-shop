@@ -477,6 +477,7 @@ class DeliveryCtrl extends Controller
             $back_item[$key]->delivery_back_items = json_decode($value->delivery_back_items);
         }
         $rsp_arr['back_item'] = $back_item->first();
+        $rsp_arr['po_check'] = PayingOrder::source_confirmation(app(Order::class)->getTable(), $rsp_arr['back_item']->order_id);
         return view('cms.commodity.delivery.back_detail', $rsp_arr);
     }
 
