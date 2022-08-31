@@ -30,13 +30,24 @@
             
             <dl class="row mb-0">
                 <div class="col">
-                    <dd>編號：{{ $stitute_order->sn }}</dd>
+                    <dd>付款單號：{{ $stitute_order->sn }}</dd>
                 </div>
                 <div class="col">
-                    <dd>日期：{{ date('Y-m-d', strtotime($stitute_order->created_at)) }}</dd>
+                    <dd>製表日期：{{ date('Y-m-d', strtotime($stitute_order->created_at)) }}</dd>
                 </div>
             </dl>
-
+            <dl class="row mb-0">
+                <div class="col">
+                    <dd>單據編號：</dd>
+                </div>
+                <div class="col">
+                    <dd>
+                    @if($stitute_order->payment_date)
+                        付款日期：{{ date('Y-m-d', strtotime($stitute_order->payment_date)) }}
+                    @endif
+                    </dd>
+                </div>
+            </dl>
             <dl class="row mb-0">
                 <div class="col">
                     <dd>支付對象：{{ $stitute_order->client_name }}</dd>
@@ -44,19 +55,6 @@
                 <div class="col">
                     <dd>承辦人：{{ $sales ? $sales->name : '' }}</dd>
                 </div>
-            </dl>
-
-            <dl class="row mb-0">
-                <div class="col">
-                {{--
-                    <dd>訂單流水號：<a href="{{ Route('cms.order.detail', ['id' => $order->id], true) }}">{{ $order->sn }}</a></dd>
-                --}}
-                </div>
-                @if($stitute_order->payment_date)
-                <div class="col">
-                    <dd>付款日期：{{ date('Y-m-d', strtotime($stitute_order->payment_date)) }}</dd>
-                </div>
-                @endif
             </dl>
         </div>
 

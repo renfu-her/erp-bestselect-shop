@@ -49,7 +49,7 @@
         </div>
 
         <div style="font-size: x-large; font-family:標楷體">
-            付款單
+            付　款　單
         </div>
         <hr width="710" style="margin: .5rem auto;">
         <div>
