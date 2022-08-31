@@ -616,6 +616,10 @@
                 <button type="submit" class="btn btn-primary px-4">送出訂單</button>
             </div>
         </div>
+
+        @error('error_msg')
+        <div class="alert alert-danger" role="alert">{{ $message }}</div>
+        @enderror
     </form>
 
     {{-- 商品清單 --}}

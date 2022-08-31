@@ -352,6 +352,9 @@ class OrderCtrl extends Controller
                     break;
             }
         }
+        if(isset($re['error_msg']) && '0' == $re['success']) {
+            $errors['error_msg'] = $re['error_msg'];
+        }
 
         return redirect()->back()->withInput(array_merge($request->input(), $addInput))->withErrors($errors);
     }
