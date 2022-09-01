@@ -16,6 +16,7 @@ use App\Models\DayEnd;
 use App\Models\Depot;
 use App\Models\PayingOrder;
 use App\Models\Supplier;
+use App\Models\StituteOrder;
 use App\Models\GeneralLedger;
 use App\Models\User;
 
@@ -231,6 +232,9 @@ class CollectionPaymentCtrl extends Controller
                 } else if($value->po_source_type == 'ord_orders' && $value->po_source_sub_id != null){
                     $value->po_url_link = route('cms.order.logistic-po', ['id' => $value->po_source_id, 'sid' => $value->po_source_sub_id]);
 
+                } else if($value->po_source_type == 'csn_consignment'){
+                    $value->po_url_link = route('cms.consignment.logistic-po', ['id' => $value->po_source_id]);
+
                 } else if($value->po_source_type == 'acc_stitute_orders'){
                     $value->po_url_link = route('cms.stitute.po-show', ['id' => $value->po_source_id]);
 
@@ -320,6 +324,20 @@ class CollectionPaymentCtrl extends Controller
         $target = PayingOrder::delete_paying_order($id);
         if($target){
             if($target->payment_date){
+
+                // reverse - stitute order
+                if($target->source_type == app(StituteOrder::class)->getTable()){
+                    $parm = [
+                        'id' => $target->source_id,
+                    ];
+                    StituteOrder::update_stitute_order_approval($parm, true);
+                }
+
+                // 更新應付帳款狀態
+
+                // 更新應付票據狀態
+
+                // 更新日結狀態
                 DayEnd::match_day_end_status($target->payment_date, $target->sn);
             }
 
@@ -328,6 +346,7 @@ class CollectionPaymentCtrl extends Controller
         } else {
             wToast('刪除失敗', ['type'=>'danger']);
         }
+
         return redirect()->back();
     }
 }
