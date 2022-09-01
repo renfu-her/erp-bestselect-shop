@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>物流付款單</title>
+    <title>付款單</title>
     <style>
         * {
             font-family: "Nunito", "Noto Sans TC", sans-serif;
@@ -49,7 +49,7 @@
         </div>
 
         <div style="font-size: x-large; font-family:標楷體">
-            物流付款單
+            運費付款單
         </div>
         <hr width="710" style="margin: .5rem auto;">
         <div>
@@ -60,7 +60,7 @@
                     <td width="50%">製表日期：{{ date('Y-m-d', strtotime($paying_order->created_at)) }}</td>
                 </tr>
                 <tr>
-                    <td>單據編號：{{ $sub_order->sn }}</td>
+                    <td>單據編號：{{ $consignmentData->consignment_sn }}</td>
                     <td>
                         @if($paying_order->payment_date)
                             付款日期：{{ date('Y-m-d', strtotime($paying_order->payment_date)) }}
@@ -86,13 +86,13 @@
                 </tr>
                 </thead>
                 <tbody style="text-align: left;">
-                @if($sub_order->logistic_cost > 0)
+                @if($consignmentData->lgt_cost > 0)
                     <tr>
                         <td>{{ $logistics_grade_name . ' - 物流費用' }}</td>
                         <td style="text-align: right;">{{ number_format(1) }}</td>
-                        <td style="text-align: right;">{{ number_format($sub_order->logistic_cost, 2) }}</td>
-                        <td style="text-align: right;">{{ number_format($sub_order->logistic_cost) }}</td>
-                        <td>{{ $sub_order->logistic_memo }}</td>
+                        <td style="text-align: right;">{{ number_format($consignmentData->lgt_cost, 2) }}</td>
+                        <td style="text-align: right;">{{ number_format($consignmentData->lgt_cost) }}</td>
+                        <td>{{ $consignmentData->lgt_memo }}</td>
                     </tr>
                 @endif
                 </tbody>

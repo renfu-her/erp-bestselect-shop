@@ -7,8 +7,12 @@
             <a href="{{ route('cms.stitute.edit', ['id' => $stitute_order->id]) }}" class="btn btn-sm btn-success px-3" role="button">修改</a>
 
             @if(! $stitute_order->payment_date)
-            <a href="{{ route('cms.stitute.po-edit', ['id' => $stitute_order->id]) }}" 
-                class="btn btn-sm btn-primary px-3" role="button">付款</a>
+                <a href="{{ route('cms.stitute.po-edit', ['id' => $stitute_order->id]) }}" 
+                    class="btn btn-sm btn-primary px-3" role="button">付款</a>
+            @else
+                <a href="javascript:void(0)" role="button" class="btn btn-outline-danger btn-sm"
+                    data-bs-toggle="modal" data-bs-target="#confirm-delete"
+                    data-href="{{ Route('cms.collection_payment.delete', ['id' => $stitute_order->pay_order_id]) }}">刪除付款單</a>
             @endif
             {{--
             <button type="submit" class="btn btn-danger">中一刀列印畫面</button>
@@ -120,9 +124,24 @@
             返回列表
         </a>
     </div>
+
+    <!-- Modal -->
+    <x-b-modal id="confirm-delete">
+        <x-slot name="title">刪除確認</x-slot>
+        <x-slot name="body">確認要刪除此付款單？</x-slot>
+        <x-slot name="foot">
+            <a class="btn btn-danger btn-ok" href="#">確認並刪除</a>
+        </x-slot>
+    </x-b-modal>
 @endsection
 
 @once
     @push('sub-scripts')
+    <script>
+        // Modal Control
+        $('#confirm-delete').on('show.bs.modal', function(e) {
+            $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
+        });
+    </script>
     @endpush
 @endonce

@@ -388,9 +388,11 @@ class OrderCtrl extends Controller
         DB::beginTransaction();
 
         if (!Auth::guard('sanctum')->check()) {
+          
             $customer = Customer::where('email', $payLoad['email'])->get()->first();
-
+            
             if (!$customer) {
+              
                 $udata = [
                     'name' => $payLoad['orderer']['name'],
                     'email' => $payLoad['email'],
@@ -398,10 +400,13 @@ class OrderCtrl extends Controller
                 ];
 
                 Customer::createCustomer($udata['name'], $udata['email'], $udata['password']);
+
+                $customer = Customer::where('email', $payLoad['email'])->get()->first();
             }
         } else {
             $customer = $request->user();
         }
+        
 
         $address = [];
         $address[] = ['name' => $payLoad['orderer']['name'],

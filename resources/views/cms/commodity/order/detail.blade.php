@@ -414,8 +414,6 @@
                             <dd>
                                 @if ($subOrder->ship_group_name == '')
                                     尚未設定物流
-                                @elseif(false == isset($subOrder->delivery_audit_date))
-                                    尚未做出貨審核
                                 @else
                                     <a
                                         href="{{ Route('cms.order.logistic-po', ['id' => $subOrder->order_id, 'sid' => $subOrder->id]) }}">

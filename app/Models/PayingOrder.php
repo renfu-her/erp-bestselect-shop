@@ -268,6 +268,29 @@ class PayingOrder extends Model
                 $join->whereNotNull('shi_group.supplier_fk');
             })
 
+            // consignment
+            ->leftJoin('csn_consignment AS consignment', function ($join) {
+                $join->on('po.source_id', '=', 'consignment.id');
+                $join->where([
+                    'po.source_type'=>app(Consignment::class)->getTable(),
+                ]);
+            })
+            ->leftJoin('dlv_delivery AS co_delivery', function ($join) {
+                $join->on('co_delivery.event_id', '=', 'consignment.id')
+                    ->where('co_delivery.event', '=', Event::consignment()->value);
+            })
+            ->leftJoin('dlv_logistic AS co_logistic', function ($join) {
+                $join->on('co_logistic.delivery_id', '=', 'co_delivery.id');
+            })
+            ->leftJoin('shi_group AS co_shi_group', function ($join) {
+                $join->on('co_shi_group.id', '=', 'co_logistic.ship_group_id');
+                $join->whereNotNull('co_logistic.ship_group_id');
+            })
+            ->leftJoin('prd_suppliers AS co_supplier', function ($join) {
+                $join->on('co_supplier.id', '=', 'co_shi_group.supplier_fk');
+                $join->whereNotNull('co_shi_group.supplier_fk');
+            })
+
             // stitute
             ->leftJoin('acc_stitute_orders AS so', function ($join) {
                 $join->on('po.id', '=', 'so.pay_order_id');
@@ -450,6 +473,7 @@ class PayingOrder extends Model
                 CASE
                     WHEN po.source_type = "' . app(Purchase::class)->getTable() . '" AND po.source_sub_id IS NULL THEN purchase.sn
                     WHEN po.source_type = "' . app(Order::class)->getTable() . '" AND po.source_sub_id IS NOT NULL AND po.type = 1 THEN dlv_delivery.event_sn
+                    WHEN po.source_type = "' . app(Consignment::class)->getTable() . '" AND po.type = 1 THEN consignment.sn
                     WHEN po.source_type = "' . app(StituteOrder::class)->getTable() . '" AND po.type = 1 THEN so.sn
                     WHEN po.source_type = "' . app(Order::class)->getTable() . '" AND po.type = 9 THEN order_return.sn
                     WHEN po.source_type = "' . app(Delivery::class)->getTable() . '" AND po.type = 9 THEN sub_order_return.event_sn
@@ -461,6 +485,7 @@ class PayingOrder extends Model
                 CASE
                     WHEN po.source_type = "' . app(Purchase::class)->getTable() . '" AND po.source_sub_id IS NULL THEN purchase_item_table.items
                     WHEN po.source_type = "' . app(Order::class)->getTable() . '" AND po.source_sub_id IS NOT NULL AND po.type = 1 THEN NULL
+                    WHEN po.source_type = "' . app(Consignment::class)->getTable() . '" AND po.type = 1 THEN NULL
                     WHEN po.source_type = "' . app(StituteOrder::class)->getTable() . '" AND po.type = 1 THEN stitute_table.items
                     WHEN po.source_type = "' . app(Order::class)->getTable() . '" AND po.type = 9 THEN order_item_table.items
                     WHEN po.source_type = "' . app(Delivery::class)->getTable() . '" AND po.type = 9 THEN delivery_back.items
@@ -472,6 +497,7 @@ class PayingOrder extends Model
                 CASE
                     WHEN po.source_type = "' . app(Purchase::class)->getTable() . '" AND po.source_sub_id IS NULL THEN purchase.logistics_price
                     WHEN po.source_type = "' . app(Order::class)->getTable() . '" AND po.source_sub_id IS NOT NULL AND po.type = 1 THEN dlv_logistic.cost
+                    WHEN po.source_type = "' . app(Consignment::class)->getTable() . '" AND po.type = 1 THEN co_logistic.cost
                     WHEN po.source_type = "' . app(StituteOrder::class)->getTable() . '" AND po.type = 1 THEN 0
                     WHEN po.source_type = "' . app(Order::class)->getTable() . '" AND po.type = 9 THEN order_return.dlv_fee
                     WHEN po.source_type = "' . app(Delivery::class)->getTable() . '" AND po.type = 9 THEN 0
@@ -483,6 +509,7 @@ class PayingOrder extends Model
                 CASE
                     WHEN po.source_type = "' . app(Purchase::class)->getTable() . '" AND po.source_sub_id IS NULL THEN 0
                     WHEN po.source_type = "' . app(Order::class)->getTable() . '" AND po.source_sub_id IS NOT NULL AND po.type = 1 THEN 0
+                    WHEN po.source_type = "' . app(Consignment::class)->getTable() . '" AND po.type = 1 THEN 0
                     WHEN po.source_type = "' . app(StituteOrder::class)->getTable() . '" AND po.type = 1 THEN 0
                     WHEN po.source_type = "' . app(Order::class)->getTable() . '" AND po.type = 9 THEN order_return.discount_value
                     WHEN po.source_type = "' . app(Delivery::class)->getTable() . '" AND po.type = 9 THEN 0
@@ -494,6 +521,7 @@ class PayingOrder extends Model
                 CASE
                     WHEN po.source_type = "' . app(Purchase::class)->getTable() . '" AND po.source_sub_id IS NULL THEN NULL
                     WHEN po.source_type = "' . app(Order::class)->getTable() . '" AND po.source_sub_id IS NOT NULL AND po.type = 1 THEN NULL
+                    WHEN po.source_type = "' . app(Consignment::class)->getTable() . '" AND po.type = 1 THEN NULL
                     WHEN po.source_type = "' . app(StituteOrder::class)->getTable() . '" AND po.type = 1 THEN NULL
                     WHEN po.source_type = "' . app(Order::class)->getTable() . '" AND po.type = 9 THEN discounts_table.items
                     WHEN po.source_type = "' . app(Delivery::class)->getTable() . '" AND po.type = 9 THEN NULL
@@ -520,6 +548,7 @@ class PayingOrder extends Model
             $query->where(function ($query) use ($source_sn) {
                 $query->where('purchase.sn', 'like', "%{$source_sn}%")
                     ->orWhere('dlv_delivery.event_sn', 'like', "%{$source_sn}%")
+                    ->orWhere('consignment.sn', 'like', "%{$source_sn}%")
                     ->orWhere('so.sn', 'like', "%{$source_sn}%")
                     ->orWhere('order_return.sn', 'like', "%{$source_sn}%")
                     ->orWhere('sub_order_return.event_sn', 'like', "%{$source_sn}%")
@@ -919,6 +948,9 @@ class PayingOrder extends Model
 
         } else if($source_type == 'ord_orders' && $source_sub_id != null){
             $link = route('cms.order.logistic-po', ['id' => $source_id, 'sid' => $source_sub_id]);
+
+        } else if($source_type == 'csn_consignment'){
+            $link = route('cms.consignment.logistic-po', ['id' => $source_id]);
 
         } else if($source_type == 'acc_stitute_orders'){
             $link = route('cms.stitute.po-show', ['id' => $source_id]);
