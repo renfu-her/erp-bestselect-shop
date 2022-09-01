@@ -74,14 +74,19 @@ class BulletinBoardCtrl extends Controller
      *
      * @return Response
      */
-    public function create()
+    public function create(Request $request)
     {
         $weights = [];
         foreach (Weight::getValues() as $value) {
             $weights[$value] = Weight::getDescription($value);
         }
+        $userName = User::where('id', $request->user()->id)
+                            ->select('name as user_name')
+                            ->get()
+                            ->first();
 
         return view('cms.admin_management.bulletin_board.edit', [
+            'data' => $userName,
             'method' => 'create',
             'weights' => $weights,
             'formAction' => Route('cms.bulletin_board.create'),
