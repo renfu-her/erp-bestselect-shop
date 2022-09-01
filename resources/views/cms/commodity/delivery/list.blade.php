@@ -147,8 +147,10 @@
                     <tr>
                         <th scope="col" style="width:40px">#</th>
                         <th scope="col" style="width:40px" class="text-center">編輯</th>
-                        <th scope="col">出貨單號</th>
-                        <th scope="col">單據編號</th>
+                        <td scope="col" class="wrap lh-sm">
+                            <div class="fw-bold">出貨單號</div>
+                            <div>單據編號</div>
+                        </td>
                         <th scope="col">寄件倉</th>
                         <th scope="col" class="wrap lh-sm">訂單狀態 /<br>物流狀態</th>
                         <th scope="col">物流分類</th>
@@ -177,8 +179,10 @@
                                 </a>
                                 @endcan
                             </td>
-                            <td>{{ $data->delivery_sn }}</td>
-                            <td>{{ $data->event_sn }}</td>
+                            <td class="wrap">
+                                <div class="fw-bold">{{ $data->delivery_sn }}</div>
+                                <div class="text-nowrap">{{ $data->event_sn }}</div>
+                            </td>
                             <td>{{ $data->depot_name ?? '-' }}</td>
                             <td class="wrap">
                                 <div class="text-nowrap lh-sm @if ($data->order_status === '取消') text-danger @endif">
