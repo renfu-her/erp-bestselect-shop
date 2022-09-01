@@ -26,7 +26,7 @@
                 </div> --}}
                 <div class="col-12 col-sm-6 col-xxl-3 mb-3">
                     <label class="form-label">分潤人姓名</label>
-                    <select name="profit_user" class="form-select">
+                    <select name="profit_user" class="form-select -select2 -single">
                         <option value="" selected>請選擇</option>
                         @foreach ($profitUsers as $key => $user)
                             <option value="{{ $user->customer_id }}" @if ($cond['profit_user'] == $user->customer_id) selected @endif>

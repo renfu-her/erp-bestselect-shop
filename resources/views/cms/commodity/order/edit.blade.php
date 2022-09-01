@@ -646,10 +646,8 @@
                     <thead>
                         <tr>
                             <th scope="col" width="10%" class="text-center">加入</th>
-                            <th scope="col">商品名稱</th>
-                            <th scope="col">款式</th>
-                            <th scope="col">SKU</th>
-                            <th scope="col">價格</th>
+                            <th scope="col">商品款式</th>
+                            <th scope="col" class="text-end">價格</th>
                         </tr>
                     </thead>
                     <tbody class="-appendClone --product">
@@ -659,8 +657,6 @@
                                     <i class="bi bi-plus-circle"></i>
                                 </button>
                             </td>
-                            <td></td>
-                            <td></td>
                             <td></td>
                             <td>$0</td>
                         </tr>
@@ -1180,10 +1176,17 @@
 
                         let $tr = $(`<tr>
                             <td class="text-center">${addBtn}</td>
-                            <td>${typeTag} ${p.product_title}</td>
-                            <td>${p.spec || ''}</td>
-                            <td>${p.sku}</td>
-                            <td>${formatNumber(p.price)}</td>
+                            <td class="wrap">
+                                <div class="lh-1 small text-nowrap">
+                                    ${typeTag} 
+                                    <span class="text-secondary">${p.sku}</span>
+                                </div>
+                                <div class="lh-lg">${p.product_title}</div>
+                                <div class="lh-1 small">
+                                    <span class="badge bg-secondary">${p.spec || '-'}</span>
+                                </div>
+                            </td>
+                            <td class="text-end">$${formatNumber(p.price)}</td>
                         </tr>`);
                         $('#addProduct .-appendClone.--product').append($tr);
                     }
