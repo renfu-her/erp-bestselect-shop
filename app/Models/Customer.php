@@ -337,7 +337,9 @@ class Customer extends Authenticatable
         echo "更新{$c}筆mcode";
     }
 
-    //更新總花費
+    /**
+     * 更新總花費
+     */
     public static function updateOrderSpends($customer_id, $total_spend) {
         if (isset($customer_id) && isset($total_spend)) {
             $count = 1;
@@ -351,7 +353,9 @@ class Customer extends Authenticatable
         }
     }
 
-    //更新最近消費時間
+    /**
+     * 更新最近消費時間
+     */
     public static function updateLatestOrderTime($customer_id, $latest_order_time) {
         if (isset($customer_id) && isset($latest_order_time)) {
             self::where('id', $customer_id)->update([
