@@ -38,6 +38,7 @@ use App\Models\PayableForeignCurrency;
 use App\Models\PayableOther;
 use App\Models\PayableDefault;
 use App\Models\ProductStock;
+use App\Models\ProductStyle;
 use App\Models\PurchaseInbound;
 use App\Models\PurchaseLog;
 use App\Models\ReceivedDefault;
@@ -537,7 +538,6 @@ class DeliveryCtrl extends Controller
             return abort(404);
         }
 
-
         //判斷OK後 回寫入各出貨商品的product_style_id prd_type combo_id
         $bdcisc = ReceiveDepot::checkBackDlvComboItemSameCount($delivery_id, $items_to_back);
 //        dd($request->all(), $bdcisc);
@@ -554,6 +554,24 @@ class DeliveryCtrl extends Controller
                 if ($reLFCDS['success'] == 0) {
                     DB::rollBack();
                     return $reLFCDS;
+                }
+
+                //查找相關退貨的組合包 將數量加回
+                $dlvBack_combo = DB::table(app(DlvBack::class)->getTable(). ' as dlv_back')
+                    ->leftJoin(app(ProductStyle::class)->getTable(). ' as style', 'style.id', '=', 'dlv_back.product_style_id')
+                    ->where('dlv_back.delivery_id', '=', $delivery->id)
+                    ->where('style.type', '=', 'c')
+                    ->get();
+                if (isset($dlvBack_combo) && 0 < count($dlvBack_combo)) {
+                    foreach ($dlvBack_combo as $back_item) {
+                        $rePSSC = ProductStock::stockChange($back_item->product_style_id, $back_item->qty
+                            , StockEvent::send_back()->value, $delivery->event_id
+                            , $request->user()->name. ' '. $delivery->sn. ' ' . $back_item->memo);
+                        if ($rePSSC['success'] == 0) {
+                            DB::rollBack();
+                            return $rePSSC;
+                        }
+                    }
                 }
 
                 //直接依據退貨數量 寫回出貨單組合包的退貨數量
@@ -715,6 +733,25 @@ class DeliveryCtrl extends Controller
                     , 'back_inbound_date' => null
                 ]);
                 Delivery::changeBackStatus($delivery->id, BackStatus::del_back_inbound());
+
+                //查找相關退貨的組合包 將數量扣回
+                $dlvBack_combo = DB::table(app(DlvBack::class)->getTable(). ' as dlv_back')
+                    ->leftJoin(app(ProductStyle::class)->getTable(). ' as style', 'style.id', '=', 'dlv_back.product_style_id')
+                    ->where('dlv_back.delivery_id', '=', $delivery->id)
+                    ->where('style.type', '=', 'c')
+                    ->get();
+                if (isset($dlvBack_combo) && 0 < count($dlvBack_combo)) {
+                    foreach ($dlvBack_combo as $back_item) {
+                        $rePSSC = ProductStock::stockChange($back_item->product_style_id, $back_item->qty * -1
+                            , StockEvent::send_back_cancle()->value, $delivery->event_id
+                            , $request->user()->name. ' '. $delivery->sn. ' ' . $back_item->memo);
+                        if ($rePSSC['success'] == 0) {
+                            DB::rollBack();
+                            return $rePSSC;
+                        }
+                    }
+                }
+
                 //直接依據退貨數量 寫回出貨單組合包的退貨數量
                 $dlvBack = DB::table(app(DlvBack::class)->getTable(). ' as dlv_back')
                     ->leftJoin(app(ReceiveDepot::class)->getTable(). ' as rcv_depot', function ($join) {
