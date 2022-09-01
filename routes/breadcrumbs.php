@@ -380,6 +380,17 @@ Breadcrumbs::for('cms.consignment.edit', function (BreadcrumbTrail $trail, $valu
     $trail->parent('cms.consignment.index');
     $trail->push('#' . $value['sn'] . ' 寄倉單資訊', route('cms.consignment.edit', ['id' => $value['id']]));
 });
+Breadcrumbs::for('cms.consignment.logistic-po', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.consignment.index');
+    $trail->push('#' . $value['sn'] . ' 寄倉單資訊', route('cms.consignment.edit', ['id' => $value['id']]));
+    $trail->push('運費付款單');
+});
+Breadcrumbs::for('cms.consignment.logistic-po-create', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.consignment.index');
+    $trail->push('#' . $value['sn'] . ' 寄倉單資訊', route('cms.consignment.edit', ['id' => $value['id']]));
+    $trail->push('運費付款單', route('cms.consignment.logistic-po', ['id' => $value['id']]));
+    $trail->push('新增付款');
+});
 // 寄倉入庫審核
 Breadcrumbs::for('cms.consignment.inbound', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.consignment.index');

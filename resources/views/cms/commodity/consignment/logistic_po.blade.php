@@ -1,13 +1,13 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h2 class="mb-4">物流付款單</h2>
+    <h2 class="mb-4">運費付款單</h2>
 
     <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
         <div class="p-1 pe-2">
             <a href="{{ route('cms.collection_payment.edit', ['id' => $paying_order->id]) }}" class="btn btn-sm btn-success px-3" role="button">修改</a>
 
             @if(! $paying_order->balance_date)
-                <a href="{{ Route('cms.order.logistic-po-create', ['id' => $sub_order->order_id, 'sid' => $sub_order->id]) }}" 
+                <a href="{{ Route('cms.consignment.logistic-po-create', ['id' => $consignmentData->consignment_id]) }}" 
                     class="btn btn-sm btn-primary px-3" role="button">付款</a>
             @endif
             {{-- <button type="button" class="btn btn-sm btn-primary">圖片管理</button> --}}
@@ -28,7 +28,7 @@
                     <span class="ms-3">電話：{{ $applied_company->phone }}</span>
                     <span class="ms-3">傳真：{{ $applied_company->fax }}</span>
                 </div>
-                <h4 class="text-center">物流付款單</h4>
+                <h4 class="text-center">運費付款單</h4>
                 <hr>
 
                 <dl class="row mb-0">
@@ -42,7 +42,7 @@
 
                 <dl class="row mb-0">
                     <div class="col">
-                        <dd>單據編號：<a href="{{ Route('cms.order.detail', ['id' => $sub_order->order_id, 'subOrderId' => $sub_order->id]) }}">{{ $sub_order->sn }}</a>
+                        <dd>單據編號：<a href="{{ Route('cms.consignment.edit', ['id' => $consignmentData->consignment_id]) }}">{{ $consignmentData->consignment_sn }}</a>
                         </dd>
                     </div>
                     <div class="col">
@@ -54,14 +54,7 @@
 
                 <dl class="row mb-0">
                     <div class="col">
-                        <dd>支付對象：
-                            {{ $paying_order->payee_name }}
-                            {{--
-                            @if($paying_order->payee_id)
-                            <a href="{{ Route('cms.supplier.edit', ['id' => $paying_order->payee_id,]) }}" target="_blank">{{ $paying_order->payee_name }}</a>
-                            @endif
-                            --}}
-                        </dd>
+                        <dd>支付對象：{{ $paying_order->payee_name }}</dd>
                     </div>
                     <div class="col">
                         <dd>承辦人：{{ $undertaker ? $undertaker->name : '' }}</dd>
@@ -82,13 +75,13 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @if($sub_order->logistic_cost > 0)
+                            @if($consignmentData->lgt_cost > 0)
                                 <tr>
                                     <td>{{ $logistics_grade_name . ' - 物流費用' }}</td>
                                     <td class="text-end">1</td>
-                                    <td class="text-end">{{ number_format($sub_order->logistic_cost, 2) }}</td>
-                                    <td class="text-end">{{ number_format($sub_order->logistic_cost) }}</td>
-                                    <td>{{ $sub_order->logistic_memo }}</td>
+                                    <td class="text-end">{{ number_format($consignmentData->lgt_cost, 2) }}</td>
+                                    <td class="text-end">{{ number_format($consignmentData->lgt_cost) }}</td>
+                                    <td>{{ $consignmentData->lgt_memo }}</td>
                                 </tr>
                             @endif
                         </tbody>
@@ -149,8 +142,8 @@
         <div class="col-auto">
             <a href="{{ Route('cms.collection_payment.index') }}" class="btn btn-outline-primary px-4" 
                 role="button">返回 付款作業列表</a>
-            <a href="{{ Route('cms.order.detail', ['id' => $sub_order->order_id, 'subOrderId' => $sub_order->id]) }}" 
-                class="btn btn-outline-primary px-4" role="button">返回 訂單資訊</a>
+            <a href="{{ Route('cms.consignment.edit', ['id' => $consignmentData->consignment_id]) }}" 
+                class="btn btn-outline-primary px-4" role="button">返回 寄倉單資訊</a>
         </div>
     </form>
 @endsection
