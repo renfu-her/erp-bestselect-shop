@@ -250,13 +250,15 @@
                 </div>
                 <div class="col">
                     <dt>運費付款單</dt>
-                    <dd>@if ($consignmentData->group_name == '')
+                    <dd>
+                        @if ($consignmentData->group_name == '')
                             尚未設定物流
                         @else
-                            <a
-                                href="">新增付款單
+                            <a href="{{ Route('cms.consignment.logistic-po', ['id' => $id]) }}">
+                                {{ $consignmentData->logistic_po_sn ? $consignmentData->logistic_po_sn : '新增付款單' }}
                             </a>
-                        @endif</dd>
+                        @endif
+                    </dd>
                 </div>
             </dl>
             <dl class="row">

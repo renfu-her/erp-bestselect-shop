@@ -6,6 +6,7 @@ use App\Enums\FrontEnd\CustomPageType;
 use App\Enums\SaleChannel\Channel;
 use App\Http\Controllers\Controller;
 use App\Models\CustomPages;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -36,7 +37,7 @@ class CustomPagesCtrl extends Controller
                         'html.body'
                     ])
                     ->get();
-    
+
 
         return view('cms.frontend.custom_pages.list', [
             'dataList' => $dataList,
@@ -49,7 +50,7 @@ class CustomPagesCtrl extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(Request $request)
     {
         //暫時只用電商通路
         $salesChannels = DB::table('prd_sale_channels')
@@ -57,9 +58,15 @@ class CustomPagesCtrl extends Controller
             ->select(['id', 'title'])
             ->get();
 
+        $userName = User::where('id', $request->user()->id)
+            ->select('name as user_name')
+            ->get()
+            ->first();
+
         $customPagesType = CustomPageType::asSelectArray();
         return view('cms.frontend.custom_pages.edit', [
             'method' => 'create',
+            'userName' => $userName,
             'customPagesType' => $customPagesType,
             'salesChannels' => $salesChannels,
             'formAction' => Route('cms.custom-pages.create'),
@@ -130,7 +137,7 @@ class CustomPagesCtrl extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit(int $id)
+    public function edit(Request $request, int $id)
     {
         //暫時只用電商通路
         $salesChannels = DB::table('prd_sale_channels')
@@ -140,10 +147,15 @@ class CustomPagesCtrl extends Controller
 
         $customPagesType = CustomPageType::asSelectArray();
         $dataList = CustomPages::getDataListById($id);
+        $userName = User::where('id', $request->user()->id)
+            ->select('name as user_name')
+            ->get()
+            ->first();
 
         return view('cms.frontend.custom_pages.edit', [
             'method' => 'edit',
             'dataList' => $dataList,
+            'userName' => $userName,
             'customPagesType' => $customPagesType,
             'salesChannels' => $salesChannels,
             'formAction' => Route('cms.custom-pages.edit', $id),

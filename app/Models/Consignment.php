@@ -247,6 +247,20 @@ class Consignment extends Model
             ->leftJoin('dlv_logistic', 'dlv_logistic.delivery_id', '=', 'dlv_delivery.id')
             ->leftJoin('shi_group', 'shi_group.id', '=', 'dlv_logistic.ship_group_id')
             ->leftJoin('shi_temps', 'shi_temps.id', '=', 'shi_group.temps_fk')
+            ->leftJoin('prd_suppliers', function ($join) {
+                $join->on('prd_suppliers.id', '=', 'shi_group.supplier_fk');
+                $join->whereNotNull('shi_group.supplier_fk');
+            })
+            ->leftJoin('pcs_paying_orders as po', function ($join) {
+                $join->on('po.source_id', '=', 'consignment.id');
+                $join->where([
+                    'po.source_sub_id' => null,
+                    'po.source_type' => app(Consignment::class)->getTable(),
+                    'po.type' => 1,
+                    'po.deleted_at' => null,
+                ]);
+            })
+
             ->select(
                 'consignment.id as consignment_id'
                 , 'consignment.sn as consignment_sn'
@@ -290,7 +304,11 @@ class Consignment extends Model
                 , 'shi_group.name as group_name'
                 , 'shi_group.note as group_note'
                 , 'shi_temps.temps'
-            );
+                , 'prd_suppliers.id as supplier_id')
+
+                ->selectRaw("IF(po.sn IS NULL, NULL, po.sn) as logistic_po_sn")
+                ->selectRaw("IF(po.balance_date IS NULL, NULL, po.balance_date) as logistic_po_balance_date")
+                ->selectRaw("IF(po.created_at IS NULL, NULL, po.created_at) as logistic_po_created_at");
         if ($consignment_id) {
             $query->where('consignment.id', $consignment_id);
         }

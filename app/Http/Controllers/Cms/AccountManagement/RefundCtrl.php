@@ -236,6 +236,10 @@ class RefundCtrl extends Controller
                     $value->po_url_link = route('cms.order.logistic-po', ['id' => $value->po_source_id, 'sid' => $value->po_source_sub_id]);
                     $value->source_url_link = route('cms.order.detail', ['id' => $value->po_source_id, 'subOrderId' => $value->po_source_sub_id]);
 
+                } else if($value->po_source_type == 'csn_consignment'){
+                    $value->po_url_link = route('cms.consignment.logistic-po', ['id' => $value->po_source_id]);
+                    $value->source_url_link = route('cms.consignment.edit', ['id' => $value->po_source_id]);
+
                 } else if($value->po_source_type == 'acc_stitute_orders'){
                     $value->po_url_link = route('cms.stitute.po-show', ['id' => $value->po_source_id]);
                     $value->source_url_link = route('cms.stitute.show', ['id' => $value->po_source_id]);

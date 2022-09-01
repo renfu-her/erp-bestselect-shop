@@ -2,21 +2,39 @@
 
 namespace App\Http\Controllers\Cms\Commodity;
 
+use App\Enums\Payable\ChequeStatus;
 use App\Enums\Consignment\AuditStatus;
 use App\Enums\Delivery\Event;
 use App\Enums\Purchase\InboundStatus;
 use App\Enums\Purchase\LogEventFeature;
 use App\Enums\StockEvent;
+use App\Enums\Supplier\Payment;
+
 use App\Http\Controllers\Controller;
+use App\Models\AccountPayable;
+use App\Models\AllGrade;
 use App\Models\Consignment;
 use App\Models\ConsignmentItem;
 use App\Models\Consum;
+use App\Models\DayEnd;
 use App\Models\Delivery;
 use App\Models\Depot;
 use App\Models\ProductStock;
 use App\Models\PurchaseInbound;
 use App\Models\PurchaseLog;
 use App\Models\ReceiveDepot;
+use App\Models\PayingOrder;
+use App\Models\PayableDefault;
+use App\Models\Supplier;
+use App\Models\User;
+use App\Models\GeneralLedger;
+use App\Models\PayableAccount;
+use App\Models\PayableCash;
+use App\Models\PayableCheque;
+use App\Models\PayableForeignCurrency;
+use App\Models\PayableOther;
+use App\Models\PayableRemit;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -476,6 +494,229 @@ class ConsignmentCtrl extends Controller
             'event' => Event::consignment()->value,
             'breadcrumb_data' => $purchaseData->consignment_sn,
         ]);
+    }
+
+
+    public function logistic_po(Request $request, $id)
+    {
+        $request->merge([
+            'id' => $id,
+        ]);
+
+        $request->validate([
+            'id' => 'required|exists:csn_consignment,id',
+        ]);
+
+        $source_type = app(Consignment::class)->getTable();
+        $type = 1;
+
+        $paying_order = PayingOrder::where([
+            'source_type' => $source_type,
+            'source_id' => $id,
+            'source_sub_id' => null,
+            'type' => $type,
+            'deleted_at' => null,
+        ])->first();
+
+        $consignmentData  = Consignment::getDeliveryData($id)->get()->first();
+        $supplier = Supplier::find($consignmentData->supplier_id);
+
+        if (!$paying_order) {
+            $price = $consignmentData->lgt_cost;
+            $product_grade = PayableDefault::where('name', '=', 'product')->first()->default_grade_id;
+            $logistics_grade = PayableDefault::where('name', '=', 'logistics')->first()->default_grade_id;
+
+            $result = PayingOrder::createPayingOrder(
+                $source_type,
+                $id,
+                null,
+                $request->user()->id,
+                $type,
+                $product_grade,
+                $logistics_grade,
+                $price ?? 0,
+                '',
+                '',
+                $supplier ? $supplier->id : null,
+                $supplier ? ($supplier->nickname ? $supplier->name . ' - ' . $supplier->nickname : $supplier->name) : null,
+                $supplier ? $supplier->contact_tel : null,
+                $supplier ? $supplier->contact_address : null
+            );
+
+            $paying_order = PayingOrder::findOrFail($result['id']);
+        }
+
+        $applied_company = DB::table('acc_company')->where('id', 1)->first();
+
+        $logistics_grade_name = AllGrade::find($paying_order->logistics_grade_id)->eachGrade->code . ' ' . AllGrade::find($paying_order->logistics_grade_id)->eachGrade->name;
+
+        if ($consignmentData->lgt_sn) {
+            $logistics_grade_name = $logistics_grade_name. ' #'. $consignmentData->lgt_sn;
+        } else {
+            $logistics_grade_name = $logistics_grade_name. ' #'. $consignmentData->package_sn;
+        }
+
+        $payable_data = PayingOrder::get_payable_detail($paying_order->id);
+
+        $accountant = User::whereIn('id', $payable_data->pluck('accountant_id_fk')->toArray())->get();
+        $accountant = array_unique($accountant->pluck('name')->toArray());
+        asort($accountant);
+
+        $undertaker = User::find($paying_order->usr_users_id);
+
+        $zh_price = num_to_str($paying_order->price);
+        $view = 'cms.commodity.consignment.logistic_po';
+        if (request('action') == 'print') {
+            $view = 'doc.print_consignment_logistic_pay';
+        }
+
+        return view($view, [
+            'breadcrumb_data' => ['id' => $id, 'sn' => $consignmentData->consignment_sn],
+
+            'paying_order' => $paying_order,
+            'payable_data' => $payable_data,
+            'consignmentData' => $consignmentData,
+            'undertaker' => $undertaker,
+            'applied_company' => $applied_company,
+            'logistics_grade_name' => $logistics_grade_name,
+            'accountant' => implode(',', $accountant),
+            'zh_price' => $zh_price,
+        ]);
+    }
+
+    public function logistic_po_create(Request $request, $id)
+    {
+        $request->merge([
+            'id' => $id,
+        ]);
+
+        $request->validate([
+            'id' => 'required|exists:csn_consignment,id',
+        ]);
+
+        $source_type = app(Consignment::class)->getTable();
+        $type = 1;
+
+        $paying_order = PayingOrder::where([
+            'source_type' => $source_type,
+            'source_id' => $id,
+            'source_sub_id' => null,
+            'type' => $type,
+            'deleted_at' => null,
+        ])->first();
+
+        if (!$paying_order) {
+            return abort(404);
+        }
+
+        if ($request->isMethod('post')) {
+            $request->merge([
+                'pay_order_id' => $paying_order->id,
+            ]);
+
+            $request->validate([
+                'acc_transact_type_fk' => 'required|regex:/^[1-6]$/',
+            ]);
+
+            $req = $request->all();
+
+            $payable_type = $req['acc_transact_type_fk'];
+
+            switch ($payable_type) {
+                case Payment::Cash:
+                    PayableCash::storePayableCash($req);
+                    break;
+                case Payment::Cheque:
+                    $request->validate([
+                        'cheque.ticket_number'=>'required|unique:acc_payable_cheque,ticket_number|regex:/^[A-Z]{2}[0-9]{7}$/'
+                    ]);
+                    PayableCheque::storePayableCheque($req);
+                    break;
+                case Payment::Remittance:
+                    PayableRemit::storePayableRemit($req);
+                    break;
+                case Payment::ForeignCurrency:
+                    PayableForeignCurrency::storePayableCurrency($req);
+                    break;
+                case Payment::AccountsPayable:
+                    PayableAccount::storePayablePayableAccount($req);
+                    break;
+                case Payment::Other:
+                    PayableOther::storePayableOther($req);
+                    break;
+            }
+
+            $payable_data = PayingOrder::get_payable_detail($paying_order->id);
+            if (count($payable_data) > 0 && $paying_order->price == $payable_data->sum('tw_price')) {
+                $paying_order->update([
+                    'balance_date' => date('Y-m-d H:i:s'),
+                    'payment_date' => $req['payment_date'],
+                ]);
+
+                DayEnd::match_day_end_status($req['payment_date'], $paying_order->sn);
+            }
+
+            if (PayingOrder::find($paying_order->id) && PayingOrder::find($paying_order->id)->balance_date) {
+                return redirect()->route('cms.consignment.logistic-po', [
+                    'id' => $id,
+                ]);
+
+            } else {
+                return redirect()->route('cms.consignment.logistic-po-create', [
+                    'id' => $id,
+                ]);
+            }
+
+        } else {
+
+            if ($paying_order->balance_date) {
+                return abort(404);
+            }
+
+            $consignmentData  = Consignment::getDeliveryData($id)->get()->first();
+            $supplier = Supplier::find($consignmentData->supplier_id);
+
+            $logistics_grade_name = AllGrade::find($paying_order->logistics_grade_id)->eachGrade->code . ' ' . AllGrade::find($paying_order->logistics_grade_id)->eachGrade->name;
+
+            $currency = DB::table('acc_currency')->find($paying_order->acc_currency_fk);
+            if (!$currency) {
+                $currency = (object) [
+                    'name' => 'NTD',
+                    'rate' => 1,
+                ];
+            }
+
+            $payable_data = PayingOrder::get_payable_detail($paying_order->id);
+
+            $tw_price = $paying_order->price - $payable_data->sum('tw_price');
+
+            $total_grades = GeneralLedger::total_grade_list();
+
+            return view('cms.commodity.consignment.logistic_po_create', [
+                'breadcrumb_data' => ['id' => $id, 'sn' => $consignmentData->consignment_sn],
+                'paying_order' => $paying_order,
+                'payable_data' => $payable_data,
+                'consignmentData' => $consignmentData,
+                'supplier' => $supplier,
+                'logistics_grade_name' => $logistics_grade_name,
+                'currency' => $currency,
+                'tw_price' => $tw_price,
+                'total_grades' => $total_grades,
+
+                'cashDefault' => PayableDefault::where('name', 'cash')->pluck('default_grade_id')->toArray(),
+                'chequeDefault' => PayableDefault::where('name', 'cheque')->pluck('default_grade_id')->toArray(),
+                'remitDefault' => PayableDefault::where('name', 'remittance')->pluck('default_grade_id')->toArray(),
+                'all_currency' => PayableDefault::getCurrencyOptionData()['selectedCurrencyResult']->toArray(),
+                'currencyDefault' => PayableDefault::where('name', 'foreign_currency')->pluck('default_grade_id')->toArray(),
+                'accountPayableDefault' => PayableDefault::where('name', 'accounts_payable')->pluck('default_grade_id')->toArray(),
+                'otherDefault' => PayableDefault::where('name', 'other')->pluck('default_grade_id')->toArray(),
+
+                'form_action' => Route('cms.consignment.logistic-po-create', ['id' => $id]),
+                'method' => 'create',
+                'transactTypeList' => AccountPayable::getTransactTypeList(),
+                'chequeStatus' => ChequeStatus::get_key_value(),
+            ]);
+        }
     }
 }
 
