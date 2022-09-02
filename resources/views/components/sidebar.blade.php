@@ -1,4 +1,4 @@
-<nav id="sidebarMenu" class="col-12 col-sm-3 p-0 sidebar collapse">
+<nav id="sidebarMenu" class="col-12 col-sm-3 p-0 sidebar collapse show">
     <ul class="list-unstyled ps-0">
         <li class="mb-1">
             <a href="{{ route('cms.dashboard') }}">
