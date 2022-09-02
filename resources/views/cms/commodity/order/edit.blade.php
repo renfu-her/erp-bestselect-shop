@@ -456,6 +456,12 @@
                                     </label>
                                 </div>
                             @endif
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label">
+                                    <input class="form-check-input" name="sed_radio" value="new" type="radio" >
+                                    新增地址
+                                </label>
+                            </div>
                         </div>
                     </fieldset>
                     @if(count($otherOftenUsedAddresses ?? []) > 0)
@@ -540,6 +546,12 @@
                                     </label>
                                 </div>
                             @endif
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label">
+                                    <input class="form-check-input" name="rec_radio" value="new" type="radio" >
+                                    新增地址
+                                </label>
+                            </div>
                         </div>
                     </fieldset>
                     @if(count($otherOftenUsedAddresses ?? []) > 0)
@@ -1178,7 +1190,7 @@
                             <td class="text-center">${addBtn}</td>
                             <td class="wrap">
                                 <div class="lh-1 small text-nowrap">
-                                    ${typeTag} 
+                                    ${typeTag}
                                     <span class="text-secondary">${p.sku}</span>
                                 </div>
                                 <div class="lh-lg">${p.product_title}</div>
@@ -2482,6 +2494,15 @@
                 } else if($(this).val() === 'other_often_used_addresses') {
                     $('.sed_selectOftenUsedAddress select option:first-of-type').prop("selected", "selected");
                     $('.sed_selectOftenUsedAddress').prop('hidden', false);
+                } else {
+                    // 清空
+                    $(`input[name="sed_name"],
+                       input[name="sed_phone"],
+                       input[name="sed_addr"],
+                       select[name="sed_city_id"],
+                       select[name="sed_region_id`).val('');
+                    $(`select[name="sed_region_id"]`).html('<option value="">地區</option>');
+                    $('.sed_selectOftenUsedAddress').prop('hidden', true);
                 }
             });
 
@@ -2517,6 +2538,15 @@
                 } else if($(this).val() === 'other_often_used_addresses') {
                     $('.rec_selectOftenUsedAddress select option:first-of-type').prop("selected", "selected");
                     $('.rec_selectOftenUsedAddress').prop('hidden', false);
+                } else {
+                    // 清空
+                    $(`input[name="rec_name"],
+                       input[name="rec_phone"],
+                       input[name="rec_addr"],
+                       select[name="rec_city_id"],
+                       select[name="rec_region_id`).val('');
+                    $(`select[name="rec_region_id"]`).html('<option value="">地區</option>');
+                    $('.rec_selectOftenUsedAddress').prop('hidden', true);
                 }
             });
 
