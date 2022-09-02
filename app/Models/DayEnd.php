@@ -355,6 +355,9 @@ class DayEnd extends Model
                 } else if($target->source_type == 'ord_orders' && $target->source_sub_id != null){
                     $link = route('cms.order.logistic-po', ['id' => $target->source_id, 'sid' => $target->source_sub_id]);
 
+                } else if($target->source_type == 'csn_consignment'){
+                    $link = route('cms.consignment.logistic-po', ['id' => $target->source_id]);
+
                 } else if($target->source_type == 'acc_stitute_orders'){
                     $link = route('cms.stitute.po-show', ['id' => $target->source_id]);
 

@@ -612,6 +612,8 @@
                         inboData.forEach((inbo, i) => {
                             createOneInbound(inbo, i);
                         });
+                        $('#addInbound .-appendClone.--inbound input[name="inbound_id[]"]:first').prop('checked', true);
+                        $('#addInbound .-appendClone.--inbound input[name="qty[]"]:first').prop({ 'disabled': false, 'required': true }).val(1);
 
                         // bind event
                         // -- 選取
@@ -644,7 +646,7 @@
                     </th>
                     <td>${ib.inbound_sn}</td>
                     <td>${ib.depot_name}</td>
-                    <td>${ib.expiry_date ?? ''}</td>
+                    <td>${ib.expiry_date ? moment(ib.expiry_date).format('YYYY/MM/DD') : ''}</td>
                     <td>${ib.qty}</td>
                     <td><input type="number" name="qty[]" value="" min="1" max="${ib.qty}" class="form-control form-control-sm text-center" disabled></td>
                 </tr>`);
