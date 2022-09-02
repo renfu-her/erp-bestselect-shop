@@ -1133,7 +1133,7 @@ class Order extends Model
             if (ReceivedMethod::Remittance()->value == $order->payment_method) {
                 $link_url_type = 'payRemit';
             }
-            $link_url = env('FRONTEND_URL') . '/'. $link_url_type. '/'. $order_id. '?em='. $order->email;
+            $link_url = env('FRONTEND_URL') . ''. $link_url_type. '/'. $order_id. '?em='. $order->email;
 
             $email = $order->email;
             $data = [
