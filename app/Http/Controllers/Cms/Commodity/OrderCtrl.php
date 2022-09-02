@@ -255,7 +255,7 @@ class OrderCtrl extends Controller
             $arrVali[$prefix . '_region_id'] = 'required';
             $arrVali[$prefix . '_addr'] = 'required';
             $arrVali[$prefix . '_radio'] = 'required';
-            $address[$prefix . '_address'] = 'required';
+            $arrVali[$prefix . '_address'] = 'required';
 
         }
 
