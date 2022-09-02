@@ -12,6 +12,9 @@
                             <div class="alert alert-success" role="alert">
                                 {{ session('status') }}
                             </div>
+                            <div class="row mb-0">
+                                <a href="{{ env('FRONTEND_URL') }}" target="_blank">返回喜鴻購物官網</a>
+                            </div>
                         @else
 
                             <form method="POST" action="{{ route('customer.password.email') }}">
