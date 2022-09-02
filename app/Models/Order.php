@@ -1128,10 +1128,18 @@ class Order extends Model
 
             self::getSendMailAddressInfo($order_id, $orderer, $receiver);
 
+            //連結網址
+            $link_url_type = 'orderDetail';
+            if (ReceivedMethod::Remittance()->value == $order->payment_method) {
+                $link_url_type = 'payRemit';
+            }
+            $link_url = env('FRONTEND_URL') . '/'. $link_url_type. '/'. $order_id. '?em='. $order->email;
+
             $email = $order->email;
             $data = [
                 'order_name' => $orderer->name ?? ''
-                , 'sn' => $order->sn ?? '',
+                , 'sn' => $order->sn ?? ''
+                , 'link_url' => $link_url
             ];
             Mail::to($email)->queue(new OrderEstablished($data));
         }
