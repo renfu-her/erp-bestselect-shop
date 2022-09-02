@@ -1192,6 +1192,32 @@ class ReceivedOrder extends Model
     }
 
 
+    public static function received_order_source_link($source_type, $source_id, $back_domain = false)
+    {
+        $link = 'javascript:void(0);';
+
+        if($back_domain){
+            $link = '/';
+        }
+
+        if($source_type == 'ord_orders'){
+            $link = route('cms.order.detail', ['id' => $source_id]);
+
+        } else if($source_type == 'csn_orders'){
+            $link = route('cms.consignment-order.edit', ['id' => $source_id]);
+
+        } else if($source_type == 'ord_received_orders'){
+            $link = route('cms.account_received.index');
+
+        } else if($source_type == 'acc_request_orders'){
+            $link = route('cms.request.show', ['id' => $source_id]);
+
+        }
+
+        return $link;
+    }
+
+
     public static function drawee($id, $name)
     {
         $client = (object)[

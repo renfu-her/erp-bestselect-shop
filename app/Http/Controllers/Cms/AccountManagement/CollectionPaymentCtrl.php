@@ -342,10 +342,11 @@ class CollectionPaymentCtrl extends Controller
 
             wToast('刪除完成');
 
+            return redirect()->to(PayingOrder::paying_order_source_link($po->source_type, $po->source_id, $po->source_sub_id, $po->type, true));
+
         } else {
             wToast('刪除失敗', ['type'=>'danger']);
+            return redirect()->back();
         }
-
-        return redirect()->to(PayingOrder::paying_order_source_link($po->source_type, $po->source_id, $po->source_sub_id, $po->type, true));
     }
 }

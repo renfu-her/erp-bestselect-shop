@@ -1026,7 +1026,7 @@ class PayingOrder extends Model
             $link = route('cms.delivery.back_detail', ['event' => $dlv->event, 'eventId' => $dlv->event_id]);
 
         } else if($source_type == 'pcs_paying_orders'){
-            $link = route('cms.accounts_payable.po-show', ['id' => $source_id]);
+            $link = route('cms.accounts_payable.index');
         }
 
         return $link;

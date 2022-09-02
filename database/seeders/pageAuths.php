@@ -315,27 +315,6 @@ return [
         ],
     ],
     [
-        "unit" => "寄倉訂購收款作業",
-        "permissions" => [
-            [
-                "cms.ar_csnorder.index",
-                "瀏覽",
-            ],
-            [
-                "cms.ar_csnorder.create",
-                "新增",
-            ],
-            [
-                "cms.ar_csnorder.edit",
-                "編輯",
-            ],
-            [
-                "cms.ar_csnorder.delete",
-                "刪除",
-            ],
-        ],
-    ],
-    [
         "unit" => "信用卡作業管理",
         "permissions" => [
             [

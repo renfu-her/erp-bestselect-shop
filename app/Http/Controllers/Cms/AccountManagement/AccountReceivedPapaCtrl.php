@@ -45,8 +45,6 @@ abstract class AccountReceivedPapaCtrl extends Controller
     abstract public function getRouteTaxation();
     abstract public function getViewTaxation();
 
-    abstract public function doDestroy($source_id);
-
     abstract public function doReviewWhenReceived($id, $received_order);
     abstract public function doReviewWhenReceiptCancle($id, $received_order);
 
@@ -849,46 +847,6 @@ abstract class AccountReceivedPapaCtrl extends Controller
                 'breadcrumb_data' => ['id'=>$order->id, 'sn'=>$order->sn],
             ]);
         }
-    }
-
-    public function destroy($id)
-    {
-        $ro = ReceivedOrder::delete_received_order($id);
-        if($ro){
-            if($ro->source_type == app(Order::class)->getTable()){
-                $this->doDestroy($ro->source_id);
-
-            } else if($ro->source_type == app(CsnOrder::class)->getTable()){
-                $this->doDestroy($ro->source_id);
-
-            } else if($ro->source_type == app(CsnOrder::class)->getTable()){
-
-            } else if($ro->source_type == app(CsnOrder::class)->getTable()){
-
-            }
-
-            // credit card - income order record update
-            $r_method_list = ReceivedOrder::get_received_detail($id, ReceivedMethod::CreditCard)->where('credit_card_status_code', 2)->groupBy('credit_card_io_id');
-            foreach($r_method_list as $group){
-                foreach($group as $data){
-                    $parm = [
-                        'credit_card_received_id'=>[$data->received_method_id],
-                        'status_code'=>1,
-                        'transaction_date'=>$data->credit_card_transaction_date,
-                    ];
-                    ReceivedOrder::update_credit_received_method($parm);
-                }
-
-                IncomeOrder::store_income_order($group->first()->credit_card_posting_date);
-            }
-
-
-            wToast('刪除完成');
-
-        } else {
-            wToast('刪除失敗', ['type'=>'danger']);
-        }
-        return redirect()->back();
     }
 }
 

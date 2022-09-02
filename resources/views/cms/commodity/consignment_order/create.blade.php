@@ -26,7 +26,7 @@
         @if ($received_order_data)
             @if(!in_array($consignmentData->status, ['已入款', '結案']))
                 <a href="javascript:void(0)" role="button" data-bs-toggle="modal" data-bs-target="#confirm-delete"
-                    data-href="{{ Route('cms.ar_csnorder.delete', ['id' => $received_order_data->id], true) }}"
+                    data-href="{{ Route('cms.collection_received.delete', ['id' => $received_order_data->id], true) }}"
                     class="btn btn-sm btn-danger">刪除收款單</a>
             @endif
         @endif

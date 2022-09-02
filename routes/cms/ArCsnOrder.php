@@ -11,8 +11,4 @@ Route::group(['prefix' => 'ar_csnorder', 'as' => 'ar_csnorder.'], function () {
     Route::match(['get', 'post'], 'review/{id}', [AccountReceivedCsnOrderCtrl::class, 'review'])->name('review')->middleware('permission:cms.ar_csnorder.review');
 
     Route::match(['get', 'post'], 'taxation/{id}', [AccountReceivedCsnOrderCtrl::class, 'taxation'])->name('taxation')->middleware('permission:cms.ar_csnorder.taxation');
-
-    Route::get('delete/{id}', [AccountReceivedCsnOrderCtrl::class, 'destroy'])->name('delete')->middleware('permission:cms.ar_csnorder.delete');
-//    Route::get('edit', [AccountReceivedCsnOrderCtrl::class, 'edit'])->name('edit')->middleware('permission:cms.ar_csnorder.edit');
-//    Route::post('edit', [AccountReceivedCsnOrderCtrl::class, 'update'])->name('update')->middleware('permission:cms.ar_csnorder.update');;
 });
