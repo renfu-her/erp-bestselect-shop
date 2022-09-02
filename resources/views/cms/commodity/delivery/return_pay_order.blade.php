@@ -45,6 +45,15 @@
 
             <dl class="row mb-0">
                 <div class="col">
+                    <dd>單據編號：</dd>
+                </div>
+                <div class="col">
+                    <dd>付款日期：</dd>
+                </div>
+            </dl>
+
+            <dl class="row mb-0">
+                <div class="col">
                     <dd>支付對象：
                         {{ $delivery->po_payee_name }}
                     </dd>
@@ -140,6 +149,11 @@
                 </div>
             </dl>
         </div>
+    </div>
+    
+    <div class="col-auto">
+        <a href="{{ Route('cms.delivery.back_detail', ['event' => $delivery->delivery_event, 'eventId' => $delivery->delivery_event_id]) }}" 
+            class="btn btn-outline-primary px-4" role="button">返回 銷貨退回明細</a>
     </div>
 
     <!-- Modal -->

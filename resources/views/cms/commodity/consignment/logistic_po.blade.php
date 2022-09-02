@@ -51,9 +51,9 @@
                         </dd>
                     </div>
                     <div class="col">
-                        @if($paying_order->payment_date)
-                        <dd>付款日期：{{ date('Y-m-d', strtotime($paying_order->payment_date)) }}</dd>
-                        @endif
+                        <dd>
+                            付款日期：@if($paying_order->payment_date) {{ date('Y-m-d', strtotime($paying_order->payment_date)) }} @endif
+                        </dd>
                     </div>
                 </dl>
 

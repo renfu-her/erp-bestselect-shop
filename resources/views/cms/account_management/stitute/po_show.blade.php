@@ -43,9 +43,7 @@
                         <dd>單據編號：<a href="{{ route('cms.stitute.show', ['id' => $stitute_order->id]) }}">{{ $stitute_order->sn }}</a></dd>
                     </div>
                     <div class="col">
-                        <dd>
-                            付款日期：
-                        </dd>
+                        <dd>付款日期：</dd>
                     </div>
                 </dl>
                 <dl class="row mb-0">
