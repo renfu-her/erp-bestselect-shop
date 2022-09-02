@@ -599,12 +599,6 @@ class PayingOrder extends Model
 
         $target->delete();
 
-        // if($target->payment_date){
-        //     $target = null;
-        // } else {
-        //     $target->delete();
-        // }
-
         return $target;
     }
 
@@ -715,9 +709,12 @@ class PayingOrder extends Model
                 _remit.remit_date  AS remit_date
             ')
 
-            // ->selectRaw('
-            //     _account.status_code AS account_status_code,
-            // ')
+            ->selectRaw('
+                _account.status_code AS account_status_code,
+                _account.sn AS account_sn,
+                _account.amt_net AS account_amt_net,
+                _account.payment_date AS account_payment_date
+            ')
             // ->selectRaw('
             //     _other.status_code AS account_status_code,
             // ')
@@ -913,29 +910,61 @@ class PayingOrder extends Model
     }
 
 
-    public static function update_account_payable_method($request)
+    public static function update_account_payable_method($request, $clear = false)
     {
-        if($request['status_code'] == 0){
-            foreach($request['accounts_payable_id'] as $key => $value){
-                DB::table('acc_payable_account')->where('id', $value)->update([
-                    'status_code'=>0,
+        if($clear){
+            DB::table('acc_payable_account')->whereIn('append_pay_order_id', $request['append_pay_order_id'])->update([
+                'status_code'=>0,
+                'append_pay_order_id'=>null,
+                'sn'=>null,
+                'amt_net'=>0,
+                'payment_date'=>null,
+                'updated_at'=>date('Y-m-d H:i:s'),
+            ]);
+
+        } else {
+            if($request['status_code'] == 0){
+                foreach($request['accounts_payable_id'] as $key => $value){
+                    $account = DB::table('acc_payable_account')->where('id', $value)->first();
+
+                    if($account && $account->append_pay_order_id){
+                        self::find($account->append_pay_order_id)->delete();
+                    }
+
+                    DB::table('acc_payable_account')->where('id', $value)->update([
+                        'status_code'=>0,
+                        'append_pay_order_id'=>$request['append_pay_order_id'],
+                        'sn'=>$request['sn'],
+                        'amt_net'=>$request['amt_net'][$key],
+                        'payment_date'=>null,
+                        'updated_at'=>date('Y-m-d H:i:s'),
+                    ]);
+                }
+
+            } else if($request['status_code'] == 1){
+                DB::table('acc_payable_account')->whereIn('id', $request['accounts_payable_id'])->update([
+                    'status_code'=>1,
                     'append_pay_order_id'=>$request['append_pay_order_id'],
                     'sn'=>$request['sn'],
-                    'amt_net'=>$request['amt_net'][$key],
-                    'payment_date'=>null,
+                    'payment_date'=>date('Y-m-d H:i:s'),
                     'updated_at'=>date('Y-m-d H:i:s'),
                 ]);
             }
-
-        } else if($request['status_code'] == 1){
-            DB::table('acc_payable_account')->whereIn('id', $request['accounts_payable_id'])->update([
-                'status_code'=>1,
-                'append_pay_order_id'=>$request['append_pay_order_id'],
-                'sn'=>$request['sn'],
-                'payment_date'=>date('Y-m-d H:i:s'),
-                'updated_at'=>date('Y-m-d H:i:s'),
-            ]);
         }
+    }
+
+
+    public static function payable_data_status_check($collection)
+    {
+        $check_result = false;
+        foreach($collection as $value){
+            if($value->cheque_status_code == 'cashed' || $value->account_sn != null){
+                $check_result = true;
+                break;
+            }
+        }
+
+        return $check_result;
     }
 
 
@@ -960,6 +989,41 @@ class PayingOrder extends Model
 
         } else if($source_type == 'dlv_delivery'){
             $link = route('cms.delivery.return-pay-order', ['id' => $source_id]);
+
+        } else if($source_type == 'pcs_paying_orders'){
+            $link = route('cms.accounts_payable.po-show', ['id' => $source_id]);
+        }
+
+        return $link;
+    }
+
+
+    public static function paying_order_source_link($source_type, $source_id, $source_sub_id = null, $type, $back_domain = false)
+    {
+        $link = 'javascript:void(0);';
+
+        if($back_domain){
+            $link = '/';
+        }
+
+        if($source_type == 'pcs_purchase'){
+            $link = route('cms.purchase.edit', ['id' => $source_id]);
+
+        } else if($source_type == 'ord_orders' && $source_sub_id != null){
+            $link = route('cms.order.detail', ['id' => $source_id, 'subOrderId' => $source_sub_id]);
+
+        } else if($source_type == 'csn_consignment'){
+            $link = route('cms.consignment.edit', ['id' => $source_id]);
+
+        } else if($source_type == 'acc_stitute_orders'){
+            $link = route('cms.stitute.show', ['id' => $source_id]);
+
+        } else if($source_type == 'ord_orders' && $source_sub_id == null){
+            $link = route('cms.order.detail', ['id' => $source_id]);
+
+        } else if($source_type == 'dlv_delivery'){
+            $dlv = Delivery::find($source_id);
+            $link = route('cms.delivery.back_detail', ['event' => $dlv->event, 'eventId' => $dlv->event_id]);
 
         } else if($source_type == 'pcs_paying_orders'){
             $link = route('cms.accounts_payable.po-show', ['id' => $source_id]);

@@ -331,45 +331,14 @@ class DayEnd extends Model
             $target = ReceivedOrder::find($source_id);
 
             if($target){
-                if($target->source_type == 'ord_orders'){
-                    $link = route('cms.collection_received.receipt', ['id' => $target->source_id]);
-
-                } else if($target->source_type == 'csn_orders'){
-                    $link = route('cms.ar_csnorder.receipt', ['id' => $target->source_id]);
-
-                } else if($target->source_type == 'ord_received_orders'){
-                    $link = route('cms.account_received.ro-receipt', ['id' => $target->source_id]);
-
-                } else if($target->source_type == 'acc_request_orders'){
-                    $link = route('cms.request.ro-receipt', ['id' => $target->source_id]);
-                }
+                $link = ReceivedOrder::received_order_link($target->source_type, $target->source_id);
             }
 
         } else if($source_type == 'pcs_paying_orders') {
             $target = PayingOrder::find($source_id);
 
             if($target){
-                if($target->source_type == 'pcs_purchase'){
-                    $link = route('cms.purchase.view-pay-order', ['id' => $target->source_id, 'type' => $target->type]);
-
-                } else if($target->source_type == 'ord_orders' && $target->source_sub_id != null){
-                    $link = route('cms.order.logistic-po', ['id' => $target->source_id, 'sid' => $target->source_sub_id]);
-
-                } else if($target->source_type == 'csn_consignment'){
-                    $link = route('cms.consignment.logistic-po', ['id' => $target->source_id]);
-
-                } else if($target->source_type == 'acc_stitute_orders'){
-                    $link = route('cms.stitute.po-show', ['id' => $target->source_id]);
-
-                } else if($target->source_type == 'ord_orders' && $target->source_sub_id == null){
-                    $link = route('cms.order.return-pay-order', ['id' => $target->source_id]);
-
-                } else if($target->source_type == 'dlv_delivery'){
-                    $link = route('cms.delivery.return-pay-order', ['id' => $target->source_id]);
-
-                } else if($target->source_type == 'pcs_paying_orders'){
-                    $link = route('cms.accounts_payable.po-show', ['id' => $target->source_id]);
-                }
+                $link = PayingOrder::paying_order_link($target->source_type, $target->source_id, $target->source_sub_id, $target->type);
             }
 
         } else if($source_type == 'acc_transfer_voucher') {

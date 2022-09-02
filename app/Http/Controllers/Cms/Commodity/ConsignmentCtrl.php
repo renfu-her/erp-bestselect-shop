@@ -557,6 +557,7 @@ class ConsignmentCtrl extends Controller
         }
 
         $payable_data = PayingOrder::get_payable_detail($paying_order->id);
+        $data_status_check = PayingOrder::payable_data_status_check($payable_data);
 
         $accountant = User::whereIn('id', $payable_data->pluck('accountant_id_fk')->toArray())->get();
         $accountant = array_unique($accountant->pluck('name')->toArray());
@@ -575,6 +576,7 @@ class ConsignmentCtrl extends Controller
 
             'paying_order' => $paying_order,
             'payable_data' => $payable_data,
+            'data_status_check' => $data_status_check,
             'consignmentData' => $consignmentData,
             'undertaker' => $undertaker,
             'applied_company' => $applied_company,

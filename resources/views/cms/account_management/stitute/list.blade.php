@@ -125,8 +125,8 @@
                     @foreach ($dataList as $key => $data)
                         <tr>
                             <td>{{ $key + 1 }}</td>
-                            <td><a href="{{ route('cms.stitute.show', ['id' => $data->so_id]) }}" class="-text">{{ $data->so_sn }}</a></td>
-                            <td><a href="{{ route('cms.stitute.po-show', ['id' => $data->so_id]) }}" class="-text">{{ $data->po_sn }}</a></td>
+                            <td><a href="{{ route('cms.stitute.show', ['id' => $data->so_id]) }}">{{ $data->so_sn }}</a></td>
+                            <td><a href="{{ route('cms.stitute.po-show', ['id' => $data->so_id]) }}">{{ $data->po_sn }}</a></td>
                             <td>{{ $data->so_client_name }}</td>
                             <td>{{ $data->grade_code . ' ' . $data->grade_name }}</td>
                             <td>{{ $data->so_summary }}</td>

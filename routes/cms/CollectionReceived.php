@@ -14,6 +14,4 @@ Route::group(['prefix' => 'collection_received', 'as' => 'collection_received.']
     Route::match(['get', 'post'], 'taxation/{id}', [CollectionReceivedCtrl::class, 'taxation'])->name('taxation')->middleware('permission:cms.collection_received.taxation');
 
     Route::get('delete/{id}', [CollectionReceivedCtrl::class, 'destroy'])->name('delete')->middleware('permission:cms.collection_received.delete');
-//    Route::get('edit', [CollectionReceivedCtrl::class, 'edit'])->name('edit')->middleware('permission:cms.collection_received.edit');
-//    Route::post('edit', [CollectionReceivedCtrl::class, 'update'])->name('update')->middleware('permission:cms.collection_received.update');;
 });

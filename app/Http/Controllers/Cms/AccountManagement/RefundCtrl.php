@@ -228,39 +228,10 @@ class RefundCtrl extends Controller
                 $value->debit = $debit;
                 $value->credit = $credit;
 
+                $value->po_url_link = PayingOrder::paying_order_link($value->po_source_type, $value->po_source_id, $value->po_source_sub_id, $value->po_type);
+                $value->source_url_link = PayingOrder::paying_order_source_link($value->po_source_type, $value->po_source_id, $value->po_source_sub_id, $value->po_type);
                 if($value->po_source_type == 'pcs_purchase'){
                     $value->po_url_link = "javascript:void(0);";
-                    $value->source_url_link = route('cms.purchase.edit', ['id' => $value->po_source_id]);
-
-                } else if($value->po_source_type == 'ord_orders' && $value->po_source_sub_id != null){
-                    $value->po_url_link = route('cms.order.logistic-po', ['id' => $value->po_source_id, 'sid' => $value->po_source_sub_id]);
-                    $value->source_url_link = route('cms.order.detail', ['id' => $value->po_source_id, 'subOrderId' => $value->po_source_sub_id]);
-
-                } else if($value->po_source_type == 'csn_consignment'){
-                    $value->po_url_link = route('cms.consignment.logistic-po', ['id' => $value->po_source_id]);
-                    $value->source_url_link = route('cms.consignment.edit', ['id' => $value->po_source_id]);
-
-                } else if($value->po_source_type == 'acc_stitute_orders'){
-                    $value->po_url_link = route('cms.stitute.po-show', ['id' => $value->po_source_id]);
-                    $value->source_url_link = route('cms.stitute.show', ['id' => $value->po_source_id]);
-
-                } else if($value->po_source_type == 'ord_orders' && $value->po_source_sub_id == null){
-                    $value->po_url_link = route('cms.order.return-pay-order', ['id' => $value->po_source_id]);
-                    $value->source_url_link = route('cms.order.detail', ['id' => $value->po_source_id]);
-
-                } else if($value->po_source_type == 'dlv_delivery'){
-                    $value->po_url_link = route('cms.delivery.return-pay-order', ['id' => $value->po_source_id]);
-
-                    $dlv = Delivery::find($value->po_source_id);
-                    $value->source_url_link = route('cms.delivery.back_detail', ['event' => $dlv->event, 'eventId' => $dlv->event_id]);
-
-                } else if($value->po_source_type == 'pcs_paying_orders'){
-                    $value->po_url_link = route('cms.accounts_payable.po-show', ['id' => $value->po_source_id]);
-                    $value->source_url_link = route('cms.accounts_payable.po-show', ['id' => $value->po_source_id]);
-
-                } else {
-                    $value->po_url_link = "javascript:void(0);";
-                    $value->source_url_link = "javascript:void(0);";
                 }
             }
         // accounting classification end

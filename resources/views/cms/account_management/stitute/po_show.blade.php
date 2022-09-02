@@ -8,6 +8,12 @@
 
             <a href="{{ url()->full() . '?action=print' }}" target="_blank" 
                 class="btn btn-sm btn-warning" rel="noopener noreferrer">中一刀列印畫面</a>
+
+            @if(! $data_status_check)
+            <a href="javascript:void(0)" role="button" class="btn btn-outline-danger btn-sm"
+                data-bs-toggle="modal" data-bs-target="#confirm-delete"
+                data-href="{{ Route('cms.collection_payment.delete', ['id' => $paying_order->id]) }}">刪除付款單</a>
+            @endif
         </div>
     </nav>
 
@@ -120,7 +126,7 @@
                 </dl>
             </div>
         </div>
-        
+
         <div class="col-auto">
             <a href="{{ route('cms.stitute.show', ['id' => $stitute_order->id]) }}" 
                 class="btn btn-outline-primary px-4" role="button">返回 代墊單</a>
@@ -129,10 +135,24 @@
             </a>
         </div>
     </form>
+
+    <!-- Modal -->
+    <x-b-modal id="confirm-delete">
+        <x-slot name="title">刪除確認</x-slot>
+        <x-slot name="body">確認要刪除此付款單？</x-slot>
+        <x-slot name="foot">
+            <a class="btn btn-danger btn-ok" href="#">確認並刪除</a>
+        </x-slot>
+    </x-b-modal>
 @endsection
 
 @once
     @push('sub-scripts')
-
+        <script>
+            // Modal Control
+            $('#confirm-delete').on('show.bs.modal', function(e) {
+                $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
+            });
+        </script>
     @endpush
 @endonce

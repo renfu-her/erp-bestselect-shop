@@ -1104,10 +1104,18 @@ abstract class AccountReceivedPapaCtrl extends Controller
 
     public function destroy($id)
     {
-        $target = ReceivedOrder::delete_received_order($id);
-        if($target){
-            if($target->source_type == $this->getSource_type()){
-                $this->doDestroy($target->source_id);
+        $ro = ReceivedOrder::delete_received_order($id);
+        if($ro){
+            if($ro->source_type == app(Order::class)->getTable()){
+                $this->doDestroy($ro->source_id);
+
+            } else if($ro->source_type == app(CsnOrder::class)->getTable()){
+                $this->doDestroy($ro->source_id);
+
+            } else if($ro->source_type == app(CsnOrder::class)->getTable()){
+
+            } else if($ro->source_type == app(CsnOrder::class)->getTable()){
+
             }
 
             // credit card - income order record update

@@ -657,7 +657,7 @@ class ReceivedOrder extends Model
 
                     if($request['cashing_date'] && $request['status_code'] == 'cashed'){
                         // DB::table('acc_received_cheque')->where('id', $request['received_method_id'])->update([
-                        //     'amt_net'=>0,
+                        //     'amt_net'=>$request['amt_net'],
                         // ]);
 
                         $note_receivable_order = NoteReceivableOrder::store_note_receivable_order($request['cashing_date']);
@@ -861,6 +861,7 @@ class ReceivedOrder extends Model
 
             ->selectRaw('
                 _account.status_code AS account_status_code,
+                _account.sn AS account_sn,
                 _account.amt_net AS account_amt_net,
                 _account.posting_date AS account_posting_date
             ')
@@ -1128,6 +1129,12 @@ class ReceivedOrder extends Model
     {
         if($request['status_code'] == 0){
             foreach($request['account_received_id'] as $key => $value){
+                $account = DB::table('acc_received_account')->where('id', $value)->first();
+
+                if($account && $account->account_received_id){
+                    self::find($account->account_received_id)->delete();
+                }
+
                 DB::table('acc_received_account')->where('id', $value)->update([
                     'status_code'=>0,
                     'append_received_order_id'=>$request['append_received_order_id'],
@@ -1154,7 +1161,7 @@ class ReceivedOrder extends Model
     {
         $check_result = false;
         foreach($collection as $value){
-            if($value->credit_card_status_code == 2 || $value->cheque_status_code == 'cashed' || $value->account_status_code == 2){
+            if($value->credit_card_status_code == 2 || $value->cheque_status_code == 'cashed' || $value->account_sn != null){
                 $check_result = true;
                 break;
             }

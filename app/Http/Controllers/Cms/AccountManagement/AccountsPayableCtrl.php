@@ -331,6 +331,7 @@ class AccountsPayableCtrl extends Controller
 
         $paying_order = PayingOrder::findOrFail($id);
         $payable_data = PayingOrder::get_payable_detail($id);
+        $data_status_check = PayingOrder::payable_data_status_check($payable_data);
 
         $zh_price = num_to_str($paying_order->price);
 
@@ -359,6 +360,7 @@ class AccountsPayableCtrl extends Controller
             'paying_order' => $paying_order,
             'target_items' => $target_items,
             'payable_data' => $payable_data,
+            'data_status_check' => $data_status_check,
             'zh_price' => $zh_price,
             'undertaker'=>$undertaker,
             'accountant'=>implode(',', $accountant),

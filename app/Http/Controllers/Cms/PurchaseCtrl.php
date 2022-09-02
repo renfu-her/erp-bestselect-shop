@@ -689,6 +689,17 @@ class PurchaseCtrl extends Controller
                 $pay_off_date = date('Y-m-d', strtotime($payingOrderData->balance_date));
             }
         }
+        $data_status_check = PayingOrder::payable_data_status_check($payable_data);
+        $po_count = PayingOrder::where([
+                'source_type' => $source_type,
+                'source_id' => $id,
+                'source_sub_id' => $source_sub_id,
+                'deleted_at' => null,
+            ])->count();
+
+        if($type == 0 && $po_count == 2) {
+            $data_status_check = true;
+        }
 
         if ($accountPayable) {
             $accountant = DB::table('usr_users')
@@ -726,6 +737,7 @@ class PurchaseCtrl extends Controller
             'logisticsPrice' => $paymentPrice['logisticsPrice'],
             'purchaseItemData' => $purchaseItemData,
             'payable_data' => $payable_data,
+            'data_status_check' => $data_status_check,
             'chargemen' => $chargemen,
             'undertaker' => $undertaker,
             'appliedCompanyData' => $appliedCompanyData,

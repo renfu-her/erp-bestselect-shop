@@ -63,8 +63,6 @@
                     <a href="javascript:void(0)" role="button" class="btn btn-outline-danger btn-sm my-1 ms-1"
                         data-bs-toggle="modal" data-bs-target="#confirm-delete"
                         data-href="{{ Route('cms.collection_received.delete', ['id' => $received_order_data->id], true) }}">刪除收款單</a>
-                @else
-                    <button type="button" class="btn btn-outline-danger btn-sm my-1 ms-1" disabled>刪除收款單</button>
                 @endif
             @endif
         </div>
