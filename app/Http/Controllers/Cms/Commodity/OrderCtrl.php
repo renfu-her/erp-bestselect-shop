@@ -182,8 +182,8 @@ class OrderCtrl extends Controller
             ->where('is_default_addr', '=', 1)
             ->select([
                 'usr_customers.id',
-                'usr_customers.name',
-                'usr_customers.phone',
+                'usr_customers_address.name',
+                'usr_customers_address.phone',
                 'address',
                 'addr',
                 'city_id',
