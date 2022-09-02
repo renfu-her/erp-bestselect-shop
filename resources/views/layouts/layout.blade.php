@@ -55,6 +55,7 @@
         if (window.innerWidth >= 576 && sessionStorage.sidebar === 'show') {
             $('#sidebarMenu').addClass('show');
         } else {
+            $('#sidebarMenu').removeClass('show');
             sessionStorage.setItem('sidebar', 'hide');
         }
     </script>

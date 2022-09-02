@@ -49,20 +49,24 @@
         </div>
 
         <div style="font-size: x-large; font-family:標楷體">
-            付款單
+            付　款　單
         </div>
         <hr width="710" style="margin: .5rem auto;">
         <div>
             <table width="710" style="font-size:small;text-align:left;border:0;margin: 0 auto;">
                 <tbody>
-                <tr>
-                    <td width="50%">客戶：{{ $paying_order->payee_name }}</td>
-                    <td width="50%">編號：{{ $paying_order->sn }} / <a href="{{ route('cms.stitute.show', ['id' => $stitute_order->id]) }}">{{ $stitute_order->sn }}</td>
-                </tr>
-                <tr>
-                    <td>電話：{{ $paying_order->payee_phone }}</td>
-                    <td>日期：{{ date('Y-m-d', strtotime($paying_order->created_at)) }}</td>
-                </tr>
+                    <tr>
+                        <td width="50%">付款單號：{{ $paying_order->sn }}</td>
+                        <td width="50%">製表日期：{{ date('Y-m-d', strtotime($paying_order->created_at)) }}</td>
+                    </tr>
+                    <tr>
+                        <td>單據編號：{{ $stitute_order->sn }}</td>
+                        <td>付款日期：</td>
+                    </tr>
+                    <tr>
+                        <td>支付對象：{{ $paying_order->payee_name }}</td>
+                        <td>承辦人：{{ $undertaker ? $undertaker->name : '' }}</td>
+                    </tr>
                 </tbody>
             </table>
             <hr width="710" style="margin: .5rem auto;">
@@ -124,7 +128,6 @@
                     <td width="20%">會計：{{ $accountant ?? '' }}</td>
                     <td width="20%">商品主管：</td>
                     <td width="20%">商品負責人：</td>
-                    <td width="20%">承辦人：{{ $undertaker ? $undertaker->name : '' }}</td>
                 </tr>
                 </tbody>
             </table>
