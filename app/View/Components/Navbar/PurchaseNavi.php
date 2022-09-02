@@ -12,10 +12,11 @@ class PurchaseNavi extends Component
      *
      * @return void
      */
-    public function __construct($id)
+    public function __construct($id, $purchaseData = null)
     {
         //
         $this->id = $id;
+        $this->purchaseData = $purchaseData;
     }
 
     /**
@@ -28,6 +29,7 @@ class PurchaseNavi extends Component
         $route_name = explode('.', Route::getCurrentRoute()->getName())[2];
         return view('components.navbar.purchase-navi', [
             'id' => $this->id,
+            'purchaseData' => $this->purchaseData,
             'route_name' => $route_name,
         ]);
     }

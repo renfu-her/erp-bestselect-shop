@@ -720,6 +720,7 @@ class PurchaseCtrl extends Controller
 
         return view($view, [
             'id' => $id,
+            'purchase' => $purchase,
             'accountant' => $accountant ?? '',
             'accountPayableId' => $accountPayable->id ?? null,
             'payOrdId' => $payingOrderData->id,

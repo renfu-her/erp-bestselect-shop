@@ -2,7 +2,7 @@
 @section('sub-content')
     @if ($method === 'edit')
         <h2 class="mb-3">#{{ $purchaseData->purchase_sn }} 採購單</h2>
-        <x-b-pch-navi :id="$id"></x-b-pch-navi>
+        <x-b-pch-navi :id="$id" :purchaseData="$purchaseData"></x-b-pch-navi>
     @else
         <h2 class="mb-3">新增採購單</h2>
     @endif
