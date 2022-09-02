@@ -14,6 +14,7 @@ use App\Models\AccountPayable;
 use App\Models\Addr;
 use App\Models\AllGrade;
 use App\Models\Customer;
+use App\Models\CustomerAddress;
 use App\Models\CustomerDividend;
 use App\Models\CustomerProfit;
 use App\Models\DayEnd;
@@ -181,8 +182,8 @@ class OrderCtrl extends Controller
             ->where('is_default_addr', '=', 1)
             ->select([
                 'usr_customers.id',
-                'usr_customers.name',
-                'usr_customers.phone',
+                'usr_customers_address.name',
+                'usr_customers_address.phone',
                 'address',
                 'addr',
                 'city_id',
@@ -253,7 +254,8 @@ class OrderCtrl extends Controller
             $arrVali[$prefix . '_city_id'] = 'required';
             $arrVali[$prefix . '_region_id'] = 'required';
             $arrVali[$prefix . '_addr'] = 'required';
-            $address[$prefix . '_address'] = 'required';
+            $arrVali[$prefix . '_radio'] = 'required';
+            $arrVali[$prefix . '_address'] = 'required';
 
         }
 
@@ -321,6 +323,7 @@ class OrderCtrl extends Controller
         $re = Order::createOrder($customer->email, $d['salechannel_id'], $address, $items, $d['mcode'] ?? null, $d['note'], $coupon, $payinfo, null, $dividend, $request->user());
 
         if ($re['success'] == '1') {
+            CustomerAddress::addCustomerAddress($d, $customer->id);
             wToast('訂單新增成功');
             return redirect(route('cms.order.detail', [
                 'id' => $re['order_id'],

@@ -346,12 +346,14 @@
                 <div class="row">
                     <fieldset class="col-12 mb-1">
                         <div class="px-1 pt-1">
-                            <div class="form-check form-check-inline">
-                                <label class="form-check-label">
-                                    <input class="form-check-input" name="ord_radio" value="default" type="radio" checked>
-                                    預設地址
-                                </label>
-                            </div>
+                            @if(!is_null($defaultAddress))
+                                <div class="form-check form-check-inline">
+                                    <label class="form-check-label">
+                                        <input class="form-check-input" name="ord_radio" value="default" type="radio" checked>
+                                        預設地址
+                                    </label>
+                                </div>
+                            @endif
                             @if(count($otherOftenUsedAddresses ?? []) > 0)
                                 <div class="form-check form-check-inline">
                                     <label class="form-check-label">
@@ -362,7 +364,15 @@
                             @endif
                             <div class="form-check form-check-inline">
                                 <label class="form-check-label">
-                                    <input class="form-check-input" name="ord_radio" value="new" type="radio" >
+                                    <input class="form-check-input"
+                                           name="ord_radio"
+                                           value="new"
+                                            {{-- 預設地址、常用地址都沒有時，勾選「新增地址」--}}
+                                           @if(is_null($defaultAddress) &&
+                                                count($otherOftenUsedAddresses ?? []) === 0)
+                                               checked
+                                           @endif
+                                           type="radio">
                                     新增地址
                                 </label>
                             </div>
@@ -442,12 +452,14 @@
                                     <input id="sed_same" name="sed_radio" class="form-check-input mt-0 me-1" value="same" type="radio">同購買人
                                 </label>
                             </div>
-                            <div class="form-check form-check-inline">
-                                <label class="form-check-label">
-                                    <input class="form-check-input" name="sed_radio" value="default" type="radio">
-                                    預設地址
-                                </label>
-                            </div>
+                            @if(!is_null($defaultAddress))
+                                <div class="form-check form-check-inline">
+                                    <label class="form-check-label">
+                                        <input class="form-check-input" name="sed_radio" value="default" type="radio">
+                                        預設地址
+                                    </label>
+                                </div>
+                            @endif
                             @if(count($otherOftenUsedAddresses ?? []) > 0)
                                 <div class="form-check form-check-inline">
                                     <label class="form-check-label">
@@ -456,6 +468,12 @@
                                     </label>
                                 </div>
                             @endif
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label">
+                                    <input class="form-check-input" name="sed_radio" value="new" type="radio" >
+                                    新增地址
+                                </label>
+                            </div>
                         </div>
                     </fieldset>
                     @if(count($otherOftenUsedAddresses ?? []) > 0)
@@ -526,12 +544,14 @@
                                     <input id="rec_same" name="rec_radio" class="form-check-input mt-0 me-1" value="same" type="radio">同購買人
                                 </label>
                             </div>
-                            <div class="form-check form-check-inline">
-                                <label class="form-check-label">
-                                    <input class="form-check-input" name="rec_radio" value="default" type="radio">
-                                    預設地址
-                                </label>
-                            </div>
+                            @if(!is_null($defaultAddress))
+                                <div class="form-check form-check-inline">
+                                    <label class="form-check-label">
+                                        <input class="form-check-input" name="rec_radio" value="default" type="radio">
+                                        預設地址
+                                    </label>
+                                </div>
+                            @endif
                             @if(count($otherOftenUsedAddresses ?? []) > 0)
                                 <div class="form-check form-check-inline">
                                     <label class="form-check-label">
@@ -540,6 +560,12 @@
                                     </label>
                                 </div>
                             @endif
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label">
+                                    <input class="form-check-input" name="rec_radio" value="new" type="radio" >
+                                    新增地址
+                                </label>
+                            </div>
                         </div>
                     </fieldset>
                     @if(count($otherOftenUsedAddresses ?? []) > 0)
@@ -1178,7 +1204,7 @@
                             <td class="text-center">${addBtn}</td>
                             <td class="wrap">
                                 <div class="lh-1 small text-nowrap">
-                                    ${typeTag} 
+                                    ${typeTag}
                                     <span class="text-secondary">${p.sku}</span>
                                 </div>
                                 <div class="lh-lg">${p.product_title}</div>
@@ -2482,6 +2508,15 @@
                 } else if($(this).val() === 'other_often_used_addresses') {
                     $('.sed_selectOftenUsedAddress select option:first-of-type').prop("selected", "selected");
                     $('.sed_selectOftenUsedAddress').prop('hidden', false);
+                } else {
+                    // 清空
+                    $(`input[name="sed_name"],
+                       input[name="sed_phone"],
+                       input[name="sed_addr"],
+                       select[name="sed_city_id"],
+                       select[name="sed_region_id`).val('');
+                    $(`select[name="sed_region_id"]`).html('<option value="">地區</option>');
+                    $('.sed_selectOftenUsedAddress').prop('hidden', true);
                 }
             });
 
@@ -2517,6 +2552,15 @@
                 } else if($(this).val() === 'other_often_used_addresses') {
                     $('.rec_selectOftenUsedAddress select option:first-of-type').prop("selected", "selected");
                     $('.rec_selectOftenUsedAddress').prop('hidden', false);
+                } else {
+                    // 清空
+                    $(`input[name="rec_name"],
+                       input[name="rec_phone"],
+                       input[name="rec_addr"],
+                       select[name="rec_city_id"],
+                       select[name="rec_region_id`).val('');
+                    $(`select[name="rec_region_id"]`).html('<option value="">地區</option>');
+                    $('.rec_selectOftenUsedAddress').prop('hidden', true);
                 }
             });
 
