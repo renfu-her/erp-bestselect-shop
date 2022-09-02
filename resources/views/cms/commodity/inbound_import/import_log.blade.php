@@ -80,39 +80,46 @@
         </div>
 
         <div class="table-responsive tableOverBox">
-            <table class="table table-striped tableList">
-                <thead>
+            <table class="table table-striped tableList table-sm small">
+                <thead class="align-middle">
                     <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">匯入序號</th>
-                        <th scope="col">採購單號</th>
-                        <th scope="col">入庫單</th>
-                        <th scope="col">匯入狀態</th>
+                        <th scope="col" style="width:40px">#</th>
+                        <td scope="col" class="wrap">
+                            <div>匯入序號</div>
+                            <div class="fw-bold">採購單號</div>
+                            <div>入庫單</div>
+                        </td>
+                        <th scope="col" class="wrap lh-1">匯入<br>狀態</th>
                         <th scope="col">說明</th>
-                        <th scope="col">SKU</th>
-                        <th scope="col">商品款式名稱</th>
+                        <th scope="col" class="wrap lh-1">商品款式</th>
                         <th scope="col" class="text-end">庫存</th>
                         <th scope="col">效期</th>
-                        <th scope="col" class="text-end">庫存採購總價</th>
+                        <th scope="col" class="wrap lh-1 text-center">庫存採購總價</th>
                         <th scope="col">更新時間</th>
-                        <th scope="col">匯入人員</th>
+                        <th scope="col" class="wrap lh-1">匯入<br>人員</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($dataList as $key => $data)
                         <tr>
                             <th scope="row">{{ $key + 1 }}</th>
-                            <td>{{ $data->sn }}</td>
-                            <td>{{ $data->purchase_sn }}</td>
-                            <td>{{ $data->inbound_sn }}</td>
-                            <td>{{ ( \App\Enums\Globals\Status::hasValue($data->status)) ? \App\Enums\Globals\Status::getDescription($data->status) : ''}}</td>
-                            <td>{{ $data->memo }}</td>
-                            <td>{{ $data->sku }}</td>
-                            <td>{{ $data->title }}</td>
+                            <td class="wrap">
+                                <div>{{ $data->sn }}</div>
+                                <div class="fw-bold">{{ $data->purchase_sn }}</div>
+                                <div>{{ $data->inbound_sn ?? '-' }}</div>
+                            </td>
+                            <td @class(['text-danger' => $data->status === 0, 'text-success' => $data->status === 1])>
+                                {{ ( \App\Enums\Globals\Status::hasValue($data->status)) ? \App\Enums\Globals\Status::getDescription($data->status) : ''}}
+                            </td>
+                            <td @class(['wrap', 'minWidth100' => $data->memo != ''])>{{ $data->memo }}</td>
+                            <td class="wrap">
+                                <div class="lh-1 text-nowrap text-secondary">{{ $data->sku }}</div>
+                                <div class="lh-lg">{{ $data->title ? $data->title : '-' }}</div>
+                            </td>
                             <td class="text-end">{{ number_format($data->qty) }}</td>
                             <td>{{ $data->expiry_date ? date('Y/m/d', strtotime($data->expiry_date)) : '' }}</td>
                             <td class="text-end">${{ (isset($data->price)) ? number_format($data->price) : '' }}</td>
-                            <td>{{ $data->updated_at ? date('Y/m/d H:i:s', strtotime($data->updated_at)) : '' }}</td>
+                            <td class="wrap">{{ $data->updated_at ? date('Y/m/d H:i:s', strtotime($data->updated_at)) : '' }}</td>
                             <td>{{ $data->import_user_name }}</td>
                         </tr>
                     @endforeach
@@ -131,6 +138,13 @@
     </div>
 @endsection
 @once
+    @push('sub-styles')
+        <style>
+            .minWidth100 {
+                min-width: 100px;
+            }
+        </style>
+    @endpush
     @push('sub-scripts')
         <script>
             $('#dataPerPageElem').on('change', function(e) {

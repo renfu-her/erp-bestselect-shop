@@ -32,19 +32,28 @@
 
                 <dl class="row mb-0">
                     <div class="col">
-                        <dd>客戶：{{ $paying_order->payee_name }}</dd>
+                        <dd>付款單號：{{ $paying_order->sn }}</dd>
                     </div>
                     <div class="col">
-                        <dd>編號：{{ $paying_order->sn }} / <a href="{{ route('cms.stitute.show', ['id' => $stitute_order->id]) }}">{{ $stitute_order->sn }}</a></dd>
+                        <dd>製表日期：{{ date('Y-m-d', strtotime($paying_order->created_at)) }}</dd>
                     </div>
                 </dl>
-
                 <dl class="row mb-0">
                     <div class="col">
-                        <dd>電話：{{ $paying_order->payee_phone }}</dd>
+                        <dd>單據編號：<a href="{{ route('cms.stitute.show', ['id' => $stitute_order->id]) }}">{{ $stitute_order->sn }}</a></dd>
                     </div>
                     <div class="col">
-                        <dd>日期：{{ date('Y-m-d', strtotime($paying_order->created_at)) }}</dd>
+                        <dd>
+                            付款日期：
+                        </dd>
+                    </div>
+                </dl>
+                <dl class="row mb-0">
+                    <div class="col">
+                        <dd>支付對象：{{ $paying_order->payee_name }}</dd>
+                    </div>
+                    <div class="col">
+                        <dd>承辦人：{{ $undertaker ? $undertaker->name : '' }}</dd>
                     </div>
                 </dl>
             </div>
@@ -119,9 +128,6 @@
                     </div>
                     <div class="col">
                         <dd>商品負責人：</dd>
-                    </div>
-                    <div class="col">
-                        <dd>承辦人：{{ $undertaker ? $undertaker->name : '' }}</dd>
                     </div>
                 </dl>
             </div>

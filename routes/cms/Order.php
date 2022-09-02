@@ -22,6 +22,12 @@ Route::group(['prefix' => 'order', 'as' => 'order.'], function () {
     Route::post('store_inbound/{id}', [OrderCtrl::class, 'storeInbound'])->name('store_inbound');
     Route::get('delete_inbound/{id}', [OrderCtrl::class, 'deleteInbound'])->name('delete_inbound')->middleware('permission:cms.order.create');
 
+    Route::get('ro_edit/{id}', [OrderCtrl::class, 'ro_edit'])->name('ro-edit');
+    Route::post('ro_store/{id}', [OrderCtrl::class, 'ro_store'])->name('ro-store');
+    Route::get('ro_receipt/{id}', [OrderCtrl::class, 'ro_receipt'])->name('ro-receipt')->middleware('permission:cms.order.ro-receipt');
+    Route::match(['get', 'post'], 'ro_review/{id}', [OrderCtrl::class, 'ro_review'])->name('ro-review')->middleware('permission:cms.order.ro-review');
+    Route::match(['get', 'post'], 'ro_taxation/{id}', [OrderCtrl::class, 'ro_taxation'])->name('ro-taxation')->middleware('permission:cms.order.ro-taxation');
+
     Route::get('logistic_pay/{id}/{sid}', [OrderCtrl::class, 'logistic_po'])->name('logistic-po')->middleware('permission:cms.order.logistic-po');
     Route::match(['get', 'post'], 'logistic_pay_create/{id}/{sid}', [OrderCtrl::class, 'logistic_po_create'])->name('logistic-po-create');
     Route::get('return_pay/{id}/{sid?}', [OrderCtrl::class, 'return_pay_order'])->name('return-pay-order')->middleware('permission:cms.order.return-pay-order');

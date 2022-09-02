@@ -271,7 +271,7 @@
 
         <div class="col-auto">
             <button type="submit" class="btn btn-primary px-4">確認</button>
-            <a href="{{ Route('cms.collection_received.receipt', ['id' => $received_order->source_id]) }}" 
+            <a href="{{ url()->previous() }}" 
                 class="btn btn-outline-primary px-4" role="button">返回上一頁
             </a>
         </div>

@@ -80,19 +80,22 @@
         </div>
 
         <div class="table-responsive tableOverBox">
-            <table class="table table-striped tableList">
-                <thead>
+            <table class="table table-striped tableList table-sm small">
+                <thead class="align-middle">
                     <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">盤點狀態</th>
-                        <th scope="col">盤點人員</th>
-                        <th scope="col">編輯</th>
-                        <th scope="col">採購單號</th>
-                        <th scope="col">SKU</th>
-                        <th scope="col">商品款式名稱</th>
-                        <th scope="col">入庫單</th>
-                        <th scope="col">庫存剩餘數量</th>
-                        <th scope="col">單價</th>
+                        <th scope="col" style="width:40px">#</th>
+                        <td scope="col" class="wrap">
+                            <div class="text-nowrap fw-bold">盤點狀態</div>
+                            <div class="text-nowrap">盤點人員</div>
+                        </td>
+                        <th scope="col" style="width:40px" class="text-center">編輯</th>
+                        <td scope="col" class="wrap">
+                            <div class="fw-bold">採購單號</div>
+                            <div>入庫單</div>
+                        </td>
+                        <th scope="col">商品款式</th>
+                        <th scope="col" class="wrap lh-1 text-center">庫存剩餘數量</th>
+                        <th scope="col" class="text-end">單價</th>
                         <th scope="col">效期</th>
                         <th scope="col">倉庫</th>
                     </tr>
@@ -101,8 +104,10 @@
                     @foreach ($dataList as $key => $data)
                         <tr>
                             <th scope="row">{{ $key + 1 }}</th>
-                            <td>{{ $data->inventory_status_str }}</td>
-                            <td>{{ $data->inventory_create_user_name }}</td>
+                            <td class="wrap">
+                                <div>{{ $data->inventory_status_str }}</div>
+                                <div>{{ $data->inventory_create_user_name }}</div>
+                            </td>
                             <td>
                                 @can('cms.inbound_import.edit')
                                 <a href="{{ Route('cms.inbound_import.inbound_edit', ['inboundId' => $data->inbound_id], true) }}"
@@ -112,23 +117,26 @@
                                 </a>
                                 @endcan
                             </td>
-
-                            <td>
-                                <a href="@if(\App\Enums\Delivery\Event::purchase()->value == $data->event)
-                                {{ route('cms.purchase.edit', ['id' => $data->event_id]) }}
-                                @elseif(\App\Enums\Delivery\Event::ord_pickup()->value == $data->event)
-                                {{ route('cms.order.detail', ['id' => $data->event_id]) }}
-                                @elseif(\App\Enums\Delivery\Event::consignment()->value == $data->event)
-                                {{ route('cms.consignment.edit', ['id' => $data->event_id]) }}
-                                @endif" target="_blank">{{ $data->event_sn }}</a>
+                            <td class="wrap">
+                                <div class="fw-bold">
+                                    <a href="@if(\App\Enums\Delivery\Event::purchase()->value == $data->event)
+                                        {{ route('cms.purchase.edit', ['id' => $data->event_id]) }}
+                                        @elseif(\App\Enums\Delivery\Event::ord_pickup()->value == $data->event)
+                                        {{ route('cms.order.detail', ['id' => $data->event_id]) }}
+                                        @elseif(\App\Enums\Delivery\Event::consignment()->value == $data->event)
+                                        {{ route('cms.consignment.edit', ['id' => $data->event_id]) }}
+                                        @endif" target="_blank">{{ $data->event_sn }}</a>
+                                </div>
+                                <div>{{ $data->inbound_sn ?? '-' }}</div>
                             </td>
-                            <td>{{ $data->style_sku }}</td>
-                            <td>{{ $data->product_title }}</td>
-                            <td>{{ $data->inbound_sn }}</td>
+                            <td class="wrap">
+                                <div class="lh-1 text-nowrap text-secondary">{{ $data->style_sku }}</div>
+                                <div class="lh-lg">{{ $data->product_title }}</div>
+                            </td>
                             <td class="text-end">{{ number_format($data->qty) }}</td>
                             <td class="text-end">{{ ($data->unit_cost) }}</td>
                             <td>{{ $data->expiry_date ? date('Y/m/d', strtotime($data->expiry_date)) : '' }}</td>
-                            <td>{{ $data->depot_name }}</td>
+                            <td class="wrap" style="min-width:80px;">{{ $data->depot_name }}</td>
                         </tr>
                     @endforeach
                 </tbody>

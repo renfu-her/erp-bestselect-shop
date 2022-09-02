@@ -4,6 +4,8 @@
 
     <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
         <div class="p-1 pe-2">
+            <a href="{{ route('cms.collection_received.edit', ['id' => $received_order->id]) }}" class="btn btn-sm btn-success px-3" role="button">修改</a>
+
             @if(! $received_order->receipt_date)
             <a href="{{ route('cms.request.ro-review', ['id' => $received_order->source_id]) }}" 
                 class="btn btn-sm btn-primary" role="button">收款單入款審核</a>
@@ -39,18 +41,18 @@
 
             <dl class="row mb-0">
                 <div class="col">
-                    <dd>客戶：{{ $purchaser->client_name ?? '' }}</dd>
+                    <dd>客戶：{{ $received_order->drawee_name }}</dd>
                 </div>
                 <div class="col">
-                    <dd>地址：{{ $purchaser->client_address ?? '' }}</dd>
+                    <dd>地址：{{ $received_order->drawee_address }}</dd>
                 </div>
-            <dl class="row mb-0">
             </dl>
+            <dl class="row mb-0">
                 <div class="col">
-                    <dd>電話：{{ $purchaser->client_phone ?? '' }}</dd>
+                    <dd>電話：{{ $received_order->drawee_phone }}</dd>
                 </div>
                 <div class="col">
-                    <dd>傳真：{{ $purchaser->client_fax ?? '' }}</dd>
+                    <dd>傳真：</dd>
                 </div>
             </dl>
             <hr>

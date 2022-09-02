@@ -5,7 +5,7 @@
     <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
         <div class="p-1 pe-2">
             @if (!$receivable && in_array($order->status, ['建立', '收款單未平']))
-                <a href="{{ Route('cms.collection_received.create', ['id' => $order->id]) }}"
+                <a href="{{ Route('cms.order.ro-edit', ['id' => $order->id]) }}"
                     class="btn btn-primary btn-sm my-1 ms-1" role="button">新增收款單</a>
             @endif
 
@@ -105,7 +105,7 @@
                     <dt>收款單號</dt>
                     <dd>
                         @if ($receivable)
-                            <a href="{{ route('cms.collection_received.receipt', ['id' => $order->id]) }}"
+                            <a href="{{ route('cms.order.ro-receipt', ['id' => $order->id]) }}"
                                 class="-text">{{ $received_order_data ? $received_order_data->sn : '' }}</a>
                         @else
                             <span>尚未完成收款</span>
