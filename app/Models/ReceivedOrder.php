@@ -1176,7 +1176,7 @@ class ReceivedOrder extends Model
         $link = 'javascript:void(0);';
 
         if($source_type == 'ord_orders'){
-            $link = route('cms.collection_received.receipt', ['id' => $source_id]);
+            $link = route('cms.order.ro-receipt', ['id' => $source_id]);
 
         } else if($source_type == 'csn_orders'){
             $link = route('cms.ar_csnorder.receipt', ['id' => $source_id]);

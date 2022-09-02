@@ -391,7 +391,6 @@ class AccountReceivedCtrl extends Controller
             ]);
         }
 
-        $purchaser = $order_list_data->first();
         $undertaker = User::find($received_order->usr_users_id);
 
         // $accountant = User::whereIn('id', $received_data->pluck('accountant_id_fk')->toArray())->get();
@@ -411,7 +410,6 @@ class AccountReceivedCtrl extends Controller
             'received_order' => $received_order,
             'received_data' => $received_data,
             'data_status_check' => $data_status_check,
-            'purchaser' => $purchaser,
             'undertaker'=>$undertaker,
             // 'accountant'=>implode(',', $accountant),
             'accountant'=>$accountant,
