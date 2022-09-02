@@ -124,14 +124,14 @@
     <div class="card shadow p-4 mb-4">
         <div class="table-responsive tableOverBox mb-3">
             <table class="table tableList table-striped mb-1">
-                <thead>
+                <thead class="small align-middle">
                     <tr>
-                        <th scope="col" class="text-center" style="width:10%">#</th>
+                        <th scope="col" class="text-center" style="width:40px">#</th>
                         <th scope="col">品名規格</th>
-                        <th scope="col" class="text-end">退款金額</th>
+                        <th scope="col" class="text-end">退款<br class="d-block d-lg-none">金額</th>
 {{--                        <th scope="col" class="text-end">經銷價</th>--}}
-                        <th scope="col" class="text-end">扣除獎金</th>
-                        <th scope="col">退回數量</th>
+                        <th scope="col" class="text-end">扣除<br class="d-block d-lg-none">獎金</th>
+                        <th scope="col">退回<br class="d-block d-lg-none">數量</th>
                         <th scope="col" class="text-end">小計</th>
                         <th scope="col">說明</th>
                     </tr>
@@ -157,11 +157,14 @@
                         </tr>
                      @endforeach
                 </tbody>
+                <tfoot>
+                    <tr>
+                        <th colspan="5">合計</th>
+                        <td class="text-end">${{ number_format($total) }}</td>
+                        <td></td>
+                    </tr>
+                </tfoot>
             </table>
-        </div>
-        <div class="d-flex fw-bold border">
-            <div class="col p-2 border-end bg-light">小計合計</div>
-            <div class="col p-2 text-end">${{ number_format($total) }}</div>
         </div>
     </div>
 
@@ -241,8 +244,11 @@
 
 @endsection
 @once
-    @push('sub-scripts')
-        <script>
-        </script>
+    @push('sub-styles')
+        <style>
+            .tableList > thead > * > * {
+                line-height: initial;
+            }
+        </style>
     @endpush
 @endonce

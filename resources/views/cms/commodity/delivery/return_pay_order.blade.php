@@ -23,64 +23,53 @@
         </div>
     </nav>
 
-    <div class="card shadow mb-4 -detail -detail-primary">
-        <div class="card-body px-4">
-            <h2>退貨付款單</h2>
+    <div class="card shadow p-4 mb-4">
+        <div class="mb-3">
+            <h4 class="text-center">{{ $applied_company->company }}</h4>
+            <div class="text-center small mb-2">
+                <span>地址：{{ $applied_company->address }}</span>
+                <span class="ms-3">電話：{{ $applied_company->phone }}</span>
+                <span class="ms-3">傳真：{{ $applied_company->fax }}</span>
+            </div>
+            <h4 class="text-center">退貨付款單</h4>
+            <hr>
 
-            <dl class="row">
+            <dl class="row mb-0">
                 <div class="col">
-                    <dt>{{ $applied_company->company }}</dt>
-                    <dd></dd>
-                </div>
-            </dl>
-
-            <dl class="row">
-                <div class="col">
-                    <dt>地址：{{ $applied_company->address }}</dt>
-                    <dd></dd>
+                    <dd>付款單號：{{ $delivery->po_sn }}</dd>
                 </div>
                 <div class="col">
-                    <dt>電話：{{ $applied_company->phone }}</dt>
-                    <dd></dd>
-                </div>
-                <div class="col">
-                    <dt>傳真：{{ $applied_company->fax }}</dt>
-                    <dd></dd>
-                </div>
-            </dl>
-
-            <dl class="row mb-0 border-top">
-                <div class="col">
-                    <dt>客戶：{{ $delivery->po_payee_name }}</dt>
-                    <dd></dd>
-                </div>
-                <div class="col">
-                    <dt>編號：{{ $delivery->po_sn }}</dt>
-                    <dd></dd>
+                    <dd>製表日期：{{ date('Y-m-d', strtotime($delivery->po_created_at)) }}</dd>
                 </div>
             </dl>
 
             <dl class="row mb-0">
                 <div class="col">
-                    <dt>電話：{{ $delivery->po_payee_phone }}</dt>
-                    <dd></dd>
+                    <dd>支付對象：
+                        {{ $delivery->po_payee_name }}
+                    </dd>
                 </div>
                 <div class="col">
-                    <dt>日期：{{ date('Y-m-d', strtotime($delivery->po_created_at)) }}</dt>
-                    <dd></dd>
+                    <dd>承辦人：{{ $undertaker ? $undertaker->name : '' }}</dd>
+                </div>
+            </dl>
+
+            <dl class="row mb-0">
+                <div class="col">
+                    <dd>電話：{{ $delivery->po_payee_phone }}</dd>
                 </div>
             </dl>
         </div>
 
-        <div class="card-body px-4 py-2">
+        <div class="mb-2">
             <div class="table-responsive tableoverbox">
-                <table class="table tablelist table-sm mb-0">
-                    <thead class="table-light text-secondary">
+                <table class="table tablelist table-sm mb-0 align-middle">
+                    <thead class="table-light text-secondary text-nowrap">
                         <tr>
                             <th scope="col">費用說明</th>
-                            <th scope="col">數量</th>
-                            <th scope="col">單價</th>
-                            <th scope="col">金額</th>
+                            <th scope="col" class="text-end">數量</th>
+                            <th scope="col" class="text-end">單價</th>
+                            <th scope="col" class="text-end">金額</th>
                             <th scope="col">備註</th>
                         </tr>
                     </thead>
@@ -90,46 +79,26 @@
                         @foreach($delivery->delivery_back_items as $db_value)
                             <tr>
                                 <td>{{ $product_grade_name }} - {{ $db_value->product_title }}{{'（' . $delivery->sub_order_ship_event . ' - ' . $delivery->sub_order_ship_category_name . '）'}}{{'（' . $db_value->price . ' * ' . $db_value->qty . '）'}}</td>
-                                <td>{{ $db_value->qty }}</td>
-                                <td>{{ number_format($db_value->price, 2) }}</td>
-                                <td>{{ number_format($db_value->total_price) }}</td>
+                                <td class="text-end">{{ $db_value->qty }}</td>
+                                <td class="text-end">{{ number_format($db_value->price, 2) }}</td>
+                                <td class="text-end">{{ number_format($db_value->total_price) }}</td>
                                 <td>{{ $delivery->po_memo }} <a href="{{ route('cms.delivery.back_detail', ['event' => $delivery->delivery_event, 'eventId' => $delivery->delivery_event_id]) }}">{{ $delivery->delivery_event_sn }}</a> {{ $db_value->taxation == 1 ? '應稅' : '免稅' }} {{ $delivery->order_note }}</td>
                             </tr>
                         @endforeach
                         @endif
-
-                        {{--
-                        @if($order->dlv_fee > 0)
-                            <tr>
-                                <td>{{ $logistics_grade_name }} - 物流費用</td>
-                                <td>1</td>
-                                <td>{{ number_format($order->dlv_fee, 2) }}</td>
-                                <td>{{ number_format($order->dlv_fee) }}</td>
-                                <td>{{ $delivery->po_memo }} <a href="{{ Route('cms.order.detail', ['id' => $order->id]) }}">{{ $order->sn }}</a> {{ $order->dlv_taxation == 1 ? '應稅' : '免稅' }}</td>
-                            </tr>
-                        @endif
-
-                        @if($order->discount_value > 0)
-                        @foreach($order_discount ?? [] as $delivery)
-                            <tr>
-                                <td>{{ $delivery->account_code }} {{ $delivery->account_name }} - {{ $delivery->title }}</td>
-                                <td>1</td>
-                                <td>-{{ number_format($delivery->discount_value, 2) }}</td>
-                                <td>-{{ number_format($delivery->discount_value) }}</td>
-                                <td>{{ $delivery->po_memo }} <a href="{{ Route('cms.order.detail', ['id' => $order->id]) }}">{{ $order->sn }}</a> {{ $delivery->discount_taxation == 1 ? '應稅' : '免稅' }}</td>
-                            </tr>
-                        @endforeach
-                        @endif
-                        --}}
-
+                    </tbody>
+                    <tfoot>
                         <tr class="table-light">
-                            <td>合計：</td>
-                            <td></td>
-                            <td>（{{ $zh_price }}）</td>
-                            <td>{{ number_format($delivery->po_price) }}</td>
+                            <td colspan="3">
+                                <div class="d-flex justify-content-between">
+                                    <span>合計：</span>
+                                    <span>（{{ $zh_price }}）</span>
+                                </div>
+                            </td>
+                            <td class="text-end">{{ number_format($delivery->po_price) }}</td>
                             <td></td>
                         </tr>
-                    </tbody>
+                    </tfoot>
                 </table>
             </div>
         </div>
@@ -155,27 +124,19 @@
             @endforeach
         </div>
 
-        <div class="card-body px-4 pb-4">
+        <div>
             <dl class="row">
                 <div class="col">
-                    <dt>財務主管：</dt>
-                    <dd></dd>
+                    <dd>財務主管：</dd>
                 </div>
                 <div class="col">
-                    <dt>會計：{{ $accountant }}</dt>
-                    <dd></dd>
+                    <dd>會計：{{ $accountant }}</dd>
                 </div>
                 <div class="col">
-                    <dt>商品主管：</dt>
-                    <dd></dd>
+                    <dd>商品主管：</dd>
                 </div>
                 <div class="col">
-                    <dt>商品負責人：</dt>
-                    <dd></dd>
-                </div>
-                <div class="col">
-                    <dt>承辦人：{{ $undertaker ? $undertaker->name : '' }}</dt>
-                    <dd></dd>
+                    <dd>商品負責人：</dd>
                 </div>
             </dl>
         </div>
