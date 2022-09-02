@@ -36,6 +36,27 @@
                     <input class="form-control" value="{{ $searchParam['inbound_sn'] }}" type="text" name="inbound_sn"
                            placeholder="輸入入庫單號">
                 </div>
+                <div class="col-12 col-sm-6 mb-3">
+                    <legend class="col-form-label p-0 mb-2">盤點狀態</legend>
+                    <div class="px-1 pt-1">
+                        <div class="form-check form-check-inline">
+                            <label class="form-check-label">
+                                <input class="form-check-input" name="inventory_status" type="radio"
+                                       value="all" @if ($searchParam['inventory_status'] == 'all') checked @endif>
+                                全部
+                            </label>
+                        </div>
+                        @foreach (App\Enums\Consignment\AuditStatus::asArray() as $key => $val)
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label">
+                                    <input class="form-check-input" name="inventory_status" type="radio"
+                                           value="{{ $val }}" @if ($searchParam['inventory_status'] == $val) checked @endif>
+                                    {{ App\Enums\Consignment\AuditStatus::getDescription($val) }}
+                                </label>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
             </div>
 
             <div class="col">
@@ -63,6 +84,8 @@
                 <thead>
                     <tr>
                         <th scope="col">#</th>
+                        <th scope="col">盤點狀態</th>
+                        <th scope="col">盤點人員</th>
                         <th scope="col">編輯</th>
                         <th scope="col">採購單號</th>
                         <th scope="col">SKU</th>
@@ -78,6 +101,8 @@
                     @foreach ($dataList as $key => $data)
                         <tr>
                             <th scope="row">{{ $key + 1 }}</th>
+                            <td>{{ $data->inventory_status_str }}</td>
+                            <td>{{ $data->inventory_create_user_name }}</td>
                             <td>
                                 @can('cms.inbound_import.edit')
                                 <a href="{{ Route('cms.inbound_import.inbound_edit', ['inboundId' => $data->inbound_id], true) }}"
@@ -87,7 +112,16 @@
                                 </a>
                                 @endcan
                             </td>
-                            <td>{{ $data->event_sn }}</td>
+
+                            <td>
+                                <a href="@if(\App\Enums\Delivery\Event::purchase()->value == $data->event)
+                                {{ route('cms.purchase.edit', ['id' => $data->event_id]) }}
+                                @elseif(\App\Enums\Delivery\Event::ord_pickup()->value == $data->event)
+                                {{ route('cms.order.detail', ['id' => $data->event_id]) }}
+                                @elseif(\App\Enums\Delivery\Event::consignment()->value == $data->event)
+                                {{ route('cms.consignment.edit', ['id' => $data->event_id]) }}
+                                @endif" target="_blank">{{ $data->event_sn }}</a>
+                            </td>
                             <td>{{ $data->style_sku }}</td>
                             <td>{{ $data->product_title }}</td>
                             <td>{{ $data->inbound_sn }}</td>

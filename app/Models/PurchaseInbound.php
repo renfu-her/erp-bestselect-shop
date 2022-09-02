@@ -81,18 +81,23 @@ class PurchaseInbound extends Model
         }
         $can_tally = Depot::can_tally($inboundGet->depot_id);
 
-        return DB::transaction(function () use ($inboundGet, $can_tally, $inbound_id, $add_qty, $expiry_date, $memo, $update_user_id, $update_user_name) {
-            PurchaseInbound::where('id', '=', $inbound_id)->update([
-                'inbound_num' => DB::raw("inbound_num + $add_qty")
-                , 'expiry_date' => $expiry_date
-            ]);
+        $inboundGet->inbound_num = $inboundGet->inbound_num + $add_qty;
+        $inboundGet->expiry_date = date('Y-m-d H:i:s', strtotime($expiry_date));
 
-            $updateLog = PurchaseInbound::updateLog(LogEventFeature::inbound_update()->value, $inboundGet->id, $inboundGet->event, $inboundGet->event_id, $inboundGet->event_item_id, $inboundGet->product_style_id
-                , $inboundGet->prd_type, $inboundGet->title, $add_qty, $can_tally, $memo, $update_user_id, $update_user_name);
-            if ($updateLog['success'] == 0) {
-                return $updateLog;
+        return DB::transaction(function () use ($inboundGet, $can_tally, $inbound_id, $add_qty, $expiry_date, $memo, $update_user_id, $update_user_name) {
+            if ($inboundGet->isDirty()) {
+                PurchaseInbound::where('id', '=', $inbound_id)->update([
+                    'inbound_num' => DB::raw("inbound_num + $add_qty")
+                    , 'expiry_date' => $expiry_date
+                ]);
+
+                $updateLog = PurchaseInbound::updateLog(LogEventFeature::inbound_update()->value, $inboundGet->id, $inboundGet->event, $inboundGet->event_id, $inboundGet->event_item_id, $inboundGet->product_style_id
+                    , $inboundGet->prd_type, $inboundGet->title, $add_qty, $can_tally, $memo, $update_user_id, $update_user_name);
+                if ($updateLog['success'] == 0) {
+                    return $updateLog;
+                }
+                return ['success' => 1, 'error_msg' => "", 'id' => $inboundGet->id, 'sn' => $inboundGet->sn];
             }
-            return ['success' => 1, 'error_msg' => "", 'id' => $inboundGet->id, 'sn' => $inboundGet->sn];
         });
     }
 
@@ -438,6 +443,7 @@ class PurchaseInbound extends Model
     public static function getInboundListWithEventSn($event_table, $event, $param, $showDelete = true)
     {
         $result = DB::table('pcs_purchase_inbound as inbound')
+            ->leftJoin(app(PcsInboundInventory::class)->getTable(). ' as inventory', 'inventory.inbound_id', '=', 'inbound.id')
             ->leftJoin($event_table. ' as event', function ($join) use($event) {
                 $join->on('event.id', '=', 'inbound.event_id')
                     ->whereIn('inbound.event', $event);
@@ -458,6 +464,15 @@ class PurchaseInbound extends Model
                 , 'inbound.inbound_user_name as inbound_user_name' //入庫人員名稱
                 , 'inbound.close_date as inbound_close_date'
                 , 'inbound.memo as inbound_memo' //入庫備註
+                , 'inventory.status as inventory_status'
+                , DB::raw('(case when "' . AuditStatus::unreviewed()->value . '" = inventory.status then "' . AuditStatus::getDescription(AuditStatus::unreviewed) . '"
+					when "' . AuditStatus::approved()->value . '" = inventory.status then "' . AuditStatus::getDescription(AuditStatus::approved) . '"
+					when "' . AuditStatus::veto()->value . '" = inventory.status then "' . AuditStatus::getDescription(AuditStatus::veto) . '"
+                    else "' . AuditStatus::getDescription(AuditStatus::unreviewed) . '" end) as inventory_status_str')
+                , 'inventory.create_user_id as inventory_create_user_id'
+                , 'inventory.create_user_name as inventory_create_user_name'
+                , 'inventory.created_at as inventory_created_at'
+                , 'inventory.updated_at as inventory_updated_at'
                 , DB::raw('(inbound.inbound_num - inbound.sale_num - inbound.csn_num - inbound.consume_num - inbound.back_num - inbound.scrap_num) as qty') //可出庫剩餘數量
             )
             ->selectRaw('DATE_FORMAT(inbound.expiry_date,"%Y-%m-%d") as expiry_date') //有效期限
@@ -499,6 +514,16 @@ class PurchaseInbound extends Model
         }
         if (isset($param['inbound_sn'])) {
             $result->where('inbound.sn', '=', $param['inbound_sn']);
+        }
+        if (isset($param['inventory_status']) && 'all' != $param['inventory_status']) {
+            //若篩選尚未審核資料 有可能是未建立資料
+            if (AuditStatus::unreviewed()->value == $param['inventory_status']) {
+                $result->whereNull('inventory.status');
+                $result->orWhere('inventory.status', '=', $param['inventory_status']);
+            } else {
+                $result->where('inventory.status', '=', $param['inventory_status']);
+            }
+
         }
         return $result;
     }

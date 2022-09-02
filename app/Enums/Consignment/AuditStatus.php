@@ -4,6 +4,11 @@ namespace App\Enums\Consignment;
 
 use BenSampo\Enum\Enum;
 
+/**
+ * @method static static unreviewed()
+ * @method static static approved()
+ * @method static static veto()
+ */
 class AuditStatus extends Enum
 {
     const unreviewed = '0'; //未審核

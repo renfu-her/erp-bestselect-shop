@@ -45,6 +45,24 @@
                        type="text"
                        value=""/>
             </x-b-form-group>
+            <x-b-form-group name="note" title="審核狀態" required="false" class="col-12 col-sm-6 mb-3">
+                <div class="px-1 pt-1">
+                    @foreach (App\Enums\Consignment\AuditStatus::asArray() as $key => $val)
+                        <div class="form-check form-check-inline @error('inventory_status')is-invalid @enderror">
+                            <label class="form-check-label">
+                                <input class="form-check-input @error('inventory_status')is-invalid @enderror" name="inventory_status"
+                                       value="{{ $val }}" type="radio" required
+                                       @if (old('inventory_status', $inboundData->inventory_status ?? App\Enums\Consignment\AuditStatus::unreviewed()->value) == $val) checked @endif>
+                                {{ App\Enums\Consignment\AuditStatus::getDescription($val) }}
+                            </label>
+                        </div>
+                    @endforeach
+                    @error('inventory_status')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+            </x-b-form-group>
+
             <input type='hidden' name='id' value="{{ old('id', $inboundData->id) }}" />
             <input type="hidden" name="backUrl" value="{{ $backUrl }}"/>
             <div class="d-flex justify-content-end pt-2">
