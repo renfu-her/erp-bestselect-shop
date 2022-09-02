@@ -29,6 +29,8 @@ class CustomerAddress extends Model
 
     /**
      * 新增消費者的常用地址
+     * @param $data Request 資料再做處理
+     * @param $customerId int talbe usr_customers id
      * @return void
      */
     public static function addCustomerAddress(array $data, $customerId)
