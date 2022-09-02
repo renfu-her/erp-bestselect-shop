@@ -346,12 +346,14 @@
                 <div class="row">
                     <fieldset class="col-12 mb-1">
                         <div class="px-1 pt-1">
-                            <div class="form-check form-check-inline">
-                                <label class="form-check-label">
-                                    <input class="form-check-input" name="ord_radio" value="default" type="radio" checked>
-                                    預設地址
-                                </label>
-                            </div>
+                            @if(!is_null($defaultAddress))
+                                <div class="form-check form-check-inline">
+                                    <label class="form-check-label">
+                                        <input class="form-check-input" name="ord_radio" value="default" type="radio" checked>
+                                        預設地址
+                                    </label>
+                                </div>
+                            @endif
                             @if(count($otherOftenUsedAddresses ?? []) > 0)
                                 <div class="form-check form-check-inline">
                                     <label class="form-check-label">
@@ -362,7 +364,15 @@
                             @endif
                             <div class="form-check form-check-inline">
                                 <label class="form-check-label">
-                                    <input class="form-check-input" name="ord_radio" value="new" type="radio" >
+                                    <input class="form-check-input"
+                                           name="ord_radio"
+                                           value="new"
+                                            {{-- 預設地址、常用地址都沒有時，勾選「新增地址」--}}
+                                           @if(is_null($defaultAddress) &&
+                                                count($otherOftenUsedAddresses ?? []) === 0)
+                                               checked
+                                           @endif
+                                           type="radio">
                                     新增地址
                                 </label>
                             </div>
@@ -442,12 +452,14 @@
                                     <input id="sed_same" name="sed_radio" class="form-check-input mt-0 me-1" value="same" type="radio">同購買人
                                 </label>
                             </div>
-                            <div class="form-check form-check-inline">
-                                <label class="form-check-label">
-                                    <input class="form-check-input" name="sed_radio" value="default" type="radio">
-                                    預設地址
-                                </label>
-                            </div>
+                            @if(!is_null($defaultAddress))
+                                <div class="form-check form-check-inline">
+                                    <label class="form-check-label">
+                                        <input class="form-check-input" name="sed_radio" value="default" type="radio">
+                                        預設地址
+                                    </label>
+                                </div>
+                            @endif
                             @if(count($otherOftenUsedAddresses ?? []) > 0)
                                 <div class="form-check form-check-inline">
                                     <label class="form-check-label">
@@ -532,12 +544,14 @@
                                     <input id="rec_same" name="rec_radio" class="form-check-input mt-0 me-1" value="same" type="radio">同購買人
                                 </label>
                             </div>
-                            <div class="form-check form-check-inline">
-                                <label class="form-check-label">
-                                    <input class="form-check-input" name="rec_radio" value="default" type="radio">
-                                    預設地址
-                                </label>
-                            </div>
+                            @if(!is_null($defaultAddress))
+                                <div class="form-check form-check-inline">
+                                    <label class="form-check-label">
+                                        <input class="form-check-input" name="rec_radio" value="default" type="radio">
+                                        預設地址
+                                    </label>
+                                </div>
+                            @endif
                             @if(count($otherOftenUsedAddresses ?? []) > 0)
                                 <div class="form-check form-check-inline">
                                     <label class="form-check-label">
