@@ -32,7 +32,9 @@ class Order extends Model
         $sale_channel_id = null,
         $order_date = null,
         $shipment_status = null,
-        $profit_user = null) {
+        $profit_user = null,
+        $email = null
+    ) {
         $order = DB::table('ord_orders as order')
             ->select(['order.id as id',
                 'order.status as order_status',
@@ -82,6 +84,10 @@ class Order extends Model
                     ->orWhere('ord_address.name', 'like', "%{$keyword}%")
                     ->orWhere('ord_address.phone', 'like', "%{$keyword}%");
             });
+        }
+
+        if ($email) {
+            $order->where('order.email', $email);
         }
 
         if ($sale_channel_id) {
