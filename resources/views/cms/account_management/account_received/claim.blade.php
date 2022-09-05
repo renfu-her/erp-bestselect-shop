@@ -15,7 +15,7 @@
                     <thead class="table-primary">
                         <tr>
                             <th scope="col" class="text-center"><input class="form-check-input" type="checkbox" id="checkAll"></th>
-                            <th scope="col">編號</th>
+                            <th scope="col">#</th>
                             <th scope="col">單據編號</th>
                             <th scope="col">對象</th>
                             <th scope="col">會計科目</th>

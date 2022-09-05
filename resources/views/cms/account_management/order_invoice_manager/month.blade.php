@@ -51,7 +51,7 @@
             <table class="table table-striped tableList">
                 <thead>
                     <tr>
-                        <th scope="col">編號</th>
+                        <th scope="col">#</th>
                         <th scope="col">發票號碼</th>
                         <th scope="col">發票日期</th>
                         <th scope="col">客戶</th>

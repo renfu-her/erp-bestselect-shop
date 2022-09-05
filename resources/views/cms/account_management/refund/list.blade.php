@@ -83,7 +83,7 @@
             <table class="table table-striped tableList">
                 <thead>
                     <tr>
-                        <th scope="col">編號</th>
+                        <th scope="col">#</th>
                         <th scope="col">收款對象</th>
                         <th scope="col">付款單號</th>
                         <th scope="col">已付/未付</th>

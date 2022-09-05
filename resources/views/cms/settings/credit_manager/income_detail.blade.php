@@ -21,7 +21,7 @@
             <table class="table table-hover tableList mb-1">
                 <thead class="table-primary">
                     <tr>
-                        <th scope="col">編號</th>
+                        <th scope="col">#</th>
                         <th scope="col">會計科目</th>
                         <th scope="col">摘要</th>
                         <th scope="col">信用卡號</th>

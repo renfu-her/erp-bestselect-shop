@@ -88,7 +88,7 @@
             <table class="table table-striped tableList">
                 <thead>
                     <tr>
-                        <th scope="col">編號</th>
+                        <th scope="col">#</th>
                         <th scope="col">單號</th>
                         <th scope="col">科目</th>
                         <th scope="col">摘要</th>

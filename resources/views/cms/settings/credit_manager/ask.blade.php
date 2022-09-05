@@ -15,7 +15,7 @@
                             <th scope="col" class="text-center">
                                 <input class="form-check-input" type="checkbox" id="checkAll">
                             </th>
-                            <th scope="col">編號</th>
+                            <th scope="col">#</th>
                             <th scope="col">信用卡號</th>
                             <th scope="col" class="text-end">刷卡金額</th>
                             <th scope="col">狀態</th>

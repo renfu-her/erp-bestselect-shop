@@ -110,7 +110,7 @@
             <div class="row g-3 mb-3">
                 <div class="col-12 col-md" hidden>
                     <h6 class="px-2"><i class="bi bi-bell-fill me-2"></i>通知事項</h6>
-                    <div class="border bg-body">
+                    <div class="border bg-body border-bottom-0">
                         {{-- <h6 class="px-3 py-2 mb-0 border-bottom"><i class="bi bi-bell-fill"></i> 通知事項</h6> --}}
                         <table class="table table-striped mb-0">
                             <thead class="text-nowrap">
@@ -166,7 +166,7 @@
                             </a>
                         </div>
                     </div>
-                    <div class="border bg-body">
+                    <div class="border bg-body border-bottom-0">
                         {{-- <h6 class="px-3 py-2 mb-0 border-bottom"><i class="bi bi-megaphone-fill"></i> 公告事項</h6> --}}
                         <table class="table table-striped mb-0">
                             <thead class="text-nowrap">
