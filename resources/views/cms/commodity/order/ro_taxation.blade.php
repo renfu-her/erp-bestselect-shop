@@ -30,7 +30,7 @@
                 <table class="table table-hover tableList mb-1">
                     <thead>
                         <tr>
-                            <th scope="col" class="text-center">編號</th>
+                            <th scope="col" class="text-center">#</th>
                             <th scope="col">會計科目<span class="text-danger">*</span></th>
                             <th scope="col">摘要說明</th>
                             <th scope="col">數量</th>

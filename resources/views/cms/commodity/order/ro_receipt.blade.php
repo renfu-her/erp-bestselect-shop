@@ -22,16 +22,11 @@
 
             <a href="{{ url()->full() . '?action=print' }}" target="_blank" 
                 class="btn btn-sm btn-warning" rel="noopener noreferrer">中一刀列印畫面</a>
-            {{--
-            <button type="submit" class="btn btn-sm btn-warning">A4列印畫面</button>
-            <button type="submit" class="btn btn-dark">修改記錄</button>
-            <button type="submit" class="btn btn-dark">明細修改記錄</button>
-            --}}
 
             @if(!$received_order->receipt_date && !$data_status_check)
-                <a href="javascript:void(0)" role="button" class="btn btn-sm btn-outline-danger"
-                    data-bs-toggle="modal" data-bs-target="#confirm-delete"
-                    data-href="{{ Route('cms.collection_received.delete', ['id' => $received_order->id], true) }}">刪除收款單</a>
+                <a href="javascript:void(0)" role="button" data-bs-toggle="modal" data-bs-target="#confirm-delete"
+                    data-href="{{ Route('cms.collection_received.delete', ['id' => $received_order->id], true) }}" 
+                    class="btn btn-sm btn-outline-danger">刪除收款單</a>
             @endif
         </div>
     </nav>

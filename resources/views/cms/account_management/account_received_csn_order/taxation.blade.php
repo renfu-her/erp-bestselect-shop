@@ -1,40 +1,19 @@
 @extends('layouts.main')
-
 @section('sub-content')
-    <style>
-        .grade_1 {
-            padding-left: 1ch;
-        }
-
-        .grade_2 {
-            padding-left: 2ch;
-        }
-
-        .grade_3 {
-            padding-left: 4ch;
-        }
-
-        .grade_4 {
-            padding-left: 8ch;
-        }
-    </style>
-    <div class="pt-2 mb-3">
-        <a href="{{ Route('cms.ar_csnorder.receipt', ['id' => $received_order->source_id]) }}" class="btn btn-primary" role="button">
-            <i class="bi bi-arrow-left"></i> 返回上一頁
-        </a>
-    </div>
+    <h2 class="mb-4">修改摘要/稅別</h2>
+    
     <form method="POST" action="{{ $form_action }}">
         @csrf
         <div class="card shadow p-4 mb-4">
             <div class="table-responsive tableOverBox">
                 <table class="table table-hover tableList mb-1">
-                    <thead>
+                    <thead class="small">
                         <tr>
-                            <th scope="col" class="text-center">編號</th>
+                            <th scope="col" class="text-center">#</th>
                             <th scope="col">會計科目<span class="text-danger">*</span></th>
                             <th scope="col">摘要說明</th>
-                            <th scope="col">數量</th>
-                            <th scope="col">金額</th>
+                            <th scope="col" class="text-end">數量</th>
+                            <th scope="col" class="text-end">金額</th>
                             <th scope="col">稅別</th>
                             <th scope="col">備註</th>
                         </tr>
@@ -69,20 +48,32 @@
                                     </select>
                                 </td>
 
-                                <td><input class="form-control" name="received[{{ $value->received_id }}][summary]" type="text" value="{{ $value->summary }}"></td>
-                                <td>1</td>
-                                <td>{{ number_format($value->tw_price, 2) }}</td>
+                                <td><input class="form-control -l" name="received[{{ $value->received_id }}][summary]" type="text" value="{{ $value->summary }}"></td>
+                                <td class="text-end">1</td>
+                                <td class="text-end">{{ number_format($value->tw_price, 2) }}</td>
                                 <td>
-                                    <div class="form-check form-check-inline">
-                                        <input class="form-check-input" name="received[{{ $value->received_id }}][taxation]" value="1" type="radio" id="tax_{{ $serial }}_1" required @if ($value->taxation == '1') checked @endif>
-                                        <label class="form-check-label" for="tax_{{ $serial }}_1">應稅</label>
+                                    <div class="form-check form-check-inline lh-base">
+                                        <label class="form-check-label" for="tax_{{ $serial }}_1">
+                                            <input class="form-check-input" 
+                                                name="received[{{ $value->received_id }}][taxation]" 
+                                                value="1" type="radio" id="tax_{{ $serial }}_1" 
+                                                required @if ($value->taxation == '1') checked @endif>
+                                            應稅
+                                        </label>
                                     </div>
-                                    <div class="form-check form-check-inline">
-                                        <input class="form-check-input" name="received[{{ $value->received_id }}][taxation]" value="0" type="radio" id="tax_{{ $serial }}_2" required @if ($value->taxation == '0') checked @endif>
-                                        <label class="form-check-label" for="tax_{{ $serial }}_2">免稅</label>
+                                    <div class="form-check form-check-inline lh-base">
+                                        <label class="form-check-label" for="tax_{{ $serial }}_2">
+                                            <input class="form-check-input" 
+                                                name="received[{{ $value->received_id }}][taxation]" 
+                                                value="0" type="radio" id="tax_{{ $serial }}_2" 
+                                                required @if ($value->taxation == '0') checked @endif>
+                                            免稅
+                                        </label>
                                     </div>
                                 </td>
-                                <td><input class="form-control" name="received[{{ $value->received_id }}][note]" type="text" value="{{ $value->note }}"></td>
+                                <td>
+                                    <input class="form-control -l" name="received[{{ $value->received_id }}][note]" type="text" value="{{ $value->note }}">
+                                </td>
                             </tr>
                             @php
                                 $serial++;
@@ -115,18 +106,27 @@
                                         @endphp
                                     @endif
                                 </td>
-
                                 <td>{{ $value->product_title }}</td>
-                                <td>{{ $value->product_qty }}</td>
-                                <td>{{ number_format($value->product_origin_price, 2) }}</td>
+                                <td class="text-end">{{ $value->product_qty }}</td>
+                                <td class="text-end">{{ number_format($value->product_origin_price, 2) }}</td>
                                 <td>
-                                    <div class="form-check form-check-inline">
-                                        <input class="form-check-input" name="product[{{ $value->product_id }}][taxation]" value="1" type="radio" id="tax_{{ $serial }}_1" required @if ($value->product_taxation == '1') checked @endif>
-                                        <label class="form-check-label" for="tax_{{ $serial }}_1">應稅</label>
+                                    <div class="form-check form-check-inline lh-base">
+                                        <label class="form-check-label" for="tax_{{ $serial }}_1">
+                                            <input class="form-check-input" 
+                                                name="product[{{ $value->product_id }}][taxation]" 
+                                                value="1" type="radio" id="tax_{{ $serial }}_1" 
+                                                required @if ($value->product_taxation == '1') checked @endif>
+                                            應稅
+                                        </label>
                                     </div>
-                                    <div class="form-check form-check-inline">
-                                        <input class="form-check-input" name="product[{{ $value->product_id }}][taxation]" value="0" type="radio" id="tax_{{ $serial }}_2" required @if ($value->product_taxation == '0') checked @endif>
-                                        <label class="form-check-label" for="tax_{{ $serial }}_2">免稅</label>
+                                    <div class="form-check form-check-inline lh-base">
+                                        <label class="form-check-label" for="tax_{{ $serial }}_2">
+                                            <input class="form-check-input" 
+                                                name="product[{{ $value->product_id }}][taxation]" 
+                                                value="0" type="radio" id="tax_{{ $serial }}_2" 
+                                                required @if ($value->product_taxation == '0') checked @endif>
+                                            免稅
+                                        </label>
                                     </div>
                                 </td>
                                 <td>
@@ -150,12 +150,34 @@
 
         <div class="col-auto">
             <button type="submit" class="btn btn-primary px-4">確認</button>
-            {{-- <a onclick="history.back()" class="btn btn-outline-primary px-4" role="button">取消</a> --}}
+            <a href="{{ Route('cms.ar_csnorder.receipt', ['id' => $received_order->source_id]) }}" 
+                class="btn btn-outline-primary px-4" role="button">
+                返回上一頁
+            </a>
         </div>
     </form>
 @endsection
 
 @once
+@push('sub-styles')
+<style>
+    .grade_1 {
+        padding-left: 1ch;
+    }
+
+    .grade_2 {
+        padding-left: 2ch;
+    }
+
+    .grade_3 {
+        padding-left: 4ch;
+    }
+
+    .grade_4 {
+        padding-left: 8ch;
+    }
+</style>
+@endpush
 @push('sub-scripts')
 <script>
     // 會計科目樹狀排版

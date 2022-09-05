@@ -7,9 +7,9 @@
         <div class="card shadow p-4 mb-4">
             <div class="table-responsive tableOverBox">
                 <table class="table table-hover tableList mb-1">
-                    <thead>
+                    <thead class="small">
                         <tr>
-                            <th scope="col" class="text-center">編號</th>
+                            <th scope="col" class="text-center">#</th>
                             <th scope="col">會計科目<span class="text-danger">*</span></th>
                             <th scope="col">摘要說明</th>
                             <th scope="col" class="text-end">數量</th>
