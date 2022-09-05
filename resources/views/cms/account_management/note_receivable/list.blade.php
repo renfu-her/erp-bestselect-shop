@@ -192,7 +192,7 @@
             <table class="table table-striped tableList">
                 <thead>
                     <tr>
-                        <th scope="col">編號</th>
+                        <th scope="col">#</th>
                         <th scope="col">支票號碼</th>
                         <th scope="col">金額</th>
                         <th scope="col">狀態</th>

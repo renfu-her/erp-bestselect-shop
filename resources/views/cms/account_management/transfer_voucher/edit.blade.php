@@ -51,7 +51,7 @@
                     <table class="table tableList table-hover mb-1">
                         <thead>
                             <tr>
-                                <th scope="col">編號</th>
+                                <th scope="col">#</th>
                                 <th scope="col">會計科目</th>
                                 <th scope="col">摘要說明</th>
                                 <th scope="col">借貸</th>

@@ -17,7 +17,7 @@
             <table class="table mb-1">
                 <thead class="table-primary">
                     <tr>
-                        <th scope="col">編號</th>
+                        <th scope="col">#</th>
                         <th scope="col">付款行別</th>
                         <th scope="col">票據號碼</th>
                         <th scope="col">付款帳號</th>

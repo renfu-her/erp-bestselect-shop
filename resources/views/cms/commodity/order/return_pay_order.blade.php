@@ -42,6 +42,15 @@
                     <dd>製表日期：{{ date('Y-m-d', strtotime($paying_order->created_at)) }}</dd>
                 </div>
             </dl>
+            
+            <dl class="row mb-0">
+                <div class="col">
+                    <dd>單據編號：</dd>
+                </div>
+                <div class="col">
+                    <dd>付款日期：</dd>
+                </div>
+            </dl>
 
             <dl class="row mb-0">
                 <div class="col">

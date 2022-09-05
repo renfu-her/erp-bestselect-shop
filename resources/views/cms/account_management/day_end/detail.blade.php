@@ -7,7 +7,7 @@
             <table class="table table-striped tableList mb-1">
                 <thead class="table-primary">
                     <tr>
-                        <th scope="col">編號</th>
+                        <th scope="col">#</th>
                         <th scope="col">傳票編號</th>
                         <th scope="col">單據編號</th>
                     </tr>

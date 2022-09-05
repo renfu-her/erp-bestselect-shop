@@ -178,7 +178,7 @@
             <table class="table table-striped tableList">
                 <thead>
                     <tr>
-                        <th scope="col">編號</th>
+                        <th scope="col">#</th>
                         <th scope="col">持卡人</th>
                         <th scope="col">卡號</th>
                         <th scope="col">刷卡金額</th>

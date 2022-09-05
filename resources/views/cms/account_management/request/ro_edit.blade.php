@@ -19,7 +19,7 @@
 
             <div class="table-responsive tableOverBox border-bottom border-dark">
                 <table class="table table-sm table-hover tableList mb-1">
-                    <thead class="table-secondary align-middle">
+                    <thead class="table-secondary align-middle small">
                         <tr>
                             <th scope="col">請款單號</th>
                             <th scope="col">說明</th>

@@ -99,7 +99,7 @@
             <table class="table table-striped tableList">
                 <thead>
                     <tr>
-                        <th scope="col">編號</th>
+                        <th scope="col">#</th>
                         <th scope="col">對象</th>
                         <th scope="col">會計科目</th>
                         <th scope="col">摘要</th>

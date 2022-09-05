@@ -36,7 +36,7 @@
                 <span class="ms-3">電話：02-25637600</span>
                 <span class="ms-3">傳真：02-25711377</span>
             </div>
-            <h4 class="text-center">收款單</h4>
+            <h4 class="text-center">收　款　單</h4>
             <hr>
 
             <dl class="row mb-0">

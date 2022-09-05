@@ -52,10 +52,10 @@
                     <thead class="table-light">
                         <tr class="small wrap">
                             <th scope="col" style="width:10%"></th>
-                            <th scope="col" style="width:35%" class="text-center">借</th>
-                            <th scope="col" style="width:10%" class="text-end">借方<br class="d-block d-lg-none">金額</th>
-                            <th scope="col" style="width:35%" class="text-center">貸</th>
-                            <th scope="col" style="width:10%" class="text-end">貸方<br class="d-block d-lg-none">金額</th>
+                            <th scope="col" style="width:calc((90% - var(--th-wrap)*2)/2)" class="text-center">借</th>
+                            <th scope="col" style="width:var(--th-wrap)" class="text-end">借方<br class="d-block d-lg-none">金額</th>
+                            <th scope="col" style="width:calc((90% - var(--th-wrap)*2)/2)" class="text-center">貸</th>
+                            <th scope="col" style="width:var(--th-wrap)" class="text-end">貸方<br class="d-block d-lg-none">金額</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -71,7 +71,7 @@
                                 <table class="table mb-0">
                                     @foreach($debit as $d_key => $d_value)
                                     <tr>
-                                        <td style="width:calc(35/45*100%)" class="border-end">
+                                        <td style="width:calc(100% - var(--th-wrap))" class="border-end">
                                             @if ($d_value->received_info)
                                                 @if ($d_value->received_info->received_method == 'credit_card')
                                                     @php
@@ -226,7 +226,7 @@
                                                 @endif
                                             @endif
                                         </td>
-                                        <td style="width:calc(10/45*100%)" class="text-end">
+                                        <td style="width:var(--th-wrap)" class="text-end">
                                             {{ number_format($d_value->price) }}
                                         </td>
                                     </tr>
@@ -241,10 +241,10 @@
                                 <table class="table mb-0">
                                     @foreach($credit as $value)
                                     <tr class="border-bottom">
-                                        <td style="width:calc(35/45*100%)" class="border-end">
+                                        <td style="width:calc(100% - var(--th-wrap))" class="border-end">
                                             {{ $value->name }}
                                         </td>
-                                        <td style="width:calc(10/45*100%)" class="text-end">
+                                        <td style="width:var(--th-wrap)" class="text-end">
                                             {{ number_format($value->price) }}
                                         </td>
                                     </tr>
@@ -281,6 +281,14 @@
 @once
 @push('sub-styles')
 <style>
+    * {
+        --th-wrap: 55px;
+    }
+    @media (min-width: 992px) { 
+        * {
+            --th-wrap: 75px;
+        }
+    }
     .grade_1 {
         padding-left: 1ch;
     }
