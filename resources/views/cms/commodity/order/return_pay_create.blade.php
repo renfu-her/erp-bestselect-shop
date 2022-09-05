@@ -42,11 +42,11 @@
                                 </td>
                                 <td class="text-wrap">{{ $product_grade_name }}</td>
                                 <td class="text-wrap">{{ $p_value->product_title }}{{'（' . $so_value->ship_event . ' - ' . $so_value->ship_category_name . '）'}}{{'（' . $p_value->price . ' * ' . $p_value->qty . '）'}}</td>
-                                <td class="text-end">{{ number_format($p_value->price, 2) }}</td>
+                                <td class="text-end">${{ number_format($p_value->price, 2) }}</td>
                                 <td class="text-end">{{$p_value->qty}}</td>
                                 <td class="text-end">{{ $currency->rate }}</td>
                                 <td>{{ $currency->name }}</td>
-                                <td class="text-end">{{ number_format($p_value->total_price) }}</td>
+                                <td class="text-end">${{ number_format($p_value->total_price) }}</td>
                                 <td class="text-end"></td>
                             </tr>
                             @endforeach
@@ -60,11 +60,11 @@
                             </td>
                             <td class="text-wrap">{{ $logistics_grade_name }}</td>
                             <td>物流費用</td>
-                            <td class="text-end">{{ number_format($order->dlv_fee, 2) }}</td>
+                            <td class="text-end">${{ number_format($order->dlv_fee, 2) }}</td>
                             <td class="text-end">1</td>
                             <td class="text-end">1</td>
                             <td>NTD</td>
-                            <td class="text-end">{{ number_format($order->dlv_fee) }}</td>
+                            <td class="text-end">${{ number_format($order->dlv_fee) }}</td>
                             <td class="text-end"></td>
                         </tr>
                         @endif
@@ -78,11 +78,11 @@
                                 </td>
                                 <td class="text-wrap">{{ $d_value->account_code }} {{ $d_value->account_name }}</td>
                                 <td class="text-wrap">{{ $d_value->title }}</td>
-                                <td class="text-end">-{{ number_format($d_value->discount_value, 2) }}</td>
+                                <td class="text-end">-${{ number_format($d_value->discount_value, 2) }}</td>
                                 <td class="text-end">1</td>
                                 <td class="text-end">1</td>
                                 <td>NTD</td>
-                                <td class="text-end">-{{ number_format($d_value->discount_value) }}</td>
+                                <td class="text-end">-${{ number_format($d_value->discount_value) }}</td>
                                 <td class="text-end"></td>
                             </tr>
                             @endforeach
@@ -96,12 +96,12 @@
                             </td>
                             <td class="text-wrap">{{ $value->account->code . ' ' . $value->account->name }}</td>
                             <td class="text-wrap">{{ $value->payable_method_name . ' - ' . $value->summary }}</td>
-                            <td class="text-end">{{ number_format($value->tw_price, 2) }}</td>
+                            <td class="text-end">${{ number_format($value->tw_price, 2) }}</td>
                             <td class="text-end">1</td>
                             <td class="text-end">{{ $value->currency_rate }}</td>
                             <td>{{ $value->currency_name }}</td>
                             <td class="text-end"></td>
-                            <td class="text-end">{{ number_format($value->tw_price) }}</td>
+                            <td class="text-end">${{ number_format($value->tw_price) }}</td>
                         </tr>
                         @endforeach
                     </tbody>
@@ -110,7 +110,7 @@
             <table class="table table-sm tableList mb-0">
                 <tfoot>
                     <tr>
-                        <th scope="row" class="text-end">應付總計金額：{{ number_format($tw_price) }}</th>
+                        <th scope="row" class="text-end">應付總計金額：${{ number_format($tw_price) }}</th>
                     </tr>
                 </tfoot>
             </table>

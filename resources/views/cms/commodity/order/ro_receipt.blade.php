@@ -4,19 +4,24 @@
 
     <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
         <div class="p-1 pe-2">
-            <a href="{{ route('cms.collection_received.edit', ['id' => $received_order->id]) }}" class="btn btn-sm btn-success px-3" role="button">修改</a>
+            <a href="{{ route('cms.collection_received.edit', ['id' => $received_order->id]) }}" 
+                class="btn btn-sm btn-success px-3" role="button">修改</a>
 
             @if(! $received_order->receipt_date)
-                <a href="{{ route('cms.order.ro-review', ['id' => $received_order->source_id]) }}" class="btn btn-sm btn-primary" role="button">收款單入款審核</a>
+                <a href="{{ route('cms.order.ro-review', ['id' => $received_order->source_id]) }}" 
+                    class="btn btn-sm btn-primary" role="button">收款單入款審核</a>
             @else
                 @if(! $data_status_check)
-                <a href="{{ route('cms.order.ro-review', ['id' => $received_order->source_id]) }}" class="btn btn-sm btn-outline-danger" role="button">取消入帳</a>
+                <a href="{{ route('cms.order.ro-review', ['id' => $received_order->source_id]) }}" 
+                    class="btn btn-sm btn-outline-danger" role="button">取消入帳</a>
                 @endif
             @endif
 
-            <a href="{{ route('cms.order.ro-taxation', ['id' => $received_order->source_id]) }}" class="btn btn-sm btn-dark" role="button">修改摘要/稅別</a>
+            <a href="{{ route('cms.order.ro-taxation', ['id' => $received_order->source_id]) }}" 
+                class="btn btn-sm btn-dark" role="button">修改摘要/稅別</a>
 
-            <a href="{{ url()->full() . '?action=print' }}" target="_blank" class="btn btn-sm btn-warning" rel="noopener noreferrer">中一刀列印畫面</a>
+            <a href="{{ url()->full() . '?action=print' }}" target="_blank" 
+                class="btn btn-sm btn-warning" rel="noopener noreferrer">中一刀列印畫面</a>
             {{--
             <button type="submit" class="btn btn-sm btn-warning">A4列印畫面</button>
             <button type="submit" class="btn btn-dark">修改記錄</button>
@@ -58,6 +63,7 @@
                 </div>
             </dl>
             <hr class="mt-2">
+
             <dl class="row mb-0">
                 <div class="col">
                     <dd>收款單號：{{ $received_order->sn }}</dd>
@@ -70,11 +76,9 @@
                 <div class="col">
                     <dd>訂單流水號：<a href="{{ Route('cms.order.detail', ['id' => $order->id], true) }}">{{ $order->sn }}</a></dd>
                 </div>
-                @if($received_order->receipt_date)
                 <div class="col">
-                    <dd>入帳日期：{{ date('Y-m-d', strtotime($received_order->receipt_date)) }}</dd>
+                    <dd>入帳日期：@if($received_order->receipt_date) {{ date('Y-m-d', strtotime($received_order->receipt_date)) }} @endif</dd>
                 </div>
-                @endif
             </dl>
             <dl class="row mb-0">
                 <div class="col">
@@ -192,7 +196,8 @@
     </div>
 
     <div class="col-auto">
-        <a href="{{ Route('cms.order.detail', ['id' => $received_order->source_id]) }}" class="btn btn-outline-primary px-4" role="button">
+        <a href="{{ Route('cms.order.detail', ['id' => $received_order->source_id]) }}" 
+            class="btn btn-outline-primary px-4" role="button">
             返回明細
         </a>
     </div>

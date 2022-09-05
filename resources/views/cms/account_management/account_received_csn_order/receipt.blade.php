@@ -1,8 +1,6 @@
 @extends('layouts.main')
-
 @section('sub-content')
     <h2 class="mb-4">收款單</h2>
-
 
     <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
         <div class="p-1 pe-2">

@@ -33,7 +33,7 @@
                         </tr>
                     </thead>
 
-                    <tbody class="product_list">
+                    <tbody>
                         @foreach($order_list_data as $value)
                         <tr>
                             <td>{{ $received_order_data->first()->sn }}</td>

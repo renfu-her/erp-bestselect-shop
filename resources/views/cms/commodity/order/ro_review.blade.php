@@ -1,5 +1,4 @@
 @extends('layouts.main')
-
 @section('sub-content')
     <h2 class="mb-4">收款單入款審核</h2>
 
@@ -260,9 +259,9 @@
                         <tr>
                             <td>合計</td>
                             <td></td>
-                            <td class="text-end">{{ number_format($total_debit_price) }}{{-- number_format($received_order->price) --}}</td>
+                            <td class="text-end">{{ number_format($total_debit_price) }}</td>
                             <td></td>
-                            <td class="text-end">{{ number_format($total_credit_price) }}{{-- number_format($received_order->price) --}}</td>
+                            <td class="text-end">{{ number_format($total_credit_price) }}</td>
                         </tr>
                     </tfoot>
                 </table>
