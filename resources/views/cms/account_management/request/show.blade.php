@@ -14,6 +14,11 @@
             <button type="submit" class="btn btn-danger">中一刀列印畫面</button>
             <button type="submit" class="btn btn-danger">A4列印畫面</button>
             --}}
+            @if(! $request_order->received_order_id)
+            <a href="javascript:void(0)" role="button" class="btn btn-outline-danger btn-sm"
+                data-bs-toggle="modal" data-bs-target="#confirm-delete"
+                data-href="{{ Route('cms.request.delete', ['id' => $request_order->id]) }}">刪除請款單</a>
+            @endif
         </div>
     </nav>
 
@@ -152,14 +157,29 @@
             </dl>
         </div>
     </div>
-    
+
     <div class="col-auto">
         <a href="{{ Route('cms.request.index') }}" class="btn btn-outline-primary px-4" 
             role="button">返回上一頁</a>
     </div>
+
+    <!-- Modal -->
+    <x-b-modal id="confirm-delete">
+        <x-slot name="title">刪除確認</x-slot>
+        <x-slot name="body">確認要刪除此請款單？</x-slot>
+        <x-slot name="foot">
+            <a class="btn btn-danger btn-ok" href="#">確認並刪除</a>
+        </x-slot>
+    </x-b-modal>
 @endsection
 
 @once
     @push('sub-scripts')
+        <script>
+            // Modal Control
+            $('#confirm-delete').on('show.bs.modal', function(e) {
+                $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
+            });
+        </script>
     @endpush
 @endonce

@@ -20,7 +20,6 @@ use App\Models\AllGrade;
 use App\Models\CrdCreditCard;
 use App\Models\DayEnd;
 use App\Models\GeneralLedger;
-use App\Models\IncomeOrder;
 use App\Models\OrderPayCreditCard;
 use App\Models\Product;
 use App\Models\ReceivedDefault;

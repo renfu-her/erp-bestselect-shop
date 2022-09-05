@@ -332,7 +332,7 @@ class CollectionReceivedCtrl extends Controller
                 $parm = [
                     'id' => $ro->source_id,
                 ];
-                RequestOrder::update_stitute_order_approval($parm, true);
+                RequestOrder::update_request_order_approval($parm, true);
             }
 
             // credit card - income order record update

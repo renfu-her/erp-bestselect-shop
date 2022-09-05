@@ -8,6 +8,7 @@ Route::group(['prefix' => 'stitute', 'as' => 'stitute.'], function () {
     Route::match(['get', 'post'], 'create', [StituteOrderCtrl::class, 'create'])->name('create')->middleware('permission:cms.stitute.create');
     Route::match(['get', 'post'], 'edit/{id}', [StituteOrderCtrl::class, 'edit'])->name('edit')->middleware('permission:cms.stitute.edit');
     Route::get('show/{id}', [StituteOrderCtrl::class, 'show'])->name('show')->middleware('permission:cms.stitute.show');
+    Route::get('delete/{id}', [StituteOrderCtrl::class, 'destroy'])->name('delete')->middleware('permission:cms.stitute.delete');
 
     Route::get('po_edit/{id}', [StituteOrderCtrl::class, 'po_edit'])->name('po-edit');
     Route::post('po_store/{id}', [StituteOrderCtrl::class, 'po_store'])->name('po-store');

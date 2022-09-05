@@ -237,6 +237,23 @@ class RequestOrderCtrl extends Controller
     }
 
 
+    public static function destroy($id)
+    {
+        $request_order = RequestOrder::findOrFail($id);
+
+        if($request_order->received_order_id){
+            wToast('刪除失敗', ['type'=>'danger']);
+            return redirect()->back();
+
+        } else {
+            $request_order->delete();
+            wToast('刪除完成');
+
+            return redirect()->route('cms.request.index');
+        }
+    }
+
+
     public function ro_edit(Request $request, $id)
     {
         $request->merge([
