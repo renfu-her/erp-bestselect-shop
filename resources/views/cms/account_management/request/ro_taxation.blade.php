@@ -6,7 +6,7 @@
         @csrf
         <div class="card shadow p-4 mb-4">
             <div class="table-responsive tableOverBox">
-                <table class="table table-hover tableList mb-1">
+                <table class="table table-sm table-hover tableList mb-1">
                     <thead class="small">
                         <tr>
                             <th scope="col" class="text-center">#</th>
@@ -28,7 +28,7 @@
                             <tr class="bg-info">
                                 <td class="text-center">{{ $serial }}</td>
                                 <td>
-                                    <select class="form-select -select2 -single" name="received[{{ $value->received_id }}][grade_id]" data-placeholder="請選擇會計科目" required>
+                                    <select class="form-select form-select-sm -select2 -single" name="received[{{ $value->received_id }}][grade_id]" data-placeholder="請選擇會計科目" required>
                                         <option value="" selected disabled>請選擇</option>
                                         @foreach($total_grades as $g_value)
                                             <option value="{{ $g_value['primary_id'] }}"{{ $g_value['primary_id'] == $value->all_grades_id ? 'selected' : '' }}
@@ -46,7 +46,7 @@
                                     </select>
                                 </td>
                                 <td>
-                                    <input class="form-control -l" name="received[{{ $value->received_id }}][summary]" type="text" value="{{ $value->summary }}">
+                                    <input class="form-control form-control-sm -l" name="received[{{ $value->received_id }}][summary]" type="text" value="{{ $value->summary }}">
                                 </td>
                                 <td class="text-end">1</td>
                                 <td class="text-end">{{ number_format($value->tw_price, 2) }}</td>
@@ -71,7 +71,7 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <input class="form-control -l" name="received[{{ $value->received_id }}][note]" type="text" value="{{ $value->note }}">
+                                    <input class="form-control form-control-sm -l" name="received[{{ $value->received_id }}][note]" type="text" value="{{ $value->note }}">
                                 </td>
                             </tr>
                             @php
@@ -83,7 +83,7 @@
                             <tr>
                                 <td class="text-center">{{ $serial }}</td>
                                 <td>
-                                    <select class="form-select -select2 -single" name="product[{{ $value->id }}][request_grade_id]" data-placeholder="請選擇會計科目" required>
+                                    <select class="form-select form-select-sm -select2 -single" name="product[{{ $value->id }}][request_grade_id]" data-placeholder="請選擇會計科目" required>
                                         <option value="" selected disabled>請選擇</option>
                                         @foreach($total_grades as $g_value)
                                             <option value="{{ $g_value['primary_id'] }}"{{ $g_value['primary_id'] == $value->request_grade_id ? 'selected' : '' }}
@@ -103,7 +103,7 @@
 
                                 <td>
                                     {{-- $value->ro_received_grade_code . ' ' . $value->ro_received_grade_name --}}
-                                    <input class="form-control -l" name="product[{{ $value->id }}][summary]" type="text" value="{{ $value->summary }}">
+                                    <input class="form-control form-control-sm -l" name="product[{{ $value->id }}][summary]" type="text" value="{{ $value->summary }}">
                                 </td>
                                 <td class="text-end">1</td>
                                 <td class="text-end">{{ number_format($value->total_price, 2) }}</td>
@@ -128,7 +128,7 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <input class="form-control -l" name="product[{{ $value->id }}][memo]" type="text" value="{{ $value->memo }}">
+                                    <input class="form-control form-control-sm -l" name="product[{{ $value->id }}][memo]" type="text" value="{{ $value->memo }}">
                                 </td>
                             </tr>
                             @php
