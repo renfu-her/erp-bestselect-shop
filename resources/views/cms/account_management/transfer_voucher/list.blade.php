@@ -1,7 +1,7 @@
 @extends('layouts.main')
 
 @section('sub-content')
-    <h2 class="mb-4">轉帳傳票查詢</h2>
+    <h2 class="mb-4">轉帳傳票</h2>
 
     <form id="search" method="GET">
         <div class="card shadow p-4 mb-4">
@@ -85,58 +85,56 @@
         </div>
 
         <div class="table-responsive tableOverBox">
-            <table class="table table-striped tableList">
-                <thead>
+            <table class="table tableList border-bottom">
+                <thead class="small align-middle">
                     <tr>
-                        <th scope="col">#</th>
+                        <th scope="col" style="width:40px">#</th>
                         <th scope="col">單號</th>
                         <th scope="col">科目</th>
                         <th scope="col">摘要</th>
-                        <th scope="col">金額</th>
+                        <th scope="col" class="text-end">金額</th>
                         <th scope="col">部門</th>
                         <th scope="col">審核日期</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($dataList as $key => $data)
+                        @php
+                            $rows = count(json_decode($data->tv_items)) + 1;
+                        @endphp
                         <tr>
-                            <td>{{ $key + 1 }}</td>
-                            <td><a href="{{ route('cms.transfer_voucher.show', ['id' => $data->tv_id]) }}">{{ $data->tv_sn }}</a></td>
-
-                            <td class="p-0">
-                                @if($data->tv_items)
-                                @foreach(json_decode($data->tv_items) as $i_value)
-                                <span class="border-bottom d-block {{ $i_value->debit_credit_code == 'debit' ? 'bg-warning' : 'bg-white' }} p-2">{{ $i_value->grade_code }} {{ $i_value->grade_name }}</span>
-                                @endforeach
-                                @endif
+                            <td rowspan="{{ $rows }}">{{ $key + 1 }}</td>
+                            <td rowspan="{{ $rows }}">
+                                <a href="{{ route('cms.transfer_voucher.show', ['id' => $data->tv_id]) }}">
+                                    {{ $data->tv_sn }}
+                                </a>
                             </td>
-
-                            <td class="p-0">
-                                @if($data->tv_items)
-                                @foreach(json_decode($data->tv_items) as $i_value)
-                                <span class="border-bottom d-block {{ $i_value->debit_credit_code == 'debit' ? 'bg-warning' : 'bg-white' }} p-2" style="min-height: 57px">{{ $i_value->summary }}</span>
-                                @endforeach
-                                @endif
+                            <td class="p-0 border-bottom-0" height="0"></td>
+                            <td class="p-0 border-bottom-0" height="0"></td>
+                            <td class="p-0 border-bottom-0" height="0"></td>
+                            <td class="p-0 border-bottom-0" height="0"></td>
+                            <td rowspan="{{ $rows }}">
+                                {{ $data->tv_audit_date ? date('Y/m/d', strtotime($data->tv_audit_date)) : '-' }}
                             </td>
-
-                            <td class="p-0">
-                                @if($data->tv_items)
-                                @foreach(json_decode($data->tv_items) as $i_value)
-                                <span class="border-bottom d-block {{ $i_value->debit_credit_code == 'debit' ? 'bg-warning' : 'bg-white' }} p-2">{{ number_format($i_value->final_price) }}</span>
-                                @endforeach
-                                @endif
-                            </td>
-
-                            <td class="p-0">
-                                @if($data->tv_items)
-                                @foreach(json_decode($data->tv_items) as $i_value)
-                                <span class="border-bottom d-block {{ $i_value->debit_credit_code == 'debit' ? 'bg-warning' : 'bg-white' }} p-2" style="min-height: 57px">{{ $i_value->department }}</span>
-                                @endforeach
-                                @endif
-                            </td>
-
-                            <td>{{ $data->tv_audit_date ? date('Y/m/d', strtotime($data->tv_audit_date)) : '-' }}</td>
                         </tr>
+                        @if($data->tv_items)
+                            @foreach (json_decode($data->tv_items) as $i_value)
+                                <tr>
+                                    <td @class(['wrap ps-2', 'table-warning' => $i_value->debit_credit_code == 'debit'])>
+                                        {{ $i_value->grade_code }} {{ $i_value->grade_name }}
+                                    </td>
+                                    <td @class(['wrap', 'table-warning' => $i_value->debit_credit_code == 'debit'])>
+                                        {{ $i_value->summary }}
+                                    </td>
+                                    <td @class(['wrap text-end', 'table-warning' => $i_value->debit_credit_code == 'debit'])>
+                                        {{ number_format($i_value->final_price) }}
+                                    </td>
+                                    <td @class(['wrap pe-2', 'table-warning' => $i_value->debit_credit_code == 'debit'])>
+                                        {{ $i_value->department }}
+                                    </td>
+                                </tr>
+                            @endforeach
+                        @endif
                     @endforeach
                 </tbody>
             </table>
@@ -157,8 +155,25 @@
 @once
     @push('sub-styles')
         <style>
-            tr td > span:last-child {
-                border: none !important;
+            .table-warning {
+                --bs-table-bg: #fff3cd;
+                --bs-table-striped-bg: #f2e7c3;
+                --bs-table-striped-color: #000;
+                --bs-table-active-bg: #e6dbb9;
+                --bs-table-active-color: #000;
+                --bs-table-hover-bg: #ece1be;
+                --bs-table-hover-color: #000;
+                color: #000;
+                background-color: var(--bs-table-bg);
+            }
+            .tableList > tbody th, .tableList > tbody td {
+                vertical-align: top;
+            }
+            .tableList > :not(caption) > * > * {
+                line-height: initial;
+            }
+            .tableList > tbody > * > * {
+                line-height: 1.6;
             }
         </style>
     @endpush
