@@ -21,6 +21,12 @@
             <button type="submit" class="btn btn-dark">修改記錄</button>
             <button type="submit" class="btn btn-dark">明細修改記錄</button>
             --}}
+
+            @if(!$received_order->receipt_date && !$data_status_check)
+                <a href="javascript:void(0)" role="button" class="btn btn-sm btn-outline-danger"
+                    data-bs-toggle="modal" data-bs-target="#confirm-delete"
+                    data-href="{{ Route('cms.collection_received.delete', ['id' => $received_order->id], true) }}">刪除收款單</a>
+            @endif
         </div>
     </nav>
 
@@ -189,9 +195,24 @@
             返回明細
         </a>
     </div>
+
+    <!-- Modal -->
+    <x-b-modal id="confirm-delete">
+        <x-slot name="title">刪除確認</x-slot>
+        <x-slot name="body">確認要刪除此收款單？</x-slot>
+        <x-slot name="foot">
+            <a class="btn btn-danger btn-ok" href="#">確認並刪除</a>
+        </x-slot>
+    </x-b-modal>
 @endsection
 
 @once
     @push('sub-scripts')
+        <script>
+            // Modal Control
+            $('#confirm-delete').on('show.bs.modal', function(e) {
+                $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
+            });
+        </script>
     @endpush
 @endonce

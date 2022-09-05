@@ -913,7 +913,7 @@ class PayingOrder extends Model
     public static function update_account_payable_method($request, $clear = false)
     {
         if($clear){
-            DB::table('acc_payable_account')->whereIn('append_pay_order_id', $request['append_pay_order_id'])->update([
+            DB::table('acc_payable_account')->where('append_pay_order_id', $request['append_pay_order_id'])->update([
                 'status_code'=>0,
                 'append_pay_order_id'=>null,
                 'sn'=>null,

@@ -327,6 +327,10 @@ class CollectionReceivedCtrl extends Controller
                 CsnOrder::change_order_payment_status($ro->source_id, PaymentStatus::Unpaid(), (object) $r_method);
 
             } else if($ro->source_type == app(ReceivedOrder::class)->getTable()){
+                $parm = [
+                    'append_received_order_id'=>$ro->id,
+                ];
+                ReceivedOrder::update_account_received_method($parm, true);
 
             } else if($ro->source_type == app(RequestOrder::class)->getTable()){
                 $parm = [

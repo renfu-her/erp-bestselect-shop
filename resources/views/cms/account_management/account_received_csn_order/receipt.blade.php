@@ -10,17 +10,17 @@
 
             @if(! $received_order->receipt_date)
             <a href="{{ route('cms.ar_csnorder.review', ['id' => $received_order->source_id]) }}" 
-                class="btn btn-primary px-4" role="button">收款單入款審核</a>
+                class="btn btn-sm btn-primary px-4" role="button">收款單入款審核</a>
             @else
                 @if(! $data_status_check)
                 <a href="{{ route('cms.ar_csnorder.review', ['id' => $received_order->source_id]) }}" 
-                    class="btn btn-outline-success px-4" role="button">取消入帳</a>
+                    class="btn btn-sm btn-outline-success px-4" role="button">取消入帳</a>
                 @endif
             @endif
             <a href="{{ route('cms.ar_csnorder.taxation', ['id' => $received_order->source_id]) }}" 
-                class="btn btn-outline-success px-4" role="button">修改摘要/稅別</a>
+                class="btn btn-sm btn-outline-success px-4" role="button">修改摘要/稅別</a>
 
-            <a href="{{ url()->full() . '?action=print' }}" target="_blank" class="btn btn-danger" 
+            <a href="{{ url()->full() . '?action=print' }}" target="_blank" class="btn btn-sm btn-danger" 
                 rel="noopener noreferrer">中一刀列印畫面</a>
             {{--
             <button type="submit" class="btn btn-danger">中一刀列印畫面</button>
@@ -28,6 +28,11 @@
             <button type="submit" class="btn btn-danger">修改記錄</button>
             <button type="submit" class="btn btn-danger">明細修改記錄</button>
             --}}
+            @if(!$received_order->receipt_date && !$data_status_check)
+                <a href="javascript:void(0)" role="button" data-bs-toggle="modal" data-bs-target="#confirm-delete"
+                    data-href="{{ Route('cms.collection_received.delete', ['id' => $received_order->id], true) }}"
+                    class="btn btn-sm btn-outline-danger">刪除收款單</a>
+            @endif
         </div>
     </nav>
 
@@ -199,9 +204,24 @@
         <a href="{{ Route('cms.consignment-order.edit', ['id' => $received_order->source_id]) }}" 
             class="btn btn-primary" role="button">返回上一頁</a>
     </div>
+
+    <!-- Modal -->
+    <x-b-modal id="confirm-delete">
+        <x-slot name="title">刪除確認</x-slot>
+        <x-slot name="body">確認要刪除此收款單？</x-slot>
+        <x-slot name="foot">
+            <a class="btn btn-danger btn-ok" href="#">確認並刪除</a>
+        </x-slot>
+    </x-b-modal>
 @endsection
 
 @once
     @push('sub-scripts')
+        <script>
+            // Modal Control
+            $('#confirm-delete').on('show.bs.modal', function(e) {
+                $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
+            });
+        </script>
     @endpush
 @endonce

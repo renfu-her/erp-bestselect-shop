@@ -455,14 +455,14 @@ abstract class AccountReceivedPapaCtrl extends Controller
                     return redirect()->back();
                 }
 
+                DayEnd::match_day_end_status($received_order->receipt_date, $received_order->sn);
+
                 $received_order->update([
                     'accountant_id' => null,
                     'receipt_date' => null,
                 ]);
 
                 $this->doReviewWhenReceiptCancle($id, $received_order);
-
-                DayEnd::match_day_end_status($received_order->receipt_date, $received_order->sn);
 
                 wToast(__('入帳日期已取消'));
                 return redirect()->route($this->getRouteReceipt(), ['id'=>request('id')]);

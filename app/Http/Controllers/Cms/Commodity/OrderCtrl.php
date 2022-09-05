@@ -417,8 +417,8 @@ class OrderCtrl extends Controller
             'source_type' => $source_type,
             'source_id' => $id,
         ]);
-        $received_order_data = $received_order_collection->first();
-        if ($received_order_data && $received_order_data->balance_date) {
+        $received_order = $received_order_collection->first();
+        if ($received_order && $received_order->balance_date) {
             $receivable = true;
         }
         $received_credit_card_log = OrderPayCreditCard::where([
@@ -448,7 +448,7 @@ class OrderCtrl extends Controller
             'subOrderId' => $subOrderId,
             'discounts' => Discount::orderDiscountList('main', $id)->get()->toArray(),
             'receivable' => $receivable,
-            'received_order_data' => $received_order_data,
+            'received_order' => $received_order,
             'received_credit_card_log' => $received_credit_card_log,
             'dividend' => $dividend,
             'canCancel' => Order::checkCanCancel($id, 'backend'),
@@ -1081,11 +1081,12 @@ class OrderCtrl extends Controller
             $received_data = ReceivedOrder::get_received_detail($received_order_data->pluck('id')->toArray());
             $data_status_check = ReceivedOrder::received_data_status_check($received_data);
 
-
             if($received_order->receipt_date){
                 if($data_status_check){
                     return redirect()->back();
                 }
+
+                DayEnd::match_day_end_status($received_order->receipt_date, $received_order->sn);
 
                 $received_order->update([
                     'accountant_id' => null,
@@ -1094,8 +1095,6 @@ class OrderCtrl extends Controller
 
                 OrderFlow::changeOrderStatus($id, OrderStatus::Paided());
                 Customer::updateOrderSpends($received_order->drawee_id, $received_order->price * -1);
-
-                DayEnd::match_day_end_status($received_order->receipt_date, $received_order->sn);
 
                 wToast(__('入帳日期已取消'));
                 return redirect()->route('cms.order.ro-receipt', ['id'=>request('id')]);

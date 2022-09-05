@@ -1125,34 +1125,46 @@ class ReceivedOrder extends Model
     }
 
 
-    public static function update_account_received_method($request)
+    public static function update_account_received_method($request, $clear = false)
     {
-        if($request['status_code'] == 0){
-            foreach($request['account_received_id'] as $key => $value){
-                $account = DB::table('acc_received_account')->where('id', $value)->first();
+        if($clear){
+            DB::table('acc_received_account')->where('append_received_order_id', $request['append_received_order_id'])->update([
+                'status_code'=>0,
+                'append_received_order_id'=>null,
+                'sn'=>null,
+                'amt_net'=>0,
+                'posting_date'=>null,
+                'updated_at'=>date('Y-m-d H:i:s'),
+            ]);
 
-                if($account && $account->account_received_id){
-                    self::find($account->account_received_id)->delete();
+        } else {
+            if($request['status_code'] == 0){
+                foreach($request['account_received_id'] as $key => $value){
+                    $account = DB::table('acc_received_account')->where('id', $value)->first();
+
+                    if($account && $account->append_received_order_id){
+                        self::find($account->append_received_order_id)->delete();
+                    }
+
+                    DB::table('acc_received_account')->where('id', $value)->update([
+                        'status_code'=>0,
+                        'append_received_order_id'=>$request['append_received_order_id'],
+                        'sn'=>$request['sn'],
+                        'amt_net'=>$request['amt_net'][$key],
+                        'posting_date'=>null,
+                        'updated_at'=>date('Y-m-d H:i:s'),
+                    ]);
                 }
 
-                DB::table('acc_received_account')->where('id', $value)->update([
-                    'status_code'=>0,
+            } else if($request['status_code'] == 1){
+                DB::table('acc_received_account')->whereIn('id', $request['account_received_id'])->update([
+                    'status_code'=>1,
                     'append_received_order_id'=>$request['append_received_order_id'],
                     'sn'=>$request['sn'],
-                    'amt_net'=>$request['amt_net'][$key],
-                    'posting_date'=>null,
+                    'posting_date'=>date('Y-m-d H:i:s'),
                     'updated_at'=>date('Y-m-d H:i:s'),
                 ]);
             }
-
-        } else if($request['status_code'] == 1){
-            DB::table('acc_received_account')->whereIn('id', $request['account_received_id'])->update([
-                'status_code'=>1,
-                'append_received_order_id'=>$request['append_received_order_id'],
-                'sn'=>$request['sn'],
-                'posting_date'=>date('Y-m-d H:i:s'),
-                'updated_at'=>date('Y-m-d H:i:s'),
-            ]);
         }
     }
 

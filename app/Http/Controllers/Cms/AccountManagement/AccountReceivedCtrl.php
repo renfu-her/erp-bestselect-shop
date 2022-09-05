@@ -485,12 +485,12 @@ class AccountReceivedCtrl extends Controller
                     return redirect()->back();
                 }
 
+                DayEnd::match_day_end_status($received_order->receipt_date, $received_order->sn);
+
                 $received_order->update([
                     'accountant_id' => null,
                     'receipt_date' => null,
                 ]);
-
-                DayEnd::match_day_end_status($received_order->receipt_date, $received_order->sn);
 
                 wToast(__('入帳日期已取消'));
                 return redirect()->route('cms.account_received.ro-receipt', ['id'=>request('id')]);
