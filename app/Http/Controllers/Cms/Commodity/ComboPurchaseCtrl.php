@@ -22,7 +22,6 @@ class ComboPurchaseCtrl extends Controller
 
         $query = $request->query();
         $keyword = Arr::get($query, 'keyword', null);
-        $sku = Arr::get($query, 'sku', null);
         $data_per_page = Arr::get($query, 'data_per_page', 10);
 
         $dataList = Product::productStyleList($keyword, 'c')
