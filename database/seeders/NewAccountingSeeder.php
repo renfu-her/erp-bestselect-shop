@@ -1,0 +1,1030 @@
+<?php
+
+namespace Database\Seeders;
+
+use App\Enums\Accounting\GradeModelClass;
+use App\Models\AllGrade;
+use App\Models\FirstGrade;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+
+class NewAccountingSeeder extends Seeder
+{
+    /**
+     * 匯入新的會計科目
+     *
+     * @return void
+     */
+    public function run()
+    {
+        AllGrade::query()->delete();
+
+        $firstGradeId_1 = FirstGrade::create([
+            'code' => '1',
+            'has_next_grade' => 1,
+            'name' => '資產',
+            ])->id;
+        $firstGradeId_2 = FirstGrade::create([
+            'code' => '2',
+            'has_next_grade' => 1,
+            'name' => '負債',
+            ])->id;
+        $firstGradeId_3 = FirstGrade::create([
+            'code' => '3',
+            'has_next_grade' => 1,
+            'name' => '股東權益',
+            ])->id;
+        $firstGradeId_4 = FirstGrade::create([
+            'code' => '4',
+            'has_next_grade' => 1,
+            'name' => '股東收益',
+            ])->id;
+        $firstGradeId_5 = FirstGrade::create([
+            'code' => '5',
+            'has_next_grade' => 1,
+            'name' => '股東費用',
+            ])->id;
+
+        $secondGradeId_11 = DB::table('acc_second_grade')->insertGetId([
+            'code' => '11',
+            'has_next_grade' => 1,
+            'name' => '流動資產',
+            'first_grade_fk' => $firstGradeId_1,
+        ]);
+        $secondGradeId_12 = DB::table('acc_second_grade')->insertGetId([
+            'code' => '12',
+            'has_next_grade' => 1,
+            'name' => '固定資產',
+            'first_grade_fk' => $firstGradeId_1,
+        ]);
+        $secondGradeId_13 = DB::table('acc_second_grade')->insertGetId([
+            'code' => '13',
+            'has_next_grade' => 1,
+            'name' => '其他資產',
+            'first_grade_fk' => $firstGradeId_1,
+        ]);
+        $secondGradeId_21 = DB::table('acc_second_grade')->insertGetId([
+            'code' => '21',
+            'has_next_grade' => 1,
+            'name' => '流動負債',
+            'first_grade_fk' => $firstGradeId_2,
+        ]);
+        $secondGradeId_22 = DB::table('acc_second_grade')->insertGetId([
+            'code' => '22',
+            'has_next_grade' => 0,
+            'name' => '長期負債',
+            'first_grade_fk' => $firstGradeId_2,
+        ]);
+        $secondGradeId_23 = DB::table('acc_second_grade')->insertGetId([
+            'code' => '23',
+            'has_next_grade' => 1,
+            'name' => '其他負債',
+            'first_grade_fk' => $firstGradeId_2,
+        ]);
+        $secondGradeId_31 = DB::table('acc_second_grade')->insertGetId([
+            'code' => '31',
+            'has_next_grade' => 1,
+            'name' => '資本',
+            'first_grade_fk' => $firstGradeId_3,
+        ]);
+        $secondGradeId_41 = DB::table('acc_second_grade')->insertGetId([
+            'code' => '41',
+            'has_next_grade' => 1,
+            'name' => '營業收入',
+            'first_grade_fk' => $firstGradeId_4,
+        ]);
+        $secondGradeId_42 = DB::table('acc_second_grade')->insertGetId([
+            'code' => '42',
+            'has_next_grade' => 1,
+            'name' => '營業外收入',
+            'first_grade_fk' => $firstGradeId_4,
+        ]);
+        $secondGradeId_51 = DB::table('acc_second_grade')->insertGetId([
+            'code' => '51',
+            'has_next_grade' => 1,
+            'name' => '營業成本',
+            'first_grade_fk' => $firstGradeId_5,
+        ]);
+        $secondGradeId_52 = DB::table('acc_second_grade')->insertGetId([
+            'code' => '52',
+            'has_next_grade' => 1,
+            'name' => '營業費用',
+            'first_grade_fk' => $firstGradeId_5,
+        ]);
+        $secondGradeId_53 = DB::table('acc_second_grade')->insertGetId([
+            'code' => '53',
+            'has_next_grade' => 1,
+            'name' => '營業外費用',
+            'acc_income_statement_fk' => 4,
+            'first_grade_fk' => $firstGradeId_5,
+        ]);
+
+        $thirdGradeId_1101 = DB::table('acc_third_grade')->insertGetId([
+            'code' => '1101',
+            'has_next_grade' => 0,
+            'name' => '現金',
+            'second_grade_fk' => $secondGradeId_11,
+        ]);
+        $thirdGradeId_1102 = DB::table('acc_third_grade')->insertGetId([
+            'code' => '1102',
+            'has_next_grade' => 1,
+            'name' => '銀行存款',
+            'second_grade_fk' => $secondGradeId_11,
+        ]);
+        $thirdGradeId_1103 = DB::table('acc_third_grade')->insertGetId([
+            'code' => '1103',
+            'has_next_grade' => 1,
+            'name' => '外幣',
+            'second_grade_fk' => $secondGradeId_11,
+        ]);
+        $thirdGradeId_1104 = DB::table('acc_third_grade')->insertGetId([
+            'code' => '1104',
+            'has_next_grade' => 0,
+            'name' => '應收票據',
+//            'acc_company_fk' => 0,
+            'second_grade_fk' => $secondGradeId_11,
+//            'acc_income_statement_fk' => 1
+        ]);
+        $thirdGradeId_1105 = DB::table('acc_third_grade')->insertGetId([
+            'code' => '1105',
+            'has_next_grade' => 1,
+            'name' => '應收帳款',
+            'second_grade_fk' => $secondGradeId_11,
+        ]);
+        $thirdGradeId_1106 = DB::table('acc_third_grade')->insertGetId([
+            'code' => '1106',
+            'has_next_grade' => 1,
+            'name' => '其他應收款',
+            'second_grade_fk' => $secondGradeId_11,
+        ]);
+        $thirdGradeId_1107 = DB::table('acc_third_grade')->insertGetId([
+            'code' => '1107',
+            'has_next_grade' => 1,
+            'name' => '預付款項',
+            'second_grade_fk' => $secondGradeId_11,
+        ]);
+//        $thirdGradeId_12 = DB::table('acc_third_grade')->insertGetId([
+//            'code' => '1108',
+//            'has_next_grade' => 0,
+//            'name' => '預付費用',
+//            'second_grade_fk' => $secondGradeId_1,
+//        ]);
+        $thirdGradeId_1109 = DB::table('acc_third_grade')->insertGetId([
+            'code' => '1109',
+            'has_next_grade' => 1,
+            'name' => '信用卡',
+            'second_grade_fk' => $secondGradeId_11,
+        ]);
+//        $thirdGradeId_14 = DB::table('acc_third_grade')->insertGetId([
+//            'code' => '1110',
+//            'has_next_grade' => 0,
+//            'name' => '預付團費',
+//            'second_grade_fk' => $secondGradeId_1,
+//        ]);
+        $thirdGradeId_1111 = DB::table('acc_third_grade')->insertGetId([
+            'code' => '1111',
+            'has_next_grade' => 0,
+            'name' => '員工借支',
+            'second_grade_fk' => $secondGradeId_11,
+        ]);
+        $thirdGradeId_1112 = DB::table('acc_third_grade')->insertGetId([
+            'code' => '1112',
+            'has_next_grade' => 0,
+            'name' => '暫付款',
+            'second_grade_fk' => $secondGradeId_11,
+        ]);
+//        $thirdGradeId_17 = DB::table('acc_third_grade')->insertGetId([
+//            'code' => '1113',
+//            'has_next_grade' => 1,
+//            'name' => '同業往來',
+//            'second_grade_fk' => $secondGradeId_1,
+//        ]);
+//        $thirdGradeId_18 = DB::table('acc_third_grade')->insertGetId([
+//            'code' => '1114',
+//            'has_next_grade' => 1,
+//            'name' => '內部往來',
+//            'second_grade_fk' => $secondGradeId_1,
+//        ]);
+        $thirdGradeId_1115 = DB::table('acc_third_grade')->insertGetId([
+            'code' => '1115',
+            'has_next_grade' => 0,
+            'name' => '消費券',
+            'second_grade_fk' => $secondGradeId_11,
+        ]);
+//        $thirdGradeId_20 = DB::table('acc_third_grade')->insertGetId([
+//            'code' => '1116',
+//            'has_next_grade' => 1,
+//            'name' => '預付禮券',
+//            'second_grade_fk' => $secondGradeId_1,
+//        ]);
+//        $thirdGradeId_21 = DB::table('acc_third_grade')->insertGetId([
+//            'code' => '1117',
+//            'has_next_grade' => 1,
+//            'name' => '外幣存款',
+//            'second_grade_fk' => $secondGradeId_1,
+//        ]);
+        $thirdGradeId_1118 = DB::table('acc_third_grade')->insertGetId([
+            'code' => '1118',
+            'has_next_grade' => 0,
+            'name' => '商品存貨',
+            'second_grade_fk' => $secondGradeId_11,
+        ]);
+        $thirdGradeId_1119 = DB::table('acc_third_grade')->insertGetId([
+            'code' => '1119',
+            'has_next_grade' => 0,
+            'name' => '商品存貨調整',
+            'second_grade_fk' => $secondGradeId_11,
+        ]);
+        $thirdGradeId_1201 = DB::table('acc_third_grade')->insertGetId([
+            'code' => '1201',
+            'has_next_grade' => 0,
+            'name' => '生財器具',
+            'second_grade_fk' => $secondGradeId_12,
+        ]);
+        $thirdGradeId_1202 = DB::table('acc_third_grade')->insertGetId([
+            'code' => '1202',
+            'has_next_grade' => 0,
+            'name' => '累計折舊-生財器具',
+            'second_grade_fk' => $secondGradeId_12,
+        ]);
+        $thirdGradeId_1203 = DB::table('acc_third_grade')->insertGetId([
+            'code' => '1203',
+            'has_next_grade' => 0,
+            'name' => '電腦設備',
+            'second_grade_fk' => $secondGradeId_12,
+        ]);
+        $thirdGradeId_1204 = DB::table('acc_third_grade')->insertGetId([
+            'code' => '1204',
+            'has_next_grade' => 0,
+            'name' => '累計折舊-電腦設備',
+            'second_grade_fk' => $secondGradeId_12,
+        ]);
+        $thirdGradeId_1301 = DB::table('acc_third_grade')->insertGetId([
+            'code' => '1301',
+            'has_next_grade' => 1,
+            'name' => '存出保證金',
+            'second_grade_fk' => $secondGradeId_13,
+        ]);
+        $thirdGradeId_1302 = DB::table('acc_third_grade')->insertGetId([
+            'code' => '1302',
+            'has_next_grade' => 0,
+            'name' => '開辦費',
+            'second_grade_fk' => $secondGradeId_13,
+        ]);
+        $thirdGradeId_1303 = DB::table('acc_third_grade')->insertGetId([
+            'code' => '1303',
+            'has_next_grade' => 0,
+            'name' => '累計攤提-開辦費',
+            'second_grade_fk' => $secondGradeId_13,
+        ]);
+
+        $thirdGradeId_2101 = DB::table('acc_third_grade')->insertGetId([
+            'code' => '2101',
+            'has_next_grade' => 0,
+            'name' => '應付票據',
+            'second_grade_fk' => $secondGradeId_21,
+        ]);
+        $thirdGradeId_2102 = DB::table('acc_third_grade')->insertGetId([
+            'code' => '2102',
+            'has_next_grade' => 1,
+            'name' => '應付帳款',
+            'second_grade_fk' => $secondGradeId_21,
+        ]);
+        $thirdGradeId_2103 = DB::table('acc_third_grade')->insertGetId([
+            'code' => '2103',
+            'has_next_grade' => 1,
+            'name' => '其他應付款',
+            'second_grade_fk' => $secondGradeId_21,
+        ]);
+//        $thirdGradeId_2_2 = DB::table('acc_third_grade')->insertGetId([
+//            'code' => '2104',
+//            'has_next_grade' => 0,
+//            'name' => '預收團費',
+//            'second_grade_fk' => $secondGradeId_3,
+//        ]);
+//        $thirdGradeId_2_3 = DB::table('acc_third_grade')->insertGetId([
+//            'code' => '2105',
+//            'has_next_grade' => 0,
+//            'name' => '福利金',
+//            'second_grade_fk' => $secondGradeId_3,
+//        ]);
+        $thirdGradeId_2106 = DB::table('acc_third_grade')->insertGetId([
+            'code' => '2106',
+            'has_next_grade' => 0,
+            'name' => '暫收款',
+            'second_grade_fk' => $secondGradeId_21,
+        ]);
+//        $thirdGradeId_2_5 = DB::table('acc_third_grade')->insertGetId([
+//            'code' => '2107',
+//            'has_next_grade' => 1,
+//            'name' => '公積金',
+//            'second_grade_fk' => $secondGradeId_3,
+//        ]);
+        $thirdGradeId_2108 = DB::table('acc_third_grade')->insertGetId([
+            'code' => '2108',
+            'has_next_grade' => 0,
+            'name' => '短期借款',
+            'second_grade_fk' => $secondGradeId_21,
+        ]);
+        $thirdGradeId_2109 = DB::table('acc_third_grade')->insertGetId([
+            'code' => '2109',
+            'has_next_grade' => 1,
+            'name' => '預收款項',
+            'second_grade_fk' => $secondGradeId_21,
+        ]);
+//        $thirdGradeId_2_8 = DB::table('acc_third_grade')->insertGetId([
+//            'code' => '2110',
+//            'has_next_grade' => 0,
+//            'name' => '福利互助金	',
+//            'second_grade_fk' => $secondGradeId_3,
+//        ]);
+//        $thirdGradeId_2_9 = DB::table('acc_third_grade')->insertGetId([
+//            'code' => '2111',
+//            'has_next_grade' => 1,
+//            'name' => '其他暫收款	',
+//            'second_grade_fk' => $secondGradeId_3,
+//        ]);
+        $thirdGradeId_2301 = DB::table('acc_third_grade')->insertGetId([
+            'code' => '2301',
+            'has_next_grade' => 0,
+            'name' => '存入保證金',
+            'second_grade_fk' => $secondGradeId_23,
+        ]);
+//        $thirdGradeId_2_11 = DB::table('acc_third_grade')->insertGetId([
+//            'code' => '2302',
+//            'has_next_grade' => 0,
+//            'name' => '高爾夫球隊基金',
+//            'second_grade_fk' => $secondGradeId_8,
+//        ]);
+
+        $thirdGradeId_3101 = DB::table('acc_third_grade')->insertGetId([
+            'code' => '3101',
+            'has_next_grade' => 0,
+            'name' => '股本',
+            'second_grade_fk' => $secondGradeId_31,
+        ]);
+        $thirdGradeId_3102 = DB::table('acc_third_grade')->insertGetId([
+            'code' => '3102',
+            'has_next_grade' => 0,
+            'name' => '本期損益',
+            'second_grade_fk' => $secondGradeId_31,
+        ]);
+        $thirdGradeId_3103 = DB::table('acc_third_grade')->insertGetId([
+            'code' => '3103',
+            'has_next_grade' => 0,
+            'name' => '累計盈虧',
+            'second_grade_fk' => $secondGradeId_31,
+        ]);
+        $thirdGradeId_3104 = DB::table('acc_third_grade')->insertGetId([
+            'code' => '3104',
+            'has_next_grade' => 0,
+            'name' => '前期損益調整',
+            'second_grade_fk' => $secondGradeId_31,
+        ]);
+
+        $fourthGradeData = [
+            '銷貨收入',
+            '銷貨退回',
+//            '鴻利折扣',
+//            '優惠券折扣',
+//            '任選折扣',
+//            '銷貨折扣-蝦皮-蝦幣折抵',
+//            '全館活動折扣',
+        ];
+        foreach ($fourthGradeData as $key => $fourthGradeDatum) {
+            DB::table('acc_third_grade')->insertGetId([
+                'code'           => '41' . str_pad($key + 1, 2, '0', STR_PAD_LEFT),
+                'has_next_grade'       => 0,
+                'name'                 => $fourthGradeDatum,
+                'acc_income_statement_fk' => 1,
+                'second_grade_fk'      => $secondGradeId_41,
+            ]);
+        }
+        $thirdGradeId_4103 = DB::table('acc_third_grade')->insertGetId([
+            'code' => '4103',
+            'has_next_grade' => 1,
+            'name' => '銷貨折扣',
+            'acc_income_statement_fk' => 1,
+            'second_grade_fk' => $secondGradeId_41,
+        ]);
+        $thirdGradeId_4106 = DB::table('acc_third_grade')->insertGetId([
+            'code' => '4106',
+            'has_next_grade' => 0,
+            'name' => '銷貨折扣-蝦皮-蝦幣折抵',
+            'acc_income_statement_fk' => 1,
+            'second_grade_fk' => $secondGradeId_41,
+        ]);
+
+        $fourthGradeData_1 = [
+            '利息收入',
+            '兌換盈益',
+            '其他收入',
+            '租金收入',
+//            '贊助回饋金收入',
+//            '佣金收入',
+        ];
+        foreach ($fourthGradeData_1 as $key => $fourthGradeDatum_1) {
+            DB::table('acc_third_grade')->insertGetId([
+                'code'           => '42' . str_pad($key + 1, 2, '0', STR_PAD_LEFT),
+                'has_next_grade'       => 0,
+                'name'                 => $fourthGradeDatum_1,
+                'acc_income_statement_fk' => 5,
+                'second_grade_fk'      => $secondGradeId_42,
+            ]);
+        }
+
+        $thirdGradeId_4206 = DB::table('acc_third_grade')->insertGetId([
+            'code'           => '4206',
+            'has_next_grade'       => 1,
+            'name'                 => '佣金收入',
+            'acc_income_statement_fk' => 5,
+            'second_grade_fk'      => $secondGradeId_42,
+        ]);
+        $thirdGradeId_4207 = DB::table('acc_third_grade')->insertGetId([
+            'code'           => '4207',
+            'has_next_grade'       => 1,
+            'name'                 => '物流收入',
+            'acc_income_statement_fk' => 5,
+            'second_grade_fk'      => $secondGradeId_42,
+        ]);
+
+        //insert 科目代碼 from 5101 to 5102
+        for ($i = 1; $i <= 2; $i++) {
+            DB::table('acc_third_grade')->insert([
+                'code' => '51' . str_pad($i, 2, '0', STR_PAD_LEFT),
+                'name' => 'test_510-' . $i,
+                'has_next_grade'       => 0,
+                'second_grade_fk' => $secondGradeId_51,
+            ]);
+        }
+        //delete 科目代碼 from 5101 to 5102
+        $toDeleteIds_5101 = DB::table('acc_third_grade')
+            ->where('code', 'like', '510%')
+            ->select('id')
+            ->get();
+        $toDeleteIdArray_5101 = [];
+        foreach ($toDeleteIds_5101 as $toDeleteId) {
+            $toDeleteIdArray_5101[] = $toDeleteId->id;
+        }
+        DB::table('acc_all_grades')
+            ->where('grade_type', '=', GradeModelClass::getDescription(3))
+            ->whereIn('grade_id', $toDeleteIdArray_5101)
+            ->delete();
+        DB::table('acc_third_grade')->where('code', 'like', '510%')->delete();
+        DB::table('acc_third_grade')->insert([
+            'code' => '5103',
+            'name' => '進貨成本',
+            'has_next_grade'       => 0,
+            'acc_income_statement_fk' => 2,
+            'acc_company_fk' => 1,
+            'second_grade_fk' => $secondGradeId_51,
+        ]);
+        DB::table('acc_third_grade')->insert([
+            'code' => '5104',
+            'name' => '進貨退出',
+            'has_next_grade'       => 0,
+            'acc_income_statement_fk' => 2,
+            'acc_company_fk' => 1,
+            'second_grade_fk' => $secondGradeId_51,
+        ]);
+
+        $thirdGradeData = [
+            '薪資支出',
+            '租金支出',
+            '文具用品',
+            '差旅費',
+            '快遞費',
+            '郵電費',
+            '修繕費',
+            '廣告費',
+            '水費',
+            '電費',
+        ];
+        foreach ($thirdGradeData as $key => $thirdGradeDatum) {
+            DB::table('acc_third_grade')->insertGetId([
+                'code'            => '52' . str_pad($key + 1, 2, '0', STR_PAD_LEFT),
+                'has_next_grade'  => 0,
+                'name'            => $thirdGradeDatum,
+                'acc_income_statement_fk' => 3,
+                'second_grade_fk' => $secondGradeId_52,
+            ]);
+        }
+        DB::table('acc_third_grade')->insertGetId([
+            'code'            => '5211',
+            'has_next_grade'  => 0,
+            'name'            => '瓦斯費',
+            'acc_income_statement_fk' => 4,
+            'second_grade_fk' => $secondGradeId_52,
+        ]);
+
+        $thirdGradeData_1 = [
+            '電話費',
+            '健保費',
+            '勞保費',
+            '交際費',
+            '印刷費',
+        ];
+        foreach ($thirdGradeData_1 as $key => $thirdGradeDatum) {
+            DB::table('acc_third_grade')->insertGetId([
+                'code'            => '52' . str_pad($key + 12, 2, '0', STR_PAD_LEFT),
+                'has_next_grade'  => 0,
+                'name'            => $thirdGradeDatum,
+                'acc_income_statement_fk' => 3,
+                'second_grade_fk' => $secondGradeId_52,
+            ]);
+        }
+
+        //insert 科目代碼 from 5217 to 5218
+        for ($i = 7; $i <= 8; $i++) {
+            DB::table('acc_third_grade')->insert([
+                'code' => '521' . str_pad($i, 1, '0', STR_PAD_LEFT),
+                'name' => 'test_521-' . $i,
+                'has_next_grade'       => 0,
+                'second_grade_fk' => $secondGradeId_52,
+            ]);
+        }
+        //delete 科目代碼 from 5217 to 5218
+        $toDeleteIds_5211 = DB::table('acc_third_grade')
+            ->where('code', '=', '5217')
+            ->orWhere('code', '=', '5218')
+            ->select('id')
+            ->get();
+        $toDeleteIdArray_5211 = [];
+        foreach ($toDeleteIds_5211 as $toDeleteId) {
+            $toDeleteIdArray_5211[] = $toDeleteId->id;
+        }
+        DB::table('acc_all_grades')
+            ->where('grade_type', '=', GradeModelClass::getDescription(3))
+            ->whereIn('grade_id', $toDeleteIdArray_5211)
+            ->delete();
+        DB::table('acc_third_grade')
+            ->where('code', '=', '5217')
+            ->orWhere('code', '=', '5218')
+            ->delete();
+
+        $thirdGradeData_2 = [
+            '稅捐',
+            '折舊',
+        ];
+        foreach ($thirdGradeData_2 as $key => $thirdGradeDatum) {
+            DB::table('acc_third_grade')->insertGetId([
+                'code'            => '52' . str_pad($key + 19, 2, '0', STR_PAD_LEFT),
+                'has_next_grade'  => 0,
+                'name'            => $thirdGradeDatum,
+                'acc_income_statement_fk' => 3,
+                'second_grade_fk' => $secondGradeId_52,
+            ]);
+        }
+
+        //insert 科目代碼 from 5221 to 5224
+        for ($i = 1; $i <= 4; $i++) {
+            DB::table('acc_third_grade')->insert([
+                'code' => '522' . str_pad($i, 1, '0', STR_PAD_LEFT),
+                'name' => 'test_522-' . $i,
+                'has_next_grade'       => 0,
+                'second_grade_fk' => $secondGradeId_52,
+            ]);
+        }
+        //delete 科目代碼 from 5221 to 5224
+        $toDeleteIds_5221 = DB::table('acc_third_grade')
+            ->where('code', '=', '5221')
+            ->orWhere('code', '=', '5222')
+            ->orWhere('code', '=', '5223')
+            ->orWhere('code', '=', '5224')
+            ->select('id')
+            ->get();
+        $toDeleteIdArray_5221 = [];
+        foreach ($toDeleteIds_5221 as $toDeleteId) {
+            $toDeleteIdArray_5221[] = $toDeleteId->id;
+        }
+        DB::table('acc_all_grades')
+            ->where('grade_type', '=', GradeModelClass::getDescription(3))
+            ->whereIn('grade_id', $toDeleteIdArray_5221)
+            ->delete();
+        DB::table('acc_third_grade')
+            ->where('code', '=', '5221')
+            ->orWhere('code', '=', '5222')
+            ->orWhere('code', '=', '5223')
+            ->orWhere('code', '=', '5224')
+            ->delete();
+
+        DB::table('acc_third_grade')->insertGetId([
+            'code'            => '5225',
+            'has_next_grade'  => 0,
+            'name'            => '雜項支出',
+            'acc_income_statement_fk' => 3,
+            'second_grade_fk' => $secondGradeId_52,
+        ]);
+
+        DB::table('acc_third_grade')->insertGetId([
+            'code'            => '5226',
+            'has_next_grade'  => 0,
+            'name'            => '刷卡手續費',
+            'acc_income_statement_fk' => 4,
+            'second_grade_fk' => $secondGradeId_52,
+        ]);
+        DB::table('acc_third_grade')->insertGetId([
+            'code'            => '5227',
+            'has_next_grade'  => 0,
+            'name'            => '電腦用品',
+            'acc_income_statement_fk' => 3,
+            'second_grade_fk' => $secondGradeId_52,
+        ]);
+        DB::table('acc_third_grade')->insertGetId([
+            'code'            => '5228',
+            'has_next_grade'  => 0,
+            'name'            => '保險費',
+            'acc_income_statement_fk' => 4,
+            'second_grade_fk' => $secondGradeId_52,
+        ]);
+//        DB::table('acc_third_grade')->insertGetId([
+//            'code'            => '5229',
+//            'has_next_grade'  => 0,
+//            'name'            => '鴻利點數',
+//            'acc_income_statement_fk' => 4,
+//            'second_grade_fk' => $secondGradeId_6,
+//        ]);
+
+        //insert 科目代碼 5230
+        for ($i = 0; $i <= 0; $i++) {
+            DB::table('acc_third_grade')->insert([
+                'code' => '523' . str_pad($i, 1, '0', STR_PAD_LEFT),
+                'name' => 'test_523-' . $i,
+                'has_next_grade'       => 0,
+                'second_grade_fk' => $secondGradeId_52,
+            ]);
+        }
+        //delete 科目代碼 5230
+        $toDeleteIds_5230 = DB::table('acc_third_grade')
+            ->where('code', '=', '5230')
+            ->select('id')
+            ->get();
+        $toDeleteIdArray_5230 = [];
+        foreach ($toDeleteIds_5230 as $toDeleteId) {
+            $toDeleteIdArray_5230[] = $toDeleteId->id;
+        }
+        DB::table('acc_all_grades')
+            ->where('grade_type', '=', GradeModelClass::getDescription(3))
+            ->whereIn('grade_id', $toDeleteIdArray_5230)
+            ->delete();
+        DB::table('acc_third_grade')
+            ->where('code', '=', '5230')
+            ->delete();
+
+        DB::table('acc_third_grade')->insertGetId([
+            'code'            => '5231',
+            'has_next_grade'  => 0,
+            'name'            => '物流費用',
+            'acc_income_statement_fk' => 3,
+            'second_grade_fk' => $secondGradeId_52,
+        ]);
+        DB::table('acc_third_grade')->insertGetId([
+            'code'            => '5232',
+            'has_next_grade'  => 0,
+            'name'            => '樣品',
+            'note_1' => '喜鴻國際',
+            'acc_income_statement_fk' => 3,
+            'second_grade_fk' => $secondGradeId_52,
+        ]);
+        DB::table('acc_third_grade')->insertGetId([
+            'code'            => '5233',
+            'has_next_grade'  => 0,
+            'name'            => '耗材',
+            'note_1' => '喜鴻國際',
+            'acc_income_statement_fk' => 3,
+            'second_grade_fk' => $secondGradeId_52,
+        ]);
+        DB::table('acc_third_grade')->insertGetId([
+            'code'            => '5234',
+            'has_next_grade'  => 0,
+            'name'            => '系統費用',
+            'second_grade_fk' => $secondGradeId_52,
+        ]);
+
+        $thirdGradeData_53 = [
+            '兌換損失',
+            '其他損失',
+            '職工福利',
+            '捐贈',
+            '書報費',
+            '交通費',
+            '訓練費',
+            '佣金支出',
+            '利息支出',
+        ];
+        foreach ($thirdGradeData_53 as $key => $thirdGradeDatum) {
+            DB::table('acc_third_grade')->insertGetId([
+                'code'            => '53' . str_pad($key + 1, 2, '0', STR_PAD_LEFT),
+                'has_next_grade'  => 0,
+                'name'            => $thirdGradeDatum,
+                'acc_income_statement_fk' => 4,
+                'second_grade_fk' => $secondGradeId_53,
+            ]);
+        }
+
+        DB::table('acc_fourth_grade')->insert([
+            'code' => '11020001',
+            'name' => '銀行存款-合庫長春公司戶A',
+            'note_1' => '喜鴻國際企業 合庫-長春 0844871001158',
+            'third_grade_fk' => $thirdGradeId_1102,
+        ]);
+        DB::table('acc_fourth_grade')->insert([
+            'code' => '11020002',
+            'name' => '銀行存款-合庫長春公司戶B',
+            'note_1' => '帳號:0844705375368',
+            'third_grade_fk' => $thirdGradeId_1102,
+        ]);
+        DB::table('acc_fourth_grade')->insert([
+            'code' => '11020003',
+            'name' => '銀行存款-台銀大安公司戶',
+            'third_grade_fk' => $thirdGradeId_1102,
+        ]);
+        DB::table('acc_fourth_grade')->insert([
+            'code' => '11020004',
+            'name' => '銀行存款-中信承德公司戶',
+            'third_grade_fk' => $thirdGradeId_1102,
+        ]);
+
+//        $currencyArray = include 'currency.php';
+//        foreach ($currencyArray as $key => $currency) {
+//            DB::table('acc_fourth_grade')->insert([
+//                'code'           => '110300'.str_pad($key + 1, 2, '0', STR_PAD_LEFT),
+//                'name'           => '外幣-'.$currency['name'],
+//                'third_grade_fk' => $thirdGradeId_7,
+//            ]);
+//        }
+
+        $accountReceivedData = [
+            '應收帳款-喜鴻旅行社',
+            '應收帳款-其他',
+            '應收帳款-蝦皮',
+            '應收帳款-星夢郵輪',
+            '應收帳款-中華郵政',
+            '應收帳款-台中榮總',
+            '應收帳款-喜鴻餐飲',
+            '應收帳款-街口支付',
+            '應收帳款-台灣PAY',
+            '應收帳款-LINE PAY',
+        ];
+        foreach ($accountReceivedData as $key => $accountReceivedDatum) {
+            DB::table('acc_fourth_grade')->insert([
+                'code' => '110500' . str_pad($key + 1, 2, '0', STR_PAD_LEFT),
+                'name' => $accountReceivedDatum,
+                'third_grade_fk' => $thirdGradeId_1105,
+            ]);
+        }
+        DB::table('acc_fourth_grade')->insert([
+            'code' => '11060001',
+            'name' => '其他應收款-其他',
+            'third_grade_fk' => $thirdGradeId_1106,
+        ]);
+
+        DB::table('acc_fourth_grade')->insert([
+            'code' => '11090001',
+            'name' => '信用卡-中國信託-中信承德公司戶',
+            'acc_company_fk' => 1,
+            'note_1' => '11020001',
+            'note_2' => '5226',
+            'third_grade_fk' => $thirdGradeId_1109,
+        ]);
+
+        //insert 科目代碼 from 11090002 to 11090115
+        for ($i = 2; $i <= 115; $i++) {
+            DB::table('acc_fourth_grade')->insert([
+                'code' => '11090' . str_pad($i, 3, '00', STR_PAD_LEFT),
+                'name' => 'test' . $i,
+                'third_grade_fk' => $thirdGradeId_1109,
+            ]);
+        }
+        //delete 科目代碼 from 11090002 to 11090115
+        $toDeleteIds = DB::table('acc_fourth_grade')
+            ->where('code', '>=', '11090002')
+            ->select('id')
+            ->get();
+        $toDeleteIdArray = [];
+        foreach ($toDeleteIds as $toDeleteId) {
+            $toDeleteIdArray[] = $toDeleteId->id;
+        }
+        DB::table('acc_all_grades')
+            ->where('grade_type', '=', GradeModelClass::getDescription(4))
+            ->whereIn('grade_id', $toDeleteIdArray)
+            ->delete();
+        DB::table('acc_fourth_grade')->where('code', '>=', '11090002')->delete();
+        DB::table('acc_fourth_grade')->insert([
+            'code' => '11090116',
+            'name' => '信用卡-藍新金流一般-合庫公司戶',
+            'acc_company_fk' => 1,
+            'note_1' => '11020001',
+            'note_2' => '5226',
+            'third_grade_fk' => $thirdGradeId_1109,
+        ]);
+
+//        //insert 科目代碼 from 11130001 to 11130004
+//        for ($i = 1; $i <= 4; $i++) {
+//            DB::table('acc_fourth_grade')->insert([
+//                'code' => '11130' . str_pad($i, 3, '00', STR_PAD_LEFT),
+//                'name' => 'test1113-' . $i,
+//                'third_grade_fk' => $thirdGradeId_17,
+//            ]);
+//        }
+//        //delete 科目代碼 from 11130001 to 11130004
+//        $toDelete_1113_Ids = DB::table('acc_fourth_grade')
+//            ->where('code', 'like', '11130%')
+//            ->select('id')
+//            ->get();
+//        $toDeleteId_1113_Array = [];
+//        foreach ($toDelete_1113_Ids as $toDeleteId) {
+//            $toDeleteId_1113_Array[] = $toDeleteId->id;
+//        }
+//        DB::table('acc_all_grades')
+//            ->where('grade_type', '=', GradeModelClass::getDescription(4))
+//            ->whereIn('grade_id', $toDeleteId_1113_Array)
+//            ->delete();
+//        DB::table('acc_fourth_grade')->where('code', 'like', '11130%')->delete();
+//        DB::table('acc_fourth_grade')->insert([
+//            'code' => '11130005',
+//            'name' => '同業往來-喜鴻旅行社',
+//            'third_grade_fk' => $thirdGradeId_17,
+//        ]);
+//        DB::table('acc_fourth_grade')->insert([
+//            'code' => '11140001',
+//            'name' => '內部往來-沖帳',
+//            'third_grade_fk' => $thirdGradeId_18
+//        ]);
+        DB::table('acc_fourth_grade')->insert([
+            'code' => '13010001',
+            'name' => '存出保證金-其他',
+            'third_grade_fk' => $thirdGradeId_1301,
+        ]);
+        DB::table('acc_fourth_grade')->insert([
+            'code' => '21020001',
+            'name' => '應付帳款-其他',
+            'third_grade_fk' => $thirdGradeId_2102,
+            'note_1' => '2014/8/31以前應付帳款轉用',
+            'note_2' => '2014/9/1之後新增用'
+        ]);
+//        DB::table('acc_fourth_grade')->insert([
+//            'code' => '21020002',
+//            'name' => '應付帳款-茶衣創意',
+//            'third_grade_fk' => $thirdGradeId_5,
+//        ]);
+
+        //insert 科目代碼  21030001
+        for ($i = 1; $i <= 1; $i++) {
+            DB::table('acc_fourth_grade')->insert([
+                'code' => '21030' . str_pad($i, 3, '00', STR_PAD_LEFT),
+                'name' => 'test_2103_' . $i,
+                'third_grade_fk' => $thirdGradeId_2103,
+            ]);
+        }
+        //delete 科目代碼  21030001
+        $toDeleteIds_2103 = DB::table('acc_fourth_grade')
+            ->where('code', 'like', '21030%')
+            ->select('id')
+            ->get();
+        $toDeleteId_2103_Array = [];
+        foreach ($toDeleteIds_2103 as $toDeleteId) {
+            $toDeleteId_2103_Array[] = $toDeleteId->id;
+        }
+        DB::table('acc_all_grades')
+            ->where('grade_type', '=', GradeModelClass::getDescription(4))
+            ->whereIn('grade_id', $toDeleteId_2103_Array)
+            ->delete();
+        DB::table('acc_fourth_grade')->where('code', 'like', '21030%')->delete();
+        DB::table('acc_fourth_grade')->insert([
+            'code' => '21030002',
+            'name' => '其他應付款-其他',
+            'third_grade_fk' => $thirdGradeId_2103,
+        ]);
+
+        DB::table('acc_fourth_grade')->insert([
+            'code' => '41030001',
+            'name' => '銷貨折扣-紅利折扣',
+            'acc_income_statement_fk' => 1,
+            'third_grade_fk' => $thirdGradeId_4103,
+        ]);
+        DB::table('acc_fourth_grade')->insert([
+            'code' => '41030002',
+            'name' => '銷貨折扣-優惠券折扣',
+            'acc_income_statement_fk' => 1,
+            'third_grade_fk' => $thirdGradeId_4103,
+        ]);
+        DB::table('acc_fourth_grade')->insert([
+            'code' => '41030003',
+            'name' => '銷貨折扣-任選折扣',
+            'acc_income_statement_fk' => 1,
+            'third_grade_fk' => $thirdGradeId_4103,
+        ]);
+        DB::table('acc_fourth_grade')->insert([
+            'code' => '41030004',
+            'name' => '銷貨折扣-全館活動折扣',
+            'acc_income_statement_fk' => 1,
+            'third_grade_fk' => $thirdGradeId_4103,
+        ]);
+        DB::table('acc_fourth_grade')->insert([
+            'code' => '41030005',
+            'name' => '銷貨折扣-旅遊同業紅利折扣',
+            'third_grade_fk' => $thirdGradeId_4103,
+        ]);
+        DB::table('acc_fourth_grade')->insert([
+            'code' => '41030006',
+            'name' => '銷貨折扣-旅遊企業紅利折扣',
+            'third_grade_fk' => $thirdGradeId_4103,
+        ]);
+
+        $logisticData = [
+            '喬元手創食品(果木小薰)',
+            '桔豐科技',
+            '公務車',
+            '和生御品',
+            '美麗心靈',
+            '東雅小廚館',
+            '千櫻國際',
+            '尊榮生活電商',
+            '廣泰興',
+            '宏光開發',
+            '特吉國際',
+            '堯風旅行社',
+            '固德郝企業',
+            '巨紳商行/許記',
+            '極品生活國際/祥和蔬食',
+            '醴醐有限公司',
+            '南方鳥',
+            '艾自己生活科技',
+            '尚唐坊',
+            '橋信鑫實業',
+            '根奇',
+        ];
+        foreach ($logisticData as $key => $logisticDatum) {
+            DB::table('acc_fourth_grade')->insert([
+                'code'                    => '420700' . str_pad($key + 1, 2, '0', STR_PAD_LEFT),
+                'name'                    => '物流收入-' . $logisticDatum,
+                'acc_income_statement_fk' => 5,
+                'third_grade_fk'          => $thirdGradeId_4207,
+            ]);
+        }
+
+        self::insertToAllGradeTable();
+    }
+
+    private function insertToAllGradeTable()
+    {
+        $fourthGradeArray = DB::table('acc_fourth_grade as 4th')
+                                ->leftJoin('acc_third_grade as 3rd', '4th.third_grade_fk', '=', '3rd.id')
+                                ->leftJoin('acc_second_grade as 2nd', '3rd.second_grade_fk', '=', '2nd.id')
+                                ->leftJoin('acc_first_grade as 1st', '2nd.first_grade_fk', '=', '1st.id')
+                                ->select([
+                                    '1st.id as first_id',
+                                    '2nd.id as second_id',
+                                    '3rd.id as third_id',
+                                    '4th.id as fourth_id',
+                                ])
+                                ->get();
+        $thirdGradeArray = DB::table('acc_third_grade as 3rd')
+                                ->leftJoin('acc_second_grade as 2nd', '3rd.second_grade_fk', '=', '2nd.id')
+                                ->leftJoin('acc_first_grade as 1st', '2nd.first_grade_fk', '=', '1st.id')
+                                ->select([
+                                    '1st.id as first_id',
+                                    '2nd.id as second_id',
+                                    '3rd.id as third_id',
+                                ])
+                                ->get();
+        $secondGradeArray = DB::table('acc_second_grade as 2nd')
+                                ->leftJoin('acc_first_grade as 1st', '2nd.first_grade_fk', '=', '1st.id')
+                                ->select([
+                                    '1st.id as first_id',
+                                    '2nd.id as second_id',
+                                ])
+                                ->get();
+        $firstGradeArray = DB::table('acc_first_grade as 1st')
+                                ->select([
+                                    '1st.id as first_id',
+                                ])
+                                ->get();
+
+        foreach ($firstGradeArray as $firstGrade) {
+            AllGrade::create([
+                'grade_type' => GradeModelClass::getDescription(1),
+                'grade_id' => $firstGrade->first_id,
+            ]);
+        }
+        foreach ($secondGradeArray as $secondGrade) {
+            AllGrade::create([
+                'grade_type' => GradeModelClass::getDescription(2),
+                'grade_id' => $secondGrade->second_id,
+            ]);
+        }
+        foreach ($thirdGradeArray as $thirdGrade) {
+            AllGrade::create([
+                'grade_type' => GradeModelClass::getDescription(3),
+                'grade_id'  => $thirdGrade->third_id,
+            ]);
+        }
+        foreach ($fourthGradeArray as $fourthGrade) {
+            AllGrade::create([
+                'grade_type' => GradeModelClass::getDescription(4),
+                'grade_id' => $fourthGrade->fourth_id,
+            ]);
+        }
+    }
+}
