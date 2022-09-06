@@ -13,7 +13,9 @@
 
     <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
         <div class="p-1 pe-2">
+            @can('cms.collection_payment.edit')
             <a href="{{ route('cms.collection_payment.edit', ['id' => $payOrdId]) }}" class="btn btn-sm btn-success px-3" role="button">修改</a>
+            @endcan
 
             @if(!$pay_off)
                 <a href="{{ Route('cms.purchase.po-create', [
@@ -32,12 +34,13 @@
             {{-- <button type="button" class="btn btn-primary">修改備註</button> --}}
             {{-- <button type="button" class="btn btn-primary">新增細項</button> --}}
             {{-- <button type="button" class="btn btn-primary">變更支付對象</button> --}}
-
+            @can('cms.collection_payment.delete')
             @if(! $data_status_check)
             <a href="javascript:void(0)" role="button" class="btn btn-outline-danger btn-sm"
                 data-bs-toggle="modal" data-bs-target="#confirm-delete"
                 data-href="{{ Route('cms.collection_payment.delete', ['id' => $payOrdId]) }}">刪除付款單</a>
             @endif
+            @endcan
         </div>
     </nav>
 

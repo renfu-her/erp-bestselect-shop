@@ -93,7 +93,9 @@
         </div>
 
         <div class="col-auto">
+            @can('cms.note_receivable.edit')
             <button type="submit" class="btn btn-primary px-4 submit" disabled="disabled">確認</button>
+            @endcan
             <a href="{{ $previous_url }}" class="btn btn-outline-primary px-4" role="button">
                 返回上一頁
             </a>

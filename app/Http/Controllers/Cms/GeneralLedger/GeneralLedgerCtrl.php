@@ -13,11 +13,6 @@ use Illuminate\Support\Facades\DB;
 
 class GeneralLedgerCtrl extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index(Request $request)
     {
         $firstGrades = GeneralLedger::getAllFirstGrade();
@@ -40,11 +35,6 @@ class GeneralLedgerCtrl extends Controller
     }
 
 
-    /**
-     * Display the specified resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function show(Request $request, int $id, $type)
     {
         if(! array_key_exists($type[0], GeneralLedger::GRADE_TABALE_NAME_ARRAY)){
@@ -79,7 +69,10 @@ class GeneralLedgerCtrl extends Controller
             }
         }
 
+        $grade = GeneralLedger::getDataByGrade($id, $table)->first();
+
         return view('cms.general_ledger.gl.show', [
+            'breadcrumb_data' => ['id' => $id, 'type' => $type, 'grade_name' => $grade->name],
             'method' => 'show',
             'dataList' => GeneralLedger::getDataByGrade($id, $table),
             'isFourthGradeExist' => $isFourthGradeExist,
@@ -90,11 +83,6 @@ class GeneralLedgerCtrl extends Controller
     }
 
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function create(Request $request)
     {
         $request->merge([
@@ -120,6 +108,7 @@ class GeneralLedgerCtrl extends Controller
         }
 
         return view('cms.general_ledger.gl.edit', [
+            'breadcrumb_data' => ['type' => $grade],
             'method' => 'create',
             'currentCode' => $request['code'],
             'allCompanies' => DB::table('acc_company')->get(),
@@ -129,12 +118,7 @@ class GeneralLedgerCtrl extends Controller
         ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+
     public function store(Request $request, $type)
     {
         $request->merge([
@@ -168,12 +152,6 @@ class GeneralLedgerCtrl extends Controller
     }
 
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function edit(Request $request, int $id, $type)
     {
         if(! array_key_exists($type[0], GeneralLedger::GRADE_TABALE_NAME_ARRAY)){
@@ -193,6 +171,7 @@ class GeneralLedgerCtrl extends Controller
         ]);
 
         return view('cms.general_ledger.gl.edit', [
+            'breadcrumb_data' => ['id' => $id, 'type' => $type],
             'method' => 'edit',
             'data' => GeneralLedger::getDataByGrade($id, $table)->first(),
             'isFourthGradeExist' => ($type == '4th') ? true : false,
@@ -203,12 +182,7 @@ class GeneralLedgerCtrl extends Controller
         ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+
     public function update(Request $request, int $id, $type)
     {
         if(! array_key_exists($type[0], GeneralLedger::GRADE_TABALE_NAME_ARRAY)){
@@ -248,16 +222,5 @@ class GeneralLedgerCtrl extends Controller
         DB::table($table)->where('id', '=', $id)->update($req);
 
         return redirect(Route('cms.general_ledger.index'));
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\GeneralLedger  $generalLedger
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(GeneralLedger $generalLedger)
-    {
-        //
     }
 }

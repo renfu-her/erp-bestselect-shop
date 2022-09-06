@@ -12,7 +12,7 @@ Route::group(['prefix' => 'request', 'as' => 'request.'], function () {
 
     Route::get('ro_edit/{id}', [RequestOrderCtrl::class, 'ro_edit'])->name('ro-edit');
     Route::post('ro_store/{id}', [RequestOrderCtrl::class, 'ro_store'])->name('ro-store');
-    Route::get('ro_receipt/{id}', [RequestOrderCtrl::class, 'ro_receipt'])->name('ro-receipt')->middleware('permission:cms.request.ro-receipt');
-    Route::match(['get', 'post'], 'ro_review/{id}', [RequestOrderCtrl::class, 'ro_review'])->name('ro-review')->middleware('permission:cms.request.ro-review');
-    Route::match(['get', 'post'], 'ro_taxation/{id}', [RequestOrderCtrl::class, 'ro_taxation'])->name('ro-taxation')->middleware('permission:cms.request.ro-taxation');
+    Route::get('ro_receipt/{id}', [RequestOrderCtrl::class, 'ro_receipt'])->name('ro-receipt');
+    Route::match(['get', 'post'], 'ro_review/{id}', [RequestOrderCtrl::class, 'ro_review'])->name('ro-review')->middleware('permission:cms.collection_received.edit');
+    Route::match(['get', 'post'], 'ro_taxation/{id}', [RequestOrderCtrl::class, 'ro_taxation'])->name('ro-taxation')->middleware('permission:cms.collection_received.edit');
 });

@@ -19,7 +19,7 @@ Route::group(['prefix' => 'purchase', 'as' => 'purchase.'], function () {
     Route::get('log/{id}', [PurchaseCtrl::class, 'historyLog'])->name('log')->middleware('permission:cms.purchase.historyLog');
 
     Route::get('edit/{id}/pay-deposit', [PurchaseCtrl::class, 'payDeposit'])->name('pay-deposit');
-    Route::get('pay-order/{id}', [PurchaseCtrl::class, 'payOrder'])->name('view-pay-order')->middleware('permission:cms.purchase.view-pay-order');
-    Route::post('pay-order/{id}', [PurchaseCtrl::class, 'payOrder'])->name('pay-order')->middleware('permission:cms.purchase.pay-order');
+    Route::get('pay-order/{id}', [PurchaseCtrl::class, 'payOrder'])->name('view-pay-order');
+    Route::post('pay-order/{id}', [PurchaseCtrl::class, 'payOrder'])->name('pay-order');
     Route::match(['get', 'post'], 'po_create', [PurchaseCtrl::class, 'po_create'])->name('po-create');
 });

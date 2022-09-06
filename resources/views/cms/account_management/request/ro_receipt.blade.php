@@ -4,19 +4,21 @@
 
     <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
         <div class="p-1 pe-2">
-            <a href="{{ route('cms.collection_received.edit', ['id' => $received_order->id]) }}" class="btn btn-sm btn-success px-3" role="button">修改</a>
+            @can('cms.collection_received.edit')
+                <a href="{{ route('cms.collection_received.edit', ['id' => $received_order->id]) }}" class="btn btn-sm btn-success px-3" role="button">修改</a>
 
-            @if(! $received_order->receipt_date)
-            <a href="{{ route('cms.request.ro-review', ['id' => $received_order->source_id]) }}" 
-                class="btn btn-sm btn-primary" role="button">收款單入款審核</a>
-            @else
-                @if(! $data_status_check)
+                @if(! $received_order->receipt_date)
                 <a href="{{ route('cms.request.ro-review', ['id' => $received_order->source_id]) }}" 
-                    class="btn btn-sm btn-outline-danger" role="button">取消入帳</a>
+                    class="btn btn-sm btn-primary" role="button">收款單入款審核</a>
+                @else
+                    @if(! $data_status_check)
+                    <a href="{{ route('cms.request.ro-review', ['id' => $received_order->source_id]) }}" 
+                        class="btn btn-sm btn-outline-danger" role="button">取消入帳</a>
+                    @endif
                 @endif
-            @endif
-            <a href="{{ route('cms.request.ro-taxation', ['id' => $received_order->source_id]) }}" 
-                class="btn btn-sm btn-primary" role="button">修改摘要/稅別</a>
+                <a href="{{ route('cms.request.ro-taxation', ['id' => $received_order->source_id]) }}" 
+                    class="btn btn-sm btn-primary" role="button">修改摘要/稅別</a>
+            @endcan
 
             <a href="{{ url()->full() . '?action=print' }}" target="_blank" class="btn btn-sm btn-warning" 
                 rel="noopener noreferrer">中一刀列印畫面</a>
@@ -26,11 +28,13 @@
             <button type="submit" class="btn btn-danger">明細修改記錄</button>
             --}}
 
+            @can('cms.collection_received.delete')
             @if(!$received_order->receipt_date && !$data_status_check)
                 <a href="javascript:void(0)" role="button" data-bs-toggle="modal" data-bs-target="#confirm-delete"
                     data-href="{{ Route('cms.collection_received.delete', ['id' => $received_order->id], true) }}"
                     class="btn btn-sm btn-outline-danger">刪除收款單</a>
             @endif
+            @endcan
         </div>
     </nav>
 

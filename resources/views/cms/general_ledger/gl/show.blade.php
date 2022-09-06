@@ -6,11 +6,13 @@
         <a href="{{ Route('cms.general_ledger.index', [], true) }}" class="btn btn-primary" role="button">
             <i class="bi bi-arrow-left"></i> 返回會計科目列表
         </a>
+        @can('cms.general_ledger.create')
         @if($isFourthGradeExist === false && $dataList[0]->has_next_grade === 1)
             <a href="{{ Route('cms.general_ledger.create', ['nextGrade' => $nextGrade, 'code' => $dataList[0]->code], true) }}" class="btn btn-outline-primary px-4">
                 <i class="bi"></i> 新增下層會計科目
             </a>
         @endif
+        @endcan
     </div>
     <div class="card shadow p-4 mb-4">
         <div class="table-responsive tableOverBox">
@@ -40,7 +42,7 @@
                         <td>{{ $data->note_1 }}</td>
                         <td>{{ $data->note_2 }}</td>
                         <td class="text-center">
-                            @can('admin.general_ledger.edit')
+                            @can('cms.general_ledger.edit')
                                 <a href="{{ Route('cms.general_ledger.edit', ['id' => $data->id, 'type'=>$currentGrade], true) }}" data-bs-toggle="tooltip" title="編輯" class="icon icon-btn fs-5 text-primary rounded-circle border-0">
                                     <i class="bi bi-pencil-square"></i>
                                 </a>
@@ -52,6 +54,7 @@
             </table>
         </div>
 
+        @can('cms.general_ledger.create')
         <a class="btn" href="{{ Route('cms.general_ledger.create', ['currentGrade' => $currentGrade, 'code' => $dataList[0]->code], true) }}">
             <div class="d-grid mt-3">
                 <button id="addProductBtn" type="button" class="btn btn-outline-primary border-dashed add_ship_rule" style="font-weight: 500;">
@@ -60,5 +63,6 @@
                 </button>
             </div>
         </a>
+        @endcan
     </div>
 @endsection

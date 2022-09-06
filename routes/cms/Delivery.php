@@ -20,6 +20,6 @@ Route::group(['prefix' => 'delivery','as'=>'delivery.'], function () {
     Route::get('back_inbound_delete/{deliveryId}', [DeliveryCtrl::class, 'back_inbound_delete'])->name('back_inbound_delete')->middleware('permission:cms.delivery.edit');
 
 
-    Route::get('return_pay/{id}', [DeliveryCtrl::class, 'return_pay_order'])->name('return-pay-order')->middleware('permission:cms.delivery.return-pay-order');
-    Route::match(['get', 'post'], 'return_pay_create/{id}', [DeliveryCtrl::class, 'return_pay_create'])->name('return-pay-create')->middleware('permission:cms.delivery.return-pay-order');
+    Route::get('return_pay/{id}', [DeliveryCtrl::class, 'return_pay_order'])->name('return-pay-order');
+    Route::match(['get', 'post'], 'return_pay_create/{id}', [DeliveryCtrl::class, 'return_pay_create'])->name('return-pay-create');
 });

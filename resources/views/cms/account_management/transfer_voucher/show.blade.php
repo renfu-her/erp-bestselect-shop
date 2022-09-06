@@ -4,12 +4,16 @@
 
     <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
         <div class="p-1 pe-2">
+            @can('cms.transfer_voucher.edit')
             <a href="{{ route('cms.transfer_voucher.edit', ['id' => $voucher->tv_id]) }}" 
                 class="btn btn-sm btn-success px-3" role="button">修改</a>
+            @endcan
 
+            @can('cms.transfer_voucher.delete')
             <a href="javascript:void(0)" role="button" class="btn btn-sm btn-outline-danger" 
                 data-bs-toggle="modal" data-bs-target="#confirm-delete" 
                 data-href="{{ Route('cms.transfer_voucher.delete', ['id' => $voucher->tv_id]) }}">刪除傳票</a>
+            @endcan
         </div>
     </nav>
 

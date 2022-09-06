@@ -12,5 +12,5 @@ Route::group(['prefix' => 'stitute', 'as' => 'stitute.'], function () {
 
     Route::get('po_edit/{id}', [StituteOrderCtrl::class, 'po_edit'])->name('po-edit');
     Route::post('po_store/{id}', [StituteOrderCtrl::class, 'po_store'])->name('po-store');
-    Route::get('po_show/{id}', [StituteOrderCtrl::class, 'po_show'])->name('po-show')->middleware('permission:cms.stitute.po-show');
+    Route::get('po_show/{id}', [StituteOrderCtrl::class, 'po_show'])->name('po-show');
 });

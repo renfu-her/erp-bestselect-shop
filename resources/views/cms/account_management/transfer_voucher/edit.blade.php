@@ -144,7 +144,7 @@
 
         <div class="col-auto">
             <button type="submit" class="btn btn-primary px-4">確認</button>
-            <a href="{{ $previous_url }}" class="btn btn-outline-primary px-4" role="button">取消</a>
+            <a href="{{ url()->previous() }}" class="btn btn-outline-primary px-4" role="button">取消</a>
         </div>
     </form>
 @endsection

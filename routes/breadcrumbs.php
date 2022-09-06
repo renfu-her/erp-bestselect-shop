@@ -1094,41 +1094,17 @@ Breadcrumbs::for('cms.general_ledger.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
     $trail->push('會計科目', route('cms.general_ledger.index'));
 });
-Breadcrumbs::for('cms.general_ledger.show-1st', function (BreadcrumbTrail $trail) {
-    $trail->parent('cms.dashboard');
-    $trail->push('會計科目', route('cms.general_ledger.index'));
+Breadcrumbs::for('cms.general_ledger.create', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.general_ledger.index');
+    $trail->push('新增', route('cms.general_ledger.create', ['type' => $value['type']]));
 });
-Breadcrumbs::for('cms.general_ledger.show-2nd', function (BreadcrumbTrail $trail) {
-    $trail->parent('cms.dashboard');
-    $trail->push('會計科目', route('cms.general_ledger.index'));
+Breadcrumbs::for('cms.general_ledger.edit', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.general_ledger.index');
+    $trail->push('編輯', route('cms.general_ledger.edit', ['id' => $value['id'], 'type' => $value['type']]));
 });
-Breadcrumbs::for('cms.general_ledger.show-3rd', function (BreadcrumbTrail $trail) {
-    $trail->parent('cms.dashboard');
-    $trail->push('會計科目', route('cms.general_ledger.index'));
-});
-Breadcrumbs::for('cms.general_ledger.show-4th', function (BreadcrumbTrail $trail) {
-    $trail->parent('cms.dashboard');
-    $trail->push('會計科目', route('cms.general_ledger.index'));
-});
-Breadcrumbs::for('cms.general_ledger.edit-1st', function (BreadcrumbTrail $trail) {
-    $trail->parent('cms.dashboard');
-    $trail->push('會計科目', route('cms.general_ledger.index'));
-});
-Breadcrumbs::for('cms.general_ledger.edit-2nd', function (BreadcrumbTrail $trail) {
-    $trail->parent('cms.dashboard');
-    $trail->push('會計科目', route('cms.general_ledger.index'));
-});
-Breadcrumbs::for('cms.general_ledger.edit-3rd', function (BreadcrumbTrail $trail) {
-    $trail->parent('cms.dashboard');
-    $trail->push('會計科目', route('cms.general_ledger.index'));
-});
-Breadcrumbs::for('cms.general_ledger.edit-4th', function (BreadcrumbTrail $trail) {
-    $trail->parent('cms.dashboard');
-    $trail->push('會計科目', route('cms.general_ledger.index'));
-});
-Breadcrumbs::for('cms.general_ledger.create', function (BreadcrumbTrail $trail) {
-    $trail->parent('cms.dashboard');
-    $trail->push('會計科目', route('cms.general_ledger.index'));
+Breadcrumbs::for('cms.general_ledger.show', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.general_ledger.index');
+    $trail->push($value['grade_name'], route('cms.general_ledger.show', ['id' => $value['id'], 'type' => $value['type']]));
 });
 
 // 角色管理

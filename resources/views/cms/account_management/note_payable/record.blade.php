@@ -6,9 +6,11 @@
         <i class="bi bi-arrow-left"></i> 返回上一頁
     </a>
 
+    @can('cms.note_payable.edit')
     @if($cheque->cheque_status_code == 'cashed')
     <a href="javascript:void(0)" role="button" class="btn btn-outline-danger btn-sm my-1 ms-1" data-bs-toggle="modal" data-bs-target="#confirm-reverse" data-href="{{ Route('cms.note_payable.reverse', ['id' => $cheque->cheque_payable_id]) }}">取消兌現</a>
     @endif
+    @endcan
 
     <div class="card mb-4">
         <div class="card-body">

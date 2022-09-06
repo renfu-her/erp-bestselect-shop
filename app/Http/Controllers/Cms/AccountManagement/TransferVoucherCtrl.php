@@ -164,7 +164,6 @@ class TransferVoucherCtrl extends Controller
 
         return view('cms.account_management.transfer_voucher.edit', [
             'method' => 'create',
-            'previous_url' => route('cms.transfer_voucher.index'),
             'form_action' => route('cms.transfer_voucher.create'),
             'total_grades' => $total_grades,
             'currency' => $currency,
@@ -302,7 +301,6 @@ class TransferVoucherCtrl extends Controller
 
         return view('cms.account_management.transfer_voucher.edit', [
             'method' => 'edit',
-            'previous_url' => route('cms.transfer_voucher.show', ['id' => $id]),
             'form_action' => route('cms.transfer_voucher.edit', ['id' => $id]),
             'voucher' => $voucher,
             'total_grades' => $total_grades,

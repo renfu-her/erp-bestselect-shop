@@ -89,11 +89,13 @@
 
     <div class="card shadow p-4 mb-4">
         <div class="row justify-content-end mb-4">
+            @can('cms.stitute.index')
             <div class="col">
                 <a href="{{ Route('cms.stitute.create') }}" class="btn btn-primary" role="button">
                     <i class="bi bi-plus-lg"></i> 新增代墊單
                 </a>
             </div>
+            @endcan
             <div class="col-auto">
                 顯示
                 <select class="form-select d-inline-block w-auto" id="dataPerPageElem" aria-label="表格顯示筆數">

@@ -297,20 +297,180 @@ return [
         ],
     ],
     [
+        "unit" => "收款作業",
+        "permissions" => [
+            [
+                "cms.collection_received.index",
+                "瀏覽",
+            ],
+            [
+                "cms.collection_received.edit",
+                "編輯",
+            ],
+            [
+                "cms.collection_received.delete",
+                "刪除",
+            ],
+        ],
+    ],
+    [
         "unit" => "付款作業",
         "permissions" => [
             [
                 "cms.collection_payment.index",
                 "瀏覽",
             ],
+            [
+                "cms.collection_payment.edit",
+                "編輯",
+            ],
+            [
+                "cms.collection_payment.delete",
+                "刪除",
+            ],
         ],
     ],
     [
-        "unit" => "收款作業",
+        "unit" => "請款單作業",
         "permissions" => [
             [
-                "cms.collection_received.index",
+                "cms.request.index",
                 "瀏覽",
+            ],
+            [
+                "cms.request.show",
+                "詳細資訊",
+            ],
+            [
+                "cms.request.create",
+                "新增",
+            ],
+            [
+                "cms.request.edit",
+                "編輯",
+            ],
+            [
+                "cms.request.delete",
+                "刪除",
+            ],
+        ],
+    ],
+    [
+        "unit" => "代墊單作業",
+        "permissions" => [
+            [
+                "cms.stitute.index",
+                "瀏覽",
+            ],
+            [
+                "cms.stitute.show",
+                "詳細資訊",
+            ],
+            [
+                "cms.stitute.create",
+                "新增",
+            ],
+            [
+                "cms.stitute.edit",
+                "編輯",
+            ],
+            [
+                "cms.stitute.delete",
+                "刪除",
+            ],
+        ],
+    ],
+    [
+        "unit" => "應收帳款",
+        "permissions" => [
+            [
+                "cms.account_received.index",
+                "瀏覽",
+            ],
+            [
+                "cms.account_received.edit",
+                "編輯",
+            ],
+        ],
+    ],
+    [
+        "unit" => "應付帳款",
+        "permissions" => [
+            [
+                "cms.accounts_payable.index",
+                "瀏覽",
+            ],
+            [
+                "cms.accounts_payable.edit",
+                "編輯",
+            ],
+        ],
+    ],
+    [
+        "unit" => "退款作業",
+        "permissions" => [
+            [
+                "cms.refund.index",
+                "瀏覽",
+            ],
+        ],
+    ],
+    [
+        "unit" => "轉帳傳票",
+        "permissions" => [
+            [
+                "cms.transfer_voucher.index",
+                "瀏覽",
+            ],
+            [
+                "cms.transfer_voucher.show",
+                "詳細資訊",
+            ],
+            [
+                "cms.transfer_voucher.create",
+                "新增",
+            ],
+            [
+                "cms.transfer_voucher.edit",
+                "編輯",
+            ],
+            [
+                "cms.transfer_voucher.delete",
+                "刪除",
+            ],
+        ],
+    ],
+    [
+        "unit" => "應收票據",
+        "permissions" => [
+            [
+                "cms.note_receivable.index",
+                "瀏覽",
+            ],
+            [
+                "cms.note_receivable.show",
+                "詳細資訊",
+            ],
+            [
+                "cms.note_receivable.edit",
+                "編輯",
+            ],
+        ],
+    ],
+    [
+        "unit" => "應付票據",
+        "permissions" => [
+            [
+                "cms.note_payable.index",
+                "瀏覽",
+            ],
+            [
+                "cms.note_payable.show",
+                "詳細資訊",
+            ],
+            [
+                "cms.note_payable.edit",
+                "編輯",
             ],
         ],
     ],
@@ -387,6 +547,15 @@ return [
         ],
     ],
     [
+        "unit" => "匯款紀錄",
+        "permissions" => [
+            [
+                "cms.remittance_record.index",
+                "瀏覽",
+            ],
+        ],
+    ],
+    [
         "unit" => "電子發票作業管理",
         "permissions" => [
             [
@@ -400,10 +569,19 @@ return [
         ],
     ],
     [
-        "unit" => "匯款紀錄",
+        "unit" => "日結作業",
         "permissions" => [
             [
-                "cms.remittance_record.index",
+                "cms.day_end.index",
+                "瀏覽",
+            ],
+        ],
+    ],
+    [
+        "unit" => "分類帳",
+        "permissions" => [
+            [
+                "cms.ledger.index",
                 "瀏覽",
             ],
         ],
@@ -414,6 +592,10 @@ return [
             [
                 "cms.general_ledger.index",
                 "瀏覽",
+            ],
+            [
+                "cms.general_ledger.show",
+                "詳細資訊",
             ],
             [
                 "cms.general_ledger.create",
@@ -440,14 +622,6 @@ return [
                 "cms.first_grade.create",
                 "新增",
             ],
-//            [
-            //                "cms.first_grade.edit",
-            //                "編輯",
-            //            ],
-            //            [
-            //                "cms.first_grade.delete",
-            //                "刪除",
-            //            ],
         ],
     ],
     [
@@ -461,14 +635,19 @@ return [
                 "cms.income_statement.create",
                 "新增",
             ],
-//            [
-            //                "cms.income_statement.edit",
-            //                "編輯",
-            //            ],
-            //            [
-            //                "cms.income_statement.delete",
-            //                "刪除",
-            //            ],
+        ],
+    ],
+    [
+        "unit" => "付款單科目",
+        "permissions" => [
+            [
+                "cms.payable_default.index",
+                "瀏覽",
+            ],
+            [
+                "cms.payable_default.edit",
+                "編輯",
+            ],
         ],
     ],
     [
@@ -479,16 +658,8 @@ return [
                 "瀏覽",
             ],
             [
-                "cms.received_default.create",
-                "新增",
-            ],
-            [
                 "cms.received_default.edit",
                 "編輯",
-            ],
-            [
-                "cms.received_default.delete",
-                "刪除",
             ],
         ],
     ],

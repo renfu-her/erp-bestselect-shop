@@ -4,7 +4,9 @@
     
     <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
         <div class="p-1 pe-2">
+            @can('cms.stitute.edit')
             <a href="{{ route('cms.stitute.edit', ['id' => $stitute_order->id]) }}" class="btn btn-sm btn-success px-3" role="button">修改</a>
+            @endcan
 
             @if(! $stitute_order->payment_date)
                 <a href="{{ route('cms.stitute.po-edit', ['id' => $stitute_order->id]) }}" 
@@ -14,11 +16,13 @@
             <button type="submit" class="btn btn-danger">中一刀列印畫面</button>
             <button type="submit" class="btn btn-danger">A4列印畫面</button>
             --}}
+            @can('cms.stitute.delete')
             @if(! $stitute_order->pay_order_id)
             <a href="javascript:void(0)" role="button" class="btn btn-outline-danger btn-sm"
                 data-bs-toggle="modal" data-bs-target="#confirm-delete"
                 data-href="{{ Route('cms.stitute.delete', ['id' => $stitute_order->id]) }}">刪除代墊單</a>
             @endif
+            @endcan
         </div>
     </nav>
 
