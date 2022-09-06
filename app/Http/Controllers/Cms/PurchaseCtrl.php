@@ -919,7 +919,7 @@ class PurchaseCtrl extends Controller
             // 'payList' => $payList,
             // 'purchaseChargemanList' => $purchaseChargemanList,
             'breadcrumb_data' => ['id' => $id, 'sn' => $purchaseData->purchase_sn],
-            'formAction' => Route('cms.purchase.pay-order', ['id' => $id,]),
+            'formAction' => Route('cms.purchase.pay-order', ['id' => $id, 'type' => '0']),
         ]);
     }
 
