@@ -168,7 +168,7 @@
                                     <div class="form-check form-check-inline lh-base">
                                         <label class="form-check-label" for="tax_{{ $serial }}_1">
                                             <input class="form-check-input" 
-                                                ame="order_dlv[{{ $order->id }}][taxation]" 
+                                                name="order_dlv[{{ $order->id }}][taxation]" 
                                                 value="1" type="radio" id="tax_{{ $serial }}_1" 
                                                 required @if ($order->dlv_taxation == '1') checked @endif>
                                             應稅
