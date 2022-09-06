@@ -33,7 +33,7 @@ Route::group(['prefix' => 'order', 'as' => 'order.'], function () {
     Route::get('return_pay/{id}/{sid?}', [OrderCtrl::class, 'return_pay_order'])->name('return-pay-order');
     Route::match(['get', 'post'], 'return_pay_create/{id}/{sid?}', [OrderCtrl::class, 'return_pay_create'])->name('return-pay-create');
 
-    Route::get('invoice/{id}', [OrderCtrl::class, 'create_invoice'])->name('create-invoice');
+    Route::get('invoice/{id}', [OrderCtrl::class, 'create_invoice'])->name('create-invoice')->middleware('permission:cms.order_invoice_manager.index');
     Route::post('invoice/{id}', [OrderCtrl::class, 'store_invoice'])->name('store-invoice');
     Route::post('ajax-detail', [OrderCtrl::class, '_order_detail'])->name('ajax-detail');
     Route::get('invoice/{id}/show', [OrderCtrl::class, 'show_invoice'])->name('show-invoice');

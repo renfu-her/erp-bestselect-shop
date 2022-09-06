@@ -95,15 +95,15 @@
     </div>
 
     <div class="col-auto">
+        @can('cms.order_invoice_manager.index')
         @if($invoice->status == 1 && $invoice->r_status != 'SUCCESS')
         <a href="javascript:void(0)" role="button" class="btn btn-primary px-4" data-bs-toggle="modal" 
             data-bs-target="#confirm-invoice" data-href="{{ Route('cms.order.re-send-invoice', ['id' => $invoice->id]) }}">
             重新開立發票
         </a>
         @endif
+        @endcan
 
-        <a href="{{ url()->previous() }}" class="btn btn-outline-primary px-4" 
-            role="button">返回上一頁</a>
         <a href="{{ Route('cms.order.detail', ['id' => $invoice->source_id]) }}" class="btn btn-outline-primary px-4" 
             role="button">返回 訂單明細</a>
     </div>
