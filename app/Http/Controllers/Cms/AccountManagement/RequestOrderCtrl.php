@@ -430,7 +430,7 @@ class RequestOrderCtrl extends Controller
 
             } else if($data['acc_transact_type_fk'] == ReceivedMethod::Cheque){
                 $request->validate([
-                    request('acc_transact_type_fk') . 'ticket_number'=>'required|unique:acc_received_cheque,ticket_number|regex:/^[A-Z]{2}[0-9]{7}$/'
+                    request('acc_transact_type_fk') . '.ticket_number'=>'required|unique:acc_received_cheque,ticket_number|regex:/^[A-Z]{2}[0-9]{7}$/'
                 ]);
             }
 
