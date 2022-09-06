@@ -17,7 +17,7 @@
                     @endif
                 @endif
                 <a href="{{ route('cms.request.ro-taxation', ['id' => $received_order->source_id]) }}" 
-                    class="btn btn-sm btn-primary" role="button">修改摘要/稅別</a>
+                    class="btn btn-sm btn-dark" role="button">修改摘要/稅別</a>
             @endcan
 
             <a href="{{ url()->full() . '?action=print' }}" target="_blank" class="btn btn-sm btn-warning" 

@@ -2185,6 +2185,17 @@ class OrderCtrl extends Controller
             'id' => 'required|exists:ord_order_invoice,id',
         ]);
         $inv_result = OrderInvoice::invoice_issue_api($id);
+
+        if($inv_result->source_type == app(Order::class)->getTable() && $inv_result->r_msg == 'SUCCESS'){
+            $parm = [
+                'order_id' => $inv_result->source_id,
+                'gui_number' => $inv_result->buyer_ubn,
+                'invoice_category' => '電子發票',
+                'invoice_number' => $inv_result->invoice_number,
+            ];
+            Order::update_invoice_info($parm);
+        }
+
         wToast(__($inv_result->r_msg));
         return redirect()->back();
     }
