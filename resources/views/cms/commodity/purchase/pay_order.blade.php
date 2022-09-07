@@ -1,12 +1,12 @@
 @extends('layouts.main')
 @section('sub-content')
     {{--    @if ($method === 'edit')--}}
-    <h2 class="mb-3">{{ $type === 'deposit' ? '訂金' : '尾款'}}付款單
+    <h2 class="mb-4">{{ $type === 'deposit' ? '訂金' : '尾款'}}付款單
         {{--            {{ $purchaseData->purchase_sn }}--}}
     </h2>
-    
+    {{--
     <x-b-pch-navi :id="$id"></x-b-pch-navi>
-   
+    --}}
     {{--    @else--}}
     {{--        <h2 class="mb-3">新增採購單</h2>--}}
     {{--    @endif--}}
