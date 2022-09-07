@@ -103,6 +103,7 @@ class PayingOrder extends Model
                 'paying_order.memo as memo',
                 'paying_order.price as price',
                 'paying_order.balance_date as balance_date',
+                'paying_order.payment_date as payment_date',
                 'paying_order.payee_id as payee_id',
                 'paying_order.payee_name as payee_name',
                 'paying_order.payee_phone as payee_phone',

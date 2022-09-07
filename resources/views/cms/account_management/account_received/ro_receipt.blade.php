@@ -81,7 +81,7 @@
                     <dd>訂單流水號：</dd>
                 </div>
                 <div class="col">
-                    <dd>入帳日期：@if($received_order->receipt_date) {{ date('Y-m-d', strtotime($received_order->receipt_date)) }} @endif</dd>
+                    <dd>入帳日期：{{ $received_order->receipt_date ? date('Y-m-d', strtotime($received_order->receipt_date)) : '' }}</dd>
                 </div>
             </dl>
             <dl class="row mb-0">

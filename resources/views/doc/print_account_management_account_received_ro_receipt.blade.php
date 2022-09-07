@@ -74,9 +74,7 @@
                         </tr>
                         <tr>
                             <td>訂單流水號：</td>
-                            <td>
-                                入帳日期：@if($received_order->receipt_date) {{ date('Y-m-d', strtotime($received_order->receipt_date)) }} @endif
-                            </td>
+                            <td>入帳日期：{{ $received_order->receipt_date ? date('Y-m-d', strtotime($received_order->receipt_date)) : '' }}</td>
                         </tr>
                         <tr>
                             <td>收款對象：</td>

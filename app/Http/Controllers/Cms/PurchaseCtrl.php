@@ -686,7 +686,7 @@ class PurchaseCtrl extends Controller
             if($payingOrderData->price == 0 && $payable_data->count() == 0){
                 $pay_off_date = date('Y-m-d', strtotime($payingOrderData->created_at));
             } else {
-                $pay_off_date = date('Y-m-d', strtotime($payingOrderData->balance_date));
+                $pay_off_date = date('Y-m-d', strtotime($payingOrderData->payment_date));
             }
         }
         $data_status_check = PayingOrder::payable_data_status_check($payable_data);

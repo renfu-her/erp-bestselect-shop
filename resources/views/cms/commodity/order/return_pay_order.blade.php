@@ -52,7 +52,7 @@
                     <dd>單據編號：</dd>
                 </div>
                 <div class="col">
-                    <dd>付款日期：</dd>
+                    <dd>付款日期：{{ $paying_order->payment_date ? date('Y-m-d', strtotime($paying_order->payment_date)) : '' }}</dd>
                 </div>
             </dl>
 

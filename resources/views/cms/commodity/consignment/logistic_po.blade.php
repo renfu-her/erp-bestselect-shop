@@ -55,10 +55,8 @@
                         </dd>
                     </div>
                     <div class="col">
-                        <dd>
-                            付款日期：@if($paying_order->payment_date) {{ date('Y-m-d', strtotime($paying_order->payment_date)) }} @endif
-                        </dd>
-                    </div>
+                        <dd>付款日期：{{ $paying_order->payment_date ? date('Y-m-d', strtotime($paying_order->payment_date)) : '' }}</dd>
+                </div>
                 </dl>
 
                 <dl class="row mb-0">

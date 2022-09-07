@@ -81,7 +81,7 @@
                 </div>
                 <div class="col">
                     @if($received_order->receipt_date)
-                    <dd>入帳日期：{{ date('Y-m-d', strtotime($received_order->receipt_date)) }}</dd>
+                    <dd>入帳日期：{{ $received_order->receipt_date ? date('Y-m-d', strtotime($received_order->receipt_date)) : '' }}</dd>
                     @endif
                 </div>
             </dl>
