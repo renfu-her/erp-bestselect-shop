@@ -34,7 +34,7 @@ class CustomerCtrl extends Controller
     {
         $query = $request->query();
         $keyword = Arr::get($query, 'keyword', '');
-      
+
         $customer = Customer::getCustomerBySearch($keyword)->paginate(10)->appends($query);
 
         return view('cms.admin.customer.list', [
@@ -263,49 +263,23 @@ class CustomerCtrl extends Controller
     public function order(Request $request, $id)
     {
         $email = Customer::where('id', '=', $id)->select('email')->get()->first()->email;
-        $orderIds = Order::where('email', '=', $email)->select('id')->get();
-
-        $orders = [];
-        foreach ($orderIds as $orderId) {
-            $order = Order::orderDetail($orderId->id, $email)->get()->first();
-            $subOrder = Order::subOrderDetail($orderId->id)->get()->toArray();
-
-            $subOrderArray = array_map(function ($n) {
-                $delivery = Delivery::getDeliveryWithEventWithSn(Event::order, $n->id)->select('id')->get()->first();
-                $n->shipment_flow = LogisticFlow::getListByDeliveryId($delivery->id)->select('status', 'created_at')->get()->toArray();
-
-                $n->items = json_decode($n->items);
-//                foreach ($n->items as $key => $value) {
-                //                    if ($value->img_url) {
-                //                        $n->items[$key]->img_url = asset($n->items[$key]->img_url);
-                //                    } else {
-                //                        $n->items[$key]->img_url = '';
-                //                    }
-                //                    //convert string value to int type
-                //                    if ($value->qty) {
-                //                        $n->items[$key]->qty = intval($n->items[$key]->qty);
-                //                    }
-                //                    if ($value->total_price) {
-                //                        $n->items[$key]->total_price = intval($n->items[$key]->total_price);
-                //                    }
-                //                }
-
-                //convert string value to int type
-                //                if ($n->dlv_fee) {
-                //                    $n->dlv_fee = intval($n->dlv_fee);
-                //                }
-                return $n;
-            }, $subOrder);
-
-            $orders[] = [
-                'order' => $order,
-                'sub_order' => $subOrderArray,
-            ];
-        }
+        $dataList = Order::orderList(
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            $email
+                        )
+                        ->addSelect([
+                            'ord_address.phone as ord_phone',
+                        ])
+                        ->paginate(50);
 
         return view('cms.admin.customer.order', [
+            'dataList' => $dataList,
             'customer' => $id,
-            'orders' => $orders,
         ]);
 
     }

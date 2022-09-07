@@ -41,11 +41,11 @@
                                 </td>
                                 <td class="text-wrap">{{ $logistics_grade_name }}</td>
                                 <td class="text-wrap">{{ $sub_order->logistic_memo }}</td>
-                                <td class="text-end">{{ number_format($sub_order->logistic_cost, 2) }}</td>
+                                <td class="text-end">${{ number_format($sub_order->logistic_cost, 2) }}</td>
                                 <td class="text-end">1</td>
                                 <td class="text-end">{{ $currency->rate }}</td>
                                 <td>{{ $currency->name }}</td>
-                                <td class="text-end">{{ number_format($sub_order->logistic_cost) }}</td>
+                                <td class="text-end">${{ number_format($sub_order->logistic_cost) }}</td>
                                 <td class="text-end"></td>
                             </tr>
                         @endif
@@ -58,12 +58,12 @@
                             </td>
                             <td class="text-wrap">{{ $value->account->code . ' ' . $value->account->name }}</td>
                             <td class="text-wrap">{{ $value->payable_method_name . ' - ' . $value->summary }}</td>
-                            <td class="text-end">{{ number_format($value->tw_price, 2) }}</td>
+                            <td class="text-end">${{ number_format($value->tw_price, 2) }}</td>
                             <td class="text-end">1</td>
                             <td class="text-end">{{ $value->currency_rate }}</td>
                             <td>{{ $value->currency_name }}</td>
                             <td class="text-end"></td>
-                            <td class="text-end">{{ number_format($value->tw_price) }}</td>
+                            <td class="text-end">${{ number_format($value->tw_price) }}</td>
                         </tr>
                         @endforeach
                     </tbody>
@@ -72,7 +72,7 @@
             <table class="table table-sm tableList mb-0">
                 <tfoot>
                     <tr>
-                        <th scope="row" class="text-end">應付總計金額：{{ number_format($tw_price) }}</th>
+                        <th scope="row" class="text-end">應付總計金額：${{ number_format($tw_price) }}</th>
                     </tr>
                 </tfoot>
             </table>

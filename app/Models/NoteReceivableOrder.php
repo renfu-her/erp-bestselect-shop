@@ -276,8 +276,10 @@ class NoteReceivableOrder extends Model
 
     public static function store_note_receivable_order($cashing_date)
     {
-        $target = self::whereDate('cashing_date', $cashing_date)->first();
-        $net = DB::table('acc_received_cheque')->whereDate('cashing_date', $cashing_date)->sum('amt_net');
+        $date = date('Y-m-d', strtotime($cashing_date));
+
+        $target = self::whereDate('cashing_date', $date)->first();
+        $net = DB::table('acc_received_cheque')->where('status_code', 'cashed')->whereDate('cashing_date', $date)->sum('amt_net');
 
         if($target){
             $target->update([

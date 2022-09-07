@@ -11,6 +11,7 @@ use App\Imports\PurchaseInbound\InboundImport;
 use App\Models\Consignment;
 use App\Models\CsnOrder;
 use App\Models\Depot;
+use App\Models\PcsInboundInventory;
 use App\Models\ProductStyle;
 use App\Models\Purchase;
 use App\Models\PurchaseImportLog;
@@ -280,8 +281,9 @@ class InboundImportCtrl extends Controller
         $cond['title'] = Arr::get($query, 'title', null);
 
         $cond['data_per_page'] = getPageCount(Arr::get($query, 'data_per_page', 100));
+        $cond['inventory_status'] = Arr::get($query, 'inventory_status', 'all');
 
-        $param = ['event' => null, 'purchase_sn' => $cond['purchase_sn'], 'inbound_sn' => $cond['inbound_sn'], 'keyword' => $cond['title']];
+        $param = ['event' => null, 'purchase_sn' => $cond['purchase_sn'], 'inbound_sn' => $cond['inbound_sn'], 'keyword' => $cond['title'], 'inventory_status' => $cond['inventory_status']];
         $inboundList_purchase = PurchaseInbound::getInboundListWithEventSn(app(Purchase::class)->getTable(), [Event::purchase()->value], $param);
         $inboundList_order = PurchaseInbound::getInboundListWithEventSn(app(SubOrders::class)->getTable(), [Event::order()->value, Event::ord_pickup()->value], $param);
         $inboundList_consignment = PurchaseInbound::getInboundListWithEventSn(app(Consignment::class)->getTable(), [Event::consignment()->value], $param);
@@ -316,6 +318,7 @@ class InboundImportCtrl extends Controller
             $event_table = app(CsnOrder::class)->getTable();
         }
         $inbound = $inbound
+            ->leftJoin(app(PcsInboundInventory::class)->getTable(). ' as inventory', 'inventory.inbound_id', '=', 'inbound.id')
             ->leftJoin($event_table. ' as event', function ($join) {
                 $join->on('event.id', '=', 'inbound.event_id');
             })
@@ -323,6 +326,16 @@ class InboundImportCtrl extends Controller
             ->select('event.sn as event_sn', 'style.sku', 'inbound.*'
                 , DB::raw('DATE_FORMAT(inbound.expiry_date,"%Y-%m-%d") as expiry_date')
                 , DB::raw('(inbound.inbound_num - inbound.sale_num - inbound.csn_num - inbound.consume_num - inbound.back_num - inbound.scrap_num) as remaining_qty') //庫存剩餘數量
+
+                , 'inventory.status as inventory_status'
+                , DB::raw('(case when "' . AuditStatus::unreviewed()->value . '" = inventory.status then "' . AuditStatus::getDescription(AuditStatus::unreviewed) . '"
+					when "' . AuditStatus::approved()->value . '" = inventory.status then "' . AuditStatus::getDescription(AuditStatus::approved) . '"
+					when "' . AuditStatus::veto()->value . '" = inventory.status then "' . AuditStatus::getDescription(AuditStatus::veto) . '"
+                    else "' . AuditStatus::getDescription(AuditStatus::unreviewed) . '" end) as inventory_status_str')
+                , 'inventory.create_user_id as inventory_create_user_id'
+                , 'inventory.create_user_name as inventory_create_user_name'
+                , 'inventory.created_at as inventory_created_at'
+                , 'inventory.updated_at as inventory_updated_at'
             )
             ->first();
 
@@ -339,17 +352,42 @@ class InboundImportCtrl extends Controller
             'id' => 'required|numeric',
             'update_num' => 'required|numeric',
             'expiry_date' => 'nullable|date_format:"Y-m-d"',
-            'memo' => 'required|string',
+            'inventory_status' => 'required|numeric',
         ]);
         $update_num = $request->input('update_num', 0);
         $expiry_date = $request->input('expiry_date', null);
         $memo = $request->input('memo', null);
+        $inventory_status = $request->input('inventory_status', AuditStatus::unreviewed()->value);
 
-        $updIb = PurchaseInbound::updateInbound($inbound_id, $update_num, $expiry_date, $memo, $request->user()->id, $request->user()->name);
-        if ($updIb['success'] == '1') {
+        if (!AuditStatus::hasValue($inventory_status)) {
+            throw ValidationException::withMessages(['status_error' => '無此審核狀態']);
+        }
+
+        //判斷若有改到入庫單相關資料
+        $inbound = PurchaseInbound::where('id', '=', $inbound_id);
+        $inboundGet = $inbound->first();
+        $inboundGet->inbound_num = $inboundGet->inbound_num + $update_num;
+        $inboundGet->expiry_date = date('Y-m-d H:i:s', strtotime($expiry_date));
+        $updIb = null;
+        if ($inboundGet->isDirty()) {
+            //若有改到入庫單相關資料 則需填寫memo
+            $request->validate([
+                'memo' => 'required|string',
+            ]);
+            $updIb = PurchaseInbound::updateInbound($inbound_id, $update_num, $expiry_date, $memo, $request->user()->id, $request->user()->name);
+        }
+        if ( (false == $inboundGet->isDirty() && null == $updIb) || '1' == $updIb['success']) {
             wToast('儲存成功');
+
+            PcsInboundInventory::updateOrCreate(['inbound_id' => $inbound_id], [
+                'status' => $inventory_status
+                , 'create_user_id' => $request->user()->id
+                , 'create_user_name' => $request->user()->name
+            ]);
+
             return Redirect::away($request->get('backUrl'));
         }
+
         $errors['error_msg'] = $updIb['error_msg'];
 
         return redirect()->back()->withInput()->withErrors($errors);

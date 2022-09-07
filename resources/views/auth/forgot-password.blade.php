@@ -1,9 +1,9 @@
 @extends('layouts.layout')
-
 @section('content')
-    <div class="container">
+
+    <div class="container mt-5">
         <div class="row justify-content-center">
-            <div class="col-md-8">
+            <div class="col-md-10">
                 <div class="card">
                     <div class="card-header">{{ __('Reset Password') }}</div>
 
@@ -12,15 +12,18 @@
                             <div class="alert alert-success" role="alert">
                                 {{ session('status') }}
                             </div>
+                            <div class="row mb-0">
+                                <a href="{{ env('FRONTEND_URL') }}" target="_blank">返回喜鴻購物官網</a>
+                            </div>
                         @else
 
                             <form method="POST" action="{{ route('customer.password.email') }}">
                                 @csrf
 
                                 <div class="row mb-3">
-                                    <label for="email" class="col-md-4 col-form-label text-md-end">{{ __('Email Address') }}</label>
+                                    <label for="email" class="col-md-3 col-form-label text-md-end">{{ __('Email Address') }}</label>
 
-                                    <div class="col-md-6">
+                                    <div class="col-md-8">
                                         <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" required autocomplete="email" autofocus>
 
                                         @error('email')

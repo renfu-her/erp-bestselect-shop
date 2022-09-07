@@ -657,7 +657,7 @@ class ReceivedOrder extends Model
 
                     if($request['cashing_date'] && $request['status_code'] == 'cashed'){
                         // DB::table('acc_received_cheque')->where('id', $request['received_method_id'])->update([
-                        //     'amt_net'=>0,
+                        //     'amt_net'=>$request['amt_net'],
                         // ]);
 
                         $note_receivable_order = NoteReceivableOrder::store_note_receivable_order($request['cashing_date']);
@@ -861,6 +861,7 @@ class ReceivedOrder extends Model
 
             ->selectRaw('
                 _account.status_code AS account_status_code,
+                _account.sn AS account_sn,
                 _account.amt_net AS account_amt_net,
                 _account.posting_date AS account_posting_date
             ')
@@ -1124,28 +1125,46 @@ class ReceivedOrder extends Model
     }
 
 
-    public static function update_account_received_method($request)
+    public static function update_account_received_method($request, $clear = false)
     {
-        if($request['status_code'] == 0){
-            foreach($request['account_received_id'] as $key => $value){
-                DB::table('acc_received_account')->where('id', $value)->update([
-                    'status_code'=>0,
+        if($clear){
+            DB::table('acc_received_account')->where('append_received_order_id', $request['append_received_order_id'])->update([
+                'status_code'=>0,
+                'append_received_order_id'=>null,
+                'sn'=>null,
+                'amt_net'=>0,
+                'posting_date'=>null,
+                'updated_at'=>date('Y-m-d H:i:s'),
+            ]);
+
+        } else {
+            if($request['status_code'] == 0){
+                foreach($request['account_received_id'] as $key => $value){
+                    $account = DB::table('acc_received_account')->where('id', $value)->first();
+
+                    if($account && $account->append_received_order_id){
+                        self::find($account->append_received_order_id)->delete();
+                    }
+
+                    DB::table('acc_received_account')->where('id', $value)->update([
+                        'status_code'=>0,
+                        'append_received_order_id'=>$request['append_received_order_id'],
+                        'sn'=>$request['sn'],
+                        'amt_net'=>$request['amt_net'][$key],
+                        'posting_date'=>null,
+                        'updated_at'=>date('Y-m-d H:i:s'),
+                    ]);
+                }
+
+            } else if($request['status_code'] == 1){
+                DB::table('acc_received_account')->whereIn('id', $request['account_received_id'])->update([
+                    'status_code'=>1,
                     'append_received_order_id'=>$request['append_received_order_id'],
                     'sn'=>$request['sn'],
-                    'amt_net'=>$request['amt_net'][$key],
-                    'posting_date'=>null,
+                    'posting_date'=>date('Y-m-d H:i:s'),
                     'updated_at'=>date('Y-m-d H:i:s'),
                 ]);
             }
-
-        } else if($request['status_code'] == 1){
-            DB::table('acc_received_account')->whereIn('id', $request['account_received_id'])->update([
-                'status_code'=>1,
-                'append_received_order_id'=>$request['append_received_order_id'],
-                'sn'=>$request['sn'],
-                'posting_date'=>date('Y-m-d H:i:s'),
-                'updated_at'=>date('Y-m-d H:i:s'),
-            ]);
         }
     }
 
@@ -1154,7 +1173,7 @@ class ReceivedOrder extends Model
     {
         $check_result = false;
         foreach($collection as $value){
-            if($value->credit_card_status_code == 2 || $value->cheque_status_code == 'cashed' || $value->account_status_code == 2){
+            if($value->credit_card_status_code == 2 || $value->cheque_status_code == 'cashed' || $value->account_sn != null){
                 $check_result = true;
                 break;
             }
@@ -1169,7 +1188,7 @@ class ReceivedOrder extends Model
         $link = 'javascript:void(0);';
 
         if($source_type == 'ord_orders'){
-            $link = route('cms.collection_received.receipt', ['id' => $source_id]);
+            $link = route('cms.order.ro-receipt', ['id' => $source_id]);
 
         } else if($source_type == 'csn_orders'){
             $link = route('cms.ar_csnorder.receipt', ['id' => $source_id]);
@@ -1179,6 +1198,32 @@ class ReceivedOrder extends Model
 
         } else if($source_type == 'acc_request_orders'){
             $link = route('cms.request.ro-receipt', ['id' => $source_id]);
+        }
+
+        return $link;
+    }
+
+
+    public static function received_order_source_link($source_type, $source_id, $back_domain = false)
+    {
+        $link = 'javascript:void(0);';
+
+        if($back_domain){
+            $link = '/';
+        }
+
+        if($source_type == 'ord_orders'){
+            $link = route('cms.order.detail', ['id' => $source_id]);
+
+        } else if($source_type == 'csn_orders'){
+            $link = route('cms.consignment-order.edit', ['id' => $source_id]);
+
+        } else if($source_type == 'ord_received_orders'){
+            $link = route('cms.account_received.index');
+
+        } else if($source_type == 'acc_request_orders'){
+            $link = route('cms.request.show', ['id' => $source_id]);
+
         }
 
         return $link;

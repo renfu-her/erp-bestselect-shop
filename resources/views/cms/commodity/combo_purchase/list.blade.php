@@ -6,13 +6,10 @@
         <div class="card shadow p-4 mb-4">
             <h6>搜尋條件</h6>
             <div class="row">
-                <div class="col-12 col-md-6 mb-3">
-                    <label class="form-label">SKU</label>
-                    <input class="form-control" type="text" placeholder="SKU" name="sku">
-                </div>
-                <div class="col-12 col-md-6 mb-3">
-                    <label class="form-label">名稱</label>
-                    <input class="form-control" type="text" name="keyword" placeholder="組合包名稱 或 組合款式名稱">
+                <div class="col-12 mb-3">
+                    <label class="form-label">名稱 或 SKU</label>
+                    <input class="form-control" type="text" name="keyword" 
+                        value="{{ $query['keyword'] ?? '' }}" placeholder="組合包名稱 或 SKU">
                 </div>
             </div>
 

@@ -3,10 +3,12 @@
     <h2 class="mb-4">應付票據</h2>
 
     <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
+        @can('cms.note_payable.edit')
         <div class="p-1 pe-2">
             <a href="{{ Route('cms.note_payable.ask', ['type'=>'cashed']) }}" class="btn btn-sm btn-primary cc_date" role="button">整批兌現</a>
             <a href="{{ Route('cms.note_payable.checkbook') }}" class="btn btn-sm btn-warning" role="button">列印支票本</a>
         </div>
+        @endcan
     </nav>
 
     <form id="search" method="GET">
@@ -145,7 +147,7 @@
             <table class="table table-striped tableList">
                 <thead>
                     <tr>
-                        <th scope="col">編號</th>
+                        <th scope="col">#</th>
                         <th scope="col">支票號碼</th>
                         <th scope="col">金額</th>
                         <th scope="col">狀態</th>

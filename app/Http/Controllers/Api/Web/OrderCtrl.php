@@ -388,9 +388,11 @@ class OrderCtrl extends Controller
         DB::beginTransaction();
 
         if (!Auth::guard('sanctum')->check()) {
+
             $customer = Customer::where('email', $payLoad['email'])->get()->first();
 
             if (!$customer) {
+
                 $udata = [
                     'name' => $payLoad['orderer']['name'],
                     'email' => $payLoad['email'],
@@ -398,10 +400,13 @@ class OrderCtrl extends Controller
                 ];
 
                 Customer::createCustomer($udata['name'], $udata['email'], $udata['password']);
+
+                $customer = Customer::where('email', $payLoad['email'])->get()->first();
             }
         } else {
             $customer = $request->user();
         }
+
 
         $address = [];
         $address[] = ['name' => $payLoad['orderer']['name'],
@@ -488,7 +493,7 @@ class OrderCtrl extends Controller
                 $n->items = json_decode($n->items);
                 foreach ($n->items as $key => $value) {
                     if ($value->img_url) {
-                        $n->items[$key]->img_url = asset($n->items[$key]->img_url);
+                        $n->items[$key]->img_url = getImageUrl($n->items[$key]->img_url);
                     } else {
                         $n->items[$key]->img_url = '';
                     }

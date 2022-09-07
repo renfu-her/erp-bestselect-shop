@@ -241,6 +241,23 @@ class StituteOrderCtrl extends Controller
     }
 
 
+    public static function destroy($id)
+    {
+        $stitute_order = StituteOrder::findOrFail($id);
+
+        if($stitute_order->pay_order_id){
+            wToast('刪除失敗', ['type'=>'danger']);
+            return redirect()->back();
+
+        } else {
+            $stitute_order->delete();
+            wToast('刪除完成');
+
+            return redirect()->route('cms.stitute.index');
+        }
+    }
+
+
     public function po_edit(Request $request, $id)
     {
         $request->merge([
@@ -419,6 +436,7 @@ class StituteOrderCtrl extends Controller
 
         $paying_order = PayingOrder::findOrFail($stitute_order->pay_order_id);
         $payable_data = PayingOrder::get_payable_detail($stitute_order->pay_order_id);
+        $data_status_check = PayingOrder::payable_data_status_check($payable_data);
 
         if (!$paying_order->balance_date) {
             // return abort(404);
@@ -447,6 +465,7 @@ class StituteOrderCtrl extends Controller
             'zh_price' => $zh_price,
             'paying_order' => $paying_order,
             'payable_data' => $payable_data,
+            'data_status_check' => $data_status_check,
             'undertaker'=>$undertaker,
             'accountant'=>implode(',', $accountant),
         ]);

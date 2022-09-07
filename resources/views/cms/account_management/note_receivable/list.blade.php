@@ -3,11 +3,13 @@
     <h2 class="mb-4">應收票據</h2>
 
     <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
+        @can('cms.note_receivable.edit')
         <div class="p-1 pe-2">
             <a href="{{ Route('cms.note_receivable.ask', ['type'=>'collection']) }}" class="btn btn-sm btn-primary" role="button">整批託收</a>
             <a href="{{ Route('cms.note_receivable.ask', ['type'=>'nd']) }}" class="btn btn-sm btn-primary" role="button">整批次交票</a>
             <a href="{{ Route('cms.note_receivable.ask', ['type'=>'cashed']) }}" class="btn btn-sm btn-primary cc_date" role="button">整批兌現</a>
         </div>
+        @endcan
     </nav>
 
     <form id="search" method="GET">
@@ -192,7 +194,7 @@
             <table class="table table-striped tableList">
                 <thead>
                     <tr>
-                        <th scope="col">編號</th>
+                        <th scope="col">#</th>
                         <th scope="col">支票號碼</th>
                         <th scope="col">金額</th>
                         <th scope="col">狀態</th>

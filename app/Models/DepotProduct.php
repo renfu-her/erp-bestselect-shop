@@ -143,7 +143,7 @@ class DepotProduct extends Model
                    ELSE "" END as total_in_stock_num'),
                 DB::raw('CASE select_list.type WHEN "p" THEN "一般商品" WHEN "c" THEN "組合包商品" END as type_title'),
             )
-//            ->whereNotNull('inbound.depot_id')
+            ->whereNotNull('select_list.sku')
             ->orderBy('select_list.product_id', 'ASC')
             ->orderBy('select_list.product_style_id', 'ASC');
 

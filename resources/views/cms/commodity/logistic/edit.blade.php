@@ -400,6 +400,7 @@
                                         <th scope="col" class="text-center" style="width: 10%">選取</th>
                                         <th scope="col">入庫單</th>
                                         <th scope="col">倉庫</th>
+                                        <th scope="col">效期</th>
                                         <th scope="col">庫存</th>
                                         <th scope="col" style="width: 10%">預計使用數量</th>
                                     </tr>
@@ -611,6 +612,8 @@
                         inboData.forEach((inbo, i) => {
                             createOneInbound(inbo, i);
                         });
+                        $('#addInbound .-appendClone.--inbound input[name="inbound_id[]"]:first').prop('checked', true);
+                        $('#addInbound .-appendClone.--inbound input[name="qty[]"]:first').prop({ 'disabled': false, 'required': true }).val(1);
 
                         // bind event
                         // -- 選取
@@ -643,6 +646,7 @@
                     </th>
                     <td>${ib.inbound_sn}</td>
                     <td>${ib.depot_name}</td>
+                    <td>${ib.expiry_date ? moment(ib.expiry_date).format('YYYY/MM/DD') : ''}</td>
                     <td>${ib.qty}</td>
                     <td><input type="number" name="qty[]" value="" min="1" max="${ib.qty}" class="form-control form-control-sm text-center" disabled></td>
                 </tr>`);

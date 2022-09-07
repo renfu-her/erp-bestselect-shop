@@ -81,7 +81,9 @@ class DayEndLog extends Model
 
     public static function delete_log($closing_date)
     {
-        $target = self::whereDate('closing_date', $closing_date)->delete();
+        $date = date('Y-m-d', strtotime($closing_date));
+
+        $target = self::whereDate('closing_date', $date)->delete();
     }
 
 
@@ -119,18 +121,20 @@ class DayEndLog extends Model
 
     public static function remit_log($current_date)
     {
+        $date = date('Y-m-d', strtotime($current_date));
+
         $remit_grade_list = self::where('grade_code', 'like', '1102%')->groupBy('grade_name')->orderBy('grade_id', 'asc')->distinct()->pluck('grade_name', 'grade_code')->toArray();
         $array = [];
         foreach($remit_grade_list as $g_key => $g_value){
             $_previous = self::where([
                 'grade_code'=>$g_key,
                 'grade_name'=>$g_value,
-            ])->whereDate('closing_date', '<', $current_date)->get();
+            ])->whereDate('closing_date', '<', $date)->get();
 
             $_current = self::where([
                 'grade_code'=>$g_key,
                 'grade_name'=>$g_value,
-            ])->whereDate('closing_date', '=', $current_date)->get();
+            ])->whereDate('closing_date', '=', $date)->get();
 
             $pre_price = $_previous ? $_previous->sum('net_price') : 0;
             $cur_price = $_current ? $_current->sum('net_price') : 0;
@@ -152,6 +156,8 @@ class DayEndLog extends Model
 
     public static function note_credit_log($current_date)
     {
+        $date = date('Y-m-d', strtotime($current_date));
+
         $note_credit_grade_list = DayEndLog::where('grade_code', 'like', '1104%')
             ->orWhere('grade_code', 'like', '2101%')
             ->orWhere('grade_code', 'like', '1109%')
@@ -169,12 +175,12 @@ class DayEndLog extends Model
             $_previous = DayEndLog::where([
                 'grade_code'=>$g_key,
                 'grade_name'=>$g_value,
-            ])->whereDate('closing_date', '<', $current_date)->get();
+            ])->whereDate('closing_date', '<', $date)->get();
 
             $_current = DayEndLog::where([
                 'grade_code'=>$g_key,
                 'grade_name'=>$g_value,
-            ])->whereDate('closing_date', '=', $current_date)->get();
+            ])->whereDate('closing_date', '=', $date)->get();
 
             $pre_price = $_previous ? $_previous->sum('net_price') : 0;
             $pre_count = $_previous ? $_previous->count() : 0;
@@ -189,9 +195,9 @@ class DayEndLog extends Model
 
             } else {
                 if(strpos($g_key, '1104') !== false && strpos($g_value, '應收票據') !== false){
-                    $pre_received_cashed_cheque = DB::table('acc_received_cheque')->whereNotNull('sn')->whereDate('cashing_date', '<', $current_date)->get();
-                    $cur_received_cashed_cheque = DB::table('acc_received_cheque')->whereNotNull('sn')->whereDate('cashing_date', '=', $current_date)->get();
-                    $nex_received_cashed_cheque = DB::table('acc_received_cheque')->whereNotNull('sn')->whereDate('cashing_date', '=', date('Y-m-d', strtotime($current_date . ' +1 day')) )->get();
+                    $pre_received_cashed_cheque = DB::table('acc_received_cheque')->whereNotNull('sn')->whereDate('cashing_date', '<', $date)->get();
+                    $cur_received_cashed_cheque = DB::table('acc_received_cheque')->whereNotNull('sn')->whereDate('cashing_date', '=', $date)->get();
+                    $nex_received_cashed_cheque = DB::table('acc_received_cheque')->whereNotNull('sn')->whereDate('cashing_date', '=', date('Y-m-d', strtotime($date . ' +1 day')) )->get();
 
                     $pre_price -= $pre_received_cashed_cheque->sum('amt_net');
                     $pre_count -= $pre_received_cashed_cheque->count();
@@ -201,9 +207,9 @@ class DayEndLog extends Model
                     $nex_cashed_count = $nex_received_cashed_cheque->count();
 
                 } else if(strpos($g_key, '2101') !== false && strpos($g_value, '應付票據') !== false){
-                    $pre_payable_cashed_cheque = DB::table('acc_payable_cheque')->whereNotNull('sn')->whereDate('cashing_date', '<', $current_date)->get();
-                    $cur_payable_cashed_cheque = DB::table('acc_payable_cheque')->whereNotNull('sn')->whereDate('cashing_date', '=', $current_date)->get();
-                    $nex_payable_cashed_cheque = DB::table('acc_payable_cheque')->whereNotNull('sn')->whereDate('cashing_date', '=', date('Y-m-d', strtotime($current_date . ' +1 day')) )->get();
+                    $pre_payable_cashed_cheque = DB::table('acc_payable_cheque')->whereNotNull('sn')->whereDate('cashing_date', '<', $date)->get();
+                    $cur_payable_cashed_cheque = DB::table('acc_payable_cheque')->whereNotNull('sn')->whereDate('cashing_date', '=', $date)->get();
+                    $nex_payable_cashed_cheque = DB::table('acc_payable_cheque')->whereNotNull('sn')->whereDate('cashing_date', '=', date('Y-m-d', strtotime($date . ' +1 day')) )->get();
 
                     $pre_price -= $pre_payable_cashed_cheque->sum('amt_net');
                     $pre_count -= $pre_payable_cashed_cheque->count();

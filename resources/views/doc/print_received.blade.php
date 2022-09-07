@@ -56,12 +56,12 @@
                 <table width="710" style="font-size:small;text-align:left;border:0;margin: 0 auto;">
                     <tbody>
                         <tr>
-                            <td width="50%">客戶：<span style="font-size:medium;">{{ $order_purchaser->name }}</span>　　台鑒</td>
-                            <td width="50%">地址：{{ $order_purchaser->address }}</td>
+                            <td width="50%">客戶：<span style="font-size:medium;">{{ $received_order->drawee_name }}</span>　　台鑒</td>
+                            <td width="50%">地址：{{ $received_order->drawee_address }}</td>
                         </tr>
                         <tr>
-                            <td>電話：{{ $order_purchaser->phone }}</td>
-                            <td>傳真：{{ $order_purchaser->fax  }}</td>
+                            <td>電話：{{ $received_order->drawee_phone }}</td>
+                            <td>傳真：</td>
                         </tr>
                     </tbody>
                 </table>
@@ -74,9 +74,9 @@
                         </tr>
                         <tr>
                             <td>訂單流水號：{{ $order->sn }}</td>
-                            @if($received_order->receipt_date)
-                                <td>入帳日期：{{ date('Y-m-d', strtotime($received_order->receipt_date)) }}</td>
-                            @endif
+                            <td>
+                                入帳日期：@if($received_order->receipt_date) {{ date('Y-m-d', strtotime($received_order->receipt_date)) }} @endif
+                            </td>
                         </tr>
                         <tr>
                             <td>收款對象：</td>

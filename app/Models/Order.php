@@ -6,7 +6,6 @@ use App\Enums\Customer\ProfitStatus;
 use App\Enums\Delivery\Event;
 use App\Enums\Discount\DividendCategory;
 use App\Enums\Discount\DividendFlag;
-use App\Enums\Globals\AppEnvClass;
 use App\Enums\Order\CarrierType;
 use App\Enums\Order\OrderStatus;
 use App\Enums\Order\PaymentStatus;
@@ -32,7 +31,10 @@ class Order extends Model
         $order_status = null,
         $sale_channel_id = null,
         $order_date = null,
-        $shipment_status = null) {
+        $shipment_status = null,
+        $profit_user = null,
+        $email = null
+    ) {
         $order = DB::table('ord_orders as order')
             ->select(['order.id as id',
                 'order.status as order_status',
@@ -84,6 +86,10 @@ class Order extends Model
             });
         }
 
+        if ($email) {
+            $order->where('order.email', $email);
+        }
+
         if ($sale_channel_id) {
             if (gettype($sale_channel_id) == 'array') {
                 $order->whereIn('order.sale_channel_id', $sale_channel_id);
@@ -108,10 +114,14 @@ class Order extends Model
             }
         }
 
-        if($shipment_status && is_array($shipment_status)){
+        if ($shipment_status && is_array($shipment_status)) {
             $order->whereIn('so.logistic_status_code', $shipment_status);
         }
 
+        if ($profit_user) {
+            $order->leftJoin('ord_order_profit as ord_profit', 'ord_profit.order_id', '=', 'order.id')
+                ->where('ord_profit.customer_id', $profit_user);
+        }
 
         $order->orderByDesc('order.id');
 
@@ -363,6 +373,7 @@ class Order extends Model
      */
     public static function createOrder($email, $sale_channel_id, $address, $items, $mcode = null, $note = null, $coupon_obj = null, $payinfo = null, ReceivedMethod $payment = null, $dividend = [], $operator_user)
     {
+
         return DB::transaction(function () use ($email, $sale_channel_id, $address, $items, $mcode, $note, $coupon_obj, $payinfo, $payment, $dividend, $operator_user) {
 
             $customer = Customer::where('email', $email)->get()->first();
@@ -681,7 +692,7 @@ class Order extends Model
             $target->update([
                 'payment_status' => $p_status->value,
                 'payment_status_title' => $p_status->description,
-                'updated_at'=>date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
             ]);
         }
 
@@ -689,7 +700,7 @@ class Order extends Model
             $target->update([
                 'payment_method' => $r_method->value,
                 'payment_method_title' => $r_method->description,
-                'updated_at'=>date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
             ]);
         }
     }
@@ -1109,7 +1120,8 @@ class Order extends Model
     }
 
     //訂單成立 發信給消費者
-    public static function sendMail_OrderEstablished($order_id) {
+    public static function sendMail_OrderEstablished($order_id)
+    {
         $mail_set = DB::table('shared_preference as sp')
             ->where('sp.category', '=', \App\Enums\Globals\SharedPreference\Category::mail()->value)
             ->where('sp.event', '=', \App\Enums\Globals\SharedPreference\Event::mail_order()->value)
@@ -1122,17 +1134,26 @@ class Order extends Model
 
             self::getSendMailAddressInfo($order_id, $orderer, $receiver);
 
+            //連結網址
+            $link_url_type = 'orderDetail';
+            if (ReceivedMethod::Remittance()->value == $order->payment_method) {
+                $link_url_type = 'payRemit';
+            }
+            $link_url = env('FRONTEND_URL') . ''. $link_url_type. '/'. $order_id. '?em='. $order->email;
+
             $email = $order->email;
             $data = [
                 'order_name' => $orderer->name ?? ''
                 , 'sn' => $order->sn ?? ''
+                , 'link_url' => $link_url
             ];
             Mail::to($email)->queue(new OrderEstablished($data));
         }
     }
 
     //訂單已付款 發信給消費者
-    public static function sendMail_OrderPaid($order_id) {
+    public static function sendMail_OrderPaid($order_id)
+    {
         $mail_set = DB::table('shared_preference as sp')
             ->where('sp.category', '=', \App\Enums\Globals\SharedPreference\Category::mail()->value)
             ->where('sp.event', '=', \App\Enums\Globals\SharedPreference\Event::mail_order()->value)
@@ -1148,14 +1169,15 @@ class Order extends Model
             $email = $order->email;
             $data = [
                 'order_name' => $orderer->name ?? ''
-                , 'sn' => $order->sn ?? ''
+                , 'sn' => $order->sn ?? '',
             ];
             Mail::to($email)->queue(new OrderPaid($data));
         }
     }
 
     //訂單已出貨 發信給消費者
-    public static function sendMail_OrderShipped($sub_order_id) {
+    public static function sendMail_OrderShipped($sub_order_id)
+    {
         $mail_set = DB::table('shared_preference as sp')
             ->where('sp.category', '=', \App\Enums\Globals\SharedPreference\Category::mail()->value)
             ->where('sp.event', '=', \App\Enums\Globals\SharedPreference\Event::mail_order()->value)
@@ -1170,7 +1192,7 @@ class Order extends Model
 
             self::getSendMailAddressInfo($order_id, $orderer, $receiver);
 
-            $order_items = DB::table(app(OrderItem::class)->getTable(). ' as item')
+            $order_items = DB::table(app(OrderItem::class)->getTable() . ' as item')
                 ->where('order_id', '=', $order_id)
                 ->where('sub_order_id', '=', $sub_order_id)
                 ->get();
@@ -1182,7 +1204,7 @@ class Order extends Model
                 , 'receive_name' => $receiver->name ?? ''
                 , 'receive_address' => $receiver->address ?? ''
                 , 'receive_phone' => $receiver->phone ?? ''
-                , 'order_items' => $order_items ?? null
+                , 'order_items' => $order_items ?? null,
             ];
             Mail::to($email)->queue(new OrderShipped($data));
         }
