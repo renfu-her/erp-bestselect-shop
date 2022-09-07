@@ -32,17 +32,17 @@ class NewAccountingSeeder extends Seeder
         $firstGradeId_3 = FirstGrade::create([
             'code' => '3',
             'has_next_grade' => 1,
-            'name' => '股東權益',
+            'name' => '權益',
             ])->id;
         $firstGradeId_4 = FirstGrade::create([
             'code' => '4',
             'has_next_grade' => 1,
-            'name' => '股東收益',
+            'name' => '收益',
             ])->id;
         $firstGradeId_5 = FirstGrade::create([
             'code' => '5',
             'has_next_grade' => 1,
-            'name' => '股東費用',
+            'name' => '費用',
             ])->id;
 
         $secondGradeId_11 = DB::table('acc_second_grade')->insertGetId([
@@ -745,6 +745,16 @@ class NewAccountingSeeder extends Seeder
             'third_grade_fk' => $thirdGradeId_1102,
         ]);
 
+        DB::table('acc_fourth_grade')->insert([
+            'code' => '11030001',
+            'name' => '外幣-日幣',
+            'third_grade_fk' => $thirdGradeId_1103,
+        ]);
+        DB::table('acc_fourth_grade')->insert([
+            'code' => '11030002',
+            'name' => '外幣-美金',
+            'third_grade_fk' => $thirdGradeId_1103,
+        ]);
 //        $currencyArray = include 'currency.php';
 //        foreach ($currencyArray as $key => $currency) {
 //            DB::table('acc_fourth_grade')->insert([
