@@ -2,17 +2,20 @@
 
 @section('sub-content')
     <h2 class="mb-4">信用卡刷卡記錄</h2>
-    <a href="{{ route('cms.credit_manager.index') }}" class="btn btn-primary" role="button">
-        <i class="bi bi-arrow-left"></i> 返回上一頁
-    </a>
-    @if($record->credit_card_status_code != 0)
-        <form method="POST" action="{{ $form_action }}" style="display: inline-block;">
-            @csrf
-            <button type="submit" class="btn btn-danger">取消{{ $record->credit_card_status_code == 1 ? '請款' : '入款' }}</button>
-        </form>
-    @else
-        <a href="{{ route('cms.credit_manager.record-edit', ['id'=>$record->credit_card_received_id]) }}" class="btn btn-primary" role="button">修改</a>
-    @endif
+
+    <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
+        <div class="p-1 pe-2">
+        @if($record->credit_card_status_code != 0)
+            <form method="POST" action="{{ $form_action }}" style="display: inline-block;">
+                @csrf
+                <button type="submit" class="btn btn-danger btn-sm my-1 ms-1">取消{{ $record->credit_card_status_code == 1 ? '請款' : '入款' }}</button>
+            </form>
+        @else
+
+            <a href="{{ route('cms.credit_manager.record-edit', ['id'=>$record->credit_card_received_id]) }}" class="btn btn-primary btn-sm my-1 ms-1" role="button">編輯</a>
+        @endif
+        </div>
+    </nav>
 
     <div class="card mb-4">
         <div class="card-body">
@@ -90,6 +93,12 @@
                 </table>
             </div>
         </div>
+    </div>
+
+    <div class="col-auto">
+        <a href="{{ url()->previous() }}" class="btn btn-outline-primary px-4" role="button">
+            返回 信用卡作業管理
+        </a>
     </div>
 @endsection
 

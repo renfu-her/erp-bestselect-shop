@@ -2,17 +2,18 @@
 
 @section('sub-content')
     <h2 class="mb-4">應收票據明細</h2>
-    <a href="{{ route('cms.note_receivable.index') }}" class="btn btn-primary" role="button">
-        <i class="bi bi-arrow-left"></i> 返回上一頁
-    </a>
 
-    @can('cms.note_receivable.edit')
-    @if($cheque->cheque_status_code == 'cashed')
-    <a href="javascript:void(0)" role="button" class="btn btn-outline-danger btn-sm my-1 ms-1"
-    data-bs-toggle="modal" data-bs-target="#confirm-reverse"
-    data-href="{{ Route('cms.note_receivable.reverse', ['id' => $cheque->cheque_received_id]) }}">取消兌現</a>
-    @endif
-    @endcan
+    <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
+        <div class="p-1 pe-2">
+            @can('cms.note_receivable.edit')
+            @if($cheque->cheque_status_code == 'cashed')
+            <a href="javascript:void(0)" role="button" class="btn btn-outline-danger btn-sm my-1 ms-1"
+            data-bs-toggle="modal" data-bs-target="#confirm-reverse"
+            data-href="{{ Route('cms.note_receivable.reverse', ['id' => $cheque->cheque_received_id]) }}">取消兌現</a>
+            @endif
+            @endcan
+        </div>
+    </nav>
 
     <div class="card mb-4">
         <div class="card-body">
@@ -93,6 +94,12 @@
                 </table>
             </div>
         </div>
+    </div>
+
+    <div class="col-auto">
+        <a href="{{ url()->previous() }}" class="btn btn-outline-primary px-4" role="button">
+            返回 應收票據
+        </a>
     </div>
 
     <!-- Modal -->
