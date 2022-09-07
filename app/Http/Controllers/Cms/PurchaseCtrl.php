@@ -651,7 +651,7 @@ class PurchaseCtrl extends Controller
 
         $payingOrderData = PayingOrder::getPayingOrdersWithPurchaseID($id, $validatedReq['type'])->get()->first();
         $payingOrderQuery = PayingOrder::find($payingOrderData->id);
-        $productGradeName = AllGrade::find($payingOrderQuery->product_grade_id)->eachGrade->name;
+        $productGradeName = AllGrade::find($payingOrderQuery->product_grade_id)->eachGrade->code . ' ' . AllGrade::find($payingOrderQuery->product_grade_id)->eachGrade->name;
         $logisticsGradeName = AllGrade::find($payingOrderQuery->logistics_grade_id)->eachGrade->code . ' ' . AllGrade::find($payingOrderQuery->logistics_grade_id)->eachGrade->name;
 
         $purchaseItemData = PurchaseItem::getPurchaseItemsByPurchaseId($id);

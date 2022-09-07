@@ -121,7 +121,7 @@
                             @endforeach
                             @if($logisticsPrice > 0)
                                 <tr>
-                                    <td>{{ $logisticsGradeName . '- 物流費用' }}</td>
+                                    <td>{{ $logisticsGradeName . ' - 物流費用' }}</td>
                                     <td class="text-end"></td>
                                     <td class="text-end"></td>
                                     <td class="text-end">{{ number_format($logisticsPrice) }}</td>
