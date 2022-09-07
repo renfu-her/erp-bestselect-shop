@@ -79,18 +79,6 @@
                     <dd>入帳日期：{{ $received_order->receipt_date ? date('Y-m-d', strtotime($received_order->receipt_date)) : '' }}</dd>
                 </div>
             </dl>
-            <dl class="row mb-0">
-                <div class="col">
-                    <dd>收款對象：
-                        {{--
-                            <a href="{{ $supplierUrl }}" target="_blank">{{ $supplier->name }}</a>
-                        --}}
-                    </dd>
-                </div>
-                <div class="col">
-                    <dd>承辦人：{{ $undertaker ? $undertaker->name : '' }}</dd>
-                </div>
-            </dl>
         </div>
         
         <div class="mb-2">
@@ -188,7 +176,7 @@
                     <dd>商品主管：</dd>
                 </div>
                 <div class="col">
-                    <dd>商品負責人：{{-- $product_qc --}}</dd>
+                    <dd>承辦人：{{ $undertaker ? $undertaker->name : '' }}</dd>
                 </div>
             </dl>
         </div>
