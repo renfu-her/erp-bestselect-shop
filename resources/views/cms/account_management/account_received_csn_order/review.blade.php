@@ -203,7 +203,7 @@
                                                 <select class="form-select -select2 -single" name="cheque[{{ $received_id }}][status_code]" data-placeholder="請選擇票據狀態" required>
                                                     <option value="">請選擇</option>
                                                     @foreach($cheque_status as $key => $value)
-                                                        <option value="{{ $key }}"{{ $key == $d_value->received_info->cheque_status_code ? 'selected' : ''}}>{{ $value }}</option>
+                                                        <option value="{{ $key }}"{{ $d_value->received_info->cheque_status_code ? ($key == $d_value->received_info->cheque_status_code ? 'selected' : '') : ($key == 'received' ? 'selected' : '') }}>{{ $value }}</option>
                                                     @endforeach
                                                 </select>
                                             </div>
