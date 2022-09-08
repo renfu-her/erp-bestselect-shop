@@ -1,10 +1,8 @@
 @extends('layouts.main')
 @section('sub-content')
     <h2 class="mb-4">信用卡入款明細</h2>
-    <a href="{{ route('cms.credit_manager.index') }}" class="btn btn-primary" role="button">
-        <i class="bi bi-arrow-left"></i> 返回上一頁
-    </a>
-    <div class="card shadow p-4 mb-4">
+
+    <div id="DivIdToPrint" class="card shadow p-4 mb-4">
         <div class="row mb-3 border rounded mx-0 px-0 pt-2">
             <div class="card-body px-4 d-flex align-items-center bg-white flex-wrap justify-content-end">
                 <strong class="flex-grow-1 mb-0">喜鴻國際企業股份有限公司</strong>
@@ -71,6 +69,13 @@
             </table>
         </div>
     </div>
+
+    <div class="col-auto">
+        <button type="button" id="print" class="btn btn-warning px-4">列印畫面</button>
+        <a href="{{ url()->previous() }}" class="btn btn-outline-primary px-4" role="button">
+            返回上一頁
+        </a>
+    </div>
 @endsection
 
 @once
@@ -82,7 +87,11 @@
 
     @push('sub-scripts')
         <script>
-
+            const cssLink1 = @json(Asset('dist/css/app.css'));
+            const cssLink2 = @json(Asset('dist/css/sub-content.css')) + '?1.0';
+            $('#print').on('click',  function () {
+                printDiv('#DivIdToPrint', [cssLink1, cssLink2]);
+            });
         </script>
     @endpush
 @endonce

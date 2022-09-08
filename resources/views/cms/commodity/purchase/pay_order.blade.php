@@ -1,12 +1,12 @@
 @extends('layouts.main')
 @section('sub-content')
     {{--    @if ($method === 'edit')--}}
-    <h2 class="mb-3">{{ $type === 'deposit' ? '訂金' : '尾款'}}付款單
+    <h2 class="mb-4">{{ $type === 'deposit' ? '訂金' : '尾款'}}付款單
         {{--            {{ $purchaseData->purchase_sn }}--}}
     </h2>
-    
+    {{--
     <x-b-pch-navi :id="$id"></x-b-pch-navi>
-   
+    --}}
     {{--    @else--}}
     {{--        <h2 class="mb-3">新增採購單</h2>--}}
     {{--    @endif--}}
@@ -121,7 +121,7 @@
                             @endforeach
                             @if($logisticsPrice > 0)
                                 <tr>
-                                    <td>{{ $logisticsGradeName . '- 物流費用' }}</td>
+                                    <td>{{ $logisticsGradeName . ' - 物流費用' }}</td>
                                     <td class="text-end"></td>
                                     <td class="text-end"></td>
                                     <td class="text-end">{{ number_format($logisticsPrice) }}</td>
