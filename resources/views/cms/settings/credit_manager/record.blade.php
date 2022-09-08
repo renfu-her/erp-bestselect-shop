@@ -8,11 +8,11 @@
         @if($record->credit_card_status_code != 0)
             <form method="POST" action="{{ $form_action }}" style="display: inline-block;">
                 @csrf
-                <button type="submit" class="btn btn-danger btn-sm my-1 ms-1">取消{{ $record->credit_card_status_code == 1 ? '請款' : '入款' }}</button>
+                <button type="submit" class="btn btn-danger btn-sm">取消{{ $record->credit_card_status_code == 1 ? '請款' : '入款' }}</button>
             </form>
         @else
 
-            <a href="{{ route('cms.credit_manager.record-edit', ['id'=>$record->credit_card_received_id]) }}" class="btn btn-primary btn-sm my-1 ms-1" role="button">編輯</a>
+            <a href="{{ route('cms.credit_manager.record-edit', ['id'=>$record->credit_card_received_id]) }}" class="btn btn-primary btn-sm px-3" role="button">編輯</a>
         @endif
         </div>
     </nav>
@@ -96,8 +96,8 @@
     </div>
 
     <div class="col-auto">
-        <a href="{{ url()->previous() }}" class="btn btn-outline-primary px-4" role="button">
-            返回 信用卡作業管理
+        <a href="{{ route('cms.credit_manager.index') }}" class="btn btn-outline-primary px-4" role="button">
+            返回上一頁
         </a>
     </div>
 @endsection
