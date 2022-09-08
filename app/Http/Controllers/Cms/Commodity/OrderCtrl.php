@@ -9,7 +9,7 @@ use App\Enums\Delivery\LogisticStatus;
 use App\Enums\Discount\DividendCategory;
 use App\Enums\Order\OrderStatus;
 use App\Enums\Order\UserAddrType;
-use App\Enums\Payable\ChequeStatus;
+use App\Enums\Received\ChequeStatus;
 use App\Enums\Received\ReceivedMethod;
 use App\Enums\Supplier\Payment;
 use App\Http\Controllers\Controller;
