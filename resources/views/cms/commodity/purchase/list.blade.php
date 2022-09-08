@@ -91,23 +91,6 @@
                         <option value="-1" @if (-1 == $expire_day ?? '') selected @endif>已過期</option>
                     </select>
                 </div>
-                <fieldset class="col-12 col-sm-6 mb-3">
-                    <legend class="col-form-label p-0 mb-2">顯示類型</legend>
-                    <div class="px-1 pt-1">
-                        <div class="form-check form-check-inline">
-                            <label class="form-check-label">
-                                <input class="form-check-input" name="type" type="radio" value="0" @if (0 == $type ?? '' || '' == $type ?? '') checked @endif>
-                                明細
-                            </label>
-                        </div>
-                        <div class="form-check form-check-inline">
-                            <label class="form-check-label">
-                                <input class="form-check-input" name="type" type="radio" value="1" @if (1 == $type ?? '') checked @endif>
-                                總表
-                            </label>
-                        </div>
-                    </div>
-                </fieldset>
                 <div class="col-12 mb-3">
                     <label class="form-label">採購起訖日期</label>
                     <div class="input-group has-validation">
@@ -152,7 +135,24 @@
                         </div>
                     </div>
                 </div>
-                <fieldset class="col-12 mb-3">
+                <fieldset class="col-12 col-sm-6 mb-3">
+                    <legend class="col-form-label p-0 mb-2">顯示類型</legend>
+                    <div class="px-1 pt-1">
+                        <div class="form-check form-check-inline">
+                            <label class="form-check-label">
+                                <input class="form-check-input" name="type" type="radio" value="0" @if (0 == $type ?? '' || '' == $type ?? '') checked @endif>
+                                明細
+                            </label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <label class="form-check-label">
+                                <input class="form-check-input" name="type" type="radio" value="1" @if (1 == $type ?? '') checked @endif>
+                                總表
+                            </label>
+                        </div>
+                    </div>
+                </fieldset>
+                <fieldset class="col-12 col-sm-6 mb-3">
                     <legend class="col-form-label p-0 mb-2">審核狀態</legend>
                     <div class="px-1 pt-1">
                         @foreach (App\Enums\Consignment\AuditStatus::asArray() as $key => $val)
@@ -250,7 +250,7 @@
                             </tr>
                             <tr>
                                 <td></td>
-                                <td colspan="9" class="pt-0 ps-0">
+                                <td colspan="9" class="pt-0 ps-0 wrap">
                                     <table class="table table-bordered table-sm mb-0">
                                         <thead class="small table-light">
                                             <tr class="border-top-0" style="border-bottom-color:var(--bs-secondary);">
@@ -274,7 +274,7 @@
                                                 <td>{{ $data->error_num }}</td>
                                                 <td>{{ $data->purchase_user_name }}</td>
                                                 <td>{{ $data->inbound_user_names ?? '' }}</td>
-                                                <td>{{ $data->supplier_name }}</td>
+                                                <td class="text-break">{{ $data->supplier_name }}</td>
                                                 <td>{{ $data->invoice_num }}</td>
                                             </tr>
                                         </tbody>

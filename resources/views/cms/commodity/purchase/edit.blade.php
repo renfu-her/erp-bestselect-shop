@@ -326,7 +326,7 @@
                             <div class="input-group has-validation">
                                 <input type="date" id="invoice_date" name="invoice_date"
                                        value="{{ old('invoice_date', $purchaseData->invoice_date  ?? '') }}"
-                                       class="form-control @error('scheduled_date') is-invalid @enderror" aria-label="發票日期"/>
+                                       class="form-control @error('invoice_date') is-invalid @enderror" aria-label="發票日期"/>
                                 <button class="btn btn-outline-secondary icon" type="button" data-clear
                                         data-bs-toggle="tooltip" title="清空日期"><i class="bi bi-calendar-x"></i>
                                 </button>
