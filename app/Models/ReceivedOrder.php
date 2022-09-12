@@ -1161,7 +1161,7 @@ class ReceivedOrder extends Model
                     'status_code'=>1,
                     'append_received_order_id'=>$request['append_received_order_id'],
                     'sn'=>$request['sn'],
-                    'posting_date'=>date('Y-m-d H:i:s'),
+                    'posting_date'=>date('Y-m-d'),
                     'updated_at'=>date('Y-m-d H:i:s'),
                 ]);
             }

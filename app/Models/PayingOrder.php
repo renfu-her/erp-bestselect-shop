@@ -947,7 +947,7 @@ class PayingOrder extends Model
                     'status_code'=>1,
                     'append_pay_order_id'=>$request['append_pay_order_id'],
                     'sn'=>$request['sn'],
-                    'payment_date'=>date('Y-m-d H:i:s'),
+                    'payment_date'=>date('Y-m-d'),
                     'updated_at'=>date('Y-m-d H:i:s'),
                 ]);
             }

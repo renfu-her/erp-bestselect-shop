@@ -183,7 +183,7 @@ class RequestOrder extends Model
         } else {
             self::where('id', $request['id'])->update([
                 'accountant_id'=>auth('user')->user()->id,
-                'posting_date'=>date('Y-m-d H:i:s'),
+                'posting_date'=>date('Y-m-d'),
                 'received_order_id'=>$request['received_order_id'],
                 'updated_at'=>date('Y-m-d H:i:s'),
             ]);
