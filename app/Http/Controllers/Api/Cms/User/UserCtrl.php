@@ -205,10 +205,16 @@ class UserCtrl extends Controller
 
                     return response()->json(['status' => '0']);
                 } else {
-                    return response()->json([
-                        'status' => 'E04',
-                        'message' => '查無此帳號',
-                    ]);
+                    User::createUser($d['NAME'],
+                        $d['NUMBER'],
+                        null,
+                        $d['PASSWORD'],
+                        [],
+                        [],
+                        'C000061',
+                        $d['TITLE'], $d['COMPANY'], $d['DEPARTMENT'], $d['GROUP']);
+
+                    return response()->json(['status' => '0']);
                 }
                 break;
             case 'DELETE':
