@@ -872,23 +872,28 @@ class Order extends Model
             ->where('flag', DividendFlag::NonActive())->delete();
 
         // 紅利返還
-        $dividend = CustomerDividend::where('category_sn', $order->sn)
-            ->where('flag', DividendFlag::Discount())
-            ->where('type', 'used')->get()->first();
+        $dividend = DB::table('ord_dividend as d')
+            ->leftJoin('usr_cusotmer_dividend as cd', 'd.customer_dividend_id', '=', 'cd.id')
+            ->select(['cd.*','d.dividend as new_dividend'])
+            ->where('d.order_sn', $order->sn)->get();
 
-        if ($dividend) {
-
+        foreach($dividend as $value){
             CustomerDividend::create([
-                'category' => DividendCategory::Order(),
-                'category_sn' => $order->sn,
+                'category' => $value->category,
+                'category_sn' => $value->category_sn,
                 'customer_id' => $customer->id,
                 'type' => 'get',
                 'flag' => DividendFlag::Back(),
                 'flag_title' => DividendFlag::Back()->description,
-                'dividend' => abs($dividend->dividend),
+                'dividend' => $value->new_dividend,
+                'weight'=> $value->weight,
+                'deadline'=>$value->deadline,
+                'active_sdate'=>$value->active_sdate,
+                'active_edate'=>$value->active_edate,
             ]);
+            
         }
-
+        DB::table('ord_dividend')->where('order_sn',$order->sn)->delete();
         // 刪除分潤
         OrderProfit::where('order_id', $order_id)->delete();
 
@@ -1139,13 +1144,13 @@ class Order extends Model
             if (ReceivedMethod::Remittance()->value == $order->payment_method) {
                 $link_url_type = 'payRemit';
             }
-            $link_url = env('FRONTEND_URL') . ''. $link_url_type. '/'. $order_id. '?em='. $order->email;
+            $link_url = env('FRONTEND_URL') . '' . $link_url_type . '/' . $order_id . '?em=' . $order->email;
 
             $email = $order->email;
             $data = [
                 'order_name' => $orderer->name ?? ''
                 , 'sn' => $order->sn ?? ''
-                , 'link_url' => $link_url
+                , 'link_url' => $link_url,
             ];
             Mail::to($email)->queue(new OrderEstablished($data));
         }
