@@ -4,9 +4,11 @@
 
     <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
         <div class="p-1 pe-2">
+            @can('cms.credit_manager.index')
             <a href="{{ Route('cms.credit_manager.ask') }}" class="btn btn-sm btn-primary" role="button">整批請款</a>
             <a href="{{ Route('cms.credit_manager.claim') }}" class="btn btn-sm btn-primary" role="button">整批入款</a>
             <a href="{{ Route('cms.credit_percent.index') }}" class="btn btn-sm btn-success" role="button">請款比例列表</a>
+            @endcan
             <a href="{{ Route('cms.credit_bank.index') }}" class="btn btn-sm btn-success" role="button">銀行列表</a>
             <a href="{{ Route('cms.credit_card.index') }}" class="btn btn-sm btn-success" role="button">信用卡列表</a>
         </div>
@@ -178,7 +180,7 @@
             <table class="table table-striped tableList">
                 <thead>
                     <tr>
-                        <th scope="col">編號</th>
+                        <th scope="col">#</th>
                         <th scope="col">持卡人</th>
                         <th scope="col">卡號</th>
                         <th scope="col">刷卡金額</th>

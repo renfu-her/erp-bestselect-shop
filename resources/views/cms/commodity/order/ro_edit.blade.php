@@ -8,10 +8,11 @@
         $REMIT = \App\Enums\Received\ReceivedMethod::Remittance;
     @endphp
 
+    <h2 class="mb-4">收款管理</h2>
+
     <form method="POST" action="{{ $formAction }}">
         @csrf
         <input type="hidden" name="id" value="{{ $ord_orders_id }}">
-        <h2 class="mb-4">收款管理</h2>
 
         <div class="card shadow p-4 mb-4">
             <h6>收款單明細</h6>
@@ -20,7 +21,7 @@
 
             <div class="table-responsive tableOverBox border-bottom border-dark">
                 <table class="table table-sm table-hover tableList mb-0">
-                    <thead class="table-secondary align-middle">
+                    <thead class="table-secondary align-middle small">
                         <tr>
                             <th scope="col">請款單號</th>
                             <th scope="col">說明</th>
@@ -33,7 +34,7 @@
                         </tr>
                     </thead>
 
-                    <tbody class="product_list">
+                    <tbody>
                         @foreach($order_list_data as $value)
                         <tr>
                             <td>{{ $received_order_data->first()->sn }}</td>

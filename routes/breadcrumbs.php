@@ -332,29 +332,30 @@ Breadcrumbs::for('cms.order.return-pay-create', function (BreadcrumbTrail $trail
     $trail->push('退貨付款單', route('cms.order.return-pay-order', ['id' => $value['id'], 'sid' => $value['sid']]));
     $trail->push('新增付款');
 });
+
 // 新增收款單
 Breadcrumbs::for('cms.ar_csnorder.create', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.consignment-order.index');
-    $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.consignment-order.edit', ['id' => $value['id']]));
+    $trail->push('#' . $value['sn'] . ' 寄倉訂購單', route('cms.consignment-order.edit', ['id' => $value['id']]));
     $trail->push('新增收款單');
 });
 //顯示訂單收款單
 Breadcrumbs::for('cms.ar_csnorder.receipt', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.consignment-order.index');
-    $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.consignment-order.edit', ['id' => $value['id']]));
+    $trail->push('#' . $value['sn'] . ' 寄倉訂購單', route('cms.consignment-order.edit', ['id' => $value['id']]));
     $trail->push('收款單');
 });
 //編輯收款單入帳日期
 Breadcrumbs::for('cms.ar_csnorder.review', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.consignment-order.index');
-    $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.consignment-order.edit', ['id' => $value['id']]));
+    $trail->push('#' . $value['sn'] . ' 寄倉訂購單', route('cms.consignment-order.edit', ['id' => $value['id']]));
     $trail->push('收款單', route('cms.ar_csnorder.receipt', ['id' => $value['id']]));
     $trail->push('入款審核');
 });
 //編輯收款單稅別/摘要/備註
 Breadcrumbs::for('cms.ar_csnorder.taxation', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.consignment-order.index');
-    $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.consignment-order.edit', ['id'=>$value['id']]));
+    $trail->push('#' . $value['sn'] . ' 寄倉訂購單', route('cms.consignment-order.edit', ['id'=>$value['id']]));
     $trail->push('收款單', route('cms.ar_csnorder.receipt', ['id'=>$value['id']]));
     $trail->push('修改摘要/稅別');
 });
@@ -410,7 +411,7 @@ Breadcrumbs::for('cms.consignment-order.create', function (BreadcrumbTrail $trai
 // 編輯 - 寄倉訂購單資訊
 Breadcrumbs::for('cms.consignment-order.edit', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.consignment-order.index');
-    $trail->push('#' . $value['sn'] . ' 寄倉訂購單資訊', route('cms.consignment-order.edit', ['id' => $value['id']]));
+    $trail->push('#' . $value['sn'] . ' 寄倉訂購單', route('cms.consignment-order.edit', ['id' => $value['id']]));
 });
 
 //寄倉庫存
@@ -1093,41 +1094,17 @@ Breadcrumbs::for('cms.general_ledger.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
     $trail->push('會計科目', route('cms.general_ledger.index'));
 });
-Breadcrumbs::for('cms.general_ledger.show-1st', function (BreadcrumbTrail $trail) {
-    $trail->parent('cms.dashboard');
-    $trail->push('會計科目', route('cms.general_ledger.index'));
+Breadcrumbs::for('cms.general_ledger.create', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.general_ledger.index');
+    $trail->push('新增', route('cms.general_ledger.create', ['type' => $value['type']]));
 });
-Breadcrumbs::for('cms.general_ledger.show-2nd', function (BreadcrumbTrail $trail) {
-    $trail->parent('cms.dashboard');
-    $trail->push('會計科目', route('cms.general_ledger.index'));
+Breadcrumbs::for('cms.general_ledger.edit', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.general_ledger.index');
+    $trail->push('編輯', route('cms.general_ledger.edit', ['id' => $value['id'], 'type' => $value['type']]));
 });
-Breadcrumbs::for('cms.general_ledger.show-3rd', function (BreadcrumbTrail $trail) {
-    $trail->parent('cms.dashboard');
-    $trail->push('會計科目', route('cms.general_ledger.index'));
-});
-Breadcrumbs::for('cms.general_ledger.show-4th', function (BreadcrumbTrail $trail) {
-    $trail->parent('cms.dashboard');
-    $trail->push('會計科目', route('cms.general_ledger.index'));
-});
-Breadcrumbs::for('cms.general_ledger.edit-1st', function (BreadcrumbTrail $trail) {
-    $trail->parent('cms.dashboard');
-    $trail->push('會計科目', route('cms.general_ledger.index'));
-});
-Breadcrumbs::for('cms.general_ledger.edit-2nd', function (BreadcrumbTrail $trail) {
-    $trail->parent('cms.dashboard');
-    $trail->push('會計科目', route('cms.general_ledger.index'));
-});
-Breadcrumbs::for('cms.general_ledger.edit-3rd', function (BreadcrumbTrail $trail) {
-    $trail->parent('cms.dashboard');
-    $trail->push('會計科目', route('cms.general_ledger.index'));
-});
-Breadcrumbs::for('cms.general_ledger.edit-4th', function (BreadcrumbTrail $trail) {
-    $trail->parent('cms.dashboard');
-    $trail->push('會計科目', route('cms.general_ledger.index'));
-});
-Breadcrumbs::for('cms.general_ledger.create', function (BreadcrumbTrail $trail) {
-    $trail->parent('cms.dashboard');
-    $trail->push('會計科目', route('cms.general_ledger.index'));
+Breadcrumbs::for('cms.general_ledger.show', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.general_ledger.index');
+    $trail->push($value['grade_name'], route('cms.general_ledger.show', ['id' => $value['id'], 'type' => $value['type']]));
 });
 
 // 角色管理

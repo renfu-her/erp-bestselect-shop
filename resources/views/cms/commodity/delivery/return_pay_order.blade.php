@@ -4,8 +4,10 @@
 
     <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
         <div class="p-1 pe-2">
+            @can('cms.collection_payment.edit')
             <a href="{{ route('cms.collection_payment.edit', ['id' => $delivery->po_id]) }}" 
                 class="btn btn-sm btn-success px-3" role="button">修改</a>
+            @endcan
 
             @if(! $delivery->po_balance_date)
                 <a href="{{ Route('cms.delivery.return-pay-create', ['id' => $delivery->delivery_id]) }}" 
@@ -15,11 +17,13 @@
             <a href="{{ url()->full() . '?action=print' }}" target="_blank" 
                 class="btn btn-sm btn-warning" rel="noopener noreferrer">中一刀列印畫面</a>
 
+            @can('cms.collection_payment.delete')
             @if(! $data_status_check)
             <a href="javascript:void(0)" role="button" class="btn btn-outline-danger btn-sm"
                 data-bs-toggle="modal" data-bs-target="#confirm-delete"
                 data-href="{{ Route('cms.collection_payment.delete', ['id' => $delivery->po_id]) }}">刪除付款單</a>
             @endif
+            @endcan
         </div>
     </nav>
 
@@ -40,6 +44,15 @@
                 </div>
                 <div class="col">
                     <dd>製表日期：{{ date('Y-m-d', strtotime($delivery->po_created_at)) }}</dd>
+                </div>
+            </dl>
+
+            <dl class="row mb-0">
+                <div class="col">
+                    <dd>單據編號：</dd>
+                </div>
+                <div class="col">
+                    <dd>付款日期：{{ $paying_order->payment_date ? date('Y-m-d', strtotime($paying_order->payment_date)) : '' }}</dd>
                 </div>
             </dl>
 
@@ -140,6 +153,11 @@
                 </div>
             </dl>
         </div>
+    </div>
+    
+    <div class="col-auto">
+        <a href="{{ Route('cms.delivery.back_detail', ['event' => $delivery->delivery_event, 'eventId' => $delivery->delivery_event_id]) }}" 
+            class="btn btn-outline-primary px-4" role="button">返回 銷貨退回明細</a>
     </div>
 
     <!-- Modal -->

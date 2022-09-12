@@ -988,7 +988,6 @@ class ProductCtrl extends Controller
         $product_img = ProductImg::where('product_id', $id)->get()->toArray();
         $product_spec_list = ProductSpecList::where('product_id', $id)->get();
         $styles = ProductStyle::getStylePrice($id);
-       
 
         $shipment = DB::table('prd_product_shipment as ps')
             ->leftJoin('shi_group as group', 'ps.group_id', '=', 'group.id')
@@ -1012,7 +1011,7 @@ class ProductCtrl extends Controller
             'product_id' => 'required',
         ]);
 
-        Product::cloneInfo($id,$request->input('product_id'));
+        Product::cloneInfo($id, $request->input('product_id'));
 
         wToast('資訊複製完成');
 

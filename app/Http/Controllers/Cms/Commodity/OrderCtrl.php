@@ -9,7 +9,8 @@ use App\Enums\Delivery\LogisticStatus;
 use App\Enums\Discount\DividendCategory;
 use App\Enums\Order\OrderStatus;
 use App\Enums\Order\UserAddrType;
-use App\Enums\Payable\ChequeStatus;
+use App\Enums\Received\ChequeStatus;
+use App\Enums\Payable\ChequeStatus AS PayableChequeStatus;
 use App\Enums\Received\ReceivedMethod;
 use App\Enums\Supplier\Payment;
 use App\Http\Controllers\Controller;
@@ -417,8 +418,8 @@ class OrderCtrl extends Controller
             'source_type' => $source_type,
             'source_id' => $id,
         ]);
-        $received_order_data = $received_order_collection->first();
-        if ($received_order_data && $received_order_data->balance_date) {
+        $received_order = $received_order_collection->first();
+        if ($received_order && $received_order->balance_date) {
             $receivable = true;
         }
         $received_credit_card_log = OrderPayCreditCard::where([
@@ -448,7 +449,7 @@ class OrderCtrl extends Controller
             'subOrderId' => $subOrderId,
             'discounts' => Discount::orderDiscountList('main', $id)->get()->toArray(),
             'receivable' => $receivable,
-            'received_order_data' => $received_order_data,
+            'received_order' => $received_order,
             'received_credit_card_log' => $received_credit_card_log,
             'dividend' => $dividend,
             'canCancel' => Order::checkCanCancel($id, 'backend'),
@@ -867,7 +868,7 @@ class OrderCtrl extends Controller
 
             } else if($data['acc_transact_type_fk'] == ReceivedMethod::Cheque){
                 $request->validate([
-                    request('acc_transact_type_fk') . 'ticket_number'=>'required|unique:acc_received_cheque,ticket_number|regex:/^[A-Z]{2}[0-9]{7}$/'
+                    request('acc_transact_type_fk') . '.ticket_number'=>'required|unique:acc_received_cheque,ticket_number|regex:/^[A-Z]{2}[0-9]{7}$/'
                 ]);
             }
 
@@ -1081,11 +1082,12 @@ class OrderCtrl extends Controller
             $received_data = ReceivedOrder::get_received_detail($received_order_data->pluck('id')->toArray());
             $data_status_check = ReceivedOrder::received_data_status_check($received_data);
 
-
             if($received_order->receipt_date){
                 if($data_status_check){
                     return redirect()->back();
                 }
+
+                DayEnd::match_day_end_status($received_order->receipt_date, $received_order->sn);
 
                 $received_order->update([
                     'accountant_id' => null,
@@ -1094,8 +1096,6 @@ class OrderCtrl extends Controller
 
                 OrderFlow::changeOrderStatus($id, OrderStatus::Paided());
                 Customer::updateOrderSpends($received_order->drawee_id, $received_order->price * -1);
-
-                DayEnd::match_day_end_status($received_order->receipt_date, $received_order->sn);
 
                 wToast(__('入帳日期已取消'));
                 return redirect()->route('cms.order.ro-receipt', ['id'=>request('id')]);
@@ -1676,7 +1676,7 @@ class OrderCtrl extends Controller
                 'form_action' => Route('cms.order.logistic-po-create', ['id' => $id, 'sid' => $sid]),
                 'method' => 'create',
                 'transactTypeList' => AccountPayable::getTransactTypeList(),
-                'chequeStatus' => ChequeStatus::get_key_value(),
+                'chequeStatus' => PayableChequeStatus::get_key_value(),
             ]);
         }
     }
@@ -1961,7 +1961,7 @@ class OrderCtrl extends Controller
                 'form_action' => Route('cms.order.return-pay-create', ['id' => $id, 'sid' => $sid]),
                 'method' => 'create',
                 'transactTypeList' => AccountPayable::getTransactTypeList(),
-                'chequeStatus' => ChequeStatus::get_key_value(),
+                'chequeStatus' => PayableChequeStatus::get_key_value(),
             ]);
         }
     }
@@ -2186,6 +2186,17 @@ class OrderCtrl extends Controller
             'id' => 'required|exists:ord_order_invoice,id',
         ]);
         $inv_result = OrderInvoice::invoice_issue_api($id);
+
+        if($inv_result->source_type == app(Order::class)->getTable() && $inv_result->r_msg == 'SUCCESS'){
+            $parm = [
+                'order_id' => $inv_result->source_id,
+                'gui_number' => $inv_result->buyer_ubn,
+                'invoice_category' => '電子發票',
+                'invoice_number' => $inv_result->invoice_number,
+            ];
+            Order::update_invoice_info($parm);
+        }
+
         wToast(__($inv_result->r_msg));
         return redirect()->back();
     }

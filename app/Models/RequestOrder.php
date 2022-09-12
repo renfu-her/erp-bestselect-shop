@@ -170,14 +170,24 @@ class RequestOrder extends Model
     }
 
 
-    public static function update_request_order_approval($request = [])
+    public static function update_request_order_approval($request = [], $clear = false)
     {
-        self::where('id', $request['id'])->update([
-            'accountant_id'=>auth('user')->user()->id,
-            'posting_date'=>date('Y-m-d H:i:s'),
-            'received_order_id'=>$request['received_order_id'],
-            'updated_at'=>date('Y-m-d H:i:s'),
-        ]);
+        if($clear){
+            self::where('id', $request['id'])->update([
+                'accountant_id'=>null,
+                'posting_date'=>null,
+                'received_order_id'=>null,
+                'updated_at'=>date('Y-m-d H:i:s'),
+            ]);
+
+        } else {
+            self::where('id', $request['id'])->update([
+                'accountant_id'=>auth('user')->user()->id,
+                'posting_date'=>date('Y-m-d H:i:s'),
+                'received_order_id'=>$request['received_order_id'],
+                'updated_at'=>date('Y-m-d H:i:s'),
+            ]);
+        }
     }
 
 

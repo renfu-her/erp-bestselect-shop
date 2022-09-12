@@ -69,6 +69,23 @@ class NotePayableCtrl extends Controller
             $cond['cheque_cashing_edate']
         ];
 
+        if(request('action') == 'print'){
+            $data_list = NotePayableOrder::get_cheque_payable_list(
+                [],
+                $cond['cheque_status_code'],
+                $cond['cheque_payable_grade_id'],
+                $cond['ticket_number'],
+                $payable_price,
+                $payment_date,
+                $cheque_due_date,
+                $cheque_cashing_date
+            )->paginate(99999)->appends($query);
+
+            return view('cms.account_management.note_payable.list_print',[
+                'data_list' => $data_list,
+            ]);
+        }
+
         $data_list = NotePayableOrder::get_cheque_payable_list(
                 [],
                 $cond['cheque_status_code'],

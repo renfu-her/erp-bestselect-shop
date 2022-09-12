@@ -68,7 +68,7 @@
             <table class="table table-striped tableList">
                 <thead>
                     <tr>
-                        <th scope="col">編號</th>
+                        <th scope="col">#</th>
                         <th scope="col">類別</th>
                         <th scope="col">單號</th>
                         <th scope="col">匯款日期</th>

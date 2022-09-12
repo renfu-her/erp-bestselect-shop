@@ -56,12 +56,19 @@
             <table width="710" style="font-size:small;text-align:left;border:0;margin: 0 auto;">
                 <tbody>
                 <tr>
-                    <td width="50%">客戶：{{ $paying_order->payee_name }}</td>
-                    <td width="50%">編號：{{ $paying_order->sn }}</td>
+                    <td width="50%">付款單號：{{ $paying_order->sn }}</td>
+                    <td>製表日期：{{ date('Y-m-d', strtotime($paying_order->created_at)) }}</td>
+                </tr>
+                <tr>
+                    <td width="50%">單據編號：</td>
+                    <td>付款日期：{{ $paying_order->payment_date ? date('Y-m-d', strtotime($paying_order->payment_date)) : '' }}</td>
+                </tr>
+                <tr>
+                    <td width="50%">支付對象：{{ $paying_order->payee_name }}</td>
+                    <td>承辦人：{{ $undertaker ? $undertaker->name : '' }}</td>
                 </tr>
                 <tr>
                     <td>電話：{{ $paying_order->payee_phone }}</td>
-                    <td>日期：{{ date('Y-m-d', strtotime($paying_order->created_at)) }}</td>
                 </tr>
                 </tbody>
             </table>
@@ -146,11 +153,10 @@
             <table width="710" style="font-size:small;text-align:left;border:0;margin: 0 auto;">
                 <tbody>
                 <tr>
-                    <td width="20%">財務主管：</td>
-                    <td width="20%">會計：{{ $accountant ?? '' }}</td>
-                    <td width="20%">商品主管：</td>
-                    <td width="20%">商品負責人：</td>
-                    <td width="20%">承辦人：{{ $undertaker ? $undertaker->name : '' }}</td>
+                    <td width="25%">財務主管：</td>
+                    <td width="25%">會計：{{ $accountant ?? '' }}</td>
+                    <td width="25%">商品主管：</td>
+                    <td width="25%">商品負責人：</td>
                 </tr>
                 </tbody>
             </table>

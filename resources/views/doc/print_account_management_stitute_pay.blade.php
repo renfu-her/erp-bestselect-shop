@@ -61,7 +61,7 @@
                     </tr>
                     <tr>
                         <td>單據編號：{{ $stitute_order->sn }}</td>
-                        <td>付款日期：</td>
+                        <td>付款日期：{{ $paying_order->payment_date ? date('Y-m-d', strtotime($paying_order->payment_date)) : '' }}</td>
                     </tr>
                     <tr>
                         <td>支付對象：{{ $paying_order->payee_name }}</td>
@@ -124,10 +124,10 @@
             <table width="710" style="font-size:small;text-align:left;border:0;margin: 0 auto;">
                 <tbody>
                 <tr>
-                    <td width="20%">財務主管：</td>
-                    <td width="20%">會計：{{ $accountant ?? '' }}</td>
-                    <td width="20%">商品主管：</td>
-                    <td width="20%">商品負責人：</td>
+                    <td width="25%">財務主管：</td>
+                    <td width="25%">會計：{{ $accountant ?? '' }}</td>
+                    <td width="25%">商品主管：</td>
+                    <td width="25%">商品負責人：</td>
                 </tr>
                 </tbody>
             </table>

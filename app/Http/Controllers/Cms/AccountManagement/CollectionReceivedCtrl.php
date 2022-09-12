@@ -6,17 +6,25 @@ use App\Http\Controllers\Controller;
 
 use Illuminate\Http\Request;
 
+use App\Enums\Order\OrderStatus;
+use App\Enums\Order\PaymentStatus;
 use App\Enums\Received\ReceivedMethod;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 use App\Models\AllGrade;
+use App\Models\CsnOrder;
+use App\Models\CsnOrderFlow;
 use App\Models\Customer;
+use App\Models\DayEnd;
 use App\Models\Depot;
 use App\Models\GeneralLedger;
+use App\Models\IncomeOrder;
 use App\Models\Order;
+use App\Models\OrderFlow;
 use App\Models\ReceivedOrder;
+use App\Models\RequestOrder;
 use App\Models\Supplier;
 use App\Models\User;
 
@@ -302,47 +310,66 @@ class CollectionReceivedCtrl extends Controller
 
     public function destroy($id)
     {
-        $po = ReceivedOrder::delete_paying_order($id);
-        if($po){
+        $ro = ReceivedOrder::delete_received_order($id);
+
+        if($ro){
             // reverse - source order
-            if($po->source_type == app(Purchase::class)->getTable()){
+            if($ro->source_type == app(Order::class)->getTable()){
+                OrderFlow::changeOrderStatus($ro->source_id, OrderStatus::Add());
+                $r_method['value'] = '';
+                $r_method['description'] = '';
+                Order::change_order_payment_status($ro->source_id, PaymentStatus::Unpaid(), (object) $r_method);
 
-            } else if($po->source_type == app(Order::class)->getTable() && $po->source_sub_id != null){
+            } else if($ro->source_type == app(CsnOrder::class)->getTable()){
+                CsnOrderFlow::changeOrderStatus($ro->source_id, OrderStatus::Add());
+                $r_method['value'] = '';
+                $r_method['description'] = '';
+                CsnOrder::change_order_payment_status($ro->source_id, PaymentStatus::Unpaid(), (object) $r_method);
 
-            } else if($po->source_type == app(Consignment::class)->getTable()){
-
-            } else if($po->source_type == app(StituteOrder::class)->getTable()){
+            } else if($ro->source_type == app(ReceivedOrder::class)->getTable()){
                 $parm = [
-                    'id' => $po->source_id,
+                    'append_received_order_id'=>$ro->id,
                 ];
-                StituteOrder::update_stitute_order_approval($parm, true);
+                ReceivedOrder::update_account_received_method($parm, true);
 
-            } else if($po->source_type == app(Order::class)->getTable() && $po->source_sub_id == null){
-
-            } else if($po->source_type == app(Delivery::class)->getTable()){
-
-            } else if($po->source_type == app(ReceivedOrder::class)->getTable()){
+            } else if($ro->source_type == app(RequestOrder::class)->getTable()){
                 $parm = [
-                    'append_pay_order_id'=>$po->id,
+                    'id' => $ro->source_id,
                 ];
-                ReceivedOrder::update_account_payable_method($parm, true);
+                RequestOrder::update_request_order_approval($parm, true);
             }
 
-            // cheque status is cashed then po can't delete,
-            // if status not cashed then would not count in note payable order,
+            // credit card - income order record update
+            $r_method_list = ReceivedOrder::get_received_detail($id, ReceivedMethod::CreditCard)->where('credit_card_status_code', 2)->groupBy('credit_card_io_id');
+            foreach($r_method_list as $group){
+                foreach($group as $data){
+                    $parm = [
+                        'credit_card_received_id'=>[$data->received_method_id],
+                        'status_code'=>1,
+                        'transaction_date'=>$data->credit_card_transaction_date,
+                    ];
+                    ReceivedOrder::update_credit_received_method($parm);
+                }
+
+                IncomeOrder::store_income_order($group->first()->credit_card_posting_date);
+            }
+
+            // cheque status is cashed then ro can't delete,
+            // if status not cashed then would not count in note receivable order,
             // so needn't update it
             //
 
-            if($po->payment_date){
-                DayEnd::match_day_end_status($po->payment_date, $po->sn);
+            if($ro->receipt_date){
+                DayEnd::match_day_end_status($ro->receipt_date, $ro->sn);
             }
 
             wToast('刪除完成');
 
+            return redirect()->to(ReceivedOrder::received_order_source_link($ro->source_type, $ro->source_id, true));
+
         } else {
             wToast('刪除失敗', ['type'=>'danger']);
+            return redirect()->back();
         }
-
-        return redirect()->to(ReceivedOrder::paying_order_source_link($po->source_type, $po->source_id, $po->source_sub_id, $po->type, true));
     }
 }

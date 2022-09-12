@@ -40,7 +40,7 @@ class Depot extends Model
     {
         $re = self::where('can_pickup', '=', 1)
                     ->select('id', 'name')
-                    ->orderBy('name', 'desc')
+                    ->orderBy('sort')
                     ->get();
         return $re;
     }

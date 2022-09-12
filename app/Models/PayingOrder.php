@@ -103,6 +103,7 @@ class PayingOrder extends Model
                 'paying_order.memo as memo',
                 'paying_order.price as price',
                 'paying_order.balance_date as balance_date',
+                'paying_order.payment_date as payment_date',
                 'paying_order.payee_id as payee_id',
                 'paying_order.payee_name as payee_name',
                 'paying_order.payee_phone as payee_phone',
@@ -913,7 +914,7 @@ class PayingOrder extends Model
     public static function update_account_payable_method($request, $clear = false)
     {
         if($clear){
-            DB::table('acc_payable_account')->whereIn('append_pay_order_id', $request['append_pay_order_id'])->update([
+            DB::table('acc_payable_account')->where('append_pay_order_id', $request['append_pay_order_id'])->update([
                 'status_code'=>0,
                 'append_pay_order_id'=>null,
                 'sn'=>null,
@@ -1026,7 +1027,7 @@ class PayingOrder extends Model
             $link = route('cms.delivery.back_detail', ['event' => $dlv->event, 'eventId' => $dlv->event_id]);
 
         } else if($source_type == 'pcs_paying_orders'){
-            $link = route('cms.accounts_payable.po-show', ['id' => $source_id]);
+            $link = route('cms.accounts_payable.index');
         }
 
         return $link;

@@ -237,6 +237,23 @@ class RequestOrderCtrl extends Controller
     }
 
 
+    public static function destroy($id)
+    {
+        $request_order = RequestOrder::findOrFail($id);
+
+        if($request_order->received_order_id){
+            wToast('刪除失敗', ['type'=>'danger']);
+            return redirect()->back();
+
+        } else {
+            $request_order->delete();
+            wToast('刪除完成');
+
+            return redirect()->route('cms.request.index');
+        }
+    }
+
+
     public function ro_edit(Request $request, $id)
     {
         $request->merge([
@@ -413,7 +430,7 @@ class RequestOrderCtrl extends Controller
 
             } else if($data['acc_transact_type_fk'] == ReceivedMethod::Cheque){
                 $request->validate([
-                    request('acc_transact_type_fk') . 'ticket_number'=>'required|unique:acc_received_cheque,ticket_number|regex:/^[A-Z]{2}[0-9]{7}$/'
+                    request('acc_transact_type_fk') . '.ticket_number'=>'required|unique:acc_received_cheque,ticket_number|regex:/^[A-Z]{2}[0-9]{7}$/'
                 ]);
             }
 
@@ -578,12 +595,12 @@ class RequestOrderCtrl extends Controller
                     return redirect()->back();
                 }
 
+                DayEnd::match_day_end_status($received_order->receipt_date, $received_order->sn);
+
                 $received_order->update([
                     'accountant_id' => null,
                     'receipt_date' => null,
                 ]);
-
-                DayEnd::match_day_end_status($received_order->receipt_date, $received_order->sn);
 
                 wToast(__('入帳日期已取消'));
                 return redirect()->route('cms.request.ro-receipt', ['id'=>request('id')]);

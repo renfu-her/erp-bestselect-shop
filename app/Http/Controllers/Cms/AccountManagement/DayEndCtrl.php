@@ -82,13 +82,12 @@ class DayEndCtrl extends Controller
                 DB::commit();
                 wToast(__('整批日結成功'));
 
-                return redirect()->route('cms.day_end.index');
-
             } catch (\Exception $e) {
                 DB::rollback();
                 wToast(__('整批日結失敗', ['type'=>'danger']));
-                return redirect()->back();
             }
+
+            return redirect()->back();
         }
 
         wToast(__('整批日結失敗', ['type'=>'danger']));

@@ -3,11 +3,13 @@
     <h2 class="mb-4">應收票據</h2>
 
     <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
+        @can('cms.note_receivable.edit')
         <div class="p-1 pe-2">
             <a href="{{ Route('cms.note_receivable.ask', ['type'=>'collection']) }}" class="btn btn-sm btn-primary" role="button">整批託收</a>
             <a href="{{ Route('cms.note_receivable.ask', ['type'=>'nd']) }}" class="btn btn-sm btn-primary" role="button">整批次交票</a>
             <a href="{{ Route('cms.note_receivable.ask', ['type'=>'cashed']) }}" class="btn btn-sm btn-primary cc_date" role="button">整批兌現</a>
         </div>
+        @endcan
     </nav>
 
     <form id="search" method="GET">
@@ -192,7 +194,7 @@
             <table class="table table-striped tableList">
                 <thead>
                     <tr>
-                        <th scope="col">編號</th>
+                        <th scope="col">#</th>
                         <th scope="col">支票號碼</th>
                         <th scope="col">金額</th>
                         <th scope="col">狀態</th>
@@ -240,6 +242,10 @@
     </div>
 
     <div class="row flex-column-reverse flex-sm-row">
+        <div class="col-auto">
+            <a href="{{ strpos(url()->full(), '?') ? url()->full() . '&action=print' : url()->full() . '?action=print' }}" target="_blank" class="btn btn-warning px-4">列印畫面</a>
+        </div>
+
         <div class="col d-flex justify-content-end align-items-center mb-3 mb-sm-0">
             @if($data_list)
                 <div class="mx-3">共 {{ $data_list->lastPage() }} 頁(共找到 {{ $data_list->total() }} 筆資料)</div>

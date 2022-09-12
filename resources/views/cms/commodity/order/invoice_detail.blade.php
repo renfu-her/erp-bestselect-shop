@@ -4,40 +4,59 @@
     <h2 class="mb-4">電子發票</h2>
 
     <div class="card shadow p-4 mb-4">
-        <div class="table-responsive">
-            <table class="table table-sm text-right align-middle">
-                <tbody>
-                    <tr>
-                        <td class="col-8">訂單編號：{{ $invoice->merchant_order_no  }}</td>
-                        <td class="text-end pe-4"></td>
-                    </tr>
-                    <tr>
-                        <td class="col-8">買受人：{{ $invoice->buyer_name }}</td>
-                        <td class="text-end pe-4">發票號碼：{{ $invoice->invoice_number }}</td>
-                    </tr>
-                    <tr>
-                        <td class="col-8">統一編號：{{ $invoice->buyer_ubn }}</td>
-                        <td class="text-end pe-4">開立日期：{{ date('Y/m/d', strtotime($invoice->created_at)) }}</td>
-                    </tr>
-                    <tr>
-                        <td class="col-8">電子郵件：{{ $invoice->buyer_email }}</td>
-                        <td class="text-end pe-4">發票類型：{{ $invoice->category }}</td>
-                    </tr>
-                    <tr>
-                        <td class="col-8">地址：{{ $invoice->buyer_address }}</td>
-                        <td class="text-end pe-4">經手人：{{ $handler ? $handler->name : '' }}</td>
-                    </tr>
-                    <tr>
-                        <td class="col-8">銷售金額/稅金：{{ number_format($invoice->amt) }}/{{ number_format($invoice->tax_amt) }}</td>
-                        <td class="text-end pe-4">發票金額（含稅）：{{ number_format($invoice->total_amt) }}</td>
-                    </tr>
-                    <tr>
-                        <td class="col-8" style="border-bottom: none;">發票應稅金額：{{ number_format($invoice->amt_sales) }}</td>
-                        <td class="text-end pe-4" style="border-bottom: none;">發票免稅金額：{{ number_format($invoice->amt_free) }}</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+        <dl class="row border-bottom mx-0">
+            <div class="col">
+                <dd>訂單編號：{{ $invoice->merchant_order_no  }}</dd>
+            </div>
+        </dl>
+        <dl class="row border-bottom mx-0">
+            <div class="col">
+                <dd>買受人：{{ $invoice->buyer_name }}</dd>
+            </div>
+            <div class="col">
+                <dd>發票號碼：{{ $invoice->invoice_number }}</dd>
+            </div>
+        </dl>
+        <dl class="row border-bottom mx-0">
+            <div class="col">
+                <dd>統一編號：{{ $invoice->buyer_ubn }}</dd>
+            </div>
+            <div class="col">
+                <dd>開立日期：{{ date('Y/m/d', strtotime($invoice->created_at)) }}</dd>
+            </div>
+        </dl>
+        <dl class="row border-bottom mx-0">
+            <div class="col">
+                <dd>電子郵件：{{ $invoice->buyer_email }}</dd>
+            </div>
+            <div class="col">
+                <dd>發票類型：{{ $invoice->category }}</dd>
+            </div>
+        </dl>
+        <dl class="row border-bottom mx-0">
+            <div class="col">
+                <dd>地址：{{ $invoice->buyer_address }}</dd>
+            </div>
+            <div class="col">
+                <dd>經手人：{{ $handler ? $handler->name : '' }}</dd>
+            </div>
+        </dl>
+        <dl class="row border-bottom mx-0">
+            <div class="col">
+                <dd>銷售金額 / 稅金：{{ number_format($invoice->amt) }} / {{ number_format($invoice->tax_amt) }}</dd>
+            </div>
+            <div class="col">
+                <dd>發票金額（含稅）：{{ number_format($invoice->total_amt) }}</dd>
+            </div>
+        </dl>
+        <dl class="row mx-0">
+            <div class="col">
+                <dd>發票應稅金額：{{ number_format($invoice->amt_sales) }}</dd>
+            </div>
+            <div class="col">
+                <dd>發票免稅金額：{{ number_format($invoice->amt_free) }}</dd>
+            </div>
+        </dl>
 
         <div class="table-responsive">
             <table class="table table-bordered text-center align-middle d-sm-table d-none text-nowrap">
@@ -76,15 +95,17 @@
     </div>
 
     <div class="col-auto">
+        @can('cms.order_invoice_manager.index')
         @if($invoice->status == 1 && $invoice->r_status != 'SUCCESS')
         <a href="javascript:void(0)" role="button" class="btn btn-primary px-4" data-bs-toggle="modal" 
             data-bs-target="#confirm-invoice" data-href="{{ Route('cms.order.re-send-invoice', ['id' => $invoice->id]) }}">
             重新開立發票
         </a>
         @endif
+        @endcan
 
         <a href="{{ Route('cms.order.detail', ['id' => $invoice->source_id]) }}" class="btn btn-outline-primary px-4" 
-            role="button">返回上一頁</a>
+            role="button">返回 訂單明細</a>
     </div>
 
     <!-- Modal -->

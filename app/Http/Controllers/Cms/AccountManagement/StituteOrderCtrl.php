@@ -241,6 +241,23 @@ class StituteOrderCtrl extends Controller
     }
 
 
+    public static function destroy($id)
+    {
+        $stitute_order = StituteOrder::findOrFail($id);
+
+        if($stitute_order->pay_order_id){
+            wToast('刪除失敗', ['type'=>'danger']);
+            return redirect()->back();
+
+        } else {
+            $stitute_order->delete();
+            wToast('刪除完成');
+
+            return redirect()->route('cms.stitute.index');
+        }
+    }
+
+
     public function po_edit(Request $request, $id)
     {
         $request->merge([

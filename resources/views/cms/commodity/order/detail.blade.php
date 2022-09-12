@@ -9,7 +9,7 @@
                     class="btn btn-primary btn-sm my-1 ms-1" role="button">新增收款單</a>
             @endif
 
-            @if ($received_order_data || !in_array($order->status, ['建立']))
+            @if ($received_order || !in_array($order->status, ['建立']))
                 @if (($receivable || in_array($order->status, ['已付款', '已入款', '結案'])) && $received_credit_card_log)
                     <a href="{{ Route('api.web.order.credit_card_checkout', ['id' => $order->id, 'unique_id' => $order->unique_id]) }}"
                         class="btn btn-primary btn-sm my-1 ms-1" role="button" target="_blank">線上刷卡連結</a>
@@ -40,10 +40,12 @@
                 @endcan
             @endif
 
-            @if ($received_order_data && !$order->invoice_number)
+            @can('cms.order_invoice_manager.index')
+            @if ($received_order && !$order->invoice_number)
                 <a href="{{ Route('cms.order.create-invoice', ['id' => $order->id]) }}" role="button"
                     class="btn btn-success btn-sm my-1 ms-1">開立發票</a>
             @endif
+            @endcan
 
             @if ($canCancel)
                 @can('cms.order.cancel_order')
@@ -56,14 +58,6 @@
             @if (!$order->return_pay_order_id && in_array($order->status, ['取消']) && $po_check)
                 <a href="{{ Route('cms.order.return-pay-order', ['id' => $order->id]) }}" role="button"
                     class="btn btn-primary btn-sm my-1 ms-1">新增退貨付款單</a>
-            @endif
-
-            @if ($received_order_data)
-                @if (!in_array($order->status, ['已入款', '結案']))
-                    <a href="javascript:void(0)" role="button" class="btn btn-outline-danger btn-sm my-1 ms-1"
-                        data-bs-toggle="modal" data-bs-target="#confirm-delete"
-                        data-href="{{ Route('cms.collection_received.delete', ['id' => $received_order_data->id], true) }}">刪除收款單</a>
-                @endif
             @endif
         </div>
     </nav>
@@ -106,7 +100,7 @@
                     <dd>
                         @if ($receivable)
                             <a href="{{ route('cms.order.ro-receipt', ['id' => $order->id]) }}"
-                                class="-text">{{ $received_order_data ? $received_order_data->sn : '' }}</a>
+                                class="-text">{{ $received_order ? $received_order->sn : '' }}</a>
                         @else
                             <span>尚未完成收款</span>
                         @endif
@@ -669,13 +663,6 @@
     </form>
 
     <!-- Modal -->
-    <x-b-modal id="confirm-delete">
-        <x-slot name="title">刪除確認</x-slot>
-        <x-slot name="body">確認要刪除此收款單？</x-slot>
-        <x-slot name="foot">
-            <a class="btn btn-danger btn-ok" href="#">確認並刪除</a>
-        </x-slot>
-    </x-b-modal>
     <x-b-modal id="confirm-delete-back">
         <x-slot name="title">刪除確認</x-slot>
         <x-slot name="body">確認要刪除？</x-slot>
@@ -730,10 +717,6 @@
     @endpush
     @push('sub-scripts')
         <script>
-            // Modal Control
-            $('#confirm-delete').on('show.bs.modal', function(e) {
-                $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
-            });
             $('#confirm-delete-back').on('show.bs.modal', function(e) {
                 $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
             });

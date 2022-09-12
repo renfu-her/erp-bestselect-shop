@@ -1,28 +1,8 @@
 @extends('layouts.main')
 
 @section('sub-content')
-    <style>
-    .grade_1 {
-        padding-left: 1ch;
-    }
-
-    .grade_2 {
-        padding-left: 2ch;
-    }
-
-    .grade_3 {
-        padding-left: 4ch;
-    }
-
-    .grade_4 {
-        padding-left: 8ch;
-    }
-    </style>
-
     <h2 class="mb-4">信用卡刷卡記錄</h2>
-    <a href="{{ route('cms.credit_manager.record', ['id'=>$record->credit_card_received_id]) }}" class="btn btn-primary" role="button">
-        <i class="bi bi-arrow-left"></i> 返回上一頁
-    </a>
+
     <form method="POST" action="{{ $form_action }}">
         @csrf
         <div class="card mb-4">
@@ -152,20 +132,36 @@
             </div>
         </div>
 
-        <div class="px-0">
+        <div class="col-auto">
             <button type="submit" class="btn btn-primary px-4">確認</button>
+            <a href="{{ url()->previous() }}" class="btn btn-outline-primary px-4" role="button">取消</a>
         </div>
     </form>
 @endsection
 
 @once
     @push('sub-styles')
-        
+        <style>
+            .grade_1 {
+                padding-left: 1ch;
+            }
+
+            .grade_2 {
+                padding-left: 2ch;
+            }
+
+            .grade_3 {
+                padding-left: 4ch;
+            }
+
+            .grade_4 {
+                padding-left: 8ch;
+            }
+            </style>
     @endpush
     @push('sub-scripts')
         <script>
             $(function() {
-                // 會計科目樹狀排版
                 $('.-select2').select2({
                     templateResult: function (data) {
                         if (!data.element) {

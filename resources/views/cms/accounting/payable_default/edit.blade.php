@@ -320,6 +320,7 @@
             </div>
         @endif
 
+        @can('cms.payable_default.edit')
         <div class="col-auto">
             @if($isViewMode === true)
                 <a href="{{ Route('cms.payable_default.edit', [], true) }}" class="btn btn-primary px-4" role="button">
@@ -334,6 +335,7 @@
                 </a>
             @endif
         </div>
+        @endcan
     </form>
 @endsection
 

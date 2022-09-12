@@ -5,14 +5,12 @@ namespace App\Http\Controllers\Cms;
 use App\Http\Controllers\Controller;
 use App\Models\Addr;
 use App\Models\Depot;
-use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
-
 use App\Models\DepotProduct;
 use App\Models\Product;
 use App\Models\ProductStyle;
 use App\Models\SaleChannel;
-
+use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 class DepotCtrl extends Controller
@@ -27,7 +25,7 @@ class DepotCtrl extends Controller
         $query = $request->query();
         $data_per_page = Arr::get($query, 'data_per_page', 10);
         $data_per_page = is_numeric($data_per_page) ? $data_per_page : 10;
-        $dataList =  Depot::paginate($data_per_page)->appends($query);
+        $dataList = Depot::orderBy('sort')->paginate($data_per_page)->appends($query);
 
         return view('cms.settings.depot.list', [
             'dataList' => $dataList,
@@ -52,7 +50,7 @@ class DepotCtrl extends Controller
             'method' => 'create',
             'formAction' => Route('cms.depot.create'),
             'citys' => Addr::getCitys(),
-            'regions' => $regions
+            'regions' => $regions,
         ]);
     }
 
@@ -73,19 +71,21 @@ class DepotCtrl extends Controller
             'city_id' => 'required|numeric',
             'region_id' => 'required|numeric',
             'tel' => 'required|numeric',
+            'sort' => 'required|numeric',
         ]);
 
         $v = $request->all();
 
         Depot::create([
-            'name'     => $v['name'],
-            'sender'      => $v['sender'],
+            'name' => $v['name'],
+            'sender' => $v['sender'],
             'can_pickup' => $v['can_pickup'],
             'can_tally' => $v['can_tally'],
-            'addr'      => $v['addr'],
-            'city_id'   => $v['city_id'],
+            'addr' => $v['addr'],
+            'city_id' => $v['city_id'],
             'region_id' => $v['region_id'],
-            'tel'       => $v['tel'],
+            'tel' => $v['tel'],
+            'sort' => $v['sort'],
             'address' => Addr::fullAddr($v['region_id'], $v['addr']),
         ]);
         return redirect(Route('cms.depot.index'));
@@ -128,7 +128,7 @@ class DepotCtrl extends Controller
             'citys' => Addr::getCitys(),
             'regions' => $regions,
             'data' => $data,
-            'id' => $id
+            'id' => $id,
         ]);
     }
 
@@ -150,7 +150,8 @@ class DepotCtrl extends Controller
             'city_id' => 'required|numeric',
             'region_id' => 'required|numeric',
             'tel' => 'required|numeric',
-            'id' => "required|in:$id"
+            'sort' => 'required|numeric',
+            'id' => "required|in:$id",
         ]);
 
         $d = $request->only(
@@ -162,7 +163,8 @@ class DepotCtrl extends Controller
             'city_id',
             'region_id',
             'tel',
-            'phone'
+            'phone',
+            'sort'
         );
         $d['address'] = Addr::fullAddr($d['region_id'], $d['addr']);
         Depot::where('id', '=', $id)->update($d);
@@ -181,7 +183,6 @@ class DepotCtrl extends Controller
         return redirect(Route('cms.depot.index'));
     }
 
-
     public function product_index(Request $request, int $id)
     {
         $depot = Depot::findOrFail($id);
@@ -190,7 +191,7 @@ class DepotCtrl extends Controller
         $page = getPageCount(Arr::get($query, 'data_per_page'));
 
         $keyword = Arr::get($query, 'keyword', '');
-        $type = Arr::get($query, 'type', 'all');//c,p,all
+        $type = Arr::get($query, 'type', 'all'); //c,p,all
 
         $products = DepotProduct::product_list($id, $keyword, $type)
             ->orderBy('product_id', 'ASC')
@@ -204,12 +205,11 @@ class DepotCtrl extends Controller
         ]);
     }
 
-
     public function product_create(Request $request, int $id)
     {
         $depot = Depot::findOrFail($id);
 
-        if($request->isMethod('post')){
+        if ($request->isMethod('post')) {
             $request->validate([
                 'selected' => 'required|array',
                 'selected.*' => 'numeric',
@@ -219,29 +219,29 @@ class DepotCtrl extends Controller
 
             $data = [];
 
-            foreach(request('selected') as $key => $value){
+            foreach (request('selected') as $key => $value) {
                 $dp_count = DepotProduct::where([
-                    'depot_id'=>$depot->id,
-                    'product_style_id'=>$value,
+                    'depot_id' => $depot->id,
+                    'product_style_id' => $value,
                 ])->whereNull('deleted_at')->get()->count();
 
-                if($value != '0' && $value == request('product_style_id')[$key] && $dp_count == 0){
+                if ($value != '0' && $value == request('product_style_id')[$key] && $dp_count == 0) {
                     $product_style = ProductStyle::findOrFail($value);
                     $master_channel_product_style = SaleChannel::stylePriceList($value)->where('is_master', '=', 1)->first();
 
                     $data[] = [
-                        'depot_id'=>$depot->id,
-                        'product_id'=>$product_style->product_id,
-                        'product_style_id'=>$product_style->id,
-                        'ost_price'=>$master_channel_product_style ? $master_channel_product_style->price : 0,
-                        'depot_price'=>0,
-                        'updated_users_id'=>auth('user')->user()->id,
-                        'created_at'=>date('Y-m-d H:i:s'),
+                        'depot_id' => $depot->id,
+                        'product_id' => $product_style->product_id,
+                        'product_style_id' => $product_style->id,
+                        'ost_price' => $master_channel_product_style ? $master_channel_product_style->price : 0,
+                        'depot_price' => 0,
+                        'updated_users_id' => auth('user')->user()->id,
+                        'created_at' => date('Y-m-d H:i:s'),
                     ];
                 }
             }
 
-            if(count($data) > 0){
+            if (count($data) > 0) {
                 DepotProduct::insert($data);
                 wToast(__('Add finished.'));
 
@@ -258,7 +258,7 @@ class DepotCtrl extends Controller
             $page = getPageCount(Arr::get($query, 'data_per_page'));
 
             $keyword = Arr::get($query, 'keyword', '');
-            $type = Arr::get($query, 'type', 'all');//p,c,all
+            $type = Arr::get($query, 'type', 'all'); //p,c,all
 
             $selected_product = DepotProduct::product_list($id)->pluck('id')->toArray();
 
@@ -268,10 +268,10 @@ class DepotCtrl extends Controller
                 null,
                 ['public' => 1]
             )
-            ->whereNotIn('s.id', $selected_product)
-            ->orderBy('product_id', 'ASC')
-            ->orderBy('s.id', 'ASC')
-            ->paginate($page)->appends($query);
+                ->whereNotIn('s.id', $selected_product)
+                ->orderBy('product_id', 'ASC')
+                ->orderBy('s.id', 'ASC')
+                ->paginate($page)->appends($query);
             // ->get();
 
             return view('cms.settings.depot.product_select', [
@@ -285,12 +285,11 @@ class DepotCtrl extends Controller
         }
     }
 
-
     public function product_edit(Request $request, int $id)
     {
         $depot = Depot::findOrFail($id);
 
-        if($request->isMethod('post')){
+        if ($request->isMethod('post')) {
             $request->validate([
                 'selected' => 'required|array',
                 'selected.*' => 'required|in:0,' . implode(',', ProductStyle::whereNull('deleted_at')->pluck('id')->toArray()),
@@ -307,23 +306,23 @@ class DepotCtrl extends Controller
             DB::beginTransaction();
 
             try {
-                foreach(request('selected') as $key => $value){
+                foreach (request('selected') as $key => $value) {
                     $dp_count = DepotProduct::where([
-                        'id'=>request('select_id')[$key],
-                        'depot_id'=>$depot->id,
-                        'product_style_id'=>$value,
+                        'id' => request('select_id')[$key],
+                        'depot_id' => $depot->id,
+                        'product_style_id' => $value,
                     ])->whereNull('deleted_at')->get()->count();
 
-                    if($value != '0' && $value == request('product_style_id')[$key] && $dp_count == 1){
+                    if ($value != '0' && $value == request('product_style_id')[$key] && $dp_count == 1) {
                         DepotProduct::where([
-                            'id'=>request('select_id')[$key],
-                            'depot_id'=>$depot->id,
-                            'product_style_id'=>$value,
+                            'id' => request('select_id')[$key],
+                            'depot_id' => $depot->id,
+                            'product_style_id' => $value,
                         ])->whereNull('deleted_at')->update([
-                            'depot_product_no'=>request('depot_product_no')[$key],
-                            'depot_price'=>request('depot_price')[$key],
-                            'updated_users_id'=>auth('user')->user()->id,
-                            'updated_at'=>date('Y-m-d H:i:s'),
+                            'depot_product_no' => request('depot_product_no')[$key],
+                            'depot_price' => request('depot_price')[$key],
+                            'updated_users_id' => auth('user')->user()->id,
+                            'updated_at' => date('Y-m-d H:i:s'),
                         ]);
                     }
                 }
@@ -345,12 +344,12 @@ class DepotCtrl extends Controller
             $page = getPageCount(Arr::get($query, 'data_per_page'));
 
             $keyword = Arr::get($query, 'keyword', '');
-            $type = Arr::get($query, 'type', 'all');//p,c,all
+            $type = Arr::get($query, 'type', 'all'); //p,c,all
 
             $selected_product = DepotProduct::product_list($id, $keyword, $type)
-            ->orderBy('product_id', 'ASC')
-            ->orderBy('id', 'ASC')
-            ->paginate($page)->appends($query);
+                ->orderBy('product_id', 'ASC')
+                ->orderBy('id', 'ASC')
+                ->paginate($page)->appends($query);
             // ->get();
 
             return view('cms.settings.depot.product_select', [
@@ -363,7 +362,6 @@ class DepotCtrl extends Controller
             ]);
         }
     }
-
 
     public function product_delete($id)
     {
