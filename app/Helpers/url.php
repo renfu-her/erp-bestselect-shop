@@ -46,6 +46,10 @@ if (!function_exists('concatStr')) {
 }
 
 if (!function_exists('frontendUrl')) {
+    /**
+     * 回傳一般商品（例如：不含酒類）的網域
+     * @return mixed|string
+     */
     function frontendUrl()
     {
 

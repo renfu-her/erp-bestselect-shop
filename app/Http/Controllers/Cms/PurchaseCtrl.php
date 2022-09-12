@@ -651,7 +651,7 @@ class PurchaseCtrl extends Controller
 
         $payingOrderData = PayingOrder::getPayingOrdersWithPurchaseID($id, $validatedReq['type'])->get()->first();
         $payingOrderQuery = PayingOrder::find($payingOrderData->id);
-        $productGradeName = AllGrade::find($payingOrderQuery->product_grade_id)->eachGrade->name;
+        $productGradeName = AllGrade::find($payingOrderQuery->product_grade_id)->eachGrade->code . ' ' . AllGrade::find($payingOrderQuery->product_grade_id)->eachGrade->name;
         $logisticsGradeName = AllGrade::find($payingOrderQuery->logistics_grade_id)->eachGrade->code . ' ' . AllGrade::find($payingOrderQuery->logistics_grade_id)->eachGrade->name;
 
         $purchaseItemData = PurchaseItem::getPurchaseItemsByPurchaseId($id);
@@ -686,7 +686,7 @@ class PurchaseCtrl extends Controller
             if($payingOrderData->price == 0 && $payable_data->count() == 0){
                 $pay_off_date = date('Y-m-d', strtotime($payingOrderData->created_at));
             } else {
-                $pay_off_date = date('Y-m-d', strtotime($payingOrderData->balance_date));
+                $pay_off_date = date('Y-m-d', strtotime($payingOrderData->payment_date));
             }
         }
         $data_status_check = PayingOrder::payable_data_status_check($payable_data);
@@ -720,6 +720,7 @@ class PurchaseCtrl extends Controller
 
         return view($view, [
             'id' => $id,
+            'purchase' => $purchase,
             'accountant' => $accountant ?? '',
             'accountPayableId' => $accountPayable->id ?? null,
             'payOrdId' => $payingOrderData->id,

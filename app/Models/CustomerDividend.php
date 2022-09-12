@@ -143,7 +143,6 @@ class CustomerDividend extends Model
 
         DB::beginTransaction();
         $dividend = self::getDividend($customer_id)->get()->first();
-
         if (!$dividend || !$dividend->dividend) {
             DB::rollBack();
             return ['success' => '0',
@@ -166,27 +165,33 @@ class CustomerDividend extends Model
             ->where('flag', DividendFlag::Active())
             ->orderBy('weight', 'ASC')
             ->get()->toArray();
-
+       
         $remain_dividend = $discount_point;
-        foreach ($d as $value) {
+        foreach ($d as $key => $value) {
             if ($remain_dividend > 0) {
-
+                // 每批紅利可用點數
                 $can_use_point = $value['dividend'] - $value['used_dividend'];
 
-                if ($remain_dividend < $value['dividend']) {
+                if ($remain_dividend <= $can_use_point) {
                     $can_use_point = $remain_dividend;
                 }
+                // echo $key.'='.$can_use_point."<br>";
+                // dd($remain_dividend , $can_use_point);
 
                 $update_data = [];
                 $update_data['used_dividend'] = DB::raw("used_dividend + $can_use_point");
 
                 if ($value['dividend'] == $value['used_dividend'] + $can_use_point) {
-
                     $update_data['flag'] = DividendFlag::Consume();
                     $update_data['flag_title'] = DividendFlag::Consume()->description;
                 }
 
                 self::where('id', $value['id'])->update($update_data);
+                DB::table('ord_dividend')->insert([
+                    'order_sn' => $order_sn,
+                    'customer_dividend_id' => $value['id'],
+                    'dividend' => $can_use_point,
+                ]);
                 $remain_dividend -= $can_use_point;
 
             }

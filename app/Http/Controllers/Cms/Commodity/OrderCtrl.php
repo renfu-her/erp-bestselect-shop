@@ -9,7 +9,8 @@ use App\Enums\Delivery\LogisticStatus;
 use App\Enums\Discount\DividendCategory;
 use App\Enums\Order\OrderStatus;
 use App\Enums\Order\UserAddrType;
-use App\Enums\Payable\ChequeStatus;
+use App\Enums\Received\ChequeStatus;
+use App\Enums\Payable\ChequeStatus AS PayableChequeStatus;
 use App\Enums\Received\ReceivedMethod;
 use App\Enums\Supplier\Payment;
 use App\Http\Controllers\Controller;
@@ -1675,7 +1676,7 @@ class OrderCtrl extends Controller
                 'form_action' => Route('cms.order.logistic-po-create', ['id' => $id, 'sid' => $sid]),
                 'method' => 'create',
                 'transactTypeList' => AccountPayable::getTransactTypeList(),
-                'chequeStatus' => ChequeStatus::get_key_value(),
+                'chequeStatus' => PayableChequeStatus::get_key_value(),
             ]);
         }
     }
@@ -1960,7 +1961,7 @@ class OrderCtrl extends Controller
                 'form_action' => Route('cms.order.return-pay-create', ['id' => $id, 'sid' => $sid]),
                 'method' => 'create',
                 'transactTypeList' => AccountPayable::getTransactTypeList(),
-                'chequeStatus' => ChequeStatus::get_key_value(),
+                'chequeStatus' => PayableChequeStatus::get_key_value(),
             ]);
         }
     }

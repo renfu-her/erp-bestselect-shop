@@ -74,13 +74,7 @@
                         </tr>
                         <tr>
                             <td>訂單流水號：{{ $order->sn }}</td>
-                            <td>
-                                入帳日期：@if($received_order->receipt_date) {{ date('Y-m-d', strtotime($received_order->receipt_date)) }} @endif
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>收款對象：</td>
-                            <td>承辦人：{{ $undertaker ? $undertaker->name : '' }}</td>
+                            <td>入帳日期：{{ $received_order->receipt_date ? date('Y-m-d', strtotime($received_order->receipt_date)) : '' }}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -167,7 +161,7 @@
                             <td width="25%">財務主管：</td>
                             <td width="25%">會計：{{ $accountant }}</td>
                             <td width="25%">商品主管：</td>
-                            <td width="25%">商品負責人：</td>
+                            <td width="25%">承辦人：{{ $undertaker ? $undertaker->name : '' }}</td>
                         </tr>
                   </tbody>
                 </table>

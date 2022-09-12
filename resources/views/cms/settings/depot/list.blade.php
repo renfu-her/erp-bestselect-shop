@@ -35,6 +35,7 @@
                     <th scope="col">理貨倉</th>
                     <th scope="col">地址</th>
                     <th scope="col">電話</th>
+                    <th scope="col">排序</th>
                     <th scope="col" class="text-center">刪除</th>
                 </tr>
             </thead>
@@ -65,7 +66,7 @@
                         <td>{{ $data->can_tally ? '是' : '否' }}</td>
                         <td>{{ $data->address }}</td>
                         <td>{{ $data->tel }}</td>
-
+                        <td>{{ $data->sort }}</td>
                         <td class="text-center">
                             @can('cms.depot.delete')
                             <a href="javascript:void(0)" data-href="{{ Route('cms.depot.delete', ['id' => $data->id], true) }}"

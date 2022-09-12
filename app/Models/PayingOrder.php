@@ -103,6 +103,7 @@ class PayingOrder extends Model
                 'paying_order.memo as memo',
                 'paying_order.price as price',
                 'paying_order.balance_date as balance_date',
+                'paying_order.payment_date as payment_date',
                 'paying_order.payee_id as payee_id',
                 'paying_order.payee_name as payee_name',
                 'paying_order.payee_phone as payee_phone',
@@ -946,7 +947,7 @@ class PayingOrder extends Model
                     'status_code'=>1,
                     'append_pay_order_id'=>$request['append_pay_order_id'],
                     'sn'=>$request['sn'],
-                    'payment_date'=>date('Y-m-d H:i:s'),
+                    'payment_date'=>date('Y-m-d'),
                     'updated_at'=>date('Y-m-d H:i:s'),
                 ]);
             }

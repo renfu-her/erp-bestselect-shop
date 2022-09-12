@@ -21,7 +21,7 @@
             @if(! $data_status_check)
             <a href="javascript:void(0)" role="button" class="btn btn-outline-danger btn-sm"
                 data-bs-toggle="modal" data-bs-target="#confirm-delete"
-                data-href="{{ Route('cms.collection_payment.delete', ['id' => $paying_order->id]) }}">刪除付款單</a>3
+                data-href="{{ Route('cms.collection_payment.delete', ['id' => $paying_order->id]) }}">刪除付款單</a>
             @endif
             @endcan
         </div>
@@ -55,9 +55,7 @@
                         </dd>
                     </div>
                     <div class="col">
-                        <dd>
-                            付款日期：@if($paying_order->payment_date) {{ date('Y-m-d', strtotime($paying_order->payment_date)) }} @endif
-                        </dd>
+                        <dd>付款日期：{{ $paying_order->payment_date ? date('Y-m-d', strtotime($paying_order->payment_date)) : '' }}</dd>
                     </div>
                 </dl>
 

@@ -1,12 +1,12 @@
 @extends('layouts.main')
 @section('sub-content')
     {{--    @if ($method === 'edit')--}}
-    <h2 class="mb-3">{{ $type === 'deposit' ? '訂金' : '尾款'}}付款單
+    <h2 class="mb-4">{{ $type === 'deposit' ? '訂金' : '尾款'}}付款單
         {{--            {{ $purchaseData->purchase_sn }}--}}
     </h2>
-    
-    <x-b-pch-navi :id="$id"></x-b-pch-navi>
-   
+    {{--
+    <x-b-pch-navi :id="$id" :purchaseData="$purchase"></x-b-pch-navi>
+    --}}
     {{--    @else--}}
     {{--        <h2 class="mb-3">新增採購單</h2>--}}
     {{--    @endif--}}
@@ -71,11 +71,7 @@
                         <dd>單據編號：<a href="{{ Route('cms.purchase.edit', ['id' => $id], true) }}">{{ $purchaseData->purchase_sn }}</a></dd>
                     </div>
                     <div class="col">
-                        <dd>
-                        @if($pay_off)
-                            付款日期：{{ $pay_off_date }}
-                        @endif
-                        </dd>
+                        <dd>付款日期：{{ $pay_off ? $pay_off_date : '' }}</dd>
                     </div>
                 </dl>
                 <dl class="row mb-0">
@@ -121,7 +117,7 @@
                             @endforeach
                             @if($logisticsPrice > 0)
                                 <tr>
-                                    <td>{{ $logisticsGradeName . '- 物流費用' }}</td>
+                                    <td>{{ $logisticsGradeName . ' - 物流費用' }}</td>
                                     <td class="text-end"></td>
                                     <td class="text-end"></td>
                                     <td class="text-end">{{ number_format($logisticsPrice) }}</td>
@@ -236,3 +232,4 @@
         </script>
     @endpush
 @endonce
+

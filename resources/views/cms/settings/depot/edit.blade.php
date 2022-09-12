@@ -125,7 +125,9 @@
             <x-b-form-group name="tel" title="電話" required="true">
                 <input class="form-control @error('tel') is-invalid @enderror" name="tel" value="{{ old('tel', $data->tel ?? '') }}" />
             </x-b-form-group>
-
+            <x-b-form-group name="sort" title="排序" required="true">
+                <input class="form-control @error('sort') is-invalid @enderror" name="sort" type="number" value="{{ old('sort', $data->sort ?? '') }}"  required/>
+            </x-b-form-group>
             @if ($method === 'edit')
                 <input type='hidden' name='id' value="{{ old('id', $id) }}" />
             @endif

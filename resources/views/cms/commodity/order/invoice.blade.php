@@ -203,7 +203,7 @@
                 <table class="table table-bordered text-center align-middle d-sm-table d-none text-nowrap">
                     <tbody class="border-top-0 m_row">
                         <tr class="table-light">
-                            <td class="col-2">收款單號</td>
+                            <td class="col-2" style="display:none">收款單號</td>
                             <td class="col-2">產品名稱</td>
                             <td class="col-2">價格(總價)</td>
                             <td class="col-2">數量</td>
@@ -213,7 +213,7 @@
                         @foreach($sub_order as $s_value)
                             @foreach($s_value->items as $value)
                             <tr>
-                                <td>{{ $received_order->sn }}</td>
+                                <td style="display:none">{{ $received_order->sn }}</td>
                                 <td>{{ $value->product_title }}</td>
                                 <td>{{ number_format($value->total_price) }}</td>
                                 <td>{{ $value->qty }}</td>
@@ -225,7 +225,7 @@
 
                         @if($order->dlv_fee > 0)
                             <tr>
-                                <td>{{ $received_order->sn }}</td>
+                                <td style="display:none">{{ $received_order->sn }}</td>
                                 <td>物流費用</td>
                                 <td>{{ number_format($order->dlv_fee) }}</td>
                                 <td>1</td>
@@ -237,7 +237,7 @@
                         @if(count($order_discount) > 0)
                             @foreach($order_discount as $value)
                             <tr>
-                                <td>{{ $received_order->sn }}</td>
+                                <td style="display:none">{{ $received_order->sn }}</td>
                                 <td>{{ $value->title }}</td>
                                 <td>-{{ number_format($value->discount_value) }}</td>
                                 <td>1</td>
@@ -300,7 +300,7 @@
                                     (res).forEach(data => {
                                         $('.m_row').append(
                                             `<tr class="new_row">
-                                                <td>${data.received_sn}</td>
+                                                <td style="display:none">${data.received_sn}</td>
                                                 <td>${data.name}</td>
                                                 <td>${data.amt}</td>
                                                 <td>${data.count}</td>

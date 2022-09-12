@@ -61,7 +61,7 @@
                     </tr>
                     <tr>
                         <td>單據編號：{{ $stitute_order->sn }}</td>
-                        <td>付款日期：</td>
+                        <td>付款日期：{{ $paying_order->payment_date ? date('Y-m-d', strtotime($paying_order->payment_date)) : '' }}</td>
                     </tr>
                     <tr>
                         <td>支付對象：{{ $paying_order->payee_name }}</td>
