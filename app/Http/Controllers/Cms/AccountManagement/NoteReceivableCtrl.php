@@ -83,6 +83,27 @@ class NoteReceivableCtrl extends Controller
             $cond['cheque_cashing_edate']
         ];
 
+        if(request('action') == 'print'){
+            $data_list = NoteReceivableOrder::get_cheque_received_list(
+                [],
+                $cond['cheque_status_code'],
+                $cond['banks'],
+                $cond['deposited_area_code'],
+                $cond['ticket_number'],
+                $cond['drawer'],
+                $cond['undertaker'],
+                $received_price,
+                $ro_receipt_date,
+                $cheque_c_n_date,
+                $cheque_due_date,
+                $cheque_cashing_date
+            )->paginate(99999)->appends($query);
+
+            return view('cms.account_management.note_receivable.list_print',[
+                'data_list' => $data_list,
+            ]);
+        }
+
         $data_list = NoteReceivableOrder::get_cheque_received_list(
                 [],
                 $cond['cheque_status_code'],

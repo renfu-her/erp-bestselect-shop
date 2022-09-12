@@ -71,11 +71,7 @@
                         <dd>單據編號：<a href="{{ Route('cms.purchase.edit', ['id' => $id], true) }}">{{ $purchaseData->purchase_sn }}</a></dd>
                     </div>
                     <div class="col">
-                        <dd>
-                        @if($pay_off)
-                            付款日期：{{ $pay_off_date }}
-                        @endif
-                        </dd>
+                        <dd>付款日期：{{ $pay_off ? $pay_off_date : '' }}</dd>
                     </div>
                 </dl>
                 <dl class="row mb-0">
