@@ -398,7 +398,7 @@ class Order extends Model
                     ->count()) + 1, 4, '0', STR_PAD_LEFT);
 
             $order['order_sn'] = $order_sn;
-
+            // 處理紅利
             $dividend_re = CustomerDividend::orderDiscount($customer->id, $order_sn, $order['use_dividend']);
             if ($dividend_re['success'] != '1') {
                 DB::rollBack();
