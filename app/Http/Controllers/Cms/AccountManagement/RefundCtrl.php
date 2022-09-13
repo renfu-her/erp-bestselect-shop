@@ -54,7 +54,7 @@ class RefundCtrl extends Controller
             null,
             null,
             null,
-            $cond['check_balance'],
+            $cond['check_balance']
         )
         ->where(function ($q) use ($po_created_date) {
             $filter = [app(Order::class)->getTable(), app(Delivery::class)->getTable()];

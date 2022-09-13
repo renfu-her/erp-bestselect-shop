@@ -7,9 +7,11 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 
 use App\Enums\Supplier\Payment;
 
+use App\Models\AccountPayable;
 use App\Models\AllGrade;
 use App\Models\Consignment;
 use App\Models\Customer;
@@ -18,6 +20,12 @@ use App\Models\Delivery;
 use App\Models\Depot;
 use App\Models\GeneralLedger;
 use App\Models\Order;
+use App\Models\PayableAccount;
+use App\Models\PayableCash;
+use App\Models\PayableCheque;
+use App\Models\PayableForeignCurrency;
+use App\Models\PayableOther;
+use App\Models\PayableRemit;
 use App\Models\PayingOrder;
 use App\Models\Purchase;
 use App\Models\StituteOrder;
@@ -67,7 +75,7 @@ class CollectionPaymentCtrl extends Controller
             $cond['source_sn'],
             $po_price,
             $po_payment_date,
-            $cond['check_balance'],
+            $cond['check_balance']
         )->paginate($page)->appends($query);
 
         // accounting classification start
@@ -348,5 +356,90 @@ class CollectionPaymentCtrl extends Controller
             wToast('刪除失敗', ['type'=>'danger']);
             return redirect()->back();
         }
+    }
+
+
+    public function payable_list(Request $request, $id)
+    {
+        $request->merge([
+            'id'=>$id,
+        ]);
+
+        $request->validate([
+            'id' => 'required|exists:pcs_paying_orders,id',
+        ]);
+
+        $paying_order = PayingOrder::find($id);
+        $payable_data = PayingOrder::get_payable_detail($id);
+        $data_status_check = PayingOrder::payable_data_status_check($payable_data);
+        $previous_url = PayingOrder::paying_order_link($paying_order->source_type, $paying_order->source_id, $paying_order->source_sub_id, $paying_order->type);
+
+        return view('cms.account_management.collection_payment.payable_list', [
+            'paying_order' => $paying_order,
+            'payable_data' => $payable_data,
+            'data_status_check' => $data_status_check,
+            'previous_url' => $previous_url,
+        ]);
+    }
+
+
+    public function payable_delete(Request $request, $payable_id)
+    {
+        $request->merge([
+            'payable_id'=>$payable_id,
+        ]);
+
+        $request->validate([
+            'payable_id' => 'required|exists:acc_payable,id',
+        ]);
+
+        $payable = AccountPayable::find($payable_id);
+        $paying_order = PayingOrder::find($payable->pay_order_id);
+
+        DB::beginTransaction();
+
+        try {
+            switch ($payable->acc_income_type_fk) {
+                case Payment::Cash:
+                    $payable_record = PayableCash::find($payable->payable_id);
+                    break;
+                case Payment::Cheque:
+                    $payable_record = PayableCheque::find($payable->payable_id);
+                    break;
+                case Payment::Remittance:
+                    $payable_record = PayableRemit::find($payable->payable_id);
+                    break;
+                case Payment::ForeignCurrency:
+                    $payable_record = PayableForeignCurrency::find($payable->payable_id);
+                    break;
+                case Payment::AccountsPayable:
+                    $payable_record = PayableAccount::find($payable->payable_id);
+                    break;
+                case Payment::Other:
+                    $payable_record = PayableOther::find($payable->payable_id);
+                    break;
+            }
+
+            $payable_record->delete();
+            $payable->delete();
+
+            if($paying_order->balance_date && $paying_order->payment_date){
+                DayEnd::match_day_end_status($paying_order->payment_date, $paying_order->sn);
+
+                $paying_order->update([
+                    'balance_date'=>null,
+                    'payment_date'=>null,
+                ]);
+            }
+
+            DB::commit();
+            wToast('刪除完成');
+
+        } catch (\Exception $e) {
+            DB::rollback();
+            wToast('刪除失敗', ['type'=>'danger']);
+        }
+
+        return redirect()->back();
     }
 }
