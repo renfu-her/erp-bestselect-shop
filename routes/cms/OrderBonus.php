@@ -15,6 +15,8 @@ Route::group(['prefix' => 'order-bonus', 'as' => 'order-bonus.'], function () {
     //  Route::post('edit/{id}', [OrderBonusCtrl::class, 'update']);
     Route::get('delete/{id}', [OrderBonusCtrl::class, 'destroy'])->name('delete')->middleware('permission:cms.order-bonus.delete');
     Route::get('detail/{id}', [OrderBonusCtrl::class, 'detail'])->name('detail')->middleware('permission:cms.order-bonus.detail');
+    Route::get('detail/{id}/person/{customer_id}', [OrderBonusCtrl::class, 'personDetail'])->name('person-detail')->middleware('permission:cms.order-bonus.detail');
+
     Route::post('export-csv/{id}', [OrderBonusCtrl::class, 'exportCsv'])->name('export-csv')->middleware('permission:cms.order-bonus.export-csv');
 
 });
