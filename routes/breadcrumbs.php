@@ -782,6 +782,10 @@ Breadcrumbs::for('cms.collection_payment.edit', function (BreadcrumbTrail $trail
     $trail->parent('cms.collection_payment.index', route('cms.collection_payment.index'));
     $trail->push('編輯付款單');
 });
+Breadcrumbs::for('cms.collection_payment.payable_list', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.collection_payment.index', route('cms.collection_payment.index'));
+    $trail->push('付款記錄');
+});
 
 // 代墊單作業
 Breadcrumbs::for('cms.stitute.index', function (BreadcrumbTrail $trail) {

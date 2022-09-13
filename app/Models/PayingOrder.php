@@ -130,8 +130,11 @@ class PayingOrder extends Model
         $source_sn = null,
         $po_price = null,
         $po_payment_date = null,
-        $check_balance = 'all'
+        $check_balance = 'all',
+        $po_separate = false
     ){
+        $separate = $po_separate ? ', type' : '';
+
         $sq = '
             SELECT
                 acc_all_grades.id,
@@ -177,7 +180,7 @@ class PayingOrder extends Model
                     created_at
                 FROM pcs_paying_orders
                 WHERE deleted_at IS NULL
-                GROUP BY source_type, source_id, source_sub_id
+                GROUP BY source_type, source_id, source_sub_id' . $separate . '
                 ) AS po')
             )
             ->leftJoin(DB::raw('(

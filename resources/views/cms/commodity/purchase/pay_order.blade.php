@@ -26,6 +26,16 @@
                 ], true) }}" class="btn btn-sm btn-primary px-3" role="button">付款</a>
             @endif
 
+            @can('cms.collection_payment.delete')
+            @if(! $data_status_check)
+                <a href="{{ route('cms.collection_payment.payable_list', ['id' => $payOrdId]) }}" class="btn btn-sm btn-primary" role="button">付款記錄</a>
+
+                <a href="javascript:void(0)" role="button" class="btn btn-outline-danger btn-sm"
+                    data-bs-toggle="modal" data-bs-target="#confirm-delete"
+                    data-href="{{ Route('cms.collection_payment.delete', ['id' => $payOrdId]) }}">刪除付款單</a>
+            @endif
+            @endcan
+
             {{-- <button type="button" class="btn btn-sm btn-primary">圖片管理</button> --}}
             <a href="{{ url()->full() . '&action=print' }}" target="_blank"
                 class="btn btn-sm btn-warning" rel="noopener noreferrer">中一刀列印畫面</a>
@@ -34,13 +44,6 @@
             {{-- <button type="button" class="btn btn-primary">修改備註</button> --}}
             {{-- <button type="button" class="btn btn-primary">新增細項</button> --}}
             {{-- <button type="button" class="btn btn-primary">變更支付對象</button> --}}
-            @can('cms.collection_payment.delete')
-            @if(! $data_status_check)
-            <a href="javascript:void(0)" role="button" class="btn btn-outline-danger btn-sm"
-                data-bs-toggle="modal" data-bs-target="#confirm-delete"
-                data-href="{{ Route('cms.collection_payment.delete', ['id' => $payOrdId]) }}">刪除付款單</a>
-            @endif
-            @endcan
         </div>
     </nav>
 
