@@ -240,11 +240,13 @@
 
                                 <td class="text-center">
                                     @can('cms.purchase.delete')
-                                    <a href="javascript:void(0)" data-href="{{ Route('cms.purchase.delete', ['id' => $data->id], true) }}"
-                                       data-bs-toggle="modal" data-bs-target="#confirm-delete"
-                                       class="icon -del icon-btn fs-5 text-danger rounded-circle border-0">
-                                        <i class="bi bi-trash"></i>
-                                    </a>
+                                        @if(\App\Enums\Consignment\AuditStatus::getDescription(\App\Enums\Consignment\AuditStatus::approved()) != $data->audit_status)
+                                            <a href="javascript:void(0)" data-href="{{ Route('cms.purchase.delete', ['id' => $data->id], true) }}"
+                                               data-bs-toggle="modal" data-bs-target="#confirm-delete"
+                                               class="icon -del icon-btn fs-5 text-danger rounded-circle border-0">
+                                                <i class="bi bi-trash"></i>
+                                            </a>
+                                        @endif
                                     @endcan
                                 </td>
                             </tr>
