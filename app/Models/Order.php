@@ -891,7 +891,7 @@ class Order extends Model
                 'active_sdate'=>$value->active_sdate,
                 'active_edate'=>$value->active_edate,
             ]);
-            
+
         }
         DB::table('ord_dividend')->where('order_sn',$order->sn)->delete();
         // 刪除分潤
@@ -1144,7 +1144,7 @@ class Order extends Model
             if (ReceivedMethod::Remittance()->value == $order->payment_method) {
                 $link_url_type = 'payRemit';
             }
-            $link_url = env('FRONTEND_URL') . '' . $link_url_type . '/' . $order_id . '?em=' . $order->email;
+            $link_url = env('FRONTEND_URL') . '' . $link_url_type . '/' . $order_id . '?em=' . base64_encode(trim($order->email));
 
             $email = $order->email;
             $data = [
