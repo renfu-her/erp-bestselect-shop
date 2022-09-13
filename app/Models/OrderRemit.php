@@ -13,12 +13,13 @@ class OrderRemit extends Model
     protected $table = 'ord_remits';
     protected $guarded = [];
     public $timestamps = true;
+    /*
     protected $casts = [
         'remit_date'  => 'datetime:Y-m-d H:i:s',
         'created_at'  => 'datetime:Y-m-d H:i:s',
         'updated_at'  => 'datetime:Y-m-d H:i:s',
     ];
-
+    */
     public static function createRemit($order_id, $name, $price, $remit_date, $bank_code)
     {
         $order = Order::where('id', $order_id)->first();
