@@ -154,7 +154,11 @@
                         <th scope="col" style="width:40px">#</th>
                         <th scope="col" style="width:40px" class="text-center">明細</th>
                         <th scope="col">訂單編號</th>
-                        <th scope="col" class="wrap lh-sm">訂單狀態 /<br>物流狀態</th>
+                        <th scope="col" class="wrap lh-sm">
+                            <span class="text-nowrap">訂單狀態</span>
+                            / <br>
+                            <span class="text-nowrap">物流狀態</span>
+                        </th>
                         <th scope="col">出貨單號</th>
                         <th scope="col">訂購日期</th>
                         <th scope="col">購買人</th>

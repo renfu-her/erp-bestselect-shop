@@ -354,7 +354,7 @@
                                         <td>${{ number_format($item->price) }}</td>
                                         <td>{{ $item->qty }}</td>
                                         <td>${{ number_format($item->total_price) }}</td>
-                                        <td>{{ $item->note }}</td>
+                                        <td class="wrap lh-sm">{{ $item->note }}</td>
                                     </tr>
                                 @endforeach
                             </tbody>
