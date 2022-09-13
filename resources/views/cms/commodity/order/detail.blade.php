@@ -340,6 +340,7 @@
                                     <th scope="col">單價</th>
                                     <th scope="col">數量</th>
                                     <th scope="col">小計</th>
+                                    <th scope="col">說明</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -353,6 +354,7 @@
                                         <td>${{ number_format($item->price) }}</td>
                                         <td>{{ $item->qty }}</td>
                                         <td>${{ number_format($item->total_price) }}</td>
+                                        <td>{{ $item->note }}</td>
                                     </tr>
                                 @endforeach
                             </tbody>
