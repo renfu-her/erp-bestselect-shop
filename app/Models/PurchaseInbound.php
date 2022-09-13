@@ -357,7 +357,11 @@ class PurchaseInbound extends Model
                     if (LogEventFeature::consume_delivery()->value == $feature) {
                         $update_arr['consume_num'] = DB::raw("consume_num + $sale_num");
                         $stock_event = StockEvent::consume()->value;
-                        $stock_note = LogEventFeature::getDescription(LogEventFeature::consume_delivery()->value);
+                        $stock_note = LogEventFeature::getDescription($feature);
+                    } else if (LogEventFeature::consume_cancle()->value == $feature) {
+                        $update_arr['consume_num'] = DB::raw("consume_num + $sale_num");
+                        $stock_event = StockEvent::consume_cancle()->value;
+                        $stock_note = LogEventFeature::getDescription($feature);
                     }
 
                     PurchaseInbound::where('id', $id)

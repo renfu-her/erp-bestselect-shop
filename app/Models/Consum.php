@@ -137,6 +137,48 @@ class Consum extends Model
         return $result;
     }
 
+    //將物流耗材資料變更為退回
+    // 從setUpLogisticData改
+    public static function setDownLogisticData($logistic_id, $user_id, $user_name) {
+        $logistic = Logistic::where('id', '=', $logistic_id)->get()->first();
+
+        $dataGet = null;
+        if (null != $logistic_id) {
+            $data = Consum::where('logistic_id', $logistic_id);
+            $dataGet = $data->get();
+        }
+        $result = null;
+        if (null != $logistic && null != $dataGet && 0 <= count($dataGet)) {
+            $delivery = Delivery::where('id', '=', $logistic->delivery_id)->get()->first();
+            $result = DB::transaction(function () use ($delivery, $data, $dataGet, $logistic_id, $user_id, $user_name
+            ) {
+                $event = $delivery->event;
+                if ('pickup' == $delivery->ship_category) {
+                    $event = 'ord_pickup';
+                }
+
+                //扣除入庫單庫存
+                foreach ($dataGet as $item) {
+                    $reShipIb = PurchaseInbound::shippingInbound($event, $delivery->event_id, $item->id, LogEventFeature::consume_cancle()->value, $item->inbound_id, $item->qty * -1, $user_id, $user_name);
+                    if ($reShipIb['success'] == 0) {
+                        DB::rollBack();
+                        return $reShipIb;
+                    }
+                }
+                Logistic::where('id', '=', $logistic_id)->update([
+                    'audit_date' => null,
+                    'audit_user_id' => null,
+                    'audit_user_name' => null,
+                ]);
+
+                return ['success' => 1, 'error_msg' => ""];
+            });
+        } else {
+            return ['success' => 0, 'error_msg' => "無此物流單"];
+        }
+        return $result;
+    }
+
     public static function deleteById($id)
     {
         Consum::where('id', $id)->delete();
