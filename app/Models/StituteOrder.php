@@ -168,13 +168,23 @@ class StituteOrder extends Model
     }
 
 
-    public static function update_stitute_order_approval($request = [])
+    public static function update_stitute_order_approval($request = [], $clear = false)
     {
-        self::where('id', $request['id'])->update([
-            'accountant_id'=>auth('user')->user()->id,
-            'payment_date'=>date('Y-m-d H:i:s'),
-            'pay_order_id'=>$request['pay_order_id'],
-            'updated_at'=>date('Y-m-d H:i:s'),
-        ]);
+        if($clear){
+            self::where('id', $request['id'])->update([
+                'accountant_id'=>null,
+                'payment_date'=>null,
+                'pay_order_id'=>null,
+                'updated_at'=>date('Y-m-d H:i:s'),
+            ]);
+
+        } else {
+            self::where('id', $request['id'])->update([
+                'accountant_id'=>auth('user')->user()->id,
+                'payment_date'=>date('Y-m-d'),
+                'pay_order_id'=>$request['pay_order_id'],
+                'updated_at'=>date('Y-m-d H:i:s'),
+            ]);
+        }
     }
 }

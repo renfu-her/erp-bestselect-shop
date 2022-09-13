@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>付款單</title>
+    <title>物流付款單</title>
     <style>
         * {
             font-family: "Nunito", "Noto Sans TC", sans-serif;
@@ -61,11 +61,7 @@
                 </tr>
                 <tr>
                     <td>單據編號：{{ $sub_order->sn }}</td>
-                    <td>
-                        @if($paying_order->balance_date)
-                            付款日期：{{ date('Y-m-d', strtotime($paying_order->balance_date)) }}
-                        @endif
-                    </td>
+                    <td>付款日期：{{ $paying_order->payment_date ? date('Y-m-d', strtotime($paying_order->payment_date)) : '' }}</td>
                 </tr>
                 <tr>
                     <td>支付對象：{{ $paying_order->payee_name }}</td>

@@ -1,5 +1,4 @@
 @extends('layouts.main')
-
 @section('sub-content')
     <h2 class="mb-4">收款單入款審核</h2>
 
@@ -52,10 +51,10 @@
                     <thead class="table-light">
                         <tr class="small wrap">
                             <th scope="col" style="width:10%"></th>
-                            <th scope="col" style="width:35%" class="text-center">借</th>
-                            <th scope="col" style="width:10%" class="text-end">借方<br class="d-block d-lg-none">金額</th>
-                            <th scope="col" style="width:35%" class="text-center">貸</th>
-                            <th scope="col" style="width:10%" class="text-end">貸方<br class="d-block d-lg-none">金額</th>
+                            <th scope="col" style="width:calc((90% - var(--th-wrap)*2)/2)" class="text-center">借</th>
+                            <th scope="col" style="width:var(--th-wrap)" class="text-end">借方<br class="d-block d-lg-none">金額</th>
+                            <th scope="col" style="width:calc((90% - var(--th-wrap)*2)/2)" class="text-center">貸</th>
+                            <th scope="col" style="width:var(--th-wrap)" class="text-end">貸方<br class="d-block d-lg-none">金額</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -71,7 +70,7 @@
                                 <table class="table mb-0">
                                     @foreach($debit as $d_key => $d_value)
                                     <tr>
-                                        <td style="width:calc(35/45*100%)" class="border-end">
+                                        <td style="width:calc(100% - var(--th-wrap))" class="border-end">
                                             @if ($d_value->received_info)
                                                 @if ($d_value->received_info->received_method == 'credit_card')
                                                     @php
@@ -208,7 +207,7 @@
                                                         <select class="form-select -select2 -single" name="cheque[{{ $received_id }}][status_code]" data-placeholder="請選擇票據狀態" required>
                                                             <option value="">請選擇</option>
                                                             @foreach($cheque_status as $key => $value)
-                                                                <option value="{{ $key }}"{{ $key == $d_value->received_info->cheque_status_code ? 'selected' : ''}}>{{ $value }}</option>
+                                                                <option value="{{ $key }}"{{ $d_value->received_info->cheque_status_code ? ($key == $d_value->received_info->cheque_status_code ? 'selected' : '') : ($key == 'received' ? 'selected' : '') }}>{{ $value }}</option>
                                                             @endforeach
                                                         </select>
                                                     </div>
@@ -226,7 +225,7 @@
                                                 @endif
                                             @endif
                                         </td>
-                                        <td style="width:calc(10/45*100%)" class="text-end">
+                                        <td style="width:var(--th-wrap)" class="text-end">
                                             {{ number_format($d_value->price) }}
                                         </td>
                                     </tr>
@@ -241,10 +240,10 @@
                                 <table class="table mb-0">
                                     @foreach($credit as $value)
                                     <tr class="border-bottom">
-                                        <td style="width:calc(35/45*100%)" class="border-end">
+                                        <td style="width:calc(100% - var(--th-wrap))" class="border-end">
                                             {{ $value->name }}
                                         </td>
-                                        <td style="width:calc(10/45*100%)" class="text-end">
+                                        <td style="width:var(--th-wrap)" class="text-end">
                                             {{ number_format($value->price) }}
                                         </td>
                                     </tr>
@@ -260,9 +259,9 @@
                         <tr>
                             <td>合計</td>
                             <td></td>
-                            <td class="text-end">{{ number_format($total_debit_price) }}{{-- number_format($received_order->price) --}}</td>
+                            <td class="text-end">{{ number_format($total_debit_price) }}</td>
                             <td></td>
-                            <td class="text-end">{{ number_format($total_credit_price) }}{{-- number_format($received_order->price) --}}</td>
+                            <td class="text-end">{{ number_format($total_credit_price) }}</td>
                         </tr>
                     </tfoot>
                 </table>
@@ -271,7 +270,7 @@
 
         <div class="col-auto">
             <button type="submit" class="btn btn-primary px-4">確認</button>
-            <a href="{{ Route('cms.collection_received.receipt', ['id' => $received_order->source_id]) }}" 
+            <a href="{{ url()->previous() }}" 
                 class="btn btn-outline-primary px-4" role="button">返回上一頁
             </a>
         </div>
@@ -281,6 +280,14 @@
 @once
 @push('sub-styles')
 <style>
+    * {
+        --th-wrap: 55px;
+    }
+    @media (min-width: 992px) { 
+        * {
+            --th-wrap: 75px;
+        }
+    }
     .grade_1 {
         padding-left: 1ch;
     }

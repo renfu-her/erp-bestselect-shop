@@ -1,7 +1,7 @@
 @extends('layouts.main')
 @section('sub-content')
     <h2 class="mb-3">#{{ $purchaseData->purchase_sn }} 採購單</h2>
-    <x-b-pch-navi :id="$id"></x-b-pch-navi>
+    <x-b-pch-navi :id="$id" :purchaseData="$purchaseData"></x-b-pch-navi>
 
     <div class="card shadow p-4 mb-4">
         <h6>採購單入庫總覽</h6>
@@ -162,6 +162,7 @@
                     <th scope="col">有效期限</th>
                     <th scope="col">備註</th>
                     <th scope="col">倉庫</th>
+                    <th scope="col">入庫人員</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -191,6 +192,7 @@
                             <td>{{ $inbound->inbound_memo }}</td>
                         @endif
                         <td>{{ $inbound->depot_name }}</td>
+                        <td>{{ $inbound->inbound_user_name }}</td>
 
                     </tr>
                 @endforeach

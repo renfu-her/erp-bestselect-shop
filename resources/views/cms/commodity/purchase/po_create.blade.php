@@ -41,11 +41,11 @@
                                 </td>
                                 <td class="text-wrap">{{ $product_grade_name }}</td>
                                 <td class="text-wrap">{{ $deposit_payment_data->summary }}</td>
-                                <td class="text-end">{{ number_format($deposit_payment_data->price, 2) }}</td>
+                                <td class="text-end">${{ number_format($deposit_payment_data->price, 2) }}</td>
                                 <td class="text-end">1</td>
                                 <td class="text-end">{{ $currency->rate }}</td>
                                 <td>{{ $currency->name }}</td>
-                                <td class="text-end">{{ number_format($deposit_payment_data->price) }}</td>
+                                <td class="text-end">${{ number_format($deposit_payment_data->price) }}</td>
                                 <td class="text-end"></td>
                             </tr>
 
@@ -58,12 +58,12 @@
                                     </td>
                                     <td class="text-wrap">{{ $value->account->code . ' ' . $value->account->name }}</td>
                                     <td class="text-wrap">{{ $value->note }}</td>
-                                    <td class="text-end">{{ number_format($value->tw_price, 2) }}</td>
+                                    <td class="text-end">${{ number_format($value->tw_price, 2) }}</td>
                                     <td class="text-end">1</td>
                                     <td class="text-end">{{ $value->currency_rate }}</td>
                                     <td>{{ $value->currency_name }}</td>
                                     <td class="text-end"></td>
-                                    <td class="text-end">{{ number_format($value->tw_price) }}</td>
+                                    <td class="text-end">${{ number_format($value->tw_price) }}</td>
                                 </tr>
                             @endif
                             @endforeach
@@ -77,11 +77,11 @@
                                     </td>
                                     <td class="text-wrap">{{ $product_grade_name }}</td>
                                     <td class="text-wrap">{{ $value->title . '（負責人：' . $value->name }}）</td>
-                                    <td class="text-end">{{ number_format($value->total_price / $value->num, 2) }}</td>
+                                    <td class="text-end">${{ number_format($value->total_price / $value->num, 2) }}</td>
                                     <td class="text-end">{{ $value->num }}</td>
                                     <td class="text-end">{{ $currency->rate }}</td>
                                     <td>{{ $currency->name }}</td>
-                                    <td class="text-end">{{ number_format($value->total_price) }}</td>
+                                    <td class="text-end">${{ number_format($value->total_price) }}</td>
                                     <td class="text-end"></td>
                                 </tr>
                             @endforeach
@@ -94,11 +94,11 @@
                                     </td>
                                     <td class="text-wrap">{{ $logistics_grade_name }}</td>
                                     <td>{{ '物流費用' }}</td>
-                                    <td class="text-end">{{ number_format($logistics_price, 2) }}</td>
+                                    <td class="text-end">${{ number_format($logistics_price, 2) }}</td>
                                     <td class="text-end">1</td>
                                     <td class="text-end">{{ $currency->rate }}</td>
                                     <td>{{ $currency->name }}</td>
-                                    <td class="text-end">{{ number_format($logistics_price) }}</td>
+                                    <td class="text-end">${{ number_format($logistics_price) }}</td>
                                     <td class="text-end"></td>
                                 </tr>
                             @endif
@@ -111,11 +111,11 @@
                                     </td>
                                     <td class="text-wrap">{{ $product_grade_name }}</td>
                                     <td>訂金抵扣</td>
-                                    <td class="text-end">-{{ number_format($deposit_payment_data->price, 2) }}</td>
+                                    <td class="text-end">-${{ number_format($deposit_payment_data->price, 2) }}</td>
                                     <td class="text-end">1</td>
                                     <td class="text-end">{{ $currency->rate }}</td>
                                     <td>{{ $currency->name }}</td>
-                                    <td class="text-end">-{{ number_format($deposit_payment_data->price) }}</td>
+                                    <td class="text-end">-${{ number_format($deposit_payment_data->price) }}</td>
                                     <td class="text-end"></td>
                                 </tr>
                             @endif
@@ -129,12 +129,12 @@
                                 </td>
                                 <td class="text-wrap">{{ $value->account->code . ' ' . $value->account->name }}</td>
                                 <td class="text-wrap">{{ $value->note }}</td>
-                                <td class="text-end">{{ number_format($value->tw_price, 2) }}</td>
+                                <td class="text-end">${{ number_format($value->tw_price, 2) }}</td>
                                 <td class="text-end">1</td>
                                 <td class="text-end">{{ $value->currency_rate }}</td>
                                 <td>{{ $value->currency_name }}</td>
                                 <td class="text-end"></td>
-                                <td class="text-end">{{ number_format($value->tw_price) }}</td>
+                                <td class="text-end">${{ number_format($value->tw_price) }}</td>
                             </tr>
                             @endif
                             @endforeach
@@ -145,7 +145,7 @@
             <table class="table table-sm tableList mb-0">
                 <tfoot>
                     <tr>
-                        <th scope="row" class="text-end">應付總計金額：{{ number_format($tw_price) }}</th>
+                        <th scope="row" class="text-end">應付總計金額：${{ number_format($tw_price) }}</th>
                     </tr>
                 </tfoot>
             </table>

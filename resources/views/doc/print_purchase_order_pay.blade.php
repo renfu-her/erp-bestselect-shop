@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>付款單</title>
+    <title>{{ $type === 'deposit' ? '訂金' : '尾款'}}付款單</title>
     <style>
         * {
             font-family: "Nunito", "Noto Sans TC", sans-serif;
@@ -61,11 +61,7 @@
                         </tr>
                         <tr>
                             <td>單據編號：{{ $purchaseData->purchase_sn }}</td>
-                            <td>
-                                @if ($pay_off)
-                                    付款日期：{{ $pay_off_date }}
-                                @endif
-                            </td>
+                            <td>付款日期：{{ $pay_off ? $pay_off_date : '' }}</td>
                         </tr>
                         <tr>
                             <td>支付對象：{{ $payingOrderData->payee_name }}</td>

@@ -87,6 +87,11 @@ class Addr extends Model
         return $re->select('id as region_id', 'title as region_title', 'zipcode', 'parent_id as city_id', 'service_area_id')->get()->toArray();
     }
 
+    /**
+     * @param $addr 地址
+     * 對地址作格式處理， 如果無法找到對應地區、縣市，則回傳預設$default
+     * @return mixed|object
+     */
     public static function addrFormating($addr)
     {
         $default = (object) array(
@@ -129,6 +134,12 @@ class Addr extends Model
         //
     }
 
+    /**
+     * @param $region_id 地區id
+     * @param $addr string 格式: 中山路1號1樓
+     *
+     * @return string 格式加上郵遞區號:311 新竹縣五峰鄉中山路1號1樓
+     */
     public static function fullAddr($region_id, $addr)
     {
         if (!$region_id) {

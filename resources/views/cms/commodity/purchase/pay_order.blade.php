@@ -1,17 +1,21 @@
 @extends('layouts.main')
 @section('sub-content')
     {{--    @if ($method === 'edit')--}}
-    <h2 class="mb-3">採購單
+    <h2 class="mb-4">{{ $type === 'deposit' ? '訂金' : '尾款'}}付款單
         {{--            {{ $purchaseData->purchase_sn }}--}}
     </h2>
-    <x-b-pch-navi :id="$id"></x-b-pch-navi>
+    {{--
+    <x-b-pch-navi :id="$id" :purchaseData="$purchase"></x-b-pch-navi>
+    --}}
     {{--    @else--}}
     {{--        <h2 class="mb-3">新增採購單</h2>--}}
     {{--    @endif--}}
 
     <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
         <div class="p-1 pe-2">
+            @can('cms.collection_payment.edit')
             <a href="{{ route('cms.collection_payment.edit', ['id' => $payOrdId]) }}" class="btn btn-sm btn-success px-3" role="button">修改</a>
+            @endcan
 
             @if(!$pay_off)
                 <a href="{{ Route('cms.purchase.po-create', [
@@ -25,16 +29,18 @@
             {{-- <button type="button" class="btn btn-sm btn-primary">圖片管理</button> --}}
             <a href="{{ url()->full() . '&action=print' }}" target="_blank"
                 class="btn btn-sm btn-warning" rel="noopener noreferrer">中一刀列印畫面</a>
-            {{-- <a href="#" target="_blank" class="btn btn-sm btn-warning" rel="noopener noreferrer">A4列印畫面</a> --}}
 
             {{-- <button type="button" class="btn btn-primary">修改</button> --}}
             {{-- <button type="button" class="btn btn-primary">修改備註</button> --}}
             {{-- <button type="button" class="btn btn-primary">新增細項</button> --}}
             {{-- <button type="button" class="btn btn-primary">變更支付對象</button> --}}
-
+            @can('cms.collection_payment.delete')
+            @if(! $data_status_check)
             <a href="javascript:void(0)" role="button" class="btn btn-outline-danger btn-sm"
                 data-bs-toggle="modal" data-bs-target="#confirm-delete"
                 data-href="{{ Route('cms.collection_payment.delete', ['id' => $payOrdId]) }}">刪除付款單</a>
+            @endif
+            @endcan
         </div>
     </nav>
 
@@ -65,11 +71,7 @@
                         <dd>單據編號：<a href="{{ Route('cms.purchase.edit', ['id' => $id], true) }}">{{ $purchaseData->purchase_sn }}</a></dd>
                     </div>
                     <div class="col">
-                        <dd>
-                        @if($pay_off)
-                            付款日期：{{ $pay_off_date }}
-                        @endif
-                        </dd>
+                        <dd>付款日期：{{ $pay_off ? $pay_off_date : '' }}</dd>
                     </div>
                 </dl>
                 <dl class="row mb-0">
@@ -115,7 +117,7 @@
                             @endforeach
                             @if($logisticsPrice > 0)
                                 <tr>
-                                    <td>{{ $logisticsGradeName . '- 物流費用' }}</td>
+                                    <td>{{ $logisticsGradeName . ' - 物流費用' }}</td>
                                     <td class="text-end"></td>
                                     <td class="text-end"></td>
                                     <td class="text-end">{{ number_format($logisticsPrice) }}</td>
@@ -219,14 +221,15 @@
         </x-slot>
     </x-b-modal>
 @endsection
+
 @once
     @push('sub-scripts')
-    <script>
-        // Modal Control
-        $('#confirm-delete').on('show.bs.modal', function(e) {
-            $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
-        });
-    </script>
+        <script>
+            // Modal Control
+            $('#confirm-delete').on('show.bs.modal', function(e) {
+                $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
+            });
+        </script>
     @endpush
 @endonce
 

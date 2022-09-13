@@ -11,12 +11,17 @@ use Illuminate\Support\Arr;
 use App\Enums\Supplier\Payment;
 
 use App\Models\AllGrade;
+use App\Models\Consignment;
 use App\Models\Customer;
 use App\Models\DayEnd;
+use App\Models\Delivery;
 use App\Models\Depot;
-use App\Models\PayingOrder;
-use App\Models\Supplier;
 use App\Models\GeneralLedger;
+use App\Models\Order;
+use App\Models\PayingOrder;
+use App\Models\Purchase;
+use App\Models\StituteOrder;
+use App\Models\Supplier;
 use App\Models\User;
 
 class CollectionPaymentCtrl extends Controller
@@ -225,25 +230,8 @@ class CollectionPaymentCtrl extends Controller
                 $value->debit = $debit;
                 $value->credit = $credit;
 
+                $value->po_url_link = PayingOrder::paying_order_link($value->po_source_type, $value->po_source_id, $value->po_source_sub_id, $value->po_type);
                 if($value->po_source_type == 'pcs_purchase'){
-                    $value->po_url_link = "javascript:void(0);";
-
-                } else if($value->po_source_type == 'ord_orders' && $value->po_source_sub_id != null){
-                    $value->po_url_link = route('cms.order.logistic-po', ['id' => $value->po_source_id, 'sid' => $value->po_source_sub_id]);
-
-                } else if($value->po_source_type == 'acc_stitute_orders'){
-                    $value->po_url_link = route('cms.stitute.po-show', ['id' => $value->po_source_id]);
-
-                } else if($value->po_source_type == 'ord_orders' && $value->po_source_sub_id == null){
-                    $value->po_url_link = route('cms.order.return-pay-order', ['id' => $value->po_source_id]);
-
-                } else if($value->po_source_type == 'dlv_delivery'){
-                    $value->po_url_link = route('cms.delivery.return-pay-order', ['id' => $value->po_source_id]);
-
-                } else if($value->po_source_type == 'pcs_paying_orders'){
-                    $value->po_url_link = route('cms.accounts_payable.po-show', ['id' => $value->po_source_id]);
-
-                } else {
                     $value->po_url_link = "javascript:void(0);";
                 }
             }
@@ -317,17 +305,48 @@ class CollectionPaymentCtrl extends Controller
 
     public function destroy($id)
     {
-        $target = PayingOrder::delete_paying_order($id);
-        if($target){
-            if($target->payment_date){
-                DayEnd::match_day_end_status($target->payment_date, $target->sn);
+        $po = PayingOrder::delete_paying_order($id);
+        if($po){
+            // reverse - source order
+            if($po->source_type == app(Purchase::class)->getTable()){
+
+            } else if($po->source_type == app(Order::class)->getTable() && $po->source_sub_id != null){
+
+            } else if($po->source_type == app(Consignment::class)->getTable()){
+
+            } else if($po->source_type == app(StituteOrder::class)->getTable()){
+                $parm = [
+                    'id' => $po->source_id,
+                ];
+                StituteOrder::update_stitute_order_approval($parm, true);
+
+            } else if($po->source_type == app(Order::class)->getTable() && $po->source_sub_id == null){
+
+            } else if($po->source_type == app(Delivery::class)->getTable()){
+
+            } else if($po->source_type == app(PayingOrder::class)->getTable()){
+                $parm = [
+                    'append_pay_order_id'=>$po->id,
+                ];
+                PayingOrder::update_account_payable_method($parm, true);
+            }
+
+            // cheque status is cashed then po can't delete,
+            // if status not cashed then would not count in note payable order,
+            // so needn't update it
+            //
+
+            if($po->payment_date){
+                DayEnd::match_day_end_status($po->payment_date, $po->sn);
             }
 
             wToast('刪除完成');
 
+            return redirect()->to(PayingOrder::paying_order_source_link($po->source_type, $po->source_id, $po->source_sub_id, $po->type, true));
+
         } else {
             wToast('刪除失敗', ['type'=>'danger']);
+            return redirect()->back();
         }
-        return redirect()->back();
     }
 }

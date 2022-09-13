@@ -85,8 +85,8 @@ class DayEnd extends Model
 
     public static function match_day_end_order($closing_date)
     {
-        $target = self::whereDate('closing_date', $closing_date)->first();
-
+        $date = date('Y-m-d', strtotime($closing_date));
+        $target = self::whereDate('closing_date', $date)->first();
         $count = self::counter($closing_date);
 
         if($target){
@@ -124,9 +124,11 @@ class DayEnd extends Model
 
     public static function counter($closing_date)
     {
-        $po = PayingOrder::whereDate('payment_date', $closing_date)->get();
-        $ro = ReceivedOrder::whereDate('receipt_date', $closing_date)->get();
-        $tv = TransferVoucher::whereDate('created_at', $closing_date)->get();
+        $date = date('Y-m-d', strtotime($closing_date));
+
+        $po = PayingOrder::whereDate('payment_date', $date)->get();
+        $ro = ReceivedOrder::whereDate('receipt_date', $date)->get();
+        $tv = TransferVoucher::whereDate('created_at', $date)->get();
         $counter = $po->count() + $ro->count() + $tv->count();
 
         return $counter;
@@ -135,9 +137,11 @@ class DayEnd extends Model
 
     public static function check_day_end_item($day_end_id, $closing_date)
     {
-        $po = PayingOrder::whereDate('payment_date', $closing_date)->get();
-        $ro = ReceivedOrder::whereDate('receipt_date', $closing_date)->get();
-        $tv = TransferVoucher::whereDate('created_at', $closing_date)->get();
+        $date = date('Y-m-d', strtotime($closing_date));
+
+        $po = PayingOrder::whereDate('payment_date', $date)->get();
+        $ro = ReceivedOrder::whereDate('receipt_date', $date)->get();
+        $tv = TransferVoucher::whereDate('created_at', $date)->get();
         $remark = null;
 
         DayEndLog::delete_log($closing_date);
@@ -326,39 +330,15 @@ class DayEnd extends Model
         if($source_type == 'ord_received_orders') {
             $target = ReceivedOrder::find($source_id);
 
-            if($target->source_type == 'ord_orders'){
-                $link = route('cms.collection_received.receipt', ['id' => $target->source_id]);
-
-            } else if($target->source_type == 'csn_orders'){
-                $link = route('cms.ar_csnorder.receipt', ['id' => $target->source_id]);
-
-            } else if($target->source_type == 'ord_received_orders'){
-                $link = route('cms.account_received.ro-receipt', ['id' => $target->source_id]);
-
-            } else if($target->source_type == 'acc_request_orders'){
-                $link = route('cms.request.ro-receipt', ['id' => $target->source_id]);
+            if($target){
+                $link = ReceivedOrder::received_order_link($target->source_type, $target->source_id);
             }
 
         } else if($source_type == 'pcs_paying_orders') {
             $target = PayingOrder::find($source_id);
 
-            if($target->source_type == 'pcs_purchase'){
-                $link = route('cms.purchase.view-pay-order', ['id' => $target->source_id, 'type' => $target->type]);
-
-            } else if($target->source_type == 'ord_orders' && $target->source_sub_id != null){
-                $link = route('cms.order.logistic-po', ['id' => $target->source_id, 'sid' => $target->source_sub_id]);
-
-            } else if($target->source_type == 'acc_stitute_orders'){
-                $link = route('cms.stitute.po-show', ['id' => $target->source_id]);
-
-            } else if($target->source_type == 'ord_orders' && $target->source_sub_id == null){
-                $link = route('cms.order.return-pay-order', ['id' => $target->source_id]);
-
-            } else if($target->source_type == 'dlv_delivery'){
-                $link = route('cms.delivery.return-pay-order', ['id' => $target->source_id]);
-
-            } else if($target->source_type == 'pcs_paying_orders'){
-                $link = route('cms.accounts_payable.po-show', ['id' => $target->source_id]);
+            if($target){
+                $link = PayingOrder::paying_order_link($target->source_type, $target->source_id, $target->source_sub_id, $target->type);
             }
 
         } else if($source_type == 'acc_transfer_voucher') {
@@ -372,7 +352,9 @@ class DayEnd extends Model
 
     public static function match_day_end_status($closing_date, $sn)
     {
-        $target = self::whereDate('closing_date', $closing_date)->first();
+        $date = date('Y-m-d', strtotime($closing_date));
+
+        $target = self::whereDate('closing_date', $date)->first();
         if($target){
             $status = $target->status ?? '';
 
@@ -410,42 +392,44 @@ class DayEnd extends Model
         }
 
         $target_item = DayEndItem::where('source_sn', $sn)->first();
-        if($target_item){
+        if($target && $target_item){
             $o_target = self::find($target_item->day_end_id);
 
-            if($o_target && $target->id != $o_target->id){
-                $o_status = $o_target->status ?? '';
+            if($o_target){
+                if($target->id != $o_target->id){
+                    $o_status = $o_target->status ?? '';
 
-                if(mb_substr($sn, 1, 1) == 'I'){
-                    if (! strstr($o_status, '*')) {
-                        $str_arr = str_split($o_status);
-                        $str_arr[] = '*';
-                        sort($str_arr);
-                        $o_status = implode('', $str_arr);
+                    if(mb_substr($sn, 1, 1) == 'I'){
+                        if (! strstr($o_status, '*')) {
+                            $str_arr = str_split($o_status);
+                            $str_arr[] = '*';
+                            sort($str_arr);
+                            $o_status = implode('', $str_arr);
+                        }
+
+                    } else if(mb_substr($sn, 1, 1) == 'M'){
+                        if (! strstr($o_status, 'M')) {
+                            $str_arr = str_split($o_status);
+                            $str_arr[] = 'M';
+                            sort($str_arr);
+                            $o_status = implode('', $str_arr);
+                        }
+
+                    } else if(mb_substr($sn, 1, 1) == 'Z'){
+                        if (! strstr($o_status, 'Z')) {
+                            $str_arr = str_split($o_status);
+                            $str_arr[] = 'Z';
+                            sort($str_arr);
+                            $o_status = implode('', $str_arr);
+                        }
                     }
 
-                } else if(mb_substr($sn, 1, 1) == 'M'){
-                    if (! strstr($o_status, 'M')) {
-                        $str_arr = str_split($o_status);
-                        $str_arr[] = 'M';
-                        sort($str_arr);
-                        $o_status = implode('', $str_arr);
+                    if($o_status){
+                        $o_target->update([
+                            'status'=>$o_status,
+                            'updated_at'=>date('Y-m-d H:i:s'),
+                        ]);
                     }
-
-                } else if(mb_substr($sn, 1, 1) == 'Z'){
-                    if (! strstr($o_status, 'Z')) {
-                        $str_arr = str_split($o_status);
-                        $str_arr[] = 'Z';
-                        sort($str_arr);
-                        $o_status = implode('', $str_arr);
-                    }
-                }
-
-                if($o_status){
-                    $o_target->update([
-                        'status'=>$o_status,
-                        'updated_at'=>date('Y-m-d H:i:s'),
-                    ]);
                 }
             }
         }

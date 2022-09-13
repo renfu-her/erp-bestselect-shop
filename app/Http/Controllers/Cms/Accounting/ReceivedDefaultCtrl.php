@@ -108,60 +108,12 @@ class ReceivedDefaultCtrl extends Controller
             'income_credit_card' => $income_credit_card,
 
             'isViewMode' => true,
-            'formAction' => Route('cms.received_default.edit', [], true),
+            'formAction' => Route('cms.received_default.update', [], true),
             'formMethod' => 'post'
         ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\ReceivedDefault  $receivedDefault
-     * @return \Illuminate\Http\Response
-     */
-    public function show(ReceivedDefault $receivedDefault)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\ReceivedDefault  $receivedDefault
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(ReceivedDefault $receivedDefault)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\RedirectResponse
-     */
     public function update(Request $request)
     {
         //form的元素名稱用Enum ReceivedMethod命名
@@ -278,16 +230,5 @@ class ReceivedDefaultCtrl extends Controller
         }
 
         return redirect()->route('cms.received_default.index');
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\ReceivedDefault  $receivedDefault
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(ReceivedDefault $receivedDefault)
-    {
-        //
     }
 }

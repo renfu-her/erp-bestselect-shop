@@ -23,15 +23,6 @@
         @if (!$receivable)
             <a href="{{ Route('cms.ar_csnorder.create', ['id' => $id]) }}" class="btn btn-sm btn-primary" role="button">新增收款單</a>
         @endif
-        @if ($received_order_data)
-            @if(!in_array($consignmentData->status, ['已入款', '結案']))
-                <a href="javascript:void(0)" role="button" data-bs-toggle="modal" data-bs-target="#confirm-delete"
-                    data-href="{{ Route('cms.ar_csnorder.delete', ['id' => $received_order_data->id], true) }}"
-                    class="btn btn-sm btn-danger">刪除收款單</a>
-            @else
-                <button type="button" class="btn btn-sm btn-danger" disabled>刪除收款單</button>
-            @endif
-        @endif
         </div>
     </nav>
     @endif

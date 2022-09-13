@@ -375,6 +375,7 @@ class Purchase extends Model
             ->select(
                 'purchase.id AS purchase_id',
                 'purchase.sn AS purchase_sn',
+                'purchase.audit_status AS audit_status',
                 'purchase.purchase_user_name AS purchase_user_name',
                 'purchase.logistics_price AS purchase_logistics_price',
                 'purchase.logistics_memo AS purchase_logistics_memo',

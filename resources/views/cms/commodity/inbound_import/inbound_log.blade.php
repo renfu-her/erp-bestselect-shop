@@ -19,9 +19,6 @@
 
     <div class="card shadow p-4 mb-4">
         <div class="row justify-content-end mb-4">
-            <div class="col">
-                <h6>明細</h6>
-            </div>
             <div class="col-auto">
                 顯示
                 <select class="form-select d-inline-block w-auto" id="dataPerPageElem" aria-label="表格顯示筆數">
@@ -33,39 +30,44 @@
             </div>
         </div>
         <div class="table-responsive tableOverBox">
-            <table class="table table-striped tableList mb-1">
-                <thead>
-                <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">更新日期</th>
-                    <th scope="col">採購單號</th>
-                    <th scope="col">SKU</th>
-                    <th scope="col">商品名稱</th>
-                    <th scope="col">入庫單</th>
-                    <th scope="col">調整數量</th>
-                    <th scope="col">調整人員</th>
-                    <th scope="col">調整原因</th>
-                    <th scope="col">事件</th>
-                    <th scope="col">行為</th>
-                    <th scope="col">倉庫</th>
-                </tr>
+            <table class="table table-striped tableList mb-1 table-sm small">
+                <thead class="align-middle">
+                    <tr>
+                        <th scope="col" style="width:40px">#</th>
+                        <th scope="col">更新日期</th>
+                        <td scope="col" class="wrap">
+                            <div class="fw-bold">採購單號</div>
+                            <div>入庫單</div>
+                        </td>
+                        <th scope="col">商品名稱</th>
+                        <th scope="col">調整數量</th>
+                        <th scope="col">調整人員</th>
+                        <th scope="col">調整原因</th>
+                        <th scope="col">事件</th>
+                        <th scope="col">行為</th>
+                        <th scope="col">倉庫</th>
+                    </tr>
                 </thead>
                 <tbody>
-                 @foreach ($purchaseLog as $key =>$data)
-                     <tr>
-                         <th scope="row">{{ $key + 1 }}</th>
-                         <td>{{$data->created_at}}</td>
-                         <td>{{$data->event_sn}}</td>
-                         <td>{{$data->sku}}</td>
-                         <td>{{$data->title}}</td>
-                         <td>{{$data->inbound_sn}}</td>
-                         <td>{{$data->qty}}</td>
-                         <td>{{$data->user_name}}</td>
-                         <td>{{$data->note}}</td>
-                         <td>{{$data->event}}</td>
-                         <td>{{$data->feature}}</td>
-                         <td>{{$data->depot_name}}</td>
-                     </tr>
+                @foreach ($purchaseLog as $key =>$data)
+                    <tr>
+                        <th scope="row">{{ $key + 1 }}</th>
+                        <td>{{ date('Y/m/d', strtotime($data->created_at)) }}</td>
+                        <td class="wrap">
+                            <div class="fw-bold">{{ $data->event_sn }}</div>
+                            <div>{{ $data->inbound_sn ?? '-' }}</div>
+                        </td>
+                        <td class="wrap">
+                            <div class="lh-1 text-nowrap text-secondary">{{ $data->sku }}</div>
+                            <div class="lh-lg">{{ $data->title ? $data->title : '-' }}</div>
+                        </td>
+                        <td>{{$data->qty}}</td>
+                        <td>{{$data->user_name}}</td>
+                        <td>{{$data->note}}</td>
+                        <td>{{$data->event}}</td>
+                        <td>{{$data->feature}}</td>
+                        <td class="wrap" style="min-width:80px;">{{$data->depot_name}}</td>
+                    </tr>
                  @endforeach
                 </tbody>
             </table>

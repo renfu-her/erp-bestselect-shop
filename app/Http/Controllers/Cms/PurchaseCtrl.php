@@ -651,7 +651,7 @@ class PurchaseCtrl extends Controller
 
         $payingOrderData = PayingOrder::getPayingOrdersWithPurchaseID($id, $validatedReq['type'])->get()->first();
         $payingOrderQuery = PayingOrder::find($payingOrderData->id);
-        $productGradeName = AllGrade::find($payingOrderQuery->product_grade_id)->eachGrade->name;
+        $productGradeName = AllGrade::find($payingOrderQuery->product_grade_id)->eachGrade->code . ' ' . AllGrade::find($payingOrderQuery->product_grade_id)->eachGrade->name;
         $logisticsGradeName = AllGrade::find($payingOrderQuery->logistics_grade_id)->eachGrade->code . ' ' . AllGrade::find($payingOrderQuery->logistics_grade_id)->eachGrade->name;
 
         $purchaseItemData = PurchaseItem::getPurchaseItemsByPurchaseId($id);
@@ -686,8 +686,19 @@ class PurchaseCtrl extends Controller
             if($payingOrderData->price == 0 && $payable_data->count() == 0){
                 $pay_off_date = date('Y-m-d', strtotime($payingOrderData->created_at));
             } else {
-                $pay_off_date = date('Y-m-d', strtotime($payingOrderData->balance_date));
+                $pay_off_date = date('Y-m-d', strtotime($payingOrderData->payment_date));
             }
+        }
+        $data_status_check = PayingOrder::payable_data_status_check($payable_data);
+        $po_count = PayingOrder::where([
+                'source_type' => $source_type,
+                'source_id' => $id,
+                'source_sub_id' => $source_sub_id,
+                'deleted_at' => null,
+            ])->count();
+
+        if($type == 0 && $po_count == 2) {
+            $data_status_check = true;
         }
 
         if ($accountPayable) {
@@ -709,6 +720,7 @@ class PurchaseCtrl extends Controller
 
         return view($view, [
             'id' => $id,
+            'purchase' => $purchase,
             'accountant' => $accountant ?? '',
             'accountPayableId' => $accountPayable->id ?? null,
             'payOrdId' => $payingOrderData->id,
@@ -726,6 +738,7 @@ class PurchaseCtrl extends Controller
             'logisticsPrice' => $paymentPrice['logisticsPrice'],
             'purchaseItemData' => $purchaseItemData,
             'payable_data' => $payable_data,
+            'data_status_check' => $data_status_check,
             'chargemen' => $chargemen,
             'undertaker' => $undertaker,
             'appliedCompanyData' => $appliedCompanyData,
@@ -907,7 +920,7 @@ class PurchaseCtrl extends Controller
             // 'payList' => $payList,
             // 'purchaseChargemanList' => $purchaseChargemanList,
             'breadcrumb_data' => ['id' => $id, 'sn' => $purchaseData->purchase_sn],
-            'formAction' => Route('cms.purchase.pay-order', ['id' => $id,]),
+            'formAction' => Route('cms.purchase.pay-order', ['id' => $id, 'type' => '0']),
         ]);
     }
 

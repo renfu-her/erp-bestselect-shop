@@ -515,7 +515,6 @@ class OrderCart extends Model
     private static function getDividendStage(&$order, $_tempProducts)
     {
         $salechannel = SaleChannel::where('id', $order['salechannel_id'])->get()->first();
-
         $today = date('Y-m-d H:i:s');
 
         if ($salechannel->event_sdate && $salechannel->event_edate &&
@@ -527,9 +526,11 @@ class OrderCart extends Model
             $rate = $salechannel->dividend_rate;
         }
 
+        
         foreach ($_tempProducts as $value) {
             $order['get_dividend'] += round($value['total_price'] * $rate / 100);
         }
+        
 
     }
 

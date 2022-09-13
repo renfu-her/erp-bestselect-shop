@@ -9,11 +9,6 @@ use Illuminate\Support\Arr;
 
 class IncomeStatementCtrl extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index(Request $request)
     {
         $query = $request->query();
@@ -28,11 +23,7 @@ class IncomeStatementCtrl extends Controller
         ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+
     public function create()
     {
         return view('cms.accounting.income_statement.edit', [
@@ -41,12 +32,7 @@ class IncomeStatementCtrl extends Controller
         ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+
     public function store(Request $request)
     {
         $request->validate([
@@ -60,50 +46,5 @@ class IncomeStatementCtrl extends Controller
             'name' => $request->input('name')
         ]);
         return redirect(Route('cms.income_statement.index'));
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\IncomeStatement  $incomeStatement
-     * @return \Illuminate\Http\Response
-     */
-    public function show(IncomeStatement $incomeStatement)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\IncomeStatement  $incomeStatement
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(IncomeStatement $incomeStatement)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\IncomeStatement  $incomeStatement
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, IncomeStatement $incomeStatement)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\IncomeStatement  $incomeStatement
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(IncomeStatement $incomeStatement)
-    {
-        //
     }
 }

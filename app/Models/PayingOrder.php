@@ -103,6 +103,7 @@ class PayingOrder extends Model
                 'paying_order.memo as memo',
                 'paying_order.price as price',
                 'paying_order.balance_date as balance_date',
+                'paying_order.payment_date as payment_date',
                 'paying_order.payee_id as payee_id',
                 'paying_order.payee_name as payee_name',
                 'paying_order.payee_phone as payee_phone',
@@ -266,6 +267,29 @@ class PayingOrder extends Model
             ->leftJoin('prd_suppliers', function ($join) {
                 $join->on('prd_suppliers.id', '=', 'shi_group.supplier_fk');
                 $join->whereNotNull('shi_group.supplier_fk');
+            })
+
+            // consignment
+            ->leftJoin('csn_consignment AS consignment', function ($join) {
+                $join->on('po.source_id', '=', 'consignment.id');
+                $join->where([
+                    'po.source_type'=>app(Consignment::class)->getTable(),
+                ]);
+            })
+            ->leftJoin('dlv_delivery AS co_delivery', function ($join) {
+                $join->on('co_delivery.event_id', '=', 'consignment.id')
+                    ->where('co_delivery.event', '=', Event::consignment()->value);
+            })
+            ->leftJoin('dlv_logistic AS co_logistic', function ($join) {
+                $join->on('co_logistic.delivery_id', '=', 'co_delivery.id');
+            })
+            ->leftJoin('shi_group AS co_shi_group', function ($join) {
+                $join->on('co_shi_group.id', '=', 'co_logistic.ship_group_id');
+                $join->whereNotNull('co_logistic.ship_group_id');
+            })
+            ->leftJoin('prd_suppliers AS co_supplier', function ($join) {
+                $join->on('co_supplier.id', '=', 'co_shi_group.supplier_fk');
+                $join->whereNotNull('co_shi_group.supplier_fk');
             })
 
             // stitute
@@ -450,6 +474,7 @@ class PayingOrder extends Model
                 CASE
                     WHEN po.source_type = "' . app(Purchase::class)->getTable() . '" AND po.source_sub_id IS NULL THEN purchase.sn
                     WHEN po.source_type = "' . app(Order::class)->getTable() . '" AND po.source_sub_id IS NOT NULL AND po.type = 1 THEN dlv_delivery.event_sn
+                    WHEN po.source_type = "' . app(Consignment::class)->getTable() . '" AND po.type = 1 THEN consignment.sn
                     WHEN po.source_type = "' . app(StituteOrder::class)->getTable() . '" AND po.type = 1 THEN so.sn
                     WHEN po.source_type = "' . app(Order::class)->getTable() . '" AND po.type = 9 THEN order_return.sn
                     WHEN po.source_type = "' . app(Delivery::class)->getTable() . '" AND po.type = 9 THEN sub_order_return.event_sn
@@ -461,6 +486,7 @@ class PayingOrder extends Model
                 CASE
                     WHEN po.source_type = "' . app(Purchase::class)->getTable() . '" AND po.source_sub_id IS NULL THEN purchase_item_table.items
                     WHEN po.source_type = "' . app(Order::class)->getTable() . '" AND po.source_sub_id IS NOT NULL AND po.type = 1 THEN NULL
+                    WHEN po.source_type = "' . app(Consignment::class)->getTable() . '" AND po.type = 1 THEN NULL
                     WHEN po.source_type = "' . app(StituteOrder::class)->getTable() . '" AND po.type = 1 THEN stitute_table.items
                     WHEN po.source_type = "' . app(Order::class)->getTable() . '" AND po.type = 9 THEN order_item_table.items
                     WHEN po.source_type = "' . app(Delivery::class)->getTable() . '" AND po.type = 9 THEN delivery_back.items
@@ -472,6 +498,7 @@ class PayingOrder extends Model
                 CASE
                     WHEN po.source_type = "' . app(Purchase::class)->getTable() . '" AND po.source_sub_id IS NULL THEN purchase.logistics_price
                     WHEN po.source_type = "' . app(Order::class)->getTable() . '" AND po.source_sub_id IS NOT NULL AND po.type = 1 THEN dlv_logistic.cost
+                    WHEN po.source_type = "' . app(Consignment::class)->getTable() . '" AND po.type = 1 THEN co_logistic.cost
                     WHEN po.source_type = "' . app(StituteOrder::class)->getTable() . '" AND po.type = 1 THEN 0
                     WHEN po.source_type = "' . app(Order::class)->getTable() . '" AND po.type = 9 THEN order_return.dlv_fee
                     WHEN po.source_type = "' . app(Delivery::class)->getTable() . '" AND po.type = 9 THEN 0
@@ -483,6 +510,7 @@ class PayingOrder extends Model
                 CASE
                     WHEN po.source_type = "' . app(Purchase::class)->getTable() . '" AND po.source_sub_id IS NULL THEN 0
                     WHEN po.source_type = "' . app(Order::class)->getTable() . '" AND po.source_sub_id IS NOT NULL AND po.type = 1 THEN 0
+                    WHEN po.source_type = "' . app(Consignment::class)->getTable() . '" AND po.type = 1 THEN 0
                     WHEN po.source_type = "' . app(StituteOrder::class)->getTable() . '" AND po.type = 1 THEN 0
                     WHEN po.source_type = "' . app(Order::class)->getTable() . '" AND po.type = 9 THEN order_return.discount_value
                     WHEN po.source_type = "' . app(Delivery::class)->getTable() . '" AND po.type = 9 THEN 0
@@ -494,6 +522,7 @@ class PayingOrder extends Model
                 CASE
                     WHEN po.source_type = "' . app(Purchase::class)->getTable() . '" AND po.source_sub_id IS NULL THEN NULL
                     WHEN po.source_type = "' . app(Order::class)->getTable() . '" AND po.source_sub_id IS NOT NULL AND po.type = 1 THEN NULL
+                    WHEN po.source_type = "' . app(Consignment::class)->getTable() . '" AND po.type = 1 THEN NULL
                     WHEN po.source_type = "' . app(StituteOrder::class)->getTable() . '" AND po.type = 1 THEN NULL
                     WHEN po.source_type = "' . app(Order::class)->getTable() . '" AND po.type = 9 THEN discounts_table.items
                     WHEN po.source_type = "' . app(Delivery::class)->getTable() . '" AND po.type = 9 THEN NULL
@@ -520,6 +549,7 @@ class PayingOrder extends Model
             $query->where(function ($query) use ($source_sn) {
                 $query->where('purchase.sn', 'like', "%{$source_sn}%")
                     ->orWhere('dlv_delivery.event_sn', 'like', "%{$source_sn}%")
+                    ->orWhere('consignment.sn', 'like', "%{$source_sn}%")
                     ->orWhere('so.sn', 'like', "%{$source_sn}%")
                     ->orWhere('order_return.sn', 'like', "%{$source_sn}%")
                     ->orWhere('sub_order_return.event_sn', 'like', "%{$source_sn}%")
@@ -569,12 +599,6 @@ class PayingOrder extends Model
         $target = self::findOrFail($id);
 
         $target->delete();
-
-        // if($target->payment_date){
-        //     $target = null;
-        // } else {
-        //     $target->delete();
-        // }
 
         return $target;
     }
@@ -686,9 +710,12 @@ class PayingOrder extends Model
                 _remit.remit_date  AS remit_date
             ')
 
-            // ->selectRaw('
-            //     _account.status_code AS account_status_code,
-            // ')
+            ->selectRaw('
+                _account.status_code AS account_status_code,
+                _account.sn AS account_sn,
+                _account.amt_net AS account_amt_net,
+                _account.payment_date AS account_payment_date
+            ')
             // ->selectRaw('
             //     _other.status_code AS account_status_code,
             // ')
@@ -884,29 +911,61 @@ class PayingOrder extends Model
     }
 
 
-    public static function update_account_payable_method($request)
+    public static function update_account_payable_method($request, $clear = false)
     {
-        if($request['status_code'] == 0){
-            foreach($request['accounts_payable_id'] as $key => $value){
-                DB::table('acc_payable_account')->where('id', $value)->update([
-                    'status_code'=>0,
+        if($clear){
+            DB::table('acc_payable_account')->where('append_pay_order_id', $request['append_pay_order_id'])->update([
+                'status_code'=>0,
+                'append_pay_order_id'=>null,
+                'sn'=>null,
+                'amt_net'=>0,
+                'payment_date'=>null,
+                'updated_at'=>date('Y-m-d H:i:s'),
+            ]);
+
+        } else {
+            if($request['status_code'] == 0){
+                foreach($request['accounts_payable_id'] as $key => $value){
+                    $account = DB::table('acc_payable_account')->where('id', $value)->first();
+
+                    if($account && $account->append_pay_order_id){
+                        self::find($account->append_pay_order_id)->delete();
+                    }
+
+                    DB::table('acc_payable_account')->where('id', $value)->update([
+                        'status_code'=>0,
+                        'append_pay_order_id'=>$request['append_pay_order_id'],
+                        'sn'=>$request['sn'],
+                        'amt_net'=>$request['amt_net'][$key],
+                        'payment_date'=>null,
+                        'updated_at'=>date('Y-m-d H:i:s'),
+                    ]);
+                }
+
+            } else if($request['status_code'] == 1){
+                DB::table('acc_payable_account')->whereIn('id', $request['accounts_payable_id'])->update([
+                    'status_code'=>1,
                     'append_pay_order_id'=>$request['append_pay_order_id'],
                     'sn'=>$request['sn'],
-                    'amt_net'=>$request['amt_net'][$key],
-                    'payment_date'=>null,
+                    'payment_date'=>date('Y-m-d'),
                     'updated_at'=>date('Y-m-d H:i:s'),
                 ]);
             }
-
-        } else if($request['status_code'] == 1){
-            DB::table('acc_payable_account')->whereIn('id', $request['accounts_payable_id'])->update([
-                'status_code'=>1,
-                'append_pay_order_id'=>$request['append_pay_order_id'],
-                'sn'=>$request['sn'],
-                'payment_date'=>date('Y-m-d H:i:s'),
-                'updated_at'=>date('Y-m-d H:i:s'),
-            ]);
         }
+    }
+
+
+    public static function payable_data_status_check($collection)
+    {
+        $check_result = false;
+        foreach($collection as $value){
+            if($value->cheque_status_code == 'cashed' || $value->account_sn != null){
+                $check_result = true;
+                break;
+            }
+        }
+
+        return $check_result;
     }
 
 
@@ -920,6 +979,9 @@ class PayingOrder extends Model
         } else if($source_type == 'ord_orders' && $source_sub_id != null){
             $link = route('cms.order.logistic-po', ['id' => $source_id, 'sid' => $source_sub_id]);
 
+        } else if($source_type == 'csn_consignment'){
+            $link = route('cms.consignment.logistic-po', ['id' => $source_id]);
+
         } else if($source_type == 'acc_stitute_orders'){
             $link = route('cms.stitute.po-show', ['id' => $source_id]);
 
@@ -931,6 +993,41 @@ class PayingOrder extends Model
 
         } else if($source_type == 'pcs_paying_orders'){
             $link = route('cms.accounts_payable.po-show', ['id' => $source_id]);
+        }
+
+        return $link;
+    }
+
+
+    public static function paying_order_source_link($source_type, $source_id, $source_sub_id = null, $type, $back_domain = false)
+    {
+        $link = 'javascript:void(0);';
+
+        if($back_domain){
+            $link = '/';
+        }
+
+        if($source_type == 'pcs_purchase'){
+            $link = route('cms.purchase.edit', ['id' => $source_id]);
+
+        } else if($source_type == 'ord_orders' && $source_sub_id != null){
+            $link = route('cms.order.detail', ['id' => $source_id, 'subOrderId' => $source_sub_id]);
+
+        } else if($source_type == 'csn_consignment'){
+            $link = route('cms.consignment.edit', ['id' => $source_id]);
+
+        } else if($source_type == 'acc_stitute_orders'){
+            $link = route('cms.stitute.show', ['id' => $source_id]);
+
+        } else if($source_type == 'ord_orders' && $source_sub_id == null){
+            $link = route('cms.order.detail', ['id' => $source_id]);
+
+        } else if($source_type == 'dlv_delivery'){
+            $dlv = Delivery::find($source_id);
+            $link = route('cms.delivery.back_detail', ['event' => $dlv->event, 'eventId' => $dlv->event_id]);
+
+        } else if($source_type == 'pcs_paying_orders'){
+            $link = route('cms.accounts_payable.index');
         }
 
         return $link;
@@ -1006,5 +1103,35 @@ class PayingOrder extends Model
         }
 
         return $client;
+    }
+
+
+    public static function source_confirmation($source_type, $source_id)
+    {
+        $result = true;
+        $po = null;
+
+        if($source_type == app(Order::class)->getTable()){
+            $po = self::where([
+                'source_type'=>$source_type,
+                'source_id'=>$source_id,
+                'source_sub_id'=>null,
+                'type'=>9,
+            ])->first();
+
+        } else if($source_type == app(Delivery::class)->getTable()){
+            $po = self::where([
+                'source_type'=>$source_type,
+                'source_id'=>$source_id,
+                'source_sub_id'=>null,
+                'type'=>9,
+            ])->first();
+        }
+
+        if($po){
+            $result = false;
+        }
+
+        return $result;
     }
 }

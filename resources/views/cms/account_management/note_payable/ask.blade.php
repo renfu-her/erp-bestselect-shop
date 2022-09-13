@@ -13,7 +13,7 @@
                     <thead class="table-primary">
                         <tr>
                             <th scope="col" class="text-center"><input class="form-check-input" type="checkbox" id="checkAll"></th>
-                            <th scope="col">編號</th>
+                            <th scope="col">#</th>
                             <th scope="col">支票號碼</th>
                             <th scope="col">金額</th>
                             <th scope="col">狀態</th>
@@ -77,7 +77,9 @@
         </div>
 
         <div class="col-auto">
+            @can('cms.note_payable.edit')
             <button type="submit" class="btn btn-primary px-4 submit" disabled="disabled">確認</button>
+            @endcan
             <a href="{{ $previous_url }}" class="btn btn-outline-primary px-4" role="button">
                 返回上一頁
             </a>

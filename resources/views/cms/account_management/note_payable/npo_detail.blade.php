@@ -2,7 +2,7 @@
 @section('sub-content')
     <h2 class="mb-4">兌現明細清單</h2>
     
-    <div class="card shadow p-4 mb-4">
+    <div id="DivIdToPrint" class="card shadow p-4 mb-4">
         <div class="border rounded p-3 mb-3">
             <h5>喜鴻國際企業股份有限公司</h5>
             <p class="m-0 lh-1">{{ request('qd') ? date('Y-m-d', strtotime(request('qd'))) : '' }} 兌現之應付票據清單</p>
@@ -12,7 +12,7 @@
             <table class="table table-striped tableList mb-1">
                 <thead class="table-primary">
                     <tr>
-                        <th scope="col">編號</th>
+                        <th scope="col">#</th>
                         <th scope="col">會計科目</th>
                         <th scope="col">摘要</th>
                         <th scope="col">支票號碼</th>
@@ -64,6 +64,7 @@
     </div>
     
     <div class="col-auto">
+        <button type="button" id="print" class="btn btn-warning px-4">列印畫面</button>
         <a href="{{ $previous_url }}" class="btn btn-outline-primary px-4" role="button">
             返回上一頁
         </a>
@@ -79,7 +80,11 @@
 
     @push('sub-scripts')
         <script>
-
+            const cssLink1 = @json(Asset('dist/css/app.css'));
+            const cssLink2 = @json(Asset('dist/css/sub-content.css')) + '?1.0';
+            $('#print').on('click',  function () {
+                printDiv('#DivIdToPrint', [cssLink1, cssLink2]);
+            });
         </script>
     @endpush
 @endonce

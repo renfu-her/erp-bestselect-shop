@@ -56,12 +56,12 @@
                 <table width="710" style="font-size:small;text-align:left;border:0;margin: 0 auto;">
                     <tbody>
                         <tr>
-                            <td width="50%">客戶：<span style="font-size:medium;">{{ $purchaser->client_name ?? '' }}</span>　　台鑒</td>
-                            <td width="50%">地址：{{ $purchaser->client_address ?? '' }}</td>
+                            <td width="50%">客戶：<span style="font-size:medium;">{{ $received_order->drawee_name }}</span>　　台鑒</td>
+                            <td width="50%">地址：{{ $received_order->drawee_address }}</td>
                         </tr>
                         <tr>
-                            <td>電話：{{ $purchaser->client_phone ?? '' }}</td>
-                            <td>傳真：{{ $purchaser->client_fax ?? '' }}</td>
+                            <td>電話：{{ $received_order->drawee_phone }}</td>
+                            <td>傳真：</td>
                         </tr>
                     </tbody>
                 </table>
@@ -74,13 +74,7 @@
                         </tr>
                         <tr>
                             <td>訂單流水號：</td>
-                            @if($received_order->receipt_date)
-                                <td>入帳日期：{{ date('Y-m-d', strtotime($received_order->receipt_date)) }}</td>
-                            @endif
-                        </tr>
-                        <tr>
-                            <td>收款對象：</td>
-                            <td>承辦人：{{ $undertaker ? $undertaker->name : '' }}</td>
+                            <td>入帳日期：{{ $received_order->receipt_date ? date('Y-m-d', strtotime($received_order->receipt_date)) : '' }}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -144,7 +138,7 @@
                             <td width="25%">財務主管：</td>
                             <td width="25%">會計：{{ $accountant }}</td>
                             <td width="25%">商品主管：</td>
-                            <td width="25%">商品負責人：</td>
+                            <td width="25%">承辦人：{{ $undertaker ? $undertaker->name : '' }}</td>
                         </tr>
                   </tbody>
                 </table>

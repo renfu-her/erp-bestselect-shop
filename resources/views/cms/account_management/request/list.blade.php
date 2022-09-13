@@ -89,11 +89,13 @@
 
     <div class="card shadow p-4 mb-4">
         <div class="row justify-content-end mb-4">
+            @can('cms.request.create')
             <div class="col">
                 <a href="{{ Route('cms.request.create') }}" class="btn btn-primary" role="button">
                     <i class="bi bi-plus-lg"></i> 新增請款單
                 </a>
             </div>
+            @endcan
             <div class="col-auto">
                 顯示
                 <select class="form-select d-inline-block w-auto" id="dataPerPageElem" aria-label="表格顯示筆數">
@@ -125,8 +127,8 @@
                     @foreach ($dataList as $key => $data)
                         <tr>
                             <td>{{ $key + 1 }}</td>
-                            <td><a href="{{ route('cms.request.show', ['id' => $data->request_o_id]) }}" class="-text">{{ $data->request_o_sn }}</a></td>
-                            <td><a href="{{ route('cms.request.ro-receipt', ['id' => $data->request_o_id]) }}" class="-text">{{ $data->ro_sn }}</a></td>
+                            <td><a href="{{ route('cms.request.show', ['id' => $data->request_o_id]) }}">{{ $data->request_o_sn }}</a></td>
+                            <td><a href="{{ route('cms.request.ro-receipt', ['id' => $data->request_o_id]) }}">{{ $data->ro_sn }}</a></td>
                             <td>{{ $data->request_o_client_name }}</td>
                             <td>{{ $data->grade_code . ' ' . $data->grade_name }}</td>
                             <td>{{ $data->request_o_summary }}</td>

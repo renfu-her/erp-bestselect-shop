@@ -22,12 +22,18 @@ Route::group(['prefix' => 'order', 'as' => 'order.'], function () {
     Route::post('store_inbound/{id}', [OrderCtrl::class, 'storeInbound'])->name('store_inbound');
     Route::get('delete_inbound/{id}', [OrderCtrl::class, 'deleteInbound'])->name('delete_inbound')->middleware('permission:cms.order.create');
 
-    Route::get('logistic_pay/{id}/{sid}', [OrderCtrl::class, 'logistic_po'])->name('logistic-po')->middleware('permission:cms.order.logistic-po');
+    Route::get('ro_edit/{id}', [OrderCtrl::class, 'ro_edit'])->name('ro-edit');
+    Route::post('ro_store/{id}', [OrderCtrl::class, 'ro_store'])->name('ro-store');
+    Route::get('ro_receipt/{id}', [OrderCtrl::class, 'ro_receipt'])->name('ro-receipt');
+    Route::match(['get', 'post'], 'ro_review/{id}', [OrderCtrl::class, 'ro_review'])->name('ro-review')->middleware('permission:cms.collection_received.edit');
+    Route::match(['get', 'post'], 'ro_taxation/{id}', [OrderCtrl::class, 'ro_taxation'])->name('ro-taxation')->middleware('permission:cms.collection_received.edit');
+
+    Route::get('logistic_pay/{id}/{sid}', [OrderCtrl::class, 'logistic_po'])->name('logistic-po');
     Route::match(['get', 'post'], 'logistic_pay_create/{id}/{sid}', [OrderCtrl::class, 'logistic_po_create'])->name('logistic-po-create');
-    Route::get('return_pay/{id}/{sid?}', [OrderCtrl::class, 'return_pay_order'])->name('return-pay-order')->middleware('permission:cms.order.return-pay-order');
+    Route::get('return_pay/{id}/{sid?}', [OrderCtrl::class, 'return_pay_order'])->name('return-pay-order');
     Route::match(['get', 'post'], 'return_pay_create/{id}/{sid?}', [OrderCtrl::class, 'return_pay_create'])->name('return-pay-create');
 
-    Route::get('invoice/{id}', [OrderCtrl::class, 'create_invoice'])->name('create-invoice')->middleware('permission:cms.order.create-invoice');
+    Route::get('invoice/{id}', [OrderCtrl::class, 'create_invoice'])->name('create-invoice')->middleware('permission:cms.order_invoice_manager.index');
     Route::post('invoice/{id}', [OrderCtrl::class, 'store_invoice'])->name('store-invoice');
     Route::post('ajax-detail', [OrderCtrl::class, '_order_detail'])->name('ajax-detail');
     Route::get('invoice/{id}/show', [OrderCtrl::class, 'show_invoice'])->name('show-invoice');

@@ -1,11 +1,5 @@
 @extends('layouts.main')
 @section('sub-content')
-    <div class="pt-2 mb-3">
-        <a href="{{ Route('cms.credit_card.index', [], true) }}" class="btn btn-primary" role="button">
-            <i class="bi bi-arrow-left"></i> 返回上一頁
-        </a>
-    </div>
-
     <form method="post" action="{{ $formAction }}">
         @method('POST')
         @csrf
@@ -31,11 +25,16 @@
                 @enderror
             </div>
         </div>
-        <div class="d-flex justify-content-end">
+
+        <div class="col-auto">
             <button type="submit" class="btn btn-primary px-4">儲存</button>
+            <a href="{{ url()->previous() }}" class="btn btn-outline-primary px-4" role="button">
+                返回上一頁
+            </a>
         </div>
     </form>
 @endsection
+
 @once
     @push('sub-scripts')
         <script>

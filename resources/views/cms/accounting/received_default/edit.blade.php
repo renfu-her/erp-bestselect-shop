@@ -247,11 +247,13 @@
             </div>
         @endif
 
+        @can('cms.received_default.edit')
         <div class="col-auto">
             <button type="button" class="btn btn-primary px-4" id="editBtn">編輯</button>
             <button type="submit" class="btn btn-primary px-4" id="submitBtn">儲存</button>
             <a class="btn btn-outline-primary px-4" href="{{ Route('cms.received_default.index', [], true) }}" role="button" id="cancelBtn">取消</a>
         </div>
+        @endcan
     </form>
 @endsection
 

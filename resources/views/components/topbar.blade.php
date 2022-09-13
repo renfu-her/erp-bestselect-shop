@@ -2,8 +2,8 @@
     <div class="w-100 d-flex align-items-center">
         <!-- 漢堡清單鈕 toggler -->
         <div>
-            <button class="navbar-toggler collapsed" type="button" data-bs-toggle="collapse"
-                data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false"
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="true"
                 aria-label="Toggle navigation">
                 <i class="bi bi-list"></i>
             </button>

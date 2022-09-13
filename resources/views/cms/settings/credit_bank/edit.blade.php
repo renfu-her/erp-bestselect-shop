@@ -1,27 +1,5 @@
 @extends('layouts.main')
 @section('sub-content')
-    <style>
-        .grade_1 {
-            padding-left: 1ch;
-        }
-
-        .grade_2 {
-            padding-left: 2ch;
-        }
-
-        .grade_3 {
-            padding-left: 4ch;
-        }
-
-        .grade_4 {
-            padding-left: 8ch;
-        }
-    </style>
-    <div class="pt-2 mb-3">
-        <a href="{{ Route('cms.credit_bank.index', [], true) }}" class="btn btn-primary" role="button">
-            <i class="bi bi-arrow-left"></i> 返回上一頁
-        </a>
-    </div>
 
     <form method="post" action="{{ $formAction }}">
         @method('POST')
@@ -87,15 +65,36 @@
                 @enderror
             </div>
         </div>
-        <div class="d-flex justify-content-end">
+
+        <div class="col-auto">
             <button type="submit" class="btn btn-primary px-4">儲存</button>
+            <a href="{{ url()->previous() }}" class="btn btn-outline-primary px-4" role="button">
+                返回上一頁
+            </a>
         </div>
     </form>
 @endsection
+
 @once
+    @push('sub-styles')
+        <style>
+            .grade_1 {
+                padding-left: 1ch;
+            }
+            .grade_2 {
+                padding-left: 2ch;
+            }
+            .grade_3 {
+                padding-left: 4ch;
+            }
+            .grade_4 {
+                padding-left: 8ch;
+            }
+        </style>
+    @endpush
+
     @push('sub-scripts')
         <script>
-            // 會計科目樹狀排版
             $('.-select2').select2({
                 templateResult: function (data) {
                     // We only really care if there is an element to pull classes from

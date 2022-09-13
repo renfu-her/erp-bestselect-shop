@@ -159,6 +159,7 @@
                     <th scope="col">有效期限</th>
                     <th scope="col">備註</th>
                     <th scope="col">倉庫</th>
+                    <th scope="col">入庫人員</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -188,7 +189,7 @@
                             <td>{{ $inbound->inbound_memo }}</td>
                         @endif
                         <td>{{ $inbound->depot_name }}</td>
-
+                        <td>{{ $inbound->inbound_user_name }}</td>
                     </tr>
                 @endforeach
                 </tbody>
