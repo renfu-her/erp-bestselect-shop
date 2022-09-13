@@ -29,9 +29,9 @@
                     </div>
                     <div class="form-check form-check-inline @error('type') is-invalid @enderror">
                         <label class="form-check-label" for="type_2">
-                            <input class="form-check-input @error('type') is-invalid @enderror" name="type" value="c"
-                                type="radio" @if ($method == 'edit') disabled @endif id="type_2" required
-                                @if (old('type', $product->type ?? '') == 'c') checked @endif>
+                            <input class="form-check-input @error('type') is-invalid @enderror" name="type"
+                                value="c" type="radio" @if ($method == 'edit') disabled @endif
+                                id="type_2" required @if (old('type', $product->type ?? '') == 'c') checked @endif>
                             組合包商品
                         </label>
                     </div>
@@ -39,8 +39,8 @@
                         <div class="form-check">
                             <label class="form-check-label">
                                 <input class="form-check-input" value="1" name="consume" type="checkbox"
-                                       @if (old('consume', $product->consume ?? 0)) checked @endif
-                                       @if (old('type', $product->type ?? '') == 'c') disabled @endif>
+                                    @if (old('consume', $product->consume ?? 0)) checked @endif
+                                    @if (old('type', $product->type ?? '') == 'c') disabled @endif>
                                 屬於耗材 <span class="text-danger">*</span>
                             </label>
                             <i class="bi bi-question-circle" data-bs-toggle="tooltip" title="若屬於耗材請打勾"></i>
@@ -79,8 +79,7 @@
 
                 <div class="col-12 mb-3">
                     <label class="form-label">商品簡述</label>
-                    <textarea rows="3" name="feature" class="form-control" maxlength="150" placeholder="請輸入關於產品的描述"
-                        aria-label="商品簡述">{{ old('feature', $product->feature ?? '') }}</textarea>
+                    <textarea rows="3" name="feature" class="form-control" maxlength="150" placeholder="請輸入關於產品的描述" aria-label="商品簡述">{{ old('feature', $product->feature ?? '') }}</textarea>
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">商品標語</label>
@@ -89,8 +88,8 @@
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">商品歸類 <span class="text-danger">*</span></label>
-                    <select class="form-select -select2 -single @error('category_id') is-invalid @enderror" required aria-label="Select"
-                        name="category_id">
+                    <select class="form-select -select2 -single @error('category_id') is-invalid @enderror" required
+                        aria-label="Select" name="category_id">
                         <option value="" disabled selected>請選擇商品歸類</option>
                         @foreach ($categorys as $key => $category)
                             <option value="{{ $category->id }}" @if (old('category_id', $product->category_id ?? '') == $category->id) selected @endif>
@@ -105,8 +104,8 @@
 
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">負責人員 <span class="text-danger">*</span></label>
-                    <select class="form-select -select2 -single @error('user_id') is-invalid @enderror" required aria-label="Select"
-                        name="user_id">
+                    <select class="form-select -select2 -single @error('user_id') is-invalid @enderror" required
+                        aria-label="Select" name="user_id">
                         <option value="" disabled selected>請選擇負責人員</option>
                         @foreach ($users as $key => $user)
                             <option value="{{ $user->id }}" @if (old('user_id', $product->user_id ?? $current_user) == $user->id) selected @endif>
@@ -196,13 +195,15 @@
                     <legend class="col-form-label p-0 mb-2">應稅免稅 <span class="text-danger">*</span></legend>
                     <div class="px-1 pt-1">
                         <div class="form-check form-check-inline @error('has_tax') is-invalid @enderror">
-                            <input class="form-check-input @error('has_tax') is-invalid @enderror" name="has_tax" value="1"
-                                type="radio" id="tax_1" required @if (old('has_tax', $product->has_tax ?? '1') == '1') checked @endif>
+                            <input class="form-check-input @error('has_tax') is-invalid @enderror" name="has_tax"
+                                value="1" type="radio" id="tax_1" required
+                                @if (old('has_tax', $product->has_tax ?? '1') == '1') checked @endif>
                             <label class="form-check-label" for="tax_1">應稅</label>
                         </div>
                         <div class="form-check form-check-inline @error('has_tax') is-invalid @enderror">
-                            <input class="form-check-input @error('has_tax') is-invalid @enderror" name="has_tax" value="0"
-                                type="radio" id="tax_2" required @if (old('has_tax', $product->has_tax ?? '') == '0') checked @endif>
+                            <input class="form-check-input @error('has_tax') is-invalid @enderror" name="has_tax"
+                                value="0" type="radio" id="tax_2" required
+                                @if (old('has_tax', $product->has_tax ?? '') == '0') checked @endif>
                             <label class="form-check-label" for="tax_2">免稅（農林漁牧產品/免稅）</label>
                         </div>
                         @error('has_tax')
@@ -244,7 +245,7 @@
                             <span class="browser_box box">
                                 <span class="icon -move" hidden><i class="bi bi-arrows-move"></i></span>
                                 <span class="icon -x"><i class="bi bi-x"></i></span>
-                                <img src="{{ getImageUrl($image->url) }}" />
+                                <img src="{{ getImageUrl($image->url, true) }}" />
                             </span>
                             <!-- /* 進度條 */ -->
                             <div class="progress" hidden>
@@ -321,12 +322,12 @@
             bindSortableMove($('#mediaSettings .upload_image_block > .sortabled'), moveOpt);
 
             //若為組合包商品 不可勾選屬於耗材
-            $( 'input[name="type"]' ).change(function() {
-                let bool = $( 'input[name="type"]' ).prop("checked");
+            $('input[name="type"]').change(function() {
+                let bool = $('input[name="type"]').prop("checked");
                 if (false == bool) {
-                    $( 'input[name="consume"]' ).prop('checked', false).prop('disabled', true);
+                    $('input[name="consume"]').prop('checked', false).prop('disabled', true);
                 } else {
-                    $( 'input[name="consume"]' ).prop('disabled', false);
+                    $('input[name="consume"]').prop('disabled', false);
                 }
             });
         </script>
