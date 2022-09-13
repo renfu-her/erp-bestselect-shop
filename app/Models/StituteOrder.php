@@ -181,7 +181,7 @@ class StituteOrder extends Model
         } else {
             self::where('id', $request['id'])->update([
                 'accountant_id'=>auth('user')->user()->id,
-                'payment_date'=>date('Y-m-d H:i:s'),
+                'payment_date'=>date('Y-m-d'),
                 'pay_order_id'=>$request['pay_order_id'],
                 'updated_at'=>date('Y-m-d H:i:s'),
             ]);
