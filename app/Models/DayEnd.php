@@ -213,59 +213,62 @@ class DayEnd extends Model
                     $d_c_net = $d_price - $c_price;
 
                 } else if($real_value->getTable() == 'pcs_paying_orders'){
-                    $t_data = PayingOrder::paying_order_list(null, $real_value->sn)->first();
+                    $t_data = PayingOrder::paying_order_list(null, $real_value->sn, null, null, null, '1', true)->first();
 
                     $d_price = 0;
                     $c_price = 0;
-                    if($t_data->payable_list){
-                        foreach(json_decode($t_data->payable_list) as $pay_v){
-                            $c_price += $pay_v->tw_price;
+                    if($t_data->po_source_type != app(Purchase::class)->getTable()){
+                        if($t_data->payable_list){
+                            foreach(json_decode($t_data->payable_list) as $pay_v){
+                                $c_price += $pay_v->tw_price;
 
-                            $method_name = Payment::getDescription($pay_v->acc_income_type_fk);
-                            if($method_name == '現金'){
-                                $suffix = $t_data->po_target_name;
+                                $method_name = Payment::getDescription($pay_v->acc_income_type_fk);
+                                if($method_name == '現金'){
+                                    $suffix = $t_data->po_target_name;
 
-                            } else if($method_name == '支票'){
-                                $method_name = '應付票據';//支票
-                                $suffix = $pay_v->cheque_ticket_number . '（' . date('Y-m-d', strtotime($pay_v->cheque_due_date)) . '）';
+                                } else if($method_name == '支票'){
+                                    $method_name = '應付票據';//支票
+                                    $suffix = $pay_v->cheque_ticket_number . '（' . date('Y-m-d', strtotime($pay_v->cheque_due_date)) . '）';
 
-                            } else if($method_name == '匯款'){
-                                $suffix = $pay_v->grade_name;
+                                } else if($method_name == '匯款'){
+                                    $suffix = $pay_v->grade_name;
 
-                            } else {
-                                $suffix = $pay_v->grade_name;
+                                } else {
+                                    $suffix = $pay_v->grade_name;
+                                }
+                                $source_summary = $method_name . ' ' . $suffix . ' ' . $pay_v->summary;
+
+                                $data = [
+                                    'day_end_id'=>$day_end_id,
+                                    'closing_date'=>$closing_date,
+                                    'source_type' => $real_value->getTable(),
+                                    'source_id' => $real_value->id,
+                                    'source_sn' => $real_value->sn,
+                                    'source_summary' => $source_summary,
+                                    'debit_price' => null,
+                                    'credit_price' => $pay_v->tw_price,
+                                    'grade_id' => $pay_v->all_grades_id,
+                                    'grade_code' => $pay_v->grade_code,
+                                    'grade_name' => $pay_v->grade_name,
+                                ];
+                                DayEndLog::create_day_end_log($data);
                             }
-                            $source_summary = $method_name . ' ' . $suffix . ' ' . $pay_v->summary;
+                        }
+                        if($t_data->product_items){
+                            foreach(json_decode($t_data->product_items) as $p_value){
+                                $d_price += $p_value->price;
+                            }
+                        }
+                        if($t_data->logistics_price){
+                            $d_price += $t_data->logistics_price;
+                        }
+                        if($t_data->discount_value > 0){
+                            foreach(json_decode($t_data->order_discount) as $d_value){
+                                $d_price -= $d_value->discount_value;
+                            }
+                        }
+                    }
 
-                            $data = [
-                                'day_end_id'=>$day_end_id,
-                                'closing_date'=>$closing_date,
-                                'source_type' => $real_value->getTable(),
-                                'source_id' => $real_value->id,
-                                'source_sn' => $real_value->sn,
-                                'source_summary' => $source_summary,
-                                'debit_price' => null,
-                                'credit_price' => $pay_v->tw_price,
-                                'grade_id' => $pay_v->all_grades_id,
-                                'grade_code' => $pay_v->grade_code,
-                                'grade_name' => $pay_v->grade_name,
-                            ];
-                            DayEndLog::create_day_end_log($data);
-                        }
-                    }
-                    if($t_data->product_items){
-                        foreach(json_decode($t_data->product_items) as $p_value){
-                            $d_price += $p_value->price;
-                        }
-                    }
-                    if($t_data->logistics_price){
-                        $d_price += $t_data->logistics_price;
-                    }
-                    if($t_data->discount_value > 0){
-                        foreach(json_decode($t_data->order_discount) as $d_value){
-                            $d_price -= $d_value->discount_value;
-                        }
-                    }
                     $d_c_net = $d_price - $c_price;
 
                 } else if($real_value->getTable() == 'acc_transfer_voucher'){

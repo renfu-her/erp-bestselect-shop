@@ -61,17 +61,18 @@
                             value="{{ $customer->recommend_name ? old('parent_profit_rate', $data->parent_profit_rate ?? '20') : '0' }}" />
                     </x-b-form-group>
                     <x-b-form-group name="profit_rate" title="分潤(%)">
-                        <input class="form-control" name="profit_rate"
+                        <input class="form-control" name="profit_rate" min="0" max="100"
                             value="{{ old('parent_profit_rate', 100 - $data->parent_profit_rate) }}" type="number" />
                     </x-b-form-group>
                 @else
                     <x-b-form-group name="parent_profit_rate" title="上一代分潤(%)">
                         <input class="form-control @error('parent_profit_rate') is-invalid @enderror"
-                            name="parent_profit_rate" readonly type="number" min="0" max="100" value=""
+                            name="parent_profit_rate" readonly type="number" min="0" max="100" value="0"
                             required />
                     </x-b-form-group>
                     <x-b-form-group name="profit_rate" title="分潤(%)">
-                        <input class="form-control" name="profit_rate" value="100" type="number" required />
+                        <input class="form-control" name="profit_rate" value="100"
+                            type="number" min="0" max="100" required />
                     </x-b-form-group>
                 @endif
                 <x-b-form-group name="profit_type" title="分潤回饋方式" required="true">
