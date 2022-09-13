@@ -737,6 +737,7 @@ class PurchaseInbound extends Model
             ->whereNull('consignment.deleted_at')
             ->whereNull('items.deleted_at')
             ->whereIn('consignment.audit_status', [AuditStatus::unreviewed()->value, AuditStatus::approved()->value])
+            ->groupBy('dlv_delivery.id')
             ->groupBy('consignment.send_depot_id')
             ->groupBy('items.product_style_id')
             ->groupBy('items.title');
@@ -767,6 +768,7 @@ class PurchaseInbound extends Model
             ->whereNull('dlv_receive_depot.deleted_at')
             ->where('dlv_delivery.event', Event::order()->value)
             //->groupBy('dlv_receive_depot.inbound_id')
+            ->groupBy('dlv_delivery.id')
             ->groupBy('dlv_receive_depot.depot_id')
             ->groupBy('dlv_receive_depot.product_style_id')
             ->groupBy('dlv_receive_depot.product_title');
