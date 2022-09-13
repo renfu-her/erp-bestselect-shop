@@ -129,6 +129,7 @@ class OrderItem extends Model
                 'item.product_title',
                 'item.discounted_price',
                 'item.price',
+                'item.dealer_price',
                 'item.qty',
                 'item.unit_cost',
                 'item.origin_price',

@@ -2242,15 +2242,15 @@ class OrderCtrl extends Controller
     public function personal_bonus(Request $request, $id)
     {
         $order = Order::orderDetail($id)->first();
-        $user_id = $request->user()->id;
-        $dataList = OrderProfit::dataList($id, $user_id)->get();
+        $customer_id = $request->user()->customer_id;
+        $dataList = OrderProfit::dataList($id, $customer_id)->get();
         //  dd($dataList);
         // dd(OrderProfitLog::dataListPerson($id, $user_id)->get());
         return view('cms.commodity.order.personal_bonus', [
             'id' => $id,
             'order' => $order,
             'dataList' => $dataList,
-            'log' => OrderProfitLog::dataListPerson($id, $user_id)->get(),
+            'log' => OrderProfitLog::dataListPerson($id, $customer_id)->get(),
             'breadcrumb_data' => ['id' => $id, 'sn' => $order->sn],
         ]);
     }
