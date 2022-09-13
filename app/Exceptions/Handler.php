@@ -60,6 +60,7 @@ class Handler extends ExceptionHandler
 
         switch ($guard) {
             case 'sanctum':
+            case 'cms-api':
                 return response()->json([
                     ResponseParam::status()->key => 'T01',
                     ResponseParam::msg()->key =>  $exception->getMessage(),
