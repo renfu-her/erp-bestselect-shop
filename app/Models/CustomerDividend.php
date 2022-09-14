@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Enums\Discount\DisCategory;
 use App\Enums\Discount\DividendCategory;
 use App\Enums\Discount\DividendFlag;
-use App\Enums\Discount\DisCategory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 
 class CustomerDividend extends Model
 {
@@ -207,7 +208,7 @@ class CustomerDividend extends Model
                 DB::table('ord_dividend')->insert($_dividend);
                 $_dividend['category'] = $value['category'];
                 // 將紅利類別轉換成會計類別
-              //  dd(DisCategory::dividend());
+                //  dd(DisCategory::dividend());
                 switch ($value['category']) {
                     case 'order':
                     case 'cyberbiz':
@@ -218,7 +219,7 @@ class CustomerDividend extends Model
                 if (!isset($arrDividend[$category_code])) {
                     $arrDividend[$category_code] = [];
                 }
-                $arrDividend[$category_code][] = $_dividend;             
+                $arrDividend[$category_code][] = $_dividend;
                 $remain_dividend -= $can_use_point;
                 //   echo $remain_dividend;
             }
@@ -226,7 +227,7 @@ class CustomerDividend extends Model
         }
 
         foreach ($arrDividend as $key => $value) {
-           
+
             $dis = (object) [
                 "title" => "購物金折抵",
                 "category_title" => DisCategory::fromValue($key)->description,
@@ -307,5 +308,20 @@ class CustomerDividend extends Model
                 'flag_title' => DividendFlag::Invalid()->description]);
         }, $exp->dividends);
 
+    }
+
+    public static function checkDividendFromErp($customer_sn, $password)
+    {
+
+        $url = 'https://www.besttour.com.tw/api/b2X_points.asp';
+        $time = time();
+        $response = Http::withoutVerifying()->get($url, [
+            'id' => 1,
+            'no' => $customer_sn,
+            'requestid' => $time,
+            'password' => $password,
+        ]);
+
+        return $response;
     }
 }
