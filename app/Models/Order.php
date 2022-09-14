@@ -399,7 +399,8 @@ class Order extends Model
 
             $order['order_sn'] = $order_sn;
             // 處理紅利
-            $dividend_re = CustomerDividend::orderDiscount($customer->id, $order_sn, $order['use_dividend']);
+            $dividend_re = CustomerDividend::orderDiscount($customer->id, $order); //$order_sn, $order['use_dividend']
+           // dd($order);
             if ($dividend_re['success'] != '1') {
                 DB::rollBack();
                 return $dividend_re;
