@@ -77,7 +77,7 @@ class CollectionPaymentCtrl extends Controller
             $po_payment_date,
             $cond['check_balance']
         )->paginate($page)->appends($query);
-dd($dataList);
+
         // accounting classification start
             foreach($dataList as $value){
                 $debit = [];
@@ -244,7 +244,6 @@ dd($dataList);
                 }
             }
         // accounting classification end
-dd($dataList);
 
         $user = User::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
         $customer = Customer::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
