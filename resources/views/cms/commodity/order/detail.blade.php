@@ -93,7 +93,11 @@
                 </div>
                 <div class="col">
                     <dt>訂單狀態</dt>
-                    <dd>{{ $order->status }}</dd>
+                    @if(\App\Enums\Order\OrderStatus::getDescription(\App\Enums\Order\OrderStatus::Canceled()) == $order->status)
+                        <dd class="text-danger">{{ $order->status }}</dd>
+                    @else
+                        <dd>{{ $order->status }}</dd>
+                    @endif
                 </div>
                 <div class="col-sm-5">
                     <dt>收款單號</dt>
