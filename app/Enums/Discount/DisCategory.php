@@ -23,7 +23,7 @@ final class DisCategory extends Helper
         $result = '';
         switch ($value) {
             case self::dividend:
-                $result = '鴻利';
+                $result = '購物金';
                 break;
             case self::coupon:
                 $result = '優惠券';
