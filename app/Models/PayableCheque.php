@@ -20,9 +20,16 @@ class PayableCheque extends Model
 
     public static function storePayableCheque($req)
     {
+        $bank_check_grade_id = $req['cheque']['grade_id'];
+        $bank_check_grade_code = AllGrade::find($bank_check_grade_id)->eachGrade->code;
+        $bank_check_grade_name = AllGrade::find($bank_check_grade_id)->eachGrade->name;
+
         $payableData = self::create([
             'ticket_number' => $req['cheque']['ticket_number'],
             'due_date' => $req['cheque']['due_date'],
+            'grade_id' => $bank_check_grade_id,
+            'grade_code' => $bank_check_grade_code,
+            'grade_name' => $bank_check_grade_name,
             'cashing_date' => $req['cheque']['cashing_date'],
             'status_code' => $req['cheque']['status_code'],
             'status' => ChequeStatus::getDescription($req['cheque']['status_code']),

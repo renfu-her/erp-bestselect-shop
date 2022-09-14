@@ -52,7 +52,8 @@
                         <tr>
                             <th scope="row">{{ $key + 1 }}</th>
                             <td>{{ $data->report_at }}</td>
-                            <td> <a href="#">
+                            <td> <a
+                                    href="{{ route('cms.order-bonus.person-detail', ['id' => $month_report->id, 'customer_id' => $data->customer_id]) }}">
                                     {{ $data->name }}_{{ $data->mcode }}
                                 </a>
                             </td>

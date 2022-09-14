@@ -690,9 +690,8 @@ class PayingOrder extends Model
                 _cheque.ticket_number AS cheque_ticket_number,
                 _cheque.due_date AS cheque_due_date,
 
-                _cheque.banks AS cheque_banks,
-                _cheque.accounts AS cheque_accounts,
-                _cheque.drawer AS cheque_drawer,
+                _cheque.grade_code AS cheque_grade_code,
+                _cheque.grade_name AS cheque_grade_name,
 
                 _cheque.status_code AS cheque_status_code,
                 _cheque.status AS cheque_status,

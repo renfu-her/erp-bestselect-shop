@@ -27,7 +27,7 @@
                     @foreach($data_list as $key => $value)
                         <tr>
                             <th>{{ $d_count + 1 }}</th>
-                            <td>{{ $value->po_payable_grade_code . ' ' . $value->po_payable_grade_name }}</td>
+                            <td>{{ $value->cheque_grade_code . ' ' . $value->cheque_grade_name }}</td>
                             <td>{{ $value->summary }}</td>
                             <td><a href="{{ route('cms.note_payable.record', ['id'=>$value->cheque_payable_id]) }}">{{ $value->cheque_ticket_number }}</a></td>
                             <td class="text-end">${{ number_format($value->cheque_amt_net) }}</td>

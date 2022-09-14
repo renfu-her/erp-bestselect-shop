@@ -47,7 +47,7 @@
                                 <td>{{ $value->payment_date ? date('Y/m/d', strtotime($value->payment_date)) : '' }}</td>
                                 <td>{{ $value->cheque_due_date ? date('Y/m/d', strtotime($value->cheque_due_date)) : '' }}</td>
                                 <td>{{ $value->cheque_cashing_date ? date('Y/m/d', strtotime($value->cheque_cashing_date)) : '' }}</td>
-                                <td>{{ $value->po_payable_grade_code . ' ' . $value->po_payable_grade_name }}</td>
+                                <td>{{ $value->cheque_grade_code . ' ' . $value->cheque_grade_name }}</td>
                                 <td>{{ $value->po_target_name }}</td>
                                 <td></td>
                                 <td>{{ $value->note}}</td>
