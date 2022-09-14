@@ -175,11 +175,24 @@
                 </div>
 
                 {{-- 支票 --}}
-                <div class="col-12 col-sm-6 mb-3 cheque">
-                    <label class="form-label cheque">支存銀行
-                        <span class="text-danger">*</span>
-                    </label>
+                <div class="col-12 col-sm-6 mb-3 cheque d-none">
+                    <label class="form-label cheque">會計科目 <span class="text-danger">*</span></label>
                     <select name="cheque[grade_id_fk]" class="form-select -select2 -single cheque @error('cheque[grade_id_fk]') is-invalid @enderror" 
+                        required data-placeholder="請選擇會計科目">
+                        @foreach($total_grades as $value)
+                            @if(in_array($value['primary_id'], $chequeDefault))
+                            <option value="{{ $value['primary_id'] }}" {{ $value['code'] == '2101' ? 'selected' : '' }}>{{ $value['code'] . ' ' . $value['name'] }}</option>
+                            @endif
+                        @endforeach
+                    </select>
+                    @error('cheque[grade_id_fk]')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="col-12 col-sm-6 mb-3 cheque">
+                    <label class="form-label cheque">支存銀行 <span class="text-danger">*</span></label>
+                    <select name="cheque[grade_id]" class="form-select -select2 -single cheque @error('cheque[grade_id]') is-invalid @enderror" 
                         required data-placeholder="請選擇支存銀行">
                         @php
                             $cheque_first = true;
@@ -193,10 +206,11 @@
                             @endif
                         @endforeach
                     </select>
-                    @error('cheque[grade_id_fk]')
+                    @error('cheque[grade_id]')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
+
                 <x-b-form-group name="cheque[ticket_number]" title="票號" required="true"
                                 class="col-12 col-sm-6 mb-3 cheque"
                                 id="ticket_number">
