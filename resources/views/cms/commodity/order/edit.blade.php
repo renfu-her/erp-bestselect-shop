@@ -647,7 +647,11 @@
         <div class="alert alert-danger" role="alert">{{ $message }}</div>
         @enderror
     </form>
-
+    <div>
+    @if($errors->any())
+        {!! implode('', $errors->all('<div>:message</div>')) !!}
+    @endif
+    </div>
     {{-- 商品清單 --}}
     <x-b-modal id="addProduct" cancelBtn="false" size="modal-xl modal-fullscreen-lg-down">
         <x-slot name="title">選擇商品</x-slot>
