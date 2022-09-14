@@ -134,6 +134,7 @@ class PayingOrder extends Model
         $po_separate = false
     ){
         $separate = $po_separate ? ', type' : '';
+        $payment_separate = $po_separate ? ', v_po.type' : '';
 
         $sq = '
             SELECT
@@ -208,7 +209,7 @@ class PayingOrder extends Model
                 LEFT JOIN acc_payable_cheque AS _cheque ON acc_payable.payable_id = _cheque.id AND acc_payable.acc_income_type_fk = 2
 
                 LEFT JOIN pcs_paying_orders AS v_po ON v_po.id = acc_payable.pay_order_id WHERE v_po.deleted_at IS NULL
-                GROUP BY v_po.source_type, v_po.source_id, v_po.source_sub_id
+                GROUP BY v_po.source_type, v_po.source_id, v_po.source_sub_id' . $payment_separate . '
                 ) AS payable_table'), function ($join){
                     $join->whereRaw('payable_table.pay_order_id in (po.id)');
             })
