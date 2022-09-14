@@ -111,6 +111,7 @@
                     </dd>
                 </div>
             </dl>
+            <hr class="mt-0">
             <dl class="row">
                 <div class="col">
                     <dt>購買人姓名</dt>
@@ -139,6 +140,17 @@
                     <dd>{{ $order->rec_address }}</dd>
                 </div>
             </dl>
+            <dl class="row">
+                <div class="col">
+                    <dt>寄件人</dt>
+                    <dd>{{ $order->sed_name }}</dd>
+                </div>
+                <div class="col-md-5">
+                    <dt>寄件人地址</dt>
+                    <dd>{{ $order->sed_address }}</dd>
+                </div>
+            </dl>
+            <hr class="mt-0">
             <dl class="row">
                 <div class="col">
                     <dt>發票類型</dt>
@@ -180,16 +192,6 @@
             </dl>
             <dl class="row">
                 <div class="col">
-                    <dt>寄件人</dt>
-                    <dd>{{ $order->sed_name }}</dd>
-                </div>
-                <div class="col-md-5">
-                    <dt>寄件人地址</dt>
-                    <dd>{{ $order->sed_address }}</dd>
-                </div>
-            </dl>
-            <dl class="row">
-                <div class="col">
                     <dt>銷售通路</dt>
                     <dd>{{ $order->sale_title }}</dd>
                 </div>
@@ -203,26 +205,29 @@
                 </div>
             </dl>
             @if (isset($remit))
+                <hr class="mt-0">
                 <dl class="row">
                     <div class="col">
                         <dt>匯款人姓名</dt>
                         <dd>{{ $remit->name }}</dd>
                     </div>
                     <div class="col">
-                        <dt>匯款金額</dt>
-                        <dd>{{ number_format($remit->price) }}</dd>
-                    </div>
-                    <div class="col">
-                        <dt>匯款日期</dt>
-                        <dd>{{ $remit->remit_date }}</dd>
-                    </div>
-                    <div class="col">
                         <dt>帳號後五碼</dt>
                         <dd>{{ $remit->bank_code }}</dd>
                     </div>
-                    <div class="col-sm-2">
+                    <div class="col-5">
+                        <dt>匯款金額</dt>
+                        <dd>${{ number_format($remit->price) }}</dd>
+                    </div>
+                </dl>
+                <dl class="row">
+                    <div class="col">
+                        <dt>匯款日期</dt>
+                        <dd>{{ date('Y/m/d', strtotime($remit->remit_date)) }}</dd>
+                    </div>
+                    <div class="col col-md-5">
                         <dt>上傳時間</dt>
-                        <dd>{{ $remit->created_at }}</dd>
+                        <dd>{{ date('Y/m/d H:i:s', strtotime($remit->created_at)) }}</dd>
                     </div>
                 </dl>
             @endif
