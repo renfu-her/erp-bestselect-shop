@@ -122,7 +122,7 @@
                         <label class="form-label">廠商訂單號</label>
                         <input class="form-control" name="supplier_sn" type="text" aria-label="廠商訂單號"
                                value="{{ old('supplier_sn', $purchaseData->supplier_sn  ?? '') }}"
-                               @if ($hasCreatedFinalPayment) disabled @endif placeholder="請輸入廠商訂單號">
+                               @if ($hasCreatedFinalPayment) readonly @endif placeholder="請輸入廠商訂單號">
                     </div>
                 @endif
             </div>
