@@ -11,7 +11,7 @@ Route::group(['prefix' => 'customer', 'as' => 'customer.'], function () {
     Route::post('edit/{id}', [CustomerCtrl::class, 'update']);
     Route::get('edit/{id}/coupon', [CustomerCtrl::class, 'coupon'])->name('coupon')->middleware('permission:cms.customer.address');
     Route::get('edit/{id}/address', [CustomerCtrl::class, 'address'])->name('address')->middleware('permission:cms.customer.address');
-    Route::get('/{id}/order', [CustomerCtrl::class, 'order'])->name('order')->middleware('permission:cms.customer.address');
+    Route::get('/{id}/order', [CustomerCtrl::class, 'order'])->name('order')->middleware('check.customer.data');
     Route::get('/{id}/dividend', [CustomerCtrl::class, 'dividend'])->name('dividend')->middleware('permission:cms.customer.address');
     Route::get('/{id}/bonus', [CustomerCtrl::class, 'bonus'])->name('bonus')->middleware('permission:cms.customer.address');
     Route::get('delete/{id}', [CustomerCtrl::class, 'destroy'])->name('delete')->middleware('permission:cms.customer.edit');
