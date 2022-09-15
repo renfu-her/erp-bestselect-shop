@@ -242,6 +242,17 @@ class NotePayableOrder extends Model
                     'updated_at'=>date('Y-m-d H:i:s'),
                 ]);
             }
+
+        } else if($request['status_code'] === 'po_delete'){
+            DB::table('acc_payable_cheque')->whereIn('id', $request['cheque_payable_id'])->update([
+                'status_code'=>$request['status_code'],
+                'status'=>$request['status'],
+
+                'amt_net'=>0,
+                'note_payable_order_id'=>null,
+                'sn'=>null,
+                'updated_at'=>date('Y-m-d H:i:s'),
+            ]);
         }
 
         foreach($request['cheque_payable_id'] as $key => $value){
