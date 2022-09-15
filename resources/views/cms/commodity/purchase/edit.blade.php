@@ -133,18 +133,18 @@
             <div class="table-responsive tableOverBox">
                 <table class="table table-hover tableList mb-0">
                     <thead>
-                    <tr>
-                        <th scope="col" class="text-center">刪除</th>
-                        <th scope="col">商品名稱</th>
-                        <th scope="col">SKU</th>
-                        <th scope="col">採購數量</th>
-                        <th scope="col">採購總價</th>
-                        @if ($method === 'edit')
-                            <th scope="col">狀態</th>
-                            <th scope="col">入庫人員</th>
-                        @endif
-                        <th scope="col">採購備註</th>
-                    </tr>
+                        <tr>
+                            <th scope="col" class="text-center">刪除</th>
+                            <th scope="col">商品名稱</th>
+                            <th scope="col">SKU</th>
+                            <th scope="col">採購數量</th>
+                            <th scope="col">採購總價</th>
+                            @if ($method === 'edit')
+                                <th scope="col">狀態</th>
+                                <th scope="col">入庫人員</th>
+                            @endif
+                            <th scope="col">採購備註</th>
+                        </tr>
                     </thead>
                     <tbody class="-appendClone --selectedP">
                     @if (0 >= count(old('item_id', $purchaseItemData?? [])))
@@ -459,7 +459,7 @@
             let hasCreatedFinalPayment = @json($hasCreatedFinalPayment?? false);
 
             if (true == hasCreatedFinalPayment) {
-                // $('.-cloneElem.--selectedP :input').prop("disabled", true);
+                $('.-cloneElem.--selectedP :input:not([name="memo[]"]):not(:hidden)').prop("disabled", true);
             }
 
             // 物流
