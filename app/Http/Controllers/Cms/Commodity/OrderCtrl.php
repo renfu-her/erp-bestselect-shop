@@ -868,7 +868,7 @@ class OrderCtrl extends Controller
 
             } else if($data['acc_transact_type_fk'] == ReceivedMethod::Cheque){
                 $request->validate([
-                    request('acc_transact_type_fk') . '.ticket_number'=>'required|unique:acc_received_cheque,ticket_number|regex:/^[A-Z]{2}[0-9]{7}$/'
+                    request('acc_transact_type_fk') . '.ticket_number'=>'required|unique:acc_received_cheque,ticket_number,ro_delete,status_code|regex:/^[A-Z]{2}[0-9]{7}$/'
                 ]);
             }
 
@@ -1586,7 +1586,7 @@ class OrderCtrl extends Controller
                     break;
                 case Payment::Cheque:
                     $request->validate([
-                        'cheque.ticket_number' => 'required|unique:acc_payable_cheque,ticket_number|regex:/^[A-Z]{2}[0-9]{7}$/',
+                        'cheque.ticket_number'=>'required|unique:acc_payable_cheque,ticket_number,po_delete,status_code|regex:/^[A-Z]{2}[0-9]{7}$/'
                     ]);
                     PayableCheque::storePayableCheque($req);
                     break;
@@ -1846,7 +1846,7 @@ class OrderCtrl extends Controller
                     break;
                 case Payment::Cheque:
                     $request->validate([
-                        'cheque.ticket_number' => 'required|unique:acc_payable_cheque,ticket_number|regex:/^[A-Z]{2}[0-9]{7}$/',
+                        'cheque.ticket_number'=>'required|unique:acc_payable_cheque,ticket_number,po_delete,status_code|regex:/^[A-Z]{2}[0-9]{7}$/'
                     ]);
                     PayableCheque::storePayableCheque($req);
                     break;
