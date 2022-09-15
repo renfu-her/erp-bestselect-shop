@@ -94,9 +94,10 @@
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">廠商預計進貨日期 <span class="text-danger">*</span></label>
                     @if ($hasCreatedFinalPayment)
-                        <div class="form-control" readonly>
-                            {{ empty($purchaseData->scheduled_date) ? '-' : date('Y/m/d', strtotime($purchaseData->scheduled_date)) }}
-                        </div>
+                        <input type="date" id="scheduled_date" name="scheduled_date"
+                               value="{{ old('scheduled_date', $purchaseData->scheduled_date  ?? '') }}"
+                               class="form-control" aria-label="廠商預計進貨日期"
+                               readonly/>
                     @else
                         <div class="input-group has-validation">
                             <input type="date" id="scheduled_date" name="scheduled_date"
@@ -458,7 +459,7 @@
             let hasCreatedFinalPayment = @json($hasCreatedFinalPayment?? false);
 
             if (true == hasCreatedFinalPayment) {
-                $('.-cloneElem.--selectedP :input').prop("disabled", true);
+                // $('.-cloneElem.--selectedP :input').prop("disabled", true);
             }
 
             // 物流
