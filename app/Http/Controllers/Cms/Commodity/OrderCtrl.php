@@ -2357,4 +2357,29 @@ class OrderCtrl extends Controller
         return redirect(route('cms.order.detail', ['id' => $id]));
 
     }
+
+    public function order_flow(Request $request, $id)
+    {
+        $query = $request->query();
+        $page = getPageCount(Arr::get($query, 'data_per_page'));
+
+        $order = DB::table(app(Order::class)->getTable(). ' as order')
+            ->where('order.id', $id)
+            ->get()->first();
+
+        if (!$order) {
+            return abort(404);
+        }
+
+        $dataList = DB::table(app(OrderFlow::class)->getTable(). ' as flow')
+            ->where('flow.order_id', $id)
+            ->orderByDesc('flow.id');
+        $dataList = $dataList->paginate($page)->appends($query);
+        return view('cms.commodity.order.order_flow', [
+            'order' => $order,
+            'dataList' => $dataList,
+            'data_per_page' => $page,
+            'breadcrumb_data' => ['id' => $id, 'sn' => $order->sn],
+        ]);
+    }
 }

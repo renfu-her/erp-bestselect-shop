@@ -50,5 +50,7 @@ Route::group(['prefix' => 'order', 'as' => 'order.'], function () {
     Route::get('split-order/{id}', [OrderCtrl::class, 'split_order'])->name('split-order')->middleware('permission:cms.order.split_order');
     Route::post('split-order/{id}', [OrderCtrl::class, 'update_split_order']);
 
+    // 訂單紀錄
+    Route::get('order_flow/{id}', [OrderCtrl::class, 'order_flow'])->name('order-flow')->middleware('permission:cms.order.detail');
 
 });
