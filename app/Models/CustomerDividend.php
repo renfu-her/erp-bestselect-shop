@@ -322,6 +322,46 @@ class CustomerDividend extends Model
             'password' => $password,
         ]);
 
-        return $response;
+        if ($response->successful()) {
+            $response = ($response->json())[0];
+            if ($response['status'] != '0') {
+                return $response;
+            }
+
+            $response['requestid'] = $time;
+
+            return $response;
+        }
+
     }
+
+    public static function getDividendFromErp($customer_id, $edword, $points, $type, $requestid)
+    {
+
+        // https://www.besttour.com.tw/api/b2X_points.asp?id=2%20&edword=HSI-HUNG33A1653DDE95A4266A6D0F4400B071E0E81ECFE817FB53CD0E1283EC2CEC2BE0&point=10
+        // https://www.besttour.com.tw/api/b2X_points.asp?id=2&edword=HSI-HUNG216A5FFEE7E03345ED7664D52E893A5F4519C5EC096D9E80F8211F300F11DF36&points=10
+        $url = 'https://www.besttour.com.tw/api/b2X_points.asp';
+        $response = Http::withoutVerifying()->get($url, [
+            'id' => 2,
+            'edword' => $edword,
+            'point' => $points
+        ]);
+
+       // dd($response);
+
+        if ($response->successful()) {
+            $response = ($response->json())[0];
+            dd($response);
+            /*
+            if ($response['status'] != '0') {
+                return $response;
+            }
+
+            $response['requestid'] = $time;
+
+            return $response;
+            */
+        }
+    }
+
 }

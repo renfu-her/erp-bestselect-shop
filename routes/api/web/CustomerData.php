@@ -17,5 +17,7 @@ Route::group(['prefix' => 'customer-data', 'as' => 'customer-data.'], function (
     Route::post('profit-status', [CustomerCtrl::class, 'profitStatus']);
     Route::post('check-recommender', [CustomerCtrl::class, 'checkRecommender']);
     Route::post('cancel-order', [OrderCtrl::class, 'cancelOrder']);
+    Route::post('dividend/check-from-erp', [CustomerCtrl::class, 'checkDividendFromErp']);
+    Route::post('dividend/get-from-erp', [CustomerCtrl::class, 'getDividendFromErp']);
 
 });
