@@ -304,7 +304,6 @@ class DayEnd extends Model
                     }
 
                 } else if($real_value->getTable() == 'acc_income_orders'){
-                    // $t_data = IncomeOrder::find($real_value->id);
                     $income = [
                         [
                             'price'=>$real_value->amt_total_service_fee,
@@ -328,21 +327,23 @@ class DayEnd extends Model
                     $d_c_net = $d_price - $c_price;
 
                     foreach($income as $value){
-                        $data = [
-                            'day_end_id'=>$day_end_id,
-                            'closing_date'=>$closing_date,
-                            'source_type' => $real_value->getTable(),
-                            'source_id' => $real_value->id,
-                            'source_sn' => $real_value->sn,
-                            'source_summary' => $value['desc'],
-                            'debit_price' => $value['price'],
-                            'credit_price' => null,
-                            'grade_id' => $value['grade_id'],
-                            'grade_code' => $value['grade_code'],
-                            'grade_name' => $value['grade_name'],
-                        ];
+                        if($value['price'] > 0){
+                            $data = [
+                                'day_end_id'=>$day_end_id,
+                                'closing_date'=>$closing_date,
+                                'source_type' => $real_value->getTable(),
+                                'source_id' => $real_value->id,
+                                'source_sn' => $real_value->sn,
+                                'source_summary' => $value['desc'],
+                                'debit_price' => $value['price'],
+                                'credit_price' => null,
+                                'grade_id' => $value['grade_id'],
+                                'grade_code' => $value['grade_code'],
+                                'grade_name' => $value['grade_name'],
+                            ];
 
-                        DayEndLog::create_day_end_log($data);
+                            DayEndLog::create_day_end_log($data);
+                        }
                     }
                 }
 
