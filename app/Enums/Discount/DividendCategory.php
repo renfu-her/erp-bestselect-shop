@@ -13,6 +13,9 @@ final class DividendCategory extends Enum
 {
     const Order = 'order';
     const Cyberbiz = 'cyberbiz';
+    const M_b2e = 'm_b2e';
+    const M_b2c = 'm_b2c';
+    const M_b2b = 'm_b2b';
 
     public static function getDescription($value): string
     {
@@ -22,6 +25,15 @@ final class DividendCategory extends Enum
                 break;
             case self::Cyberbiz:
                 $result = '喜鴻購物2.0';
+                break;
+            case self::M_b2e:
+                $result = '旅遊企業紅利折扣';
+                break;
+            case self::M_b2c:
+                $result = '旅遊會員紅利折扣';
+                break;
+            case self::M_b2b:
+                $result = '旅遊同業紅利折扣';
                 break;
             default:
                 return parent::getDescription($value);

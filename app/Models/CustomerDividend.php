@@ -54,6 +54,7 @@ class CustomerDividend extends Model
             'flag_title' => DividendFlag::NonActive()->description,
             'weight' => 0,
             'type' => 'get',
+            'note' => '由'.$order_sn.'訂單取得'
         ])->id;
 
         return $id;
@@ -214,6 +215,8 @@ class CustomerDividend extends Model
                     case 'cyberbiz':
                         $category_code = DisCategory::dividend()->value;
                         break;
+                    default:
+                        $category_code = $value['category'];
                 }
 
                 if (!isset($arrDividend[$category_code])) {
@@ -260,6 +263,7 @@ class CustomerDividend extends Model
             'flag_title' => DividendFlag::Discount()->description,
             'weight' => 0,
             'type' => 'used',
+            'note' => '由'.$order['order_sn']."訂單使用"
         ])->id;
         DB::commit();
         return ['success' => '1', 'id' => $id];
@@ -335,7 +339,7 @@ class CustomerDividend extends Model
 
     }
 
-    public static function getDividendFromErp($customer_id, $edword, $points, $type, $requestid)
+    public static function getDividendFromErp($customer_id, $edword, $point, $type, $requestid)
     {
 
         // https://www.besttour.com.tw/api/b2X_points.asp?id=2%20&edword=HSI-HUNG33A1653DDE95A4266A6D0F4400B071E0E81ECFE817FB53CD0E1283EC2CEC2BE0&point=10
@@ -344,23 +348,34 @@ class CustomerDividend extends Model
         $response = Http::withoutVerifying()->get($url, [
             'id' => 2,
             'edword' => $edword,
-            'point' => $points
+            'point' => $point,
         ]);
 
-       // dd($response);
+        // dd($response);
 
         if ($response->successful()) {
             $response = ($response->json())[0];
-            dd($response);
-            /*
+
             if ($response['status'] != '0') {
                 return $response;
             }
 
-            $response['requestid'] = $time;
+            if ($point > 0) {
+                $id = self::create([
+                    'customer_id' => $customer_id,
+                    'category' => DividendCategory::fromKey($type),
+                    'category_sn' => $requestid,
+                    'dividend' => $point,
+                    'deadline' => 0,
+                    'flag' => DividendFlag::Active(),
+                    'flag_title' => DividendFlag::Active()->description,
+                    'weight' => 0,
+                    'type' => 'get',
+                    'note' => "由" . DividendCategory::fromKey($type)->description . "取得",
+                ])->id;
 
-            return $response;
-            */
+            }
+            return ['status' => '0'];
         }
     }
 
