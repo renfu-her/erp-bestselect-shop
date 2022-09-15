@@ -17,13 +17,25 @@ final class DisCategory extends Helper
     const code = 'code';
     const combine = 'combine';
     const dividend = 'dividend';
+    const m_b2e = 'm_b2e';
+    const m_b2c = 'm_b2c';
+    const m_b2b = 'm_b2b';
 
     public static function getDescription($value): string
     {
         $result = '';
         switch ($value) {
             case self::dividend:
-                $result = '購物金';
+                $result = '紅利折扣';
+                break;
+            case self::m_b2e:
+                $result = '旅遊企業紅利折扣';
+                break;
+            case self::m_b2c:
+                $result = '旅遊會員紅利折扣';
+                break;
+            case self::m_b2b:
+                $result = '旅遊同業紅利折扣';
                 break;
             case self::coupon:
                 $result = '優惠券';

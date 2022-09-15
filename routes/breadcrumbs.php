@@ -255,6 +255,11 @@ Breadcrumbs::for('cms.order.edit-item', function (BreadcrumbTrail $trail, $value
     $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.order.detail', ['id' => $value['id']]));
     $trail->push('編輯訂單');
 });
+Breadcrumbs::for('cms.order.order-flow', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.order.index');
+    $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.order.detail', ['id' => $value['id']]));
+    $trail->push('訂單紀錄');
+});
 
 // 訂單自取入庫審核
 Breadcrumbs::for('cms.order.inbound', function (BreadcrumbTrail $trail, $value) {

@@ -275,7 +275,7 @@ class SaleChannel extends Model
                 ->where('sale_channel_id', $sale->id)->get();
 
             foreach ($styles as $style) {
-                $dividend = round($style->price * $sale->dividend_rate / 100);
+                $dividend = round($style->price * $sale->dividend_limit / 100);
                 $dividend = ($dividend > 0) ? $dividend : 0;
                 DB::table('prd_salechannel_style_price as sp')
                     ->where('sp.style_id', $style->style_id)

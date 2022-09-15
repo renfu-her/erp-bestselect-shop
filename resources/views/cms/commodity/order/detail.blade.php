@@ -53,7 +53,8 @@
                         class="btn btn-outline-danger btn-sm my-1 ms-1">取消訂單</a>
                 @endcan
             @endif
-
+            <a href="{{ Route('cms.order.order-flow', ['id' => $order->id]) }}" role="button"
+               class="btn btn-primary btn-sm my-1 ms-1">訂單紀錄</a>
 
             @if (!$order->return_pay_order_id && in_array($order->status, ['取消']) && $po_check)
                 <a href="{{ Route('cms.order.return-pay-order', ['id' => $order->id]) }}" role="button"
@@ -356,7 +357,7 @@
                                 @foreach ($subOrder->items as $item)
                                     <tr>
                                         <td class="wrap lh-sm">
-                                            <a href="{{ Route('cms.product.edit', ['id' => $item->product_id], true) }}"
+                                            <a href="{{ Route('cms.product.show', ['id' => $item->product_id], true) }}"
                                                 class="-text">{{ $item->product_title }}</a>
                                         </td>
                                         <td>{{ $item->sku }}</td>

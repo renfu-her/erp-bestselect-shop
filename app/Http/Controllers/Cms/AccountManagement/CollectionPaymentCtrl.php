@@ -19,6 +19,7 @@ use App\Models\DayEnd;
 use App\Models\Delivery;
 use App\Models\Depot;
 use App\Models\GeneralLedger;
+use App\Models\NotePayableOrder;
 use App\Models\Order;
 use App\Models\PayableAccount;
 use App\Models\PayableCash;
@@ -341,8 +342,15 @@ class CollectionPaymentCtrl extends Controller
 
             // cheque status is cashed then po can't delete,
             // if status not cashed then would not count in note payable order,
-            // so needn't update it
-            //
+            // so only update cheque status as po_delete
+            $payable_data = PayingOrder::get_payable_detail($id, 2);
+            $parm = [
+                'cheque_payable_id'=>$payable_data->pluck('cheque_id')->toArray(),
+                'status_code'=>'po_delete',
+                'status'=>'付款單刪除',
+            ];
+            NotePayableOrder::update_cheque_payable_method($parm);
+
 
             if($po->payment_date){
                 DayEnd::match_day_end_status($po->payment_date, $po->sn);

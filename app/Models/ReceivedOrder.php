@@ -832,6 +832,7 @@ class ReceivedOrder extends Model
             ')
 
             ->selectRaw('
+                _cheque.id AS cheque_id,
                 _cheque.ticket_number AS cheque_ticket_number,
                 _cheque.due_date AS cheque_due_date,
                 _cheque.banks AS cheque_banks,
