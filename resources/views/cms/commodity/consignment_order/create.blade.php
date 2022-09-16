@@ -24,8 +24,8 @@
             <a href="{{ Route('cms.ar_csnorder.create', ['id' => $id]) }}" class="btn btn-sm btn-primary" role="button">新增收款單</a>
         @endif
             <a target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-warning"
-                href="{{ Route('cms.consignment.print_order_ship', ['id' => $id]) }}">
-                列印出貨單-中一刀畫面
+                href="{{ Route('cms.consignment-order.print_order_ship', ['id' => $id]) }}">
+                列印出貨單
             </a>
         </div>
     </nav>
