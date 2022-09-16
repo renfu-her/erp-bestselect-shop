@@ -138,6 +138,7 @@
                         <dt>發票類型</dt>
                         <dd>(待處理)</dd>
                     </div>
+                    <div class="col"></div>
                 </dl>
                 <dl class="row">
                     <div class="col">
