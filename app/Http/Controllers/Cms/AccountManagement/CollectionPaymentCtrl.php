@@ -139,7 +139,7 @@ class CollectionPaymentCtrl extends Controller
                         $name = $product_name . ' --- ' . $p_value->title . '（' . $avg_price . ' * ' . $p_value->num . '）';
                         $product_title = $p_value->title;
 
-                        if($value->po_source_type == 'pcs_paying_orders'){
+                        if($value->po_source_type == 'acc_stitute_orders' || $value->po_source_type == 'pcs_paying_orders'){
                             $product_account = AllGrade::find($p_value->all_grades_id) ? AllGrade::find($p_value->all_grades_id)->eachGrade : null;
                             $account_code = $product_account ? $product_account->code : '1000';
                             $account_name = $product_account ? $product_account->name : '無設定會計科目';
@@ -449,5 +449,481 @@ class CollectionPaymentCtrl extends Controller
         }
 
         return redirect()->back();
+    }
+
+
+    public function claim(Request $request)
+    {
+        if($request->isMethod('post')){
+            $request->validate([
+                'selected' => 'required|array',
+                'selected.*' => 'exists:acc_payable_account,id',
+                'accounts_payable_id' => 'required|array',
+                'accounts_payable_id.*' => 'exists:acc_payable_account,id',
+                'amt_net' => 'required|array',
+                'amt_net.*' => 'required|numeric|between:0,9999999999.99',
+            ]);
+
+            $compare = array_diff(request('selected'), request('accounts_payable_id'));
+            if(count($compare) == 0){
+                $source_type = app(PayingOrder::class)->getTable();
+                // $n_id = DB::select("SHOW TABLE STATUS FROM 'shop-dev' LIKE '" . $source_type . "'")[0]->Auto_increment;
+                $n_id = PayingOrder::withTrashed()->get()->count() + 1;
+                $accounts_payable_id = current(request('accounts_payable_id'));
+                $payable = DB::table('acc_payable')->where([
+                    'acc_income_type_fk'=>5,
+                    'payable_id'=>$accounts_payable_id
+                ])->first();
+
+                $pre_paying_order = PayingOrder::find($payable->pay_order_id);
+                $product_grade = PayableDefault::where('name', '=', 'product')->first()->default_grade_id;
+                $logistics_grade = PayableDefault::where('name', '=', 'logistics')->first()->default_grade_id;
+
+                $result = PayingOrder::createPayingOrder(
+                    $source_type,
+                    $n_id,
+                    null,
+                    $request->user()->id,
+                    1,
+                    $product_grade,
+                    $logistics_grade,
+                    array_sum(request('amt_net')),
+                    '',
+                    '',
+                    $pre_paying_order->payee_id,
+                    $pre_paying_order->payee_name,
+                    $pre_paying_order->payee_phone,
+                    $pre_paying_order->payee_address
+                );
+
+                $paying_order = PayingOrder::find($result['id']);
+
+                $parm = [
+                    'accounts_payable_id'=>request('accounts_payable_id'),
+                    'status_code'=>0,
+                    'append_pay_order_id'=>$paying_order->id,
+                    'sn'=>$paying_order->sn,
+                    'amt_net'=>request('amt_net'),
+                ];
+                PayingOrder::update_account_payable_method($parm);
+
+                return redirect()->route('cms.accounts_payable.po-edit', [
+                    'id'=>$paying_order->id,
+                ]);
+            }
+
+            wToast(__('應付帳款付款單建立失敗', ['type'=>'danger']));
+            return redirect()->back();
+        }
+
+        $query = $request->query();
+        $page = getPageCount(Arr::get($query, 'data_per_page', 100)) > 0 ? getPageCount(Arr::get($query, 'data_per_page', 100)) : 100;
+
+        $cond = [];
+
+        $cond['payee_key'] = Arr::get($query, 'payee_key', null);
+        if (gettype($cond['payee_key']) == 'string') {
+            $key = explode('|', $cond['payee_key']);
+            $cond['payee']['id'] = $key[0];
+            $cond['payee']['name'] = $key[1];
+        } else {
+            $cond['payee'] = [];
+        }
+
+        $cond['po_sn'] = Arr::get($query, 'po_sn', null);
+        $cond['source_sn'] = Arr::get($query, 'source_sn', null);
+
+        $cond['po_min_price'] = Arr::get($query, 'po_min_price', null);
+        $cond['po_max_price'] = Arr::get($query, 'po_max_price', null);
+        $po_price = [
+            $cond['po_min_price'],
+            $cond['po_max_price']
+        ];
+
+        $cond['po_sdate'] = Arr::get($query, 'po_sdate', null);
+        $cond['po_edate'] = Arr::get($query, 'po_edate', null);
+        $po_payment_date = [
+            $cond['po_sdate'],
+            $cond['po_edate']
+        ];
+
+        $cond['check_balance'] = Arr::get($query, 'check_balance', 'all');
+
+        $dataList = PayingOrder::paying_order_list(
+            $cond['payee'],
+            $cond['po_sn'],
+            $cond['source_sn'],
+            $po_price,
+            $po_payment_date,
+            '0',
+            true
+        )->paginate($page)->appends($query);
+
+        // accounting classification start
+            foreach($dataList as $value){
+                $debit = [];
+                $credit = [];
+
+                // 付款項目
+                if($value->payable_list){
+                    foreach(json_decode($value->payable_list) as $pay_v){
+                        $payment_method_name = Payment::getDescription($pay_v->acc_income_type_fk);
+                        $payment_account = AllGrade::find($pay_v->all_grades_id) ? AllGrade::find($pay_v->all_grades_id)->eachGrade : null;
+                        $account_code = $payment_account ? $payment_account->code : '1000';
+                        $account_name = $payment_account ? $payment_account->name : '無設定會計科目';
+
+                        // if($pay_v->acc_income_type_fk == 4){
+                        //     $arr = explode('-', AllGrade::find($pay_v->all_grades_id)->eachGrade->name);
+                        //     $pay_v->currency_name = $arr[0] == '外幣' ? $arr[1] . ' - ' . $arr[2] : 'NTD';
+                        //     $pay_v->currency_rate = DB::table('acc_payment_currency')->find($pay_v->payment_method_id)->currency;
+                        // } else {
+                        //     $pay_v->currency_name = 'NTD';
+                        //     $pay_v->currency_rate = 1;
+                        // }
+
+                        $name = $payment_method_name . ' ' . $pay_v->summary . '（' . $account_code . ' ' . $account_name . '）';
+
+                        $tmp = [
+                            'account_code'=>$account_code,
+                            'name'=>$name,
+                            'price'=>$pay_v->tw_price,
+                            'type'=>'p',
+                            'd_type'=>'payable',
+
+                            'account_name'=>$account_name,
+                            'method_name'=>$payment_method_name,
+                            'summary'=>$pay_v->summary,
+                            'note'=>$pay_v->note,
+                            'product_title'=>null,
+                            'del_even'=>null,
+                            'del_category_name'=>null,
+                            'product_price'=>null,
+                            'product_qty'=>null,
+                            'product_owner'=>null,
+                            'discount_title'=>null,
+                            'payable_type'=>$pay_v->payable_type,
+                            'received_info'=>null,
+                        ];
+                        GeneralLedger::classification_processing($debit, $credit, $tmp);
+                    }
+                }
+
+                // 商品
+                if($value->product_items){
+                    $product_account = AllGrade::find($value->po_product_grade_id) ? AllGrade::find($value->po_product_grade_id)->eachGrade : null;
+                    $account_code = $product_account ? $product_account->code : '1000';
+                    $account_name = $product_account ? $product_account->name : '無設定會計科目';
+                    $product_name = $account_code . ' ' . $account_name;
+                    foreach(json_decode($value->product_items) as $p_value){
+                        $avg_price = $p_value->price / $p_value->num;
+                        $name = $product_name . ' --- ' . $p_value->title . '（' . $avg_price . ' * ' . $p_value->num . '）';
+                        $product_title = $p_value->title;
+
+                        if($value->po_source_type == 'pcs_paying_orders'){
+                            $product_account = AllGrade::find($p_value->all_grades_id) ? AllGrade::find($p_value->all_grades_id)->eachGrade : null;
+                            $account_code = $product_account ? $product_account->code : '1000';
+                            $account_name = $product_account ? $product_account->name : '無設定會計科目';
+                            $product_title = $account_name;
+                        }
+
+                        $tmp = [
+                            'account_code'=>$account_code,
+                            'name'=>$name,
+                            'price'=>$p_value->price,
+                            'type'=>'p',
+                            'd_type'=>'product',
+
+                            'account_name'=>$account_name,
+                            'method_name'=>null,
+                            'summary'=>null,
+                            'note'=>null,
+                            'product_title'=>$product_title,
+                            'del_even'=>null,
+                            'del_category_name'=>null,
+                            'product_price'=>$avg_price,
+                            'product_qty'=>$p_value->num,
+                            'product_owner'=>$p_value->product_owner,
+                            'discount_title'=>null,
+                            'payable_type'=>null,
+                            'received_info'=>null,
+                        ];
+                        GeneralLedger::classification_processing($debit, $credit, $tmp);
+                    }
+                }
+
+                // 物流
+                if($value->logistics_price <> 0){
+                    $log_account = AllGrade::find($value->po_logistics_grade_id) ? AllGrade::find($value->po_logistics_grade_id)->eachGrade : null;
+                    $account_code = $log_account ? $log_account->code : '5000';
+                    $account_name = $log_account ? $log_account->name : '無設定會計科目';
+                    $name = $account_code . ' ' . $account_name;
+
+                    $tmp = [
+                        'account_code'=>$account_code,
+                        'name'=>$name,
+                        'price'=>$value->logistics_price,
+                        'type'=>'p',
+                        'd_type'=>'logistics',
+
+                        'account_name'=>$account_name,
+                        'method_name'=>null,
+                        'summary'=>null,
+                        'note'=>null,
+                        'product_title'=>null,
+                        'del_even'=>null,
+                        'del_category_name'=>null,
+                        'product_price'=>null,
+                        'product_qty'=>null,
+                        'product_owner'=>null,
+                        'discount_title'=>null,
+                        'payable_type'=>null,
+                        'received_info'=>null,
+                    ];
+                    GeneralLedger::classification_processing($debit, $credit, $tmp);
+                }
+
+                // 折扣
+                if($value->discount_value > 0){
+                    foreach(json_decode($value->order_discount) ?? [] as $d_value){
+                        $dis_account = AllGrade::find($d_value->discount_grade_id) ? AllGrade::find($d_value->discount_grade_id)->eachGrade : null;
+                        $account_code = $dis_account ? $dis_account->code : '4000';
+                        $account_name = $dis_account ? $dis_account->name : '無設定會計科目';
+                        $name = $account_code . ' ' . $account_name;
+
+                        $tmp = [
+                            'account_code'=>$account_code,
+                            'name'=>$name,
+                            'price'=>$d_value->discount_value,
+                            'type'=>'p',
+                            'd_type'=>'discount',
+
+                            'account_name'=>$account_name,
+                            'method_name'=>null,
+                            'summary'=>null,
+                            'note'=>null,
+                            'product_title'=>null,
+                            'del_even'=>null,
+                            'del_category_name'=>null,
+                            'product_price'=>null,
+                            'product_qty'=>null,
+                            'product_owner'=>null,
+                            'discount_title'=>$d_value->title,
+                            'payable_type'=>null,
+                            'received_info'=>null,
+                        ];
+                        GeneralLedger::classification_processing($debit, $credit, $tmp);
+                    }
+                }
+
+
+                $value->debit = $debit;
+                $value->credit = $credit;
+
+                $value->po_url_link = PayingOrder::paying_order_link($value->po_source_type, $value->po_source_id, $value->po_source_sub_id, $value->po_type);
+                if($value->po_source_type == 'pcs_purchase'){
+                    $value->po_url_link = "javascript:void(0);";
+                }
+            }
+        // accounting classification end
+
+        $user = User::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+        $customer = Customer::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+        $depot = Depot::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+        $supplier = Supplier::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+        $payee_merged = array_merge($user, $customer, $depot, $supplier);
+
+        $check_balance_status = [
+            'all'=>'不限',
+            '0'=>'未付款',
+            '1'=>'已付款',
+        ];
+
+        return view('cms.account_management.collection_payment.pre_merge_list', [
+            'form_action' => route('cms.collection_payment.claim'),
+            'data_per_page' => $page,
+            'dataList' => $dataList,
+            'cond' => $cond,
+            'payee' => $payee_merged,
+            'check_balance_status' => $check_balance_status,
+            'check_balance_status' => $check_balance_status,
+        ]);
+    }
+
+
+    public function po_edit(Request $request, $id)
+    {
+        $request->merge([
+            'id'=>$id,
+        ]);
+
+        $request->validate([
+            'id' => 'required|exists:pcs_paying_orders,id',
+        ]);
+
+        $accounts_payable_id = DB::table('acc_payable_account')->where('append_pay_order_id', $id)->pluck('id')->toArray();
+        $target_items = PayingOrder::get_accounts_payable_list($accounts_payable_id, 0)->get();
+
+        $paying_order = PayingOrder::findOrFail($id);
+        $payable_data = PayingOrder::get_payable_detail($id);
+
+        $tw_price = $paying_order->price - $payable_data->sum('tw_price');
+
+        $total_grades = GeneralLedger::total_grade_list();
+
+        return view('cms.account_management.accounts_payable.po_edit', [
+            'breadcrumb_data' => ['id' => $id],
+            'form_action' => route('cms.accounts_payable.po-store', ['id' => $paying_order->id]),
+            'previous_url' => route('cms.accounts_payable.index'),
+            'target_items' => $target_items,
+            'paying_order' => $paying_order,
+            'payable_data' => $payable_data,
+            'tw_price' => $tw_price,
+            'total_grades' => $total_grades,
+
+            'cashDefault' => PayableDefault::where('name', 'cash')->pluck('default_grade_id')->toArray(),
+            'chequeDefault' => PayableDefault::where('name', 'cheque')->pluck('default_grade_id')->toArray(),
+            'remitDefault' => PayableDefault::where('name', 'remittance')->pluck('default_grade_id')->toArray(),
+            'all_currency' => PayableDefault::getCurrencyOptionData()['selectedCurrencyResult']->toArray(),
+            'currencyDefault' => PayableDefault::where('name', 'foreign_currency')->pluck('default_grade_id')->toArray(),
+            'accountPayableDefault' => PayableDefault::where('name', 'accounts_payable')->pluck('default_grade_id')->toArray(),
+            'otherDefault' => PayableDefault::where('name', 'other')->pluck('default_grade_id')->toArray(),
+
+            'transactTypeList' => AccountPayable::getTransactTypeList(),
+            'chequeStatus' => ChequeStatus::get_key_value(),
+        ]);
+    }
+
+
+    public function po_store(Request $request, $id)
+    {
+        $request->merge([
+            'id'=>$id,
+        ]);
+
+        $request->validate([
+            'id' => 'required|exists:pcs_paying_orders,id',
+            'acc_transact_type_fk' => 'required|regex:/^[1-6]$/',
+            'tw_price' => 'required|numeric',
+            'summary'=>'nullable|string',
+            'note'=>'nullable|string',
+        ]);
+
+        $paying_order = PayingOrder::findOrFail($id);
+
+        $request->merge([
+            'pay_order_id'=>$paying_order->id,
+        ]);
+
+        $data = $request->except('_token');
+
+        $payable_type = $data['acc_transact_type_fk'];
+        switch ($payable_type) {
+            case Payment::Cash:
+                PayableCash::storePayableCash($data);
+                break;
+            case Payment::Cheque:
+                $request->validate([
+                    'cheque.ticket_number'=>'required|unique:acc_payable_cheque,ticket_number|regex:/^[A-Z]{2}[0-9]{7}$/'
+                ]);
+                PayableCheque::storePayableCheque($data);
+                break;
+            case Payment::Remittance:
+                PayableRemit::storePayableRemit($data);
+                break;
+            case Payment::ForeignCurrency:
+                PayableForeignCurrency::storePayableCurrency($data);
+                break;
+            case Payment::AccountsPayable:
+                PayableAccount::storePayablePayableAccount($data);
+                break;
+            case Payment::Other:
+                PayableOther::storePayableOther($data);
+                break;
+        }
+
+        $payable_data = PayingOrder::get_payable_detail($id);
+        if (count($payable_data) > 0 && $paying_order->price == $payable_data->sum('tw_price')) {
+            $paying_order->update([
+                'balance_date' => date('Y-m-d H:i:s'),
+                'payment_date' => $data['payment_date'],
+            ]);
+
+            DayEnd::match_day_end_status($data['payment_date'], $paying_order->sn);
+        }
+
+        if (PayingOrder::find($paying_order->id) && PayingOrder::find($paying_order->id)->balance_date) {
+            $accounts_payable_id = DB::table('acc_payable_account')->where('append_pay_order_id', $id)->pluck('id')->toArray();
+
+            $parm = [
+                'accounts_payable_id'=>$accounts_payable_id,
+                'status_code'=>1,
+                'append_pay_order_id'=>$paying_order->id,
+                'sn'=>$paying_order->sn,
+            ];
+            PayingOrder::update_account_payable_method($parm);
+
+            return redirect()->route('cms.accounts_payable.po-show', [
+                'id' => $id,
+            ]);
+
+        } else {
+            return redirect()->route('cms.accounts_payable.po-edit', [
+                'id' => $id,
+            ]);
+        }
+    }
+
+
+    public function po_show(Request $request, $id)
+    {
+        $request->merge([
+            'id'=>$id,
+        ]);
+
+        $request->validate([
+            'id'=>'required|exists:pcs_paying_orders,id',
+        ]);
+
+        $applied_company = DB::table('acc_company')->where('id', 1)->first();
+
+        $accounts_payable_id = DB::table('acc_payable_account')->where('append_pay_order_id', $id)->pluck('id')->toArray();
+        $target_items = PayingOrder::get_accounts_payable_list($accounts_payable_id, 1)->get();
+
+        $paying_order = PayingOrder::findOrFail($id);
+        $payable_data = PayingOrder::get_payable_detail($id);
+        $data_status_check = PayingOrder::payable_data_status_check($payable_data);
+
+        $zh_price = num_to_str($paying_order->price);
+
+        if (!$paying_order->balance_date) {
+            // return abort(404);
+
+            return redirect()->route('cms.accounts_payable.po-edit', [
+                'id' => $id,
+            ]);
+        }
+
+        $undertaker = User::find($paying_order->usr_users_id);
+
+        $accountant = User::whereIn('id', $payable_data->pluck('accountant_id_fk')->toArray())->get();
+        $accountant = array_unique($accountant->pluck('name')->toArray());
+        asort($accountant);
+
+        $view = 'cms.account_management.accounts_payable.po_show';
+        if (request('action') == 'print') {
+            $view = 'doc.print_accounts_payable_delivery_pay';
+        }
+
+        return view($view, [
+            'breadcrumb_data' => ['id' => $paying_order->id],
+            'applied_company' => $applied_company,
+            'paying_order' => $paying_order,
+            'target_items' => $target_items,
+            'payable_data' => $payable_data,
+            'data_status_check' => $data_status_check,
+            'zh_price' => $zh_price,
+            'undertaker'=>$undertaker,
+            'accountant'=>implode(',', $accountant),
+        ]);
     }
 }
