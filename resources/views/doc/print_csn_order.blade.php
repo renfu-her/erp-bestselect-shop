@@ -90,7 +90,7 @@
                                 <td style="text-align: center;" scope="row">{{ $key + 1 }}</td>
                                 <td>{{ $item->title }}</td>
                                 <td style="text-align: right;">{{ $item->num }}</td>
-                                <td></td>
+                                <td>{{ $item->memo }}</td>
                             </tr>
                         @endforeach
                         
