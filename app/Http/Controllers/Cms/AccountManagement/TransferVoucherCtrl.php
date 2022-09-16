@@ -227,6 +227,8 @@ class TransferVoucherCtrl extends Controller
             DB::beginTransaction();
 
             try {
+                // if delete, refer to stitute
+
                 foreach(request('grade_id') as $key => $value){
                     if(request('tv_item_id')[$key]){
                         TransferVoucherItem::find(request('tv_item_id')[$key])->update([
