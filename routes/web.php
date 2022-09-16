@@ -27,7 +27,7 @@ Route::get('/demo', StyleDemo::class)->name('cms.styleDemo');
 Route::get('/login', [AuthCtrl::class, 'login'])->name('cms.login');
 Route::post('/login', [AuthCtrl::class, 'authenticate']);
 Route::get('/logout', [AuthCtrl::class, 'logout'])->name('cms.logout');
-Route::get('/erp-login', [AuthCtrl::class, 'erpLogin']);
+Route::post('/erp-login', [AuthCtrl::class, 'erpLogin']);
 
 Route::group(['prefix' => 'cms', 'as' => 'cms.', 'middleware' => 'auth:user'], function () {
     Route::get('dashboard', DashboardCtrl::class)->name('dashboard');
