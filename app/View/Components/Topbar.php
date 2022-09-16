@@ -38,7 +38,7 @@ class Topbar extends Component
 
             case 'release.bestselection.com.tw':
             default:
-                $domain = 'https://shopp.bestselection.com.tw';
+                $domain = env('FRONTEND_URL');
                 // $domain = 'https://www.bestselection.com.tw';
                 break;
         }
