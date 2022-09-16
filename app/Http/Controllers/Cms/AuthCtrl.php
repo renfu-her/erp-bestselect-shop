@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Cms;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -55,15 +56,27 @@ class AuthCtrl extends Controller
         return redirect()->route('cms.login');
     }
 
-    public function adminLogout(Request $request)
+    public function erpLogin(Request $request)
     {
-        $request->session()->invalidate();
-        return redirect()->route('cms.admin.login');
+
+        $query = $request->all();
+        // dd($query);
+        if (!isset($query['account'])) {
+            return redirect(route('cms.login'));
+        }
+
+        $user = User::where('account', $query['account'])->get()->first();
+
+        if (!$user) {
+            return redirect(route('cms.login'))->withErrors([
+                'login-error' => __('auth.failed'),
+            ]);
+        }
+
+        Auth::guard('user')->login($user);
+        return redirect(Route('cms.dashboard'));
+
+
     }
 
-    public function Deliverymanlogout(Request $request)
-    {
-        $request->session()->invalidate();
-        return redirect()->route('cms.deliveryman.login');
-    }
 }
