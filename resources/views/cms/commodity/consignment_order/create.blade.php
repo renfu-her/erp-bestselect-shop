@@ -117,11 +117,11 @@
                 <dl class="row">
                     <div class="col">
                         <dt>物態</dt>
-                        <dd>{{ $delivery->flow_status ?? '' }}</dd>
+                        <dd>{{ $logistic_flow->status ?? '' }}</dd>
                     </div>
                     <div class="col">
                         <dt>物態日期</dt>
-                        <dd>{{ $delivery->flow_created_at ? date('Y/m/d', strtotime($delivery->flow_created_at)) : '' }}</dd>
+                        <dd>{{ $logistic_flow->created_at ? date('Y/m/d H:i:s', strtotime($logistic_flow->created_at)) : '' }}</dd>
                     </div>
                     <div class="col">
                         <dt>收貨人名稱</dt>
