@@ -27,25 +27,20 @@ class GetRegisterUserCouponSeeder extends Seeder
             ->get();
 
         foreach ($users as $u) {
-            CustomerCoupon::create([
-                'from_order_id' => 0,
-                'limit_day' => 0,
-                'customer_id' => $u->id,
-                'discount_id' => $_coupon->id,
-                'active_sdate'=>now(),
-                'active_edate'=>date('Y-m-d 23:59:59', strtotime('+3 year'))
-            ]);
-        }
 
-        CustomerCoupon::create([
-            'from_order_id' => 0,
-            'limit_day' => 0,
-            'customer_id' => 1,
-            'discount_id' => $_coupon->id,
-            'active_sdate'=>now(),
-            'active_edate'=>date('Y-m-d 23:59:59', strtotime('+5 year'))
-        ]);
-      
+            if (!CustomerCoupon::where('customer_id', $u->id)
+                ->where('discount_id', $_coupon->id)->get()->first()) {
+
+                CustomerCoupon::create([
+                    'from_order_id' => 0,
+                    'limit_day' => 0,
+                    'customer_id' => $u->id,
+                    'discount_id' => $_coupon->id,
+                    'active_sdate' => now(),
+                    'active_edate' => date('Y-m-d 23:59:59', strtotime('+3 year')),
+                ]);
+            }
+        }
 
         echo 'done';
 
