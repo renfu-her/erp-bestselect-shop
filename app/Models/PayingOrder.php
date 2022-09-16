@@ -1039,13 +1039,6 @@ class PayingOrder extends Model
 
     public static function payee($id, $name)
     {
-        $client = (object)[
-            'id'=>'',
-            'name'=>'',
-            'phone'=>'',
-            'address'=>'',
-        ];
-
         $client = User::where([
                 'id'=>$id,
             ])
@@ -1101,6 +1094,15 @@ class PayingOrder extends Model
                         'email',
                         'contact_address AS address'
                     )->first();
+
+                    if(! $client){
+                        $client = (object)[
+                            'id'=>'',
+                            'name'=>'',
+                            'phone'=>'',
+                            'address'=>'',
+                        ];
+                    }
                 }
             }
         }

@@ -1233,13 +1233,6 @@ class ReceivedOrder extends Model
 
     public static function drawee($id, $name)
     {
-        $client = (object)[
-            'id'=>'',
-            'name'=>'',
-            'phone'=>'',
-            'address'=>'',
-        ];
-
         $client = User::where([
                 'id'=>$id,
             ])
@@ -1295,6 +1288,15 @@ class ReceivedOrder extends Model
                         'email',
                         'contact_address AS address'
                     )->first();
+
+                    if(! $client){
+                        $client = (object)[
+                            'id'=>'',
+                            'name'=>'',
+                            'phone'=>'',
+                            'address'=>'',
+                        ];
+                    }
                 }
             }
         }

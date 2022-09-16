@@ -5,24 +5,28 @@
     <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
         <div class="p-1 pe-2">
             @can('cms.stitute.edit')
-            <a href="{{ route('cms.stitute.edit', ['id' => $stitute_order->id]) }}" class="btn btn-sm btn-success px-3" role="button">修改</a>
+            @if(! $stitute_order->po_id)
+            <a href="{{ route('cms.stitute.edit', ['id' => $stitute_order->so_id]) }}" class="btn btn-sm btn-success px-3" role="button">修改</a>
+            @endif
             @endcan
 
-            @if(! $stitute_order->payment_date)
-                <a href="{{ route('cms.stitute.po-edit', ['id' => $stitute_order->id]) }}" 
+            @if(! $stitute_order->so_payment_date)
+                <a href="{{ route('cms.stitute.po-edit', ['id' => $stitute_order->so_id]) }}" 
                     class="btn btn-sm btn-primary px-3" role="button">付款</a>
             @endif
             {{--
-            <button type="submit" class="btn btn-danger">中一刀列印畫面</button>
             <button type="submit" class="btn btn-danger">A4列印畫面</button>
             --}}
             @can('cms.stitute.delete')
-            @if(! $stitute_order->pay_order_id)
+            @if(! $stitute_order->po_id)
             <a href="javascript:void(0)" role="button" class="btn btn-outline-danger btn-sm"
                 data-bs-toggle="modal" data-bs-target="#confirm-delete"
-                data-href="{{ Route('cms.stitute.delete', ['id' => $stitute_order->id]) }}">刪除代墊單</a>
+                data-href="{{ Route('cms.stitute.delete', ['id' => $stitute_order->so_id]) }}">刪除代墊單</a>
             @endif
             @endcan
+
+            <a href="{{ url()->full() . '?action=print' }}" target="_blank" 
+                class="btn btn-sm btn-warning" rel="noopener noreferrer">中一刀列印畫面</a>
         </div>
     </nav>
 
@@ -34,15 +38,15 @@
                 <span class="ms-3">電話：{{ $applied_company->phone }}</span>
                 <span class="ms-3">傳真：{{ $applied_company->fax }}</span>
             </div>
-            <h4 class="text-center">代墊單</h4>
+            <h4 class="text-center">代　墊　單</h4>
             <hr>
 
             <dl class="row mb-0">
                 <div class="col">
-                    <dd>付款單號：{{ $stitute_order->sn }}</dd>
+                    <dd>付款單號：{{ $stitute_order->so_sn }}</dd>
                 </div>
                 <div class="col">
-                    <dd>製表日期：{{ date('Y-m-d', strtotime($stitute_order->created_at)) }}</dd>
+                    <dd>製表日期：{{ date('Y-m-d', strtotime($stitute_order->so_created_at)) }}</dd>
                 </div>
             </dl>
             <dl class="row mb-0">
@@ -50,19 +54,15 @@
                     <dd>單據編號：</dd>
                 </div>
                 <div class="col">
-                    <dd>
-                    @if($stitute_order->payment_date)
-                        付款日期：{{ date('Y-m-d', strtotime($stitute_order->payment_date)) }}
-                    @endif
-                    </dd>
+                    <dd>付款日期：{{ $stitute_order->so_payment_date ? date('Y-m-d', strtotime($stitute_order->so_payment_date)) : '' }}</dd>
                 </div>
             </dl>
             <dl class="row mb-0">
                 <div class="col">
-                    <dd>支付對象：{{ $stitute_order->client_name }}</dd>
+                    <dd>支付對象：{{ $stitute_order->so_client_name }}</dd>
                 </div>
                 <div class="col">
-                    <dd>承辦人：{{ $sales ? $sales->name : '' }}</dd>
+                    <dd>承辦人：{{ $stitute_order->creator_name }}</dd>
                 </div>
             </dl>
         </div>
@@ -80,15 +80,17 @@
                         </tr>
                     </thead>
                     <tbody>
+                        @if($stitute_order->so_items)
+                        @foreach(json_decode($stitute_order->so_items) as $data)
                         <tr>
-                            <td>{{ $stitute_grade->code . ' ' . $stitute_grade->name . ' ' . $stitute_order->summary }}</td>
-                            <td class="text-end">{{ $stitute_order->qty }}</td>
-                            <td class="text-end">{{ number_format($stitute_order->price, 2) }}</td>
-                            <td class="text-end">{{ number_format($stitute_order->total_price) }}</td>
-                            <td>{{-- $stitute_order->taxation == 1 ? '應稅' : '免稅' --}}{{ $stitute_order->memo }}</td>
+                            <td>{{ $data->grade_code . ' ' . $data->grade_name . ' ' . $data->summary }}</td>
+                            <td class="text-end">{{ $data->qty }}</td>
+                            <td class="text-end">{{ number_format($data->price, 2) }}</td>
+                            <td class="text-end">{{ number_format($data->total_price) }}</td>
+                            <td>{{-- $data->taxation == 1 ? '應稅' : '免稅' --}}{{ $data->memo }}</td>
                         </tr>
-
-                        
+                        @endforeach
+                        @endif
                     </tbody>
                     <tfoot class="table-light">
                         <tr>
@@ -98,7 +100,7 @@
                                     <span>（{{ $zh_price }}）</span>
                                 </div>
                             </td>
-                            <td class="text-end">{{ number_format($stitute_order->total_price) }}</td>
+                            <td class="text-end">{{ number_format($stitute_order->so_price) }}</td>
                             <td></td>
                         </tr>
                     </tfoot>
@@ -112,7 +114,7 @@
                     <dd>財務主管：</dd>
                 </div>
                 <div class="col">
-                    <dd>會計：{{ $accountant ? $accountant->name : '' }}</dd>
+                    <dd>會計：{{ $stitute_order->accountant_name }}</dd>
                 </div>
                 <div class="col">
                     <dd>商品主管：</dd>
