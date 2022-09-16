@@ -225,6 +225,9 @@ class StituteOrderCtrl extends Controller
                 $client = PayingOrder::payee($client_key[0], $client_key[1]);
                 $price = 0;
 
+                $dArray = array_diff(StituteOrderItem::where('stitute_order_id', $id)->pluck('id')->toArray(), array_intersect_key(request('so_item_id'), request('grade_id')));
+                if($dArray) StituteOrderItem::destroy($dArray);
+
                 foreach(request('grade_id') as $key => $value){
                     $total_price = request('price')[$key] * request('qty')[$key];
                     $price += $total_price;
