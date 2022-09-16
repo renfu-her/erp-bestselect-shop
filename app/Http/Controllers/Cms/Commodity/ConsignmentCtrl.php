@@ -46,8 +46,8 @@ class ConsignmentCtrl extends Controller
     public function index(Request $request)
     {
         $query = $request->query();
-        $data_per_page = Arr::get($query, 'data_per_page', 10);
-        $data_per_page = is_numeric($data_per_page) ? $data_per_page : 10;
+        $data_per_page = Arr::get($query, 'data_per_page', 100);
+        $data_per_page = is_numeric($data_per_page) ? $data_per_page : 100;
 
         $all_inbound_status = [];
         foreach (InboundStatus::asArray() as $data) {
