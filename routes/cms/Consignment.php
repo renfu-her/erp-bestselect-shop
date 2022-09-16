@@ -9,6 +9,7 @@ Route::group(['prefix' => 'consignment', 'as' => 'consignment.'], function () {
     Route::post('create', [ConsignmentCtrl::class, 'store']);
     Route::get('edit/{id}', [ConsignmentCtrl::class, 'edit'])->name('edit')->middleware('permission:cms.consignment.edit');
     Route::post('edit/{id}', [ConsignmentCtrl::class, 'update']);
+    Route::get('print_order_ship/{id}', [ConsignmentCtrl::class, 'print_order_ship'])->name('print_order_ship')->middleware('permission:cms.consignment.edit');
 //    Route::get('edit/{id}/pay-deposit', [ConsignmentCtrl::class, 'payDeposit'])->name('pay-deposit');
 ////    Route::get('edit/{id}/pay-final', [ConsignmentCtrl::class, 'payFinal'])->name('pay-final');
 //    Route::post('pay-order/{id}', [ConsignmentCtrl::class, 'payOrder'])->name('pay-order')->middleware('permission:cms.consignment.pay-order');

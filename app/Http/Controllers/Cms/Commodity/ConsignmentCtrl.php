@@ -325,6 +325,25 @@ class ConsignmentCtrl extends Controller
         ]));
     }
 
+    // 列印－出貨單明細
+    public function print_order_ship(Request $request, $id)
+    {
+        $query = $request->query();
+        $consignmentData  = Consignment::getDeliveryData($id)->get()->first();
+        $consignmentItemData = ConsignmentItem::getOriginInboundDataList($id)->get();
+
+        if (!$consignmentData) {
+            return abort(404);
+        }
+
+        return view('doc.print_csn_order', [
+            'type' => 'ship',
+            'id' => $id,
+            'consignmentData' => $consignmentData,
+            'consignmentItemData' => $consignmentItemData,
+        ]);
+    }
+
     public function destroy(Request $request, $id)
     {
         $result = Consignment::del($id, $request->user()->id, $request->user()->name);

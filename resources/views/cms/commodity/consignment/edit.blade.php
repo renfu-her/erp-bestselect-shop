@@ -11,6 +11,11 @@
         $consignmentData = $consignmentData ?? null;
     @endphp
 
+    <a target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-primary -in-header mb-1"
+       href="{{ Route('cms.consignment.print_order_ship', ['id' => $id]) }}">
+        列印出貨單
+    </a>
+
     <div class="card shadow p-4 mb-4">
         <h6>寄倉單明細</h6>
         <dl class="row">
