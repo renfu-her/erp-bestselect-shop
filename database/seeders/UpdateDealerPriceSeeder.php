@@ -70,5 +70,57 @@ class UpdateDealerPriceSeeder extends Seeder
                 print_r('找不到：' . $skuDatabase['styleSku'] . PHP_EOL);
             }
         }
+
+        self::copyPriceToDealerPrice();
+    }
+
+    /**
+     * 如果經銷價為0，複製售價到經銷價
+     * @return void
+     */
+    public static function copyPriceToDealerPrice()
+    {
+        $productPriceData = DB::table('prd_products')
+            ->leftJoin('prd_product_styles', 'prd_product_styles.product_id', '=', 'prd_products.id')
+            ->join('prd_salechannel_style_price', function ($join) {
+                $join->on('prd_product_styles.id', '=', 'prd_salechannel_style_price.style_id')
+                    ->where('prd_salechannel_style_price.dealer_price', '=', 0)
+                    ->where('prd_salechannel_style_price.price', '<>', 0);
+            })
+            ->select([
+                'prd_product_styles.product_id',
+                'prd_product_styles.sku as style_sku',
+                'prd_salechannel_style_price.price',
+                'prd_salechannel_style_price.style_id',
+                'prd_salechannel_style_price.sale_channel_id',
+            ])
+            ->get();
+
+        $productPriceDataArray = [];
+        foreach ($productPriceData as $productPriceDatum) {
+            $productPriceDataArray[] = [
+                'product_id' => $productPriceDatum->product_id,
+                'style_sku' => $productPriceDatum->style_sku,
+                'price' => $productPriceDatum->price,
+                'style_id' => $productPriceDatum->style_id,
+                'sale_channel_id' => $productPriceDatum->sale_channel_id,
+            ];
+        }
+
+        foreach ($productPriceDataArray as $item) {
+            if (DB::table('prd_salechannel_style_price')
+                ->where([
+                    ['style_id', '=', $item['style_id']],
+                    ['sale_channel_id', '=', $item['sale_channel_id']],
+                ])->exists()
+            ) {
+                DB::table('prd_salechannel_style_price')
+                    ->where([
+                        ['style_id', '=', $item['style_id']],
+                        ['sale_channel_id', '=', $item['sale_channel_id']],
+                    ])
+                    ->update(['dealer_price' => $item['price']]);
+            }
+        }
     }
 }
