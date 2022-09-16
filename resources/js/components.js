@@ -492,4 +492,54 @@
         `);
     }
 
+    /**
+     * 選擇表格顯示欄位
+     * @param {*} $table 資料的表格
+     * @param {*} $fieldset 選擇欄位Checkbox的容器
+     * @param {*} defaultHide 預設隱藏的欄位 (預設全顯示)
+     */
+     window.setPrintTrCheckbox = function ($table, $fieldset, defaultHide = []) {
+        const $th = $table.find('thead tr > *');
+        $th.each(function (index, element) {
+            // element == this
+            const nth = index + 1;
+            const field = $(element).text();
+            const checked = defaultHide.indexOf(nth) < 0 ? 'checked' : '';
+            $fieldset.append(`
+                <div class="form-check form-check-inline">
+                    <label class="form-check-label">
+                        <input data-nth="${nth}" class="form-check-input" type="checkbox" ${checked}>
+                        ${field}
+                    </label>
+                </div>
+            `);
+        });
+
+        $fieldset.find('input[type="checkbox"]').off('change').on('change', function () {
+            const nth = Number($(this).data('nth'));
+            const checked = $(this).prop('checked');
+            if (checked) {
+                $table.find(`
+                thead tr > *:nth-child(${nth}), 
+                tbody tr > *:nth-child(${nth}), 
+                tfoot tr > *:nth-child(${nth})`).removeClass('d-none');
+            } else {
+                $table.find(`
+                thead tr > *:nth-child(${nth}), 
+                tbody tr > *:nth-child(${nth}), 
+                tfoot tr > *:nth-child(${nth})`).addClass('d-none');
+            }
+        });
+
+        if (defaultHide.length > 0) {
+            for (const i of defaultHide) {
+                if (isFinite(i)) {
+                    $table.find(`
+                    thead tr > *:nth-child(${i}), 
+                    tbody tr > *:nth-child(${i}), 
+                    tfoot tr > *:nth-child(${i})`).addClass('d-none');
+                }
+            }
+        }
+    }
 })();
