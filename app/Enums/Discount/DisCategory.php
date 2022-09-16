@@ -60,6 +60,15 @@ final class DisCategory extends Helper
     {
         $result = '';
         switch ($value) {
+            case self::m_b2e:
+                $result = 12;
+                break;
+            case self::m_b2c:
+                $result = 12;
+                break;
+            case self::m_b2b:
+                $result = 12;
+                break;
             case self::dividend:
                 $result = 12;
                 break;

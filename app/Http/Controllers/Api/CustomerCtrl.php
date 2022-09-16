@@ -9,6 +9,7 @@ use App\Enums\Globals\ResponseParam;
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use App\Models\CustomerAddress;
+use App\Models\CustomerDividend;
 use App\Models\CustomerIdentity;
 use App\Models\CustomerLoginMethod;
 use App\Models\CustomerProfit;
@@ -108,7 +109,8 @@ class CustomerCtrl extends Controller
         ]);
     }
 
-    private function setProfit($customer) {
+    private function setProfit($customer)
+    {
         if (isset($customer)) {
             $customerProfit = CustomerProfit::getProfitData($customer->id);
             $customer->profit = $customerProfit;
@@ -135,7 +137,7 @@ class CustomerCtrl extends Controller
 
         $data = $request->only('name', 'email', 'method', 'uid');
 
-        if (!Login::hasValue((int)$data['method'])) {
+        if (!Login::hasValue((int) $data['method'])) {
             return response()->json([
                 ResponseParam::status()->key => 'E01',
                 ResponseParam::msg()->key => '無此登入方式',
@@ -160,7 +162,7 @@ class CustomerCtrl extends Controller
                 $customer = Customer::where('id', $id)->first();
             }
             //判斷email是否已與其他第三方帳號綁定
-            $customer_with_method = DB::table(app(CustomerLoginMethod::class)->getTable(). ' as log_method')
+            $customer_with_method = DB::table(app(CustomerLoginMethod::class)->getTable() . ' as log_method')
                 ->where('log_method.usr_customer_id_fk', '=', $customer->id)
                 ->where('log_method.method', '=', $data['method'])
                 ->first();
@@ -180,7 +182,7 @@ class CustomerCtrl extends Controller
         if (null == $customer) {
             return response()->json([
                 ResponseParam::status()->key => 'E02',
-                ResponseParam::msg()->key => '註冊有誤 請回報工程師 '. $data['uid'],
+                ResponseParam::msg()->key => '註冊有誤 請回報工程師 ' . $data['uid'],
             ]);
         }
 
@@ -715,5 +717,62 @@ class CustomerCtrl extends Controller
             'status' => 'E03',
             'message' => '無推薦權限',
         ];
+    }
+
+    public function checkDividendFromErp(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'password' => ['required'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                ResponseParam::status => ApiStatusMessage::Fail,
+                ResponseParam::msg => $validator->errors(),
+                ResponseParam::data => [],
+            ]);
+        }
+
+        $re = CustomerDividend::checkDividendFromErp($request->user()->sn, $request->input('password'));
+
+        if ($re['status'] != '0') {
+            return response()->json([
+                'status' => $re['status'],
+                'msg' => $re['error_log'],
+            ]);
+        }
+
+        return response()->json($re);
+
+    }
+
+    public function getDividendFromErp(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'edword' => ['required'],
+            'points' => ['required'],
+            'type' => ['required'],
+            'requestid' => ['required'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                ResponseParam::status => ApiStatusMessage::Fail,
+                ResponseParam::msg => $validator->errors(),
+                ResponseParam::data => [],
+            ]);
+        }
+        $d = $request->all();
+        $re = CustomerDividend::getDividendFromErp($request->user()->id, $d['edword'], $d['points'], $d['type'], $d['requestid']);
+
+        if ($re['status'] != '0') {
+            return response()->json([
+                'status' => $re['status'],
+                'msg' => $re['error_log'],
+            ]);
+        }
+
+        return response()->json($re);
+
     }
 }
