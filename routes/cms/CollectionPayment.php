@@ -12,4 +12,10 @@ Route::group(['prefix' => 'collection_payment', 'as' => 'collection_payment.'], 
 
     Route::get('payable_list/{id}', [CollectionPaymentCtrl::class, 'payable_list'])->name('payable_list')->middleware('permission:cms.collection_payment.delete');
     Route::get('payable_delete/{payable_id}', [CollectionPaymentCtrl::class, 'payable_delete'])->name('payable_delete')->middleware('permission:cms.collection_payment.delete');
+
+    Route::match(['get', 'post'], 'claim', [CollectionPaymentCtrl::class, 'claim'])->name('claim');
+
+    Route::get('po_edit/{id}', [CollectionPaymentCtrl::class, 'po_edit'])->name('po-edit');
+    Route::post('po_store/{id}', [CollectionPaymentCtrl::class, 'po_store'])->name('po-store');
+    Route::get('po_show/{id}', [CollectionPaymentCtrl::class, 'po_show'])->name('po-show');
 });

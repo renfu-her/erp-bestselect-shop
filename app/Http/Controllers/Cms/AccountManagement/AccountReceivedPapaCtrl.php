@@ -340,7 +340,7 @@ abstract class AccountReceivedPapaCtrl extends Controller
         $view = $this->getViewReceipt();
         if (request('action') == 'print') {
             // 列印－收款單
-            $view = 'doc.print_received';
+            $view = 'doc.print_received_csn_order';
         }
         return view($view, [
             'breadcrumb_data' => ['id'=>$order->id, 'sn'=>$order->sn],
