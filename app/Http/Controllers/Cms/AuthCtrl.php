@@ -59,7 +59,7 @@ class AuthCtrl extends Controller
     public function erpLogin(Request $request)
     {
 
-        $query = $request->query();
+        $query = $request->all();
         // dd($query);
         if (!isset($query['account'])) {
             return redirect(route('cms.login'));
