@@ -158,8 +158,13 @@
             </div>
             <div class="col">
                 <button type="button" class="btn btn-primary px-4"
-                    data-bs-toggle="modal" data-bs-target="#confirm-audit">儲存耗材</button>
+                        data-bs-toggle="modal" data-bs-target="#confirm-audit">儲存耗材</button>
             </div>
+        @else
+{{--            <div class="col">--}}
+{{--                <button type="button" class="btn btn-danger px-4"--}}
+{{--                        data-bs-toggle="modal" data-bs-target="#return-audit">儲存耗材取消</button>--}}
+{{--            </div>--}}
         @endif
     </div>
 
@@ -436,6 +441,18 @@
         </div>
     </div>
 @endif
+    <x-b-modal id="return-audit">
+        <x-slot name="title">取消確認</x-slot>
+        <x-slot name="body">取消後將留有取消紀錄！確認要取消？</x-slot>
+        <x-slot name="foot">
+            <form action="{{ Route('cms.logistic.auditReturnInbound', [], true) }}" method="post">
+                @method('POST')
+                @csrf
+                <input type="hidden" name="logistic_id" value="{{ $logistic->id }}">
+                <button type="submit" class="btn btn-primary">確認並取消</button>
+            </form>
+        </x-slot>
+    </x-b-modal>
 
     <x-b-modal id="confirm-del-logistic-order">
         <x-slot name="title">刪除委託單確認</x-slot>

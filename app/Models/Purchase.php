@@ -174,7 +174,7 @@ class Purchase extends Model
                     $updArr['audit_status'] = $purchaseReq['audit_status'] ?? App\Enums\Consignment\AuditStatus::unreviewed()->value;
                 } else {
                     $updArr = [
-                        "supplier_sn" => $purchaseReq['supplier_sn'],
+                        "supplier_sn" => $purchaseReq['supplier_sn'] ?? null,
                         "scheduled_date" => $purchaseReq['scheduled_date'],
                         "has_tax" => $tax,
                         'invoice_num' => $purchasePayReq['invoice_num'] ?? null,

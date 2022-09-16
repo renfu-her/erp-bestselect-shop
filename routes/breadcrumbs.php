@@ -255,6 +255,11 @@ Breadcrumbs::for('cms.order.edit-item', function (BreadcrumbTrail $trail, $value
     $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.order.detail', ['id' => $value['id']]));
     $trail->push('編輯訂單');
 });
+Breadcrumbs::for('cms.order.order-flow', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.order.index');
+    $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.order.detail', ['id' => $value['id']]));
+    $trail->push('訂單紀錄');
+});
 
 // 訂單自取入庫審核
 Breadcrumbs::for('cms.order.inbound', function (BreadcrumbTrail $trail, $value) {
@@ -283,8 +288,8 @@ Breadcrumbs::for('cms.order.ro-review', function (BreadcrumbTrail $trail, $value
 //編輯收款單稅別/摘要/備註
 Breadcrumbs::for('cms.order.ro-taxation', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.order.index');
-    $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.order.detail', ['id'=>$value['id']]));
-    $trail->push('收款單', route('cms.order.ro-receipt', ['id'=>$value['id']]));
+    $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.order.detail', ['id' => $value['id']]));
+    $trail->push('收款單', route('cms.order.ro-receipt', ['id' => $value['id']]));
     $trail->push('修改摘要/稅別');
 });
 // 新增電子發票
@@ -355,8 +360,8 @@ Breadcrumbs::for('cms.ar_csnorder.review', function (BreadcrumbTrail $trail, $va
 //編輯收款單稅別/摘要/備註
 Breadcrumbs::for('cms.ar_csnorder.taxation', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.consignment-order.index');
-    $trail->push('#' . $value['sn'] . ' 寄倉訂購單', route('cms.consignment-order.edit', ['id'=>$value['id']]));
-    $trail->push('收款單', route('cms.ar_csnorder.receipt', ['id'=>$value['id']]));
+    $trail->push('#' . $value['sn'] . ' 寄倉訂購單', route('cms.consignment-order.edit', ['id' => $value['id']]));
+    $trail->push('收款單', route('cms.ar_csnorder.receipt', ['id' => $value['id']]));
     $trail->push('修改摘要/稅別');
 });
 
@@ -781,6 +786,10 @@ Breadcrumbs::for('cms.collection_payment.index', function (BreadcrumbTrail $trai
 Breadcrumbs::for('cms.collection_payment.edit', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.collection_payment.index', route('cms.collection_payment.index'));
     $trail->push('編輯付款單');
+});
+Breadcrumbs::for('cms.collection_payment.payable_list', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.collection_payment.index', route('cms.collection_payment.index'));
+    $trail->push('付款記錄');
 });
 
 // 代墊單作業
@@ -1207,9 +1216,14 @@ Breadcrumbs::for('cms.order-bonus.index', function (BreadcrumbTrail $trail) {
     $trail->push('分潤報表', route('cms.order-bonus.index'));
 });
 
-Breadcrumbs::for('cms.order-bonus.detail', function (BreadcrumbTrail $trail) {
+Breadcrumbs::for('cms.order-bonus.detail', function (BreadcrumbTrail $trail, $data) {
     $trail->parent('cms.order-bonus.index');
-    $trail->push('內容');
+    $trail->push($data['month']->title, route('cms.order-bonus.detail', ['id' => $data['month']->id]));
+});
+
+Breadcrumbs::for('cms.order-bonus.person-detail', function (BreadcrumbTrail $trail, $data) {
+    $trail->parent('cms.order-bonus.detail', $data);
+    $trail->push($data['title']);
 });
 
 Breadcrumbs::for('cms.order-bonus.create', function (BreadcrumbTrail $trail) {

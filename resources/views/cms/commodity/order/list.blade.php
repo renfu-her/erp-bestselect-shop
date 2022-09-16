@@ -120,6 +120,16 @@
                         @endforeach
                     </select>
                 </div>
+                <div class="col-12 col-sm-6 col-xxl-3 mb-3">
+                    <label class="form-label">商品名稱</label>
+                    <input class="form-control" type="text" value="{{ $cond['item_title'] }}" name="item_title"
+                           placeholder="請輸入商品名稱">
+                </div>
+                <div class="col-12 col-sm-6 col-xxl-3 mb-3">
+                    <label class="form-label">採購單號</label>
+                    <input class="form-control" type="text" value="{{ $cond['purchase_sn'] }}" name="purchase_sn"
+                           placeholder="請輸入採購單號">
+                </div>
             </div>
             <div class="col">
                 <input type="hidden" name="data_per_page" value="{{ $data_per_page }}" />
@@ -154,7 +164,11 @@
                         <th scope="col" style="width:40px">#</th>
                         <th scope="col" style="width:40px" class="text-center">明細</th>
                         <th scope="col">訂單編號</th>
-                        <th scope="col" class="wrap lh-sm">訂單狀態 /<br>物流狀態</th>
+                        <th scope="col" class="wrap lh-sm">
+                            <span class="text-nowrap">訂單狀態</span>
+                            / <br>
+                            <span class="text-nowrap">物流狀態</span>
+                        </th>
                         <th scope="col">出貨單號</th>
                         <th scope="col">訂購日期</th>
                         <th scope="col">購買人</th>

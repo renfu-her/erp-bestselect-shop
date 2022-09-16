@@ -8,6 +8,7 @@ Route::group(['prefix' => 'logistic','as'=>'logistic.'], function () {
     Route::post('store', [LogisticCtrl::class, 'store'])->name('store')->middleware('permission:cms.logistic.create');
     Route::post('store-consum', [LogisticCtrl::class, 'storeConsum'])->name('storeConsum')->middleware('permission:cms.logistic.create');
     Route::post('audit-inbound', [LogisticCtrl::class, 'auditInbound'])->name('auditInbound')->middleware('permission:cms.logistic.create');
+    Route::post('audit_return-inbound', [LogisticCtrl::class, 'auditReturnInbound'])->name('auditReturnInbound')->middleware('permission:cms.logistic.create');
     Route::get('delete/{event}/{eventId}/{consumId}', [LogisticCtrl::class, 'destroyItem'])->name('delete')->middleware('permission:cms.logistic.delete');
 
     //修改配送狀態

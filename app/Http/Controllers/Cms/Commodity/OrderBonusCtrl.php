@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Cms\Commodity;
 use App\Http\Controllers\Controller;
 use App\Models\OrderCustomerProfitReport;
 use App\Models\OrderMonthProfitReport;
+use App\Models\OrderProfit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 
@@ -138,6 +139,29 @@ class OrderBonusCtrl extends Controller
             'customer_reports' => $customer_reports,
             'month_report' => $month_report,
             'baseData' => $baseData,
+            'breadcrumb_data' => ['month' => $month_report],
+        ]);
+
+    }
+
+    public function personDetail($id, $customer_id)
+    {
+        $month_report = OrderMonthProfitReport::where('id', $id)->get()->first();
+        if (!$month_report) {
+            return abort(404);
+        }
+
+        //  dd($month_report);
+        $profit = OrderProfit::dataList(null, $customer_id, $month_report->report_at)->get();
+        //   dd($profit);
+        $customer_reports = OrderCustomerProfitReport::dataList($id)->where('customer.id', $customer_id)->get()->first();
+     //   dd($customer_reports);
+
+        return view('cms.commodity.order_bonus.bonus', [
+            'customer' => $customer_reports,
+            'month_report' => $month_report,
+            'dataList' => $profit,
+            'breadcrumb_data' => ['month' => $month_report, 'title' => $customer_reports->mcode . " " . $customer_reports->name],
         ]);
 
     }

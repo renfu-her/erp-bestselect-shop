@@ -173,7 +173,7 @@
                             <td>{{ $data->payment_date ? date('Y/m/d', strtotime($data->payment_date)) : '' }}</td>
                             <td>{{ $data->cheque_due_date ? date('Y/m/d', strtotime($data->cheque_due_date)) : '' }}</td>
                             <td>{{ $data->cheque_cashing_date ? date('Y/m/d', strtotime($data->cheque_cashing_date)) : '' }}</td>
-                            <td>{{ $data->po_payable_grade_code . ' ' . $data->po_payable_grade_name }}</td>
+                            <td>{{ $data->cheque_grade_code . ' ' . $data->cheque_grade_name }}</td>
                             <td>{{ $data->po_target_name }}</td>
                             <td></td>
                             <td>{{ $data->note }}</td>

@@ -53,7 +53,8 @@
                         class="btn btn-outline-danger btn-sm my-1 ms-1">取消訂單</a>
                 @endcan
             @endif
-
+            <a href="{{ Route('cms.order.order-flow', ['id' => $order->id]) }}" role="button"
+               class="btn btn-primary btn-sm my-1 ms-1">訂單紀錄</a>
 
             @if (!$order->return_pay_order_id && in_array($order->status, ['取消']) && $po_check)
                 <a href="{{ Route('cms.order.return-pay-order', ['id' => $order->id]) }}" role="button"
@@ -93,7 +94,11 @@
                 </div>
                 <div class="col">
                     <dt>訂單狀態</dt>
-                    <dd>{{ $order->status }}</dd>
+                    @if(\App\Enums\Order\OrderStatus::getDescription(\App\Enums\Order\OrderStatus::Canceled()) == $order->status)
+                        <dd class="text-danger">{{ $order->status }}</dd>
+                    @else
+                        <dd>{{ $order->status }}</dd>
+                    @endif
                 </div>
                 <div class="col-sm-5">
                     <dt>收款單號</dt>
@@ -107,6 +112,7 @@
                     </dd>
                 </div>
             </dl>
+            <hr class="mt-0">
             <dl class="row">
                 <div class="col">
                     <dt>購買人姓名</dt>
@@ -135,6 +141,17 @@
                     <dd>{{ $order->rec_address }}</dd>
                 </div>
             </dl>
+            <dl class="row">
+                <div class="col">
+                    <dt>寄件人</dt>
+                    <dd>{{ $order->sed_name }}</dd>
+                </div>
+                <div class="col-md-5">
+                    <dt>寄件人地址</dt>
+                    <dd>{{ $order->sed_address }}</dd>
+                </div>
+            </dl>
+            <hr class="mt-0">
             <dl class="row">
                 <div class="col">
                     <dt>發票類型</dt>
@@ -176,16 +193,6 @@
             </dl>
             <dl class="row">
                 <div class="col">
-                    <dt>寄件人</dt>
-                    <dd>{{ $order->sed_name }}</dd>
-                </div>
-                <div class="col-md-5">
-                    <dt>寄件人地址</dt>
-                    <dd>{{ $order->sed_address }}</dd>
-                </div>
-            </dl>
-            <dl class="row">
-                <div class="col">
                     <dt>銷售通路</dt>
                     <dd>{{ $order->sale_title }}</dd>
                 </div>
@@ -199,26 +206,29 @@
                 </div>
             </dl>
             @if (isset($remit))
+                <hr class="mt-0">
                 <dl class="row">
                     <div class="col">
                         <dt>匯款人姓名</dt>
                         <dd>{{ $remit->name }}</dd>
                     </div>
                     <div class="col">
-                        <dt>匯款金額</dt>
-                        <dd>{{ number_format($remit->price) }}</dd>
-                    </div>
-                    <div class="col">
-                        <dt>匯款日期</dt>
-                        <dd>{{ $remit->remit_date }}</dd>
-                    </div>
-                    <div class="col">
                         <dt>帳號後五碼</dt>
                         <dd>{{ $remit->bank_code }}</dd>
                     </div>
-                    <div class="col-sm-2">
+                    <div class="col-5">
+                        <dt>匯款金額</dt>
+                        <dd>${{ number_format($remit->price) }}</dd>
+                    </div>
+                </dl>
+                <dl class="row">
+                    <div class="col">
+                        <dt>匯款日期</dt>
+                        <dd>{{ date('Y/m/d', strtotime($remit->remit_date)) }}</dd>
+                    </div>
+                    <div class="col col-md-5">
                         <dt>上傳時間</dt>
-                        <dd>{{ $remit->created_at }}</dd>
+                        <dd>{{ date('Y/m/d H:i:s', strtotime($remit->created_at)) }}</dd>
                     </div>
                 </dl>
             @endif
@@ -340,19 +350,21 @@
                                     <th scope="col">單價</th>
                                     <th scope="col">數量</th>
                                     <th scope="col">小計</th>
+                                    <th scope="col">說明</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach ($subOrder->items as $item)
                                     <tr>
                                         <td class="wrap lh-sm">
-                                            <a href="{{ Route('cms.product.edit', ['id' => $item->product_id], true) }}"
+                                            <a href="{{ Route('cms.product.show', ['id' => $item->product_id], true) }}"
                                                 class="-text">{{ $item->product_title }}</a>
                                         </td>
                                         <td>{{ $item->sku }}</td>
                                         <td>${{ number_format($item->price) }}</td>
                                         <td>{{ $item->qty }}</td>
                                         <td>${{ number_format($item->total_price) }}</td>
+                                        <td class="wrap lh-sm">{{ $item->note }}</td>
                                     </tr>
                                 @endforeach
                             </tbody>

@@ -12,6 +12,7 @@ use BenSampo\Enum\Enum;
  * @method static static inbound_del()
  * @method static static consignment()
  * @method static static consume()
+ * @method static static consume_cancle()
  * @method static static send_back()
  * @method static static send_back_cancle()
  * @method static static element_to_combo()
@@ -26,6 +27,7 @@ final class StockEvent extends Enum
     const inbound_del = 'inbound_del';
     const consignment = 'consignment';
     const consume = 'consume';
+    const consume_cancle = 'consume_cancle';
     const send_back = 'send_back';
     const send_back_cancle = 'send_back_cancle';
     const element_to_combo = 'element_to_combo';
@@ -55,6 +57,9 @@ final class StockEvent extends Enum
                 break;
             case self::consume:
                 $result = '耗材';
+                break;
+            case self::consume_cancle:
+                $result = '耗材取消';
                 break;
             case self::send_back:
                 $result = '退回';

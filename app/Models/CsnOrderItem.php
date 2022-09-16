@@ -60,6 +60,7 @@ class CsnOrderItem extends Model
                 //->select('price', 'num')
                 ->get()->first();
             $purchaseItem->num = $purchaseItemReq['num'][$key];
+            $purchaseItem->price = $purchaseItemReq['price'][$key];
             $purchaseItem->memo = $purchaseItemReq['memo'][$key];
             if ($purchaseItem->isDirty()) {
                 foreach ($purchaseItem->getDirty() as $dirtykey => $dirtyval) {
@@ -68,6 +69,9 @@ class CsnOrderItem extends Model
                     if($dirtykey == 'num') {
                         $event = '修改數量';
                         $logEventFeature = LogEventFeature::style_change_qty()->value;
+                    } else if($dirtykey == 'price') {
+                        $event = '修改價錢';
+                        $logEventFeature = LogEventFeature::style_change_price()->value;
                     }
                     if ('' != $event && null != $logEventFeature) {
                         $rePcsLSC = PurchaseLog::stockChange($purchaseItem->id, $purchaseItem->product_style_id
@@ -83,6 +87,7 @@ class CsnOrderItem extends Model
                 }
                 CsnOrderItem::where('id', $itemId)->update([
                     "num" => $purchaseItemReq['num'][$key],
+                    "price" => $purchaseItemReq['price'][$key],
                     "memo" => $purchaseItemReq['memo'][$key],
                 ]);
             }

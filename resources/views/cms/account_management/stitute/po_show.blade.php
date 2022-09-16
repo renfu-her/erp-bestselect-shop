@@ -8,16 +8,18 @@
             <a href="{{ route('cms.collection_payment.edit', ['id' => $paying_order->id]) }}" class="btn btn-sm btn-success px-3" role="button">修改</a>
             @endcan
 
-            <a href="{{ url()->full() . '?action=print' }}" target="_blank" 
-                class="btn btn-sm btn-warning" rel="noopener noreferrer">中一刀列印畫面</a>
-
             @can('cms.collection_payment.delete')
             @if(! $data_status_check)
-            <a href="javascript:void(0)" role="button" class="btn btn-outline-danger btn-sm"
-                data-bs-toggle="modal" data-bs-target="#confirm-delete"
-                data-href="{{ Route('cms.collection_payment.delete', ['id' => $paying_order->id]) }}">刪除付款單</a>
+                <a href="{{ route('cms.collection_payment.payable_list', ['id' => $paying_order->id]) }}" class="btn btn-sm btn-primary" role="button">付款記錄</a>
+
+                <a href="javascript:void(0)" role="button" class="btn btn-outline-danger btn-sm"
+                    data-bs-toggle="modal" data-bs-target="#confirm-delete"
+                    data-href="{{ Route('cms.collection_payment.delete', ['id' => $paying_order->id]) }}">刪除付款單</a>
             @endif
             @endcan
+
+            <a href="{{ url()->full() . '?action=print' }}" target="_blank" 
+                class="btn btn-sm btn-warning" rel="noopener noreferrer">中一刀列印畫面</a>
         </div>
     </nav>
 
