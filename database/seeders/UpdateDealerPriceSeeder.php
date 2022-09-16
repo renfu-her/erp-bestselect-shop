@@ -18,7 +18,7 @@ class UpdateDealerPriceSeeder extends Seeder
     {
         $jsonFileContents = file_get_contents(database_path('seeders/') . 'person_in_charge.json');
         $jsonData = json_decode($jsonFileContents, true);
-        $data = $jsonData['data'];
+        $data = $jsonData;//['data'];
 
         $skuData = DB::table('prd_products')
             ->leftJoin('prd_product_styles', 'prd_products.id', '=', 'prd_product_styles.product_id')
@@ -49,20 +49,25 @@ class UpdateDealerPriceSeeder extends Seeder
             $skuKey = array_search($skuDatabase['styleSku'] , array_column($data, 'sku'), true);
             if ($skuKey) {
                 $dealerPrice = $data[$skuKey]['price2'];
-                if (DB::table('prd_salechannel_style_price')
-                    ->where([
-                        ['style_id', '=', $skuDatabase['styleId']],
-                        ['sale_channel_id', '=', 1],
-                    ])->get()
-                ) {
-                    print_r($skuDatabase['productId']. ':' . $skuDatabase['title'] . PHP_EOL);
-                    DB::table('prd_salechannel_style_price')
-                        ->where([
-                            ['style_id', '=', $skuDatabase['styleId']],
-                            ['sale_channel_id', '=', 1],
-                        ])
-                        ->update(['dealer_price' => $dealerPrice]);
+                if ($dealerPrice !== 0) {
+                    for ($i = 1; $i <= 6; $i++) {
+                        if (DB::table('prd_salechannel_style_price')
+                            ->where([
+                                ['style_id', '=', $skuDatabase['styleId']],
+                                ['sale_channel_id', '=', $i],
+                            ])->exists()
+                        ) {
+                            DB::table('prd_salechannel_style_price')
+                                ->where([
+                                    ['style_id', '=', $skuDatabase['styleId']],
+                                    ['sale_channel_id', '=', $i],
+                                ])
+                                ->update(['dealer_price' => $dealerPrice]);
+                        }
+                    }
                 }
+            } else {
+                print_r('找不到：' . $skuDatabase['styleSku'] . PHP_EOL);
             }
         }
     }
