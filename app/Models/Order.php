@@ -927,6 +927,7 @@ class Order extends Model
                 'deadline'=>$value->deadline,
                 'active_sdate'=>$value->active_sdate,
                 'active_edate'=>$value->active_edate,
+                'note' => '由'.$order->sn."訂單返還"
             ]);
 
         }
