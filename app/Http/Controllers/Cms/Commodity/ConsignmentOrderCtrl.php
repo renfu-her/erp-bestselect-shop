@@ -290,7 +290,7 @@ class ConsignmentOrderCtrl extends Controller
                     //itemId = null 代表新資料
                     if (null != $itemId) {
                         $resultUpd = CsnOrderItem::checkToUpdateItemData($itemId
-                            , ['num' => $csnItemReq['num'], 'memo' => $csnItemReq['memo']]
+                            , ['num' => $csnItemReq['num'], 'price' => $csnItemReq['price'], 'memo' => $csnItemReq['memo']]
                             , $key, $request->user()->id, $request->user()->name);
                         if ($resultUpd['success'] == 0) {
                             DB::rollBack();

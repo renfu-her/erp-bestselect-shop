@@ -225,7 +225,7 @@
                                 </td>
                                 <td>
                                     <input type="number" class="form-control form-control-sm @error('price.' . $psItemKey) is-invalid @enderror"
-                                        name="price[]" value="{{ old('price.'. $psItemKey, '$'.number_format($price)?? '') }}">
+                                        name="price[]" value="{{ old('price.'. $psItemKey, $psItemVal->price?? '') }}">
                                 </td>
                                 <td data-td="total" class="text-end">$ 0</td>
                                 <td>
