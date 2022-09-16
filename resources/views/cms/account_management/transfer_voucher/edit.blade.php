@@ -72,7 +72,7 @@
                                 <input type="text" name="summary[{{ $i }}]" 
                                     class="d-target form-control form-control-sm @error('summary.' . $i) is-invalid @enderror" 
                                     value="{{ old('summary.' . $i, $items[$i]->summary ?? '') }}" 
-                                    aria-label="摘要說明" disabled>
+                                    aria-label="摘要說明" placeholder="摘要說明" disabled>
                             </td>
 
                             <td class="text-center">
@@ -101,7 +101,7 @@
                                 <input type="number" name="currency_price[{{ $i }}]" 
                                     value="{{ old('currency_price.' . $i, $items[$i]->currency_price ?? '') }}" 
                                     class="d-target r-target form-control form-control-sm @error('currency_price.' . $i) is-invalid @enderror" 
-                                    aria-label="金額" disabled>
+                                    aria-label="金額" placeholder="金額" disabled>
                             </td>
 
                             <td>
@@ -117,7 +117,7 @@
                                 <input type="number" name="rate[{{ $i }}]" step="0.01" 
                                     value="{{ old('rate.' . $i, $items[$i]->rate ?? '1') }}" 
                                     class="d-target r-target form-control form-control-sm @error('rate.' . $i) is-invalid @enderror" 
-                                    aria-label="匯率" disabled>
+                                    aria-label="匯率" placeholder="匯率" disabled>
                             </td>
 
                             <td>
@@ -133,7 +133,7 @@
                                 <input type="text" name="memo[{{ $i }}]" 
                                     value="{{ old('memo.' . $i, $items[$i]->memo ?? '') }}" 
                                     class="d-target form-control form-control-sm @error('memo.' . $i) is-invalid @enderror" 
-                                    aria-label="備註" disabled>
+                                    aria-label="備註" placeholder="備註" disabled>
                             </td>
                         </tr>
                         @endfor
@@ -173,7 +173,6 @@
     @push('sub-scripts')
         <script>
             $(function() {
-                // 會計科目樹狀排版
                 $('.-select2').select2({
                     templateResult: function (data) {
                         if (!data.element) {
