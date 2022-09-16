@@ -34,7 +34,8 @@ class Order extends Model
         $shipment_status = null,
         $profit_user = null,
         $email = null,
-        $item_title = null
+        $item_title = null,
+        $purchase_sn = null
     ) {
         $order = DB::table('ord_orders as order')
             ->select(['order.id as id',
@@ -133,6 +134,29 @@ class Order extends Model
                 $query->Where('ord_items.product_title', 'like', "%{$item_title}%")
                     ->orWhere('ord_items.sku', 'like', "%{$item_title}%");
             });
+        }
+
+        if ($purchase_sn) {
+            //整理出入庫單和採購單的關係
+            $inbound = DB::table(app(PurchaseInbound::class)->getTable(). ' as inbound')
+                ->leftJoin('pcs_purchase as pcs', function ($join) {
+                    $join->on('pcs.id', '=', 'inbound.event_id')
+                        ->where('inbound.event', '=', Event::purchase()->value);
+                })
+                ->select('pcs.id as pcs_id', 'pcs.sn as pcs_sn', 'inbound.*');
+
+            //找出子訂單出貨的商品
+            $order->leftJoin('dlv_receive_depot as dlv_receive_depot', function ($join) {
+                $join->on('dlv_receive_depot.delivery_id', '=', 'dlv_delivery.id');
+            })
+                ->leftJoinSub($inbound, 'inbound', function($join) {
+                $join->on('inbound.id', '=', 'dlv_receive_depot.inbound_id');
+            });
+
+            $order->where(function ($query) use ($purchase_sn) {
+                $query->Where('inbound.pcs_sn', '=', "$purchase_sn");
+            });
+
         }
 
         $order->orderByDesc('order.id');
