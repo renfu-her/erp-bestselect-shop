@@ -70,7 +70,7 @@ class Kernel extends HttpKernel
         'role' => \Spatie\Permission\Middlewares\RoleMiddleware::class,
         'permission' => \Spatie\Permission\Middlewares\PermissionMiddleware::class,
         'role_or_permission' => \Spatie\Permission\Middlewares\RoleOrPermissionMiddleware::class,
-
+        'check.customer.data' => \App\Http\Middleware\CheckCustomerData::class,
         'identity.api.customer' => \App\Http\Middleware\AuthIdentityApiCustomer::class,
         'checksum' => \App\Http\Middleware\CheckSum::class,
     ];

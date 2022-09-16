@@ -43,6 +43,7 @@ class Topbar extends Component
                 break;
         }
 
+        $customer = null;
         if (Auth::user()) {
             $customer = User::getUserCustomer(Auth::user()->id);
             $domain = $domain . '?mcode=' . ($customer ? $customer->sn : '');
@@ -51,6 +52,7 @@ class Topbar extends Component
             'name' => isset(Auth::User()->name) ? Auth::User()->name : '旅客',
             'userType' => 'user',
             'url' => $domain,
+            'customer' => $customer,
             'logout' => 'logout',
         ]);
     }
