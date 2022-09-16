@@ -85,6 +85,7 @@ class OrderCtrl extends Controller
         $cond['order_sdate'] = Arr::get($query, 'order_sdate', null);
         $cond['order_edate'] = Arr::get($query, 'order_edate', null);
         $cond['profit_user'] = Arr::get($query, 'profit_user', null);
+        $cond['item_title'] = Arr::get($query, 'item_title', null);
 
         $order_date = null;
         if ($cond['order_sdate'] && $cond['order_edate']) {
@@ -102,7 +103,9 @@ class OrderCtrl extends Controller
             $cond['sale_channel_id'],
             $order_date,
             $cond['shipment_status'],
-            $cond['profit_user'])
+            $cond['profit_user'],
+            null,
+            $cond['item_title'])
             ->paginate($page)->appends($query);
 
         $orderStatus = [];

@@ -33,7 +33,8 @@ class Order extends Model
         $order_date = null,
         $shipment_status = null,
         $profit_user = null,
-        $email = null
+        $email = null,
+        $item_title = null
     ) {
         $order = DB::table('ord_orders as order')
             ->select(['order.id as id',
@@ -121,6 +122,17 @@ class Order extends Model
         if ($profit_user) {
             $order->leftJoin('ord_order_profit as ord_profit', 'ord_profit.order_id', '=', 'order.id')
                 ->where('ord_profit.customer_id', $profit_user);
+        }
+
+        if ($item_title) {
+            $order->leftJoin('ord_items as ord_items', function ($join) {
+                $join->on('ord_items.order_id', '=', 'so.order_id')
+                    ->on('ord_items.sub_order_id', '=', 'so.id');
+            });
+            $order->where(function ($query) use ($item_title) {
+                $query->Where('ord_items.product_title', 'like', "%{$item_title}%")
+                    ->orWhere('ord_items.sku', 'like', "%{$item_title}%");
+            });
         }
 
         $order->orderByDesc('order.id');

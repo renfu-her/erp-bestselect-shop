@@ -120,6 +120,11 @@
                         @endforeach
                     </select>
                 </div>
+                <div class="col-12 col-sm-6 col-xxl-3 mb-3">
+                    <label class="form-label">商品名稱</label>
+                    <input class="form-control" type="text" value="{{ $cond['item_title'] }}" name="item_title"
+                           placeholder="請輸入商品名稱">
+                </div>
             </div>
             <div class="col">
                 <input type="hidden" name="data_per_page" value="{{ $data_per_page }}" />
