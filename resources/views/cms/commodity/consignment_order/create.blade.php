@@ -180,17 +180,18 @@
                                 <input type="hidden" name="name[]" value="">
                                 <input type="hidden" name="prd_type[]" value="">
                                 <input type="hidden" name="sku[]" value="">
-                                <input type="hidden" name="price[]" value="">
                             </th>
                             <td data-td="name"></td>
                             <td data-td="sku"></td>
                             <td>
                                 <input type="number" class="form-control form-control-sm" name="num[]" min="1" value="" required/>
                             </td>
-                            <td data-td="price" class="text-end"></td>
+                            <td>
+                                <input type="number" class="form-control form-control-sm" name="price[]" min="0" value="" required>
+                            </td>
                             <td data-td="total" class="text-end"></td>
                             <td>
-                                <input type="text" class="form-control form-control-sm" name="memo[]" />
+                                <input type="text" class="form-control form-control-sm -l" name="memo[]" />
                             </td>
                         </tr>
                     @elseif(0 < count(old('item_id', $consignmentItemData?? [])))
@@ -209,7 +210,6 @@
                                     <input type="hidden" name="name[]" value="{{ old('name.'. $psItemKey, $psItemVal->title?? '') }}">
                                     <input type="hidden" name="prd_type[]" value="{{ old('prd_type.'. $psItemKey, $psItemVal->prd_type?? '') }}">
                                     <input type="hidden" name="sku[]" value="{{ old('sku.'. $psItemKey, $psItemVal->sku?? '') }}">
-                                    <input type="hidden" name="price[]" value="{{ $price }}">
                                 </th>
                                 <td data-td="name">{{ old('name.'. $psItemKey, $psItemVal->title?? '') }}</td>
                                 <td data-td="sku">{{ old('sku.'. $psItemKey, $psItemVal->sku?? '') }}</td>
@@ -222,7 +222,10 @@
                                         <input type="hidden" name="num[]" value="{{ $psItemVal->num }}">
                                     @endif
                                 </td>
-                                <td data-td="price" class="text-end">{{ old('price.'. $psItemKey, '$'.number_format($price)?? '') }}</td>
+                                <td>
+                                    <input type="number" class="form-control form-control-sm @error('price.' . $psItemKey) is-invalid @enderror"
+                                        name="price[]" value="{{ old('price.'. $psItemKey, '$'.number_format($price)?? '') }}">
+                                </td>
                                 <td data-td="total" class="text-end">$ 0</td>
                                 <td>
                                     @if ($editable)
@@ -238,15 +241,15 @@
                     @endif
                     </tbody>
                     <tfoot>
-                    <tr>
-                        <th class="lh-1"></th>
-                        <th class="lh-1"></th>
-                        @if ($editable) <th class="lh-1"></th> @endif
-                        <th class="lh-1"></th>
-                        <th class="lh-1 text-end">價錢小計</th>
-                        <th class="lh-1 text-end -sum">$ 0</th>
-                        <th class="lh-1"></th>
-                    </tr>
+                        <tr>
+                            <th class="lh-1"></th>
+                            <th class="lh-1"></th>
+                            @if ($editable) <th class="lh-1"></th> @endif
+                            <th class="lh-1"></th>
+                            <th class="lh-1 text-end">價錢小計</th>
+                            <th class="lh-1 text-end -sum">$ 0</th>
+                            <th class="lh-1"></th>
+                        </tr>
                     </tfoot>
                 </table>
             </div>
@@ -328,29 +331,28 @@
             </div>
             <div class="table-responsive">
                 <table class="table table-hover tableList">
-                    <thead>
-                    <tr>
-                        <th scope="col" class="text-center">選取</th>
-                        <th scope="col">商品名稱</th>
-                        <th scope="col">款式</th>
-                        <th scope="col">SKU</th>
-                        <th scope="col">寄倉庫存數量</th>
-                        <th scope="col">寄倉價(單價)</th>
-                    </tr>
+                    <thead class="small">
+                        <tr>
+                            <th scope="col" class="text-center">選取</th>
+                            <th scope="col">商品名稱</th>
+                            <th scope="col">款式</th>
+                            <th scope="col">SKU</th>
+                            <th scope="col" class="text-end">寄倉庫存<br class="d-block d-lg-none">數量</th>
+                            <th scope="col" class="text-end">寄倉價<br class="d-block d-lg-none">(單價)</th>
+                        </tr>
                     </thead>
                     <tbody class="-appendClone --product">
-                    <tr>
-                        <th class="text-center">
-                            <input class="form-check-input" type="checkbox"
-                                   value="" data-td="p_id" aria-label="選取商品">
-                        </th>
-                        <td data-td="name">【喜鴻嚴選】咖啡候機室(10入/盒)</td>
-                        <td data-td="spec">綜合口味</td>
-                        <td data-td="sku">AA2590</td>
-                        <td>58</td>
-                        <td data-td="price">99</td>
-                        <td>20</td>
-                    </tr>
+                        <tr>
+                            <th class="text-center">
+                                <input class="form-check-input" type="checkbox"
+                                    value="" name="p_id" aria-label="選取商品">
+                            </th>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td class="text-end"></td>
+                            <td class="text-end"></td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -375,6 +377,13 @@
     </x-b-modal>
 @endsection
 @once
+    @push('sub-styles')
+    <style>
+        .tableList > :not(caption) > * > * {
+            line-height: initial;
+        }
+    </style>
+    @endpush
     @push('sub-scripts')
         <script>
 
@@ -524,15 +533,19 @@
                         let $tr = $(`<tr>
                             <th class="text-center">
                                 <input class="form-check-input" type="checkbox" ${checked}
-                                    value="${p.style_id}" data-td="p_id" aria-label="選取商品">
-                                <input type="hidden" data-td="prd_type" value="${p.prd_type}">
-                                <input type="hidden" data-td="product_style_id" value="${p.product_style_id}">
+                                    value="${p.style_id}" name="p_id" aria-label="選取商品">
+                                <input type="hidden" name="sku" value="${p.sku}">
+                                <input type="hidden" name="prd_type" value="${p.prd_type}">
+                                <input type="hidden" name="product_style_id" value="${p.product_style_id}">
+                                <input type="hidden" name="name" value="${p.product_title}">
+                                <input type="hidden" name="spec" value="${p.spec || ''}">
+                                <input type="hidden" name="price" value="${Number(p.depot_price)}">
                             </th>
-                            <td data-td="name">${p.product_title}</td>
-                            <td data-td="spec">${p.spec || ''}</td>
-                            <td data-td="sku">${p.sku}</td>
-                            <td>${p.available_num}</td>
-                            <td data-td="price">${p.depot_price}</td>
+                            <td>${p.product_title}</td>
+                            <td>${p.spec || ''}</td>
+                            <td>${p.sku}</td>
+                            <td class="text-end">${p.available_num}</td>
+                            <td class="text-end">$${p.depot_price}</td>
                         </tr>`);
                         $('#addProduct .-appendClone.--product').append($tr);
                     }
@@ -541,21 +554,21 @@
 
             // 紀錄 checked product
             function catchCheckedProduct() {
-                $('#addProduct tbody input[data-td="p_id"]').each(function (index, element) {
+                $('#addProduct tbody input[name="p_id"]').each(function (index, element) {
                     // element == this
-                    const sku = $(element).parent('th').siblings('[data-td="sku"]').text();
+                    const sku = $(element).siblings('[name="sku"]').val();
                     const idx = selectedProductSku.indexOf(sku);
                     if ($(element).prop('checked')) {
                         if (idx < 0) {
                             selectedProductSku.push(sku);
                             selectedProduct.push({
                                 id: $(element).val(),
-                                product_style_id: $(element).siblings('[data-td="product_style_id"]').val(),
-                                name: $(element).parent('th').siblings('[data-td="name"]').text(),
-                                prd_type: $(element).siblings('[data-td="prd_type"]').val(),
+                                product_style_id: $(element).siblings('[name="product_style_id"]').val(),
+                                name: $(element).siblings('[name="name"]').val(),
+                                prd_type: $(element).siblings('[name="prd_type"]').val(),
                                 sku: sku,
-                                spec: $(element).parent('th').siblings('[data-td="spec"]').text(),
-                                price: $(element).parent('th').siblings('[data-td="price"]').text()
+                                spec: $(element).siblings('[name="spec"]').val(),
+                                price: $(element).siblings('[name="price"]').val()
                             });
                         }
                     } else {
@@ -596,11 +609,10 @@
                             cloneElem.find('input[name="name[]"]').val(`${p.name}-${p.spec}`);
                             cloneElem.find('input[name="prd_type[]"]').val(p.prd_type);
                             cloneElem.find('input[name="sku[]"]').val(p.sku);
-                            cloneElem.find('input[name="price[]"]').val(p.price);
                             cloneElem.find('td[data-td="name"]').text(`${p.name}-${p.spec}`);
                             cloneElem.find('td[data-td="sku"]').text(p.sku);
-                            cloneElem.find('td[data-td="price"]').text(p.price);
-                            cloneElem.find('td[data-td="price"], td[data-td="total"]').text(`$ ${formatNumber(p.price)}`);
+                            cloneElem.find('input[name="price[]"]').val(p.price);
+                            cloneElem.find('td[data-td="total"]').text(`$ 0`);
                         }
                     }, delItemOption);
                 }
@@ -620,7 +632,7 @@
 
             // 綁定計算
             function bindPriceSum() {
-                $('.-cloneElem.--selectedP input[name="num[]"]')
+                $('.-cloneElem.--selectedP input[name="num[]"], .-cloneElem.--selectedP input[name="price[]"]')
                     .off('change.sum').on('change.sum', function () {
                     sumPrice();
                 });
