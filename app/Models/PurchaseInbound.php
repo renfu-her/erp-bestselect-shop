@@ -719,39 +719,6 @@ class PurchaseInbound extends Model
         return $result;
     }
 
-    // 取得寄倉單內 尚未出貨審核的預計出貨數量
-    public static function getEstimatedShipmentsWithCsnItems($depot_id = []) {
-        $re = DB::table('csn_consignment as consignment')
-            ->leftJoin('csn_consignment_items as items', function ($join) {
-                $join->on('items.consignment_id', '=', 'consignment.id');
-            })
-            ->leftJoin('dlv_delivery', function ($join) {
-                $join->on('dlv_delivery.event_id', '=', 'consignment.id');
-                $join->where('dlv_delivery.event', Event::consignment()->value);
-            })
-            ->select(
-                'dlv_delivery.id as dlv_id'
-                , 'consignment.send_depot_id as depot_id'
-                , 'items.product_style_id as product_style_id'
-                , 'items.title as product_title'
-            )
-            ->selectRaw('sum(items.num) as qty')
-            ->selectRaw('0 as back_qty') //配合其他地方union的欄位而加，否則未出貨根本不會有退貨數量
-            ->whereNull('dlv_delivery.audit_date')
-            ->whereNull('consignment.deleted_at')
-            ->whereNull('items.deleted_at')
-            ->whereIn('consignment.audit_status', [AuditStatus::unreviewed()->value, AuditStatus::approved()->value])
-            ->groupBy('dlv_delivery.id')
-            ->groupBy('consignment.send_depot_id')
-            ->groupBy('items.product_style_id')
-            ->groupBy('items.title');
-        if (null != $depot_id && 0 < count($depot_id)) {
-            $re->whereIn('consignment.send_depot_id', $depot_id);
-        }
-
-        return $re;
-    }
-
     // 取得訂單 正在選擇庫存的數量
     public static function getEstimatedShipmentsWithOrder($depot_id = []) {
         $re = DB::table('dlv_delivery')
@@ -914,18 +881,16 @@ class PurchaseInbound extends Model
 
     //取得商品款式現有數量
     public static function getExistInboundProductStyleList($depot_id = []) {
-        $esCsnItems = PurchaseInbound::getEstimatedShipmentsWithCsnItems($depot_id);
         $esOrder = PurchaseInbound::getEstimatedShipmentsWithOrder($depot_id);
-        $esCsnItems->union($esOrder);
 
         //計算預扣採購入庫單數量
-        $querySub = DB::table(DB::raw("({$esCsnItems->toSql()}) as tb_rd"))
+        $querySub = DB::table(DB::raw("({$esOrder->toSql()}) as tb_rd"))
             ->select('tb_rd.depot_id as depot_id'
                 , 'tb_rd.product_style_id as product_style_id'
                 , 'tb_rd.product_title as product_title'
             )
             ->selectRaw('sum(tb_rd.qty) as qty')
-            ->mergeBindings($esCsnItems)
+            ->mergeBindings($esOrder)
             ->whereNotNull('qty')
             ->groupBy('tb_rd.depot_id')
             ->groupBy('tb_rd.product_style_id')

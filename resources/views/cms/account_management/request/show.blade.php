@@ -70,9 +70,7 @@
                 --}}
                 </div>
                 <div class="col">
-                    @if($request_order->posting_date)
-                    <dd>入帳日期：{{ date('Y/m/d', strtotime($request_order->posting_date)) }}</dd>
-                    @endif
+                    <dd>入帳日期：{{ $request_order->posting_date ? date('Y/m/d', strtotime($request_order->posting_date)) : '' }}</dd>
                 </div>
             </dl>
 

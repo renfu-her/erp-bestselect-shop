@@ -23,6 +23,10 @@
         @if (!$receivable)
             <a href="{{ Route('cms.ar_csnorder.create', ['id' => $id]) }}" class="btn btn-sm btn-primary" role="button">新增收款單</a>
         @endif
+            <a target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-warning"
+                href="{{ Route('cms.consignment-order.print_order_ship', ['id' => $id]) }}">
+                列印出貨單
+            </a>
         </div>
     </nav>
     @endif
@@ -113,11 +117,11 @@
                 <dl class="row">
                     <div class="col">
                         <dt>物態</dt>
-                        <dd>{{ $delivery->flow_status ?? '' }}</dd>
+                        <dd>{{ $logistic_flow->status ?? '' }}</dd>
                     </div>
                     <div class="col">
                         <dt>物態日期</dt>
-                        <dd>{{ $delivery->flow_created_at ? date('Y/m/d', strtotime($delivery->flow_created_at)) : '' }}</dd>
+                        <dd>{{ $logistic_flow->created_at ? date('Y/m/d H:i:s', strtotime($logistic_flow->created_at)) : '' }}</dd>
                     </div>
                     <div class="col">
                         <dt>收貨人名稱</dt>

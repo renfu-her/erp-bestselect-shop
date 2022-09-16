@@ -167,34 +167,17 @@ class ConsignmentOrderCtrl extends Controller
         $query = $request->query();
         $consignmentData  = CsnOrder::getData($id)->get()->first();
 
-        $logistic_flow = DB::table('dlv_logistic_flow')
-            ->select(
-                DB::raw('max(dlv_logistic_flow.id) as flow_id')
-                , DB::raw('max(dlv_logistic_flow.delivery_id) as delivery_id')
-                , 'status'
-                , 'status_code'
-                , 'user_id'
-                , 'user_name'
-                , 'created_at'
-            )
-            ->groupBy('dlv_logistic_flow.delivery_id');
-
-
         $consignmentItemData = CsnOrderItem::getData($id)->get();
-
         $delivery = DB::table('dlv_delivery')
-            ->leftJoinSub($logistic_flow, 'logistic_flow', function($join) {
-                $join->on('logistic_flow.delivery_id', '=', 'dlv_delivery.id');
-            })
-            ->select(
-                'dlv_delivery.*'
-                , 'logistic_flow.status as flow_status'
-                , 'logistic_flow.status_code as flow_status_code'
-                , DB::raw('DATE_FORMAT(logistic_flow.created_at,"%Y-%m-%d") as flow_created_at')
-            )
             ->where('dlv_delivery.event_id', '=', $consignmentData->id)
             ->where('dlv_delivery.event', '=', Event::csn_order()->value)
             ->first();
+
+        $logistic_flow = DB::table('dlv_logistic_flow')
+            ->where('dlv_logistic_flow.delivery_id', '=', $delivery->id)
+            ->orderByDesc('dlv_logistic_flow.id')
+            ->first();
+
         if (!$consignmentData) {
             return abort(404);
         }
@@ -214,13 +197,12 @@ class ConsignmentOrderCtrl extends Controller
             'id' => $id,
             'query' => $query,
             'consume_items' => $consumeItems,
-            'method' => 'edit',
             'depotList' => Depot::all(),
-            'formAction' => Route('cms.consignment-order.index'),
 
             'consignmentData' => $consignmentData,
             'consignmentItemData' => $consignmentItemData,
             'delivery' => $delivery,
+            'logistic_flow' => $logistic_flow,
             'method' => 'edit',
             'formAction' => Route('cms.consignment-order.edit', ['id' => $id]),
             'receivable' => $receivable,
@@ -330,6 +312,49 @@ class ConsignmentOrderCtrl extends Controller
             'id' => $id,
             'query' => $query
         ]));
+    }
+
+    // 列印－出貨單明細
+    public function print_order_ship(Request $request, $id)
+    {
+        $query = $request->query();
+        $consignmentData  = CsnOrder::getData($id)->get()->first();
+        $consignmentItemData = CsnOrderItem::getData($id)->get();
+
+        $delivery = DB::table('dlv_delivery')
+            ->where('dlv_delivery.event_id', '=', $consignmentData->id)
+            ->where('dlv_delivery.event', '=', Event::csn_order()->value)
+            ->first();
+        $logistic_flow = DB::table('dlv_logistic_flow')
+            ->where('dlv_logistic_flow.delivery_id', '=', $delivery->id)
+            ->orderByDesc('dlv_logistic_flow.id')
+            ->first();
+        if (!$consignmentData) {
+            return abort(404);
+        }
+        $consumeItems = Consum::getConsumWithEvent(Event::csn_order()->value, $id)->get()->toArray();
+
+        $receivable = false;
+        $received_order_collection = ReceivedOrder::where([
+            'source_type'=>app(CsnOrder::class)->getTable(),
+            'source_id'=>$id,
+        ]);
+        $received_order_data = $received_order_collection->first();
+        if ($received_order_data && $received_order_data->balance_date) {
+            $receivable = true;
+        }
+
+        return view('doc.print_csnorder_order', [
+            'type' => 'ship',
+            'id' => $id,
+
+            'consignmentData' => $consignmentData,
+            'consignmentItemData' => $consignmentItemData,
+            'delivery' => $delivery,
+            'logistic_flow' => $logistic_flow,
+            'receivable' => $receivable,
+            'received_order_data' => $received_order_data,
+        ]);
     }
 
     public function historyLog(Request $request, $id) {
