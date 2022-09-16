@@ -128,6 +128,7 @@
                     </tfoot>
                 </table>
             -->
+            <!--
                 <label class="text-secondary py-1 fw-bold">即時庫存</label>
                 <table class="table table-bordered border-secondary align-middle">
                     <thead>
@@ -160,6 +161,7 @@
                         </tr>
                     </tfoot>
                 </table>
+            -->
             </div>
         </div>
         <div>
