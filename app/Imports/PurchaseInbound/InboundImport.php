@@ -13,7 +13,7 @@ class InboundImport implements OnEachRow
     {
         $rowIndex = $row->getIndex();
         $row = $row->toArray();
-        if (1 < $rowIndex) {
+        if (1 < $rowIndex && '採購單號' != $row[1]) {
             $data = [
                 'purchase_sn' => $row[1]
                 , 'sku' => $row[2]
