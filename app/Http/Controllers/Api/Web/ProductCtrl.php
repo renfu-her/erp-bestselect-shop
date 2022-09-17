@@ -3,8 +3,6 @@
 namespace App\Http\Controllers\Api\Web;
 
 use App\Enums\Globals\ApiStatusMessage;
-use App\Enums\Globals\AppEnvClass;
-use App\Enums\Globals\ImageDomain;
 use App\Enums\Globals\ResponseParam;
 use App\Http\Controllers\Controller;
 use App\Models\Collection;
@@ -38,14 +36,14 @@ class ProductCtrl extends Controller
             ) {
                 return response()->json([
                     'status' => ApiStatusMessage::NotFound,
-                    'msg'    => ApiStatusMessage::getDescription(ApiStatusMessage::NotFound),
+                    'msg' => ApiStatusMessage::getDescription(ApiStatusMessage::NotFound),
                 ]);
             }
         } else {
             if (Product::isLiquor($d['sku'])) {
                 return response()->json([
                     'status' => ApiStatusMessage::NotFound,
-                    'msg'    => ApiStatusMessage::getDescription(ApiStatusMessage::NotFound),
+                    'msg' => ApiStatusMessage::getDescription(ApiStatusMessage::NotFound),
                 ]);
             }
         }
@@ -82,7 +80,7 @@ class ProductCtrl extends Controller
             ->where('is_public', '1');
 
         if (isset($d['type'])) {
-            if($d['type'] === '1') {
+            if ($d['type'] === '1') {
                 $collection->where('is_liquor', '=', 1);
             }
         } else {
@@ -112,7 +110,7 @@ class ProductCtrl extends Controller
         if ($dataList) {
             $collection->list = array_map(function ($n) {
                 if ($n->img_url) {
-                    $n->img_url = getImageUrl($n->img_url);
+                    $n->img_url = getImageUrl($n->img_url, true);
                 }
 
                 return $n;
@@ -143,8 +141,6 @@ class ProductCtrl extends Controller
             'm_class' => ['nullable', 'string', 'regex:/^(customer|employee|company)$/'],
             'type' => ['nullable', 'string', 'regex:/^1$/'],
         ]);
-
-
 
         if ($validator->fails()) {
             return response()->json([
