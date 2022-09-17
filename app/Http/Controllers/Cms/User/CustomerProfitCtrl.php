@@ -28,7 +28,7 @@ class CustomerProfitCtrl extends Controller
         $search['name'] = Arr::get($query, 'name', null);
         $search['sn'] = Arr::get($query, 'sn', null);
 
-        $dataList = CustomerProfit::dataList($search['name'], $search['sn'], $search['status'])->paginate(10);
+        $dataList = CustomerProfit::dataList($search['name'], $search['sn'], $search['status'])->paginate(10)->appends($query);
 
         //  $customer = Customer::getCustomerBySearch($name)->paginate(10)->appends($query);
 
