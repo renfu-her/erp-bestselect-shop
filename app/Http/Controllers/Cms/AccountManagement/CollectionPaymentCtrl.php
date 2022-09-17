@@ -619,7 +619,7 @@ class CollectionPaymentCtrl extends Controller
                         $name = $product_name . ' --- ' . $p_value->title . '（' . $avg_price . ' * ' . $p_value->num . '）';
                         $product_title = $p_value->title;
 
-                        if($value->po_source_type == 'pcs_paying_orders'){
+                        if($value->po_source_type == 'acc_stitute_orders' || $value->po_source_type == 'pcs_paying_orders'){
                             $product_account = AllGrade::find($p_value->all_grades_id) ? AllGrade::find($p_value->all_grades_id)->eachGrade : null;
                             $account_code = $product_account ? $product_account->code : '1000';
                             $account_name = $product_account ? $product_account->name : '無設定會計科目';
