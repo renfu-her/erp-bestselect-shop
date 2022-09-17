@@ -17,6 +17,7 @@ class OrderCustomerProfitReport extends Model
 
         $re = DB::table('ord_customer_profit_report as report')
             ->select(['report.*',
+                 'customer.id as customer_id',
                 'customer.name',
                 'customer.sn as mcode',
                 'bank.title as bank_title',

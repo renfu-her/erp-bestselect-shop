@@ -94,9 +94,10 @@
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">廠商預計進貨日期 <span class="text-danger">*</span></label>
                     @if ($hasCreatedFinalPayment)
-                        <div class="form-control" readonly>
-                            {{ empty($purchaseData->scheduled_date) ? '-' : date('Y/m/d', strtotime($purchaseData->scheduled_date)) }}
-                        </div>
+                        <input type="date" id="scheduled_date" name="scheduled_date"
+                               value="{{ old('scheduled_date', $purchaseData->scheduled_date  ?? '') }}"
+                               class="form-control" aria-label="廠商預計進貨日期"
+                               readonly/>
                     @else
                         <div class="input-group has-validation">
                             <input type="date" id="scheduled_date" name="scheduled_date"
@@ -121,7 +122,7 @@
                         <label class="form-label">廠商訂單號</label>
                         <input class="form-control" name="supplier_sn" type="text" aria-label="廠商訂單號"
                                value="{{ old('supplier_sn', $purchaseData->supplier_sn  ?? '') }}"
-                               @if ($hasCreatedFinalPayment) disabled @endif placeholder="請輸入廠商訂單號">
+                               @if ($hasCreatedFinalPayment) readonly @endif placeholder="請輸入廠商訂單號">
                     </div>
                 @endif
             </div>
@@ -132,18 +133,18 @@
             <div class="table-responsive tableOverBox">
                 <table class="table table-hover tableList mb-0">
                     <thead>
-                    <tr>
-                        <th scope="col" class="text-center">刪除</th>
-                        <th scope="col">商品名稱</th>
-                        <th scope="col">SKU</th>
-                        <th scope="col">採購數量</th>
-                        <th scope="col">採購總價</th>
-                        @if ($method === 'edit')
-                            <th scope="col">狀態</th>
-                            <th scope="col">入庫人員</th>
-                        @endif
-                        <th scope="col">採購備註</th>
-                    </tr>
+                        <tr>
+                            <th scope="col" class="text-center">刪除</th>
+                            <th scope="col">商品名稱</th>
+                            <th scope="col">SKU</th>
+                            <th scope="col">採購數量</th>
+                            <th scope="col">採購總價</th>
+                            @if ($method === 'edit')
+                                <th scope="col">狀態</th>
+                                <th scope="col">入庫人員</th>
+                            @endif
+                            <th scope="col">採購備註</th>
+                        </tr>
                     </thead>
                     <tbody class="-appendClone --selectedP">
                     @if (0 >= count(old('item_id', $purchaseItemData?? [])))
@@ -458,7 +459,7 @@
             let hasCreatedFinalPayment = @json($hasCreatedFinalPayment?? false);
 
             if (true == hasCreatedFinalPayment) {
-                $('.-cloneElem.--selectedP :input').prop("disabled", true);
+                $('.-cloneElem.--selectedP :input:not([name="memo[]"]):not(:hidden)').prop("disabled", true);
             }
 
             // 物流

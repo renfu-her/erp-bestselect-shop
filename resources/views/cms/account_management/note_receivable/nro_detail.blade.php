@@ -5,14 +5,14 @@
     <div id="DivIdToPrint" class="card shadow p-4 mb-4">
         <div class="border rounded p-3 mb-3 text-center">
             <h5>喜鴻國際企業股份有限公司</h5>
-            <p class="m-0 lh-1">{{ request('qd') ? date('Y/m/d', strtotime(request('qd'))) : '' }} 兌現之應收票據清單</p>
+            <p class="m-0 lh-1 fs-5">{{ request('qd') ? date('Y/m/d', strtotime(request('qd'))) : '' }} 兌現之應收票據清單</p>
         </div>
     
-        <div class="table-responsive tableOverBox">
-            <table class="table table-striped tableList mb-1">
-                <thead class="table-primary">
+        <div class="table-responsive">
+            <table class="table table-bordered align-middle">
+                <thead class="small table-primary align-middle text-center">
                     <tr>
-                        <th scope="col">#</th>
+                        <th scope="col" class="text-center">#</th>
                         <th scope="col">會計科目</th>
                         <th scope="col">摘要</th>
                         <th scope="col">支票號碼</th>
@@ -21,14 +21,13 @@
                         <th scope="col">地區</th>
                     </tr>
                 </thead>
-
                 <tbody>
                     @php
                         $d_count = 0;
                     @endphp
                     @if(count($data_list) > 0 && $note_receivable_order)
                         <tr>
-                            <th>{{ $d_count + 1 }}</th>
+                            <th class="text-center">{{ $d_count + 1 }}</th>
                             <td>{{ $note_receivable_order->code . ' ' . $note_receivable_order->name }}</td>
                             <td>應收票據兌現（{{ $note_receivable_order->name }}）</td>
                             <td></td>
@@ -42,7 +41,7 @@
                     @endif
                     @foreach($data_list as $key => $value)
                         <tr>
-                            <th>{{ $d_count + 1 }}</th>
+                            <th class="text-center">{{ $d_count + 1 }}</th>
                             <td>{{ $value->ro_received_grade_code . ' ' . $value->ro_received_grade_name }}</td>
                             <td>{{ $value->ro_received_grade_name }} {{ $value->cheque_ticket_number }}</td>
                             <td><a href="{{ route('cms.note_receivable.record', ['id'=>$value->cheque_received_id]) }}">{{ $value->cheque_ticket_number }}</a></td>
@@ -55,9 +54,9 @@
                         @endphp
                     @endforeach
                 </tbody>
-                <tfoot>
+                <tfoot class="table-warning">
                     <tr>
-                        <th colspan="4">合計</th>
+                        <th colspan="4" class="text-center">合計</th>
                         <th class="text-end">${{ number_format($note_receivable_order ? $note_receivable_order->amt_total_net : 0) }}</th>
                         <th class="text-end">${{ number_format($data_list->sum('tw_price')) }}</th>
                         <th></th>

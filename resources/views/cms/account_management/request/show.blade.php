@@ -13,7 +13,6 @@
                 role="button">入款</a>
             @endif
             {{--
-            <button type="submit" class="btn btn-danger">中一刀列印畫面</button>
             <button type="submit" class="btn btn-danger">A4列印畫面</button>
             --}}
             @can('cms.request.delete')
@@ -23,6 +22,9 @@
                 data-href="{{ Route('cms.request.delete', ['id' => $request_order->id]) }}">刪除請款單</a>
             @endif
             @endcan
+
+            <a href="{{ url()->full() . '?action=print' }}" target="_blank" 
+                class="btn btn-sm btn-warning" rel="noopener noreferrer">中一刀列印畫面</a>
         </div>
     </nav>
 
@@ -70,9 +72,7 @@
                 --}}
                 </div>
                 <div class="col">
-                    @if($request_order->posting_date)
-                    <dd>入帳日期：{{ date('Y/m/d', strtotime($request_order->posting_date)) }}</dd>
-                    @endif
+                    <dd>入帳日期：{{ $request_order->posting_date ? date('Y/m/d', strtotime($request_order->posting_date)) : '' }}</dd>
                 </div>
             </dl>
 

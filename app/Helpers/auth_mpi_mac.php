@@ -10,13 +10,25 @@ if(env('APP_ENV') == 'local' || env('APP_ENV') == 'dev'){
 
 } else {
     // formal env
-    $str_mer_id = '80492';
-    $str_merchant_id = '8220158811357';
-    $str_terminal_id = '99720375';
+    // if($card_installment > 0){
+    //     $str_mer_id = '80492';
+    //     $str_merchant_id = '8220158811357';
+    //     $str_terminal_id = '99720375';
+
+    //     $str_url = 'https://epos.ctbcbank.com/mauth/SSLAuthUI.jsp';
+
+    //     $auth_key = 'v0jSzd1eY64mSzYISy8wSosT';
+    // } else {
+
+    // }
+
+    $str_mer_id = '80491';
+    $str_merchant_id = '8220130031554';
+    $str_terminal_id = '99878570';
 
     $str_url = 'https://epos.ctbcbank.com/mauth/SSLAuthUI.jsp';
 
-    $auth_key = 'GI6CewF1uE9Khvl4B0zSQYw6';
+    $auth_key = 'IhkmFPa9EFBM3L7jSHbrPSOP';
 }
 
 if (!function_exists("agF1gTdKEBPd6CaJ")) {

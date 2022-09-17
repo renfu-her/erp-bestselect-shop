@@ -351,7 +351,7 @@ class PurchaseCtrl extends Controller
                 foreach ($purchaseItemReq['item_id'] as $key => $val) {
                     $itemId = $purchaseItemReq['item_id'][$key];
                     if (null != $itemId) {
-                        $purchaseItem = PurchaseItem::checkInputItemDirty($itemId, $purchaseItemReq, $key);
+                        $purchaseItem = PurchaseItem::checkInputItemDirtyWithoutMemo($itemId, $purchaseItemReq, $key);
                         if ($purchaseItem->isDirty()) {
                             throw ValidationException::withMessages(['item_error' => '已審核，不可新增修改商品款式']);
                         }
@@ -764,7 +764,7 @@ class PurchaseCtrl extends Controller
                     break;
                 case Payment::Cheque:
                     $request->validate([
-                        'cheque.ticket_number'=>'required|unique:acc_payable_cheque,ticket_number|regex:/^[A-Z]{2}[0-9]{7}$/'
+                        'cheque.ticket_number'=>'required|unique:acc_payable_cheque,ticket_number,po_delete,status_code|regex:/^[A-Z]{2}[0-9]{7}$/'
                     ]);
                     PayableCheque::storePayableCheque($req);
                     break;

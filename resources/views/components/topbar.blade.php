@@ -41,11 +41,19 @@
                             <i class="bi bi-person me-1"></i>資料維護
                         </a>
                     </li>
-                    <li>
-                        <a class="dropdown-item" href="{{ route('cms.usermnt.customer-binding') }}">
-                            <i class="bi bi-link-45deg me-1"></i>會員綁定
-                        </a>
-                    </li>
+                    @if(is_null($customer))
+                        <li>
+                            <a class="dropdown-item" href="{{ route('cms.usermnt.customer-binding') }}">
+                                <i class="bi bi-link-45deg me-1"></i>會員綁定
+                            </a>
+                        </li>
+                    @else
+                        <li>
+                            <a class="dropdown-item" href="{{ Route('cms.customer.order', ['id' => $customer->id], true) }}">
+                                <i class="bi bi-person-rolodex me-1"></i>會員資料
+                            </a>
+                        </li>
+                    @endif
                     <li>
                         <a class="dropdown-item" href="{{ $url }}" target="_blank">
                             <i class="bi bi-bag me-1"></i>喜鴻購物<i class="bi bi-box-arrow-up-right ms-1 text-black-50" style="font-size: 8px"></i>

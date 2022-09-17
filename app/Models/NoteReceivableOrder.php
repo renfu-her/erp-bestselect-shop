@@ -264,6 +264,17 @@ class NoteReceivableOrder extends Model
                     'updated_at'=>date('Y-m-d H:i:s'),
                 ]);
             }
+
+        } else if($request['status_code'] === 'ro_delete'){
+            DB::table('acc_received_cheque')->whereIn('id', $request['cheque_received_id'])->update([
+                'status_code'=>$request['status_code'],
+                'status'=>$request['status'],
+
+                'amt_net'=>0,
+                'note_receivable_order_id'=>null,
+                'sn'=>null,
+                'updated_at'=>date('Y-m-d H:i:s'),
+            ]);
         }
 
         foreach($request['cheque_received_id'] as $key => $value){

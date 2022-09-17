@@ -8,16 +8,18 @@
             <a href="{{ route('cms.collection_payment.edit', ['id' => $paying_order->id]) }}" class="btn btn-sm btn-success px-3" role="button">修改</a>
             @endcan
 
-            <a href="{{ url()->full() . '?action=print' }}" target="_blank" 
-                class="btn btn-sm btn-warning" rel="noopener noreferrer">中一刀列印畫面</a>
-
             @can('cms.collection_payment.delete')
             @if(! $data_status_check)
-            <a href="javascript:void(0)" role="button" class="btn btn-outline-danger btn-sm"
-                data-bs-toggle="modal" data-bs-target="#confirm-delete"
-                data-href="{{ Route('cms.collection_payment.delete', ['id' => $paying_order->id]) }}">刪除付款單</a>
+                <a href="{{ route('cms.collection_payment.payable_list', ['id' => $paying_order->id]) }}" class="btn btn-sm btn-primary" role="button">付款記錄</a>
+
+                <a href="javascript:void(0)" role="button" class="btn btn-outline-danger btn-sm"
+                    data-bs-toggle="modal" data-bs-target="#confirm-delete"
+                    data-href="{{ Route('cms.collection_payment.delete', ['id' => $paying_order->id]) }}">刪除付款單</a>
             @endif
             @endcan
+
+            <a href="{{ url()->full() . '?action=print' }}" target="_blank" 
+                class="btn btn-sm btn-warning" rel="noopener noreferrer">中一刀列印畫面</a>
         </div>
     </nav>
 
@@ -42,7 +44,7 @@
             </dl>
             <dl class="row mb-0">
                 <div class="col">
-                    <dd>單據編號：<a href="{{ route('cms.stitute.show', ['id' => $stitute_order->id]) }}">{{ $stitute_order->sn }}</a></dd>
+                    <dd>單據編號：<a href="{{ route('cms.stitute.show', ['id' => $stitute_order->so_id]) }}">{{ $stitute_order->so_sn }}</a></dd>
                 </div>
                 <div class="col">
                     <dd>付款日期：{{ $paying_order->payment_date ? date('Y-m-d', strtotime($paying_order->payment_date)) : '' }}</dd>
@@ -53,7 +55,7 @@
                     <dd>支付對象：{{ $paying_order->payee_name }}</dd>
                 </div>
                 <div class="col">
-                    <dd>承辦人：{{ $undertaker ? $undertaker->name : '' }}</dd>
+                    <dd>承辦人：{{ $stitute_order->creator_name }}</dd>
                 </div>
             </dl>
         </div>
@@ -71,13 +73,17 @@
                         </tr>
                     </thead>
                     <tbody>
+                        @if($stitute_order->so_items)
+                        @foreach(json_decode($stitute_order->so_items) as $data)
                         <tr>
-                            <td>{{ $stitute_grade->code . ' ' . $stitute_grade->name . ' ' . $stitute_order->summary }}</td>
-                            <td class="text-end">{{ $stitute_order->qty }}</td>
-                            <td class="text-end">{{ number_format($stitute_order->price, 2) }}</td>
-                            <td class="text-end">{{ number_format($stitute_order->total_price) }}</td>
-                            <td>{{ $stitute_order->taxation == 1 ? '應稅' : '免稅' }} {{ $stitute_order->memo }}</td>
+                            <td>{{ $data->grade_code . ' ' . $data->grade_name . ' ' . $data->summary }}</td>
+                            <td class="text-end">{{ $data->qty }}</td>
+                            <td class="text-end">{{ number_format($data->price, 2) }}</td>
+                            <td class="text-end">{{ number_format($data->total_price) }}</td>
+                            <td>{{ $data->taxation == 1 ? '應稅' : '免稅' }} {{ $data->memo }}</td>
                         </tr>
+                        @endforeach
+                        @endif
                     </tbody>
                     <tfoot class="table-light">
                         <tr>
@@ -134,7 +140,7 @@
     </div>
 
     <div class="col-auto">
-        <a href="{{ route('cms.stitute.show', ['id' => $stitute_order->id]) }}" 
+        <a href="{{ route('cms.stitute.show', ['id' => $stitute_order->so_id]) }}" 
             class="btn btn-outline-primary px-4" role="button">返回 代墊單</a>
         <a href="{{ Route('cms.stitute.index') }}" class="btn btn-outline-primary px-4" role="button">
             返回列表

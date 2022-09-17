@@ -2,6 +2,7 @@
 
 use App\Enums\Globals\AppEnvClass;
 use App\Enums\Globals\ImageDomain;
+use Illuminate\Support\Facades\App;
 
 if (!function_exists('isActive')) {
     function isActive(String $routeName, String $currentRouteName)
@@ -74,12 +75,16 @@ if (!function_exists('frontendUrl')) {
  * 回傳商品資訊url
  */
 if (!function_exists('getImageUrl')) {
-    function getImageUrl($subImageUrl)
+    function getImageUrl($subImageUrl, $cdn = false)
     {
-        if (preg_match('/.*\/(cyberbiz|liquor)\/.*/', $subImageUrl) === 1) {
-             return ImageDomain::CDN . $subImageUrl;
+        if (App::environment(AppEnvClass::Release) && $cdn) {
+            return ImageDomain::CDN . $subImageUrl;
         } else {
-             return asset($subImageUrl);
+            if (preg_match('/.*\/(cyberbiz|liquor)\/.*/', $subImageUrl) === 1) {
+                return ImageDomain::CDN . $subImageUrl;
+            } else {
+                return asset($subImageUrl);
+            }
         }
     }
 }

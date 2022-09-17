@@ -101,7 +101,7 @@
                     <thead style="text-align: center;">
                         <tr height="24">
                             <th scope="col" width="7%">序號</th>
-                            <th scope="col" width="{{ $type === 'sales' ? '40%' : '' }}">品名規格</th>
+                            <th scope="col" width="{{ $type === 'sales' ? '40%' : '' }}">品名-規格</th>
                             <th scope="col" width="8%">數量</th>
                             @if ($type === 'sales')
                                 <th scope="col" width="10%">單價</th>

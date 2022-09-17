@@ -2,11 +2,13 @@
 
 namespace App\Models;
 
+use App\Enums\Discount\DisCategory;
 use App\Enums\Discount\DividendCategory;
 use App\Enums\Discount\DividendFlag;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 
 class CustomerDividend extends Model
 {
@@ -52,6 +54,7 @@ class CustomerDividend extends Model
             'flag_title' => DividendFlag::NonActive()->description,
             'weight' => 0,
             'type' => 'get',
+            'note' => '由'.$order_sn.'訂單取得'
         ])->id;
 
         return $id;
@@ -135,14 +138,15 @@ class CustomerDividend extends Model
     }
 
     // 訂單中使用鴻利
-    public static function orderDiscount($customer_id, $order_sn, $discount_point)
+    public static function orderDiscount($customer_id, &$order)
     {
-        if (!$discount_point) {
+        if (!$order['use_dividend']) {
             return ['success' => '1'];
         }
 
         DB::beginTransaction();
         $dividend = self::getDividend($customer_id)->get()->first();
+
         if (!$dividend || !$dividend->dividend) {
             DB::rollBack();
             return ['success' => '0',
@@ -153,7 +157,7 @@ class CustomerDividend extends Model
 
         $dividend = $dividend->dividend;
 
-        if ($discount_point > $dividend) {
+        if ($order['use_dividend'] > $dividend) {
             DB::rollBack();
             return ['success' => '0',
                 'event' => 'dividend',
@@ -162,11 +166,20 @@ class CustomerDividend extends Model
         }
 
         $d = self::where('customer_id', $customer_id)
-            ->where('flag', DividendFlag::Active())
+            ->whereIn('flag', [DividendFlag::Active(), DividendFlag::Back()])
             ->orderBy('weight', 'ASC')
             ->get()->toArray();
-       
-        $remain_dividend = $discount_point;
+
+        $remain_dividend = $order['use_dividend'];
+        $arrDividend = [];
+
+        // 替換紅利
+        //購物金
+        // dd($order['discounts']);
+        $order['discounts'] = array_filter($order['discounts'], function ($n) {
+            return $n->category_code != 'dividend';
+        });
+
         foreach ($d as $key => $value) {
             if ($remain_dividend > 0) {
                 // 每批紅利可用點數
@@ -187,26 +200,70 @@ class CustomerDividend extends Model
                 }
 
                 self::where('id', $value['id'])->update($update_data);
-                DB::table('ord_dividend')->insert([
-                    'order_sn' => $order_sn,
+                $_dividend = [
+                    'order_sn' => $order['order_sn'],
                     'customer_dividend_id' => $value['id'],
                     'dividend' => $can_use_point,
-                ]);
-                $remain_dividend -= $can_use_point;
+                ];
+                //  print_r($_dividend);
+                DB::table('ord_dividend')->insert($_dividend);
+                $_dividend['category'] = $value['category'];
+                // 將紅利類別轉換成會計類別
+                //  dd(DisCategory::dividend());
+                switch ($value['category']) {
+                    case 'order':
+                    case 'cyberbiz':
+                        $category_code = DisCategory::dividend()->value;
+                        break;
+                    default:
+                        $category_code = $value['category'];
+                }
 
+                if (!isset($arrDividend[$category_code])) {
+                    $arrDividend[$category_code] = [];
+                }
+                $arrDividend[$category_code][] = $_dividend;
+                $remain_dividend -= $can_use_point;
+                //   echo $remain_dividend;
             }
 
+        }
+
+        foreach ($arrDividend as $key => $value) {
+
+            $dis = (object) [
+                "title" => "購物金折抵",
+                "category_title" => DisCategory::fromValue($key)->description,
+                "category_code" => $key,
+                "method_code" => "cash",
+                "method_title" => "現金",
+                "discount_value" => 0,
+                "currentDiscount" => 0,
+                "is_grand_total" => 0,
+                "min_consume" => 0,
+                "coupon_id" => null,
+                "coupon_title" => null,
+                "discount_grade_id" => null,
+            ];
+
+            foreach ($value as $val2) {
+                $dis->discount_value += $val2['dividend'];
+            }
+            $dis->currentDiscount = $dis->discount_value;
+
+            $order['discounts'][] = $dis;
         }
 
         $id = self::create([
             'customer_id' => $customer_id,
             'category' => DividendCategory::Order(),
-            'category_sn' => $order_sn,
-            'dividend' => $discount_point * -1,
+            'category_sn' => $order['order_sn'],
+            'dividend' => $order['use_dividend'] * -1,
             'flag' => DividendFlag::Discount(),
             'flag_title' => DividendFlag::Discount()->description,
             'weight' => 0,
             'type' => 'used',
+            'note' => '由'.$order['order_sn']."訂單使用"
         ])->id;
         DB::commit();
         return ['success' => '1', 'id' => $id];
@@ -256,4 +313,70 @@ class CustomerDividend extends Model
         }, $exp->dividends);
 
     }
+
+    public static function checkDividendFromErp($customer_sn, $password)
+    {
+
+        $url = 'https://www.besttour.com.tw/api/b2X_points.asp';
+        $time = time();
+        $response = Http::withoutVerifying()->get($url, [
+            'id' => 1,
+            'no' => $customer_sn,
+            'requestid' => $time,
+            'password' => $password,
+        ]);
+
+        if ($response->successful()) {
+            $response = ($response->json())[0];
+            if ($response['status'] != '0') {
+                return $response;
+            }
+
+            $response['requestid'] = $time;
+
+            return $response;
+        }
+
+    }
+
+    public static function getDividendFromErp($customer_id, $edword, $point, $type, $requestid)
+    {
+
+        // https://www.besttour.com.tw/api/b2X_points.asp?id=2%20&edword=HSI-HUNG33A1653DDE95A4266A6D0F4400B071E0E81ECFE817FB53CD0E1283EC2CEC2BE0&point=10
+        // https://www.besttour.com.tw/api/b2X_points.asp?id=2&edword=HSI-HUNG216A5FFEE7E03345ED7664D52E893A5F4519C5EC096D9E80F8211F300F11DF36&points=10
+        $url = 'https://www.besttour.com.tw/api/b2X_points.asp';
+        $response = Http::withoutVerifying()->get($url, [
+            'id' => 2,
+            'edword' => $edword,
+            'point' => $point,
+        ]);
+
+        // dd($response);
+
+        if ($response->successful()) {
+            $response = ($response->json())[0];
+
+            if ($response['status'] != '0') {
+                return $response;
+            }
+
+            if ($point > 0) {
+                $id = self::create([
+                    'customer_id' => $customer_id,
+                    'category' => DividendCategory::fromKey($type),
+                    'category_sn' => $requestid,
+                    'dividend' => $point,
+                    'deadline' => 0,
+                    'flag' => DividendFlag::Active(),
+                    'flag_title' => DividendFlag::Active()->description,
+                    'weight' => 0,
+                    'type' => 'get',
+                    'note' => "由" . DividendCategory::fromKey($type)->description . "取得",
+                ])->id;
+
+            }
+            return ['status' => '0'];
+        }
+    }
+
 }

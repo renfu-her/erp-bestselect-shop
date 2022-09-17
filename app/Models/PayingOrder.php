@@ -130,8 +130,12 @@ class PayingOrder extends Model
         $source_sn = null,
         $po_price = null,
         $po_payment_date = null,
-        $check_balance = 'all'
+        $check_balance = 'all',
+        $po_separate = false
     ){
+        $separate = $po_separate ? ', type' : '';
+        $payment_separate = $po_separate ? ', v_po.type' : '';
+
         $sq = '
             SELECT
                 acc_all_grades.id,
@@ -177,7 +181,7 @@ class PayingOrder extends Model
                     created_at
                 FROM pcs_paying_orders
                 WHERE deleted_at IS NULL
-                GROUP BY source_type, source_id, source_sub_id
+                GROUP BY source_type, source_id, source_sub_id' . $separate . '
                 ) AS po')
             )
             ->leftJoin(DB::raw('(
@@ -205,7 +209,7 @@ class PayingOrder extends Model
                 LEFT JOIN acc_payable_cheque AS _cheque ON acc_payable.payable_id = _cheque.id AND acc_payable.acc_income_type_fk = 2
 
                 LEFT JOIN pcs_paying_orders AS v_po ON v_po.id = acc_payable.pay_order_id WHERE v_po.deleted_at IS NULL
-                GROUP BY v_po.source_type, v_po.source_id, v_po.source_sub_id
+                GROUP BY v_po.source_type, v_po.source_id, v_po.source_sub_id' . $payment_separate . '
                 ) AS payable_table'), function ($join){
                     $join->whereRaw('payable_table.pay_order_id in (po.id)');
             })
@@ -303,19 +307,23 @@ class PayingOrder extends Model
             })
             ->leftJoin(DB::raw('(
                 SELECT
-                    id,
+                    so_item.stitute_order_id,
                     CONCAT(\'[\', GROUP_CONCAT(\'{
-                        "product_owner":"\', "", \'",
-                        "title":"\', "代墊單", \'",
-                        "sku":"\', "", \'",
-                        "price":"\', total_price, \'",
-                        "num":"\', qty, \'"
-                    }\' ORDER BY id), \']\') AS items
-                FROM acc_stitute_orders
-                WHERE deleted_at IS NULL
-                GROUP BY id
-                ) AS stitute_table'), function ($join){
-                    $join->on('so.id', '=', 'stitute_table.id');
+                            "product_owner":"\', "", \'",
+                            "title":"\', so_item.summary, \'",
+                            "sku":"\', "", \'",
+                            "all_grades_id":"\', so_item.grade_id, \'",
+                            "grade_code":"\', COALESCE(grade.code, ""), \'",
+                            "grade_name":"\', COALESCE(grade.name, ""), \'",
+                            "price":"\', so_item.total_price, \'",
+                            "num":"\', so_item.qty, \'"
+                        }\' ORDER BY so_item.id), \']\') AS items
+                FROM acc_stitute_order_items AS so_item
+                LEFT JOIN (' . $sq . ') AS grade ON grade.id = so_item.grade_id
+                LEFT JOIN acc_currency ON acc_currency.id = so_item.currency_id
+                GROUP BY so_item.stitute_order_id
+                ) AS stitute_items_table'), function ($join){
+                    $join->on('so.id', '=', 'stitute_items_table.stitute_order_id');
             })
 
             // main order return
@@ -487,7 +495,7 @@ class PayingOrder extends Model
                     WHEN po.source_type = "' . app(Purchase::class)->getTable() . '" AND po.source_sub_id IS NULL THEN purchase_item_table.items
                     WHEN po.source_type = "' . app(Order::class)->getTable() . '" AND po.source_sub_id IS NOT NULL AND po.type = 1 THEN NULL
                     WHEN po.source_type = "' . app(Consignment::class)->getTable() . '" AND po.type = 1 THEN NULL
-                    WHEN po.source_type = "' . app(StituteOrder::class)->getTable() . '" AND po.type = 1 THEN stitute_table.items
+                    WHEN po.source_type = "' . app(StituteOrder::class)->getTable() . '" AND po.type = 1 THEN stitute_items_table.items
                     WHEN po.source_type = "' . app(Order::class)->getTable() . '" AND po.type = 9 THEN order_item_table.items
                     WHEN po.source_type = "' . app(Delivery::class)->getTable() . '" AND po.type = 9 THEN delivery_back.items
                     WHEN po.source_type = "' . app(self::class)->getTable() . '" AND po.type = 1 THEN payable_account_table.items
@@ -687,9 +695,8 @@ class PayingOrder extends Model
                 _cheque.ticket_number AS cheque_ticket_number,
                 _cheque.due_date AS cheque_due_date,
 
-                _cheque.banks AS cheque_banks,
-                _cheque.accounts AS cheque_accounts,
-                _cheque.drawer AS cheque_drawer,
+                _cheque.grade_code AS cheque_grade_code,
+                _cheque.grade_name AS cheque_grade_name,
 
                 _cheque.status_code AS cheque_status_code,
                 _cheque.status AS cheque_status,
@@ -1036,13 +1043,6 @@ class PayingOrder extends Model
 
     public static function payee($id, $name)
     {
-        $client = (object)[
-            'id'=>'',
-            'name'=>'',
-            'phone'=>'',
-            'address'=>'',
-        ];
-
         $client = User::where([
                 'id'=>$id,
             ])
@@ -1098,6 +1098,15 @@ class PayingOrder extends Model
                         'email',
                         'contact_address AS address'
                     )->first();
+
+                    if(! $client){
+                        $client = (object)[
+                            'id'=>'',
+                            'name'=>'',
+                            'phone'=>'',
+                            'address'=>'',
+                        ];
+                    }
                 }
             }
         }

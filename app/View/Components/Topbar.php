@@ -38,11 +38,12 @@ class Topbar extends Component
 
             case 'release.bestselection.com.tw':
             default:
-                $domain = 'https://shopp.bestselection.com.tw';
+                $domain = env('FRONTEND_URL');
                 // $domain = 'https://www.bestselection.com.tw';
                 break;
         }
 
+        $customer = null;
         if (Auth::user()) {
             $customer = User::getUserCustomer(Auth::user()->id);
             $domain = $domain . '?mcode=' . ($customer ? $customer->sn : '');
@@ -51,6 +52,7 @@ class Topbar extends Component
             'name' => isset(Auth::User()->name) ? Auth::User()->name : '旅客',
             'userType' => 'user',
             'url' => $domain,
+            'customer' => $customer,
             'logout' => 'logout',
         ]);
     }

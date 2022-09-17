@@ -105,9 +105,8 @@ class NotePayableOrder extends Model
                 _cheque.ticket_number AS cheque_ticket_number,
                 _cheque.due_date AS cheque_due_date,
 
-                _cheque.banks AS cheque_banks,
-                _cheque.accounts AS cheque_accounts,
-                _cheque.drawer AS cheque_drawer,
+                _cheque.grade_code AS cheque_grade_code,
+                _cheque.grade_name AS cheque_grade_name,
 
                 _cheque.status_code AS cheque_status_code,
                 _cheque.status AS cheque_status,
@@ -243,6 +242,17 @@ class NotePayableOrder extends Model
                     'updated_at'=>date('Y-m-d H:i:s'),
                 ]);
             }
+
+        } else if($request['status_code'] === 'po_delete'){
+            DB::table('acc_payable_cheque')->whereIn('id', $request['cheque_payable_id'])->update([
+                'status_code'=>$request['status_code'],
+                'status'=>$request['status'],
+
+                'amt_net'=>0,
+                'note_payable_order_id'=>null,
+                'sn'=>null,
+                'updated_at'=>date('Y-m-d H:i:s'),
+            ]);
         }
 
         foreach($request['cheque_payable_id'] as $key => $value){

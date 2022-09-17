@@ -125,16 +125,33 @@
                 </thead>
                 <tbody>
                     @foreach ($dataList as $key => $data)
+                        @php
+                            $data->accounting = null;
+                            $data->summary = null;
+
+                            if($data->so_items){
+                                $so_items = json_decode($data->so_items);
+                                $str = '';
+                                foreach ($so_items as $i_value){
+                                    $str .= $i_value->grade_code . ' ' . $i_value->grade_name . '<br>';
+                                }
+
+                                $data->accounting = rtrim($str, '<br>');
+                                $data->summary = rtrim(implode('<br>', collect($so_items)->pluck('summary')->toArray()), '<br>');
+                            }
+                        @endphp
                         <tr>
                             <td>{{ $key + 1 }}</td>
                             <td><a href="{{ route('cms.stitute.show', ['id' => $data->so_id]) }}">{{ $data->so_sn }}</a></td>
                             <td><a href="{{ route('cms.stitute.po-show', ['id' => $data->so_id]) }}">{{ $data->po_sn }}</a></td>
                             <td>{{ $data->so_client_name }}</td>
-                            <td>{{ $data->grade_code . ' ' . $data->grade_name }}</td>
-                            <td>{{ $data->so_summary }}</td>
-                            <td class="text-end">${{ number_format($data->so_total_price) }}</td>
+
+                            <td>{!! $data->accounting !!}</td>
+                            <td>{!! $data->summary !!}</td>
+
+                            <td class="text-end">${{ number_format($data->so_price) }}</td>
                             <td>{{ $data->creator_name }}</td>
-                            <td></td>
+                            <td>{{ $data->creator_department }}</td>
                         </tr>
                     @endforeach
                 </tbody>

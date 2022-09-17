@@ -60,12 +60,12 @@
                         <td width="50%">製表日期：{{ date('Y-m-d', strtotime($paying_order->created_at)) }}</td>
                     </tr>
                     <tr>
-                        <td>單據編號：{{ $stitute_order->sn }}</td>
+                        <td>單據編號：{{ $stitute_order->so_sn }}</td>
                         <td>付款日期：{{ $paying_order->payment_date ? date('Y-m-d', strtotime($paying_order->payment_date)) : '' }}</td>
                     </tr>
                     <tr>
                         <td>支付對象：{{ $paying_order->payee_name }}</td>
-                        <td>承辦人：{{ $undertaker ? $undertaker->name : '' }}</td>
+                        <td>承辦人：{{ $stitute_order->creator_name }}</td>
                     </tr>
                 </tbody>
             </table>
@@ -82,13 +82,17 @@
                 </tr>
                 </thead>
                 <tbody style="text-align: left;">
-                <tr>
-                    <td>{{ $stitute_grade->code . ' ' . $stitute_grade->name . ' ' . $stitute_order->summary }}</td>
-                    <td style="text-align: right;">{{ $stitute_order->qty }}</td>
-                    <td style="text-align: right;">{{ number_format($stitute_order->price, 2) }}</td>
-                    <td style="text-align: right;">{{ number_format($stitute_order->total_price) }}</td>
-                    <td>{{ $stitute_order->taxation == 1 ? '應稅' : '免稅' }} {{ $stitute_order->memo }}</td>
-                </tr>
+                    @if($stitute_order->so_items)
+                    @foreach(json_decode($stitute_order->so_items) as $data)
+                    <tr>
+                        <td>{{ $data->grade_code . ' ' . $data->grade_name . ' ' . $data->summary }}</td>
+                        <td style="text-align: right;">{{ $data->qty }}</td>
+                        <td style="text-align: right;">{{ number_format($data->price, 2) }}</td>
+                        <td style="text-align: right;">{{ number_format($data->total_price) }}</td>
+                        <td>{{ $data->taxation == 1 ? '應稅' : '免稅' }} {{ $data->memo }}</td>
+                    </tr>
+                    @endforeach
+                    @endif
                 </tbody>
             </table>
             <hr width="710" style="margin: .5rem auto;">

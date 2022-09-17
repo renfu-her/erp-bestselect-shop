@@ -21,6 +21,7 @@ use App\Models\DayEnd;
 use App\Models\Depot;
 use App\Models\GeneralLedger;
 use App\Models\IncomeOrder;
+use App\Models\NoteReceivableOrder;
 use App\Models\Order;
 use App\Models\OrderFlow;
 use App\Models\ReceivedOrder;
@@ -356,8 +357,15 @@ class CollectionReceivedCtrl extends Controller
 
             // cheque status is cashed then ro can't delete,
             // if status not cashed then would not count in note receivable order,
-            // so needn't update it
-            //
+            // so only update cheque status as ro_delete
+            $received_data = ReceivedOrder::get_received_detail($id, 'cheque');
+            $parm = [
+                'cheque_received_id'=>$received_data->pluck('cheque_id')->toArray(),
+                'status_code'=>'ro_delete',
+                'status'=>'收款單刪除',
+            ];
+            NoteReceivableOrder::update_cheque_received_method($parm);
+
 
             if($ro->receipt_date){
                 DayEnd::match_day_end_status($ro->receipt_date, $ro->sn);

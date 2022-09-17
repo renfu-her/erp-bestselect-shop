@@ -8,21 +8,22 @@ use Illuminate\Http\Request;
 use App\Enums\Supplier\Payment;
 use App\Enums\Payable\ChequeStatus;
 
-use App\Models\AllGrade;
 use App\Models\AccountPayable;
+use App\Models\AllGrade;
 use App\Models\Customer;
 use App\Models\DayEnd;
 use App\Models\Depot;
 use App\Models\GeneralLedger;
-use App\Models\PayableDefault;
-use App\Models\PayingOrder;
 use App\Models\PayableAccount;
 use App\Models\PayableCash;
 use App\Models\PayableCheque;
+use App\Models\PayableDefault;
 use App\Models\PayableForeignCurrency;
 use App\Models\PayableOther;
 use App\Models\PayableRemit;
+use App\Models\PayingOrder;
 use App\Models\StituteOrder;
+use App\Models\StituteOrderItem;
 use App\Models\Supplier;
 use App\Models\User;
 
@@ -67,6 +68,7 @@ class StituteOrderCtrl extends Controller
         $cond['check_payment'] = Arr::get($query, 'check_payment', 'all');
 
         $dataList = StituteOrder::stitute_order_list(
+            null,
             $cond['client'],
             $cond['so_sn'],
             $cond['source_sn'],
@@ -102,41 +104,68 @@ class StituteOrderCtrl extends Controller
         if($request->isMethod('post')){
             $request->validate([
                 'client_key' => 'required|string',
-                'stitute_grade_id' => 'required|exists:acc_all_grades,id',
-                'price' => 'required|numeric|between:0,9999999999.9999',
-                'qty' => 'required|numeric|between:0,9999999999.9999',
-                'summary' => 'nullable|string',
-                'memo' => 'nullable|string',
+                'grade_id' => 'required|array',
+                'grade_id.*' => 'required|exists:acc_all_grades,id',
+                'price' => 'nullable|array',
+                'price.*' => 'numeric|between:0,9999999.99',
+                'qty' => 'nullable|array',
+                'qty.*' => 'numeric|between:0,9999999.99',
+                'summary' => 'nullable|array',
+                'memo' => 'nullable|array',
             ]);
 
             $client_key = explode('|', request('client_key'));
 
             if(count($client_key) > 1){
-                $client = PayingOrder::payee($client_key[0], $client_key[1]);
+                DB::beginTransaction();
 
-                $parm = [
-                    'price' =>request('price'),
-                    'qty' =>request('qty'),
-                    'total_price' =>request('price') * request('qty'),
-                    'rate' =>request('rate'),
-                    'currency_id' =>request('currency_id'),
-                    'stitute_grade_id' =>request('stitute_grade_id'),
-                    'summary' =>request('summary'),
-                    'memo' =>request('memo'),
-                    'client_id' =>$client->id,
-                    'client_name' =>$client->name,
-                    'client_phone' =>$client->phone,
-                    'client_address' =>$client->address,
-                    'creator_id' =>auth('user')->user() ? auth('user')->user()->id : null,
-                ];
-                $stitute_order = StituteOrder::create_stitute_order($parm);
+                try {
+                    $client = PayingOrder::payee($client_key[0], $client_key[1]);
+                    $price = 0;
 
-                if($stitute_order){
+                    $parm = [
+                        'client_id' => $client->id,
+                        'client_name' => $client->name,
+                        'client_phone' => $client->phone,
+                        'client_address' => $client->address,
+                        'creator_id' =>auth('user')->user() ? auth('user')->user()->id : null,
+                    ];
+                    $stitute_order = StituteOrder::create_stitute_order($parm);
+
+                    foreach(request('grade_id') as $key => $value){
+                        $total_price = request('price')[$key] * request('qty')[$key];
+                        $price += $total_price;
+
+                        $items[] = [
+                            'stitute_order_id' => $stitute_order->id,
+                            'grade_id' => request('grade_id')[$key],
+                            'price' => request('price')[$key],
+                            'qty' => request('qty')[$key],
+                            'total_price' => $total_price,
+                            'summary' => request('summary')[$key],
+                            'memo' => request('memo')[$key],
+                            'created_at' => date('Y-m-d H:i:s'),
+                            'updated_at' => date('Y-m-d H:i:s')
+                        ];
+                    }
+                    StituteOrderItem::insert($items);
+
+                    $stitute_order->update([
+                        'price' => $price,
+                    ]);
+
+                    DB::commit();
+
                     wToast(__('代墊單建立成功'));
 
                     return redirect()->route('cms.stitute.show', [
                         'id'=>$stitute_order->id,
                     ]);
+
+                } catch (\Exception $e) {
+                    DB::rollback();
+                    wToast(__('代墊單建立失敗', ['type'=>'danger']));
+                    return redirect()->back();
                 }
             }
 
@@ -151,10 +180,10 @@ class StituteOrderCtrl extends Controller
         $client_merged = array_merge($user, $customer, $depot, $supplier);
 
         $total_grades = GeneralLedger::total_grade_list();
-
         $currency = DB::table('acc_currency')->get();
 
-        return view('cms.account_management.stitute.create', [
+        return view('cms.account_management.stitute.edit', [
+            'method'=>'create',
             'form_action'=>route('cms.stitute.create'),
             'client' => $client_merged,
             'total_grades' => $total_grades,
@@ -165,35 +194,92 @@ class StituteOrderCtrl extends Controller
 
     public function edit(Request $request, $id)
     {
-        $stitute_order = StituteOrder::findOrFail($id);
+        $request->merge([
+            'id'=>$id,
+        ]);
+
+        $request->validate([
+            'id' => 'required|exists:acc_stitute_orders,id',
+        ]);
 
         if($request->isMethod('post')){
             $request->validate([
+                'so_item_id' => 'required|array',
+                'so_item_id.*' => 'nullable|exists:acc_stitute_order_items,id',
                 'client_key' => 'required|string',
+                'grade_id' => 'required|array',
+                'grade_id.*' => 'required|exists:acc_all_grades,id',
+                'price' => 'nullable|array',
+                'price.*' => 'numeric|between:0,9999999.99',
+                'qty' => 'nullable|array',
+                'qty.*' => 'numeric|between:0,9999999.99',
+                'summary' => 'nullable|array',
+                'memo' => 'nullable|array',
             ]);
 
             $client_key = explode('|', request('client_key'));
 
-            if(count($client_key) > 1){
-                $client = PayingOrder::payee($client_key[0], $client_key[1]);
+            DB::beginTransaction();
 
+            try {
+                $client = PayingOrder::payee($client_key[0], $client_key[1]);
+                $price = 0;
+
+                $dArray = array_diff(StituteOrderItem::where('stitute_order_id', $id)->pluck('id')->toArray(), array_intersect_key(request('so_item_id'), request('grade_id')));
+                if($dArray) StituteOrderItem::destroy($dArray);
+
+                foreach(request('grade_id') as $key => $value){
+                    $total_price = request('price')[$key] * request('qty')[$key];
+                    $price += $total_price;
+
+                    if(request('so_item_id')[$key]){
+                        StituteOrderItem::find(request('so_item_id')[$key])->update([
+                            'grade_id' => request('grade_id')[$key],
+                            'price' => request('price')[$key],
+                            'qty' => request('qty')[$key],
+                            'total_price' => $total_price,
+                            'summary' => request('summary')[$key],
+                            'memo' => request('memo')[$key],
+                        ]);
+
+                    } else {
+                        StituteOrderItem::create([
+                            'stitute_order_id' => $id,
+                            'grade_id' => request('grade_id')[$key],
+                            'price' => request('price')[$key],
+                            'qty' => request('qty')[$key],
+                            'total_price' => $total_price,
+                            'summary' => request('summary')[$key],
+                            'memo' => request('memo')[$key],
+                        ]);
+                    }
+                }
+
+                $stitute_order = StituteOrder::find($id);
                 $stitute_order->update([
+                    'price' => $price,
                     'client_id' =>$client->id,
                     'client_name' =>$client->name,
                     'client_phone' =>$client->phone,
                     'client_address' =>$client->address,
                 ]);
 
+                DB::commit();
+
                 wToast(__('代墊單更新成功'));
 
                 return redirect()->route('cms.stitute.show', [
-                    'id'=>$stitute_order->id,
+                    'id'=>$id,
                 ]);
-            }
 
-            wToast(__('代墊單更新失敗', ['type'=>'danger']));
-            return redirect()->back();
+            } catch (\Exception $e) {
+                DB::rollback();
+                wToast(__('代墊單更新失敗', ['type'=>'danger']));
+                return redirect()->back();
+            }
         }
+
+        $stitute_order = StituteOrder::stitute_order_list($id)->first();
 
         $user = User::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
         $customer = Customer::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
@@ -201,10 +287,16 @@ class StituteOrderCtrl extends Controller
         $supplier = Supplier::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
         $client_merged = array_merge($user, $customer, $depot, $supplier);
 
+        $total_grades = GeneralLedger::total_grade_list();
+        $currency = DB::table('acc_currency')->get();
+
         return view('cms.account_management.stitute.edit', [
-            'form_action'=>route('cms.stitute.edit', ['id'=>$id]),
-            'client' => $client_merged,
+            'method'=>'edit',
+            'form_action' => route('cms.stitute.edit', ['id'=>$id]),
             'stitute_order' => $stitute_order,
+            'client' => $client_merged,
+            'total_grades' => $total_grades,
+            'currency' => $currency,
         ]);
     }
 
@@ -219,29 +311,26 @@ class StituteOrderCtrl extends Controller
             'id' => 'required|exists:acc_stitute_orders,id',
         ]);
 
-        $stitute_order = StituteOrder::findOrFail($id);
+        $stitute_order = StituteOrder::stitute_order_list($id)->first();
 
         $applied_company = DB::table('acc_company')->where('id', 1)->first();
 
-        $sales = User::find($stitute_order->creator_id);
-        $accountant = User::find($stitute_order->accountant_id);
+        $zh_price = num_to_str($stitute_order->so_price);
 
-        $stitute_grade = AllGrade::find($stitute_order->stitute_grade_id)->eachGrade;
+        $view = 'cms.account_management.stitute.show';
+        if (request('action') == 'print') {
+            $view = 'doc.print_stitute_order';
+        }
 
-        $zh_price = num_to_str($stitute_order->total_price);
-
-        return view('cms.account_management.stitute.show', [
+        return view($view, [
             'stitute_order' => $stitute_order,
             'applied_company' => $applied_company,
-            'sales' => $sales,
-            'accountant' => $accountant,
-            'stitute_grade' => $stitute_grade,
             'zh_price' => $zh_price,
         ]);
     }
 
 
-    public static function destroy($id)
+    public function destroy($id)
     {
         $stitute_order = StituteOrder::findOrFail($id);
 
@@ -268,30 +357,20 @@ class StituteOrderCtrl extends Controller
             'id' => 'required|exists:acc_stitute_orders,id',
         ]);
 
-        $stitute_order = StituteOrder::findOrFail($id);
-        $stitute_grade = AllGrade::find($stitute_order->stitute_grade_id)->eachGrade;
-        $currency = DB::table('acc_currency')->find($stitute_order->currency_id);
-        if(!$currency){
-            $currency = (object)[
-                'name'=>'NTD',
-                'rate'=>1,
-            ];
-        }
+        $stitute_order = StituteOrder::stitute_order_list($id)->first();
 
-        $paying_order = PayingOrder::find($stitute_order->pay_order_id);
-        $payable_data = PayingOrder::get_payable_detail($stitute_order->pay_order_id);
+        $paying_order = PayingOrder::find($stitute_order->po_id);
+        $payable_data = PayingOrder::get_payable_detail($stitute_order->po_id);
 
-        $tw_price = $stitute_order->total_price - $payable_data->sum('tw_price');
+        $tw_price = $stitute_order->so_price - $payable_data->sum('tw_price');
 
         $total_grades = GeneralLedger::total_grade_list();
 
         return view('cms.account_management.stitute.po_edit', [
-            'breadcrumb_data' => ['id' => $stitute_order->id],
-            'form_action' => route('cms.stitute.po-store', ['id' => $stitute_order->id]),
-            'previous_url' => route('cms.stitute.show', ['id' => $stitute_order->id]),
+            'breadcrumb_data' => ['id' => $id],
+            'form_action' => route('cms.stitute.po-store', ['id' => $id]),
+            'previous_url' => route('cms.stitute.show', ['id' => $id]),
             'stitute_order' => $stitute_order,
-            'stitute_grade' => $stitute_grade,
-            'currency' => $currency,
             'paying_order' => $paying_order,
             'payable_data' => $payable_data,
             'tw_price' => $tw_price,
@@ -345,7 +424,7 @@ class StituteOrderCtrl extends Controller
                 1,
                 $product_grade,
                 $logistics_grade,
-                $stitute_order->total_price,
+                $stitute_order->price,
                 '',
                 '',
                 $stitute_order->client_id,
@@ -376,7 +455,7 @@ class StituteOrderCtrl extends Controller
                 break;
             case Payment::Cheque:
                 $request->validate([
-                    'cheque.ticket_number'=>'required|unique:acc_payable_cheque,ticket_number|regex:/^[A-Z]{2}[0-9]{7}$/'
+                    'cheque.ticket_number'=>'required|unique:acc_payable_cheque,ticket_number,po_delete,status_code|regex:/^[A-Z]{2}[0-9]{7}$/'
                 ]);
                 PayableCheque::storePayableCheque($data);
                 break;
@@ -429,13 +508,12 @@ class StituteOrderCtrl extends Controller
 
         $applied_company = DB::table('acc_company')->where('id', 1)->first();
 
-        $stitute_order = StituteOrder::findOrFail($id);
-        $stitute_grade = AllGrade::find($stitute_order->stitute_grade_id)->eachGrade;
+        $stitute_order = StituteOrder::stitute_order_list($id)->first();
 
-        $zh_price = num_to_str($stitute_order->total_price);
+        $zh_price = num_to_str($stitute_order->so_price);
 
-        $paying_order = PayingOrder::findOrFail($stitute_order->pay_order_id);
-        $payable_data = PayingOrder::get_payable_detail($stitute_order->pay_order_id);
+        $paying_order = PayingOrder::findOrFail($stitute_order->po_id);
+        $payable_data = PayingOrder::get_payable_detail($stitute_order->po_id);
         $data_status_check = PayingOrder::payable_data_status_check($payable_data);
 
         if (!$paying_order->balance_date) {
@@ -446,27 +524,23 @@ class StituteOrderCtrl extends Controller
             ]);
         }
 
-        $undertaker = User::find($stitute_order->creator_id);
-
         $accountant = User::whereIn('id', $payable_data->pluck('accountant_id_fk')->toArray())->get();
         $accountant = array_unique($accountant->pluck('name')->toArray());
         asort($accountant);
 
         $view = 'cms.account_management.stitute.po_show';
         if (request('action') == 'print') {
-            $view = 'doc.print_account_management_stitute_pay';
+            $view = 'doc.print_stitute_po';
         }
 
         return view($view, [
-            'breadcrumb_data' => ['id' => $stitute_order->id],
+            'breadcrumb_data' => ['id' => $id],
             'applied_company' => $applied_company,
             'stitute_order' => $stitute_order,
-            'stitute_grade' => $stitute_grade,
             'zh_price' => $zh_price,
             'paying_order' => $paying_order,
             'payable_data' => $payable_data,
             'data_status_check' => $data_status_check,
-            'undertaker'=>$undertaker,
             'accountant'=>implode(',', $accountant),
         ]);
     }

@@ -129,7 +129,9 @@ class DayEnd extends Model
         $po = PayingOrder::whereDate('payment_date', $date)->get();
         $ro = ReceivedOrder::whereDate('receipt_date', $date)->get();
         $tv = TransferVoucher::whereDate('created_at', $date)->get();
-        $counter = $po->count() + $ro->count() + $tv->count();
+        $io = IncomeOrder::whereDate('posting_date', $date)->get();
+
+        $counter = $po->count() + $ro->count() + $tv->count() + $io->count();
 
         return $counter;
     }
@@ -142,11 +144,14 @@ class DayEnd extends Model
         $po = PayingOrder::whereDate('payment_date', $date)->get();
         $ro = ReceivedOrder::whereDate('receipt_date', $date)->get();
         $tv = TransferVoucher::whereDate('created_at', $date)->get();
+
+        $io = IncomeOrder::whereDate('posting_date', $date)->get();
+
         $remark = null;
 
         DayEndLog::delete_log($closing_date);
 
-        foreach([$po, $ro, $tv] as $collection){
+        foreach([$po, $ro, $tv, $io] as $collection){
             foreach($collection as $real_value){
                 $day_end_item = DayEndItem::where([
                     'source_type' => $real_value->getTable(),
@@ -213,59 +218,62 @@ class DayEnd extends Model
                     $d_c_net = $d_price - $c_price;
 
                 } else if($real_value->getTable() == 'pcs_paying_orders'){
-                    $t_data = PayingOrder::paying_order_list(null, $real_value->sn)->first();
+                    $t_data = PayingOrder::paying_order_list(null, $real_value->sn, null, null, null, '1', true)->first();
 
                     $d_price = 0;
                     $c_price = 0;
-                    if($t_data->payable_list){
-                        foreach(json_decode($t_data->payable_list) as $pay_v){
-                            $c_price += $pay_v->tw_price;
+                    if($t_data->po_source_type != app(Purchase::class)->getTable()){
+                        if($t_data->payable_list){
+                            foreach(json_decode($t_data->payable_list) as $pay_v){
+                                $c_price += $pay_v->tw_price;
 
-                            $method_name = Payment::getDescription($pay_v->acc_income_type_fk);
-                            if($method_name == '現金'){
-                                $suffix = $t_data->po_target_name;
+                                $method_name = Payment::getDescription($pay_v->acc_income_type_fk);
+                                if($method_name == '現金'){
+                                    $suffix = $t_data->po_target_name;
 
-                            } else if($method_name == '支票'){
-                                $method_name = '應付票據';//支票
-                                $suffix = $pay_v->cheque_ticket_number . '（' . date('Y-m-d', strtotime($pay_v->cheque_due_date)) . '）';
+                                } else if($method_name == '支票'){
+                                    $method_name = '應付票據';//支票
+                                    $suffix = $pay_v->cheque_ticket_number . '（' . date('Y-m-d', strtotime($pay_v->cheque_due_date)) . '）';
 
-                            } else if($method_name == '匯款'){
-                                $suffix = $pay_v->grade_name;
+                                } else if($method_name == '匯款'){
+                                    $suffix = $pay_v->grade_name;
 
-                            } else {
-                                $suffix = $pay_v->grade_name;
+                                } else {
+                                    $suffix = $pay_v->grade_name;
+                                }
+                                $source_summary = $method_name . ' ' . $suffix . ' ' . $pay_v->summary;
+
+                                $data = [
+                                    'day_end_id'=>$day_end_id,
+                                    'closing_date'=>$closing_date,
+                                    'source_type' => $real_value->getTable(),
+                                    'source_id' => $real_value->id,
+                                    'source_sn' => $real_value->sn,
+                                    'source_summary' => $source_summary,
+                                    'debit_price' => null,
+                                    'credit_price' => $pay_v->tw_price,
+                                    'grade_id' => $pay_v->all_grades_id,
+                                    'grade_code' => $pay_v->grade_code,
+                                    'grade_name' => $pay_v->grade_name,
+                                ];
+                                DayEndLog::create_day_end_log($data);
                             }
-                            $source_summary = $method_name . ' ' . $suffix . ' ' . $pay_v->summary;
+                        }
+                        if($t_data->product_items){
+                            foreach(json_decode($t_data->product_items) as $p_value){
+                                $d_price += $p_value->price;
+                            }
+                        }
+                        if($t_data->logistics_price){
+                            $d_price += $t_data->logistics_price;
+                        }
+                        if($t_data->discount_value > 0){
+                            foreach(json_decode($t_data->order_discount) as $d_value){
+                                $d_price -= $d_value->discount_value;
+                            }
+                        }
+                    }
 
-                            $data = [
-                                'day_end_id'=>$day_end_id,
-                                'closing_date'=>$closing_date,
-                                'source_type' => $real_value->getTable(),
-                                'source_id' => $real_value->id,
-                                'source_sn' => $real_value->sn,
-                                'source_summary' => $source_summary,
-                                'debit_price' => null,
-                                'credit_price' => $pay_v->tw_price,
-                                'grade_id' => $pay_v->all_grades_id,
-                                'grade_code' => $pay_v->grade_code,
-                                'grade_name' => $pay_v->grade_name,
-                            ];
-                            DayEndLog::create_day_end_log($data);
-                        }
-                    }
-                    if($t_data->product_items){
-                        foreach(json_decode($t_data->product_items) as $p_value){
-                            $d_price += $p_value->price;
-                        }
-                    }
-                    if($t_data->logistics_price){
-                        $d_price += $t_data->logistics_price;
-                    }
-                    if($t_data->discount_value > 0){
-                        foreach(json_decode($t_data->order_discount) as $d_value){
-                            $d_price -= $d_value->discount_value;
-                        }
-                    }
                     $d_c_net = $d_price - $c_price;
 
                 } else if($real_value->getTable() == 'acc_transfer_voucher'){
@@ -289,6 +297,49 @@ class DayEnd extends Model
                                 'grade_id' => $tv_value->grade_id,
                                 'grade_code' => $tv_value->grade_code,
                                 'grade_name' => $tv_value->grade_name,
+                            ];
+
+                            DayEndLog::create_day_end_log($data);
+                        }
+                    }
+
+                } else if($real_value->getTable() == 'acc_income_orders'){
+                    $income = [
+                        [
+                            'price'=>$real_value->amt_total_service_fee,
+                            'desc'=>"信用卡手續費",
+                            'grade_id'=>$real_value->service_fee_grade_id,
+                            'grade_code'=>AllGrade::find($real_value->service_fee_grade_id)->eachGrade->code,
+                            'grade_name'=>AllGrade::find($real_value->service_fee_grade_id)->eachGrade->name,
+                        ], [
+                            'price'=>$real_value->amt_total_net,
+                            'desc'=>"信用卡入款",
+                            'grade_id'=>$real_value->net_grade_id,
+                            'grade_code'=>AllGrade::find($real_value->net_grade_id)->eachGrade->code,
+                            'grade_name'=>AllGrade::find($real_value->net_grade_id)->eachGrade->name,
+                        ]
+                    ];
+
+                    $data_list = IncomeOrder::get_credit_card_received_list([], 2, $real_value->sn)->get();
+
+                    $d_price = $real_value->amt_total_service_fee + $real_value->amt_total_net;
+                    $c_price = $data_list->sum('credit_card_price');
+                    $d_c_net = $d_price - $c_price;
+
+                    foreach($income as $value){
+                        if($value['price'] > 0){
+                            $data = [
+                                'day_end_id'=>$day_end_id,
+                                'closing_date'=>$closing_date,
+                                'source_type' => $real_value->getTable(),
+                                'source_id' => $real_value->id,
+                                'source_sn' => $real_value->sn,
+                                'source_summary' => $value['desc'],
+                                'debit_price' => $value['price'],
+                                'credit_price' => null,
+                                'grade_id' => $value['grade_id'],
+                                'grade_code' => $value['grade_code'],
+                                'grade_name' => $value['grade_name'],
                             ];
 
                             DayEndLog::create_day_end_log($data);
@@ -343,6 +394,9 @@ class DayEnd extends Model
 
         } else if($source_type == 'acc_transfer_voucher') {
             $link = route('cms.transfer_voucher.show', ['id' => $source_id]);
+
+        } else if($source_type == 'acc_income_orders') {
+            $link = route('cms.credit_manager.income-detail', ['id' => $source_id]);
 
         }
 

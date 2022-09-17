@@ -248,6 +248,11 @@ class User extends Authenticatable
         echo "匯入完成";
     }
 
+    /**
+     * @param $user_id int 後台使用者ID
+     * 取得後台使用者綁定的消費者帳號
+     * @return mixed 消費者、後台使用者的table資料
+     */
     public static function getUserCustomer($user_id)
     {
         return DB::table('usr_users as user')

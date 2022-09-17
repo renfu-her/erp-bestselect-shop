@@ -65,6 +65,16 @@ class PurchaseItem extends Model
         return $purchaseItem;
     }
 
+    //檢查商品是否被修改過
+    public static function checkInputItemDirtyWithoutMemo($itemId, array $purchaseItemReq, $key) {
+        $purchaseItem = PurchaseItem::where('id', '=', $itemId)
+            //->select('price', 'num')
+            ->get()->first();
+        $purchaseItem->price = $purchaseItemReq['price'][$key];
+        $purchaseItem->num = $purchaseItemReq['num'][$key];
+        return $purchaseItem;
+    }
+
     public static function checkToUpdatePurchaseItemData($itemId, array $purchaseItemReq, $key, $operator_user_id, $operator_user_name)
     {
         return DB::transaction(function () use ($itemId, $purchaseItemReq, $key, $operator_user_id, $operator_user_name

@@ -264,6 +264,32 @@ class LogisticCtrl extends Controller
         return redirect()->back()->withInput()->withErrors($errors);
     }
 
+
+    //儲存耗材入庫，退回
+    public function auditReturnInbound(Request $request) {
+        $request->validate([
+            'logistic_id' => 'required|numeric'
+        ]);
+        $logistic_id = $request->input('logistic_id');
+        $errors = [];
+        $logistic = Logistic::where('id', '=', $logistic_id)->get()->first();
+        if (null != $logistic->audit_date) {
+            $re = Consum::setDownLogisticData($logistic_id, $request->user()->id, $request->user()->name);
+            if ($re['success'] == '1') {
+                wToast('取消成功');
+                $delivery = Delivery::where('id', $logistic->delivery_id)->get()->first();
+                return redirect(Route('cms.logistic.create', [
+                    'event' => $delivery->event,
+                    'eventId' => $delivery->event_id
+                ], true));
+            }
+            $errors['error_msg'] = $re['error_msg'];
+        } else {
+            $errors['error_msg'] = '尚未審核過 無法退回';
+        }
+        return redirect()->back()->withInput()->withErrors($errors);
+    }
+
     //刪除物流單耗材
     public function destroyItem(Request $request, $event, $eventId, int $consumId)
     {

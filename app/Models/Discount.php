@@ -483,14 +483,17 @@ class Discount extends Model
         if (!$datas || count($datas) == 0) {
             return;
         }
-
+       // dd($datas);
+      //  dd(DisCategory::getSort(DisCategory::$category()))
         DB::table('ord_discounts')->insert(array_map(function ($n) use ($type, $order_id, $sub_order_id, $order_item_id, $customer) {
             $category = $n->category_code;
             $method = $n->method_code;
 
             $discount_grade_id = null;
+            
+            
             $receivedDefault = ReceivedDefault::where('name', $n->category_code)->get()->first();
-
+           
             if ($receivedDefault) {
                 $discount_grade_id = $receivedDefault->default_grade_id;
             }
@@ -552,6 +555,8 @@ class Discount extends Model
             return $d;
 
         }, $datas));
+
+       
 
     }
 

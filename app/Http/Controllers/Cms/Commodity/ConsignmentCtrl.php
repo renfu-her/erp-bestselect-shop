@@ -46,8 +46,8 @@ class ConsignmentCtrl extends Controller
     public function index(Request $request)
     {
         $query = $request->query();
-        $data_per_page = Arr::get($query, 'data_per_page', 10);
-        $data_per_page = is_numeric($data_per_page) ? $data_per_page : 10;
+        $data_per_page = Arr::get($query, 'data_per_page', 100);
+        $data_per_page = is_numeric($data_per_page) ? $data_per_page : 100;
 
         $all_inbound_status = [];
         foreach (InboundStatus::asArray() as $data) {
@@ -323,6 +323,26 @@ class ConsignmentCtrl extends Controller
             'id' => $id,
             'query' => $query
         ]));
+    }
+
+    // 列印－出貨單明細
+    public function print_order_ship(Request $request, $id)
+    {
+        $query = $request->query();
+        $consignmentData  = Consignment::getDeliveryData($id)->get()->first();
+        $consignmentItemData = ConsignmentItem::getOriginInboundDataList($id)->get();
+
+        if (!$consignmentData) {
+            return abort(404);
+        }
+
+        return view('doc.print_csn_order', [
+            'type' => 'ship',
+            'id' => $id,
+            'user' => $request->user(),
+            'consignmentData' => $consignmentData,
+            'consignmentItemData' => $consignmentItemData,
+        ]);
     }
 
     public function destroy(Request $request, $id)
@@ -630,7 +650,7 @@ class ConsignmentCtrl extends Controller
                     break;
                 case Payment::Cheque:
                     $request->validate([
-                        'cheque.ticket_number'=>'required|unique:acc_payable_cheque,ticket_number|regex:/^[A-Z]{2}[0-9]{7}$/'
+                        'cheque.ticket_number'=>'required|unique:acc_payable_cheque,ticket_number,po_delete,status_code|regex:/^[A-Z]{2}[0-9]{7}$/'
                     ]);
                     PayableCheque::storePayableCheque($req);
                     break;

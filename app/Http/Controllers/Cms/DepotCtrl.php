@@ -194,8 +194,8 @@ class DepotCtrl extends Controller
         $type = Arr::get($query, 'type', 'all'); //c,p,all
 
         $products = DepotProduct::product_list($id, $keyword, $type)
+            ->orderBy('depot_product_no', 'ASC')
             ->orderBy('product_id', 'ASC')
-            ->orderBy('id', 'ASC')
             ->paginate($page)->appends($query);
 
         return view('cms.settings.depot.product_list', [
@@ -347,8 +347,8 @@ class DepotCtrl extends Controller
             $type = Arr::get($query, 'type', 'all'); //p,c,all
 
             $selected_product = DepotProduct::product_list($id, $keyword, $type)
+                ->orderBy('depot_product_no', 'ASC')
                 ->orderBy('product_id', 'ASC')
-                ->orderBy('id', 'ASC')
                 ->paginate($page)->appends($query);
             // ->get();
 

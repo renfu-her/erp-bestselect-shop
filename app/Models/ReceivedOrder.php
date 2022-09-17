@@ -832,6 +832,7 @@ class ReceivedOrder extends Model
             ')
 
             ->selectRaw('
+                _cheque.id AS cheque_id,
                 _cheque.ticket_number AS cheque_ticket_number,
                 _cheque.due_date AS cheque_due_date,
                 _cheque.banks AS cheque_banks,
@@ -1232,13 +1233,6 @@ class ReceivedOrder extends Model
 
     public static function drawee($id, $name)
     {
-        $client = (object)[
-            'id'=>'',
-            'name'=>'',
-            'phone'=>'',
-            'address'=>'',
-        ];
-
         $client = User::where([
                 'id'=>$id,
             ])
@@ -1294,6 +1288,15 @@ class ReceivedOrder extends Model
                         'email',
                         'contact_address AS address'
                     )->first();
+
+                    if(! $client){
+                        $client = (object)[
+                            'id'=>'',
+                            'name'=>'',
+                            'phone'=>'',
+                            'address'=>'',
+                        ];
+                    }
                 }
             }
         }

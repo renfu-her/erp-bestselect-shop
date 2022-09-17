@@ -75,7 +75,7 @@
                                                     <td class="text-center">
                                                         <input type="text" name="qty[]" value="{{ $rec->qty }}" class="form-control form-control-sm text-center" readonly>
                                                     </td>
-                                                    <td data-td="expiry">{{ date('Y/m/d', strtotime($rec->expiry_date)) }}</td>
+                                                    <td data-td="expiry">{{ isset($rec->expiry_date)? date('Y/m/d', strtotime($rec->expiry_date)) : '' }}</td>
                                                 </tr>
                                             @endforeach
                                             </tbody>

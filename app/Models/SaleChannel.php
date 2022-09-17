@@ -240,9 +240,12 @@ class SaleChannel extends Model
         $styles = DB::table('prd_salechannel_style_price as sp')->get();
         $c = 0;
         foreach ($styles as $style) {
-            $bonus = round(($style->price - $style->dealer_price) * Bonus::bonus()->value);
-
-            if ($bonus < 0) {
+            if ($style->dealer_price && $style->price && $style->price > $style->dealer_price) {
+                $bonus = round(($style->price - $style->dealer_price) * Bonus::bonus()->value);
+                if ($bonus < 0) {
+                    $bonus = 0;
+                }
+            } else {
                 $bonus = 0;
             }
 
@@ -270,9 +273,9 @@ class SaleChannel extends Model
 
             $styles = DB::table('prd_salechannel_style_price as sp')
                 ->where('sale_channel_id', $sale->id)->get();
-          
+
             foreach ($styles as $style) {
-                $dividend = round($style->price * $sale->dividend_rate / 100);
+                $dividend = round($style->price * $sale->dividend_limit / 100);
                 $dividend = ($dividend > 0) ? $dividend : 0;
                 DB::table('prd_salechannel_style_price as sp')
                     ->where('sp.style_id', $style->style_id)
@@ -289,7 +292,5 @@ class SaleChannel extends Model
         echo "紅利同步完成{$c}筆";
 
     }
-
-   
 
 }

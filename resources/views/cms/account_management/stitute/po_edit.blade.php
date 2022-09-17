@@ -11,7 +11,7 @@
             <div class="alert alert-danger">{!! implode('', $errors->all('<div>:message</div>')) !!}</div>
             @endif
 
-            <p class="fw-bold">支付對象：{{ $stitute_order->client_name }}</p>
+            <p class="fw-bold">支付對象：{{ $stitute_order->so_client_name }}</p>
 
             <div class="table-responsive tableOverBox border-bottom border-dark">
                 <table class="table table-sm table-hover tableList mb-1">
@@ -33,20 +33,24 @@
                     </thead>
 
                     <tbody>
+                        @if($stitute_order->so_items)
+                        @foreach (json_decode($stitute_order->so_items) as $data)
                         <tr>
                             <td class="text-wrap">
-                                <div class="fw-bold">{{ $stitute_order->sn }}</div>
+                                <div class="fw-bold">{{ $stitute_order->so_sn }}</div>
                                 <div>-</div>
                             </td>
-                            <td class="text-wrap">{{ $stitute_grade->code }} {{ $stitute_grade->name }}</td>
-                            <td class="text-wrap">{{ $stitute_order->summary }}</td>
-                            <td class="text-end">${{ number_format($stitute_order->price, 2) }}</td>
-                            <td class="text-end">{{ number_format($stitute_order->qty) }}</td>
-                            <td class="text-end">{{ $currency->rate }}</td>
-                            <td>{{ $currency->name }}</td>
-                            <td class="text-end">${{ number_format($stitute_order->total_price) }}</td>
+                            <td class="text-wrap">{{ $data->grade_code }} {{ $data->grade_name }}</td>
+                            <td class="text-wrap">{{ $data->summary }}</td>
+                            <td class="text-end">${{ number_format($data->price, 2) }}</td>
+                            <td class="text-end">{{ number_format($data->qty) }}</td>
+                            <td class="text-end">{{ $data->rate ? $data->rate : 1 }}</td>
+                            <td>{{ $data->currency_name ? $data->currency_name : 'NTD' }}</td>
+                            <td class="text-end">${{ number_format($data->total_price) }}</td>
                             <td class="text-end"></td>
                         </tr>
+                        @endforeach
+                        @endif
 
                         @foreach($payable_data as $value)
                         <tr>
@@ -135,11 +139,24 @@
                 </div>
 
                 {{-- 支票 --}}
-                <div class="col-12 col-sm-6 mb-3 cheque">
-                    <label class="form-label cheque">支存銀行
-                        <span class="text-danger">*</span>
-                    </label>
+                <div class="col-12 col-sm-6 mb-3 cheque d-none">
+                    <label class="form-label cheque">會計科目 <span class="text-danger">*</span></label>
                     <select name="cheque[grade_id_fk]" class="form-select -select2 -single cheque @error('cheque[grade_id_fk]') is-invalid @enderror" 
+                        required data-placeholder="請選擇會計科目">
+                        @foreach($total_grades as $value)
+                            @if(in_array($value['primary_id'], $chequeDefault))
+                            <option value="{{ $value['primary_id'] }}" {{ $value['code'] == '2101' ? 'selected' : '' }}>{{ $value['code'] . ' ' . $value['name'] }}</option>
+                            @endif
+                        @endforeach
+                    </select>
+                    @error('cheque[grade_id_fk]')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="col-12 col-sm-6 mb-3 cheque">
+                    <label class="form-label cheque">支存銀行 <span class="text-danger">*</span></label>
+                    <select name="cheque[grade_id]" class="form-select -select2 -single cheque @error('cheque[grade_id]') is-invalid @enderror" 
                         required data-placeholder="請選擇支存銀行">
                         @php
                             $cheque_first = true;
@@ -153,10 +170,11 @@
                             @endif
                         @endforeach
                     </select>
-                    @error('cheque[grade_id_fk]')
+                    @error('cheque[grade_id]')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
+
                 <x-b-form-group name="cheque[ticket_number]" title="票號" required="true"
                                 class="col-12 col-sm-6 mb-3 cheque"
                                 id="ticket_number">

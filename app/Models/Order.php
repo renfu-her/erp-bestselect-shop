@@ -33,7 +33,9 @@ class Order extends Model
         $order_date = null,
         $shipment_status = null,
         $profit_user = null,
-        $email = null
+        $email = null,
+        $item_title = null,
+        $purchase_sn = null
     ) {
         $order = DB::table('ord_orders as order')
             ->select(['order.id as id',
@@ -121,6 +123,40 @@ class Order extends Model
         if ($profit_user) {
             $order->leftJoin('ord_order_profit as ord_profit', 'ord_profit.order_id', '=', 'order.id')
                 ->where('ord_profit.customer_id', $profit_user);
+        }
+
+        if ($item_title) {
+            $order->leftJoin('ord_items as ord_items', function ($join) {
+                $join->on('ord_items.order_id', '=', 'so.order_id')
+                    ->on('ord_items.sub_order_id', '=', 'so.id');
+            });
+            $order->where(function ($query) use ($item_title) {
+                $query->Where('ord_items.product_title', 'like', "%{$item_title}%")
+                    ->orWhere('ord_items.sku', 'like', "%{$item_title}%");
+            });
+        }
+
+        if ($purchase_sn) {
+            //整理出入庫單和採購單的關係
+            $inbound = DB::table(app(PurchaseInbound::class)->getTable(). ' as inbound')
+                ->leftJoin('pcs_purchase as pcs', function ($join) {
+                    $join->on('pcs.id', '=', 'inbound.event_id')
+                        ->where('inbound.event', '=', Event::purchase()->value);
+                })
+                ->select('pcs.id as pcs_id', 'pcs.sn as pcs_sn', 'inbound.*');
+
+            //找出子訂單出貨的商品
+            $order->leftJoin('dlv_receive_depot as dlv_receive_depot', function ($join) {
+                $join->on('dlv_receive_depot.delivery_id', '=', 'dlv_delivery.id');
+            })
+                ->leftJoinSub($inbound, 'inbound', function($join) {
+                $join->on('inbound.id', '=', 'dlv_receive_depot.inbound_id');
+            });
+
+            $order->where(function ($query) use ($purchase_sn) {
+                $query->Where('inbound.pcs_sn', '=', "$purchase_sn");
+            });
+
         }
 
         $order->orderByDesc('order.id');
@@ -399,7 +435,8 @@ class Order extends Model
 
             $order['order_sn'] = $order_sn;
             // 處理紅利
-            $dividend_re = CustomerDividend::orderDiscount($customer->id, $order_sn, $order['use_dividend']);
+            $dividend_re = CustomerDividend::orderDiscount($customer->id, $order); //$order_sn, $order['use_dividend']
+           // dd($order);
             if ($dividend_re['success'] != '1') {
                 DB::rollBack();
                 return $dividend_re;
@@ -890,8 +927,9 @@ class Order extends Model
                 'deadline'=>$value->deadline,
                 'active_sdate'=>$value->active_sdate,
                 'active_edate'=>$value->active_edate,
+                'note' => '由'.$order->sn."訂單返還"
             ]);
-            
+
         }
         DB::table('ord_dividend')->where('order_sn',$order->sn)->delete();
         // 刪除分潤
@@ -1144,7 +1182,7 @@ class Order extends Model
             if (ReceivedMethod::Remittance()->value == $order->payment_method) {
                 $link_url_type = 'payRemit';
             }
-            $link_url = env('FRONTEND_URL') . '' . $link_url_type . '/' . $order_id . '?em=' . $order->email;
+            $link_url = env('FRONTEND_URL') . '' . $link_url_type . '/' . $order_id . '?em=' . base64_encode(trim($order->email));
 
             $email = $order->email;
             $data = [

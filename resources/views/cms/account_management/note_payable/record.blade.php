@@ -60,7 +60,9 @@
 
                         <tr>
                             <th class="table-light" style="width:15%">備註</th>
-                            <td colspan="3">{{ $cheque->note }}</td>
+                            <td style="width:35%">{{ $cheque->note }}</td>
+                            <th class="table-light" style="width:15%">支存銀行</th>
+                            <td style="width:35%">{{ $cheque->cheque_grade_code . ' ' . $cheque->cheque_grade_name }}</td>
                         </tr>
                     </tbody>
                 </table>
