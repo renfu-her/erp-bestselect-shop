@@ -17,6 +17,9 @@
     </ul>
     <hr class="narbarBottomLine mb-3">
 
+    <form id="search" action="" method="GET">
+        <input type="hidden" name="data_per_page" value="{{ $data_per_page }}" />
+    </form>
     <div class="card shadow p-4 mb-4">
         <div class="row justify-content-end mb-4">
             <div class="col-auto">
@@ -88,6 +91,11 @@
 @once
     @push('sub-scripts')
         <script>
+            // 顯示筆數
+            $('#dataPerPageElem').on('change', function(e) {
+                $('input[name=data_per_page]').val($(this).val());
+                $('#search').submit();
+            });
         </script>
     @endpush
 @endonce
