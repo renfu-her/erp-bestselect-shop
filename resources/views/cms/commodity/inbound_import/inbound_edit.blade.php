@@ -34,7 +34,7 @@
                        required/>
             </x-b-form-group>
             <x-b-form-group name="remaining_qty" title="調整效期" required="false">
-                <input type="date"
+                <input type="text"
                        class="form-control form-control-sm @error('expiry_date') is-invalid @enderror"
                        name="expiry_date" value="{{ $inboundData->expiry_date ?? '' }}"
                        required/>
