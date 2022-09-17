@@ -678,7 +678,7 @@ class Product extends Model
 
         if ($re->imgs) {
             $output['info']['image'] = array_map(function ($n) {
-                $n->url = getImageUrl($n->url);
+                $n->url = getImageUrl($n->url, true);
                 return $n;
             }, json_decode($re->imgs));
         }
