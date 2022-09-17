@@ -226,7 +226,12 @@ class RequestOrderCtrl extends Controller
 
         $zh_price = num_to_str($request_order->total_price);
 
-        return view('cms.account_management.request.show', [
+        $view = 'cms.account_management.request.show';
+        if (request('action') == 'print') {
+            $view = 'doc.print_request_order';
+        }
+
+        return view($view, [
             'request_order' => $request_order,
             'applied_company' => $applied_company,
             'sales' => $sales,
@@ -508,7 +513,7 @@ class RequestOrderCtrl extends Controller
         $zh_price = num_to_str($received_order->price);
         $view = 'cms.account_management.request.ro_receipt';
         if (request('action') == 'print') {
-            $view = 'doc.print_account_management_request_ro_receipt';
+            $view = 'doc.print_request_ro';
         }
 
         return view($view, [

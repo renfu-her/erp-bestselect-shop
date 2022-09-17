@@ -60,12 +60,12 @@
                 <table width="710" style="font-size:12pt;text-align:left;border:0;margin: 0 auto;">
                     <tbody>
                         <tr>
-                            <td width="40%">銷貨單號：{{ $consignmentData->consignment_sn }}</td>
-                            <td width="60%">寄倉單位：{{ $consignmentData->send_depot_name }}</td>
+                            <td width="40%">銷貨單號：{{ $consignmentData->sn }}</td>
+                            <td width="60%">寄倉單位：{{ $consignmentData->depot_name }}</td>
                         </tr>
                         <tr>
-                            <td>收件人：{{ $consignmentData->receive_depot_name }}</td>
-                            <td>送貨地址：{{ $consignmentData->receive_depot_address }}</td>
+                            <td>收件人：{{ $consignmentData->depot_name }}</td>
+                            <td>送貨地址：</td>
                         </tr>
                         <tr>
                             <td>出貨日期：</td>

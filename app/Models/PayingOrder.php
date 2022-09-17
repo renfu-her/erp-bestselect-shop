@@ -307,19 +307,23 @@ class PayingOrder extends Model
             })
             ->leftJoin(DB::raw('(
                 SELECT
-                    id,
+                    so_item.stitute_order_id,
                     CONCAT(\'[\', GROUP_CONCAT(\'{
-                        "product_owner":"\', "", \'",
-                        "title":"\', "代墊單", \'",
-                        "sku":"\', "", \'",
-                        "price":"\', total_price, \'",
-                        "num":"\', qty, \'"
-                    }\' ORDER BY id), \']\') AS items
-                FROM acc_stitute_orders
-                WHERE deleted_at IS NULL
-                GROUP BY id
-                ) AS stitute_table'), function ($join){
-                    $join->on('so.id', '=', 'stitute_table.id');
+                            "product_owner":"\', "", \'",
+                            "title":"\', so_item.summary, \'",
+                            "sku":"\', "", \'",
+                            "all_grades_id":"\', so_item.grade_id, \'",
+                            "grade_code":"\', COALESCE(grade.code, ""), \'",
+                            "grade_name":"\', COALESCE(grade.name, ""), \'",
+                            "price":"\', so_item.total_price, \'",
+                            "num":"\', so_item.qty, \'"
+                        }\' ORDER BY so_item.id), \']\') AS items
+                FROM acc_stitute_order_items AS so_item
+                LEFT JOIN (' . $sq . ') AS grade ON grade.id = so_item.grade_id
+                LEFT JOIN acc_currency ON acc_currency.id = so_item.currency_id
+                GROUP BY so_item.stitute_order_id
+                ) AS stitute_items_table'), function ($join){
+                    $join->on('so.id', '=', 'stitute_items_table.stitute_order_id');
             })
 
             // main order return
@@ -491,7 +495,7 @@ class PayingOrder extends Model
                     WHEN po.source_type = "' . app(Purchase::class)->getTable() . '" AND po.source_sub_id IS NULL THEN purchase_item_table.items
                     WHEN po.source_type = "' . app(Order::class)->getTable() . '" AND po.source_sub_id IS NOT NULL AND po.type = 1 THEN NULL
                     WHEN po.source_type = "' . app(Consignment::class)->getTable() . '" AND po.type = 1 THEN NULL
-                    WHEN po.source_type = "' . app(StituteOrder::class)->getTable() . '" AND po.type = 1 THEN stitute_table.items
+                    WHEN po.source_type = "' . app(StituteOrder::class)->getTable() . '" AND po.type = 1 THEN stitute_items_table.items
                     WHEN po.source_type = "' . app(Order::class)->getTable() . '" AND po.type = 9 THEN order_item_table.items
                     WHEN po.source_type = "' . app(Delivery::class)->getTable() . '" AND po.type = 9 THEN delivery_back.items
                     WHEN po.source_type = "' . app(self::class)->getTable() . '" AND po.type = 1 THEN payable_account_table.items

@@ -347,7 +347,7 @@ class ConsignmentOrderCtrl extends Controller
         return view('doc.print_csnorder_order', [
             'type' => 'ship',
             'id' => $id,
-
+            'user' => $request->user(),
             'consignmentData' => $consignmentData,
             'consignmentItemData' => $consignmentItemData,
             'delivery' => $delivery,
