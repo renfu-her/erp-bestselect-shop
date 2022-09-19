@@ -35,14 +35,6 @@
                     <span class="d-none d-md-inline">歡迎，<span id="memberName">{{ $name }}</span></span>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="memberMenu">
-                    @if ($customer)
-                        <li>
-                            {{ $customer->sn }}
-                        </li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-                    @endif
                     <li>
                         <a class="dropdown-item" href="{{ route('cms.usermnt.edit') }}">
                             <i class="bi bi-person me-1"></i>資料維護
@@ -58,7 +50,7 @@
                         <li>
                             <a class="dropdown-item"
                                 href="{{ Route('cms.customer.order', ['id' => $customer->id], true) }}">
-                                <i class="bi bi-person-rolodex me-1"></i>會員資料
+                                <i class="bi bi-person-rolodex me-1"></i>會員專區
                             </a>
                         </li>
                     @endif
