@@ -1,7 +1,7 @@
-<h2>會員專區 - {{ '烏梅' }}
+<h2>會員專區 - {{ $customer_data->name }}
     <span class="fs-5 text-secondary">（
-        {{ 'M00000123' }}<button type="button" data-bs-toggle="tooltip" title="複製" 
-        data-mcode="{{ 'M00000123' }}"
+        {{ $customer_data->sn }}<button type="button" data-bs-toggle="tooltip" title="複製" 
+        data-mcode="{{ $customer_data->sn }}"
         class="-copy icon icon-btn fs-5 text-primary rounded-circle border-0 p-2">
             <i class="bi bi-clipboard2-check"></i>
         </button>）
