@@ -92,7 +92,9 @@
 
         @php
             $editable = !$hasCreatedFinalPayment && $consignmentData->close_date == null
-                && $consignmentData->audit_status == App\Enums\Consignment\AuditStatus::unreviewed()->value;
+                && ($consignmentData->audit_status == App\Enums\Consignment\AuditStatus::unreviewed()->value
+                    || ($consignmentData->audit_status == App\Enums\Consignment\AuditStatus::approved()->value && 0 == count($rcv_depot) )
+                );
         @endphp
 
         {{-- <div class="card-header px-4 d-flex align-items-center bg-white flex-wrap justify-content-end">

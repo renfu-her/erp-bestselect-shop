@@ -197,6 +197,7 @@ class ConsignmentCtrl extends Controller
         if (!$consignmentData) {
             return abort(404);
         }
+        $rcv_depot = ReceiveDepot::getDataList(['delivery_id' => $consignmentData->dlv_id])->get();
         $consumeItems = Consum::getConsumWithEvent(Event::consignment()->value, $id)->get()->toArray();
 
         return view('cms.commodity.consignment.edit', [
@@ -205,6 +206,7 @@ class ConsignmentCtrl extends Controller
             'consignmentData' => $consignmentData,
             'consignmentItemData' => $consignmentItemData,
             'consume_items' => $consumeItems,
+            'rcv_depot' => $rcv_depot,
             'method' => 'edit',
             'formAction' => Route('cms.consignment.edit', ['id' => $id]),
             'breadcrumb_data' => ['id' => $id, 'sn' => $consignmentData->consignment_sn],
@@ -228,10 +230,17 @@ class ConsignmentCtrl extends Controller
         //判斷是否有出貨審核，有則不可新增刪除商品款式
 //        $consignmentGet = Consignment::where('id', '=', $id)->get()->first();
         $consignmentData  = Consignment::getDeliveryData($id)->get()->first();
-        if (null != $consignmentData && AuditStatus::unreviewed()->value != $consignmentData->audit_status) {
+        $rcv_depot = ReceiveDepot::getDataList(['delivery_id' => $consignmentData->dlv_id])->get();
+
+        $editable = $consignmentData->close_date == null
+            && ($consignmentData->audit_status == AuditStatus::unreviewed()->value
+                || ($consignmentData->audit_status == AuditStatus::approved()->value && 0 == count($rcv_depot) )
+            );
+
+        if (false == $editable) {
             throw ValidationException::withMessages(['item_error' => '已寄倉審核，無法再修改']);
         }
-        if (null != $consignmentData->dlv_audit_date || null != $consignmentData->audit_date) {
+        if ((null != $consignmentData->dlv_audit_date || null != $consignmentData->audit_date) && 0 < count($rcv_depot)) {
             if (isset($request['del_item_id']) && null != $request['del_item_id']) {
                 throw ValidationException::withMessages(['item_error' => '已審核，不可刪除商品款式']);
             }
@@ -292,23 +301,41 @@ class ConsignmentCtrl extends Controller
                 }
             }
 
-            //若判斷audit_status變成核可，則表示商品款式資料不會再做更動，此時判斷出貨倉是理貨倉，則須扣除數量
-            if(AuditStatus::approved()->value == $csnReq['audit_status'] && 1 == $consignmentData->send_can_tally){
+            // 判斷出貨倉是理貨倉
+            if (1 == $consignmentData->send_can_tally) {
                 $queryCsnItems = DB::table('csn_consignment as csn')
                     ->leftJoin('csn_consignment_items as csn_items', 'csn_items.consignment_id', 'csn.id')
                     ->where('csn.id', $id)
                     ->get();
                 $stock_event = StockEvent::consignment()->value;
-                $stock_note = LogEventFeature::getDescription(LogEventFeature::delivery()->value);
                 $user_name = $request->user()->name;
-                foreach($queryCsnItems as $item) {
-                    $rePSSC = ProductStock::stockChange($item->product_style_id, $item->num * -1
-                        , $stock_event, $id
-                        , $user_name . $stock_note
-                        , false, $consignmentData->send_can_tally);
-                    if ($rePSSC['success'] == 0) {
-                        DB::rollBack();
-                        return $rePSSC;
+
+                //判斷audit_status變成核可，則須扣除數量
+                if(AuditStatus::approved()->value == $csnReq['audit_status']){
+                    $stock_note = LogEventFeature::getDescription(LogEventFeature::delivery()->value);
+                    foreach($queryCsnItems as $item) {
+                        $rePSSC = ProductStock::stockChange($item->product_style_id, $item->num * -1
+                            , $stock_event, $id
+                            , $user_name . $stock_note
+                            , false, $consignmentData->send_can_tally);
+                        if ($rePSSC['success'] == 0) {
+                            DB::rollBack();
+                            return $rePSSC;
+                        }
+                    }
+                }
+                //判斷audit_status從核可變成其他狀態，則須加回數量
+                else if (AuditStatus::approved()->value == $consignmentData->audit_status && AuditStatus::approved()->value != $csnReq['audit_status']) {
+                    $stock_note = LogEventFeature::getDescription(LogEventFeature::delivery_cancle()->value);
+                    foreach($queryCsnItems as $item) {
+                        $rePSSC = ProductStock::stockChange($item->product_style_id, $item->num
+                            , $stock_event, $id
+                            , $user_name . $stock_note
+                            , false, $consignmentData->send_can_tally);
+                        if ($rePSSC['success'] == 0) {
+                            DB::rollBack();
+                            return $rePSSC;
+                        }
                     }
                 }
             }

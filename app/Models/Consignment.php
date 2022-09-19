@@ -113,17 +113,26 @@ class Consignment extends Model
                     "audit_status" => $purchaseReq['audit_status'] ?? App\Enums\Consignment\AuditStatus::unreviewed()->value,
                 ]);
 
+                $user = new \stdClass();
+                $user->id = $operator_user_id;
+                $user->name = $operator_user_name;
+                $delivery = Delivery::where('event', Event::consignment()->value)
+                    ->where('event_id', $id)->get()->first();
                 //從尚未審核 變成 核可後物態自動變檢貨中
                 if (AuditStatus::unreviewed()->value == $orign_audit_status
                     && AuditStatus::approved()->value == $purchase->audit_status
                 ) {
-                    $user = new \stdClass();
-                    $user->id = $operator_user_id;
-                    $user->name = $operator_user_name;
-                    $delivery = Delivery::where('event', Event::consignment()->value)
-                        ->where('event_id', $id)->get()->first();
-
                     $reLFCDS = LogisticFlow::createDeliveryStatus($user, $delivery->id, [LogisticStatus::A2000()]);
+                    if ($reLFCDS['success'] == 0) {
+                        DB::rollBack();
+                        return $reLFCDS;
+                    }
+                }
+                //從核可 變成 其他狀態時 物態自動變尚未出貨
+                else if (AuditStatus::approved()->value == $orign_audit_status
+                    && AuditStatus::approved()->value != $purchase->audit_status
+                ) {
+                    $reLFCDS = LogisticFlow::createDeliveryStatus($user, $delivery->id, [LogisticStatus::A1000()]);
                     if ($reLFCDS['success'] == 0) {
                         DB::rollBack();
                         return $reLFCDS;
@@ -291,6 +300,7 @@ class Consignment extends Model
                 , DB::raw('DATE_FORMAT(consignment.audit_date,"%Y-%m-%d") as audit_date')
                 , DB::raw('DATE_FORMAT(consignment.close_date,"%Y-%m-%d") as close_date')
 
+                , 'dlv_delivery.id as dlv_id'
                 , 'dlv_delivery.sn as dlv_sn'
                 , 'dlv_delivery.audit_date as dlv_audit_date'
                 , 'dlv_delivery.audit_user_id as dlv_audit_user_id'

@@ -32,6 +32,7 @@ final class LogEventFeature extends Enum
     const scrapped = 'scrapped'; //報廢
 
     const delivery = 'delivery';
+    const delivery_cancle = 'delivery_cancle';
     const send_back = 'send_back';
     const send_back_cancle = 'send_back_cancle';
     const consume_delivery = 'consume_delivery';
@@ -98,6 +99,10 @@ final class LogEventFeature extends Enum
             case self::delivery:
                 $result = '出貨';
                 break;
+            case self::delivery_cancle:
+                $result = '出貨取消';
+                break;
+
             case self::consume_delivery:
                 $result = '耗材出貨';
                 break;
