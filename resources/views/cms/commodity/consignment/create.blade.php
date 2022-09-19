@@ -222,6 +222,7 @@
                         <th scope="col">款式</th>
                         <th scope="col">SKU</th>
                         <th scope="col">出貨倉庫存數量</th>
+                        <th scope="col">可售數量</th>
                         <th scope="col">寄倉價(單價)</th>
                     </tr>
                     </thead>
@@ -234,6 +235,7 @@
                         <td data-td="name"></td>
                         <td data-td="spec"></td>
                         <td data-td="sku"></td>
+                        <td></td>
                         <td></td>
                         <td data-td="price"></td>
                         <td></td>
@@ -425,6 +427,7 @@
                             <td data-td="spec">${p.spec || ''}</td>
                             <td data-td="sku">${p.sku}</td>
                             <td>${p.total_in_stock_num}</td>
+                            <td>${p.in_stock}</td>
                             <td data-td="price">$ ${formatNumber(p.depot_price)}</td>
                         </tr>`);
                         $('#addProduct .-appendClone.--product').append($tr);
