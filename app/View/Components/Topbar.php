@@ -44,16 +44,20 @@ class Topbar extends Component
         }
 
         $customer = null;
+        $issueUrl = null;
         if (Auth::user()) {
             $customer = User::getUserCustomer(Auth::user()->id);
             $domain = $domain . '?mcode=' . ($customer ? $customer->sn : '');
+            $issueUrl = "https://issue.bestselection.com.tw/login?name=" . Auth::user()->name . "&account=" . Auth::user()->account;
         }
+
         return view('components.topbar', [
             'name' => isset(Auth::User()->name) ? Auth::User()->name : '旅客',
             'userType' => 'user',
             'url' => $domain,
             'customer' => $customer,
             'logout' => 'logout',
+            'issueUrl' => $issueUrl,
         ]);
     }
 }

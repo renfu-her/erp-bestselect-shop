@@ -317,6 +317,8 @@ class TransferVoucherCtrl extends Controller
         $target = TransferVoucher::delete_voucher($id);
 
         if($target){
+            DayEnd::match_day_end_status($target->created_at, $target->sn);
+
             wToast('刪除完成');
         } else {
             wToast('刪除失敗', ['type'=>'danger']);
