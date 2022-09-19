@@ -154,19 +154,29 @@ class User extends Authenticatable
             'dataList' => $total_data, 'account' => $users,
         ];
     }
-
+    // 綁定消費者
     public static function customerBinding($user_id, $email)
     {
         $customer = Customer::where('email', $email)->select('id')->get()->first();
         if ($customer) {
+
+            DB::beginTransaction();
             User::where('id', $user_id)->update(['customer_id' => $customer->id]);
             CustomerIdentity::add($customer->id, 'employee');
+
+            $user = User::where('id', $user_id)->get()->first();
+
+            Customer::where('id', $customer->id)->update([
+                'name' => $user->name,
+            ]);
 
             $saleChannel = SaleChannel::where('code', '02')->get()->first();
 
             if ($saleChannel) {
                 UserSalechannel::create(['user_id' => $user_id, 'salechannel_id' => $saleChannel->id]);
             }
+
+            DB::commit();
         }
     }
 
@@ -241,7 +251,7 @@ class User extends Authenticatable
                     'group' => $u['GROUP'],
                 ]);
             } else {
-                self::createUser($u['NAME'], $u['NUMBER'], null, $u['PASSWORD'], [], $role_id, null, $u['TITLE'],'喜鴻購物', $u['COMPANY'], $u['DEPARTMENT'], $u['GROUP']);
+                self::createUser($u['NAME'], $u['NUMBER'], null, $u['PASSWORD'], [], $role_id, null, $u['TITLE'], '喜鴻購物', $u['COMPANY'], $u['DEPARTMENT'], $u['GROUP']);
             }
         }
         DB::commit();
