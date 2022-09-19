@@ -324,20 +324,6 @@ class ReceiveDepot extends Model
                             $rcvDepot_elements->update([
                                 'rcv_depot.combo_id' => $reSD['id'],
                             ]);
-                            $rcvDepot_elements_get = $rcvDepot_elements
-                                ->leftJoin(app(Depot::class)->getTable(). ' as depot', function ($join) {
-                                    $join->on('depot.id', '=', 'rcv_depot.product_style_id');
-                                })
-                                ->get();
-                            //寫入可售數量
-                            foreach ($rcvDepot_elements_get as $val_rd_ele) {
-                                $rePSSC = ProductStock::stockChange($val_rd_ele->product_style_id,
-                                    $val_rd_ele->qty * -1, StockEvent::element_to_combo()->value, $val_rd_ele->combo_id, $val_rd_ele->sku . StockEvent::getDescription(StockEvent::element_to_combo), false, $val_rd_ele->can_tally);
-                                if ($rePSSC['success'] == 0) {
-                                    DB::rollBack();
-                                    return $rePSSC;
-                                }
-                            }
                         }
                     }
                 }

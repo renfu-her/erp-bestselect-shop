@@ -657,14 +657,17 @@ class DeliveryCtrl extends Controller
                             && (Event::order()->value == $delivery->event
                                 || Event::consignment()->value == $delivery->event)
                         ) {
-                            $memo = $rcv_depot_item->memo ?? '';
-                            $rePSSC = ProductStock::stockChange($inboundDataGet->product_style_id, $rcv_depot_item->back_qty
-                                , StockEvent::send_back()->value, $delivery->event_id
-                                , $request->user()->name. ' '. $delivery->sn. ' ' . $memo
-                                , false, $inboundDataGet->can_tally);
-                            if ($rePSSC['success'] == 0) {
-                                DB::rollBack();
-                                return $rePSSC;
+                            //若非組合包元素 則需計算可售數量
+                            if ('ce' != $rcv_depot_item->prd_type) {
+                                $memo = $rcv_depot_item->memo ?? '';
+                                $rePSSC = ProductStock::stockChange($inboundDataGet->product_style_id, $rcv_depot_item->back_qty
+                                    , StockEvent::send_back()->value, $delivery->event_id
+                                    , $request->user()->name. ' '. $delivery->sn. ' ' . $memo
+                                    , false, $inboundDataGet->can_tally);
+                                if ($rePSSC['success'] == 0) {
+                                    DB::rollBack();
+                                    return $rePSSC;
+                                }
                             }
                         }
                     }
@@ -752,22 +755,6 @@ class DeliveryCtrl extends Controller
                     }
                 }
 
-                //直接依據退貨數量 寫回出貨單組合包的退貨數量
-                $dlvBack = DB::table(app(DlvBack::class)->getTable(). ' as dlv_back')
-                    ->leftJoin(app(ReceiveDepot::class)->getTable(). ' as rcv_depot', function ($join) {
-                        $join->on('rcv_depot.delivery_id', '=', 'dlv_back.delivery_id')
-                            ->on('rcv_depot.event_item_id', '=', 'dlv_back.event_item_id');
-                    })
-                    ->where('rcv_depot.prd_type', '=', 'c')
-                    ->where('dlv_back.qty', '>', 0)
-                    ->select(
-                        'rcv_depot.id as rcv_depot_id'
-                        , 'dlv_back.event_item_id'
-                        , 'dlv_back.product_style_id'
-                        , 'dlv_back.qty'
-                    )
-                    ->get();
-
                 foreach ($rcv_depot as $key_rcv => $val_rcv) {
                     //減少back_num
                     ReceiveDepot::where('id', $val_rcv->id)->update(['back_qty' => DB::raw("back_qty - $val_rcv->back_qty")]);
@@ -817,14 +804,17 @@ class DeliveryCtrl extends Controller
                         && (Event::order()->value == $delivery->event
                             || Event::consignment()->value == $delivery->event)
                     ) {
-                        $memo = '';
-                        $rePSSC = ProductStock::stockChange($inboundDataGet->product_style_id, $val_rcv->back_qty * -1
-                            , StockEvent::send_back_cancle()->value, $delivery->event_id
-                            , $request->user()->name. ' '. $delivery->sn. ' ' . $memo
-                            , false, $inboundDataGet->can_tally);
-                        if ($rePSSC['success'] == 0) {
-                            DB::rollBack();
-                            return $rePSSC;
+                        //若非組合包元素 則需計算可售數量
+                        if ('ce' != $val_rcv->prd_type) {
+                            $memo = '';
+                            $rePSSC = ProductStock::stockChange($inboundDataGet->product_style_id, $val_rcv->back_qty * -1
+                                , StockEvent::send_back_cancle()->value, $delivery->event_id
+                                , $request->user()->name. ' '. $delivery->sn. ' ' . $memo
+                                , false, $inboundDataGet->can_tally);
+                            if ($rePSSC['success'] == 0) {
+                                DB::rollBack();
+                                return $rePSSC;
+                            }
                         }
                     }
                 }
