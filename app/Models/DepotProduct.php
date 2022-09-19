@@ -98,6 +98,7 @@ class DepotProduct extends Model
                 'product.type as type',
                 'style.title as spec',
                 'style.sku as sku',
+                'style.in_stock as in_stock',
                 'p.sale_channel_id',
             )
             ->whereNull('select_list.deleted_at')
@@ -138,6 +139,7 @@ class DepotProduct extends Model
                 'select_list.type as prd_type',
                 'select_list.spec as spec',
                 'select_list.sku as sku',
+                'select_list.in_stock as in_stock',
                 DB::raw('CASE select_list.type
                     WHEN "p" THEN IFNULL(inbound.total_in_stock_num,"")
                    ELSE "" END as total_in_stock_num'),
