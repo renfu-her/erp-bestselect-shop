@@ -3,8 +3,6 @@
 namespace App\Http\Controllers\Api\Web;
 
 use App\Enums\Globals\ApiStatusMessage;
-use App\Enums\Globals\AppEnvClass;
-use App\Enums\Globals\ImageDomain;
 use App\Enums\Globals\ResponseParam;
 use App\Helpers\IttmsUtils;
 use App\Http\Controllers\Controller;
@@ -106,7 +104,7 @@ class HomeCtrl extends Controller
         $collection_1 = DB::table('collection_prd as collection_prd')
             ->where('collection_prd.collection_id_fk', '=', $product->recommend_collection_id)
             ->get();
-        $product_id_fks = array_map(function ($n){
+        $product_id_fks = array_map(function ($n) {
             return $n->product_id_fk;
         }, $collection_1->toArray());
 
@@ -150,10 +148,10 @@ class HomeCtrl extends Controller
         $prd_shipment_1 = DB::table('prd_product_shipment as prd_shipment')
             ->where('prd_shipment.product_id', '=', $product->id)
             ->get();
-        $category_ids = array_map(function ($n){
+        $category_ids = array_map(function ($n) {
             return $n->category_id;
         }, $prd_shipment_1->toArray());
-        $group_ids = array_map(function ($n){
+        $group_ids = array_map(function ($n) {
             return $n->group_id;
         }, $prd_shipment_1->toArray());
         $prd_shipments = DB::table('prd_product_shipment as prd_shipment')
@@ -161,7 +159,7 @@ class HomeCtrl extends Controller
             ->whereIn('prd_shipment.group_id', $group_ids)
             ->select('prd_shipment.product_id')
             ->get();
-        $product_ids = array_map(function ($n){
+        $product_ids = array_map(function ($n) {
             return $n->product_id;
         }, $prd_shipments->toArray());
 
@@ -171,7 +169,7 @@ class HomeCtrl extends Controller
             'online' => $d['online'] ?? null,
             'product_ids' => $product_ids ?? null,
         ];
-        if(1 == $product->only_show_category) {
+        if (1 == $product->only_show_category) {
             //打勾 找同歸類
             $cond['category_id'] = $product->category_id ?? null;
         }
@@ -188,13 +186,14 @@ class HomeCtrl extends Controller
         return response()->json($re);
     }
 
-    private static function getImgUrl($dataList) {
+    private static function getImgUrl($dataList)
+    {
         $result = $dataList;
         if ($dataList) {
             $result = array_map(function ($n) {
                 if ($n->img_url) {
-                    $n->img_url = getImageUrl($n->img_url);
-                }else{
+                    $n->img_url = getImageUrl($n->img_url, true);
+                } else {
                     $n->img_url = '';
                 }
 
