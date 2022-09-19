@@ -26,6 +26,7 @@
                     <th scope="col">動作</th>
                     <th scope="col">數量</th>
                     <th scope="col">操作者</th>
+                    <th scope="col">備註</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -38,6 +39,7 @@
                          <td>{{$data->feature}}</td>
                          <td>{{$data->qty}}</td>
                          <td>{{$data->user_name}}</td>
+                         <td>{{$data->note}}</td>
                      </tr>
                  @endforeach
                 </tbody>
