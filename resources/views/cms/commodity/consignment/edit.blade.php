@@ -11,14 +11,16 @@
         $consignmentData = $consignmentData ?? null;
     @endphp
 
-    <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
-        <div class="p-1 pe-2">
-            <a target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-warning"
-            href="{{ Route('cms.consignment.print_order_ship', ['id' => $id]) }}">
-                列印出貨單
-            </a>
-        </div>
-    </nav>
+    @if ($consignmentData->audit_status == App\Enums\Consignment\AuditStatus::approved()->value)
+        <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
+            <div class="p-1 pe-2">
+                <a target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-warning"
+                   href="{{ Route('cms.consignment.print_order_ship', ['id' => $id]) }}">
+                    列印出貨單
+                </a>
+            </div>
+        </nav>
+    @endif
 
     <div class="card shadow p-4 mb-4">
         <h6>寄倉單明細</h6>
