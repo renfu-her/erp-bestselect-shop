@@ -1208,7 +1208,7 @@ class Product extends Model
         $productData = [];
         foreach ($productQueries as $productQuery) {
             if (!is_null($productQuery['img_url'])) {
-                $imageUrl = getImageUrl($productQuery['img_url']);
+                $imageUrl = getImageUrl($productQuery['img_url'], true);
             } else {
                 $imageUrl = '';
             }
