@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 class EstimatedCostSeeder extends Seeder
 {
     /**
-     * Run the database seeds.
+     * 由原ERP匯入參考成本單價 estimated_cost
      *
      * @return void
      */
