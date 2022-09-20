@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\StockEvent;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class ProductStock extends Model
@@ -64,7 +65,9 @@ class ProductStock extends Model
                 'qty' => $qty,
                 'event' => $event,
                 'event_id' => $event_id,
-                'note' => $note]);
+                'note' => $note,
+                'create_user_id' => Auth::user()->id ?? null,
+                'create_user_name' => Auth::user()->name ?? null]);
 
             return ['success' => 1];
 
@@ -102,5 +105,21 @@ class ProductStock extends Model
 
         });
 
+    }
+
+    //查找明細 依照款式ID
+    public static function getDataWithStyleID($style_id) {
+        $stock_event = '';
+        foreach (StockEvent::asArray() as $key => $val) {
+            $stock_event = $stock_event. ' when stock_log.event = "'. $val. '" then "'. StockEvent::getDescription($val). '"';
+        }
+
+        $stock_log = DB::table(app(ProductStock::class)->getTable(). ' as stock_log')
+            ->select('stock_log.*'
+                , DB::raw('(case '. $stock_event. ' else stock_log.event end) as event_str'))
+            ->where('stock_log.product_style_id', '=', $style_id)
+            ->orderByDesc('stock_log.id')
+        ;
+        return $stock_log;
     }
 }

@@ -231,7 +231,7 @@ class Customer extends Authenticatable
             $groupbyCompany_id = $groupbyCompany->id;
         } else {
             if (!self::validateIdentity($type, $no, $phone, $pass)) {
-                return ['success' => '0', 'message' => '驗證錯誤'];
+                return ['success' => '0', 'message' => '與喜鴻ERP驗證時發生錯誤'];
             }
         }
 

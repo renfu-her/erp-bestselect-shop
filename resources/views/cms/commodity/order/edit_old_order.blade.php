@@ -32,7 +32,7 @@
                             </thead>
                             <tbody>
                                 @foreach ($subOrder->items as $key => $item)
-                                    <input type="hidden" name="item_id[]" value="{{$item->item_id}}">
+                                    <input type="hidden" name="item_id[]" value="{{ $item->item_id }}">
                                     <tr>
                                         <td>{{ $item->product_title }}
                                             <input type="hidden" name="style_id[]" value="{{ $item->style_id }}">
@@ -65,149 +65,77 @@
         @endforeach
 
         <div class="card shadow p-4 mb-4">
-            <h6 class="mb-2">購買人</h6>
-            <div class="row">
-                <div class="col-12 col-sm-6 mb-3">
-                    <label class="form-label">姓名 <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" value="" name="ord_name"
-                        placeholder="請輸入購買人姓名" required>
-                </div>
-                <div class="col-12 col-sm-6 mb-3">
-                    <label class="form-label">電話 <span class="text-danger">*</span></label>
-                    <input type="tel" class="form-control" value="" name="ord_phone"
-                        placeholder="請輸入購買人電話" required>
-                </div>
-                <div class="col-12 mb-3">
-                    <label class="form-label">地址 <span class="text-danger">*</span></label>
-                    <input type="hidden" name="ord_address">
-                    <div class="input-group has-validation">
-                        <select name="ord_city_id" class="form-select" style="max-width:20%" required>
-                            <option value="">縣市</option>
-                            {{-- @foreach ()
-                                <option value="{{  }}"
-                                    @if () selected @endif>{{  }}
-                                </option>
-                            @endforeach --}}
-                        </select>
-                        <select name="ord_region_id" class="form-select" style="max-width:20%" required>
-                            <option value="">地區</option>
-                            {{-- @foreach ()
-                                <option value="{{  }}"
-                                    @if () selected @endif>
-                                    {{  }}
-                                </option>
-                            @endforeach --}}
-                        </select>
-                        <input name="ord_addr" type="text" class="form-control" placeholder="請輸入購買人地址"
-                            value="" required>
-                        <button class="btn btn-outline-success -format_addr_btn" type="button">格式化</button>
-                        <div class="invalid-feedback">
-                            @error('record')
-                                {{ $message }}
-                                {{-- 地址錯誤訊息: ord_city_id, ord_region_id, ord_addr --}}
-                            @enderror
-                            @error('ord_address')
-                                {{ $message }}
-                            @enderror
+            @php
+                $prefix = [
+                    'orderer' => 'ord',
+                    'receiver' => 'rec',
+                    'sender' => 'sed',
+                ];
+                
+                $addr_title = [
+                    'orderer' => '購買人',
+                    'receiver' => '收件人',
+                    'sender' => '寄件人',
+                ];
+            @endphp
+            @foreach ($addr as $key => $_addr)
+                <input type="hidden" name="{{ $prefix[$key] }}_id" value="{{ $_addr->id }}">
+                <h6 class="mb-2">{{ $addr_title[$key] }}</h6>
+                <div class="row">
+                    <div class="col-12 col-sm-6 mb-3">
+                        <label class="form-label">姓名 <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" value="{{ $_addr->name }}"
+                            name="{{ $prefix[$key] }}_name" placeholder="請輸入購買人姓名" required>
+                    </div>
+                    <div class="col-12 col-sm-6 mb-3">
+                        <label class="form-label">電話 <span class="text-danger">*</span></label>
+                        <input type="tel" class="form-control" value="{{ $_addr->phone }}"
+                            name="{{ $prefix[$key] }}_phone" placeholder="請輸入購買人電話" required>
+                    </div>
+                    <div class="col-12 mb-3">
+                        <label class="form-label">地址 <span class="text-danger">*</span></label>
+                        <input type="hidden" name="ord_address">
+                        <div class="input-group has-validation">
+                            <select name="{{ $prefix[$key] }}_city_id" class="form-select" style="max-width:20%" required>
+                                <option value="">縣市</option>
+                                @foreach ($citys as $value)
+                                    <option value="{{ $value['city_id'] }}"
+                                        @if ($_addr->city_id == $value['city_id']) selected @endif>{{ $value['city_title'] }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <select name="{{ $prefix[$key] }}_region_id" class="form-select" style="max-width:20%"
+                                required>
+                                <option value="">地區</option>
+                                @foreach ($_addr->default_region as $value)
+                                    <option value="{{ $value['region_id'] }}"
+                                        @if ($_addr->region_id == $value['region_id']) selected @endif>
+                                        {{ $value['region_title'] }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <input name="{{ $prefix[$key] }}_addr" type="text" class="form-control"
+                                placeholder="請輸入購買人地址" value="{{ $_addr->addr }} " required>
+                            <button class="btn btn-outline-success -format_addr_btn" type="button">格式化</button>
+                            <div class="invalid-feedback">
+                                @error('record')
+                                    {{ $message }}
+                                    {{-- 地址錯誤訊息: ord_city_id, ord_region_id, ord_addr --}}
+                                @enderror
+                                @error($prefix[$key] . '_address')
+                                    {{ $message }}
+                                @enderror
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            @endforeach
 
-            <h6 class="mb-2">寄件人</h6>
-            <div class="row">
-                <div class="col-12 col-sm-6 mb-3">
-                    <label class="form-label">姓名 <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" value="" name="sed_name"
-                        placeholder="請輸入寄件人姓名" required>
-                </div>
-                <div class="col-12 col-sm-6 mb-3">
-                    <label class="form-label">電話 <span class="text-danger">*</span></label>
-                    <input type="tel" class="form-control" value="" name="sed_phone"
-                        placeholder="請輸入寄件人電話" required>
-                </div>
-                <div class="col-12 mb-3">
-                    <label class="form-label">地址 <span class="text-danger">*</span></label>
-                    <input type="hidden" name="sed_address">
-                    <div class="input-group has-validation">
-                        <select name="sed_city_id" class="form-select" style="max-width:20%" required>
-                            <option value="">縣市</option>
-                            {{-- @foreach ()
-                                <option value="{{  }}"
-                                    @if () selected @endif>{{  }}
-                                </option>
-                            @endforeach --}}
-                        </select>
-                        <select name="sed_region_id" class="form-select" style="max-width:20%" required>
-                            <option value="">地區</option>
-                            {{-- @foreach ()
-                                <option value="{{  }}"
-                                    @if () selected @endif>
-                                    {{  }}
-                                </option>
-                            @endforeach --}}
-                        </select>
-                        <input name="sed_addr" type="text" class="form-control" placeholder="請輸入寄件人地址"
-                            value="{{ old('sed_addr') }}" required>
-                        <button class="btn btn-outline-success -format_addr_btn" type="button">格式化</button>
-                        <div class="invalid-feedback">
-                            @error('sed_address')
-                                {{ $message }}
-                            @enderror
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <h6 class="mb-2">收件人</h6>
-            <div class="row">
-                <div class="col-12 col-sm-6 mb-3">
-                    <label class="form-label">姓名 <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" value="" name="rec_name"
-                           placeholder="請輸入收件人姓名" required>
-                </div>
-                <div class="col-12 col-sm-6 mb-3">
-                    <label class="form-label">電話 <span class="text-danger">*</span></label>
-                    <input type="tel" class="form-control" value="" name="rec_phone"
-                           placeholder="請輸入收件人電話" required>
-                </div>
-                <div class="col-12 mb-3">
-                    <label class="form-label">地址 <span class="text-danger">*</span></label>
-                    <input type="hidden" name="rec_address">
-                    <div class="input-group has-validation">
-                        <select name="rec_city_id" class="form-select" style="max-width:20%" required>
-                            <option value="">縣市</option>
-                            {{-- @foreach ()
-                                <option value="{{  }}"
-                                        @if () selected @endif>{{  }}
-                                </option>
-                            @endforeach --}}
-                        </select>
-                        <select name="rec_region_id" class="form-select" style="max-width:20%" required>
-                            <option value="">地區</option>
-                            {{-- @foreach ()
-                                <option value="{{  }}"
-                                        @if () selected @endif>
-                                    {{  }}
-                                </option>
-                            @endforeach --}}
-                        </select>
-                        <input name="rec_addr" type="text" class="form-control" placeholder="請輸入收件人地址"
-                               value="{{ old('rec_addr') }}" required>
-                        <button class="btn btn-outline-success -format_addr_btn" type="button">格式化</button>
-                        <div class="invalid-feedback">
-                            @error('rec_address')
-                            {{ $message }}
-                            @enderror
-                        </div>
-                    </div>
-                </div>
-            </div>
 
             <div class="row">
                 <div class="col-12 mb-3">
                     <label class="form-label mt-3">備註</label>
-                    <textarea name="note" class="form-control" rows="3"></textarea>
+                    <textarea name="order_note" class="form-control" rows="3">{{ $order->note }}</textarea>
                 </div>
             </div>
         </div>
