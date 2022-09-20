@@ -58,6 +58,7 @@ class PurchaseCtrl extends Controller
         $purchase_sdate = Arr::get($query, 'purchase_sdate', '');
         $purchase_edate = Arr::get($query, 'purchase_edate', '');
         $supplier_id = Arr::get($query, 'supplier_id', '');
+        $estimated_depot_id = Arr::get($query, 'estimated_depot_id', '');
         $depot_id = Arr::get($query, 'depot_id', '');
         $inbound_user_id = Arr::get($query, 'inbound_user_id', []);
         $inbound_status = Arr::get($query, 'inbound_status', implode(',', array_keys($all_inbound_status)));
@@ -83,6 +84,7 @@ class PurchaseCtrl extends Controller
                 , $purchase_sdate
                 , $purchase_edate
                 , $supplier_id
+                , $estimated_depot_id
                 , $depot_id
                 , $inbound_user_id
                 , $inbound_status_arr
@@ -99,6 +101,7 @@ class PurchaseCtrl extends Controller
                 , $purchase_sdate
                 , $purchase_edate
                 , $supplier_id
+                , $estimated_depot_id
                 , $depot_id
                 , $inbound_user_id
                 , $inbound_status_arr
@@ -124,6 +127,7 @@ class PurchaseCtrl extends Controller
             , 'purchase_sdate' => $purchase_sdate
             , 'purchase_edate' => $purchase_edate
             , 'supplier_id' => $supplier_id
+            , 'estimated_depot_id' => $estimated_depot_id
             , 'depot_id' => $depot_id
             , 'inbound_user_id' => $inbound_user_id
             , 'inbound_status' => $inbound_status
@@ -139,9 +143,11 @@ class PurchaseCtrl extends Controller
     public function create(Request $request)
     {
         $supplierList = Supplier::getSupplierList()->get();
+        $depotList = Depot::all()->toArray();
         return view('cms.commodity.purchase.edit', [
             'method' => 'create',
             'supplierList' => $supplierList,
+            'depotList' => $depotList,
             'formAction' => Route('cms.purchase.create'),
         ]);
     }
@@ -151,9 +157,19 @@ class PurchaseCtrl extends Controller
         $query = $request->query();
         $this->validInputValue($request);
 
-        $purchaseReq = $request->only('supplier', 'scheduled_date', 'supplier_sn');
+        $purchaseReq = $request->only('supplier', 'scheduled_date', 'estimated_depot_id', 'supplier_sn');
         $purchaseItemReq = $request->only('product_style_id', 'name', 'sku', 'num', 'price', 'memo');
         $purchasePayReq = $request->only('logistics_price', 'logistics_memo', 'invoice_num', 'invoice_date');
+
+        $estimated_depot_id = null;
+        $estimated_depot_name = null;
+        if (isset($purchaseReq['estimated_depot_id'])) {
+            $depot = Depot::where('id', '=', $purchaseReq['estimated_depot_id'])->first();
+            if (isset($depot)) {
+                $estimated_depot_id = $depot->id;
+                $estimated_depot_name = $depot->name;
+            }
+        }
 
         $supplier = Supplier::where('id', '=', $purchaseReq['supplier'])->get()->first();
         $rePcs = Purchase::createPurchase(
@@ -165,6 +181,8 @@ class PurchaseCtrl extends Controller
             $request->user()->id,
             $request->user()->name,
             $purchaseReq['scheduled_date'],
+            $estimated_depot_id ?? null,
+            $estimated_depot_name ?? null,
             $purchasePayReq['logistics_price'] ?? null,
             $purchasePayReq['logistics_memo'] ?? null,
             $purchasePayReq['invoice_num'] ?? null,
@@ -252,6 +270,7 @@ class PurchaseCtrl extends Controller
         if (!$purchaseData) {
             return abort(404);
         }
+        $depotList = Depot::all()->toArray();
 
         //做一陣列 整理各款式商品的入庫人員，將重複的去除
         $inbound_name_arr = [];
@@ -303,6 +322,7 @@ class PurchaseCtrl extends Controller
             'id' => $id,
             'purchaseData' => $purchaseData,
             'purchaseItemData' => $purchaseItemData,
+            'depotList' => $depotList,
             // 'payingOrderData' => $payingOrderList,
             'hasCreatedDepositPayment'  => $hasCreatedDepositPayment,
             'hasCreatedFinalPayment'    => $hasCreatedFinalPayment,
@@ -328,7 +348,7 @@ class PurchaseCtrl extends Controller
         $this->validInputValue($request);
 
         $taxReq = $request->input('tax');
-        $purchaseReq = $request->only('supplier', 'scheduled_date', 'supplier_sn', 'audit_status');
+        $purchaseReq = $request->only('supplier', 'scheduled_date', 'estimated_depot_id', 'supplier_sn', 'audit_status');
         $purchaseItemReq = $request->only('item_id', 'product_style_id', 'name', 'sku', 'num', 'price', 'memo');
         $purchasePayReq = $request->only('tax', 'logistics_price', 'logistics_memo', 'invoice_num', 'invoice_date');
 

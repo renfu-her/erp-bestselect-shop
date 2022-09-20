@@ -114,7 +114,33 @@
                             </div>
                         </div>
                     @endif
+                </div>
 
+                <div class="col-12 col-sm-6 mb-3">
+                    <label class="form-label">選擇預計入庫倉庫 <span class="text-danger">*</span></label>
+                    @if ($hasCreatedFinalPayment)
+                        <input type="text" id="estimated_depot_id" name="estimated_depot_id"
+                               value="{{ old('estimated_depot_id', $purchaseData->estimated_depot_id  ?? '') }}"
+                               class="form-control" aria-label="預計入庫倉庫"
+                               readonly/>
+                    @else
+                        <select name="estimated_depot_id"
+                                class="form-select @error('estimated_depot_id') is-invalid @enderror"
+                                aria-label="請選擇預計入庫倉庫" required>
+                            <option value="" selected disabled>請選擇</option>
+                            @foreach ($depotList as $depotItem)
+                                <option value="{{ $depotItem['id'] }}"
+                                        @if ($depotItem['id'] == old('estimated_depot_id', $purchaseData->estimated_depot_id  ?? '')) selected @endif>
+                                    {{ $depotItem['name'] }} {{ $depotItem['can_tally'] ? '(理貨倉)' : '(非理貨倉)' }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <div class="invalid-feedback">
+                            @error('estimated_depot_id')
+                            {{ $message }}
+                            @enderror
+                        </div>
+                    @endif
                 </div>
 
                 @if ($method === 'edit')

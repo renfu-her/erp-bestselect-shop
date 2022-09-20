@@ -59,12 +59,22 @@
                     </select>
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
+                    <label class="form-label">預計入庫倉</label>
+                    <select class="form-select" name="estimated_depot_id" aria-label="預計入庫倉">
+                        <option value="" @if ('' == $estimated_depot_id ?? '') selected @endif disabled>請選擇</option>
+                        <@foreach ($depotList as $key => $data)
+                            <option value="{{ $data->id }}"
+                                    @if ($data->id == $estimated_depot_id ?? '') selected @endif>{{ $data->name }} {{ $data->can_tally ? '(理貨倉)' : '(非理貨倉)' }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">倉庫</label>
                     <select class="form-select" name="depot_id" aria-label="倉庫">
                         <option value="" @if ('' == $depot_id ?? '') selected @endif disabled>請選擇</option>
                         <@foreach ($depotList as $key => $data)
                             <option value="{{ $data->id }}"
-                                    @if ($data->id === $depot_id ?? '') selected @endif>{{ $data->name }}</option>
+                                    @if ($data->id == $depot_id ?? '') selected @endif>{{ $data->name }} {{ $data->can_tally ? '(理貨倉)' : '(非理貨倉)' }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -205,6 +215,7 @@
                             <th scope="col">採購單號</th>
                             <th scope="col">商品名稱</th>
                             <th scope="col">採購日期</th>
+                            <th scope="col">預計入庫倉</th>
                             <th scope="col">審核狀態</th>
                             <th scope="col">入庫狀態</th>
                             <th scope="col">訂金單號</th>
@@ -233,6 +244,7 @@
                                     <div class="lh-base">{{ $data->title }}</div>
                                 </td>
                                 <td>{{ date('Y/m/d', strtotime($data->created_at)) }}</td>
+                                <td>{{ $data->estimated_depot_name }}</td>
                                 <td>{{ $data->audit_status }}</td>
                                 <td>{{ $data->inbound_status }}</td>
                                 <td>{{ $data->deposit_num }}</td>

@@ -21,7 +21,7 @@ class Purchase extends Model
     ];
 
     public static function createPurchase($sn = null, $supplier_id, $supplier_name, $supplier_nickname, $supplier_sn = null, $purchase_user_id, $purchase_user_name
-        , $scheduled_date
+        , $scheduled_date, $estimated_depot_id = null, $estimated_depot_name = null
         , $logistics_price = 0, $logistics_memo = null, $invoice_num = null, $invoice_date = null
     )
     {
@@ -34,6 +34,8 @@ class Purchase extends Model
             $purchase_user_id,
             $purchase_user_name,
             $scheduled_date,
+            $estimated_depot_id,
+            $estimated_depot_name,
             $logistics_price,
             $logistics_memo,
             $invoice_num,
@@ -57,6 +59,8 @@ class Purchase extends Model
                 'purchase_user_id' => $purchase_user_id,
                 'purchase_user_name' => $purchase_user_name,
                 'scheduled_date' => $scheduled_date,
+                'estimated_depot_id' => $estimated_depot_id ?? null,
+                'estimated_depot_name' => $estimated_depot_name ?? null,
                 'logistics_price' => $logistics_price ?? 0,
                 'logistics_memo' => $logistics_memo ?? null,
                 'invoice_num' => $invoice_num ?? null,
@@ -145,6 +149,8 @@ class Purchase extends Model
                         $event = '修改發票號碼';
                     } else if($key == 'invoice_date') {
                         $event = '修改發票日期';
+                    } else if($key == 'estimated_depot_id') {
+                        $event = '修改預計入庫倉';
                     }
 
                     $rePcsLSC = PurchaseLog::stockChange($id, null, Event::purchase()->value, $id, LogEventFeature::change_data()->value, null, null, $event, null, null, $operator_user_id, $operator_user_name);
@@ -153,12 +159,25 @@ class Purchase extends Model
                         return $rePcsLSC;
                     }
                 }
+
+                $estimated_depot_id = null;
+                $estimated_depot_name = null;
+                if (isset($purchaseReq['estimated_depot_id'])) {
+                    $depot = Depot::where('id', '=', $purchaseReq['estimated_depot_id'])->first();
+                    if (isset($depot)) {
+                        $estimated_depot_id = $depot->id;
+                        $estimated_depot_name = $depot->name;
+                    }
+                }
+
                 $updArr = [];
                 if (AuditStatus::unreviewed()->value == $orign_audit_status) {
                     $updArr = [
 //                        "supplier_id" => $purchaseReq['supplier'],
                         "supplier_sn" => $purchaseReq['supplier_sn'],
                         "scheduled_date" => $purchaseReq['scheduled_date'],
+                        "estimated_depot_id" => $estimated_depot_id,
+                        "estimated_depot_name" => $estimated_depot_name,
                         "has_tax" => $tax,
                         'invoice_num' => $purchasePayReq['invoice_num'] ?? null,
                         'invoice_date' => $purchasePayReq['invoice_date'] ?? null,
@@ -210,6 +229,7 @@ class Purchase extends Model
     {
         if (null != $purchase && null != $purchaseReq && null != $purchasePayReq) {
             $purchase->audit_status = $purchaseReq['audit_status'];
+            $purchase->estimated_depot_id = $purchaseReq['estimated_depot_id'];
             $purchase->logistics_price = $purchasePayReq['logistics_price'] ?? 0;
             $purchase->logistics_memo = $purchasePayReq['logistics_memo'] ?? null;
         }
@@ -297,6 +317,8 @@ class Purchase extends Model
                 , 'purchase.supplier_name as supplier_name'
                 , 'purchase.supplier_nickname as supplier_nickname'
                 , 'purchase.supplier_sn as supplier_sn'
+                , 'purchase.estimated_depot_id as estimated_depot_id'
+                , 'purchase.estimated_depot_name as estimated_depot_name'
 
                 , 'purchase.has_tax as has_tax'
                 , 'purchase.logistics_price as logistics_price'
