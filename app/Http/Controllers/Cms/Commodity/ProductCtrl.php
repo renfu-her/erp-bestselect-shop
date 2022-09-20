@@ -365,6 +365,7 @@ class ProductCtrl extends Controller
             foreach ($d['sk_style_id'] as $key => $value) {
                 $updateData = [];
                 //  $updateData['sold_out_event'] = $d['sk_sold_out_event'][$key];
+                $updateData['estimated_cost'] = $d['sk_estimated_cost'][$key];
                 ProductStyle::where('id', $value)->whereNotNull('sku')->update($updateData);
                 SaleChannel::changePrice($sale_id, $value, $d['sk_dealer_price'][$key], $d['sk_price'][$key], $d['sk_origin_price'][$key], $d['sk_bonus'][$key], $d['sk_dividend'][$key]);
 
