@@ -40,6 +40,9 @@
                     <i class="bi bi-plus-lg"></i> 新增分潤成員
                 </a>
             @endcan
+            <a href="{{ Route('cms.customer-profit.batch') }}" class="btn btn-primary">
+                <i class="bi bi-plus-lg"></i> 批次產生
+            </a>
         </div>
 
         <div class="table-responsive tableOverBox">
