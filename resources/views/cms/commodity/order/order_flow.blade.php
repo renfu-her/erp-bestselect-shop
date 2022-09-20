@@ -24,6 +24,7 @@
                         <th scope="col" style="width:40px">#</th>
                         <th scope="col">更新日期</th>
                         <th scope="col">事件</th>
+                        <th scope="col">操作者</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -32,6 +33,7 @@
                         <th scope="row">{{ $key + 1 }}</th>
                         <td>{{ date('Y-m-d H:i:s', strtotime($data->updated_at)) }}</td>
                         <td>{{$data->status}}</td>
+                        <td>{{$data->create_user_name}}</td>
                     </tr>
                  @endforeach
                 </tbody>

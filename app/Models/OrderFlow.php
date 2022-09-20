@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\Order\OrderStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class OrderFlow extends Model
 {
@@ -24,6 +25,8 @@ class OrderFlow extends Model
             'order_id' => $order_id,
             'status_code' => $stauts->value,
             'status' => $stauts->description,
+            'create_user_id' => Auth::user()->id ?? null,
+            'create_user_name' => Auth::user()->name ?? null,
         ]);
     }
 }
