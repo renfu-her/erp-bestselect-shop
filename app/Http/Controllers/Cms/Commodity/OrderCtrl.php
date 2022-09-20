@@ -9,19 +9,19 @@ use App\Enums\Delivery\LogisticStatus;
 use App\Enums\Discount\DividendCategory;
 use App\Enums\Order\OrderStatus;
 use App\Enums\Order\UserAddrType;
+use App\Enums\Payable\ChequeStatus as PayableChequeStatus;
 use App\Enums\Received\ChequeStatus;
-use App\Enums\Payable\ChequeStatus AS PayableChequeStatus;
 use App\Enums\Received\ReceivedMethod;
 use App\Enums\Supplier\Payment;
 use App\Http\Controllers\Controller;
 use App\Models\AccountPayable;
 use App\Models\Addr;
 use App\Models\AllGrade;
+use App\Models\CrdCreditCard;
 use App\Models\Customer;
 use App\Models\CustomerAddress;
 use App\Models\CustomerDividend;
 use App\Models\CustomerProfit;
-use App\Models\CrdCreditCard;
 use App\Models\DayEnd;
 use App\Models\Delivery;
 use App\Models\Depot;
@@ -671,37 +671,36 @@ class OrderCtrl extends Controller
         ]));
     }
 
-
     public function ro_edit(Request $reqeust, $id)
     {
         $order_id = request('id');
         $order_data = Order::findOrFail($order_id);
 
         $order_purchaser = Customer::leftJoin('usr_customers_address AS customer_add', function ($join) {
-                $join->on('usr_customers.id', '=', 'customer_add.usr_customers_id_fk');
-                $join->where([
-                    'customer_add.is_default_addr'=>1,
-                ]);
-            })->where([
-                'email'=>$order_data->email,
-                // 'deleted_at'=>null,
-            ])->select(
-                'usr_customers.id',
-                'usr_customers.name',
-                'usr_customers.phone AS phone',
-                'usr_customers.email',
-                'customer_add.address AS address'
-            )->first();
+            $join->on('usr_customers.id', '=', 'customer_add.usr_customers_id_fk');
+            $join->where([
+                'customer_add.is_default_addr' => 1,
+            ]);
+        })->where([
+            'email' => $order_data->email,
+            // 'deleted_at'=>null,
+        ])->select(
+            'usr_customers.id',
+            'usr_customers.name',
+            'usr_customers.phone AS phone',
+            'usr_customers.email',
+            'customer_add.address AS address'
+        )->first();
 
         $order_list_data = OrderItem::item_order($order_id)->get();
 
         $source_type = app(Order::class)->getTable();
         $received_order_collection = ReceivedOrder::where([
-            'source_type'=>$source_type,
-            'source_id'=>$order_id,
+            'source_type' => $source_type,
+            'source_id' => $order_id,
         ]);
 
-        if(! $received_order_collection->first()){
+        if (!$received_order_collection->first()) {
             ReceivedOrder::create_received_order($source_type, $order_id);
         }
 
@@ -759,7 +758,7 @@ class OrderCtrl extends Controller
                     ];
                 }
             } else {
-                if($recMethod == 'other'){
+                if ($recMethod == 'other') {
                     $defaultArray[$recMethod] = $allGradeArray;
                 } else {
                     $defaultArray[$recMethod] = [];
@@ -781,19 +780,19 @@ class OrderCtrl extends Controller
         $currencyDefaultArray = [];
         foreach ($currencyDefault as $default) {
             $currencyDefaultArray[$default->default_grade_id][] = [
-                'currency_id'    => $default->currency_id,
-                'currency_name'    => $default->currency_name,
-                'rate'             => $default->rate,
+                'currency_id' => $default->currency_id,
+                'currency_name' => $default->currency_name,
+                'rate' => $default->rate,
                 'default_grade_id' => $default->default_grade_id,
             ];
         }
 
         $order_discount = DB::table('ord_discounts')->where([
-            'order_type'=>'main',
-            'order_id'=>$order_id,
+            'order_type' => 'main',
+            'order_id' => $order_id,
         ])->where('discount_value', '>', 0)->get()->toArray();
 
-        foreach($order_discount as $value){
+        foreach ($order_discount as $value) {
             $value->account_code = AllGrade::find($value->discount_grade_id) ? AllGrade::find($value->discount_grade_id)->eachGrade->code : '4000';
             $value->account_name = AllGrade::find($value->discount_grade_id) ? AllGrade::find($value->discount_grade_id)->eachGrade->name : '無設定會計科目';
         }
@@ -807,18 +806,18 @@ class OrderCtrl extends Controller
             'currencyDefaultArray' => $currencyDefaultArray,
             'tw_price' => $tw_price,
             'receivedMethods' => ReceivedMethod::asSelectArray(),
-            'formAction' => Route('cms.order.ro-store', ['id'=>$order_id]),
+            'formAction' => Route('cms.order.ro-store', ['id' => $order_id]),
             'ord_orders_id' => $order_id,
 
             'breadcrumb_data' => ['id' => $order_data->id, 'sn' => $order_data->sn],
             'order_data' => $order_data,
             'order_purchaser' => $order_purchaser,
             'order_list_data' => $order_list_data,
-            'order_discount'=>$order_discount,
+            'order_discount' => $order_discount,
             'received_order_data' => $received_order_data,
             'received_data' => $received_data,
-            'card_type'=>$card_type,
-            'checkout_area'=>$checkout_area,
+            'card_type' => $card_type,
+            'checkout_area' => $checkout_area,
         ]);
     }
 
@@ -830,14 +829,14 @@ class OrderCtrl extends Controller
             'tw_price' => 'required|numeric',
             request('acc_transact_type_fk') => 'required|array',
             request('acc_transact_type_fk') . '.grade' => 'required|exists:acc_all_grades,id',
-            'summary'=>'nullable|string',
-            'note'=>'nullable|string',
+            'summary' => 'nullable|string',
+            'note' => 'nullable|string',
         ]);
 
         $data = $request->except('_token');
         $received_order_collection = ReceivedOrder::where([
-            'source_type'=>app(Order::class)->getTable(),
-            'source_id'=>$data['id'],
+            'source_type' => app(Order::class)->getTable(),
+            'source_id' => $data['id'],
         ]);
         $received_order_id = $received_order_collection->first()->id;
 
@@ -845,35 +844,35 @@ class OrderCtrl extends Controller
 
         try {
             // 'credit_card'
-            if($data['acc_transact_type_fk'] == ReceivedMethod::CreditCard){
+            if ($data['acc_transact_type_fk'] == ReceivedMethod::CreditCard) {
                 $card_type = CrdCreditCard::distinct('title')->groupBy('title')->orderBy('id', 'asc')->pluck('title', 'id')->toArray();
 
                 $checkout_area = Area::get_key_value();
 
                 $data[$data['acc_transact_type_fk']] = [
-                    'cardnumber'=>$data[$data['acc_transact_type_fk']]['cardnumber'],
-                    'authamt'=>$data['tw_price'] ?? 0,
-                    'checkout_date'=>$data[$data['acc_transact_type_fk']]['checkout_date'] ?? null,// date('Y-m-d H:i:s')
-                    'card_type_code'=>$data[$data['acc_transact_type_fk']]['card_type_code'] ?? null,
-                    'card_type'=>$card_type[$data[$data['acc_transact_type_fk']]['card_type_code']] ?? null,
-                    'card_owner_name'=>$data[$data['acc_transact_type_fk']]['card_owner_name'] ?? null,
-                    'authcode'=>$data[$data['acc_transact_type_fk']]['authcode'] ?? null,
-                    'all_grades_id'=>$data[$data['acc_transact_type_fk']]['grade'],
-                    'checkout_area_code'=>'taipei',// $data[$data['acc_transact_type_fk']]['credit_card_area_code']
-                    'checkout_area'=>'台北',// $checkout_area[$data[$data['acc_transact_type_fk']]['credit_card_area_code']]
-                    'installment'=>$data[$data['acc_transact_type_fk']]['installment'] ?? 'none',
-                    'status_code'=>0,
-                    'card_nat'=>'local',
-                    'checkout_mode'=>'offline',
+                    'cardnumber' => $data[$data['acc_transact_type_fk']]['cardnumber'],
+                    'authamt' => $data['tw_price'] ?? 0,
+                    'checkout_date' => $data[$data['acc_transact_type_fk']]['checkout_date'] ?? null, // date('Y-m-d H:i:s')
+                    'card_type_code' => $data[$data['acc_transact_type_fk']]['card_type_code'] ?? null,
+                    'card_type' => $card_type[$data[$data['acc_transact_type_fk']]['card_type_code']] ?? null,
+                    'card_owner_name' => $data[$data['acc_transact_type_fk']]['card_owner_name'] ?? null,
+                    'authcode' => $data[$data['acc_transact_type_fk']]['authcode'] ?? null,
+                    'all_grades_id' => $data[$data['acc_transact_type_fk']]['grade'],
+                    'checkout_area_code' => 'taipei', // $data[$data['acc_transact_type_fk']]['credit_card_area_code']
+                    'checkout_area' => '台北', // $checkout_area[$data[$data['acc_transact_type_fk']]['credit_card_area_code']]
+                    'installment' => $data[$data['acc_transact_type_fk']]['installment'] ?? 'none',
+                    'status_code' => 0,
+                    'card_nat' => 'local',
+                    'checkout_mode' => 'offline',
                 ];
 
                 $data[$data['acc_transact_type_fk']]['grade'] = $data[$data['acc_transact_type_fk']]['all_grades_id'];
 
                 $EncArray['more_info'] = $data[$data['acc_transact_type_fk']];
 
-            } else if($data['acc_transact_type_fk'] == ReceivedMethod::Cheque){
+            } else if ($data['acc_transact_type_fk'] == ReceivedMethod::Cheque) {
                 $request->validate([
-                    request('acc_transact_type_fk') . '.ticket_number'=>'required|unique:acc_received_cheque,ticket_number,ro_delete,status_code|regex:/^[A-Z]{2}[0-9]{7}$/'
+                    request('acc_transact_type_fk') . '.ticket_number' => 'required|unique:acc_received_cheque,ticket_number,ro_delete,status_code|regex:/^[A-Z]{2}[0-9]{7}$/',
                 ]);
             }
 
@@ -890,7 +889,7 @@ class OrderCtrl extends Controller
             $parm['note'] = $data['note'];
             ReceivedOrder::store_received($parm);
 
-            if($data['acc_transact_type_fk'] == ReceivedMethod::CreditCard){
+            if ($data['acc_transact_type_fk'] == ReceivedMethod::CreditCard) {
                 OrderPayCreditCard::create_log(app(Order::class)->getTable(), $data['id'], (object) $EncArray);
             }
 
@@ -899,9 +898,8 @@ class OrderCtrl extends Controller
 
         } catch (\Exception $e) {
             DB::rollback();
-            wToast(__('收款單儲存失敗', ['type'=>'danger']));
+            wToast(__('收款單儲存失敗', ['type' => 'danger']));
         }
-
 
         if (ReceivedOrder::find($received_order_id) && ReceivedOrder::find($received_order_id)->balance_date) {
             return redirect()->route('cms.order.detail', [
@@ -918,7 +916,7 @@ class OrderCtrl extends Controller
     public function ro_receipt(Request $request, $id)
     {
         $request->merge([
-            'id'=>$id,
+            'id' => $id,
         ]);
         $request->validate([
             'id' => 'required|exists:ord_orders,id',
@@ -926,8 +924,8 @@ class OrderCtrl extends Controller
 
         $order = Order::findOrFail(request('id'));
         $received_order_collection = ReceivedOrder::where([
-            'source_type'=>app(Order::class)->getTable(),
-            'source_id'=>$id,
+            'source_type' => app(Order::class)->getTable(),
+            'source_id' => $id,
         ]);
 
         $received_order_data = $received_order_collection->get();
@@ -954,15 +952,15 @@ class OrderCtrl extends Controller
 
         $logistics_grade = AllGrade::find($received_order_collection->first()->logistics_grade_id);
         if (isset($logistics_grade)) {
-            $logistics_grade_name = $logistics_grade->eachGrade->code . ' '. $logistics_grade->eachGrade->name;
+            $logistics_grade_name = $logistics_grade->eachGrade->code . ' ' . $logistics_grade->eachGrade->name;
         }
 
         $order_discount = DB::table('ord_discounts')->where([
-            'order_type'=>'main',
-            'order_id'=>request('id'),
+            'order_type' => 'main',
+            'order_id' => request('id'),
         ])->where('discount_value', '>', 0)->get()->toArray();
 
-        foreach($order_discount as $value){
+        foreach ($order_discount as $value) {
             $value->account_code = AllGrade::find($value->discount_grade_id) ? AllGrade::find($value->discount_grade_id)->eachGrade->code : '4000';
             $value->account_name = AllGrade::find($value->discount_grade_id) ? AllGrade::find($value->discount_grade_id)->eachGrade->name : '無設定會計科目';
         }
@@ -975,20 +973,20 @@ class OrderCtrl extends Controller
             $view = 'doc.print_received';
         }
         return view($view, [
-            'breadcrumb_data' => ['id'=>$order->id, 'sn'=>$order->sn],
+            'breadcrumb_data' => ['id' => $order->id, 'sn' => $order->sn],
 
-            'received_order'=>$received_order_collection->first(),
-            'order'=>$order,
-            'order_discount'=>$order_discount,
+            'received_order' => $received_order_collection->first(),
+            'order' => $order,
+            'order_discount' => $order_discount,
             'order_list_data' => $order_list_data,
             'received_data' => $received_data,
             'data_status_check' => $data_status_check,
-            'undertaker'=>$undertaker,
-            'product_qc'=>implode(',', $product_qc),
+            'undertaker' => $undertaker,
+            'product_qc' => implode(',', $product_qc),
             // 'accountant'=>implode(',', $accountant),
-            'accountant'=>$accountant,
-            'product_grade_name'=>$product_grade_name,
-            'logistics_grade_name'=>$logistics_grade_name ?? '',
+            'accountant' => $accountant,
+            'product_grade_name' => $product_grade_name,
+            'logistics_grade_name' => $logistics_grade_name ?? '',
             'zh_price' => $zh_price,
         ]);
     }
@@ -996,15 +994,15 @@ class OrderCtrl extends Controller
     public function ro_review(Request $request, $id)
     {
         $request->merge([
-            'id'=>$id,
+            'id' => $id,
         ]);
         $request->validate([
             'id' => 'required|exists:ord_orders,id',
         ]);
 
         $received_order_collection = ReceivedOrder::where([
-            'source_type'=>app(Order::class)->getTable(),
-            'source_id'=>$id,
+            'source_type' => app(Order::class)->getTable(),
+            'source_id' => $id,
         ]);
 
         $received_order_data = $received_order_collection->get();
@@ -1014,7 +1012,7 @@ class OrderCtrl extends Controller
 
         $received_order = $received_order_collection->first();
 
-        if($request->isMethod('post')){
+        if ($request->isMethod('post')) {
             $request->validate([
                 'receipt_date' => 'required|date_format:"Y-m-d"',
                 'invoice_number' => 'nullable|string',
@@ -1024,18 +1022,18 @@ class OrderCtrl extends Controller
 
             try {
                 $received_order->update([
-                    'accountant_id'=>auth('user')->user()->id,
-                    'receipt_date'=>request('receipt_date'),
-                    'invoice_number'=>request('invoice_number'),
+                    'accountant_id' => auth('user')->user()->id,
+                    'receipt_date' => request('receipt_date'),
+                    'invoice_number' => request('invoice_number'),
                 ]);
 
-                if(is_array(request('received_method'))){
+                if (is_array(request('received_method'))) {
                     $unique_m = array_unique(request('received_method'));
 
-                    foreach($unique_m as $m_value){
-                        if( in_array($m_value, ReceivedMethod::asArray()) && is_array(request($m_value))){
+                    foreach ($unique_m as $m_value) {
+                        if (in_array($m_value, ReceivedMethod::asArray()) && is_array(request($m_value))) {
                             $req = request($m_value);
-                            foreach($req as $r){
+                            foreach ($req as $r) {
                                 $r['received_method'] = $m_value;
                                 ReceivedOrder::update_received_method($r);
                             }
@@ -1043,52 +1041,51 @@ class OrderCtrl extends Controller
                     }
                 }
 
-
                 OrderFlow::changeOrderStatus($id, OrderStatus::Received());
                 // 配發啟用日期
                 Order::assign_dividend_active_date($id);
                 Order::sendMail_OrderPaid($id);
                 Customer::updateOrderSpends($received_order->drawee_id, $received_order->price);
 
-	            //修改子訂單物流配送狀態為檢貨中
-	            $sub_orders = SubOrders::where('order_id', '=', $id)->get();
-	            if (isset($sub_orders) && 0 < count($sub_orders)) {
-	                $sub_order_ids = [];
-	                foreach ($sub_orders as $sub_order) {
-	                    array_push($sub_order_ids, $sub_order->id);
-	                }
-	                $delivery = Delivery::whereIn('event_id', $sub_order_ids)->where('event', '=', Event::order()->value)->get();
-	                if (isset($delivery) && 0 < count($delivery)) {
-	                    foreach ($delivery as $dlv) {
-	                        $reLFCDS = LogisticFlow::createDeliveryStatus($request->user(), $dlv->id, [LogisticStatus::A2000()]);
+                //修改子訂單物流配送狀態為檢貨中
+                $sub_orders = SubOrders::where('order_id', '=', $id)->get();
+                if (isset($sub_orders) && 0 < count($sub_orders)) {
+                    $sub_order_ids = [];
+                    foreach ($sub_orders as $sub_order) {
+                        array_push($sub_order_ids, $sub_order->id);
+                    }
+                    $delivery = Delivery::whereIn('event_id', $sub_order_ids)->where('event', '=', Event::order()->value)->get();
+                    if (isset($delivery) && 0 < count($delivery)) {
+                        foreach ($delivery as $dlv) {
+                            $reLFCDS = LogisticFlow::createDeliveryStatus($request->user(), $dlv->id, [LogisticStatus::A2000()]);
                             if ($reLFCDS['success'] == 0) {
                                 DB::rollBack();
                                 return $reLFCDS;
                             }
-	                    }
-	                }
-	            }
+                        }
+                    }
+                }
 
                 DayEnd::match_day_end_status(request('receipt_date'), $received_order->sn);
 
                 DB::commit();
                 wToast(__('入帳日期更新成功'));
 
-                return redirect()->route('cms.order.ro-receipt', ['id'=>request('id')]);
+                return redirect()->route('cms.order.ro-receipt', ['id' => request('id')]);
 
             } catch (\Exception $e) {
                 DB::rollback();
-                wToast(__('入帳日期更新失敗', ['type'=>'danger']));
+                wToast(__('入帳日期更新失敗', ['type' => 'danger']));
 
                 return redirect()->back();
             }
 
-        } else if($request->isMethod('get')){
+        } else if ($request->isMethod('get')) {
             $received_data = ReceivedOrder::get_received_detail($received_order_data->pluck('id')->toArray());
             $data_status_check = ReceivedOrder::received_data_status_check($received_data);
 
-            if($received_order->receipt_date){
-                if($data_status_check){
+            if ($received_order->receipt_date) {
+                if ($data_status_check) {
                     return redirect()->back();
                 }
 
@@ -1103,7 +1100,7 @@ class OrderCtrl extends Controller
                 Customer::updateOrderSpends($received_order->drawee_id, $received_order->price * -1);
 
                 wToast(__('入帳日期已取消'));
-                return redirect()->route('cms.order.ro-receipt', ['id'=>request('id')]);
+                return redirect()->route('cms.order.ro-receipt', ['id' => request('id')]);
 
             } else {
                 $undertaker = User::find($received_order->usr_users_id);
@@ -1115,31 +1112,31 @@ class OrderCtrl extends Controller
                 $credit = [];
 
                 // 收款項目
-                foreach($received_data as $value){
+                foreach ($received_data as $value) {
                     $name = $value->received_method_name . ' ' . $value->summary . '（' . $value->account->code . ' - ' . $value->account->name . '）';
                     // GeneralLedger::classification_processing($debit, $credit, $value->master_account->code, $name, $value->tw_price, 'r', 'received');
 
                     $tmp = [
-                        'account_code'=>$value->account->code,
-                        'name'=>$name,
-                        'price'=>$value->tw_price,
-                        'type'=>'r',
-                        'd_type'=>'received',
+                        'account_code' => $value->account->code,
+                        'name' => $name,
+                        'price' => $value->tw_price,
+                        'type' => 'r',
+                        'd_type' => 'received',
 
-                        'account_name'=>$value->account->name,
-                        'method_name'=>$value->received_method_name,
-                        'summary'=>$value->summary,
-                        'note'=>$value->note,
-                        'product_title'=>null,
-                        'del_even'=>null,
-                        'del_category_name'=>null,
-                        'product_price'=>null,
-                        'product_qty'=>null,
-                        'product_owner'=>null,
-                        'discount_title'=>null,
-                        'payable_type'=>null,
+                        'account_name' => $value->account->name,
+                        'method_name' => $value->received_method_name,
+                        'summary' => $value->summary,
+                        'note' => $value->note,
+                        'product_title' => null,
+                        'del_even' => null,
+                        'del_category_name' => null,
+                        'product_price' => null,
+                        'product_qty' => null,
+                        'product_owner' => null,
+                        'discount_title' => null,
+                        'payable_type' => null,
 
-                        'received_info'=>$value,
+                        'received_info' => $value,
                     ];
                     GeneralLedger::classification_processing($debit, $credit, $tmp);
                 }
@@ -1149,36 +1146,36 @@ class OrderCtrl extends Controller
                 $account_code = $product_account ? $product_account->code : '4000';
                 $account_name = $product_account ? $product_account->name : '無設定會計科目';
                 $product_grade_name = $account_code . ' ' . $account_name;
-                foreach($order_list_data as $value){
+                foreach ($order_list_data as $value) {
                     $name = $product_grade_name . ' --- ' . $value->product_title . '（' . $value->del_even . ' - ' . $value->del_category_name . '）（' . $value->product_price . ' * ' . $value->product_qty . '）';
                     // GeneralLedger::classification_processing($debit, $credit, $product_master_account->code, $name, $value->product_origin_price, 'r', 'product');
 
                     $tmp = [
-                        'account_code'=>$account_code,
-                        'name'=>$name,
-                        'price'=>$value->product_origin_price,
-                        'type'=>'r',
-                        'd_type'=>'product',
+                        'account_code' => $account_code,
+                        'name' => $name,
+                        'price' => $value->product_origin_price,
+                        'type' => 'r',
+                        'd_type' => 'product',
 
-                        'account_name'=>$account_name,
-                        'method_name'=>null,
-                        'summary'=>$value->summary ?? null,
-                        'note'=>$value->note ?? null,
-                        'product_title'=>$value->product_title,
-                        'del_even'=>$value->del_even ?? null,
-                        'del_category_name'=>$value->del_category_name ?? null,
-                        'product_price'=>$value->product_price,
-                        'product_qty'=>$value->product_qty,
-                        'product_owner'=>null,
-                        'discount_title'=>null,
-                        'payable_type'=>null,
-                        'received_info'=>null,
+                        'account_name' => $account_name,
+                        'method_name' => null,
+                        'summary' => $value->summary ?? null,
+                        'note' => $value->note ?? null,
+                        'product_title' => $value->product_title,
+                        'del_even' => $value->del_even ?? null,
+                        'del_category_name' => $value->del_category_name ?? null,
+                        'product_price' => $value->product_price,
+                        'product_qty' => $value->product_qty,
+                        'product_owner' => null,
+                        'discount_title' => null,
+                        'payable_type' => null,
+                        'received_info' => null,
                     ];
                     GeneralLedger::classification_processing($debit, $credit, $tmp);
                 }
 
                 // 物流
-                if($order->dlv_fee <> 0){
+                if ($order->dlv_fee != 0) {
                     $log_account = AllGrade::find($received_order->logistics_grade_id) ? AllGrade::find($received_order->logistics_grade_id)->eachGrade : null;
                     $account_code = $log_account ? $log_account->code : '4000';
                     $account_name = $log_account ? $log_account->name : '無設定會計科目';
@@ -1187,37 +1184,37 @@ class OrderCtrl extends Controller
                     // GeneralLedger::classification_processing($debit, $credit, $logistics_master_account->code, $name, $order->dlv_fee, 'r', 'logistics');
 
                     $tmp = [
-                        'account_code'=>$account_code,
-                        'name'=>$name,
-                        'price'=>$order->dlv_fee,
-                        'type'=>'r',
-                        'd_type'=>'logistics',
+                        'account_code' => $account_code,
+                        'name' => $name,
+                        'price' => $order->dlv_fee,
+                        'type' => 'r',
+                        'd_type' => 'logistics',
 
-                        'account_name'=>$account_name,
-                        'method_name'=>null,
-                        'summary'=>null,
-                        'note'=>null,
-                        'product_title'=>null,
-                        'del_even'=>null,
-                        'del_category_name'=>null,
-                        'product_price'=>null,
-                        'product_qty'=>null,
-                        'product_owner'=>null,
-                        'discount_title'=>null,
-                        'payable_type'=>null,
-                        'received_info'=>null,
+                        'account_name' => $account_name,
+                        'method_name' => null,
+                        'summary' => null,
+                        'note' => null,
+                        'product_title' => null,
+                        'del_even' => null,
+                        'del_category_name' => null,
+                        'product_price' => null,
+                        'product_qty' => null,
+                        'product_owner' => null,
+                        'discount_title' => null,
+                        'payable_type' => null,
+                        'received_info' => null,
                     ];
                     GeneralLedger::classification_processing($debit, $credit, $tmp);
                 }
 
                 // 折扣
-                if($order->discount_value > 0){
+                if ($order->discount_value > 0) {
                     $order_discount = DB::table('ord_discounts')->where([
-                        'order_type'=>'main',
-                        'order_id'=>request('id'),
+                        'order_type' => 'main',
+                        'order_id' => request('id'),
                     ])->where('discount_value', '>', 0)->get()->toArray();
 
-                    foreach($order_discount as $value){
+                    foreach ($order_discount as $value) {
                         $dis_account = AllGrade::find($value->discount_grade_id) ? AllGrade::find($value->discount_grade_id)->eachGrade : null;
                         $account_code = $dis_account ? $dis_account->code : '4000';
                         $account_name = $dis_account ? $dis_account->name : '無設定會計科目';
@@ -1225,25 +1222,25 @@ class OrderCtrl extends Controller
                         // GeneralLedger::classification_processing($debit, $credit, 4, $name, $order->discount_value, 'r', 'discount');
 
                         $tmp = [
-                            'account_code'=>$account_code,
-                            'name'=>$name,
-                            'price'=>$value->discount_value,
-                            'type'=>'r',
-                            'd_type'=>'discount',
+                            'account_code' => $account_code,
+                            'name' => $name,
+                            'price' => $value->discount_value,
+                            'type' => 'r',
+                            'd_type' => 'discount',
 
-                            'account_name'=>$account_name,
-                            'method_name'=>null,
-                            'summary'=>null,
-                            'note'=>null,
-                            'product_title'=>null,
-                            'del_even'=>null,
-                            'del_category_name'=>null,
-                            'product_price'=>null,
-                            'product_qty'=>null,
-                            'product_owner'=>null,
-                            'discount_title'=>$value->title,
-                            'payable_type'=>null,
-                            'received_info'=>null,
+                            'account_name' => $account_name,
+                            'method_name' => null,
+                            'summary' => null,
+                            'note' => null,
+                            'product_title' => null,
+                            'del_even' => null,
+                            'del_category_name' => null,
+                            'product_price' => null,
+                            'product_qty' => null,
+                            'product_owner' => null,
+                            'discount_title' => $value->title,
+                            'payable_type' => null,
+                            'received_info' => null,
                         ];
                         GeneralLedger::classification_processing($debit, $credit, $tmp);
                     }
@@ -1254,90 +1251,89 @@ class OrderCtrl extends Controller
                 $checkout_area = Area::get_key_value();
 
                 // grade process start
-                    $defaultData = [];
-                    foreach (ReceivedMethod::asArray() as $receivedMethod) {
-                        $defaultData[$receivedMethod] = DB::table('acc_received_default')->where('name', '=', $receivedMethod)
-                            ->doesntExistOr(function () use ($receivedMethod) {
-                                return DB::table('acc_received_default')->where('name', '=', $receivedMethod)
-                                    ->select('default_grade_id')
-                                    ->get();
-                            });
-                    }
+                $defaultData = [];
+                foreach (ReceivedMethod::asArray() as $receivedMethod) {
+                    $defaultData[$receivedMethod] = DB::table('acc_received_default')->where('name', '=', $receivedMethod)
+                        ->doesntExistOr(function () use ($receivedMethod) {
+                            return DB::table('acc_received_default')->where('name', '=', $receivedMethod)
+                                ->select('default_grade_id')
+                                ->get();
+                        });
+                }
 
-                    $total_grades = GeneralLedger::total_grade_list();
-                    $allGradeArray = [];
+                $total_grades = GeneralLedger::total_grade_list();
+                $allGradeArray = [];
 
-                    foreach ($total_grades as $grade) {
-                        $allGradeArray[$grade['primary_id']] = $grade;
-                    }
-                    $default_grade = [];
-                    foreach ($defaultData as $recMethod => $ids) {
-                        if ($ids !== true &&
-                            $recMethod !== 'other') {
-                            foreach ($ids as $id) {
-                                $default_grade[$recMethod][$id->default_grade_id] = [
-                                    // 'methodName' => $recMethod,
-                                    'method' => ReceivedMethod::getDescription($recMethod),
-                                    'grade_id' => $id->default_grade_id,
-                                    'grade_num' => $allGradeArray[$id->default_grade_id]['grade_num'],
-                                    'code' => $allGradeArray[$id->default_grade_id]['code'],
-                                    'name' => $allGradeArray[$id->default_grade_id]['name'],
-                                ];
-                            }
+                foreach ($total_grades as $grade) {
+                    $allGradeArray[$grade['primary_id']] = $grade;
+                }
+                $default_grade = [];
+                foreach ($defaultData as $recMethod => $ids) {
+                    if ($ids !== true &&
+                        $recMethod !== 'other') {
+                        foreach ($ids as $id) {
+                            $default_grade[$recMethod][$id->default_grade_id] = [
+                                // 'methodName' => $recMethod,
+                                'method' => ReceivedMethod::getDescription($recMethod),
+                                'grade_id' => $id->default_grade_id,
+                                'grade_num' => $allGradeArray[$id->default_grade_id]['grade_num'],
+                                'code' => $allGradeArray[$id->default_grade_id]['code'],
+                                'name' => $allGradeArray[$id->default_grade_id]['name'],
+                            ];
+                        }
+                    } else {
+                        if ($recMethod == 'other') {
+                            $default_grade[$recMethod] = $allGradeArray;
                         } else {
-                            if($recMethod == 'other'){
-                                $default_grade[$recMethod] = $allGradeArray;
-                            } else {
-                                $default_grade[$recMethod] = [];
-                            }
+                            $default_grade[$recMethod] = [];
                         }
                     }
+                }
 
-
-                    $currencyDefault = DB::table('acc_currency')
-                        ->leftJoin('acc_received_default', 'acc_currency.received_default_fk', '=', 'acc_received_default.id')
-                        ->select(
-                            'acc_currency.name as currency_name',
-                            'acc_currency.id as currency_id',
-                            'acc_currency.rate',
-                            'default_grade_id',
-                            'acc_received_default.name as method_name'
-                        )
-                        ->orderBy('acc_currency.id')
-                        ->get();
-                    $currency_default_grade = [];
-                    foreach ($currencyDefault as $default) {
-                        $currency_default_grade[$default->default_grade_id][] = [
-                            'currency_id'    => $default->currency_id,
-                            'currency_name'    => $default->currency_name,
-                            'rate'             => $default->rate,
-                            'default_grade_id' => $default->default_grade_id,
-                        ];
-                    }
+                $currencyDefault = DB::table('acc_currency')
+                    ->leftJoin('acc_received_default', 'acc_currency.received_default_fk', '=', 'acc_received_default.id')
+                    ->select(
+                        'acc_currency.name as currency_name',
+                        'acc_currency.id as currency_id',
+                        'acc_currency.rate',
+                        'default_grade_id',
+                        'acc_received_default.name as method_name'
+                    )
+                    ->orderBy('acc_currency.id')
+                    ->get();
+                $currency_default_grade = [];
+                foreach ($currencyDefault as $default) {
+                    $currency_default_grade[$default->default_grade_id][] = [
+                        'currency_id' => $default->currency_id,
+                        'currency_name' => $default->currency_name,
+                        'rate' => $default->rate,
+                        'default_grade_id' => $default->default_grade_id,
+                    ];
+                }
                 // grade process end
 
                 $cheque_status = ChequeStatus::get_key_value();
 
                 return view('cms.commodity.order.ro_review', [
-                    'form_action'=>route('cms.order.ro-review' , ['id'=>request('id')]),
-                    'received_order'=>$received_order,
-                    'order'=>$order,
-                    'order_list_data'=>$order_list_data,
-                    'received_data'=>$received_data,
-                    'undertaker'=>$undertaker,
-                    'product_grade_name'=>$product_grade_name,
+                    'form_action' => route('cms.order.ro-review', ['id' => request('id')]),
+                    'received_order' => $received_order,
+                    'order' => $order,
+                    'order_list_data' => $order_list_data,
+                    'received_data' => $received_data,
+                    'undertaker' => $undertaker,
+                    'product_grade_name' => $product_grade_name,
                     // 'logistics_grade_name'=>$logistics_grade_name,
-                    'debit'=>$debit,
-                    'credit'=>$credit,
-                    'card_type'=>$card_type,
-                    'checkout_area'=>$checkout_area,
-                    'cheque_status'=>$cheque_status,
-                    'credit_card_grade'=>$default_grade[ReceivedMethod::CreditCard],
-                    'cheque_grade'=>$default_grade[ReceivedMethod::Cheque],
+                    'debit' => $debit,
+                    'credit' => $credit,
+                    'card_type' => $card_type,
+                    'checkout_area' => $checkout_area,
+                    'cheque_status' => $cheque_status,
+                    'credit_card_grade' => $default_grade[ReceivedMethod::CreditCard],
+                    'cheque_grade' => $default_grade[ReceivedMethod::Cheque],
                     // 'default_grade'=>$default_grade,
                     // 'currency_default_grade'=>$currency_default_grade,
 
-                    'breadcrumb_data' => ['id'=>$order->id, 'sn'=>$order->sn],
+                    'breadcrumb_data' => ['id' => $order->id, 'sn' => $order->sn],
                 ]);
             }
         }
@@ -1346,15 +1342,15 @@ class OrderCtrl extends Controller
     public function ro_taxation(Request $request, $id)
     {
         $request->merge([
-            'id'=>$id,
+            'id' => $id,
         ]);
         $request->validate([
             'id' => 'required|exists:ord_orders,id',
         ]);
 
         $received_order_collection = ReceivedOrder::where([
-            'source_type'=>app(Order::class)->getTable(),
-            'source_id'=>$id,
+            'source_type' => app(Order::class)->getTable(),
+            'source_id' => $id,
         ]);
 
         $received_order_data = $received_order_collection->get();
@@ -1364,7 +1360,7 @@ class OrderCtrl extends Controller
 
         $received_order = $received_order_collection->first();
 
-        if($request->isMethod('post')){
+        if ($request->isMethod('post')) {
             $request->validate([
                 'received' => 'required|array',
                 'product_grade_id' => 'required|exists:acc_all_grades,id',
@@ -1378,37 +1374,37 @@ class OrderCtrl extends Controller
 
             try {
                 $received_order->update([
-                    'logistics_grade_id'=>request('logistics_grade_id'),
-                    'product_grade_id'=>request('product_grade_id'),
+                    'logistics_grade_id' => request('logistics_grade_id'),
+                    'product_grade_id' => request('product_grade_id'),
                 ]);
 
-                if(request('received') && is_array(request('received'))){
+                if (request('received') && is_array(request('received'))) {
                     $received = request('received');
-                    foreach($received as $key => $value){
+                    foreach ($received as $key => $value) {
                         $value['received_id'] = $key;
                         ReceivedOrder::update_received($value);
                     }
                 }
 
-                if(request('product') && is_array(request('product'))){
+                if (request('product') && is_array(request('product'))) {
                     $product = request('product');
-                    foreach($product as $key => $value){
+                    foreach ($product as $key => $value) {
                         $value['product_id'] = $key;
                         Product::update_product_taxation($value);
                     }
                 }
 
-                if(request('order_dlv') && is_array(request('order_dlv'))){
+                if (request('order_dlv') && is_array(request('order_dlv'))) {
                     $order = request('order_dlv');
-                    foreach($order as $key => $value){
+                    foreach ($order as $key => $value) {
                         $value['order_id'] = $key;
                         Order::update_dlv_taxation($value);
                     }
                 }
 
-                if(request('discount') && is_array(request('discount'))){
+                if (request('discount') && is_array(request('discount'))) {
                     $discount = request('discount');
-                    foreach($discount as $key => $value){
+                    foreach ($discount as $key => $value) {
                         $value['discount_id'] = $key;
                         Discount::update_order_discount_taxation($value);
                     }
@@ -1419,18 +1415,18 @@ class OrderCtrl extends Controller
 
             } catch (\Exception $e) {
                 DB::rollback();
-                wToast(__('摘要/稅別更新失敗', ['type'=>'danger']));
+                wToast(__('摘要/稅別更新失敗', ['type' => 'danger']));
             }
 
-            return redirect()->route('cms.order.ro-receipt', ['id'=>request('id')]);
+            return redirect()->route('cms.order.ro-receipt', ['id' => request('id')]);
 
-        } else if($request->isMethod('get')){
+        } else if ($request->isMethod('get')) {
 
             $order = Order::findOrFail(request('id'));
             $order_list_data = OrderItem::item_order(request('id'))->get();
             $order_discount = DB::table('ord_discounts')->where([
-                'order_type'=>'main',
-                'order_id'=>request('id'),
+                'order_type' => 'main',
+                'order_id' => request('id'),
             ])->where('discount_value', '>', 0)->get()->toArray();
 
             $received_data = ReceivedOrder::get_received_detail($received_order_data->pluck('id')->toArray());
@@ -1438,19 +1434,18 @@ class OrderCtrl extends Controller
             $total_grades = GeneralLedger::total_grade_list();
 
             return view('cms.commodity.order.ro_taxation', [
-                'form_action'=>route('cms.order.ro-taxation' , ['id'=>request('id')]),
-                'received_order'=>$received_order,
-                'order'=>$order,
-                'order_discount'=>$order_discount,
-                'order_list_data'=>$order_list_data,
+                'form_action' => route('cms.order.ro-taxation', ['id' => request('id')]),
+                'received_order' => $received_order,
+                'order' => $order,
+                'order_discount' => $order_discount,
+                'order_list_data' => $order_list_data,
                 'received_data' => $received_data,
-                'total_grades'=>$total_grades,
+                'total_grades' => $total_grades,
 
-                'breadcrumb_data' => ['id'=>$order->id, 'sn'=>$order->sn],
+                'breadcrumb_data' => ['id' => $order->id, 'sn' => $order->sn],
             ]);
         }
     }
-
 
     public function logistic_po(Request $request, $id, $sid)
     {
@@ -1591,7 +1586,7 @@ class OrderCtrl extends Controller
                     break;
                 case Payment::Cheque:
                     $request->validate([
-                        'cheque.ticket_number'=>'required|unique:acc_payable_cheque,ticket_number,po_delete,status_code|regex:/^[A-Z]{2}[0-9]{7}$/'
+                        'cheque.ticket_number' => 'required|unique:acc_payable_cheque,ticket_number,po_delete,status_code|regex:/^[A-Z]{2}[0-9]{7}$/',
                     ]);
                     PayableCheque::storePayableCheque($req);
                     break;
@@ -1851,7 +1846,7 @@ class OrderCtrl extends Controller
                     break;
                 case Payment::Cheque:
                     $request->validate([
-                        'cheque.ticket_number'=>'required|unique:acc_payable_cheque,ticket_number,po_delete,status_code|regex:/^[A-Z]{2}[0-9]{7}$/'
+                        'cheque.ticket_number' => 'required|unique:acc_payable_cheque,ticket_number,po_delete,status_code|regex:/^[A-Z]{2}[0-9]{7}$/',
                     ]);
                     PayableCheque::storePayableCheque($req);
                     break;
@@ -2192,7 +2187,7 @@ class OrderCtrl extends Controller
         ]);
         $inv_result = OrderInvoice::invoice_issue_api($id);
 
-        if($inv_result->source_type == app(Order::class)->getTable() && $inv_result->r_msg == 'SUCCESS'){
+        if ($inv_result->source_type == app(Order::class)->getTable() && $inv_result->r_msg == 'SUCCESS') {
             $parm = [
                 'order_id' => $inv_result->source_id,
                 'gui_number' => $inv_result->buyer_ubn,
@@ -2333,24 +2328,33 @@ class OrderCtrl extends Controller
             return abort(404);
         }
 
-        // dd($subOrder);
+        $addr = DB::table('ord_address')->where('order_id', $id)->get();
+        $address = [];
+
+        foreach ($addr as $value) {
+            $address[$value->type] = $value;
+            $address[$value->type]->default_region = Addr::getRegions($value->city_id);
+        }
 
         return view('cms.commodity.order.edit_old_order', [
             'breadcrumb_data' => ['id' => $id, 'sn' => $order->sn],
             'subOrders' => $subOrder,
             'order' => $order,
+            'addr' => $address,
+            'citys' => Addr::getCitys(),
         ]);
     }
 
     public function updateItem(Request $request, $id)
     {
+
         $request->validate([
             'item_id' => 'required|array',
             'note' => 'required|array',
         ]);
 
         $d = $request->all();
-
+        DB::beginTransaction();
         foreach ($d['item_id'] as $key => $value) {
             if (isset($d['note'][$key])) {
                 OrderItem::where('id', $value)->update([
@@ -2358,6 +2362,35 @@ class OrderCtrl extends Controller
                 ]);
             }
         }
+
+        $prefix = [
+            'orderer' => 'ord',
+            'receiver' => 'rec',
+            'sender' => 'sed',
+        ];
+
+        foreach ($prefix as $pre) {
+            $city = Addr::where('id', $d[$pre . "_city_id"])->get()->first();
+            $region = Addr::where('id', $d[$pre . "_region_id"])->get()->first();
+
+            DB::table('ord_address')->where('id', $d[$pre . "_id"])->update(
+                [
+                    'city_id' => $city->id,
+                    'city_title' => $city->title,
+                    'region_id' => $region->id,
+                    'region_title' => $region->title,
+                    'addr' => $d[$pre . "_addr"],
+                    'address' => Addr::fullAddr($region->id, $d[$pre . "_addr"]),
+                    'zipcode' => $region->zipcode,
+                    'name' => $d[$pre . "_name"],
+                    'phone' => $d[$pre . "_phone"],
+                ]
+            );
+        }
+        Order::where('id', $id)->update(['note' => $d['order_note']]);
+        // Addr::fullAddr()
+        DB::commit();
+        wToast('修改完成');
 
         return redirect(route('cms.order.detail', ['id' => $id]));
 
@@ -2368,7 +2401,7 @@ class OrderCtrl extends Controller
         $query = $request->query();
         $page = getPageCount(Arr::get($query, 'data_per_page'));
 
-        $order = DB::table(app(Order::class)->getTable(). ' as order')
+        $order = DB::table(app(Order::class)->getTable() . ' as order')
             ->where('order.id', $id)
             ->get()->first();
 
@@ -2376,7 +2409,7 @@ class OrderCtrl extends Controller
             return abort(404);
         }
 
-        $dataList = DB::table(app(OrderFlow::class)->getTable(). ' as flow')
+        $dataList = DB::table(app(OrderFlow::class)->getTable() . ' as flow')
             ->where('flow.order_id', $id)
             ->orderByDesc('flow.id');
         $dataList = $dataList->paginate($page)->appends($query);
