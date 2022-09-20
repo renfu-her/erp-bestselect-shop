@@ -30,11 +30,11 @@ class CheckCustomerData
         $linkedCustomerId = $user->customer_id ?? null;
         //請求的消費者ID
         $requestCustomerId = '';
-        if (preg_match("/cms\\/customer\\/(\d)\\/[order|dividend|bonus]/",
+        if (preg_match("/cms\\/customer\\/(\d+)\\/(order|dividend|bonus)/",
             $request->path(),
             $match)) {
             $requestCustomerId = $match[1];
-        } elseif (preg_match("/cms\\/customer\\/edit\\/(\d)\\/[coupon|address]/",
+        } elseif (preg_match("/cms\\/customer\\/edit\\/(\d+)\\/(coupon|address)/",
             $request->path(),
             $match)) {
             $requestCustomerId = $match[1];

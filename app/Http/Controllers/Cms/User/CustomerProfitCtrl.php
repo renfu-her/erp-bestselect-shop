@@ -95,7 +95,7 @@ class CustomerProfitCtrl extends Controller
 
             $profit_rate = $d['profit_rate'];
             $parent_profit_rate = $d['parent_profit_rate'];
-        }else{
+        } else {
             $profit_rate = 100;
             $parent_profit_rate = 0;
         }
@@ -227,5 +227,16 @@ class CustomerProfitCtrl extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function batch(Request $request)
+    {
+        //
+
+        $re = CustomerProfit::getFromOldData();
+
+        wToast($re . '資料新增');
+
+        return redirect(route('cms.customer-profit.index'));
     }
 }
