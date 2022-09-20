@@ -562,7 +562,10 @@ class DeliveryCtrl extends Controller
                     ->where('dlv_back.delivery_id', '=', $delivery->id)
                     ->where('style.type', '=', 'c')
                     ->get();
-                if (isset($dlvBack_combo) && 0 < count($dlvBack_combo)) {
+                if (isset($dlvBack_combo) && 0 < count($dlvBack_combo)
+                    //(訂單在取消訂單已做) 做寄倉的即可
+                    && (Event::consignment()->value == $delivery->event)
+                ) {
                     foreach ($dlvBack_combo as $back_item) {
                         $rePSSC = ProductStock::stockChange($back_item->product_style_id, $back_item->qty
                             , StockEvent::send_back()->value, $delivery->event_id
@@ -646,7 +649,7 @@ class DeliveryCtrl extends Controller
                             DB::rollBack();
                             return $rePcsLSC;
                         }
-                        //訂單、寄倉 須將通路庫存加回
+                        //寄倉 須將通路庫存加回
                         //若為理貨倉can_tally 需修改通路庫存
                         $inboundData = DB::table('pcs_purchase_inbound as inbound')
                             ->leftJoin('depot', 'depot.id', 'inbound.depot_id')
@@ -654,8 +657,7 @@ class DeliveryCtrl extends Controller
                             ->whereNull('inbound.deleted_at');
                         $inboundDataGet = $inboundData->get()->first();
                         if (isset($inboundDataGet)
-                            && (Event::order()->value == $delivery->event
-                                || Event::consignment()->value == $delivery->event)
+                            && (Event::consignment()->value == $delivery->event)
                         ) {
                             //若非組合包元素 則需計算可售數量
                             if ('ce' != $rcv_depot_item->prd_type) {
@@ -743,7 +745,10 @@ class DeliveryCtrl extends Controller
                     ->where('dlv_back.delivery_id', '=', $delivery->id)
                     ->where('style.type', '=', 'c')
                     ->get();
-                if (isset($dlvBack_combo) && 0 < count($dlvBack_combo)) {
+                if (isset($dlvBack_combo) && 0 < count($dlvBack_combo)
+                    //(訂單在取消訂單已做) 做寄倉的即可
+                    && (Event::consignment()->value == $delivery->event)
+                ) {
                     foreach ($dlvBack_combo as $back_item) {
                         $rePSSC = ProductStock::stockChange($back_item->product_style_id, $back_item->qty * -1
                             , StockEvent::send_back_cancle()->value, $delivery->event_id
@@ -793,7 +798,7 @@ class DeliveryCtrl extends Controller
                         return $rePcsLSC;
                     }
 
-                    //訂單、寄倉 須將通路庫存減回
+                    //寄倉 須將通路庫存減回 (訂單在取消訂單已做)
                     //若為理貨倉can_tally 需修改通路庫存
                     $inboundData = DB::table('pcs_purchase_inbound as inbound')
                         ->leftJoin('depot', 'depot.id', 'inbound.depot_id')
@@ -801,8 +806,7 @@ class DeliveryCtrl extends Controller
                         ->whereNull('inbound.deleted_at');
                     $inboundDataGet = $inboundData->get()->first();
                     if (isset($inboundDataGet)
-                        && (Event::order()->value == $delivery->event
-                            || Event::consignment()->value == $delivery->event)
+                        && (Event::consignment()->value == $delivery->event)
                     ) {
                         //若非組合包元素 則需計算可售數量
                         if ('ce' != $val_rcv->prd_type) {
