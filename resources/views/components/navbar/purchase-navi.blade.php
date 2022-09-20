@@ -1,10 +1,12 @@
 {{-- 功能按鈕群 --}}
 <div class="btn-group pm_btnGroup" role="group">
-    <a href="#" class="nav-link">
+    <a href="{{ Route('cms.purchase.print_order', ['id' => $id], true) . '?type=M1' }}" 
+        target="_blank" class="nav-link" rel="noopener noreferrer">
         <span class="icon"><i class="bi bi-printer"></i></span>
         <span class="label">中一刀列印</span>
     </a>
-    <a href="#" class="nav-link">
+    <a href="{{ Route('cms.purchase.print_order', ['id' => $id], true) . '?type=A4' }}" 
+        target="_blank" class="nav-link" rel="noopener noreferrer">
         <span class="icon"><i class="bi bi-printer"></i></span>
         <span class="label">A4列印</span>
     </a>
