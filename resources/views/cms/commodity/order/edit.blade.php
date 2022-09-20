@@ -342,7 +342,7 @@
 
         <div id="STEP_2" hidden>
             <div class="card shadow p-4 mb-4">
-                <h6>購買人</h6>
+                <h6 class="mb-1">購買人</h6>
                 <div class="row">
                     <fieldset class="col-12 mb-1">
                         <div class="px-1 pt-1">
@@ -443,7 +443,7 @@
                         </div>
                     </div>
                 </div>
-                <h6>寄件人</h6>
+                <h6 class="mb-1">寄件人</h6>
                 <div class="row">
                     <fieldset class="col-12 mb-1">
                         <div class="px-1 pt-1">
@@ -535,7 +535,7 @@
                         </div>
                     </div>
                 </div>
-                <h6>收件人</h6>
+                <h6 class="mb-1">收件人</h6>
                 <div class="row">
                     <fieldset class="col-12 mb-1">
                         <div class="px-1 pt-1">
