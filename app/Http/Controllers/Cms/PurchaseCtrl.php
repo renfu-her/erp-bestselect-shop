@@ -1024,5 +1024,23 @@ class PurchaseCtrl extends Controller
             'breadcrumb_data' => $purchaseData->purchase_sn,
         ]);
     }
+
+    public function printPurchase(Request $request, $id) {
+        $query = $request->query();
+        $type = empty($query['type']) ? 'M1': $query['type'];
+
+        $purchaseData = Purchase::getPurchase($id)->first();
+        $purchaseItemData = PurchaseItem::getPurchaseDetailList($id)->get()->toArray();
+        if (!$purchaseData) {
+            return abort(404);
+        }
+
+        return view('doc.print_purchase_order', [
+            'type' => $type,
+            'id' => $id,
+            'purchaseData' => $purchaseData,
+            'purchaseItemData' => $purchaseItemData,
+        ]);
+    }
 }
 
