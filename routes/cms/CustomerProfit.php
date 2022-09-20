@@ -9,5 +9,7 @@ Route::group(['prefix' => 'customer-profit', 'as' => 'customer-profit.'], functi
     Route::post('edit/{id}', [CustomerProfitCtrl::class, 'update']);
     Route::get('create', [CustomerProfitCtrl::class, 'create'])->name('create')->middleware('permission:cms.customer-profit.create');
     Route::post('create', [CustomerProfitCtrl::class, 'store']);
+    Route::get('batch', [CustomerProfitCtrl::class, 'batch'])->name('batch');
+    
     //    Route::get('delete/{id}', [SpecCtrl::class, 'destroy'])->name('delete')->middleware('permission:cms.spec.delete');
 });

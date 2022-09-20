@@ -19,7 +19,7 @@ class CustomerProfit extends Model
     {
         $re = DB::table('usr_customer_profit as profit')
             ->leftJoin('usr_customers as customer', 'profit.customer_id', '=', 'customer.id')
-            ->select(['profit.*', 'customer.name', 'customer.sn','customer.id as customer_id']);
+            ->select(['profit.*', 'customer.name', 'customer.sn', 'customer.id as customer_id']);
 
         if ($status) {
             $re->where('profit.status', $status);
@@ -125,5 +125,86 @@ class CustomerProfit extends Model
         return DB::table('usr_customers as customer')
             ->leftJoin('usr_customer_profit as cp', 'customer.id', '=', 'cp.customer_id')
             ->select(['customer.id', 'customer.name']);
+    }
+
+    public static function getFromOldData()
+    {
+        DB::beginTransaction();
+        $_p = DB::table('app_shopping_member')->where('SalesStatus', '3')->get();
+        $ucount = 0;
+        $parent_relation = [];
+        $users = [];
+        $step1 = 0;
+        $step2 = 0;
+        $step3 = 0;
+        $step4 = 0;
+        $step5 = 0;
+        $bankName = [];
+        foreach ($_p as $puser) {
+            $_u = Customer::where('name', $puser->Name)
+                ->where('phone', $puser->Mobile)
+                ->get()->first();
+            $step1++;
+            if ($_u) {
+                $users[$puser->MemberID] = $_u->id;
+                if (!CustomerProfit::where('customer_id', $_u->id)->get()->first()) {
+                    $step2++;
+                    $bank = Bank::where('title', "like", "%$puser->BankName%")->get()->first();
+                    if ($bank) {
+                        $step3++;
+                        $re = CustomerProfit::createProfit($_u->id, $bank->id, $puser->BankAcct, $puser->Name, $puser->IDNumber, '', '', '');
+                        if ($re['success'] == '1') {
+                            $step4++;
+                            //  $re['id']
+                            CustomerProfit::where('id', $re['id'])->update([
+                                'status' => ProfitStatus::Success()->value,
+                                'status_title' => ProfitStatus::Success()->description,
+                                'has_child' => $puser->RecommandFlag,
+                                'profit_rate' => $puser->UPLink ? 80 : 100,
+                                'parent_profit_rate' => $puser->UPLink ? 20 : 0,
+                            ]);
+                            $ucount++;
+                            if ($puser->UPLink) {
+                                $parent_relation[] = [$re['id'], $puser->UPLink, $_u->id];
+
+                            }
+
+                        }
+
+                    } else {
+                        $bankName[] = $puser->BankName;
+                    }
+
+                }
+
+            }
+        }
+
+        foreach ($parent_relation as $pr) {
+            $step5++;
+            if (isset($users[$pr[1]])) {
+                Customer::where('id', $pr[2])->update([
+                    'recommend_id' => $users[$pr[1]],
+                ]);
+
+                CustomerProfit::where('id', $pr[0])->update([
+                    'parent_customer_id' => $users[$pr[1]],
+                ]);
+
+            }
+        }
+
+        // 修正帶入
+
+        foreach (CustomerProfit::whereNotNull('parent_customer_id')->get() as $pro) {
+            Customer::where('id', $pro->customer_id)->update([
+                'recommend_id' => $pro->parent_customer_id,
+            ]);
+        }
+
+        //  dd($bankName);
+        //    dd($step1,$step2,$step3,$step4,$step5);
+        DB::commit();
+        return $ucount;
     }
 }
