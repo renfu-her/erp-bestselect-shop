@@ -217,7 +217,9 @@
 
         <div id="mediaSettings" class="card shadow p-4 mb-4">
             <h6>媒體設定</h6>
-            <label class="form-label">商品圖片（可將檔案拖拉至框中上傳）</label>
+            <label class="form-label">商品圖片（可將檔案拖拉至框中上傳）
+                <span class="small text-primary">* 新圖片上傳同步至伺服器會有時間差，暫無法正常顯示請稍後</span>
+            </label>
             <div class="upload_image_block -multiple">
                 <!-- 可排序圖片集中區塊 -->
                 <div class="sortabled">
