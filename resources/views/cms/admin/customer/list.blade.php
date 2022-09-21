@@ -10,8 +10,25 @@
                     <input class="form-control" type="text" name="keyword" placeholder="請輸入姓名或email" value="{{ $keyword }}"
                         aria-label="關鍵字">
                 </div>
-               
+
             </div>
+            <fieldset class="col-12 mb-3">
+                <legend class="col-form-label p-0 mb-2">員工帳號</legend>
+                <div class="px-1 pt-1">
+                    <div class="form-check form-check-inline">
+                        <label class="form-check-label">
+                            <input class="form-check-input" name="employee" type="radio" value="1">
+                           已綁定
+                        </label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <label class="form-check-label">
+                            <input class="form-check-input" name="employee" type="radio" value="0">
+                           尚未綁定
+                        </label>
+                    </div>
+                </div>
+            </fieldset>
             <div class="col">
                 <button type="submit" class="btn btn-primary px-4">搜尋</button>
             </div>
@@ -30,10 +47,10 @@
             <table class="table table-striped tableList">
                 <thead>
                     <tr>
-                        <th scope="col" style="width:10%">#</th>
-                        <th scope="col">姓名</th>
                         <th scope="col">會員編號</th>
+                        <th scope="col">姓名</th>
                         <th scope="col">帳號</th>
+                        <th scope="col">是否綁定員工帳號？（員工姓名,編號）</th>
                         @can('cms.customer.address')
                             <th scope="col" class="text-center">會員專區</th>
                         @endcan
@@ -45,10 +62,14 @@
                 <tbody>
                     @foreach ($dataList as $key => $data)
                         <tr>
-                            <th scope="row">{{ $key + 1 }}</th>
-                            <td>{{ $data->name }}</td>
                             <td>{{ $data->sn }}</td>
+                            <td>{{ $data->name }}</td>
                             <td>{{ $data->email }}</td>
+                            <td>
+                                @if(!is_null($data->isEmployee))
+                                    {{'是（' . $data->employeeName . ',' . $data->employeeId . '）' }}
+                                @endif
+                            </td>
                             <td class="text-center">
                                 @can('cms.customer.address')
                                     <a href="{{ Route('cms.customer.order', ['id' => $data->id], true) }}"

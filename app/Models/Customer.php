@@ -194,10 +194,10 @@ class Customer extends Authenticatable
      * @param array $query
      * @param int $per_page pagination
      * @param int $profit 1: 篩出有分潤資格的消費者
-
+     * @param string $employer 篩選出消費者的帳號是否已綁定員工帳號, 1已經綁定、0尚未綁定
      */
 
-    public static function getCustomerBySearch($keyword = null, $profit = null)
+    public static function getCustomerBySearch($keyword = null, $profit = null, $employer = null)
     {
         $admin = new Customer();
         $admin_table = DB::table($admin->getTable() . " as customer");
@@ -212,6 +212,15 @@ class Customer extends Authenticatable
         if ($profit) {
             $admin_table->join('usr_customer_profit as profit', 'customer.id', '=', 'profit.customer_id')
                 ->where('profit.status', ProfitStatus::Success());
+        }
+
+        if (!is_null($employer)) {
+            $admin_table->leftJoin('usr_users', 'customer.id', '=', 'usr_users.customer_id');
+        }
+        if ($employer === '1') {
+            $admin_table->whereNotNull('usr_users.customer_id');
+        } elseif ($employer === '0') {
+            $admin_table->whereNull('usr_users.customer_id');
         }
 
         $admin_table->whereNull('customer.deleted_at');
