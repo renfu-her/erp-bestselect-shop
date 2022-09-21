@@ -65,7 +65,7 @@
                                         title="此設定為此商品可賺取之獎金。預設：(售價-經銷價) × {{ App\Enums\Customer\Bonus::bonus()->value }}"></i>
                                 </th>
                                 <th scope="col">參考成本單價</th>
-                                <th scope="col">庫存</th>
+                                <th scope="col">可售數量</th>
                                 <th scope="col">安全庫存</th>
                                 <!-- <th scope="col">庫存不足</th> -->
                                 <th scope="col">鴻利抵扣
@@ -236,7 +236,7 @@
                                     </td>
                                     <td>
                                         <a href="{{ Route('cms.product.edit-stock', ['id' => $data->id, 'sid' => $style->id]) }}"
-                                            class="-text -stock">{{ $style->in_stock }}</a>
+                                            class="-text -stock">{{ $style->in_stock + $style->overbought }}</a>
                                     </td>
                                     <td>
                                         <a href="{{ Route('cms.product.edit-stock', ['id' => $data->id, 'sid' => $style->id]) }}"
