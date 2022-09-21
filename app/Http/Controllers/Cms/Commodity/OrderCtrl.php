@@ -2338,7 +2338,8 @@ class OrderCtrl extends Controller
             $address[$value->type]->default_region = Addr::getRegions($value->city_id);
         }
 
-        $shipmentCategory = ShipmentCategory::get();
+        $shipmentCategory = ShipmentCategory::whereIn('code',['deliver','pickup'])->get();
+
         $shipEvent = [];
 
         //  dd(Depot::get()->toArray());
@@ -2365,7 +2366,7 @@ class OrderCtrl extends Controller
             'order' => $order,
             'addr' => $address,
             'citys' => Addr::getCitys(),
-            'shipmentCategory' => ShipmentCategory::get(),
+            'shipmentCategory' => $shipmentCategory,
             'shipEvent' => $shipEvent,
         ]);
     }
