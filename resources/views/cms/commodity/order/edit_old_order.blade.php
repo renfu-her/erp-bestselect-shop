@@ -88,7 +88,7 @@
                                     </td>
                                     <td>
                                         <input class="form-control form-control-sm -sx" name="dlv_fee[]" type="number"
-                                            aria-label="運費" value="{{ $subOrder->dlv_fee }}">
+                                            aria-label="運費" value="{{ $subOrder->dlv_fee }}" required>
                                     </td>
 
                                 </tr>
