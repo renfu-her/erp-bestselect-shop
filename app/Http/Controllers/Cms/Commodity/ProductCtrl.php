@@ -514,15 +514,17 @@ class ProductCtrl extends Controller
      */
     public function editStock($id, $sid)
     {
+        
         $product = Product::productList(null, $id, ['user' => true, 'supplier' => true])->get()->first();
         $style = ProductStyle::where('id', $sid)->get()->first();
         if (!$product || !$style) {
             return abort(404);
         }
-
+        
         $style->spec_titles = self::_getStyleTitle($style);
 
         $stocks = SaleChannel::styleStockList($sid)->get()->toArray();
+
         $notCompleteDeliverys = SaleChannel::notCompleteDelivery($sid)->get()->toArray();
         return view('cms.commodity.product.sales-stock', [
             'product' => $product,
