@@ -39,6 +39,7 @@ class LogisticCtrl extends Controller
         //顯示出貨商品列表product_title ; 單價price ; 數量send_qty ; 小計price*數量send_qty
         //組合包判斷兩者欄位不同都顯示:product_title rec_product_title，否則只顯示product_title
         $deliveryList = null;
+        $is_order_pick_up = false; //是否為訂單自取
         if (Event::order()->value == $event) {
             $sub_order = SubOrders::getListWithShiGroupById($eventId)->get()->first();
             if (null == $sub_order) {
@@ -46,6 +47,9 @@ class LogisticCtrl extends Controller
             }
             $event_sn = $sub_order->sn;
             $returnAction = Route('cms.order.detail', ['id' => $sub_order->order_id, 'subOrderId' => $eventId ]);
+            if ('pickup' == $sub_order->ship_category) {
+                $is_order_pick_up = true;
+            }
 
             // 出貨單號ID
             $delivery = Delivery::getData($event, $eventId)->get()->first();
@@ -145,6 +149,7 @@ class LogisticCtrl extends Controller
 
         $rsp_arr['returnAction'] = $returnAction;
         $rsp_arr['delivery'] = $delivery;
+        $rsp_arr['is_order_pick_up'] = $is_order_pick_up;
         $rsp_arr['logistic'] = $logistic;
         $rsp_arr['deliveryList'] = $deliveryList;
         $rsp_arr['shipmentGroup'] = $shipmentGroupWithCost;
@@ -409,8 +414,12 @@ class LogisticCtrl extends Controller
         $send_name = ''; $send_tel = ''; $send_addr = '';
         $rcv_name = ''; $rcv_tel = ''; $rcv_addr = '';
         $items = null;
+        $is_order_pick_up_to_home = $request->input('is_order_pick_up_to_home')?? 0; //是否寄到收件人地址
+
         list($send_name, $send_tel, $send_addr, $rcv_name, $rcv_tel, $rcv_addr, $memo, $items) =
-            $this->getDataProjLogisticCreateOrder($event, $delivery, $send_name, $send_tel, $send_addr, $rcv_name, $rcv_tel, $rcv_addr, $items);
+            $this->getDataProjLogisticCreateOrder($event, $delivery, $send_name, $send_tel, $send_addr, $rcv_name, $rcv_tel, $rcv_addr, $items
+                , ['is_order_pick_up_to_home' => $is_order_pick_up_to_home]
+            );
         if (isset($input['memo'])) {
             $memo = $memo. ' '. $input['memo'] ?? '';
         }
@@ -480,7 +489,7 @@ class LogisticCtrl extends Controller
 
     private function getDataProjLogisticCreateOrder($event, $delivery
         , $send_name, $send_tel, $send_addr, $rcv_name, $rcv_tel, $rcv_addr
-        , $items): array
+        , $items, $other_param = []): array
     {
         $memo = null;
         if (Event::order()->value == $event) {
@@ -493,8 +502,10 @@ class LogisticCtrl extends Controller
             $send_name = $order->sed_name;
             $send_tel = $order->sed_phone;
             $send_addr = $order->sed_address;
+            //是否寄到收件人地址
+            $is_order_pick_up_to_home = (isset($other_param['is_order_pick_up_to_home']) && 0 == $other_param['is_order_pick_up_to_home']);
 
-            if ('pickup' == $suborder->ship_category) {
+            if ('pickup' == $suborder->ship_category && true == $is_order_pick_up_to_home) {
                 //自取，還是要從理貨倉出貨到門市，所以收件地是門市
                 $pickup = Product::getPickupWithPickUpId($suborder->ship_event_id)->get()->first();
                 $rcv_name = $pickup->depot_name;

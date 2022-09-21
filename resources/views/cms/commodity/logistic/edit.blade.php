@@ -217,6 +217,30 @@
                                     </div>
                                 </fieldset>
                             </div>
+                            @if(true == $is_order_pick_up)
+                                <fieldset class="col-12 col-sm-6 mb-3">
+                                    <legend class="col-form-label p-0 mb-2">訂單自取 是否寄到收件人地址 <span class="text-danger">*</span></legend>
+                                    <div class="px-1 pt-1">
+                                        <div class="form-check form-check-inline @error('is_order_pick_up_to_home')is-invalid @enderror">
+                                            <label class="form-check-label">
+                                                <input class="form-check-input @error('is_order_pick_up_to_home')is-invalid @enderror" name="is_order_pick_up_to_home"
+                                                       value="0" type="radio" required>
+                                                否
+                                            </label>
+                                        </div>
+                                        <div class="form-check form-check-inline @error('is_order_pick_up_to_home')is-invalid @enderror">
+                                            <label class="form-check-label">
+                                                <input class="form-check-input @error('is_order_pick_up_to_home')is-invalid @enderror" name="is_order_pick_up_to_home"
+                                                       value="1" type="radio" required>
+                                                是
+                                            </label>
+                                        </div>
+                                        @error('is_order_pick_up_to_home')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </fieldset>
+                            @endif
                             <div class="col-12 mb-3">
                                 <label class="form-label">倉庫 <span class="text-danger">*</span></label>
                                 <select name="depot_id" class="-select2 -single form-select" required data-placeholder="請單選">
