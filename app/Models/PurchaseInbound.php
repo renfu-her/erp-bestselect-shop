@@ -94,6 +94,7 @@ class PurchaseInbound extends Model
                 $updateLog = PurchaseInbound::updateLog(LogEventFeature::inbound_update()->value, $inboundGet->id, $inboundGet->event, $inboundGet->event_id, $inboundGet->event_item_id, $inboundGet->product_style_id
                     , $inboundGet->prd_type, $inboundGet->title, $add_qty, $can_tally, $memo, $update_user_id, $update_user_name);
                 if ($updateLog['success'] == 0) {
+                    DB::rollBack();
                     return $updateLog;
                 }
                 return ['success' => 1, 'error_msg' => "", 'id' => $inboundGet->id, 'sn' => $inboundGet->sn];
