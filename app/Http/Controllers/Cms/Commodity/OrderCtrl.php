@@ -51,6 +51,8 @@ use App\Models\ReceivedDefault;
 use App\Models\ReceiveDepot;
 use App\Models\ReceivedOrder;
 use App\Models\SaleChannel;
+use App\Models\ShipmentCategory;
+use App\Models\ShipmentGroup;
 use App\Models\SubOrders;
 use App\Models\Supplier;
 use App\Models\User;
@@ -2336,12 +2338,35 @@ class OrderCtrl extends Controller
             $address[$value->type]->default_region = Addr::getRegions($value->city_id);
         }
 
+        $shipmentCategory = ShipmentCategory::get();
+        $shipEvent = [];
+
+        //  dd(Depot::get()->toArray());
+        foreach ($shipmentCategory as $value) {
+
+            switch ($value->code) {
+                case "deliver":
+                    $arr = ShipmentGroup::select('id', 'name')->get();
+                    break;
+                case "pickup":
+                    $arr = Depot::select('id', 'name')->get();
+                    break;
+                case "family":
+                    $arr = [];
+                    break;
+            }
+
+            $shipEvent[$value->code] = $arr;
+        }
+
         return view('cms.commodity.order.edit_old_order', [
             'breadcrumb_data' => ['id' => $id, 'sn' => $order->sn],
             'subOrders' => $subOrder,
             'order' => $order,
             'addr' => $address,
             'citys' => Addr::getCitys(),
+            'shipmentCategory' => ShipmentCategory::get(),
+            'shipEvent' => $shipEvent,
         ]);
     }
 
@@ -2375,13 +2400,13 @@ class OrderCtrl extends Controller
 
             DB::table('ord_address')->where('id', $d[$pre . "_id"])->update(
                 [
-                    'city_id' => $city->id,
-                    'city_title' => $city->title,
-                    'region_id' => $region->id,
-                    'region_title' => $region->title,
+                    'city_id' => isset($city->id) ? $city->id : 0,
+                    'city_title' => isset($city->title) ? $city->title : '',
+                    'region_id' => isset($region->id) ? $region->id : 0,
+                    'region_title' => isset($region->title) ? $region->title : '',
                     'addr' => $d[$pre . "_addr"],
-                    'address' => Addr::fullAddr($region->id, $d[$pre . "_addr"]),
-                    'zipcode' => $region->zipcode,
+                    'address' => isset($region->id) ? Addr::fullAddr($region->id, $d[$pre . "_addr"]) : $d[$pre . "_addr"],
+                    'zipcode' => isset($region->zipcode) ? $region->zipcode : '',
                     'name' => $d[$pre . "_name"],
                     'phone' => $d[$pre . "_phone"],
                 ]
@@ -2389,6 +2414,32 @@ class OrderCtrl extends Controller
         }
         Order::where('id', $id)->update(['note' => $d['order_note']]);
         // Addr::fullAddr()
+
+        foreach ($d['sub_order_id'] as $key => $value) {
+
+            $sCategory = ShipmentCategory::where('code', $d['ship_category'][$key])->get()->first();
+
+            switch ($d['ship_category'][$key]) {
+                case "deliver":
+                    $ship_event = ShipmentGroup::where('id', $d['ship_event_id'][$key])->get()->first()->name;
+                    break;
+                case "pickup":
+                    $ship_event = Depot::where('id', $d['ship_event_id'][$key])->get()->first()->name;
+                    break;
+                default:
+                    $ship_event = '全家';
+            }
+
+            SubOrders::where('id', $value)->update([
+                'ship_category' => $d['ship_category'][$key],
+                'ship_category_name' => $sCategory->category,
+                'dlv_fee' => $d['dlv_fee'][$key],
+                'ship_event_id' => isset($d['ship_event_id'][$key]) ? $d['ship_event_id'][$key] : 0,
+                'ship_event' => $ship_event,
+                'note' => $d['sub_order_note'][$key],
+            ]);
+        }
+
         DB::commit();
         wToast('修改完成');
 

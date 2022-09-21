@@ -472,9 +472,13 @@
                             <dt>物流成本</dt>
                             <dd>{{ $subOrder->logistic_cost ?? '(待處理)' }}</dd>
                         </div>
-                        <div class="col-8">
+                        <div class="col">
                             <dt>物流備註</dt>
                             <dd>{{ $subOrder->logistic_memo ?? '(待處理)' }}</dd>
+                        </div>
+                        <div class="col">
+                            <dt>物流備註</dt>
+                            <dd>{{ $subOrder->note }}</dd>
                         </div>
                     </dl>
                 </div>

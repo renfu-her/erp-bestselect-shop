@@ -779,7 +779,7 @@ class Product extends Model
     {
         $pick_up = DB::table('prd_pickup as pick_up')
             ->leftJoin('depot', 'depot.id', '=', 'pick_up.depot_id_fk')
-            ->select('pick_up.id', 'depot.id as depot_id', 'depot.name as depot_name', 'depot.address as depot_address', 'depot.tel as depot_tel', )
+            ->select('depot.id as id', 'depot.id as depot_id', 'depot.name as depot_name', 'depot.address as depot_address', 'depot.tel as depot_tel', )
             ->whereNull('depot.deleted_at')
             ->where('pick_up.product_id_fk', $product_id);
 
