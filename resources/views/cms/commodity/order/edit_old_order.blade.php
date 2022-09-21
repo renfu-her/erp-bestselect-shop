@@ -5,6 +5,7 @@
     <form action="{{ route('cms.order.edit-item', ['id' => $order->id]) }}" method="post">
         @csrf
         @foreach ($subOrders as $subOrder)
+            <input type="hidden" name="sub_order_id[]" value="{{ $subOrder->id }}">
             <div @class([
                 'card shadow mb-4 -detail',
                 '-detail-primary' => $subOrder->ship_category === 'deliver',
@@ -61,6 +62,45 @@
                         </table>
                     </div>
                 </div>
+                <div class="card-body px-4 py-0">
+                    <div class="table-responsive tableOverBox">
+                        <table class="table tableList table-sm table-hover mb-0">
+                            <tbody>
+                                <tr>
+                                    <td>物流</td>
+                                    <td>
+                                        <select name="ship_category[]" class="form-select -sx" required>
+                                            @foreach ($shipmentCategory as $key => $value)
+                                                <option value="{{ $value->code }}"
+                                                    @if ($subOrder->ship_category == $value->code) selected @endif>
+                                                    {{ $value->category }}</option>
+                                            @endforeach
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <select name="ship_event_id[]" class="form-select  -sx">
+                                            @foreach ($shipEvent[$subOrder->ship_category] as $key => $value)
+                                                <option value="{{ $value->id }}"
+                                                    @if ($subOrder->ship_event_id == $value->id) selected @endif>{{ $value->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input class="form-control form-control-sm -sx" name="dlv_fee[]" type="number"
+                                            aria-label="運費" value="{{ $subOrder->dlv_fee }}" required>
+                                    </td>
+
+                                </tr>
+                                <tr>
+                                    <td>銷貨備註</td>
+                                    <td colspan="3"> <input class="form-control form-control-sm -sx" name="sub_order_note[]" aria-label="運費"
+                                            value="{{ $subOrder->note }}"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         @endforeach
 
@@ -96,7 +136,7 @@
                         <label class="form-label">地址 <span class="text-danger">*</span></label>
                         <input type="hidden" name="ord_address">
                         <div class="input-group has-validation">
-                            <select name="{{ $prefix[$key] }}_city_id" class="form-select" style="max-width:20%" required>
+                            <select name="{{ $prefix[$key] }}_city_id" class="form-select" style="max-width:20%">
                                 <option value="">縣市</option>
                                 @foreach ($citys as $value)
                                     <option value="{{ $value['city_id'] }}"
@@ -104,8 +144,7 @@
                                     </option>
                                 @endforeach
                             </select>
-                            <select name="{{ $prefix[$key] }}_region_id" class="form-select" style="max-width:20%"
-                                required>
+                            <select name="{{ $prefix[$key] }}_region_id" class="form-select" style="max-width:20%">
                                 <option value="">地區</option>
                                 @foreach ($_addr->default_region as $value)
                                     <option value="{{ $value['region_id'] }}"
@@ -154,6 +193,18 @@
     @endpush
     @push('sub-scripts')
         <script>
+            let shipEvent = @json($shipEvent);
+
+            $('select[name="ship_category[]"]').change(function() {
+                // console.log(shipEvent[$(this).val()]);
+                let shipEventEle = $('select[name="ship_event_id[]"]', $(this).parent().parent());
+
+                shipEventEle.html(shipEvent[$(this).val()].map(function(n) {
+                    return "<option value='" + n['id'] + "'>" + n['name'] + "</option>";
+                }));
+
+            });
+
             // 格式化地址
             function getRegionsAction(regionElem, city_id, region_id) {
                 Addr.getRegions(city_id)

@@ -141,6 +141,7 @@
                             <td style="vertical-align:top;" colspan="4">
                                 備註：{{ $order->note }}
                                 <div style="font-size: small;margin-top:5px;">{{ $user->name }} {{ date('Y/m/d H:i:s') }}</div>
+                                銷貨備註：{{ $subOrders->note }}
                             </td>
                             @if ($type === 'sales')
                                 <td style="text-align: right;">總計 {{ number_format($subOrders->total_price) }}</td>
