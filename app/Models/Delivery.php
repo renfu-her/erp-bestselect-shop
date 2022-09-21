@@ -144,6 +144,7 @@ class Delivery extends Model
             })
             ->leftJoinSub($query_receive_depot, 'query_receive_depot', function($join) {
                 $join->on('query_receive_depot.dlv_id', '=', 'delivery.id');
+                $join->where('query_receive_depot.depot_id', '<>', 0);
             })
             ->select('delivery.id as delivery_id'
                 , 'delivery.sn as delivery_sn'

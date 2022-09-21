@@ -185,6 +185,7 @@ class PurchaseItem extends Model
         , $purchase_sdate = null
         , $purchase_edate = null
         , $supplier_id = null
+        , $estimated_depot_id = null
         , $depot_id = null
         , $inbound_user_id = []
         , $inbound_status = []
@@ -258,6 +259,7 @@ class PurchaseItem extends Model
 
         $result = DB::table('pcs_purchase as purchase')
             ->leftJoin('pcs_purchase_items as items', 'purchase.id', '=', 'items.purchase_id')
+            ->leftJoin('prd_product_styles as style', 'style.id', '=', 'items.product_style_id')
             ->leftJoinSub($tempInboundSql, 'inbound', function($join) use($tempInboundSql) {
                 $join->on('items.purchase_id', '=', 'inbound.event_id')
                     ->on('items.id', '=', 'inbound.event_item_id')
@@ -281,6 +283,9 @@ class PurchaseItem extends Model
                 ,'purchase.purchase_user_name as purchase_user_name'
                 ,'purchase.supplier_name as supplier_name'
                 ,'purchase.supplier_nickname as supplier_nickname'
+                ,'purchase.estimated_depot_id as estimated_depot_id'
+                ,'purchase.estimated_depot_name as estimated_depot_name'
+                ,'style.estimated_cost as estimated_cost'
                 , DB::raw('(case
                     when purchase.audit_status ='. AuditStatus::unreviewed()->value. ' then "'. AuditStatus::getDescription(AuditStatus::unreviewed()->value). '"
                     when purchase.audit_status ='. AuditStatus::approved()->value. ' then "'. AuditStatus::getDescription(AuditStatus::approved()->value). '"
@@ -302,6 +307,9 @@ class PurchaseItem extends Model
             ->whereNull('purchase.deleted_at')
             ->whereNull('items.deleted_at');
 
+        if ($estimated_depot_id) {
+            $result->where('purchase.estimated_depot_id', '=', $estimated_depot_id);
+        }
         if ($purchase_id) {
             $result->where('purchase.id', '=', $purchase_id);
         }
@@ -370,6 +378,7 @@ class PurchaseItem extends Model
         , $purchase_sdate = null
         , $purchase_edate = null
         , $supplier_id = null
+        , $estimated_depot_id = null
         , $depot_id = null
         , $inbound_user_id = []
         , $inbound_status = []
@@ -486,6 +495,8 @@ class PurchaseItem extends Model
                 ,'purchase.purchase_user_name as purchase_user_name'
                 ,'purchase.supplier_name as supplier_name'
                 ,'purchase.supplier_nickname as supplier_nickname'
+                ,'purchase.estimated_depot_id as estimated_depot_id'
+                ,'purchase.estimated_depot_name as estimated_depot_name'
                 , DB::raw('(case
                     when purchase.audit_status ='. AuditStatus::unreviewed()->value. ' then "'. AuditStatus::getDescription(AuditStatus::unreviewed()->value). '"
                     when purchase.audit_status ='. AuditStatus::approved()->value. ' then "'. AuditStatus::getDescription(AuditStatus::approved()->value). '"
@@ -506,6 +517,9 @@ class PurchaseItem extends Model
             ->whereNull('purchase.deleted_at')
             ->orderByDesc('purchase.id');
 
+        if ($estimated_depot_id) {
+            $result->where('purchase.estimated_depot_id', '=', $estimated_depot_id);
+        }
         if($purchase_sn) {
             $result->where('purchase.sn', '=', $purchase_sn);
         }

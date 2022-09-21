@@ -80,7 +80,7 @@ class DeliveryCtrl extends Controller
         if (false == empty($cond['ship_category'])) {
             $ship_method = $cond['ship_method'];
             $ship_category = $cond['ship_category'];
-            if ('pickup' == $ship_category) {
+            if (true == in_array('pickup', $ship_category)) {
                 $cond['ship_method'] = [];
             }
             $delivery = Delivery::getList($cond)->paginate($cond['data_per_page'])->appends($query);

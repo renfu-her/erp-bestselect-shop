@@ -61,14 +61,15 @@
                                 <th scope="col">經銷價</th>
                                 <th scope="col">定價</th>
                                 <th scope="col">獎金
-                                    <i class="bi bi-info-circle" data-bs-toggle="tooltip" 
+                                    <i class="bi bi-info-circle" data-bs-toggle="tooltip"
                                         title="此設定為此商品可賺取之獎金。預設：(售價-經銷價) × {{ App\Enums\Customer\Bonus::bonus()->value }}"></i>
                                 </th>
+                                <th scope="col">參考成本單價</th>
                                 <th scope="col">庫存</th>
                                 <th scope="col">安全庫存</th>
                                 <!-- <th scope="col">庫存不足</th> -->
                                 <th scope="col">鴻利抵扣
-                                    <i class="bi bi-info-circle" data-bs-toggle="tooltip" 
+                                    <i class="bi bi-info-circle" data-bs-toggle="tooltip"
                                         title="此設定顯示於顧客購買結帳頁面商品可使用之鴻利上限。預設：售價 × {{ $salechannel->dividend_limit/100 }}"></i>
                                 </th>
                             </tr>
@@ -227,6 +228,11 @@
                                                 name="{{ $prefix }}bonus[]" min="0" value="{{ $style->bonus }}"
                                                 required />
                                         </div>
+                                    </td>
+                                    <td>
+                                        <input type="number" class="form-control form-control-sm"
+                                               name="{{ $prefix }}estimated_cost[]" min="0" value="{{ $style->estimated_cost }}"
+                                               required>
                                     </td>
                                     <td>
                                         <a href="{{ Route('cms.product.edit-stock', ['id' => $data->id, 'sid' => $style->id]) }}"
