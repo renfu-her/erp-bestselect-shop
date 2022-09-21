@@ -498,6 +498,10 @@ class LogisticCtrl extends Controller
                 $rcv_name = $pickup->depot_name;
                 $rcv_tel = $pickup->depot_tel;
                 $rcv_addr = $pickup->depot_address;
+                // 20220921 理查: 應為收件人 不是倉庫
+                $rcv_name = $order->rec_name;
+                $rcv_tel = $order->rec_phone;
+                $rcv_addr = $order->rec_address;
             } else {
                 $rcv_name = $order->rec_name;
                 $rcv_tel = $order->rec_phone;
