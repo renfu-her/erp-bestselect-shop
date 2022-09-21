@@ -17,7 +17,7 @@
                         <th scope="col">規格</th>
                         <th scope="col">SKU</th>
 
-                        <th scope="col">庫存</th>
+                        <th scope="col">可售數量</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -43,7 +43,7 @@
 
                             <td>{{ $style['title'] }}</td>
                             <td>{{ $style['sku'] }}</td>
-                            <td>{{ $style['in_stock'] }}</td>
+                            <td>{{ $style['in_stock'] + $style['overbought'] }}</td>
                         </tr>
                     @endforeach
                 </tbody>

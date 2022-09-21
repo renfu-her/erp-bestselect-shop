@@ -73,11 +73,18 @@
                             </td>
                         </tr>
                         <tr>
+                            <th>可售數量
+                                <i class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-placement="right"
+                                    title="可售數量"></i>
+                            </th>
+                            <th class="table-warning border-dark text-end pe-4 -remaining">{{ $style->in_stock + $style->overbought }}</th>
+                        </tr>
+                        <tr>
                             <th>實際庫存
                                 <i class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-placement="right"
                                     title="倉庫剩餘庫存"></i>
                             </th>
-                            <th class="table-warning border-dark text-end pe-4 -remaining">{{ $style->in_stock }}</th>
+                            <th class="table-warning border-dark text-end pe-4 -remaining"></th>
                         </tr>
                     </tbody>
                 </table>
