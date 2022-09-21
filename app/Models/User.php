@@ -110,18 +110,19 @@ class User extends Authenticatable
     {
         $user_model = new User();
         $user_table = DB::table($user_model->getTable());
-        if (isset($query['roles']) && $query['roles']) {
-            if ($query['roles'] == self::HAS_ROLE_PERMISSION) {
-                $user_table->join('per_model_has_roles', 'id', '=', 'model_id')
+        $user_table->join('per_model_has_roles', 'id', '=', 'model_id')
                     ->where('model_type', '=', get_class($user_model));
-            } elseif ($query['roles'] == self::NO_ROLE_PERMISSION) {
-                $data = DB::table('per_model_has_roles')
-                    ->where('model_type', '=', get_class($user_model))
-                    ->select('model_id')->get()->toArray();
-                $assigned_roles = array();
-                foreach ($data as $key => $datum) {
-                    $assigned_roles[$key] = $datum->model_id;
-                }
+        $data = DB::table('per_model_has_roles')
+            ->where('model_type', '=', get_class($user_model))
+            ->select('model_id')->get()->toArray();
+        $assigned_roles = array();
+        foreach ($data as $key => $datum) {
+            $assigned_roles[$key] = $datum->model_id;
+        }
+        if (isset($query['roles'])) {
+            if (!is_null($query['roles']) && $query['roles'] == '1') {
+                $user_table->whereIn('id', $assigned_roles);
+            } elseif (!is_null($query['roles']) && $query['roles'] == '0') {
                 $user_table->whereNotIn('id', $assigned_roles);
             }
         }
@@ -133,6 +134,11 @@ class User extends Authenticatable
         if (isset($query['account']) && $query['account']) {
             $user_table->where('account', 'like', "%{$query['account']}%");
         }
+
+        if (isset($query['roleId']) && $query['roleId']) {
+            $user_table->where('per_model_has_roles.role_id', $query['roleId']);
+        }
+//        dd($user_table->get());
 
         $users = $user_table->paginate($per_page)->appends($query);
 
@@ -149,6 +155,8 @@ class User extends Authenticatable
                 : 0, 'role' => Role::getUserRoles($user->id, 'user'),
             ];
         }
+
+        $total_data = collect($total_data)->unique('id');
 
         return [
             'dataList' => $total_data, 'account' => $users,

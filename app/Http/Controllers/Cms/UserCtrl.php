@@ -27,8 +27,15 @@ class UserCtrl extends Controller
     {
         $query = $request->query();
         $user = User::getUserBySearch($query);
+        $roleData = Role::whereNull('deleted_at')
+                    ->select([
+                        'id',
+                        'title',
+                    ])
+                    ->get();
 
         return view('cms.admin.user.list', [
+            "roleData" => $roleData,
             "dataList" => $user['dataList'], "users" => $user['account'],
         ]);
     }
