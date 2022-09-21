@@ -477,7 +477,7 @@
                             <dd>{{ $subOrder->logistic_memo ?? '(待處理)' }}</dd>
                         </div>
                         <div class="col">
-                            <dt>物流備註</dt>
+                            <dt>銷貨備註</dt>
                             <dd>{{ $subOrder->note }}</dd>
                         </div>
                     </dl>
