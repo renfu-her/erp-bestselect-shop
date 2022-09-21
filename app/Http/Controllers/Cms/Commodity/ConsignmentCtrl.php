@@ -597,10 +597,10 @@ class ConsignmentCtrl extends Controller
 
         $logistics_grade_name = AllGrade::find($paying_order->logistics_grade_id)->eachGrade->code . ' ' . AllGrade::find($paying_order->logistics_grade_id)->eachGrade->name;
 
-        if ($consignmentData->lgt_sn) {
-            $logistics_grade_name = $logistics_grade_name. ' #'. $consignmentData->lgt_sn;
+        if ($consignmentData->projlgt_order_sn) {
+            $logistics_grade_name = $logistics_grade_name . ' ' . $consignmentData->group_name . ' #'. $consignmentData->projlgt_order_sn;
         } else {
-            $logistics_grade_name = $logistics_grade_name. ' #'. $consignmentData->package_sn;
+            $logistics_grade_name = $logistics_grade_name . ' ' . $consignmentData->group_name . ' #'. $consignmentData->package_sn;
         }
 
         $payable_data = PayingOrder::get_payable_detail($paying_order->id);
