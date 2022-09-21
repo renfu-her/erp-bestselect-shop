@@ -396,7 +396,7 @@ class LogisticCtrl extends Controller
             'event_id' => 'required|string',
         ]);
 
-        $input = $request->only('is_true_sender', 'depot_id', 'temp_id', 'dim_id', 'pickup_date');
+        $input = $request->only('is_true_sender', 'depot_id', 'temp_id', 'dim_id', 'pickup_date', 'memo');
         $pickup_date = date('Y/m/d', strtotime($input['pickup_date']));
 
         $logistic_id = $request->input('logistic_id');
@@ -411,7 +411,9 @@ class LogisticCtrl extends Controller
         $items = null;
         list($send_name, $send_tel, $send_addr, $rcv_name, $rcv_tel, $rcv_addr, $memo, $items) =
             $this->getDataProjLogisticCreateOrder($event, $delivery, $send_name, $send_tel, $send_addr, $rcv_name, $rcv_tel, $rcv_addr, $items);
-
+        if (isset($input['memo'])) {
+            $memo = $memo. ' '. $input['memo'] ?? '';
+        }
         //真實寄件人帶值 其餘不傳此欄位
         if ('0' == $input['is_true_sender']) {
             $send_name = '';
@@ -498,10 +500,6 @@ class LogisticCtrl extends Controller
                 $rcv_name = $pickup->depot_name;
                 $rcv_tel = $pickup->depot_tel;
                 $rcv_addr = $pickup->depot_address;
-                // 20220921 理查: 應為收件人 不是倉庫
-                $rcv_name = $order->rec_name;
-                $rcv_tel = $order->rec_phone;
-                $rcv_addr = $order->rec_address;
             } else {
                 $rcv_name = $order->rec_name;
                 $rcv_tel = $order->rec_phone;

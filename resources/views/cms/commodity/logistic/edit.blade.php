@@ -259,6 +259,10 @@
                                 <input type="date" id="pickup_date" name="pickup_date" value=""
                                        class="form-control" aria-label="取件日期" required/>
                             </div>
+                            <div class="col-12 mb-3">
+                                <label class="form-label">備註</label>
+                                <textarea class="form-control" name="memo" placeholder="備註" maxlength="100"></textarea>
+                            </div>
                             @error('pickup_date')
                             <div class="alert alert-danger mt-3">{{ $message }}</div>
                             @enderror
