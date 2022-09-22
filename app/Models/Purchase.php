@@ -231,7 +231,7 @@ class Purchase extends Model
         if (null != $purchase && null != $purchaseReq && null != $purchasePayReq) {
             $purchase->audit_status = intval($purchaseReq['audit_status'], (int)AuditStatus::unreviewed()->value);
             $purchase->estimated_depot_id = intval($purchaseReq['estimated_depot_id'], null);
-            $purchase->logistics_price = intval($purchasePayReq['logistics_price'], 0);
+            $purchase->logistics_price = intval($purchasePayReq['logistics_price'] ?? 0, 0);
             $purchase->logistics_memo = $purchasePayReq['logistics_memo'] ?? null;
         }
         return $purchase;
