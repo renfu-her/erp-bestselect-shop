@@ -83,6 +83,7 @@ class Purchase extends Model
                 , 'logistics_price'
                 , 'logistics_memo'
                 , 'audit_status'
+                , 'estimated_depot_id'
             )
             ->get()->first();
 
@@ -228,9 +229,9 @@ class Purchase extends Model
     public static function verifyPcsNormalCanEditData($purchase, $tax, array $purchaseReq, array $purchasePayReq)
     {
         if (null != $purchase && null != $purchaseReq && null != $purchasePayReq) {
-            $purchase->audit_status = $purchaseReq['audit_status'];
-            $purchase->estimated_depot_id = $purchaseReq['estimated_depot_id'];
-            $purchase->logistics_price = $purchasePayReq['logistics_price'] ?? 0;
+            $purchase->audit_status = intval($purchaseReq['audit_status'], (int)AuditStatus::unreviewed()->value);
+            $purchase->estimated_depot_id = intval($purchaseReq['estimated_depot_id'], null);
+            $purchase->logistics_price = intval($purchasePayReq['logistics_price'], 0);
             $purchase->logistics_memo = $purchasePayReq['logistics_memo'] ?? null;
         }
         return $purchase;
