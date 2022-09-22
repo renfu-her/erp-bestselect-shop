@@ -15,11 +15,24 @@ class CustomerProfit extends Model
     protected $table = 'usr_customer_profit';
     protected $guarded = [];
 
-    public static function dataList($name = null, $sn = null, $status = null)
-    {
+    public static function dataList(
+        $name = null,
+        $sn = null,
+        $status = null,
+        $employee = null
+    ) {
         $re = DB::table('usr_customer_profit as profit')
             ->leftJoin('usr_customers as customer', 'profit.customer_id', '=', 'customer.id')
             ->select(['profit.*', 'customer.name', 'customer.sn', 'customer.id as customer_id']);
+
+        if ($employee) {
+            $re->leftJoin('usr_users', 'customer.id', '=', 'usr_users.customer_id')
+            ->addSelect([
+                'usr_users.id AS usr_users_id',
+                'usr_users.name AS employeeName',
+                'usr_users.acoount AS employeeId',
+            ]);
+        }
 
         if ($status) {
             $re->where('profit.status', $status);
