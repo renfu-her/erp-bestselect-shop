@@ -218,8 +218,11 @@
                                     <input type="hidden" name="name[]" value="{{ old('name.'. $psItemKey, $psItemVal->title?? '') }}">
                                     <input type="hidden" name="sku[]" value="{{ old('sku.'. $psItemKey, $psItemVal->sku?? '') }}">
                                     <input type="hidden" name="estimated_cost[]" value="{{ old('estimated_cost.'. $psItemKey, $psItemVal->estimated_cost?? '') }}">
-                                    <input type="hidden" name="num[]" value="{{ old('num.'. $psItemKey, $psItemVal->num?? '') }}">
-                                    <input type="hidden" name="price[]" value="{{ old('price.'. $psItemKey, $psItemVal->price?? '') }}">
+
+                                    @if(true == $hasCreatedFinalPayment)
+                                        <input type="hidden" name="num[]" value="{{ old('num.'. $psItemKey, $psItemVal->num?? '') }}">
+                                        <input type="hidden" name="price[]" value="{{ old('price.'. $psItemKey, $psItemVal->price?? '') }}">
+                                    @endif
                                 </th>
                                 <td data-td="name">{{ old('name.'. $psItemKey, $psItemVal->title?? '') }}</td>
                                 <td data-td="sku">{{ old('sku.'. $psItemKey, $psItemVal->sku?? '') }}</td>
