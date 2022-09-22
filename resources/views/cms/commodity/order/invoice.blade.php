@@ -183,7 +183,7 @@
                 <div class="col-12 col-sm-6 mb-3 c_carrier_type carrier_2">
                     <label class="form-label l_carrier_email">E-mail <span class="text-danger">*</span></label>
                     <input type="text" name="carrier_email" class="form-control @error('carrier_email') is-invalid @enderror"
-                        placeholder="請輸入E-mail" aria-label="E-mail" value="{{ old('carrier_email', $customer_email?? '') }}">
+                        placeholder="請輸入E-mail" aria-label="E-mail" value="{{ old('carrier_email', $order->carrier_num?? '') }}">
                     <div class="invalid-feedback">
                         @error('carrier_email')
                         {{ $message }}
@@ -274,7 +274,7 @@
 
 @once
     @push('sub-styles')
-        
+
     @endpush
     @push('sub-scripts')
         <script>
@@ -432,7 +432,7 @@
                                 required:false
                             }).val('');
                             break;
-                    
+
                         case 'e_inv':   // 電子發票
                             //地址
                             $('input[type=text][name=buyer_address]').prop({
@@ -486,7 +486,7 @@
                                 required:true
                             });
                             break;
-                    
+
                         case '0':   // 手機條碼載具
                         case '1':   // 自然人憑證條碼載具
                         default:

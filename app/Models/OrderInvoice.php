@@ -168,6 +168,7 @@ class OrderInvoice extends Model
         $buyer_email = isset($parm['buyer_email']) ? $parm['buyer_email'] : null;
         $carrier_type = isset($parm['carrier_type']) ? $parm['carrier_type'] : null;
         $carrier_num = isset($parm['carrier_num']) ? trim($parm['carrier_num']) : null;
+        $carrier_email = isset($parm['carrier_email']) ? trim($parm['carrier_email']) : null;
         $love_code = isset($parm['love_code']) ? $parm['love_code'] : null;
 
         $print_flag = $carrier_type != null || $love_code ? 'N' : 'Y';
@@ -246,7 +247,12 @@ class OrderInvoice extends Model
                     }
 
                 } else if($carrier_type == 2){
-                    $carrier_num = $buyer_email;
+                    $pattern = "/^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,})$/i";
+                    if (preg_match($pattern, $carrier_email) == 0) {
+                        wToast(__('會員電子發票載具格式錯誤'));
+                        return $inv_result = null;
+                    }
+                    $carrier_num = $carrier_email;
                 }
 
             } else {
