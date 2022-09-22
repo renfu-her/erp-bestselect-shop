@@ -19,6 +19,7 @@ use App\Models\OrderPayCreditCard;
 use App\Models\OrderRemit;
 use App\Models\ReceivedDefault;
 use App\Models\ReceivedOrder;
+use App\Models\OrderCreateLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -442,9 +443,16 @@ class OrderCtrl extends Controller
         }
 
         $re = Order::createOrder($customer->email, 1, $address, $payLoad['products'], $payLoad['mcode'] ?? null, $payLoad['note'], $couponObj, $payinfo, ReceivedMethod::fromValue($payLoad['payment']), $dividend, $request->user());
-
+        
         if ($re['success'] == '1') {
             DB::commit();
+            // log
+            OrderCreateLog::create([
+                'email'=>$customer->email,
+                'payload'=>json_encode($payLoad),
+                'return_value'=>json_encode($re),
+                'success'=>1
+            ]);
             return [
                 'status' => '0',
                 'message' => '',
@@ -455,6 +463,13 @@ class OrderCtrl extends Controller
         }
 
         DB::rollBack();
+        // log
+        OrderCreateLog::create([
+            'email'=>$customer->email,
+            'payload'=>json_encode($payLoad),
+            'return_value'=>json_encode($re),
+            'success'=> 0
+        ]);
         return [
             'stauts' => 'E05',
             'message' => $re,
