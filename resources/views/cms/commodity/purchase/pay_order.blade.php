@@ -106,7 +106,7 @@
                                 <td class="text-end">1</td>
                                 <td class="text-end">{{ number_format($depositPaymentData->price, 2) }}</td>
                                 <td class="text-end">{{ number_format($depositPaymentData->price) }}</td>
-                                <td>{{ $depositPaymentData->memo }}</td>
+                                <td>@php echo $depositPaymentData->memo @endphp</td>
                             </tr>
                         @elseif($type === 'final')
                             @foreach($purchaseItemData as $purchaseItem)
@@ -115,7 +115,7 @@
                                     <td class="text-end">{{ $purchaseItem->num }}</td>
                                     <td class="text-end">{{ number_format($purchaseItem->total_price / $purchaseItem->num, 2) }}</td>
                                     <td class="text-end">{{ number_format($purchaseItem->total_price) }}</td>
-                                    <td>{{ $purchaseItem->memo }}</td>
+                                    <td>@php echo $purchaseItem->memo @endphp</td>
                                 </tr>
                             @endforeach
                             @if($logisticsPrice > 0)
@@ -124,7 +124,7 @@
                                     <td class="text-end"></td>
                                     <td class="text-end"></td>
                                     <td class="text-end">{{ number_format($logisticsPrice) }}</td>
-                                    <td>{{ $purchaseData->logistics_memo }}</td>
+                                    <td>@php echo $purchaseData->logistics_memo @endphp</td>
                                 </tr>
                             @endif
                             @if(!is_null($depositPaymentData))
@@ -133,7 +133,7 @@
                                     <td class="text-end">1</td>
                                     <td class="text-end">-{{ number_format($depositPaymentData->price, 2) }}</td>
                                     <td class="text-end">-{{ number_format($depositPaymentData->price) }}</td>
-                                    <td>{{$depositPaymentData->memo}}</td>
+                                    <td>@php echo $depositPaymentData->memo @endphp</td>
                                 </tr>
                             @endif
                         @endif
