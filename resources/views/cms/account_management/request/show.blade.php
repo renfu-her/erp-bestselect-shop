@@ -8,7 +8,7 @@
             <a href="{{ route('cms.request.edit', ['id' => $request_order->id]) }}" class="btn btn-sm btn-success px-3" role="button">修改</a>
             @endcan
 
-            @if(! $request_order->posting_date)
+            @if(! $request_order->ro_receipt_date)
             <a href="{{ route('cms.request.ro-edit', ['id' => $request_order->id]) }}" class="btn btn-sm btn-primary px-3" 
                 role="button">入款</a>
             @endif

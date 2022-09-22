@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
+use App\Enums\Payable\ChequeStatus;
 use App\Enums\Supplier\Payment;
 
 use App\Models\AccountPayable;
@@ -24,6 +25,7 @@ use App\Models\Order;
 use App\Models\PayableAccount;
 use App\Models\PayableCash;
 use App\Models\PayableCheque;
+use App\Models\PayableDefault;
 use App\Models\PayableForeignCurrency;
 use App\Models\PayableOther;
 use App\Models\PayableRemit;
@@ -130,9 +132,8 @@ class CollectionPaymentCtrl extends Controller
 
                 // 商品
                 if($value->product_items){
-                    $product_account = AllGrade::find($value->po_product_grade_id) ? AllGrade::find($value->po_product_grade_id)->eachGrade : null;
-                    $account_code = $product_account ? $product_account->code : '1000';
-                    $account_name = $product_account ? $product_account->name : '無設定會計科目';
+                    $account_code = $value->po_product_grade_code ? $value->po_product_grade_code : '1000';
+                    $account_name = $value->po_product_grade_name ? $value->po_product_grade_name : '無設定會計科目';
                     $product_name = $account_code . ' ' . $account_name;
                     foreach(json_decode($value->product_items) as $p_value){
                         $avg_price = $p_value->price / $p_value->num;
@@ -140,10 +141,16 @@ class CollectionPaymentCtrl extends Controller
                         $product_title = $p_value->title;
 
                         if($value->po_source_type == 'acc_stitute_orders' || $value->po_source_type == 'pcs_paying_orders'){
-                            $product_account = AllGrade::find($p_value->all_grades_id) ? AllGrade::find($p_value->all_grades_id)->eachGrade : null;
-                            $account_code = $product_account ? $product_account->code : '1000';
-                            $account_name = $product_account ? $product_account->name : '無設定會計科目';
-                            $product_title = $account_name;
+                            if($value->po_type == 1){
+                                $product_account = AllGrade::find($p_value->all_grades_id) ? AllGrade::find($p_value->all_grades_id)->eachGrade : null;
+                                $account_code = $product_account ? $product_account->code : '1000';
+                                $account_name = $product_account ? $product_account->name : '無設定會計科目';
+                                $product_title = $account_name;
+
+                            } else if($value->po_type == 2){
+                                $account_code = '';
+                                $account_name = '';
+                            }
                         }
 
                         $tmp = [
@@ -205,9 +212,8 @@ class CollectionPaymentCtrl extends Controller
                 // 折扣
                 if($value->discount_value > 0){
                     foreach(json_decode($value->order_discount) ?? [] as $d_value){
-                        $dis_account = AllGrade::find($d_value->discount_grade_id) ? AllGrade::find($d_value->discount_grade_id)->eachGrade : null;
-                        $account_code = $dis_account ? $dis_account->code : '4000';
-                        $account_name = $dis_account ? $dis_account->name : '無設定會計科目';
+                        $account_code = $d_value->grade_code ? $d_value->grade_code : '4000';
+                        $account_name = $d_value->grade_name ? $d_value->grade_name : '無設定會計科目';
                         $name = $account_code . ' ' . $account_name;
 
                         $tmp = [
@@ -235,7 +241,6 @@ class CollectionPaymentCtrl extends Controller
                     }
                 }
 
-
                 $value->debit = $debit;
                 $value->credit = $credit;
 
@@ -252,7 +257,7 @@ class CollectionPaymentCtrl extends Controller
         $supplier = Supplier::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
         $payee_merged = array_merge($user, $customer, $depot, $supplier);
 
-        $check_balance_status = [
+        $balance_status = [
             'all'=>'不限',
             '0'=>'未付款',
             '1'=>'已付款',
@@ -263,7 +268,7 @@ class CollectionPaymentCtrl extends Controller
             'dataList' => $dataList,
             'cond' => $cond,
             'payee' => $payee_merged,
-            'check_balance_status' => $check_balance_status,
+            'balance_status' => $balance_status,
         ]);
     }
 
@@ -333,11 +338,18 @@ class CollectionPaymentCtrl extends Controller
 
             } else if($po->source_type == app(Delivery::class)->getTable()){
 
-            } else if($po->source_type == app(PayingOrder::class)->getTable()){
+            } else if($po->source_type == app(PayingOrder::class)->getTable() && $po->type == 1){
                 $parm = [
-                    'append_pay_order_id'=>$po->id,
+                    'append_pay_order_id' => $po->id,
                 ];
                 PayingOrder::update_account_payable_method($parm, true);
+
+            } else if($po->source_type == app(PayingOrder::class)->getTable() && $po->type == 2){
+                $append_po_id = PayingOrder::where('append_po_id', $po->id)->pluck('id')->toArray();
+                $parm = [
+                    'po_id' => $append_po_id,
+                ];
+                PayingOrder::update_paying_order_append_to($parm, true);
             }
 
             // cheque status is cashed then po can't delete,
@@ -438,6 +450,27 @@ class CollectionPaymentCtrl extends Controller
                     'balance_date'=>null,
                     'payment_date'=>null,
                 ]);
+
+                if($paying_order->source_type == app(PayingOrder::class)->getTable()){
+                    if($paying_order->type == 1){
+                        $accounts_payable_id = DB::table('acc_payable_account')->where('append_pay_order_id', $paying_order->id)->pluck('id')->toArray();
+
+                        $parm = [
+                            'action'=>'reverse',
+                            'accounts_payable_id'=>$accounts_payable_id,
+                            'status_code'=>0,
+                        ];
+                        PayingOrder::update_account_payable_method($parm);
+
+                    } else if($paying_order->type == 2){
+                        $append_po_id = PayingOrder::where('append_po_id', $paying_order->id)->pluck('id')->toArray();
+                        $parm = [
+                            'action'=>'reverse',
+                            'po_id' => $append_po_id,
+                        ];
+                        PayingOrder::update_paying_order_append_to($parm);
+                    }
+                }
             }
 
             DB::commit();
@@ -457,25 +490,20 @@ class CollectionPaymentCtrl extends Controller
         if($request->isMethod('post')){
             $request->validate([
                 'selected' => 'required|array',
-                'selected.*' => 'exists:acc_payable_account,id',
-                'accounts_payable_id' => 'required|array',
-                'accounts_payable_id.*' => 'exists:acc_payable_account,id',
+                'selected.*' => 'exists:pcs_paying_orders,id',
+                'po_id' => 'required|array',
+                'po_id.*' => 'exists:pcs_paying_orders,id',
                 'amt_net' => 'required|array',
                 'amt_net.*' => 'required|numeric|between:0,9999999999.99',
             ]);
 
-            $compare = array_diff(request('selected'), request('accounts_payable_id'));
+            $compare = array_diff(request('selected'), request('po_id'));
             if(count($compare) == 0){
                 $source_type = app(PayingOrder::class)->getTable();
-                // $n_id = DB::select("SHOW TABLE STATUS FROM 'shop-dev' LIKE '" . $source_type . "'")[0]->Auto_increment;
                 $n_id = PayingOrder::withTrashed()->get()->count() + 1;
-                $accounts_payable_id = current(request('accounts_payable_id'));
-                $payable = DB::table('acc_payable')->where([
-                    'acc_income_type_fk'=>5,
-                    'payable_id'=>$accounts_payable_id
-                ])->first();
+                $po_id = current(request('po_id'));
 
-                $pre_paying_order = PayingOrder::find($payable->pay_order_id);
+                $pre_paying_order = PayingOrder::findOrFail($po_id);
                 $product_grade = PayableDefault::where('name', '=', 'product')->first()->default_grade_id;
                 $logistics_grade = PayableDefault::where('name', '=', 'logistics')->first()->default_grade_id;
 
@@ -484,7 +512,7 @@ class CollectionPaymentCtrl extends Controller
                     $n_id,
                     null,
                     $request->user()->id,
-                    1,
+                    2,
                     $product_grade,
                     $logistics_grade,
                     array_sum(request('amt_net')),
@@ -499,20 +527,21 @@ class CollectionPaymentCtrl extends Controller
                 $paying_order = PayingOrder::find($result['id']);
 
                 $parm = [
-                    'accounts_payable_id'=>request('accounts_payable_id'),
-                    'status_code'=>0,
-                    'append_pay_order_id'=>$paying_order->id,
-                    'sn'=>$paying_order->sn,
-                    'amt_net'=>request('amt_net'),
+                    'action'=>'new',
+                    'po_id' => request('po_id'),
+                    'balance_date' => $paying_order->balance_date,// = NULL
+                    'payment_date' => $paying_order->payment_date,// = NULL
+                    'append_po_id' => $paying_order->id,
+                    'append_po_sn' => $paying_order->sn,
                 ];
-                PayingOrder::update_account_payable_method($parm);
+                PayingOrder::update_paying_order_append_to($parm);
 
-                return redirect()->route('cms.accounts_payable.po-edit', [
+                return redirect()->route('cms.collection_payment.po-edit', [
                     'id'=>$paying_order->id,
                 ]);
             }
 
-            wToast(__('應付帳款付款單建立失敗', ['type'=>'danger']));
+            wToast(__('付款單建立失敗', ['type'=>'danger']));
             return redirect()->back();
         }
 
@@ -557,7 +586,10 @@ class CollectionPaymentCtrl extends Controller
             $po_payment_date,
             '0',
             true
-        )->paginate($page)->appends($query);
+        )
+        // ->whereNull('po.append_po_id')
+        ->whereRaw('CONCAT(po.source_type, "_", po.type) != "pcs_paying_orders_2"')
+        ->paginate($page)->appends($query);
 
         // accounting classification start
             foreach($dataList as $value){
@@ -610,9 +642,8 @@ class CollectionPaymentCtrl extends Controller
 
                 // 商品
                 if($value->product_items){
-                    $product_account = AllGrade::find($value->po_product_grade_id) ? AllGrade::find($value->po_product_grade_id)->eachGrade : null;
-                    $account_code = $product_account ? $product_account->code : '1000';
-                    $account_name = $product_account ? $product_account->name : '無設定會計科目';
+                    $account_code = $value->po_product_grade_code ? $value->po_product_grade_code : '1000';
+                    $account_name = $value->po_product_grade_name ? $value->po_product_grade_name : '無設定會計科目';
                     $product_name = $account_code . ' ' . $account_name;
                     foreach(json_decode($value->product_items) as $p_value){
                         $avg_price = $p_value->price / $p_value->num;
@@ -685,9 +716,8 @@ class CollectionPaymentCtrl extends Controller
                 // 折扣
                 if($value->discount_value > 0){
                     foreach(json_decode($value->order_discount) ?? [] as $d_value){
-                        $dis_account = AllGrade::find($d_value->discount_grade_id) ? AllGrade::find($d_value->discount_grade_id)->eachGrade : null;
-                        $account_code = $dis_account ? $dis_account->code : '4000';
-                        $account_name = $dis_account ? $dis_account->name : '無設定會計科目';
+                        $account_code = $d_value->grade_code ? $d_value->grade_code : '4000';
+                        $account_name = $d_value->grade_name ? $d_value->grade_name : '無設定會計科目';
                         $name = $account_code . ' ' . $account_name;
 
                         $tmp = [
@@ -732,7 +762,7 @@ class CollectionPaymentCtrl extends Controller
         $supplier = Supplier::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
         $payee_merged = array_merge($user, $customer, $depot, $supplier);
 
-        $check_balance_status = [
+        $balance_status = [
             'all'=>'不限',
             '0'=>'未付款',
             '1'=>'已付款',
@@ -744,8 +774,7 @@ class CollectionPaymentCtrl extends Controller
             'dataList' => $dataList,
             'cond' => $cond,
             'payee' => $payee_merged,
-            'check_balance_status' => $check_balance_status,
-            'check_balance_status' => $check_balance_status,
+            'balance_status' => $balance_status,
         ]);
     }
 
@@ -760,8 +789,41 @@ class CollectionPaymentCtrl extends Controller
             'id' => 'required|exists:pcs_paying_orders,id',
         ]);
 
-        $accounts_payable_id = DB::table('acc_payable_account')->where('append_pay_order_id', $id)->pluck('id')->toArray();
-        $target_items = PayingOrder::get_accounts_payable_list($accounts_payable_id, 0)->get();
+        $append_po_sn = PayingOrder::where('append_po_id', $id)->pluck('sn')->toArray();
+        $target_items = PayingOrder::paying_order_list(null, $append_po_sn, null, null, null, '0', true)->get();
+
+        foreach($target_items as $data){
+            if($data->po_source_type == 'pcs_purchase' && $data->po_type == 1){
+                $tmp_po = PayingOrder::where([
+                    'source_type'=>'pcs_purchase',
+                    'source_id'=>$data->po_source_id,
+                    'type'=>0,
+                ])->first();
+
+                if($tmp_po){
+                    $d = (object)[
+                        'product_owner'=>'',
+                        'title'=>'訂金抵扣（訂金付款單號' . $tmp_po->sn . '）',
+                        'sku'=>'',
+                        'all_grades_id'=>"",
+                        'grade_code'=>"1118",
+                        'grade_name'=>"商品存貨",
+                        'price'=>-$tmp_po->price,
+                        'num'=>1,
+                        'summary'=>$tmp_po->memo,
+                        'memo'=>"",
+                    ];
+
+                    if($data->product_items){
+                        $items = json_decode($data->product_items);
+                        array_unshift($items, $d);
+                        $data->product_items = json_encode($items, JSON_UNESCAPED_UNICODE);
+                    } else {
+                        $data->product_items = json_encode([$d], JSON_UNESCAPED_UNICODE);
+                    }
+                }
+            }
+        }
 
         $paying_order = PayingOrder::findOrFail($id);
         $payable_data = PayingOrder::get_payable_detail($id);
@@ -770,10 +832,10 @@ class CollectionPaymentCtrl extends Controller
 
         $total_grades = GeneralLedger::total_grade_list();
 
-        return view('cms.account_management.accounts_payable.po_edit', [
+        return view('cms.account_management.collection_payment.po_edit', [
             'breadcrumb_data' => ['id' => $id],
-            'form_action' => route('cms.accounts_payable.po-store', ['id' => $paying_order->id]),
-            'previous_url' => route('cms.accounts_payable.index'),
+            'form_action' => route('cms.collection_payment.po-store', ['id' => $paying_order->id]),
+            'previous_url' => route('cms.collection_payment.index'),
             'target_items' => $target_items,
             'paying_order' => $paying_order,
             'payable_data' => $payable_data,
@@ -852,22 +914,24 @@ class CollectionPaymentCtrl extends Controller
         }
 
         if (PayingOrder::find($paying_order->id) && PayingOrder::find($paying_order->id)->balance_date) {
-            $accounts_payable_id = DB::table('acc_payable_account')->where('append_pay_order_id', $id)->pluck('id')->toArray();
+            $po_id = PayingOrder::where('append_po_id', $id)->pluck('id')->toArray();
 
             $parm = [
-                'accounts_payable_id'=>$accounts_payable_id,
-                'status_code'=>1,
-                'append_pay_order_id'=>$paying_order->id,
-                'sn'=>$paying_order->sn,
+                'action'=>'new',
+                'po_id' => $po_id,
+                'balance_date' => $paying_order->balance_date,
+                'payment_date' => $paying_order->payment_date,
+                'append_po_id' => $paying_order->id,
+                'append_po_sn' => $paying_order->sn,
             ];
-            PayingOrder::update_account_payable_method($parm);
+            PayingOrder::update_paying_order_append_to($parm);
 
-            return redirect()->route('cms.accounts_payable.po-show', [
+            return redirect()->route('cms.collection_payment.po-show', [
                 'id' => $id,
             ]);
 
         } else {
-            return redirect()->route('cms.accounts_payable.po-edit', [
+            return redirect()->route('cms.collection_payment.po-edit', [
                 'id' => $id,
             ]);
         }
@@ -886,8 +950,44 @@ class CollectionPaymentCtrl extends Controller
 
         $applied_company = DB::table('acc_company')->where('id', 1)->first();
 
-        $accounts_payable_id = DB::table('acc_payable_account')->where('append_pay_order_id', $id)->pluck('id')->toArray();
-        $target_items = PayingOrder::get_accounts_payable_list($accounts_payable_id, 1)->get();
+        $append_po_sn = PayingOrder::where('append_po_id', $id)->pluck('sn')->toArray();
+        $target_items = PayingOrder::paying_order_list(null, $append_po_sn, null, null, null, '1', true)->get();
+
+        foreach($target_items as $data){
+            $data->po_url_link = PayingOrder::paying_order_link($data->po_source_type, $data->po_source_id, $data->po_source_sub_id, $data->po_type);
+            $data->source_url_link = PayingOrder::paying_order_source_link($data->po_source_type, $data->po_source_id, $data->po_source_sub_id, $data->po_type);
+
+            if($data->po_source_type == 'pcs_purchase' && $data->po_type == 1){
+                $tmp_po = PayingOrder::where([
+                    'source_type'=>'pcs_purchase',
+                    'source_id'=>$data->po_source_id,
+                    'type'=>0,
+                ])->first();
+
+                if($tmp_po){
+                    $d = (object)[
+                        'product_owner'=>'',
+                        'title'=>'訂金抵扣（訂金付款單號' . $tmp_po->sn . '）',
+                        'sku'=>'',
+                        'all_grades_id'=>"",
+                        'grade_code'=>"1118",
+                        'grade_name'=>"商品存貨",
+                        'price'=>-$tmp_po->price,
+                        'num'=>1,
+                        'summary'=>$tmp_po->memo,
+                        'memo'=>"",
+                    ];
+
+                    if($data->product_items){
+                        $items = json_decode($data->product_items);
+                        array_unshift($items, $d);
+                        $data->product_items = json_encode($items, JSON_UNESCAPED_UNICODE);
+                    } else {
+                        $data->product_items = json_encode([$d], JSON_UNESCAPED_UNICODE);
+                    }
+                }
+            }
+        }
 
         $paying_order = PayingOrder::findOrFail($id);
         $payable_data = PayingOrder::get_payable_detail($id);
@@ -898,7 +998,7 @@ class CollectionPaymentCtrl extends Controller
         if (!$paying_order->balance_date) {
             // return abort(404);
 
-            return redirect()->route('cms.accounts_payable.po-edit', [
+            return redirect()->route('cms.collection_payment.po-edit', [
                 'id' => $id,
             ]);
         }
@@ -909,16 +1009,18 @@ class CollectionPaymentCtrl extends Controller
         $accountant = array_unique($accountant->pluck('name')->toArray());
         asort($accountant);
 
-        $view = 'cms.account_management.accounts_payable.po_show';
+        $view = 'cms.account_management.collection_payment.po_show';
         if (request('action') == 'print') {
-            $view = 'doc.print_accounts_payable_delivery_pay';
+            $view = 'doc.print_multiple_po';
         }
 
         return view($view, [
             'breadcrumb_data' => ['id' => $paying_order->id],
+            'previous_url' => route('cms.collection_payment.claim'),
             'applied_company' => $applied_company,
             'paying_order' => $paying_order,
             'target_items' => $target_items,
+            'target_po' => $target_items->pluck('po_url_link', 'po_sn')->toArray(),
             'payable_data' => $payable_data,
             'data_status_check' => $data_status_check,
             'zh_price' => $zh_price,

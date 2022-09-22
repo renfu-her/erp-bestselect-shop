@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>退貨付款單</title>
+    <title>付款單</title>
     <style>
         * {
             font-family: "Nunito", "Noto Sans TC", sans-serif;
@@ -49,27 +49,27 @@
         </div>
 
         <div style="font-size: x-large; font-family:標楷體">
-            退貨付款單
+            付　款　單
         </div>
         <hr width="710" style="margin: .5rem auto;">
         <div>
             <table width="710" style="font-size:small;text-align:left;border:0;margin: 0 auto;">
                 <tbody>
-                    <tr>
-                        <td width="50%">付款單號：{{ $paying_order->sn }}{{ $paying_order->append_po_id ? ' / ' . $paying_order->append_po_sn : '' }}</td>
-                        <td>製表日期：{{ date('Y-m-d', strtotime($paying_order->created_at)) }}</td>
-                    </tr>
-                    <tr>
-                        <td width="50%">單據編號：</td>
-                        <td>付款日期：{{ $paying_order->payment_date ? date('Y-m-d', strtotime($paying_order->payment_date)) : '' }}</td>
-                    </tr>
-                    <tr>
-                        <td width="50%">支付對象：{{ $paying_order->payee_name }}</td>
-                        <td>承辦人：{{ $undertaker ? $undertaker->name : '' }}</td>
-                    </tr>
-                    <tr>
-                        <td>電話：{{ $paying_order->payee_phone }}</td>
-                    </tr>
+                <tr>
+                    <td width="50%">付款單號：{{ $paying_order->sn }}{{ $paying_order->append_po_id ? ' / ' . $paying_order->append_po_sn : '' }}</td>
+                    <td>製表日期：{{ date('Y-m-d', strtotime($paying_order->created_at)) }}</td>
+                </tr>
+                <tr>
+                    <td width="50%">單據編號：</td>
+                    <td>付款日期：{{ $paying_order->payment_date ? date('Y-m-d', strtotime($paying_order->payment_date)) : '' }}</td>
+                </tr>
+                <tr>
+                    <td width="50%">支付對象：{{ $paying_order->payee_name }}</td>
+                    <td>承辦人：{{ $undertaker ? $undertaker->name : '' }}</td>
+                </tr>
+                <tr>
+                    <td>電話：{{ $paying_order->payee_phone }}</td>
+                </tr>
                 </tbody>
             </table>
             <hr width="710" style="margin: .5rem auto;">
@@ -85,17 +85,15 @@
                 </tr>
                 </thead>
                 <tbody style="text-align: left;">
-                @if($delivery->delivery_back_items)
-                @foreach($delivery->delivery_back_items as $db_value)
+                @foreach($target_items as $value)
                     <tr>
-                        <td>{{ $product_grade_name }} - {{ $db_value->product_title }}{{'（' . $delivery->sub_order_ship_event . ' - ' . $delivery->sub_order_ship_category_name . '）'}}{{'（' . $db_value->price . ' * ' . $db_value->qty . '）'}}</td>
-                        <td style="text-align: right;">{{ $db_value->qty }}</td>
-                        <td style="text-align: right;">{{ number_format($db_value->price, 2) }}</td>
-                        <td style="text-align: right;">{{ number_format($db_value->total_price) }}</td>
-                        <td>{{ $delivery->po_memo }} <a href="{{ route('cms.delivery.back_detail', ['event' => $delivery->delivery_event, 'eventId' => $delivery->delivery_event_id]) }}">{{ $delivery->delivery_event_sn }}</a> {{ $db_value->taxation == 1 ? '應稅' : '免稅' }} {{ $delivery->order_note }}</td>
+                        <td>{{ $value->po_payable_grade_code . ' ' . $value->po_payable_grade_name . ' ' . $value->summary }}</td>
+                        <td style="text-align: right;">1</td>
+                        <td style="text-align: right;">{{ number_format($value->tw_price, 2) }}</td>
+                        <td style="text-align: right;">{{ number_format($value->account_amt_net) }}</td>
+                        <td>{{ $value->taxation == 1 ? '應稅' : '免稅' }} {{ $value->note }}</td>
                     </tr>
                 @endforeach
-                @endif
                 </tbody>
             </table>
             <hr width="710" style="margin: .5rem auto;">
@@ -105,7 +103,7 @@
                 <tr height="24">
                     <td width="20%">合　　計：</td>
                     <td width="36%" style="text-align: right;">（{{ $zh_price }}）</td>
-                    <td width="10%" style="text-align: right;">{{ number_format($delivery->po_price) }}</td>
+                    <td width="10%" style="text-align: right;">{{ number_format($paying_order->price) }}</td>
                     <td width="34%"></td>
                 </tr>
                 </thead>
@@ -130,12 +128,12 @@
             <hr width="710" style="margin: .5rem auto;">
             <table width="710" style="font-size:small;text-align:left;border:0;margin: 0 auto;">
                 <tbody>
-                    <tr>
-                        <td width="25%">財務主管：</td>
-                        <td width="25%">會計：{{ $accountant ?? '' }}</td>
-                        <td width="25%">商品主管：</td>
-                        <td width="25%">商品負責人：</td>
-                    </tr>
+                <tr>
+                    <td width="25%">財務主管：</td>
+                    <td width="25%">會計：{{ $accountant ?? '' }}</td>
+                    <td width="25%">商品主管：</td>
+                    <td width="25%">商品負責人：</td>
+                </tr>
                 </tbody>
             </table>
         </div>

@@ -16,11 +16,13 @@
 
             @can('cms.collection_payment.delete')
             @if(! $data_status_check)
+            @if(! ($paying_order->payment_date && $paying_order->append_po_id))
                 <a href="{{ route('cms.collection_payment.payable_list', ['id' => $paying_order->id]) }}" class="btn btn-sm btn-primary" role="button">付款記錄</a>
 
                 <a href="javascript:void(0)" role="button" class="btn btn-outline-danger btn-sm"
                     data-bs-toggle="modal" data-bs-target="#confirm-delete"
                     data-href="{{ Route('cms.collection_payment.delete', ['id' => $paying_order->id]) }}">刪除付款單</a>
+            @endif
             @endif
             @endcan
 
@@ -42,7 +44,7 @@
 
             <dl class="row mb-0">
                 <div class="col">
-                    <dd>付款單號：{{ $paying_order->sn }}</dd>
+                    <dd>付款單號：{{ $paying_order->sn }}{!! $paying_order->append_po_id ? ' / ' . '<a href="' . $paying_order->append_po_link . '">' . $paying_order->append_po_sn . '</a>' : '' !!}</dd>
                 </div>
                 <div class="col">
                     <dd>製表日期：{{ date('Y-m-d', strtotime($paying_order->created_at)) }}</dd>

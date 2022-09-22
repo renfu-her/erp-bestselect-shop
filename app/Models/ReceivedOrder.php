@@ -1141,20 +1141,29 @@ class ReceivedOrder extends Model
         } else {
             if($request['status_code'] == 0){
                 foreach($request['account_received_id'] as $key => $value){
-                    $account = DB::table('acc_received_account')->where('id', $value)->first();
+                    if($request['action'] == 'new'){
+                        $account = DB::table('acc_received_account')->where('id', $value)->first();
 
-                    if($account && $account->append_received_order_id){
-                        self::find($account->append_received_order_id)->delete();
+                        if($account && $account->append_received_order_id){
+                            self::find($account->append_received_order_id)->delete();
+                        }
+
+                        DB::table('acc_received_account')->where('id', $value)->update([
+                            'status_code'=>0,
+                            'append_received_order_id'=>$request['append_received_order_id'],
+                            'sn'=>$request['sn'],
+                            'amt_net'=>$request['amt_net'][$key],
+                            'posting_date'=>null,
+                            'updated_at'=>date('Y-m-d H:i:s'),
+                        ]);
+
+                    } else if($request['action'] == 'reverse'){
+                        DB::table('acc_received_account')->where('id', $value)->update([
+                            'status_code'=>0,
+                            'posting_date'=>null,
+                            'updated_at'=>date('Y-m-d H:i:s'),
+                        ]);
                     }
-
-                    DB::table('acc_received_account')->where('id', $value)->update([
-                        'status_code'=>0,
-                        'append_received_order_id'=>$request['append_received_order_id'],
-                        'sn'=>$request['sn'],
-                        'amt_net'=>$request['amt_net'][$key],
-                        'posting_date'=>null,
-                        'updated_at'=>date('Y-m-d H:i:s'),
-                    ]);
                 }
 
             } else if($request['status_code'] == 1){

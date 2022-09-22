@@ -60,7 +60,18 @@
                     <td>製表日期：{{ date('Y-m-d', strtotime($paying_order->created_at)) }}</td>
                 </tr>
                 <tr>
-                    <td width="50%">單據編號：</td>
+                    <td width="50%">單據編號：
+                        @php
+                            $i = 1;
+                            $count = count($target_po);
+                        @endphp
+                        @foreach($target_po as $t_key => $t_value)
+                        {{ $t_key }}{{ $count != $i ? ' / ' : '' }}
+                            @php
+                                $i++;
+                            @endphp
+                        @endforeach
+                    </td>
                     <td>付款日期：{{ $paying_order->payment_date ? date('Y-m-d', strtotime($paying_order->payment_date)) : '' }}</td>
                 </tr>
                 <tr>
@@ -85,14 +96,40 @@
                 </tr>
                 </thead>
                 <tbody style="text-align: left;">
-                @foreach($target_items as $value)
+                @foreach($target_items as $t_value)
+                    @if($t_value->product_items)
+                    @foreach(json_decode($t_value->product_items) as $data)
                     <tr>
-                        <td>{{ $value->po_payable_grade_code . ' ' . $value->po_payable_grade_name . ' ' . $value->summary }}</td>
-                        <td style="text-align: right;">1</td>
-                        <td style="text-align: right;">{{ number_format($value->tw_price, 2) }}</td>
-                        <td style="text-align: right;">{{ number_format($value->account_amt_net) }}</td>
-                        <td>{{ $value->taxation == 1 ? '應稅' : '免稅' }} {{ $value->note }}</td>
+                        <td>{{ isset($data->grade_code) && $data->grade_code ? $data->grade_code : $t_value->po_product_grade_code }} {{ isset($data->grade_name) && $data->grade_name ? $data->grade_name : $t_value->po_product_grade_name }} - {{ $data->title || $data->product_owner ? ($data->title . ($data->product_owner ? '（' . $data->product_owner . '）' : '') ) : $data->summary }}</td>
+                        <td style="text-align: right;">{{ number_format($data->num) }}</td>
+                        <td style="text-align: right;">${{ number_format($data->price / $data->num, 2) }}</td>
+                        <td style="text-align: right;">${{ number_format($data->price) }}</td>
+                        <td>{{ $data->memo }}</td>
                     </tr>
+                    @endforeach
+                    @endif
+
+                    @if($t_value->logistics_price > 0)
+                    <tr>
+                        <td>{{ $t_value->po_logistics_grade_code . ' ' . $t_value->po_logistics_grade_name . ' ' . $t_value->logistics_summary }}</td>
+                        <td style="text-align: right;">1</td>
+                        <td style="text-align: right;">${{ number_format($t_value->logistics_price, 2) }}</td>
+                        <td style="text-align: right;">${{ number_format($t_value->logistics_price) }}</td>
+                        <td>{{ $t_value->logistics_memo }}</td>
+                    </tr>
+                    @endif
+
+                    @if($t_value->discount_value > 0 && $t_value->order_discount)
+                        @foreach(json_decode($t_value->order_discount) as $d_value)
+                        <tr>
+                            <td>{{ $d_value->grade_code }} {{ $d_value->grade_name }} - {{ $d_value->title }}</td>
+                            <td style="text-align: right;">1</td>
+                            <td style="text-align: right;">-{{ number_format($d_value->discount_value, 2) }}</td>
+                            <td style="text-align: right;">-{{ number_format($d_value->discount_value) }}</td>
+                            <td></td>
+                        </tr>
+                        @endforeach
+                    @endif
                 @endforeach
                 </tbody>
             </table>
@@ -130,7 +167,7 @@
                 <tbody>
                 <tr>
                     <td width="25%">財務主管：</td>
-                    <td width="25%">會計：{{ $accountant ?? '' }}</td>
+                    <td width="25%">會計：{{ $accountant }}</td>
                     <td width="25%">商品主管：</td>
                     <td width="25%">商品負責人：</td>
                 </tr>

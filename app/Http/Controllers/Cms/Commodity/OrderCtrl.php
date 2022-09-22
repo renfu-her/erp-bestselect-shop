@@ -1521,6 +1521,12 @@ class OrderCtrl extends Controller
         $undertaker = User::find($paying_order->usr_users_id);
 
         $zh_price = num_to_str($paying_order->price);
+
+        if($paying_order && $paying_order->append_po_id){
+            $append_po = PayingOrder::find($paying_order->append_po_id);
+            $paying_order->append_po_link = PayingOrder::paying_order_link($append_po->source_type, $append_po->source_id, $append_po->source_sub_id, $append_po->type);
+        }
+
         $view = 'cms.commodity.order.logistic_po';
         if (request('action') == 'print') {
             $view = 'doc.print_order_logistic_pay';
@@ -1777,6 +1783,11 @@ class OrderCtrl extends Controller
         asort($accountant);
 
         $zh_price = num_to_str($paying_order->price);
+
+        if($paying_order && $paying_order->append_po_id){
+            $append_po = PayingOrder::find($paying_order->append_po_id);
+            $paying_order->append_po_link = PayingOrder::paying_order_link($append_po->source_type, $append_po->source_id, $append_po->source_sub_id, $append_po->type);
+        }
 
         $view = 'cms.commodity.order.return_pay_order';
         if (request('action') == 'print') {
