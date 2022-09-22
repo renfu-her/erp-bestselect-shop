@@ -12,6 +12,13 @@
         $purchaseData = $purchaseData ?? null;
     @endphp
 
+    @if ($method === 'edit')
+        @php
+            $hasLogistics = $purchaseData->logistics_price !== 0 || !empty($purchaseData->logistics_memo);
+            $audit_approved = $purchaseData->audit_status == App\Enums\Consignment\AuditStatus::approved()->value;
+        @endphp
+    @endif
+
     <form id="form1" method="post" action="{{ $formAction }}">
         @method('POST')
         @csrf
@@ -118,7 +125,7 @@
 
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">選擇預計入庫倉庫 <span class="text-danger">*</span></label>
-                    @if ($hasCreatedFinalPayment)
+                    @if ($method === 'edit' && ($hasCreatedFinalPayment || $audit_approved))
                         <input type="hidden" id="estimated_depot_id" name="estimated_depot_id"
                                value="{{ old('estimated_depot_id', $purchaseData->estimated_depot_id  ?? '') }}"
                                class="form-control" aria-label="預計入庫倉庫"
@@ -278,10 +285,6 @@
         </div>
 
         @if ($method === 'edit')
-            @php
-                $hasLogistics = $purchaseData->logistics_price !== 0 || !empty($purchaseData->logistics_memo);
-                $audit_approved = $purchaseData->audit_status == App\Enums\Consignment\AuditStatus::approved()->value;
-            @endphp
             <div id="logistics" class="card shadow p-4 mb-4">
                 <h6>物流</h6>
                 <div class="row mb-3" @if (!$hasLogistics) hidden @endif >
@@ -323,7 +326,7 @@
                 </div>
             </div>
 
-            @if($purchaseData->audit_status == App\Enums\Consignment\AuditStatus::approved()->value)
+            @if($audit_approved)
                 <div class="card shadow p-4 mb-4">
                     <h6>付款資訊</h6>
                     <div class="row">
