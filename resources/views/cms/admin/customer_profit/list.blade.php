@@ -64,9 +64,11 @@
                             <td>{{ $data->name }}</td>
                             <td>{{ $data->sn }}</td>
                             <td>{{ $data->status_title }}</td>
+                            <td>
                             @if(!is_null($data->usr_users_id))
-                                <td>{{ '是（' . $data->employeeName . ',' . $data->employeeId . '）' }}</td>
+                                {{ '是（' . $data->employeeName . ',' . $data->employeeId . '）' }}
                             @endif
+                            </td>
                             <td class="text-center">
                                 @can('cms.customer-profit.edit')
                                     <a href="{{ Route('cms.customer-profit.edit', ['id' => $data->id], true) }}"
