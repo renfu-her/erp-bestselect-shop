@@ -119,10 +119,13 @@
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">選擇預計入庫倉庫 <span class="text-danger">*</span></label>
                     @if ($hasCreatedFinalPayment)
-                        <input type="text" id="estimated_depot_id" name="estimated_depot_id"
+                        <input type="hidden" id="estimated_depot_id" name="estimated_depot_id"
                                value="{{ old('estimated_depot_id', $purchaseData->estimated_depot_id  ?? '') }}"
                                class="form-control" aria-label="預計入庫倉庫"
                                readonly/>
+                        <input type="text" value="{{ $purchaseData->estimated_depot_name }}"
+                               class="form-control"
+                               readonly disabled/>
                     @else
                         <select name="estimated_depot_id"
                                 class="form-select @error('estimated_depot_id') is-invalid @enderror"
@@ -350,7 +353,7 @@
                         </div>
                         <div class="col-12 col-sm-6 mb-3">
                             <label class="form-label">發票號碼</label>
-                            <input class="form-control" name="invoice_num" type="text" placeholder="請輸入發票號碼" maxlength="10" 
+                            <input class="form-control" name="invoice_num" type="text" placeholder="請輸入發票號碼" maxlength="10"
                                 aria-label="發票號碼" value="{{ old('invoice_num', $purchaseData->invoice_num  ?? '') }}">
                         </div>
                         <div class="col-12 col-sm-6 mb-3">
