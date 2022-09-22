@@ -7,6 +7,7 @@ use App\Enums\Delivery\Event;
 use App\Enums\Discount\DividendCategory;
 use App\Enums\Discount\DividendFlag;
 use App\Enums\Order\CarrierType;
+use App\Enums\Order\InvoiceMethod;
 use App\Enums\Order\OrderStatus;
 use App\Enums\Order\PaymentStatus;
 use App\Enums\Order\UserAddrType;
@@ -207,6 +208,7 @@ class Order extends Model
                 'order.dividend_active_at',
                 'sale.title as sale_title'])
             ->selectRaw("IF(order.inv_title IS NULL,'',order.inv_title) as inv_title")
+            ->selectRaw("IF(order.buyer_ubn IS NULL,'',order.buyer_ubn) as buyer_ubn")
             ->selectRaw("IF(order.unique_id IS NULL,'',order.unique_id) as unique_id")
             ->selectRaw("IF(order.gui_number IS NULL,'',order.gui_number) as gui_number")
             ->selectRaw("IF(order.invoice_category IS NULL,'',order.invoice_category) as invoice_category")
@@ -644,6 +646,7 @@ class Order extends Model
             $tax_type = 9;
         }
         $category = $payinfo['category'] ?? 'B2C';
+        $invoice_method = $payinfo['invoice_method'] ?? null;
         $inv_title = $payinfo['inv_title'] ?? null;
         $buyer_ubn = $payinfo['buyer_ubn'] ?? null;
         $buyer_email = isset($payinfo['carrier_email']) ? trim($payinfo['carrier_email']) : null;
@@ -653,6 +656,10 @@ class Order extends Model
         if (isset($carrier_type) && true == empty(CarrierType::getDescription($carrier_type))) {
             return ['success' => '0', 'error_msg' => '無此載具'];
         }
+        if (false == InvoiceMethod::hasKey($invoice_method)) {
+            return ['success' => '0', 'error_msg' => '無此發票方式'];
+        }
+        $invoice_category = InvoiceMethod::getDescription($invoice_method);
 
         $print_flag = $carrier_type != null || $love_code ? 'N' : 'Y';
 
@@ -708,6 +715,7 @@ class Order extends Model
         }
         self::where('id', $order_id)->update([
             'category' => $category
+            , 'invoice_category' => $invoice_category
             , 'inv_title' => $inv_title
             , 'buyer_ubn' => $buyer_ubn
             , 'carrier_type' => $carrier_type

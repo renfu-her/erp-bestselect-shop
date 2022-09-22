@@ -335,6 +335,7 @@ class OrderCtrl extends Controller
 
         $payinfo = null;
         $payinfo['category'] = $d['category'] ?? null;
+        $payinfo['invoice_method'] = $d['invoice_method'] ?? null;
         $payinfo['inv_title'] = $d['inv_title'] ?? null;
         $payinfo['buyer_ubn'] = $d['buyer_ubn'] ?? null;
         $payinfo['love_code'] = $d['love_code'] ?? null;

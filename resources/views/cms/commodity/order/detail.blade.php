@@ -155,7 +155,12 @@
             <dl class="row">
                 <div class="col">
                     <dt>發票類型</dt>
-                    <dd>{{ $order->invoice_number ? $order->invoice_category : '尚未開立發票' }}</dd>
+                    <dd>
+                        @if (\App\Enums\Order\InvoiceMethod::getDescription(\App\Enums\Order\InvoiceMethod::print()) == $order->invoice_category)
+                            {{ $order->invoice_category }}
+                        @else
+                            {{ $order->invoice_number ? $order->invoice_category : '尚未開立發票' }}</dd>
+                        @endif
                 </div>
                 <div class="col">
                     <dt>發票號碼</dt>
@@ -164,14 +169,20 @@
                             <a href="{{ route('cms.order.show-invoice', ['id' => $order->id]) }}"
                                 class="-text">{{ $order->invoice_number ? $order->invoice_number : '' }}</a>
                         @else
-                            <span>尚未開立發票</span>
+                            @if (\App\Enums\Order\InvoiceMethod::getDescription(\App\Enums\Order\InvoiceMethod::print()) == $order->invoice_category)
+                                <span>{{ empty($order->invoice_number)? '-': $order->invoice_number }}</span>
+                            @else
+                                <span>尚未開立發票</span>
+                            @endif
                         @endif
                     </dd>
                 </div>
-                <div class="col-md-5">
-                    <dt>電子發票資訊</dt>
-                    <dd>{{ $order->carrier_type ?? '' }} {{ $order->carrier_num ?? '' }}</dd>
-                </div>
+                @if (\App\Enums\Order\InvoiceMethod::getDescription(\App\Enums\Order\InvoiceMethod::print()) != $order->invoice_category)
+                    <div class="col-md-5">
+                        <dt>電子發票資訊</dt>
+                        <dd>{{ $order->carrier_type ?? '' }} {{ $order->carrier_num ?? '' }}</dd>
+                    </div>
+                @endif
             </dl>
             <dl class="row">
                 <div class="col">
@@ -192,7 +203,13 @@
                 </div>
                 <div class="col col-md-5">
                     <dt>統一編號</dt>
-                    <dd>{{ $order->invoice_number ? $order->gui_number : '尚未開立發票' }}</dd>
+                    <dd>
+                        @if (\App\Enums\Order\InvoiceMethod::getDescription(\App\Enums\Order\InvoiceMethod::print()) != $order->invoice_category)
+                            {{ $order->buyer_ubn }}
+                        @else
+                            {{ $order->invoice_number ? $order->gui_number : '尚未開立發票' }}
+                        @endif
+                    </dd>
                 </div>
             </dl>
             <dl class="row">
