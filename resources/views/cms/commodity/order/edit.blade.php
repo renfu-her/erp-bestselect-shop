@@ -180,7 +180,7 @@
                 </div>
             </div>
 
-            <div class="card shadow p-4 mb-4 ">
+            <div id="Invoice" class="card shadow p-4 mb-4">
                 {{-- 發票種類 --}}
                 <div class="row">
                     <fieldset class="col-12 col-sm-6 mb-3">
@@ -243,19 +243,19 @@
                 </fieldset>
 
                 {{-- 發票方式: 捐贈 --}}
+                {{--
                 <div class="col-12 col-sm-6 mb-3 inv_method_give d-none">
                     <label class="form-label" for="love_code">捐贈單位</label>
-                    {{--
                     <select name="love_code" id="love_code" hidden class="-select2 -single form-select @error('love_code') is-invalid @enderror" data-placeholder="請選擇捐贈單位">
                         @foreach ($unit as $value)
                         <option value="{{ $value->code }}" @if ($value->code == old('love_code')) selected @endif>{{ $value->name }}</option>
                         @endforeach
                     </select>
-                    --}}
                     @error('love_code')
                     <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
+                --}}
                 {{-- 發票方式: 列印紙本發票 --}}
                 <div class="row inv_method_print d-none">
                     <div class="col-12 col-sm-6 mb-3">
@@ -280,7 +280,7 @@
                     </div>
                 </div>
                 {{-- 發票方式: 電子發票 - 載具類型 --}}
-                <fieldset class="col-12 mb-3 inv_method_carrier">
+                <fieldset class="col-12 mb-1 inv_method_carrier">
                     <legend class="col-form-label p-0 mb-2">載具類型 <span class="text-danger">*</span></legend>
                     <div class="px-1 pt-1">
                         <div class="form-check form-check-inline">
@@ -2455,10 +2455,20 @@
 
             // 第一步-下一步
             $('#STEP_1 .-next_step').off('click').on('click', function() {
-                $('#form1 > nav .nav-link:first-child').removeClass('active');
-                $('#form1 > nav .nav-link:last-child').addClass('active');
-                $('#STEP_1').prop('hidden', true);
-                $('#STEP_2').prop('hidden', false);
+                let chk = true;
+
+                $('#Invoice input').each(function (index, element) {
+                    // element == this
+                    chk &= element.checkValidity();
+                    element.reportValidity();
+                });
+
+                if (chk) {
+                    $('#form1 > nav .nav-link:first-child').removeClass('active');
+                    $('#form1 > nav .nav-link:last-child').addClass('active');
+                    $('#STEP_1').prop('hidden', true);
+                    $('#STEP_2').prop('hidden', false);
+                }
             });
             // 第二步-上一步
             $('#STEP_2 .-prev_step').off('click').on('click', function() {
@@ -2695,7 +2705,7 @@
 
 
             //發票種類
-            $('input[type=radio][name=category]').on('click change', function() {
+            $('input[type=radio][name="category"]').on('click change', function() {
                 switch (this.value) {
                     case 'B2B':     // 公司
                         $('.inv_method_print, .inv_method_print .category_b2b').removeClass('d-none');
