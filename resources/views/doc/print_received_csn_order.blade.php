@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>收款單</title>
+    <title>{{ request('print_type') == 'req' ? '請款單' : '收款單' }}</title>
     <style>
         * {
             font-family: "Nunito", "Noto Sans TC", sans-serif;
@@ -49,7 +49,7 @@
             </div>
 
             <div style="font-size: x-large; font-family:標楷體">
-                {{ request('print_type') == 'rec' ? '收　款　單' : '請　款　單'}}
+                {{ request('print_type') == 'req' ? '請　款　單' : '收　款　單' }}
             </div>
             <hr width="710" style="margin: .5rem auto;">
             <div>
