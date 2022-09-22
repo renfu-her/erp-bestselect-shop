@@ -108,6 +108,8 @@ class PayingOrder extends Model
                 'paying_order.payee_name as payee_name',
                 'paying_order.payee_phone as payee_phone',
                 'paying_order.payee_address as payee_address',
+                'paying_order.append_po_id as append_po_id',
+                'paying_order.append_po_sn as append_po_sn',
             )
             ->selectRaw('DATE_FORMAT(paying_order.created_at,"%Y-%m-%d") as created_at')
             ->where([
@@ -162,7 +164,7 @@ class PayingOrder extends Model
 
         $query = DB::table(DB::raw('(
                 SELECT
-                    GROUP_CONCAT(id) AS id,
+                    GROUP_CONCAT(pcs_paying_orders.id) AS id,
                     source_type,
                     source_id,
                     source_sub_id,
@@ -171,15 +173,27 @@ class PayingOrder extends Model
                     GROUP_CONCAT(sn) AS sn,
                     SUM(price) AS price,
                     GROUP_CONCAT(DISTINCT logistics_grade_id) AS logistics_grade_id,
+                    GROUP_CONCAT(DISTINCT l_grade.code) AS logistics_grade_code,
+                    GROUP_CONCAT(DISTINCT l_grade.name) AS logistics_grade_name,
                     GROUP_CONCAT(DISTINCT product_grade_id) AS product_grade_id,
+                    GROUP_CONCAT(DISTINCT p_grade.code) AS product_grade_code,
+                    GROUP_CONCAT(DISTINCT p_grade.name) AS product_grade_name,
                     CASE WHEN COUNT(*) = COUNT(balance_date) THEN MAX(balance_date) END AS balance_date,
                     CASE WHEN COUNT(*) = COUNT(payment_date) THEN MAX(payment_date) END AS payment_date,
+                    summary,
+                    memo,
                     payee_id,
                     payee_name,
                     payee_phone,
                     payee_address,
+                    acc_currency_fk,
+                    append_po_id,
                     created_at
                 FROM pcs_paying_orders
+
+                LEFT JOIN (' . $sq . ') AS l_grade ON l_grade.id = pcs_paying_orders.logistics_grade_id
+                LEFT JOIN (' . $sq . ') AS p_grade ON p_grade.id = pcs_paying_orders.product_grade_id
+
                 WHERE deleted_at IS NULL
                 GROUP BY source_type, source_id, source_sub_id' . $separate . '
                 ) AS po')
@@ -213,9 +227,40 @@ class PayingOrder extends Model
                 ) AS payable_table'), function ($join){
                     $join->whereRaw('payable_table.pay_order_id in (po.id)');
             })
+            ->leftJoin('acc_currency AS currency', function($join){
+                $join->on('currency.id', '=', 'po.acc_currency_fk');
+            })
 
-            // purchase
-            ->leftJoin('pcs_purchase as purchase', function ($join) {
+            // purchase - deposit
+            ->leftJoin(DB::raw('(
+                SELECT
+                    pcs_paying_orders.id,
+                    CONCAT(\'[\', GROUP_CONCAT(\'{
+                        "product_owner":"\', "", \'",
+                        "title":"\', CONCAT("訂金抵扣（訂金付款單號", sn, "）"), \'",
+                        "sku":"\', "", \'",
+                        "all_grades_id":"\', pcs_paying_orders.product_grade_id, \'",
+                        "grade_code":"\', COALESCE(grade.code, ""), \'",
+                        "grade_name":"\', COALESCE(grade.name, ""), \'",
+                        "price":"\', price, \'",
+                        "num":"\', 1, \'",
+                        "summary":"\', COALESCE(pcs_paying_orders.summary, ""), \'",
+                        "memo":"\', COALESCE(pcs_paying_orders.memo, ""), \'"
+                    }\' ORDER BY pcs_paying_orders.id), \']\') AS items
+                FROM pcs_paying_orders
+                LEFT JOIN (' . $sq . ') AS grade ON grade.id = pcs_paying_orders.product_grade_id
+                WHERE source_type = "pcs_purchase" AND type = 0 AND deleted_at IS NULL
+                GROUP BY id
+                ) AS deposit'), function ($join){
+                    $join->on('deposit.id', '=', 'po.id');
+                    $join->where([
+                        'po.source_type'=>app(Purchase::class)->getTable(),
+                        'po.source_sub_id'=>null,
+                        'po.type'=>0,
+                    ]);
+            })
+            // purchase - final
+            ->leftJoin('pcs_purchase as purchase', function ($join) use($po_separate) {
                 $join->on('po.source_id', '=', 'purchase.id');
                 $join->where([
                     'po.source_type'=>app(Purchase::class)->getTable(),
@@ -233,8 +278,13 @@ class PayingOrder extends Model
                         "product_owner":"\', p_owner.name, \'",
                         "title":"\', pcs_purchase_items.title, \'",
                         "sku":"\', pcs_purchase_items.sku, \'",
+                        "all_grades_id":"\', "", \'",
+                        "grade_code":"\', "1118", \'",
+                        "grade_name":"\', "商品存貨", \'",
                         "price":"\', pcs_purchase_items.price, \'",
-                        "num":"\', pcs_purchase_items.num, \'"
+                        "num":"\', pcs_purchase_items.num, \'",
+                        "summary":"\', COALESCE(pcs_purchase_items.memo, ""), \'",
+                        "memo":"\', "", \'"
                     }\' ORDER BY pcs_purchase_items.id), \']\') AS items
                 FROM pcs_purchase_items
                 LEFT JOIN prd_product_styles AS p_style ON p_style.id = pcs_purchase_items.product_style_id
@@ -316,7 +366,9 @@ class PayingOrder extends Model
                             "grade_code":"\', COALESCE(grade.code, ""), \'",
                             "grade_name":"\', COALESCE(grade.name, ""), \'",
                             "price":"\', so_item.total_price, \'",
-                            "num":"\', so_item.qty, \'"
+                            "num":"\', so_item.qty, \'",
+                            "summary":"\', COALESCE(so_item.summary, ""), \'",
+                            "memo":"\', COALESCE(so_item.memo, ""), \'"
                         }\' ORDER BY so_item.id), \']\') AS items
                 FROM acc_stitute_order_items AS so_item
                 LEFT JOIN (' . $sq . ') AS grade ON grade.id = so_item.grade_id
@@ -340,8 +392,13 @@ class PayingOrder extends Model
                         "product_owner":"\', p_owner.name, \'",
                         "title":"\', ord_items.product_title, \'",
                         "sku":"\', ord_items.sku, \'",
+                        "all_grades_id":"\', "", \'",
+                        "grade_code":"\', "4101", \'",
+                        "grade_name":"\', "銷貨收入", \'",
                         "price":"\', ord_items.price * ord_items.qty, \'",
-                        "num":"\', ord_items.qty, \'"
+                        "num":"\', ord_items.qty, \'",
+                        "summary":"\', COALESCE(ord_items.note, ""), \'",
+                        "memo":"\', "", \'"
                     }\' ORDER BY ord_items.id), \']\') AS items
                 FROM ord_items
                 LEFT JOIN prd_product_styles AS p_style ON p_style.id = ord_items.product_style_id
@@ -357,6 +414,8 @@ class PayingOrder extends Model
                         "sub_order_id":"\', COALESCE(sub_order_id, ""), \'",
                         "order_item_id":"\', COALESCE(order_item_id, ""), \'",
                         "discount_grade_id":"\', COALESCE(discount_grade_id, ""), \'",
+                        "grade_code":"\', COALESCE(grade.code, ""), \'",
+                        "grade_name":"\', COALESCE(grade.name, ""), \'",
                         "title":"\', COALESCE(title, ""), \'",
                         "sn":"\', COALESCE(sn, ""), \'",
                         "category_title":"\', category_title, \'",
@@ -366,6 +425,8 @@ class PayingOrder extends Model
                         "discount_value":"\', COALESCE(discount_value, ""), \'"
                     }\' ORDER BY ord_discounts.id), \']\') AS items
                 FROM ord_discounts
+                LEFT JOIN (' . $sq . ') AS grade ON grade.id = ord_discounts.discount_grade_id
+
                 WHERE discount_value IS NOT NULL AND order_type = "main"
                 GROUP BY order_id
                 ) AS discounts_table'), function ($join){
@@ -387,8 +448,13 @@ class PayingOrder extends Model
                         "product_owner":"\', p_owner.name, \'",
                         "title":"\', dlv_back.product_title, \'",
                         "sku":"\', dlv_back.sku, \'",
+                        "all_grades_id":"\', "", \'",
+                        "grade_code":"\', "4101", \'",
+                        "grade_name":"\', "銷貨收入", \'",
                         "price":"\', dlv_back.price * dlv_back.qty, \'",
-                        "num":"\', dlv_back.qty, \'"
+                        "num":"\', dlv_back.qty, \'",
+                        "summary":"\', COALESCE(dlv_back.memo, ""), \'",
+                        "memo":"\', "", \'"
                     }\' ORDER BY dlv_back.id), \']\') AS items
                 FROM dlv_back
                 LEFT JOIN prd_product_styles ON prd_product_styles.id = dlv_back.product_style_id
@@ -400,12 +466,13 @@ class PayingOrder extends Model
                     $join->on('delivery_back.delivery_id', '=', 'sub_order_return.id');
             })
 
-            // pcs_paying_orders
+            // pcs_paying_orders - account payable
             ->leftJoin('pcs_paying_orders AS _account_po', function ($join) {
                 $join->on('po.source_id', '=', '_account_po.id');
                 $join->where([
                     'po.source_type'=>app(self::class)->getTable(),
                     'po.source_sub_id'=>null,
+                    'po.type'=>1,
                     '_account_po.deleted_at'=>null,
                 ]);
             })
@@ -415,15 +482,54 @@ class PayingOrder extends Model
                         "product_owner":"\', "", \'",
                         "title":"\', "", \'",
                         "sku":"\', "", \'",
+                        "all_grades_id":"\', acc_payable.all_grades_id, \'",
+                        "grade_code":"\', COALESCE(grade.code, ""), \'",
+                        "grade_name":"\', COALESCE(grade.name, ""), \'",
                         "price":"\', _account.amt_net, \'",
                         "num":"\', 1, \'",
-                        "all_grades_id":"\', acc_payable.all_grades_id, \'"
+                        "all_grades_id":"\', acc_payable.all_grades_id, \'",
+                        "summary":"\', COALESCE(acc_payable.summary, ""), \'",
+                        "memo":"\', COALESCE(acc_payable.note, ""), \'"
                     }\' ORDER BY acc_payable.id), \']\') AS items
                 FROM acc_payable
+                LEFT JOIN (' . $sq . ') AS grade ON grade.id = acc_payable.all_grades_id
+
                 LEFT JOIN acc_payable_account AS _account ON acc_payable.payable_id = _account.id AND acc_payable.acc_income_type_fk = 5
                 GROUP BY _account.append_pay_order_id
                 ) AS payable_account_table'), function ($join){
                     $join->on('payable_account_table.append_pay_order_id', '=', 'po.id');
+            })
+
+            // pcs_paying_orders - multiple
+            ->leftJoin('pcs_paying_orders AS multiple_po', function ($join) {
+                $join->on('po.source_id', '=', 'multiple_po.id');
+                $join->where([
+                    'po.source_type'=>app(self::class)->getTable(),
+                    'po.source_sub_id'=>null,
+                    'po.type'=>2,
+                    'multiple_po.deleted_at'=>null,
+                ]);
+            })
+            ->leftJoin(DB::raw('(
+                SELECT
+                    it.append_po_id,
+                    CONCAT(\'[\', GROUP_CONCAT(\'{
+                        "product_owner":"\', "", \'",
+                        "title":"\', it.sn, \'",
+                        "sku":"\', "", \'",
+                        "all_grades_id":"\', "", \'",
+                        "grade_code":"\', "", \'",
+                        "grade_name":"\', "", \'",
+                        "price":"\', it.price, \'",
+                        "num":"\', 1, \'",
+                        "summary":"\', "", \'",
+                        "memo":"\', "", \'"
+                    }\' ORDER BY id), \']\') AS items
+                FROM pcs_paying_orders AS it
+                WHERE it.deleted_at IS NULL
+                GROUP BY it.append_po_id
+                ) AS multiple_po_table'), function ($join){
+                    $join->on('multiple_po.id', '=', 'multiple_po_table.append_po_id');
             })
 
             ->whereColumn([
@@ -440,13 +546,21 @@ class PayingOrder extends Model
                 'po.sn as po_sn',
                 'po.price as po_price',// 付款單金額(應付)
                 'po.logistics_grade_id as po_logistics_grade_id',
+                'po.logistics_grade_code as po_logistics_grade_code',
+                'po.logistics_grade_name as po_logistics_grade_name',
                 'po.product_grade_id as po_product_grade_id',
+                'po.product_grade_code as po_product_grade_code',
+                'po.product_grade_name as po_product_grade_name',
                 'po.balance_date AS po_balance_date',
                 'po.payment_date AS payment_date',// 付款單完成付款日期
                 'po.payee_id AS po_target_id',
                 'po.payee_name AS po_target_name',
                 'po.payee_phone AS po_target_phone',
                 'po.payee_address AS po_target_address',
+                'po.append_po_id AS po_append_po_id',
+                'currency.id AS currency_id',
+                DB::raw('IF(currency.name IS NOT NULL, currency.name, "NTD") AS currency_name'),
+                DB::raw('IF(currency.rate IS NOT NULL, currency.rate, "1") AS currency_rate'),
 
                 'payable_table.payable_price as payable_price',// 付款單金額(實付)
                 'payable_table.pay_list as payable_list',
@@ -487,32 +601,63 @@ class PayingOrder extends Model
                     WHEN po.source_type = "' . app(Order::class)->getTable() . '" AND po.type = 9 THEN order_return.sn
                     WHEN po.source_type = "' . app(Delivery::class)->getTable() . '" AND po.type = 9 THEN sub_order_return.event_sn
                     WHEN po.source_type = "' . app(self::class)->getTable() . '" AND po.type = 1 THEN _account_po.sn
+                    WHEN po.source_type = "' . app(self::class)->getTable() . '" AND po.type = 2 THEN multiple_po.sn
                     ELSE NULL
                 END AS source_sn
             ')
+            // WHEN po.type = "0,1" THEN purchase_item_table.items ELSE CONCAT(SUBSTRING_INDEX(deposit.items, "]", 1), ",", SUBSTRING(purchase_item_table.items, 2))
+            // IF(deposit.items IS NULL, purchase_item_table.items, CONCAT(SUBSTRING_INDEX(deposit.items, "]", 1), ",", SUBSTRING(purchase_item_table.items, 2)))
             ->selectRaw('
                 CASE
-                    WHEN po.source_type = "' . app(Purchase::class)->getTable() . '" AND po.source_sub_id IS NULL THEN purchase_item_table.items
+                    WHEN po.source_type = "' . app(Purchase::class)->getTable() . '" AND po.source_sub_id IS NULL THEN CASE WHEN po.type = "0" THEN deposit.items ELSE purchase_item_table.items END
                     WHEN po.source_type = "' . app(Order::class)->getTable() . '" AND po.source_sub_id IS NOT NULL AND po.type = 1 THEN NULL
                     WHEN po.source_type = "' . app(Consignment::class)->getTable() . '" AND po.type = 1 THEN NULL
                     WHEN po.source_type = "' . app(StituteOrder::class)->getTable() . '" AND po.type = 1 THEN stitute_items_table.items
                     WHEN po.source_type = "' . app(Order::class)->getTable() . '" AND po.type = 9 THEN order_item_table.items
                     WHEN po.source_type = "' . app(Delivery::class)->getTable() . '" AND po.type = 9 THEN delivery_back.items
                     WHEN po.source_type = "' . app(self::class)->getTable() . '" AND po.type = 1 THEN payable_account_table.items
+                    WHEN po.source_type = "' . app(self::class)->getTable() . '" AND po.type = 2 THEN multiple_po_table.items
                     ELSE NULL
                 END AS product_items
             ')
             ->selectRaw('
                 CASE
-                    WHEN po.source_type = "' . app(Purchase::class)->getTable() . '" AND po.source_sub_id IS NULL THEN purchase.logistics_price
+                    WHEN po.source_type = "' . app(Purchase::class)->getTable() . '" AND po.source_sub_id IS NULL THEN CASE WHEN po.type = "0" THEN 0 ELSE purchase.logistics_price END
                     WHEN po.source_type = "' . app(Order::class)->getTable() . '" AND po.source_sub_id IS NOT NULL AND po.type = 1 THEN dlv_logistic.cost
                     WHEN po.source_type = "' . app(Consignment::class)->getTable() . '" AND po.type = 1 THEN co_logistic.cost
                     WHEN po.source_type = "' . app(StituteOrder::class)->getTable() . '" AND po.type = 1 THEN 0
                     WHEN po.source_type = "' . app(Order::class)->getTable() . '" AND po.type = 9 THEN order_return.dlv_fee
                     WHEN po.source_type = "' . app(Delivery::class)->getTable() . '" AND po.type = 9 THEN 0
                     WHEN po.source_type = "' . app(self::class)->getTable() . '" AND po.type = 1 THEN 0
+                    WHEN po.source_type = "' . app(self::class)->getTable() . '" AND po.type = 2 THEN 0
                     ELSE 0
                 END AS logistics_price
+            ')
+            ->selectRaw('
+                CASE
+                    WHEN po.source_type = "' . app(Purchase::class)->getTable() . '" AND po.source_sub_id IS NULL THEN CASE WHEN po.type = "0" THEN NULL ELSE "物流費用" END
+                    WHEN po.source_type = "' . app(Order::class)->getTable() . '" AND po.source_sub_id IS NOT NULL AND po.type = 1 THEN CONCAT("物流費用 ", shi_group.name, " 物流編號：#", COALESCE(dlv_logistic.projlgt_order_sn, dlv_logistic.package_sn, "") )
+                    WHEN po.source_type = "' . app(Consignment::class)->getTable() . '" AND po.type = 1 THEN CONCAT("物流費用 ", co_shi_group.name, " 物流編號：#", COALESCE(co_logistic.projlgt_order_sn, co_logistic.package_sn, "") )
+                    WHEN po.source_type = "' . app(StituteOrder::class)->getTable() . '" AND po.type = 1 THEN NULL
+                    WHEN po.source_type = "' . app(Order::class)->getTable() . '" AND po.type = 9 THEN "物流費用"
+                    WHEN po.source_type = "' . app(Delivery::class)->getTable() . '" AND po.type = 9 THEN NULL
+                    WHEN po.source_type = "' . app(self::class)->getTable() . '" AND po.type = 1 THEN NULL
+                    WHEN po.source_type = "' . app(self::class)->getTable() . '" AND po.type = 2 THEN NULL
+                    ELSE NULL
+                END AS logistics_summary
+            ')
+            ->selectRaw('
+                CASE
+                    WHEN po.source_type = "' . app(Purchase::class)->getTable() . '" AND po.source_sub_id IS NULL THEN CASE WHEN po.type = "0" THEN NULL ELSE po.memo END
+                    WHEN po.source_type = "' . app(Order::class)->getTable() . '" AND po.source_sub_id IS NOT NULL AND po.type = 1 THEN dlv_logistic.memo
+                    WHEN po.source_type = "' . app(Consignment::class)->getTable() . '" AND po.type = 1 THEN co_logistic.memo
+                    WHEN po.source_type = "' . app(StituteOrder::class)->getTable() . '" AND po.type = 1 THEN NULL
+                    WHEN po.source_type = "' . app(Order::class)->getTable() . '" AND po.type = 9 THEN order_return.note
+                    WHEN po.source_type = "' . app(Delivery::class)->getTable() . '" AND po.type = 9 THEN NULL
+                    WHEN po.source_type = "' . app(self::class)->getTable() . '" AND po.type = 1 THEN NULL
+                    WHEN po.source_type = "' . app(self::class)->getTable() . '" AND po.type = 2 THEN NULL
+                    ELSE NULL
+                END AS logistics_memo
             ')
             ->selectRaw('
                 CASE
@@ -523,6 +668,7 @@ class PayingOrder extends Model
                     WHEN po.source_type = "' . app(Order::class)->getTable() . '" AND po.type = 9 THEN order_return.discount_value
                     WHEN po.source_type = "' . app(Delivery::class)->getTable() . '" AND po.type = 9 THEN 0
                     WHEN po.source_type = "' . app(self::class)->getTable() . '" AND po.type = 1 THEN 0
+                    WHEN po.source_type = "' . app(self::class)->getTable() . '" AND po.type = 2 THEN 0
                     ELSE 0
                 END AS discount_value
             ')
@@ -535,6 +681,7 @@ class PayingOrder extends Model
                     WHEN po.source_type = "' . app(Order::class)->getTable() . '" AND po.type = 9 THEN discounts_table.items
                     WHEN po.source_type = "' . app(Delivery::class)->getTable() . '" AND po.type = 9 THEN NULL
                     WHEN po.source_type = "' . app(self::class)->getTable() . '" AND po.type = 1 THEN NULL
+                    WHEN po.source_type = "' . app(self::class)->getTable() . '" AND po.type = 2 THEN NULL
                     ELSE 0
                 END AS order_discount
             ');
@@ -542,15 +689,17 @@ class PayingOrder extends Model
         if ($payee) {
             if (gettype($payee) == 'array') {
                 $query->where([
-                        'po.payee_id'=>$payee['id'],
-                    ])->where('po.payee_name', 'like', "%{$payee['name']}%");
+                    'po.payee_id'=>$payee['id'],
+                ])->where('po.payee_name', 'like', "%{$payee['name']}%");
             }
         }
 
         if ($po_sn) {
-            $query->where(function ($query) use ($po_sn) {
+            if(gettype($po_sn) == 'array') {
+                $query->whereIn('po.sn', $po_sn);
+            } else {
                 $query->where('po.sn', 'like', "%{$po_sn}%");
-            });
+            }
         }
 
         if ($source_sn) {
@@ -561,7 +710,8 @@ class PayingOrder extends Model
                     ->orWhere('so.sn', 'like', "%{$source_sn}%")
                     ->orWhere('order_return.sn', 'like', "%{$source_sn}%")
                     ->orWhere('sub_order_return.event_sn', 'like', "%{$source_sn}%")
-                    ->orWhere('_account_po.sn', 'like', "%{$source_sn}%");
+                    ->orWhere('_account_po.sn', 'like', "%{$source_sn}%")
+                    ->orWhere('multiple_po.sn', 'like', "%{$source_sn}%");
             });
         }
 
@@ -933,20 +1083,34 @@ class PayingOrder extends Model
         } else {
             if($request['status_code'] == 0){
                 foreach($request['accounts_payable_id'] as $key => $value){
-                    $account = DB::table('acc_payable_account')->where('id', $value)->first();
+                    if($request['action'] == 'new'){
+                        $account = DB::table('acc_payable_account')->where('id', $value)->first();
 
-                    if($account && $account->append_pay_order_id){
-                        self::find($account->append_pay_order_id)->delete();
+                        if($account && $account->append_pay_order_id){
+                            $parm = [
+                                'append_pay_order_id' => $account->append_pay_order_id,
+                            ];
+                            self::update_account_payable_method($parm, true);
+
+                            self::find($account->append_pay_order_id)->delete();
+                        }
+
+                        DB::table('acc_payable_account')->where('id', $value)->update([
+                            'status_code'=>0,
+                            'append_pay_order_id'=>$request['append_pay_order_id'],
+                            'sn'=>$request['sn'],
+                            'amt_net'=>$request['amt_net'][$key],
+                            'payment_date'=>null,
+                            'updated_at'=>date('Y-m-d H:i:s'),
+                        ]);
+
+                    } else if($request['action'] == 'reverse'){
+                        DB::table('acc_payable_account')->where('id', $value)->update([
+                            'status_code'=>0,
+                            'payment_date'=>null,
+                            'updated_at'=>date('Y-m-d H:i:s'),
+                        ]);
                     }
-
-                    DB::table('acc_payable_account')->where('id', $value)->update([
-                        'status_code'=>0,
-                        'append_pay_order_id'=>$request['append_pay_order_id'],
-                        'sn'=>$request['sn'],
-                        'amt_net'=>$request['amt_net'][$key],
-                        'payment_date'=>null,
-                        'updated_at'=>date('Y-m-d H:i:s'),
-                    ]);
                 }
 
             } else if($request['status_code'] == 1){
@@ -998,8 +1162,11 @@ class PayingOrder extends Model
         } else if($source_type == 'dlv_delivery'){
             $link = route('cms.delivery.return-pay-order', ['id' => $source_id]);
 
-        } else if($source_type == 'pcs_paying_orders'){
+        } else if($source_type == 'pcs_paying_orders' && $type == 1){
             $link = route('cms.accounts_payable.po-show', ['id' => $source_id]);
+
+        } else if($source_type == 'pcs_paying_orders' && $type == 2){
+            $link = route('cms.collection_payment.po-show', ['id' => $source_id]);
         }
 
         return $link;
@@ -1033,8 +1200,11 @@ class PayingOrder extends Model
             $dlv = Delivery::find($source_id);
             $link = route('cms.delivery.back_detail', ['event' => $dlv->event, 'eventId' => $dlv->event_id]);
 
-        } else if($source_type == 'pcs_paying_orders'){
+        } else if($source_type == 'pcs_paying_orders' && $type == 1){
             $link = route('cms.accounts_payable.index');
+
+        } else if($source_type == 'pcs_paying_orders' && $type == 2){
+            $link = route('cms.collection_payment.index');
         }
 
         return $link;
@@ -1142,5 +1312,72 @@ class PayingOrder extends Model
         }
 
         return $result;
+    }
+
+
+    public static function update_paying_order_append_to($request, $clear = false)
+    {
+        foreach($request['po_id'] as $po_id){
+            $paying_order = self::where('id', $po_id)->first();
+
+            if($clear){
+                $paying_order->update([
+                    'balance_date' => null,
+                    'payment_date' => null,
+                    'append_po_id' => null,
+                    'append_po_sn' => null,
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ]);
+
+                if($paying_order->source_type == app(self::class)->getTable() && $paying_order->type == 1){
+                    $accounts_payable_id = DB::table('acc_payable_account')->where('append_pay_order_id', $paying_order->id)->pluck('id')->toArray();
+
+                    $parm = [
+                        'action'=>'reverse',
+                        'accounts_payable_id'=>$accounts_payable_id,
+                        'status_code'=>0,
+                    ];
+                    self::update_account_payable_method($parm);
+                }
+
+            } else {
+                if($request['action'] == 'new'){
+                    if($paying_order->append_po_id && $paying_order->append_po_id != $request['append_po_id']){
+                        self::where('append_po_id', $paying_order->append_po_id)->update([
+                            'append_po_id'=>null
+                        ]);
+
+                        self::find($paying_order->append_po_id)->delete();
+                    }
+
+                    $paying_order->update([
+                        'balance_date' => $request['balance_date'],
+                        'payment_date' => $request['payment_date'],
+                        'append_po_id' => $request['append_po_id'],
+                        'append_po_sn' => $request['append_po_sn'],
+                        'updated_at' => date('Y-m-d H:i:s'),
+                    ]);
+
+                    if($request['payment_date'] && $paying_order->source_type == app(self::class)->getTable() && $paying_order->type == 1){
+                        $accounts_payable_id = DB::table('acc_payable_account')->where('append_pay_order_id', $paying_order->id)->pluck('id')->toArray();
+
+                        $parm = [
+                            'accounts_payable_id'=>$accounts_payable_id,
+                            'status_code'=>1,
+                            'append_pay_order_id'=>$paying_order->id,
+                            'sn'=>$paying_order->sn,
+                        ];
+                        self::update_account_payable_method($parm);
+                    }
+
+                } else if($request['action'] == 'reverse'){
+                    $paying_order->update([
+                        'balance_date' => null,
+                        'payment_date' => null,
+                        'updated_at' => date('Y-m-d H:i:s'),
+                    ]);
+                }
+            }
+        }
     }
 }

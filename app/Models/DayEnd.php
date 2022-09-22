@@ -126,12 +126,12 @@ class DayEnd extends Model
     {
         $date = date('Y-m-d', strtotime($closing_date));
 
-        $po = PayingOrder::whereDate('payment_date', $date)->get();
         $ro = ReceivedOrder::whereDate('receipt_date', $date)->get();
+        $po = PayingOrder::whereDate('payment_date', $date)->get();
         $tv = TransferVoucher::whereDate('created_at', $date)->get();
         $io = IncomeOrder::whereDate('posting_date', $date)->get();
 
-        $counter = $po->count() + $ro->count() + $tv->count() + $io->count();
+        $counter = $ro->count() + $po->count() + $tv->count() + $io->count();
 
         return $counter;
     }
@@ -141,8 +141,8 @@ class DayEnd extends Model
     {
         $date = date('Y-m-d', strtotime($closing_date));
 
-        $po = PayingOrder::whereDate('payment_date', $date)->get();
         $ro = ReceivedOrder::whereDate('receipt_date', $date)->get();
+        $po = PayingOrder::whereDate('payment_date', $date)->get();
         $tv = TransferVoucher::whereDate('created_at', $date)->get();
 
         $io = IncomeOrder::whereDate('posting_date', $date)->get();
@@ -151,7 +151,7 @@ class DayEnd extends Model
 
         DayEndLog::delete_log($closing_date);
 
-        foreach([$po, $ro, $tv, $io] as $collection){
+        foreach([$ro, $po, $tv, $io] as $collection){
             foreach($collection as $real_value){
                 $day_end_item = DayEndItem::where([
                     'source_type' => $real_value->getTable(),
@@ -222,7 +222,7 @@ class DayEnd extends Model
 
                     $d_price = 0;
                     $c_price = 0;
-                    if($t_data->po_source_type != app(Purchase::class)->getTable()){
+                    if($t_data->po_source_type != app(Purchase::class)->getTable() && $t_data->po_append_po_id == null) {
                         if($t_data->payable_list){
                             foreach(json_decode($t_data->payable_list) as $pay_v){
                                 $c_price += $pay_v->tw_price;

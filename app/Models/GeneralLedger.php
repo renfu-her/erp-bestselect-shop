@@ -607,6 +607,38 @@ class GeneralLedger extends Model
                 ];
 
                 array_push($debit, $tmp);
+            } else {
+                // multiple po data - pcs_paying_orders && type == 2
+                $tmp = (object)[
+                    'name'=>$name,
+                    'price'=>+$price,
+                    'type'=>$type,
+                    'd_type'=>$d_type,
+
+                    'account_code'=>$account_code,
+                    'account_name'=>$account_name,
+                    'method_name'=>$method_name,
+                    'summary'=>$summary,
+                    'note'=>$note,
+                    'product_title'=>$product_title,
+                    'del_even'=>$del_even,
+                    'del_category_name'=>$del_category_name,
+                    'product_price'=>$product_price,
+                    'product_qty'=>$product_qty,
+                    'product_owner'=>$product_owner,
+                    'discount_title'=>$discount_title,
+                    'payable_type'=>$payable_type,
+                    'received_info'=>$received_info,
+                ];
+
+                if(in_array($d_type, ['payable'])){
+                    // 貸方
+                    array_push($credit, $tmp);
+
+                } else {
+                    // 借方
+                    array_push($debit, $tmp);
+                }
             }
         }
     }

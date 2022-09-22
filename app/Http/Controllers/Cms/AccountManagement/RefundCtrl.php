@@ -127,9 +127,8 @@ class RefundCtrl extends Controller
 
                 // 商品
                 if($value->product_items){
-                    $product_account = AllGrade::find($value->po_product_grade_id) ? AllGrade::find($value->po_product_grade_id)->eachGrade : null;
-                    $account_code = $product_account ? $product_account->code : '1000';
-                    $account_name = $product_account ? $product_account->name : '無設定會計科目';
+                    $account_code = $value->po_product_grade_code ? $value->po_product_grade_code : '1000';
+                    $account_name = $value->po_product_grade_name ? $value->po_product_grade_name : '無設定會計科目';
                     $product_name = $account_code . ' ' . $account_name;
                     foreach(json_decode($value->product_items) as $p_value){
                         $avg_price = $p_value->price / $p_value->num;
@@ -202,9 +201,8 @@ class RefundCtrl extends Controller
                 // 折扣
                 if($value->discount_value > 0){
                     foreach(json_decode($value->order_discount) ?? [] as $d_value){
-                        $dis_account = AllGrade::find($d_value->discount_grade_id) ? AllGrade::find($d_value->discount_grade_id)->eachGrade : null;
-                        $account_code = $dis_account ? $dis_account->code : '4000';
-                        $account_name = $dis_account ? $dis_account->name : '無設定會計科目';
+                        $account_code = $d_value->grade_code ? $d_value->grade_code : '4000';
+                        $account_name = $d_value->grade_name ? $d_value->grade_name : '無設定會計科目';
                         $name = $account_code . ' ' . $account_name;
 
                         $tmp = [
@@ -250,7 +248,7 @@ class RefundCtrl extends Controller
         $supplier = Supplier::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
         $payee_merged = array_merge($user, $customer, $depot, $supplier);
 
-        $check_balance_status = [
+        $balance_status = [
             'all'=>'不限',
             '0'=>'未付款',
             '1'=>'已付款',
@@ -261,7 +259,7 @@ class RefundCtrl extends Controller
             'dataList' => $dataList,
             'cond' => $cond,
             'payee' => $payee_merged,
-            'check_balance_status' => $check_balance_status,
+            'balance_status' => $balance_status,
         ]);
     }
 }

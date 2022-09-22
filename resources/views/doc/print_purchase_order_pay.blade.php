@@ -56,12 +56,12 @@
                 <table width="710" style="font-size:small;text-align:left;border:0;margin: 0 auto;">
                     <tbody>
                         <tr>
-                            <td width="50%">付款單號：{{ $payingOrderData->sn }}</td>
+                            <td width="50%">付款單號：{{ $payingOrderData->sn }}{{ $payingOrderData->append_po_id ? ' / ' . $payingOrderData->append_po_sn : '' }}</td>
                             <td width="50%">製表日期：{{ date('Y-m-d', strtotime($payingOrderData->created_at)) }}</td>
                         </tr>
                         <tr>
                             <td>單據編號：{{ $purchaseData->purchase_sn }}</td>
-                            <td>付款日期：{{ $pay_off ? $pay_off_date : '' }}</td>
+                            <td>付款日期：{{ $payingOrderData->payment_date ? date('Y-m-d', strtotime($payingOrderData->payment_date)) : '' }}</td>
                         </tr>
                         <tr>
                             <td>支付對象：{{ $payingOrderData->payee_name }}</td>
