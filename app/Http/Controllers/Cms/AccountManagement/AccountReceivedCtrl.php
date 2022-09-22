@@ -128,6 +128,7 @@ class AccountReceivedCtrl extends Controller
                 $received_order = ReceivedOrder::create_received_order($source_type, $n_id, array_sum(request('amt_net')), $received->received_order_id);
 
                 $parm = [
+                    'action'=> 'new',
                     'account_received_id'=>request('account_received_id'),
                     'status_code'=>0,
                     'append_received_order_id'=>$received_order->id,

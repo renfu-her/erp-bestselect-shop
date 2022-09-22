@@ -161,6 +161,7 @@ class AccountsPayableCtrl extends Controller
                 $paying_order = PayingOrder::find($result['id']);
 
                 $parm = [
+                    'action'=>'new',
                     'accounts_payable_id'=>request('accounts_payable_id'),
                     'status_code'=>0,
                     'append_pay_order_id'=>$paying_order->id,
@@ -349,9 +350,14 @@ class AccountsPayableCtrl extends Controller
         $accountant = array_unique($accountant->pluck('name')->toArray());
         asort($accountant);
 
+        if($paying_order && $paying_order->append_po_id){
+            $append_po = PayingOrder::find($paying_order->append_po_id);
+            $paying_order->append_po_link = PayingOrder::paying_order_link($append_po->source_type, $append_po->source_id, $append_po->source_sub_id, $append_po->type);
+        }
+
         $view = 'cms.account_management.accounts_payable.po_show';
         if (request('action') == 'print') {
-            $view = 'doc.print_accounts_payable_delivery_pay';
+            $view = 'doc.print_accounts_payable_po';
         }
 
         return view($view, [

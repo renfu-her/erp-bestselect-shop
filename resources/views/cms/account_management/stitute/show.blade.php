@@ -10,7 +10,7 @@
             @endif
             @endcan
 
-            @if(! $stitute_order->so_payment_date)
+            @if(! $stitute_order->po_payment_date)
                 <a href="{{ route('cms.stitute.po-edit', ['id' => $stitute_order->so_id]) }}" 
                     class="btn btn-sm btn-primary px-3" role="button">付款</a>
             @endif

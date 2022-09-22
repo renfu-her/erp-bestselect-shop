@@ -17,7 +17,7 @@
             <a href="{{ route('cms.collection_payment.edit', ['id' => $payOrdId]) }}" class="btn btn-sm btn-success px-3" role="button">修改</a>
             @endcan
 
-            @if(!$pay_off)
+            @if(! $payingOrderData->payment_date)
                 <a href="{{ Route('cms.purchase.po-create', [
                     'payOrdId' => $payOrdId,
                     'payOrdType' => 'pcs',
@@ -28,11 +28,13 @@
 
             @can('cms.collection_payment.delete')
             @if(! $data_status_check)
+            @if(! ($payingOrderData->payment_date && $payingOrderData->append_po_id))
                 <a href="{{ route('cms.collection_payment.payable_list', ['id' => $payOrdId]) }}" class="btn btn-sm btn-primary" role="button">付款記錄</a>
 
                 <a href="javascript:void(0)" role="button" class="btn btn-outline-danger btn-sm"
                     data-bs-toggle="modal" data-bs-target="#confirm-delete"
                     data-href="{{ Route('cms.collection_payment.delete', ['id' => $payOrdId]) }}">刪除付款單</a>
+            @endif
             @endif
             @endcan
 
@@ -63,7 +65,7 @@
 
                 <dl class="row mb-0">
                     <div class="col">
-                        <dd>付款單號：{{ $payingOrderData->sn }}</dd>
+                        <dd>付款單號：{{ $payingOrderData->sn }}{!! $payingOrderData->append_po_id ? ' / ' . '<a href="' . $payingOrderData->append_po_link . '">' . $payingOrderData->append_po_sn . '</a>' : '' !!}</dd>
                     </div>
                     <div class="col">
                         <dd>製表日期：{{ date('Y-m-d', strtotime($payingOrderData->created_at)) }}</dd>
@@ -74,7 +76,7 @@
                         <dd>單據編號：<a href="{{ Route('cms.purchase.edit', ['id' => $id], true) }}">{{ $purchaseData->purchase_sn }}</a></dd>
                     </div>
                     <div class="col">
-                        <dd>付款日期：{{ $pay_off ? $pay_off_date : '' }}</dd>
+                        <dd>付款日期：{{ $payingOrderData->payment_date ? date('Y-m-d', strtotime($payingOrderData->payment_date)) : '' }}</dd>
                     </div>
                 </dl>
                 <dl class="row mb-0">
@@ -102,7 +104,7 @@
                         <tbody>
                         @if($type === 'deposit')
                             <tr>
-                                <td>{{ $productGradeName . '-' . $depositPaymentData->summary }}</td>
+                                <td>{{ $productGradeName . ' - ' . $depositPaymentData->summary }}</td>
                                 <td class="text-end">1</td>
                                 <td class="text-end">{{ number_format($depositPaymentData->price, 2) }}</td>
                                 <td class="text-end">{{ number_format($depositPaymentData->price) }}</td>
@@ -111,7 +113,7 @@
                         @elseif($type === 'final')
                             @foreach($purchaseItemData as $purchaseItem)
                                 <tr>
-                                    <td>{{ $productGradeName . '-' .$purchaseItem->title . '（負責人：' . $purchaseItem->name }}）</td>
+                                    <td>{{ $productGradeName . ' - ' .$purchaseItem->title . '（負責人：' . $purchaseItem->name }}）</td>
                                     <td class="text-end">{{ $purchaseItem->num }}</td>
                                     <td class="text-end">{{ number_format($purchaseItem->total_price / $purchaseItem->num, 2) }}</td>
                                     <td class="text-end">{{ number_format($purchaseItem->total_price) }}</td>
@@ -129,7 +131,7 @@
                             @endif
                             @if(!is_null($depositPaymentData))
                                 <tr>
-                                    <td>{{ $productGradeName }}-訂金抵扣（訂金付款單號{{ $depositPaymentData->sn }}）</td>
+                                    <td>{{ $productGradeName }} - 訂金抵扣（訂金付款單號{{ $depositPaymentData->sn }}）</td>
                                     <td class="text-end">1</td>
                                     <td class="text-end">-{{ number_format($depositPaymentData->price, 2) }}</td>
                                     <td class="text-end">-{{ number_format($depositPaymentData->price) }}</td>

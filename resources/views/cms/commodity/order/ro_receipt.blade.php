@@ -21,8 +21,11 @@
                     class="btn btn-sm btn-dark" role="button">修改摘要/稅別</a>
             @endcan
 
-            <a href="{{ url()->full() . '?action=print' }}" target="_blank" 
-                class="btn btn-sm btn-warning" rel="noopener noreferrer">中一刀列印畫面</a>
+            <a href="{{ url()->full() . '?action=print&print_type=rec' }}" target="_blank" 
+                class="btn btn-sm btn-warning" rel="noopener noreferrer">中一刀列印-收款單</a>
+
+            <a href="{{ url()->full() . '?action=print&print_type=req' }}" target="_blank" 
+                class="btn btn-sm btn-warning" rel="noopener noreferrer">中一刀列印-請款單</a>
 
             @can('cms.collection_received.delete')
             @if(!$received_order->receipt_date && !$data_status_check)
