@@ -34,8 +34,21 @@ class CustomerCtrl extends Controller
     {
         $query = $request->query();
         $keyword = Arr::get($query, 'keyword', '');
+        $employee = Arr::get($query, 'employee', '');
 
-        $customer = Customer::getCustomerBySearch($keyword)->paginate(10)->appends($query);
+        $customer = Customer::getCustomerBySearch($keyword, null, $employee)
+            ->select([
+                'customer.id',
+                'customer.sn',
+                'customer.email',
+                'customer.name',
+                'usr_users.customer_id AS isEmployee',
+                'usr_users.account AS employeeId',
+                'usr_users.name AS employeeName',
+            ])
+            ->orderBy('customer.id')
+            ->paginate(30)
+            ->appends($query);
 
         return view('cms.admin.customer.list', [
             'keyword' => $keyword,

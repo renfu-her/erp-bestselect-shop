@@ -309,6 +309,7 @@ class Consignment extends Model
 
                 , 'dlv_logistic.sn as lgt_sn'
                 , 'dlv_logistic.package_sn'
+                , 'dlv_logistic.projlgt_order_sn'
                 , 'dlv_logistic.cost as lgt_cost'
                 , 'dlv_logistic.memo as lgt_memo'
                 , 'shi_group.name as group_name'
