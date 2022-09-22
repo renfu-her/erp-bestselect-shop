@@ -44,6 +44,10 @@ class UserMntCtrl extends Controller
         return redirect()->back();
     }
 
+    /**
+     * @param  Request  $request
+     * 處理消費者會員綁定
+     */
     public function customerBinding(Request $request)
     {
 
@@ -57,16 +61,28 @@ class UserMntCtrl extends Controller
         ]);
     }
 
+    /**
+     * @param  Request  $request
+     * 用Email檢查此會員帳號是否綁定過，若此Email未曾綁定過，便執行綁定動作
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function updateCustomerBinding(Request $request)
     {
         $request->validate([
             'email' => 'required|email',
+            'rebinding' => [
+                'required',
+                'regex:/^[0|1]$/',
+            ]
         ]);
+
         $email = $request->input('email');
+        $rebinding = $request->input('rebinding');
+
         $re = User::checkCustomerBinded($request->input('email'));
 
         if ($re['success'] == '1') {
-            User::customerBinding($request->user()->id, $email);
+            User::customerBinding($request->user()->id, $email, $rebinding);
             wToast('綁定完成');
             return redirect()->back();
         } else {

@@ -791,6 +791,20 @@ Breadcrumbs::for('cms.collection_payment.payable_list', function (BreadcrumbTrai
     $trail->parent('cms.collection_payment.index', route('cms.collection_payment.index'));
     $trail->push('付款記錄');
 });
+Breadcrumbs::for('cms.collection_payment.claim', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.collection_payment.index', route('cms.collection_payment.index'));
+    $trail->push('合併付款');
+});
+Breadcrumbs::for('cms.collection_payment.po-edit', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.collection_payment.index', route('cms.collection_payment.index'));
+    $trail->push('合併付款', route('cms.collection_payment.claim'));
+    $trail->push('新增付款單');
+});
+Breadcrumbs::for('cms.collection_payment.po-show', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.collection_payment.index', route('cms.collection_payment.index'));
+    $trail->push('合併付款', route('cms.collection_payment.claim'));
+    $trail->push('付款單');
+});
 
 // 代墊單作業
 Breadcrumbs::for('cms.stitute.index', function (BreadcrumbTrail $trail) {

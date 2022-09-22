@@ -46,7 +46,7 @@
                 <fieldset class="col-12 mb-3">
                     <legend class="col-form-label p-0 mb-2">付款狀態</legend>
                     <div class="px-1 pt-1">
-                        @foreach ($check_balance_status as $key => $value)
+                        @foreach ($balance_status as $key => $value)
                             <div class="form-check form-check-inline">
                                 <label class="form-check-label">
                                     <input class="form-check-input" name="check_balance" type="radio" value="{{ $key }}" {{ (string)$key == $cond['check_balance'] ? 'checked' : '' }}>

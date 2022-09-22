@@ -53,6 +53,7 @@
                         <th scope="col">姓名</th>
                         <th scope="col">會員編號</th>
                         <th scope="col">審核狀態</th>
+                        <th scope="col">是否綁定員工帳號？（員工姓名,編號）</th>
                         <th scope="col" class="text-center">編輯</th>
                     </tr>
                 </thead>
@@ -63,6 +64,11 @@
                             <td>{{ $data->name }}</td>
                             <td>{{ $data->sn }}</td>
                             <td>{{ $data->status_title }}</td>
+                            <td>
+                            @if(!is_null($data->usr_users_id))
+                                {{ '是（' . $data->employeeName . ',' . $data->employeeId . '）' }}
+                            @endif
+                            </td>
                             <td class="text-center">
                                 @can('cms.customer-profit.edit')
                                     <a href="{{ Route('cms.customer-profit.edit', ['id' => $data->id], true) }}"

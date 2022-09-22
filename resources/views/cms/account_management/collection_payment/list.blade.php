@@ -3,6 +3,12 @@
 @section('sub-content')
     <h2 class="mb-4">付款單查詢</h2>
 
+    <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
+        <div class="p-1 pe-2">
+            <a href="{{ Route('cms.collection_payment.claim') }}" class="btn btn-sm btn-primary" role="button">合併付款</a>
+        </div>
+    </nav>
+
     <form id="search" method="GET">
         <div class="card shadow p-4 mb-4">
             <h6>搜尋條件</h6>
@@ -69,7 +75,7 @@
                 <fieldset class="col-12 mb-3">
                     <legend class="col-form-label p-0 mb-2">付款狀態</legend>
                     <div class="px-1 pt-1">
-                        @foreach ($check_balance_status as $key => $value)
+                        @foreach ($balance_status as $key => $value)
                             <div class="form-check form-check-inline">
                                 <label class="form-check-label">
                                     <input class="form-check-input" name="check_balance" type="radio" value="{{ $key }}" {{ (string)$key == $cond['check_balance'] ? 'checked' : '' }}>
@@ -158,7 +164,7 @@
                                     @elseif($d_value->d_type == 'discount')
                                         {{$d_value->discount_title}} - {{$data->source_sn}}
                                     @else
-                                        {{$d_value->product_title}}({{ $d_value->product_price }} * {{$d_value->product_qty}})({{ $d_value->product_owner }}) - {{$data->source_sn}}
+                                        {{$d_value->product_title}}({{ $d_value->product_price }} * {{$d_value->product_qty}}){{ $d_value->product_owner ? '(' . $d_value->product_owner . ')' : '' }} - {{$data->source_sn}}
                                     @endif
                                 </td>
                                 <td class="table-warning wrap text-end">

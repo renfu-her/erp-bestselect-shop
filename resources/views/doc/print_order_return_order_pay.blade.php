@@ -56,7 +56,7 @@
             <table width="710" style="font-size:small;text-align:left;border:0;margin: 0 auto;">
                 <tbody>
                 <tr>
-                    <td width="50%">付款單號：{{ $paying_order->sn }}</td>
+                    <td width="50%">付款單號：{{ $paying_order->sn }}{{ $paying_order->append_po_id ? ' / ' . $paying_order->append_po_sn : '' }}</td>
                     <td>製表日期：{{ date('Y-m-d', strtotime($paying_order->created_at)) }}</td>
                 </tr>
                 <tr>

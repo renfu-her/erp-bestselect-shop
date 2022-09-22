@@ -528,6 +528,11 @@ class StituteOrderCtrl extends Controller
         $accountant = array_unique($accountant->pluck('name')->toArray());
         asort($accountant);
 
+        if($paying_order && $paying_order->append_po_id){
+            $append_po = PayingOrder::find($paying_order->append_po_id);
+            $paying_order->append_po_link = PayingOrder::paying_order_link($append_po->source_type, $append_po->source_id, $append_po->source_sub_id, $append_po->type);
+        }
+
         $view = 'cms.account_management.stitute.po_show';
         if (request('action') == 'print') {
             $view = 'doc.print_stitute_po';

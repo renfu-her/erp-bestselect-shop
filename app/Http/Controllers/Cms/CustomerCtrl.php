@@ -58,8 +58,7 @@ class CustomerCtrl extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     *
+     * request的bind 參數是用來綁定使用，1代表資料從綁定頁面傳送過來
      * @return Response
      */
     public function create(Request $request)
@@ -71,6 +70,7 @@ class CustomerCtrl extends Controller
         $data = [];
         if ($bind) {
             $data = $request->user();
+            $data->email = Arr::get($query, 'email', '');
         }
 
         $regions = [];
@@ -90,10 +90,10 @@ class CustomerCtrl extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
      *
      * @param  Request  $request
-     *
+     * 建立消費者，
+     * 如果Request query值含bind 1，會綁定員工帳號
      * @return Response
      */
     public function store(Request $request)

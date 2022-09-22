@@ -670,6 +670,10 @@ class PurchaseCtrl extends Controller
         }
 
         $payingOrderData = PayingOrder::getPayingOrdersWithPurchaseID($id, $validatedReq['type'])->get()->first();
+        if($payingOrderData && $payingOrderData->append_po_id){
+            $append_po = PayingOrder::find($payingOrderData->append_po_id);
+            $payingOrderData->append_po_link = PayingOrder::paying_order_link($append_po->source_type, $append_po->source_id, $append_po->source_sub_id, $append_po->type);
+        }
         $payingOrderQuery = PayingOrder::find($payingOrderData->id);
         $productGradeName = AllGrade::find($payingOrderQuery->product_grade_id)->eachGrade->code . ' ' . AllGrade::find($payingOrderQuery->product_grade_id)->eachGrade->name;
         $logisticsGradeName = AllGrade::find($payingOrderQuery->logistics_grade_id)->eachGrade->code . ' ' . AllGrade::find($payingOrderQuery->logistics_grade_id)->eachGrade->name;
@@ -698,17 +702,7 @@ class PurchaseCtrl extends Controller
                             ->first();
         $accountPayable = PayingOrder::find($payingOrderData->id)->accountPayable;
 
-        $pay_off = false;
-        $pay_off_date = null;
         $payable_data = PayingOrder::get_payable_detail($paying_order->id);
-        if($payingOrderData->price == $payable_data->sum('tw_price') ){
-            $pay_off = true;
-            if($payingOrderData->price == 0 && $payable_data->count() == 0){
-                $pay_off_date = date('Y-m-d', strtotime($payingOrderData->created_at));
-            } else {
-                $pay_off_date = date('Y-m-d', strtotime($payingOrderData->payment_date));
-            }
-        }
         $data_status_check = PayingOrder::payable_data_status_check($payable_data);
         $po_count = PayingOrder::where([
                 'source_type' => $source_type,
@@ -748,8 +742,6 @@ class PurchaseCtrl extends Controller
             'breadcrumb_data' => ['id' => $id, 'sn' => $purchaseData->purchase_sn, 'type' => $validatedReq['type']],
             'formAction' => Route('cms.purchase.index', ['id' => $id,]),
             'purchaseData' => $purchaseData,
-            'pay_off' => $pay_off,
-            'pay_off_date' => $pay_off_date,
             'payingOrderData' => $payingOrderData,
             'productGradeName' => $productGradeName,
             'logisticsGradeName' => $logisticsGradeName,

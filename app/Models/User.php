@@ -154,13 +154,20 @@ class User extends Authenticatable
             'dataList' => $total_data, 'account' => $users,
         ];
     }
-    // 綁定消費者
+
+    /**
+     * @param $user_id string 員工ID
+     * @param $email string 消費者信箱
+     * 綁定消費者（含初次綁定、重新綁定）
+     * @return void
+     */
     public static function customerBinding($user_id, $email)
     {
         $customer = Customer::where('email', $email)->select('id')->get()->first();
         if ($customer) {
 
             DB::beginTransaction();
+            //更新綁定的消費者id
             User::where('id', $user_id)->update(['customer_id' => $customer->id]);
             CustomerIdentity::add($customer->id, 'employee');
 
