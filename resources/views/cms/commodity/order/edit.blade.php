@@ -181,17 +181,22 @@
             </div>
 
             <div class="card shadow p-4 mb-4 ">
-                <div class="row d-none">
+                {{-- 發票種類 --}}
+                <div class="row">
                     <fieldset class="col-12 col-sm-6 mb-3">
                         <legend class="col-form-label p-0 mb-2">發票種類 <span class="text-danger">*</span></legend>
                         <div class="px-1 pt-1">
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input" name="category" value="B2C" type="radio" id="2c" required {{ ! old('category') || old('category') == 'B2C' ? 'checked' : '' }}>
-                                <label class="form-check-label" for="2c">個人</label>
+                                <label class="form-check-label">
+                                    <input class="form-check-input" name="category" value="B2C" type="radio" required {{ ! old('category') || old('category') == 'B2C' ? 'checked' : '' }}>
+                                    個人
+                                </label>
                             </div>
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input" name="category" value="B2B" type="radio" id="2b" required {{ old('category') && old('category') == 'B2B' ? 'checked' : '' }}>
-                                <label class="form-check-label" for="2b">公司．企業</label>
+                                <label class="form-check-label">
+                                    <input class="form-check-input" name="category" value="B2B" type="radio" required {{ old('category') && old('category') == 'B2B' ? 'checked' : '' }}>
+                                    公司．企業
+                                </label>
                             </div>
                         </div>
                         <div class="invalid-feedback">
@@ -200,33 +205,35 @@
                             @enderror
                         </div>
                     </fieldset>
-                    <div class="col-12 col-sm-6 mb-3 c_category d-none">
-                        <label class="form-label l_buyer_ubn">公司統編</label>
-                        <input type="text" name="buyer_ubn" class="form-control @error('buyer_ubn') is-invalid @enderror" placeholder="請輸入公司統編" aria-label="公司統編" value="{{ old('buyer_ubn') }}" disabled>
-                        <div class="invalid-feedback">
-                            @error('buyer_ubn')
-                            {{ $message }}
-                            @enderror
-                        </div>
-                    </div>
                 </div>
-                <fieldset class="col-12 col-sm-6 mb-3 d-none">
+
+                {{-- 發票方式 --}}
+                <fieldset class="col-12 col-sm-6 mb-3">
                     <legend class="col-form-label p-0 mb-2">發票方式 <span class="text-danger">*</span></legend>
                     <div class="px-1 pt-1">
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" name="invoice_method" value="print" type="radio" id="print" required {{ old('invoice_method') && old('invoice_method') == 'print' ? 'checked' : '' }}>
-                            <label class="form-check-label" for="print">無載具(列印電子發票證明聯)</label>
+                            <label class="form-check-label">
+                                <input class="form-check-input" name="invoice_method" value="e_inv" type="radio" required 
+                                    {{ ! old('invoice_method') || old('invoice_method') == 'e_inv' ? 'checked' : '' }}>
+                                電子發票
+                            </label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <label class="form-check-label">
+                                <input class="form-check-input" name="invoice_method" value="print" type="radio" required 
+                                    {{ old('invoice_method') && old('invoice_method') == 'print' ? 'checked' : '' }}>
+                                列印紙本發票
+                            </label>
                         </div>
                         {{--
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" name="invoice_method" value="give" type="radio" id="give" required {{ old('invoice_method') && old('invoice_method') == 'give' ? 'checked' : '' }}>
-                            <label class="form-check-label" for="give">捐贈</label>
+                            <label class="form-check-label">
+                                <input class="form-check-input" name="invoice_method" value="give" type="radio" required 
+                                    {{ old('invoice_method') && old('invoice_method') == 'give' ? 'checked' : '' }}>
+                                捐贈
+                            </label>
                         </div>
                         --}}
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" name="invoice_method" value="e_inv" type="radio" id="e_inv" required {{ ! old('invoice_method') || old('invoice_method') == 'e_inv' ? 'checked' : '' }}>
-                            <label class="form-check-label" for="e_inv">電子發票</label>
-                        </div>
                     </div>
                     <div class="invalid-feedback">
                         @error('invoice_method')
@@ -235,7 +242,8 @@
                     </div>
                 </fieldset>
 
-                <div class="col-12 col-sm-6 mb-3 c_invoice_method d-none">
+                {{-- 發票方式: 捐贈 --}}
+                <div class="col-12 col-sm-6 mb-3 inv_method_give d-none">
                     <label class="form-label" for="love_code">捐贈單位</label>
                     {{--
                     <select name="love_code" id="love_code" hidden class="-select2 -single form-select @error('love_code') is-invalid @enderror" data-placeholder="請選擇捐贈單位">
@@ -248,20 +256,53 @@
                     <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
-                <fieldset class="col-12 mb-3 carrier">
+                {{-- 發票方式: 列印紙本發票 --}}
+                <div class="row inv_method_print d-none">
+                    <div class="col-12 col-sm-6 mb-3">
+                        <label class="form-label">發票抬頭</label>
+                        <input type="text" name="inv_title" class="form-control @error('inv_title') is-invalid @enderror" 
+                            placeholder="請輸入發票抬頭" aria-label="發票抬頭" value="{{ old('inv_title') }}" disabled>
+                        <div class="invalid-feedback">
+                            @error('inv_title')
+                            {{ $message }}
+                            @enderror
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6 mb-3 category_b2b d-none">
+                        <label class="form-label">統一編號</label>
+                        <input type="text" name="buyer_ubn" class="form-control @error('buyer_ubn') is-invalid @enderror" 
+                            placeholder="請輸入統一編號" aria-label="統一編號" value="{{ old('buyer_ubn') }}" disabled>
+                        <div class="invalid-feedback">
+                            @error('buyer_ubn')
+                            {{ $message }}
+                            @enderror
+                        </div>
+                    </div>
+                </div>
+                {{-- 發票方式: 電子發票 - 載具類型 --}}
+                <fieldset class="col-12 mb-3 inv_method_carrier">
                     <legend class="col-form-label p-0 mb-2">載具類型 <span class="text-danger">*</span></legend>
                     <div class="px-1 pt-1">
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" name="carrier_type" value="2" type="radio" id="carrier_member" {{ ! old('carrier_type') || old('carrier_type') == 2 ? 'checked' : '' }}>
-                            <label class="form-check-label" for="carrier_member">會員電子發票</label>
+                            <label class="form-check-label">
+                                <input class="form-check-input" name="carrier_type" value="2" type="radio"
+                                    {{ ! old('carrier_type') || old('carrier_type') == 2 ? 'checked' : '' }}>
+                                會員電子發票
+                            </label>
                         </div>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" name="carrier_type" value="0" type="radio" id="carrier_mobile" {{ old('carrier_type') && old('carrier_type') == 0 ? 'checked' : '' }}>
-                            <label class="form-check-label" for="carrier_mobile">手機條碼載具</label>
+                            <label class="form-check-label">
+                                <input class="form-check-input" name="carrier_type" value="0" type="radio"
+                                    {{ old('carrier_type') && old('carrier_type') == 0 ? 'checked' : '' }}>
+                                手機條碼載具
+                            </label>
                         </div>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" name="carrier_type" value="1" type="radio" id="carrier_certificate" {{ old('carrier_type') && old('carrier_type') == 1 ? 'checked' : '' }}>
-                            <label class="form-check-label" for="carrier_certificate">自然人憑證條碼載具</label>
+                            <label class="form-check-label">
+                                <input class="form-check-input" name="carrier_type" value="1" type="radio"
+                                    {{ old('carrier_type') && old('carrier_type') == 1 ? 'checked' : '' }}>
+                                自然人憑證條碼載具
+                            </label>
                         </div>
                     </div>
                     <div class="invalid-feedback">
@@ -271,8 +312,20 @@
                     </div>
                 </fieldset>
 
-                <div class="col-12 mb-3 carrier c_carrier_type d-none">
-                    <label class="form-label l_carrier_num">載具條碼</label>
+                {{-- 電子發票: 會員電子發票 --}}
+                <div class="col-12 mb-3 inv_method_carrier carrier_2">
+                    <label class="form-label l_carrier_email">E-mail <span class="text-danger">*</span></label>
+                    <input type="text" name="carrier_email" class="form-control @error('carrier_email') is-invalid @enderror"
+                        placeholder="請輸入E-mail" aria-label="E-mail" value="{{ old('carrier_email') }}">
+                    <div class="invalid-feedback">
+                        @error('carrier_email')
+                        {{ $message }}
+                        @enderror
+                    </div>
+                </div>
+                {{-- 電子發票: 條碼載具 --}}
+                <div class="col-12 mb-3 inv_method_carrier carrier_0 d-none">
+                    <label class="form-label l_carrier_num">載具條碼 <span class="text-danger">*</span></label>
                     <input type="text" name="carrier_num" class="form-control @error('carrier_num') is-invalid @enderror"
                         placeholder="請輸入載具條碼" aria-label="載具條碼" value="{{ old('carrier_num') }}" disabled>
                     <div class="invalid-feedback">
@@ -2643,123 +2696,138 @@
 
             //發票種類
             $('input[type=radio][name=category]').on('click change', function() {
-                if (this.value == 'B2C') {
-                    $('.c_category').addClass('d-none');
-                    $('.l_buyer_ubn').html('公司統編');
-                    $('input[type=text][name=buyer_ubn]').prop({
-                        disabled:true,
-                        required:false
-                    }).val('');
+                switch (this.value) {
+                    case 'B2B':     // 公司
+                        $('.inv_method_print, .inv_method_print .category_b2b').removeClass('d-none');
+                        $('.inv_method_print input[type=text]').prop({
+                            disabled:false
+                        });
 
-                    $('input:radio[name=invoice_method][value="e_inv"]').prop({
-                        disabled:false,
-                    });
+                        $('input:radio[name=invoice_method][value="print"]').click();
+                        $('input:radio[name=invoice_method][value="e_inv"]').prop({
+                            disabled:true,
+                        });
+                        break;
+                
+                    case 'B2C':     // 個人
+                    default:
+                        $('.inv_method_print, .inv_method_print .category_b2b').addClass('d-none');
+                        $('.inv_method_print input[type=text]').prop({
+                            disabled:true
+                        }).val('');
 
-                }
-                else if (this.value == 'B2B') {
-                    $('.c_category').removeClass('d-none');
-                    $('.l_buyer_ubn').html('公司統編 <span class="text-danger">*</span>');
-                    $('input[type=text][name=buyer_ubn]').prop({
-                        disabled:false,
-                        required:true
-                    });
-
-                    $('input:radio[name=invoice_method][value="print"]').click();
-                    $('input:radio[name=invoice_method][value="e_inv"]').prop({
-                        disabled:true,
-                    });
+                        $('input:radio[name=invoice_method][value="e_inv"]').prop({
+                            disabled:false,
+                        });
+                        $('input:radio[name=invoice_method][value="e_inv"]').click();
+                        break;
                 }
             });
 
             //發票方式
             $('input[type=radio][name=invoice_method]').on('click change', function() {
                 switch (this.value) {
-                    case 'print':   // 印出
-                        //捐贈
-                        $('.c_invoice_method').addClass('d-none');
-                        $('#love_code').prop({
-                            disabled:true,
-                            required:false
-                        }).val('');
-
-                        //載具
-                        $('.carrier').addClass('d-none');
-                        $('input[type=radio][name=carrier_type]').prop({
-                            disabled:true,
-                            required:false,
-                            checked:false
-                        });
-                        $('.c_carrier_type').addClass('d-none');
-                        $('input[type=text][name=carrier_num]').prop({
-                            disabled:true,
-                            required:false
-                        }).val('');
-                        $('.l_carrier_num').html('載具號碼');
-                        break;
-
                     case 'give':    // 捐贈
-                        //捐贈
-                        $('.c_invoice_method').removeClass('d-none');
+                        //-捐贈
+                        $('.inv_method_give').removeClass('d-none');
                         $('select[name=love_code]').prop({
                             disabled:false,
                             required:true
                         });
-
-                        //載具
-                        $('.carrier').addClass('d-none');
-                        $('input[type=radio][name=carrier_type]').prop({
+                        //-列印
+                        $('.inv_method_print').addClass('d-none');
+                        $('.inv_method_print input').prop({
+                            disabled:true
+                        });
+                        //-載具
+                        $('.inv_method_carrier').addClass('d-none');
+                        $('.inv_method_carrier input').prop({
                             disabled:true,
                             required:false,
                             checked:false
                         });
-                        $('.c_carrier_type').addClass('d-none');
-                        $('input[type=text][name=carrier_num]').prop({
-                            disabled:true,
-                            required:false
-                        }).val('');
-                        $('.l_carrier_num').html('載具號碼');
                         break;
-                    case 'e_inv':   // 載具
-                        //捐贈
-                        $('.c_invoice_method').addClass('d-none');
+
+                    case 'print':   // 印出
+                        //-捐贈
+                        $('.inv_method_give').addClass('d-none');
                         $('#love_code').prop({
                             disabled:true,
                             required:false
                         }).val('');
+                        //-列印
+                        $('.inv_method_print').removeClass('d-none');
+                        $('.inv_method_print input').prop({
+                            disabled:false
+                        });
+                        //-載具
+                        $('.inv_method_carrier').addClass('d-none');
+                        $('.inv_method_carrier input').prop({
+                            disabled:true,
+                            required:false,
+                            checked:false
+                        });
+                        break;
 
-                        //載具
-                        $('.carrier').removeClass('d-none');
-                        $('input[type=radio][name=carrier_type]').prop({
+                    case 'e_inv':   // 載具
+                    default:
+                        //-捐贈
+                        $('.inv_method_give').addClass('d-none');
+                        $('#love_code').prop({
+                            disabled:true,
+                            required:false
+                        }).val('');
+                        //-列印
+                        $('.inv_method_print').addClass('d-none');
+                        $('.inv_method_print input').prop({
+                            disabled:true
+                        });
+                        //-載具
+                        $('.inv_method_carrier').removeClass('d-none');
+                        $('.inv_method_carrier input').prop({
                             disabled:false,
                             required:true
                         });
+                        $('.inv_method_carrier input[name="carrier_type"][value="2"]').click();
                         break;
-                    default:
                         break;
                 }
             });
 
             //載具類型
             $('input[type=radio][name=carrier_type]').on('click change', function() {
-                if (this.value == 2) {
-                    $('.c_carrier_type').addClass('d-none');
-                    $('input[type=text][name=carrier_num]').prop({
-                        disabled:true,
-                        required:false
-                    }).val('');
-                    $('.l_carrier_num').html('載具號碼');
-
-                } else {
-
-                    $('input[type=email][name=buyer_email]').prop({
-                        required:false
-                    });
-                    $('.c_carrier_type').removeClass('d-none');
-                    $('input[type=text][name=carrier_num]').prop({
-                        disabled:false,
-                        required:true
-                    });
-                    $('.l_carrier_num').html('載具號碼 <span class="text-danger">*</span>');
+                switch (this.value) {
+                    case '2':   // 會員電子發票
+                        // -會員
+                        $('.carrier_2').removeClass('d-none');
+                        $('.carrier_2 input').prop({
+                            disabled:false,
+                            required:true
+                        });
+                        // -手機/自然人
+                        $('.carrier_0').addClass('d-none');
+                        $('.carrier_0 input').prop({
+                            disabled:true,
+                            required:false
+                        }).val('');
+                        break;
+                
+                    case '0':   // 手機條碼載具
+                    case '1':   // 自然人憑證條碼載具
+                    default:
+                        // -會員
+                        $('.carrier_2').addClass('d-none');
+                        $('.carrier_2 input').prop({
+                            disabled:true,
+                            required:false
+                        });
+                        // -手機/自然人
+                        $('.carrier_0').removeClass('d-none');
+                        $('.carrier_0 input').prop({
+                            disabled:false,
+                            required:true
+                        }).val('');
+                        break;
                 }
             });
         </script>
