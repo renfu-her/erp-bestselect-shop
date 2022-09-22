@@ -206,6 +206,7 @@ class Order extends Model
                 'customer_m.sn as sn_m',
                 'order.dividend_active_at',
                 'sale.title as sale_title'])
+            ->selectRaw("IF(order.inv_title IS NULL,'',order.inv_title) as inv_title")
             ->selectRaw("IF(order.unique_id IS NULL,'',order.unique_id) as unique_id")
             ->selectRaw("IF(order.gui_number IS NULL,'',order.gui_number) as gui_number")
             ->selectRaw("IF(order.invoice_category IS NULL,'',order.invoice_category) as invoice_category")
@@ -582,7 +583,7 @@ class Order extends Model
             }
 
             //付款資訊
-            $updateOrdUPM = self::updateOrderUsrPayMethod($order_id, $email, $payinfo);
+            $updateOrdUPM = self::updateOrderUsrPayMethod($order_id, $payinfo);
             if ($updateOrdUPM['success'] == 0) {
                 DB::rollBack();
                 return $updateOrdUPM;
@@ -605,7 +606,7 @@ class Order extends Model
 
     //付款資訊
     //參考OrderInvoice::create_invoice的付款資訊來改
-    private static function updateOrderUsrPayMethod($order_id, $email, $payinfo)
+    private static function updateOrderUsrPayMethod($order_id, $payinfo)
     {
         $item_tax_type_arr = [];
         $n_order = Order::orderDetail($order_id)->first();
@@ -643,8 +644,9 @@ class Order extends Model
             $tax_type = 9;
         }
         $category = $payinfo['category'] ?? 'B2C';
+        $inv_title = $payinfo['inv_title'] ?? null;
         $buyer_ubn = $payinfo['buyer_ubn'] ?? null;
-        $buyer_email = $email;
+        $buyer_email = isset($payinfo['carrier_email']) ? trim($payinfo['carrier_email']) : null;
         $carrier_type = $payinfo['carrier_type'] ?? null;
         $carrier_num = isset($payinfo['carrier_num']) ? trim($payinfo['carrier_num']) : null;
         $love_code = $payinfo['love_code'] ?? null;
@@ -679,6 +681,11 @@ class Order extends Model
                     }
 
                 } else if ($carrier_type == 2) {
+                    $pattern = "/^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,})$/i";
+                    if (preg_match($pattern, $buyer_email) == 0) {
+                        DB::rollBack();
+                        return ['success' => '0', 'error_msg' => '會員電子發票載具格式錯誤'];
+                    }
                     $carrier_num = $buyer_email;
                 }
 
@@ -701,6 +708,7 @@ class Order extends Model
         }
         self::where('id', $order_id)->update([
             'category' => $category
+            , 'inv_title' => $inv_title
             , 'buyer_ubn' => $buyer_ubn
             , 'carrier_type' => $carrier_type
             , 'carrier_num' => $carrier_num

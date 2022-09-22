@@ -213,14 +213,14 @@
                     <div class="px-1 pt-1">
                         <div class="form-check form-check-inline">
                             <label class="form-check-label">
-                                <input class="form-check-input" name="invoice_method" value="e_inv" type="radio" required 
+                                <input class="form-check-input" name="invoice_method" value="e_inv" type="radio" required
                                     {{ ! old('invoice_method') || old('invoice_method') == 'e_inv' ? 'checked' : '' }}>
                                 電子發票
                             </label>
                         </div>
                         <div class="form-check form-check-inline">
                             <label class="form-check-label">
-                                <input class="form-check-input" name="invoice_method" value="print" type="radio" required 
+                                <input class="form-check-input" name="invoice_method" value="print" type="radio" required
                                     {{ old('invoice_method') && old('invoice_method') == 'print' ? 'checked' : '' }}>
                                 列印紙本發票
                             </label>
@@ -228,7 +228,7 @@
                         {{--
                         <div class="form-check form-check-inline">
                             <label class="form-check-label">
-                                <input class="form-check-input" name="invoice_method" value="give" type="radio" required 
+                                <input class="form-check-input" name="invoice_method" value="give" type="radio" required
                                     {{ old('invoice_method') && old('invoice_method') == 'give' ? 'checked' : '' }}>
                                 捐贈
                             </label>
@@ -260,7 +260,7 @@
                 <div class="row inv_method_print d-none">
                     <div class="col-12 col-sm-6 mb-3">
                         <label class="form-label">發票抬頭</label>
-                        <input type="text" name="inv_title" class="form-control @error('inv_title') is-invalid @enderror" 
+                        <input type="text" name="inv_title" class="form-control @error('inv_title') is-invalid @enderror"
                             placeholder="請輸入發票抬頭" aria-label="發票抬頭" value="{{ old('inv_title') }}" disabled>
                         <div class="invalid-feedback">
                             @error('inv_title')
@@ -270,7 +270,7 @@
                     </div>
                     <div class="col-12 col-sm-6 mb-3 category_b2b d-none">
                         <label class="form-label">統一編號</label>
-                        <input type="text" name="buyer_ubn" class="form-control @error('buyer_ubn') is-invalid @enderror" 
+                        <input type="text" name="buyer_ubn" class="form-control @error('buyer_ubn') is-invalid @enderror"
                             placeholder="請輸入統一編號" aria-label="統一編號" value="{{ old('buyer_ubn') }}" disabled>
                         <div class="invalid-feedback">
                             @error('buyer_ubn')
@@ -316,7 +316,7 @@
                 <div class="col-12 mb-3 inv_method_carrier carrier_2">
                     <label class="form-label l_carrier_email">E-mail <span class="text-danger">*</span></label>
                     <input type="text" name="carrier_email" class="form-control @error('carrier_email') is-invalid @enderror"
-                        placeholder="請輸入E-mail" aria-label="E-mail" value="{{ old('carrier_email') }}">
+                        placeholder="請輸入E-mail" aria-label="E-mail" value="{{ old('carrier_email', $customer_email?? '') }}">
                     <div class="invalid-feedback">
                         @error('carrier_email')
                         {{ $message }}
@@ -2708,7 +2708,7 @@
                             disabled:true,
                         });
                         break;
-                
+
                     case 'B2C':     // 個人
                     default:
                         $('.inv_method_print, .inv_method_print .category_b2b').addClass('d-none');
@@ -2811,7 +2811,7 @@
                             required:false
                         }).val('');
                         break;
-                
+
                     case '0':   // 手機條碼載具
                     case '1':   // 自然人憑證條碼載具
                     default:

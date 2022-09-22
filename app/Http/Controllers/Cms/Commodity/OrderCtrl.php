@@ -180,13 +180,15 @@ class OrderCtrl extends Controller
 
         $customer = $request->user();
         $customer_id = $customer->customer_id;
+        $customer_email = '';
         $mcode = '';
         if ($customer_id) {
             $salechannels = UserSalechannel::getSalechannels($request->user()->id)->get()->toArray();
             if (CustomerProfit::getProfitData($customer_id, ProfitStatus::Success())) {
                 $mcode = Customer::where('id', $customer_id)->get()->first()->sn;
             }
-
+            $customer_in_db = Customer::where('id', $customer_id)->get()->first();
+            $customer_email = ($customer_in_db)? $customer_in_db->email: '';
         } else {
             $salechannels = [];
         }
@@ -228,6 +230,7 @@ class OrderCtrl extends Controller
 
         return view('cms.commodity.order.edit', [
             'customer_id' => $customer_id,
+            'customer_email' => $customer_email,
             'customers' => Customer::where('id', $customer_id)->get(),
             'defaultAddress' => $defaultAddress,
             'otherOftenUsedAddresses' => $otherOftenUsedAddresses,
@@ -287,6 +290,7 @@ class OrderCtrl extends Controller
             'love_code' => 'required_if:invoice_method,==,give',
             'carrier_type' => 'required_if:invoice_method,==,e_inv|in:0,1,2',
             'carrier_num' => 'required_if:carrier_type,==,0|required_if:carrier_type,==,1',
+            'carrier_email' => 'required_if:carrier_type,==,2',
         ], $arrVali));
 
         $d = $request->all();
@@ -331,9 +335,11 @@ class OrderCtrl extends Controller
 
         $payinfo = null;
         $payinfo['category'] = $d['category'] ?? null;
+        $payinfo['inv_title'] = $d['inv_title'] ?? null;
         $payinfo['buyer_ubn'] = $d['buyer_ubn'] ?? null;
         $payinfo['love_code'] = $d['love_code'] ?? null;
         $payinfo['carrier_type'] = $d['carrier_type'] ?? null;
+        $payinfo['carrier_email'] = $d['carrier_email'] ?? null;
         $payinfo['carrier_num'] = $d['carrier_num'] ?? null;
 
         $re = Order::createOrder($customer->email, $d['salechannel_id'], $address, $items, $d['mcode'] ?? null, $d['note'], $coupon, $payinfo, null, $dividend, $request->user());

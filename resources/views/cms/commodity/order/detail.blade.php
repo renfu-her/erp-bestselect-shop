@@ -188,7 +188,7 @@
                 </div>
                 <div class="col">
                     <dt>發票抬頭</dt>
-                    <dd></dd>
+                    <dd>{{ $order->inv_title ?? '' }}</dd>
                 </div>
                 <div class="col col-md-5">
                     <dt>統一編號</dt>
