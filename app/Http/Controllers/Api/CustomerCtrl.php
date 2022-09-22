@@ -723,6 +723,7 @@ class CustomerCtrl extends Controller
     {
         $validator = Validator::make($request->all(), [
             'password' => ['required'],
+            'account' => ['required'],
         ]);
 
         if ($validator->fails()) {
@@ -733,7 +734,7 @@ class CustomerCtrl extends Controller
             ]);
         }
 
-        $re = CustomerDividend::checkDividendFromErp($request->user()->sn, $request->input('password'));
+        $re = CustomerDividend::checkDividendFromErp($request->input('account'), $request->input('password'));
 
         if ($re['status'] != '0') {
             return response()->json([
