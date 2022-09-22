@@ -186,8 +186,12 @@
 
                     </dd>
                 </div>
+                <div class="col">
+                    <dt>發票抬頭</dt>
+                    <dd></dd>
+                </div>
                 <div class="col col-md-5">
-                    <dt>統編</dt>
+                    <dt>統一編號</dt>
                     <dd>{{ $order->invoice_number ? $order->gui_number : '尚未開立發票' }}</dd>
                 </div>
             </dl>
