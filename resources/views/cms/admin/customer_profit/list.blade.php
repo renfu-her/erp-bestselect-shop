@@ -64,7 +64,7 @@
                             <td>{{ $data->name }}</td>
                             <td>{{ $data->sn }}</td>
                             <td>{{ $data->status_title }}</td>
-                            @if(!is_null($usr_users_id))
+                            @if(!is_null($data->usr_users_id))
                                 <td>{{ '是（' . $data->employeeName . ',' . $data->employeeId . '）' }}</td>
                             @endif
                             <td class="text-center">
