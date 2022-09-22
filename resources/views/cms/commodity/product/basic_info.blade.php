@@ -79,7 +79,7 @@
 
                 <div class="col-12 mb-3">
                     <label class="form-label">商品簡述</label>
-                    <textarea rows="3" name="feature" class="form-control" maxlength="150" placeholder="請輸入關於產品的描述" aria-label="商品簡述">{{ old('feature', $product->feature ?? '') }}</textarea>
+                    <textarea rows="3" name="feature" class="form-control" maxlength="255" placeholder="請輸入關於產品的描述" aria-label="商品簡述">{{ old('feature', $product->feature ?? '') }}</textarea>
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">商品標語</label>
