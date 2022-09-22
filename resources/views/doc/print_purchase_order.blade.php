@@ -122,7 +122,7 @@
                                 <td style="text-align: right;">{{ $item->num }}</td>
                                 <td style="text-align: right;">{{ number_format($item->single_price) }}</td>
                                 <td style="text-align: right;">{{ number_format($item->price) }}</td>
-                                <td>{{ $item->memo ?? '' }}</td>
+                                <td>@php echo $item->memo ?? '' @endphp</td>
                             </tr>
                             @php
                                 $total += (int)$item->price;
