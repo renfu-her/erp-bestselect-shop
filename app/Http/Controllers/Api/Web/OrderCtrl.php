@@ -445,7 +445,7 @@ class OrderCtrl extends Controller
 
         $payinfo = null;
         $payinfo['category'] = $payLoad['category'] ?? null;
-        $payinfo['invoice_method'] = $d['invoice_method'] ?? InvoiceMethod::e_inv()->key();
+        $payinfo['invoice_method'] = $d['invoice_method'] ?? InvoiceMethod::e_inv()->key;
         $payinfo['inv_title'] = $payLoad['inv_title'] ?? null;
         $payinfo['buyer_ubn'] = $payLoad['buyer_ubn'] ?? null;
         $payinfo['love_code'] = $payLoad['love_code'] ?? null;
