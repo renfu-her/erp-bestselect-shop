@@ -2070,7 +2070,6 @@ class OrderCtrl extends Controller
             'love_code' => 'required_if:invoice_method,==,give',
             'carrier_type' => 'required_if:invoice_method,==,e_inv|in:0,1,2',
             'carrier_num' => 'required_if:carrier_type,==,0|required_if:carrier_type,==,1',
-            'carrier_email' => 'required_if:carrier_type,==,2',
             'create_status_time' => 'nullable|date|date_format:Y-m-d',
         ]);
 

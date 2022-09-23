@@ -3,6 +3,9 @@
 @section('sub-content')
     <h2 class="mb-4">開立電子發票</h2>
 
+    @if($errors->any())
+        <div class="alert alert-danger mt-3">{!! implode('', $errors->all('<div>:message</div>')) !!}</div>
+    @endif
     <form method="POST" action="{{ $form_action }}">
         @csrf
         <div class="card shadow p-4 mb-4">
@@ -30,11 +33,11 @@
                     <label class="form-label" for="merge_source">合併發票</label>
                     <select name="merge_source[]" id="merge_source" multiple hidden class="-select2 -multiple form-select @error('merge_source') is-invalid @enderror" data-placeholder="請選擇合併發票">
                         @foreach ($merge_source as $value)
-                        <option value="{{ $value->id }}" @if (in_array($value->id, old('merge_source', []))) selected @endif>{{ $value->sn }}</option>
+                            <option value="{{ $value->id }}" @if (in_array($value->id, old('merge_source', []))) selected @endif>{{ $value->sn }}</option>
                         @endforeach
                     </select>
                     @error('merge_source')
-                        <div class="invalid-feedback">{{ $message }}</div>
+                    <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
             </div>
@@ -85,7 +88,8 @@
             <div class="row">
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label l_buyer_email">買受人E-mail <span class="text-danger">*</span></label>
-                    <input type="email" name="buyer_email" class="form-control @error('buyer_email') is-invalid @enderror" placeholder="請輸入買受人E-mail" aria-label="買受人E-mail" value="{{ old('buyer_email', $order->email) }}" required>
+                    <input type="email" name="buyer_email" class="form-control @error('buyer_email') is-invalid @enderror" placeholder="請輸入買受人E-mail" aria-label="買受人E-mail"
+                           value="{{ old('buyer_email', (\App\Enums\Order\CarrierType::getDescription(\App\Enums\Order\CarrierType::member) == $order->carrier_type)? $order->carrier_num: $order->email) }}" required>
                     <div class="invalid-feedback">
                         @error('buyer_email')
                         {{ $message }}
@@ -140,7 +144,7 @@
                     </select>
                     --}}
                     @error('love_code')
-                        <div class="invalid-feedback">{{ $message }}</div>
+                    <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
             </div>
@@ -159,7 +163,7 @@
                         </div>
                         <div class="form-check form-check-inline">
                             <input class="form-check-input" name="carrier_type" value="2" type="radio" id="carrier_member" {{ ! old('carrier_type') || old('carrier_type') == 2 ? 'checked' : '' }}>
-                            <label class="form-check-label" for="carrier_member">會員電子發票</label>
+                            <label class="form-check-label" for="carrier_member">會員載具</label>
                         </div>
                     </div>
                     <div class="invalid-feedback">
@@ -169,23 +173,11 @@
                     </div>
                 </fieldset>
 
-                {{-- 電子發票: 條碼載具 --}}
-                <div class="col-12 col-sm-6 mb-3 c_carrier_type carrier_0 d-none">
-                    <label class="form-label">載具號碼 <span class="text-danger">*</span></label>
+                <div class="col-12 col-sm-6 mb-3 c_carrier_type d-none">
+                    <label class="form-label l_carrier_num">載具號碼</label>
                     <input type="text" name="carrier_num" class="form-control @error('carrier_num') is-invalid @enderror" placeholder="請輸入載具號碼" aria-label="載具號碼" value="{{ old('carrier_num') }}" disabled>
                     <div class="invalid-feedback">
                         @error('carrier_num')
-                        {{ $message }}
-                        @enderror
-                    </div>
-                </div>
-                {{-- 電子發票: 會員電子發票 --}}
-                <div class="col-12 col-sm-6 mb-3 c_carrier_type carrier_2">
-                    <label class="form-label l_carrier_email">E-mail <span class="text-danger">*</span></label>
-                    <input type="text" name="carrier_email" class="form-control @error('carrier_email') is-invalid @enderror"
-                        placeholder="請輸入E-mail" aria-label="E-mail" value="{{ old('carrier_email', $order->carrier_num?? '') }}">
-                    <div class="invalid-feedback">
-                        @error('carrier_email')
                         {{ $message }}
                         @enderror
                     </div>
@@ -214,16 +206,16 @@
             <div class="table-responsive">
                 <table class="table table-bordered text-center align-middle d-sm-table d-none text-nowrap">
                     <tbody class="border-top-0 m_row">
-                        <tr class="table-light">
-                            <td class="col-2" style="display:none">收款單號</td>
-                            <td class="col-2">產品名稱</td>
-                            <td class="col-2">價格(總價)</td>
-                            <td class="col-2">數量</td>
-                            <td class="col-2">說明</td>
-                            <td class="col-2">稅別</td>
-                        </tr>
-                        @foreach($sub_order as $s_value)
-                            @foreach($s_value->items as $value)
+                    <tr class="table-light">
+                        <td class="col-2" style="display:none">收款單號</td>
+                        <td class="col-2">產品名稱</td>
+                        <td class="col-2">價格(總價)</td>
+                        <td class="col-2">數量</td>
+                        <td class="col-2">說明</td>
+                        <td class="col-2">稅別</td>
+                    </tr>
+                    @foreach($sub_order as $s_value)
+                        @foreach($s_value->items as $value)
                             <tr>
                                 <td style="display:none">{{ $received_order->sn }}</td>
                                 <td>{{ $value->product_title }}</td>
@@ -232,22 +224,22 @@
                                 <td></td>
                                 <td>{{ $value->product_taxation == 1 ? '應稅' : '免稅'}}</td>
                             </tr>
-                            @endforeach
                         @endforeach
+                    @endforeach
 
-                        @if($order->dlv_fee > 0)
-                            <tr>
-                                <td style="display:none">{{ $received_order->sn }}</td>
-                                <td>物流費用</td>
-                                <td>{{ number_format($order->dlv_fee) }}</td>
-                                <td>1</td>
-                                <td></td>
-                                <td>{{ $order->dlv_taxation == 1 ? '應稅' : '免稅'}}</td>
-                            </tr>
-                        @endif
+                    @if($order->dlv_fee > 0)
+                        <tr>
+                            <td style="display:none">{{ $received_order->sn }}</td>
+                            <td>物流費用</td>
+                            <td>{{ number_format($order->dlv_fee) }}</td>
+                            <td>1</td>
+                            <td></td>
+                            <td>{{ $order->dlv_taxation == 1 ? '應稅' : '免稅'}}</td>
+                        </tr>
+                    @endif
 
-                        @if(count($order_discount) > 0)
-                            @foreach($order_discount as $value)
+                    @if(count($order_discount) > 0)
+                        @foreach($order_discount as $value)
                             <tr>
                                 <td style="display:none">{{ $received_order->sn }}</td>
                                 <td>{{ $value->title }}</td>
@@ -256,18 +248,18 @@
                                 <td></td>
                                 <td>{{ $value->discount_taxation == 1 ? '應稅' : '免稅'}}</td>
                             </tr>
-                            @endforeach
-                        @endif
+                        @endforeach
+                    @endif
                     </tbody>
                 </table>
             </div>
         </div>
 
         <div class="col-auto">
-            <button type="submit" class="btn btn-primary px-4">確認</button>
             <a href="{{ Route('cms.order.detail', ['id' => $order->id]) }}" class="btn btn-outline-primary px-4" role="button">
                 返回明細
             </a>
+            <button type="submit" class="btn btn-primary px-4">確認</button>
         </div>
     </form>
 @endsection
@@ -324,8 +316,8 @@
                                 }
 
                             }).catch((err) => {
-                                console.error(err);
-                            });
+                            console.error(err);
+                        });
                     } else if(!Data.order_id && Data.order_id == ''){
                         $('tr.new_row').remove();
                     }
@@ -363,149 +355,135 @@
 
                 //發票方式
                 $('input[type=radio][name=invoice_method]').on('click change', function() {
-                    switch (this.value) {
-                        case 'print':   // 列印
-                            //Email
-                            $('input[type=email][name=buyer_email]').prop({
-                                required:false
-                            });
-                            $('.l_buyer_email').html('買受人E-mail');
+                    if (this.value == 'print') {
+                        //Email
+                        $('input[type=email][name=buyer_email]').prop({
+                            required:false
+                        });
+                        $('.l_buyer_email').html('買受人E-mail');
 
-                            //地址
-                            $('input[type=text][name=buyer_address]').prop({
-                                required:true
-                            });
-                            $('.l_buyer_address').html('買受人地址 <span class="text-danger">*</span>');
+                        //地址
+                        $('input[type=text][name=buyer_address]').prop({
+                            required:true
+                        });
+                        $('.l_buyer_address').html('買受人地址 <span class="text-danger">*</span>');
 
-                            //捐贈
-                            $('.c_invoice_method').addClass('d-none');
-                            $('.l_love_code').html('捐贈單位');
-                            $('#love_code').prop({
-                                disabled:true,
-                                required:false
-                            }).val('');
+                        //捐贈
+                        $('.c_invoice_method').addClass('d-none');
+                        $('.l_love_code').html('捐贈單位');
+                        $('#love_code').prop({
+                            disabled:true,
+                            required:false
+                        }).val('');
 
-                            //載具
-                            $('.carrier').addClass('d-none');
-                            $('input[type=radio][name=carrier_type]').prop({
-                                disabled:true,
-                                required:false,
-                                checked:false
-                            });
-                            $('.c_carrier_type').addClass('d-none');
-                            $('.c_carrier_type input').prop({
-                                disabled:true,
-                                required:false
-                            }).val('');
-                            break;
-                        case 'give':    // 捐贈
-                            //Email
-                            $('input[type=email][name=buyer_email]').prop({
-                                required:false
-                            });
-                            $('.l_buyer_email').html('買受人E-mail');
+                        //載具
+                        $('.carrier').addClass('d-none');
+                        $('input[type=radio][name=carrier_type]').prop({
+                            disabled:true,
+                            required:false,
+                            checked:false
+                        });
+                        $('.c_carrier_type').addClass('d-none');
+                        $('input[type=text][name=carrier_num]').prop({
+                            disabled:true,
+                            required:false
+                        }).val('');
+                        $('.l_carrier_num').html('載具號碼');
 
-                            //地址
-                            $('input[type=text][name=buyer_address]').prop({
-                                required:false
-                            });
-                            $('.l_buyer_address').html('買受人地址');
+                    } else if(this.value == 'give'){
+                        //Email
+                        $('input[type=email][name=buyer_email]').prop({
+                            required:false
+                        });
+                        $('.l_buyer_email').html('買受人E-mail');
 
-                            //捐贈
-                            $('.c_invoice_method').removeClass('d-none');
-                            $('.l_love_code').html('捐贈單位 <span class="text-danger">*</span>');
-                            $('#love_code').prop({
-                                disabled:false,
-                                required:true
-                            });
+                        //地址
+                        $('input[type=text][name=buyer_address]').prop({
+                            required:false
+                        });
+                        $('.l_buyer_address').html('買受人地址');
 
-                            //載具
-                            $('.carrier').addClass('d-none');
-                            $('input[type=radio][name=carrier_type]').prop({
-                                disabled:true,
-                                required:false,
-                                checked:false
-                            });
-                            $('.c_carrier_type').addClass('d-none');
-                            $('.c_carrier_type input').prop({
-                                disabled:true,
-                                required:false
-                            }).val('');
-                            break;
+                        //捐贈
+                        $('.c_invoice_method').removeClass('d-none');
+                        $('.l_love_code').html('捐贈單位 <span class="text-danger">*</span>');
+                        $('#love_code').prop({
+                            disabled:false,
+                            required:true
+                        });
 
-                        case 'e_inv':   // 電子發票
-                            //地址
-                            $('input[type=text][name=buyer_address]').prop({
-                                required:false
-                            });
-                            $('.l_buyer_address').html('買受人地址');
+                        //載具
+                        $('.carrier').addClass('d-none');
+                        $('input[type=radio][name=carrier_type]').prop({
+                            disabled:true,
+                            required:false,
+                            checked:false
+                        });
+                        $('.c_carrier_type').addClass('d-none');
+                        $('input[type=text][name=carrier_num]').prop({
+                            disabled:true,
+                            required:false
+                        }).val('');
+                        $('.l_carrier_num').html('載具號碼');
 
-                            //Email
-                            $('input[type=email][name=buyer_email]').prop({
-                                required:true
-                            });
-                            $('.l_buyer_email').html('買受人E-mail <span class="text-danger">*</span>');
+                    } else if(this.value == 'e_inv'){
+                        //地址
+                        $('input[type=text][name=buyer_address]').prop({
+                            required:false
+                        });
+                        $('.l_buyer_address').html('買受人地址');
 
-                            //捐贈
-                            $('.c_invoice_method').addClass('d-none');
-                            $('.l_love_code').html('捐贈單位');
-                            $('#love_code').prop({
-                                disabled:true,
-                                required:false
-                            }).val('');
+                        //Email
+                        $('input[type=email][name=buyer_email]').prop({
+                            required:true
+                        });
+                        $('.l_buyer_email').html('買受人E-mail <span class="text-danger">*</span>');
 
-                            //載具
-                            $('.carrier').removeClass('d-none');
-                            $('input[type=radio][name=carrier_type]').prop({
-                                disabled:false,
-                                required:true
-                            });
-                            break;
-                        default:
-                            break;
+                        //捐贈
+                        $('.c_invoice_method').addClass('d-none');
+                        $('.l_love_code').html('捐贈單位');
+                        $('#love_code').prop({
+                            disabled:true,
+                            required:false
+                        }).val('');
+
+                        //載具
+                        $('.carrier').removeClass('d-none');
+                        $('input[type=radio][name=carrier_type]').prop({
+                            disabled:false,
+                            required:true
+                        });
                     }
+
                 });
 
                 //載具類型
                 $('input[type=radio][name=carrier_type]').on('click change', function() {
-                    switch (this.value) {
-                        case '2':   // 會員電子發票
-                            $('input[type=email][name=buyer_email]').prop({
-                                required:true
-                            });
-                            $('.l_buyer_email').html('買受人E-mail <span class="text-danger">*</span>');
+                    if (this.value == 2) {
+                        $('input[type=email][name=buyer_email]').prop({
+                            required:true
+                        });
+                        $('.l_buyer_email').html('買受人E-mail <span class="text-danger">*</span>');
 
-                            $('.c_carrier_type.carrier_0').addClass('d-none');
-                            $('.c_carrier_type.carrier_0 input').prop({
-                                disabled:true,
-                                required:false
-                            }).val('');
-                            $('.c_carrier_type.carrier_2').removeClass('d-none');
-                            $('.c_carrier_type.carrier_2 input').prop({
-                                disabled:false,
-                                required:true
-                            });
-                            break;
+                        $('.c_carrier_type').addClass('d-none');
+                        $('input[type=text][name=carrier_num]').prop({
+                            disabled:true,
+                            required:false
+                        }).val('');
+                        $('.l_carrier_num').html('載具號碼');
 
-                        case '0':   // 手機條碼載具
-                        case '1':   // 自然人憑證條碼載具
-                        default:
-                            $('input[type=email][name=buyer_email]').prop({
-                                required:false
-                            });
-                            $('.l_buyer_email').html('買受人E-mail');
+                    } else {
 
-                            $('.c_carrier_type.carrier_0').removeClass('d-none');
-                            $('.c_carrier_type.carrier_0 input').prop({
-                                disabled:false,
-                                required:true
-                            });
-                            $('.c_carrier_type.carrier_2').addClass('d-none');
-                            $('.c_carrier_type.carrier_2 input').prop({
-                                disabled:true,
-                                required:false
-                            }).val('');
-                            break;
+                        $('input[type=email][name=buyer_email]').prop({
+                            required:false
+                        });
+                        $('.l_buyer_email').html('買受人E-mail');
+
+                        $('.c_carrier_type').removeClass('d-none');
+                        $('input[type=text][name=carrier_num]').prop({
+                            disabled:false,
+                            required:true
+                        });
+                        $('.l_carrier_num').html('載具號碼 <span class="text-danger">*</span>');
                     }
                 });
             });
