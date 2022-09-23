@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Web;
 use App\Enums\Delivery\Event;
 use App\Enums\Globals\ApiStatusMessage;
 use App\Enums\Globals\ResponseParam;
+use App\Enums\Order\InvoiceMethod;
 use App\Enums\Order\UserAddrType;
 // use App\Enums\;
 use App\Enums\Received\ReceivedMethod;
@@ -444,7 +445,7 @@ class OrderCtrl extends Controller
 
         $payinfo = null;
         $payinfo['category'] = $payLoad['category'] ?? null;
-        $payinfo['invoice_method'] = $d['invoice_method'] ?? null;
+        $payinfo['invoice_method'] = $d['invoice_method'] ?? InvoiceMethod::e_inv()->key();
         $payinfo['inv_title'] = $payLoad['inv_title'] ?? null;
         $payinfo['buyer_ubn'] = $payLoad['buyer_ubn'] ?? null;
         $payinfo['love_code'] = $payLoad['love_code'] ?? null;
