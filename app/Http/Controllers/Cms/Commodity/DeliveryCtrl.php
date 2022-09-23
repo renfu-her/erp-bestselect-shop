@@ -339,7 +339,7 @@ class DeliveryCtrl extends Controller
                 } else {
                     $data = [];
                     for($i = 0; $i < count($input_items['id']); $i++) {
-                        $data[] = [
+                        $addItem = [
                             'delivery_id' => $delivery_id,
                             'event_item_id' => $input_items['event_item_id'][$i],
                             'product_style_id' => $input_items['product_style_id'][$i],
@@ -350,6 +350,17 @@ class DeliveryCtrl extends Controller
                             'qty' => $input_items['back_qty'][$i],
                             'memo' => $input_items['memo'][$i],
                         ];
+                        //判斷為訂單 則寫入目前訂單款式的bonus
+                        if (Event::order()->value == $delivery->event) {
+                            $orderItem = DB::table(app(OrderItem::class)->getTable(). ' as order_item')
+                                ->where('order_item.id', '=', $input_items['event_item_id'][$i])
+                                ->select('order_item.id', 'order_item.bonus')
+                                ->first();
+                            if (isset($orderItem)) {
+                                $addItem['bonus'] = $orderItem->bonus;
+                            }
+                        }
+                        $data[] = $addItem;
                     }
                     DlvBack::insert($data);
                 }
@@ -407,15 +418,11 @@ class DeliveryCtrl extends Controller
                     , 'dlv_back.product_title'
                     , 'dlv_back.price'
                     , 'dlv_back.qty'
+                    , DB::raw('ifnull(dlv_back.bonus, "") as bonus')
                     , 'dlv_back.memo'
                 )
             ;
             if (Event::order()->value == $delivery->event) {
-                $dlvBack->addSelect(
-                    DB::raw('ifnull(item_tb.unit_cost, "") as uni_cost')
-                    , DB::raw('ifnull(item_tb.bonus, "") as bonus')
-                );
-
                 $dlvBack->where('dlv_back.delivery_id', $delivery->id);
             }
             $dlvBack = $dlvBack->get();
