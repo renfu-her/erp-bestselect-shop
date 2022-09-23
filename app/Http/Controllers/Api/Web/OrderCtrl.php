@@ -445,12 +445,13 @@ class OrderCtrl extends Controller
 
         $payinfo = null;
         $payinfo['category'] = $payLoad['category'] ?? null;
-        $payinfo['invoice_method'] = $d['invoice_method'] ?? InvoiceMethod::e_inv()->key;
+        $payinfo['invoice_method'] = $d['invoice_method'] ?? InvoiceMethod::e_inv()->key; // 前端官網無紙本發票 所以一律為電子發票
         $payinfo['inv_title'] = $payLoad['inv_title'] ?? null;
         $payinfo['buyer_ubn'] = $payLoad['buyer_ubn'] ?? null;
         $payinfo['love_code'] = $payLoad['love_code'] ?? null;
         $payinfo['carrier_type'] = $payLoad['carrier_type'] ?? null;
         $payinfo['carrier_email'] = $payLoad['carrier_email'] ?? null;
+        // 若為會員載具 前端官網不開放編輯修改功能 所以一律為預設email
         if (2 == $payinfo['carrier_type']) {
             $payinfo['carrier_email'] = $customer->email;
         }
