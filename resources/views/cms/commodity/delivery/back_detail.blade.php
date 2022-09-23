@@ -21,7 +21,7 @@
     <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
         <div class="p-1 pe-2">
             @if(! $back_item->po_sn && $po_check)
-                <a class="btn btn-primary btn-sm my-1 ms-1" 
+                <a class="btn btn-primary btn-sm my-1 ms-1"
                     href="{{ Route('cms.delivery.return-pay-order', ['id' => $delivery_id]) }}">新增退貨付款單</a>
             @endif
         </div>
@@ -151,9 +151,7 @@
                         @endphp
                         <tr>
                             <th scope="row">{{ $key + 1 }}</th>
-                            <td class="wrap lh-sm">{{ $item->product_title ?? '' }}
-                                【元初豆坊】豆奶茶*2瓶+原味豆漿*1瓶/贈送無糖豆漿400ml*1瓶 廠商直送免運-【元初豆坊】豆奶茶*2瓶+原味豆漿*1瓶/贈送無糖豆漿400ml*1瓶 廠商直送免運
-                            </td>
+                            <td class="wrap lh-sm">{{ $item->product_title ?? '' }}</td>
                             <td class="text-end">${{ number_format($item->price) }}</td>
 {{--                            <td class="text-end">${{ number_format(450) }}</td>--}}
                             <td class="text-end">${{ number_format($item->bonus) }}</td>
