@@ -327,7 +327,7 @@
                                 {{-- <a class="btn btn-sm btn-success -in-header mb-1" --}}
                                 {{-- href="{{ Route('cms.delivery.back_inbound', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">退貨入庫審核</a> --}}
                             @else
-                                <a class="btn btn-sm btn-success -in-header mb-1"
+                                <a class="btn btn-sm btn-outline-danger -in-header mb-1"
                                     href="{{ Route('cms.delivery.back', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">退貨</a>
                             @endif
 

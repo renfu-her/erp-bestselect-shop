@@ -18,11 +18,15 @@
     </div>
     @enderror
 
-    <div class="col-12 d-flex justify-content mt-2 flex-wrap">
-        @if(! $back_item->po_sn && $po_check)
-            <a class="btn btn-sm btn-primary -in-header mb-1" href="{{ Route('cms.delivery.return-pay-order', ['id' => $delivery_id]) }}">新增退貨付款單</a>
-        @endif
-    </div>
+    <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
+        <div class="p-1 pe-2">
+            @if(! $back_item->po_sn && $po_check)
+                <a class="btn btn-primary btn-sm my-1 ms-1" 
+                    href="{{ Route('cms.delivery.return-pay-order', ['id' => $delivery_id]) }}">新增退貨付款單</a>
+            @endif
+        </div>
+    </nav>
+
     <div class="card shadow p-4 mb-4">
         <h6>銷貨退回明細</h6>
         <dl class="row">
@@ -88,7 +92,7 @@
             </div>
         </dl>
         <dl class="row">
-            <div class="col">
+            <div class="col-8">
                 <dt>物流說明</dt>
                 <dd>{{ (isset($logistic->memo)) ? $logistic->memo : '' }}</dd>
             </div>
@@ -131,7 +135,7 @@
                         <th scope="col" class="text-end">退款<br class="d-block d-lg-none">金額</th>
 {{--                        <th scope="col" class="text-end">經銷價</th>--}}
                         <th scope="col" class="text-end">扣除<br class="d-block d-lg-none">獎金</th>
-                        <th scope="col">退回<br class="d-block d-lg-none">數量</th>
+                        <th scope="col" class="text-center">退回<br class="d-block d-lg-none">數量</th>
                         <th scope="col" class="text-end">小計</th>
                         <th scope="col">說明</th>
                     </tr>
@@ -142,16 +146,18 @@
                 <tbody>
                      @foreach ($dlvBack as $key => $item)
                         @php
-                            $subtotal = $item->price * 1;    // 退款金額 * 退回數量
+                            $subtotal = $item->price * $item->qty;    // 退款金額 * 退回數量
                             $total += $subtotal;
                         @endphp
                         <tr>
                             <th scope="row">{{ $key + 1 }}</th>
-                            <td>{{ $item->product_title ?? '' }}</td>
+                            <td class="wrap lh-sm">{{ $item->product_title ?? '' }}
+                                【元初豆坊】豆奶茶*2瓶+原味豆漿*1瓶/贈送無糖豆漿400ml*1瓶 廠商直送免運-【元初豆坊】豆奶茶*2瓶+原味豆漿*1瓶/贈送無糖豆漿400ml*1瓶 廠商直送免運
+                            </td>
                             <td class="text-end">${{ number_format($item->price) }}</td>
 {{--                            <td class="text-end">${{ number_format(450) }}</td>--}}
                             <td class="text-end">${{ number_format($item->bonus) }}</td>
-                            <td>{{ number_format($item->qty) }}</td>
+                            <td class="text-center">{{ number_format($item->qty) }}</td>
                             <td class="text-end">${{ number_format($subtotal) }}</td>
                             <td>{{ $item->memo ?? '' }}</td>
                         </tr>
