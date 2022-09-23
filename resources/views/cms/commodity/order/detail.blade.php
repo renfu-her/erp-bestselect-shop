@@ -275,7 +275,7 @@
         @php
             $dlv_fee = 0;
             $price = 0;
-            
+
         @endphp
         @foreach ($subOrders as $subOrder)
             @php
@@ -310,7 +310,7 @@
                             {{-- @endif --}}
 
                             @if (isset($delivery) && isset($delivery->back_date))
-                                @if (false == isset($delivery->back_inbound_date))
+                                @if (false == isset($delivery->back_inbound_date) && false == $has_already_pay_delivery_back)
                                     <button type="button"
                                         data-href="{{ Route('cms.delivery.back_delete', ['deliveryId' => $delivery->id], true) }}"
                                         data-bs-toggle="modal" data-bs-target="#confirm-delete-back"
