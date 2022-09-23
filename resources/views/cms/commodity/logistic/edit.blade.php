@@ -161,10 +161,10 @@
                         data-bs-toggle="modal" data-bs-target="#confirm-audit">儲存耗材</button>
             </div>
         @else
-{{--            <div class="col">--}}
-{{--                <button type="button" class="btn btn-danger px-4"--}}
-{{--                        data-bs-toggle="modal" data-bs-target="#return-audit">儲存耗材取消</button>--}}
-{{--            </div>--}}
+            <div class="col">
+                <button type="button" class="btn btn-danger px-4"
+                        data-bs-toggle="modal" data-bs-target="#return-audit">儲存耗材取消</button>
+            </div>
         @endif
     </div>
 
