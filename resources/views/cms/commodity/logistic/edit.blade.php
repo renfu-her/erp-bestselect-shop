@@ -88,7 +88,9 @@
             </div>
             <div class="col">
                 <input type="hidden" name="logistic_id" value="{{ $logistic->id }}">
-                <button type="submit" class="btn btn-primary px-4">儲存</button>
+                @if(false == $has_already_pay_logistic)
+                    <button type="submit" class="btn btn-primary px-4">儲存</button>
+                @endif
             </div>
         </div>
     </form>
