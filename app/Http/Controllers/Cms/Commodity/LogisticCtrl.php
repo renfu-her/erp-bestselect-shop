@@ -507,10 +507,12 @@ class LogisticCtrl extends Controller
 
             if ('pickup' == $suborder->ship_category && true == $is_order_pick_up_to_home) {
                 //自取，還是要從理貨倉出貨到門市，所以收件地是門市
-                $pickup = Product::getPickupWithPickUpId($suborder->ship_event_id)->get()->first();
-                $rcv_name = $pickup->depot_name;
-                $rcv_tel = $pickup->depot_tel;
-                $rcv_addr = $pickup->depot_address;
+//                $pickup = Product::getPickupWithPickUpId($suborder->ship_event_id)->get()->first();
+                //20220923 修正 配合hans前兩天修正ship_event_id記錄方式 目前直接紀錄depot_id
+                $depot = Depot::where('id', '=', $suborder->ship_event_id)->get()->first();
+                $rcv_name = $depot->name;
+                $rcv_tel = $depot->tel;
+                $rcv_addr = $depot->address;
             } else {
                 $rcv_name = $order->rec_name;
                 $rcv_tel = $order->rec_phone;
