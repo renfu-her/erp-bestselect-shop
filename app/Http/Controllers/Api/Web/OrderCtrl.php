@@ -342,6 +342,12 @@ class OrderCtrl extends Controller
         $payLoad = request()->getContent();
 
         if (!$payLoad) {
+            OrderCreateLog::create([
+                'email'=>'',
+                'payload'=>'',
+                'return_value'=>'參數不能為空值',
+                'success'=> 0
+            ]);
             return response()->json([
                 'status' => 'E01',
                 'message' => '參數不能為空值',
@@ -381,6 +387,12 @@ class OrderCtrl extends Controller
         $validator = Validator::make($payLoad, $valiRule);
 
         if ($validator->fails()) {
+            OrderCreateLog::create([
+                'email'=>'',
+                'payload'=>json_encode($payLoad),
+                'return_value'=>json_encode($validator->errors()),
+                'success'=> 0
+            ]);
             return response()->json([
                 'status' => 'E01',
                 'message' => $validator->errors(),
