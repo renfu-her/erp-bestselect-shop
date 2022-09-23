@@ -188,7 +188,7 @@ class OrderCtrl extends Controller
                 $mcode = Customer::where('id', $customer_id)->get()->first()->sn;
             }
             $customer_in_db = Customer::where('id', $customer_id)->get()->first();
-            $customer_email = ($customer_in_db)? $customer_in_db->email: '';
+            $customer_email = ($customer_in_db) ? $customer_in_db->email : '';
         } else {
             $salechannels = [];
         }
@@ -1529,7 +1529,7 @@ class OrderCtrl extends Controller
 
         $zh_price = num_to_str($paying_order->price);
 
-        if($paying_order && $paying_order->append_po_id){
+        if ($paying_order && $paying_order->append_po_id) {
             $append_po = PayingOrder::find($paying_order->append_po_id);
             $paying_order->append_po_link = PayingOrder::paying_order_link($append_po->source_type, $append_po->source_id, $append_po->source_sub_id, $append_po->type);
         }
@@ -1791,7 +1791,7 @@ class OrderCtrl extends Controller
 
         $zh_price = num_to_str($paying_order->price);
 
-        if($paying_order && $paying_order->append_po_id){
+        if ($paying_order && $paying_order->append_po_id) {
             $append_po = PayingOrder::find($paying_order->append_po_id);
             $paying_order->append_po_link = PayingOrder::paying_order_link($append_po->source_type, $append_po->source_id, $append_po->source_sub_id, $append_po->type);
         }
@@ -2357,7 +2357,7 @@ class OrderCtrl extends Controller
             $address[$value->type]->default_region = Addr::getRegions($value->city_id);
         }
 
-        $shipmentCategory = ShipmentCategory::whereIn('code',['deliver','pickup'])->get();
+        $shipmentCategory = ShipmentCategory::whereIn('code', ['deliver', 'pickup'])->get();
 
         $shipEvent = [];
 
@@ -2432,9 +2432,9 @@ class OrderCtrl extends Controller
                 ]
             );
         }
-        Order::where('id', $id)->update(['note' => $d['order_note']]);
-        // Addr::fullAddr()
 
+        // Addr::fullAddr()
+        $total_dlv_fee = 0;
         foreach ($d['sub_order_id'] as $key => $value) {
 
             $sCategory = ShipmentCategory::where('code', $d['ship_category'][$key])->get()->first();
@@ -2458,8 +2458,18 @@ class OrderCtrl extends Controller
                 'ship_event' => $ship_event,
                 'note' => $d['sub_order_note'][$key],
             ]);
-        }
 
+            $total_dlv_fee += $d['dlv_fee'][$key];
+        }
+        $order = Order::where('id', $id)->get()->first();
+        $total_price = $order->total_price - $order->dlv_fee + $total_dlv_fee;
+
+        Order::where('id', $id)->update([
+            'dlv_fee' => $total_dlv_fee,
+            'total_price' => $total_price,
+            'note' => $d['order_note'],
+        ]);
+        
         DB::commit();
         wToast('修改完成');
 
