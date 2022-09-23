@@ -17,17 +17,33 @@ class EstimatedCostSeeder extends Seeder
         $data = DB::table('prd_product_styles')
             ->whereNull('deleted_at')
             ->join('product_content', 'product_content.SKUCode', '=', 'prd_product_styles.sku')
+            ->join('product', 'product.ID', '=', 'product_content.PID')
             ->select([
                 'SKUCode',
                 'sku',
-                'Cost',
+                'product.Cost',
             ])
             ->get();
-
         foreach ($data as $datum) {
             DB::table('prd_product_styles')
                 ->where('sku', $datum->SKUCode)
                 ->update(['estimated_cost' => $datum->Cost]);
+        }
+
+        $comboData = DB::table('prd_product_styles')
+            ->where('prd_product_styles.type', '=','c')
+            ->whereNull('deleted_at')
+            ->join('ceremony_table', 'ceremony_table.SKUCode', '=', 'prd_product_styles.sku')
+            ->select([
+                'SKUCode',
+                'prd_product_styles.sku',
+                'ceremony_table.Cost',
+            ])
+            ->get();
+        foreach ($comboData as $comboDatum) {
+            DB::table('prd_product_styles')
+                ->where('sku', $comboDatum->SKUCode)
+                ->update(['estimated_cost' => $comboDatum->Cost]);
         }
     }
 }
