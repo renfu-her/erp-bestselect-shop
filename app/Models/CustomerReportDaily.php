@@ -14,7 +14,7 @@ class CustomerReportDaily extends Model
     protected $table = 'usr_customer_report_daily';
     protected $guarded = [];
 
-    public static function createData()
+    public static function createData($date = null)
     {
         $sdate = Date("Y-m-d 00:00:00");
         $edate = Date("Y-m-d 23:59:59");
@@ -28,22 +28,33 @@ class CustomerReportDaily extends Model
             ->whereNotNull('order.mcode')
             ->groupBy('order.mcode')->get();
 
+        $currentDate = $date ? Date("Y-m-d", strtotime($date)) : Date("Y-m-d");
+      
+        self::where('date', $currentDate)->delete();
+
         foreach ($re as $data) {
             $customer = Customer::where('sn', $data->mcode)->get()->first();
 
             if ($customer) {
-                if (self::where('date', Date("Y-m-d"))->where('customer_id', $customer->id)->get()->first()) {
-                    self::where('date', Date("Y-m-d"))->where('customer_id', $customer->id)->update([
-                        'price' => $data->price ? $data->price : 0,
+                self::create([
+                    'date' => $currentDate,
+                    'price' => $data->price ? $data->price : 0,
+                    'customer_id' => $customer->id,
+                ]);
+                /*
+            if (self::where('date', Date("Y-m-d"))->where('customer_id', $customer->id)->get()->first()) {
+            self::where('date', Date("Y-m-d"))->where('customer_id', $customer->id)->update([
+            'price' => $data->price ? $data->price : 0,
 
-                    ]);
-                } else {
-                    self::create([
-                        'date' => Date("Y-m-d"),
-                        'price' => $data->price ? $data->price : 0,
-                        'customer_id' => $customer->id,
-                    ]);
-                }
+            ]);
+            } else {
+            self::create([
+            'date' => Date("Y-m-d"),
+            'price' => $data->price ? $data->price : 0,
+            'customer_id' => $customer->id,
+            ]);
+            }
+             */
             }
         }
 

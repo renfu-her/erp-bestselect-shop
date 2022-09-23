@@ -355,6 +355,7 @@ class OrderCtrl extends Controller
             'love_code' => 'required_if:invoice_method,==,give',
             'carrier_type' => 'required_if:invoice_method,==,e_inv|in:0,1,2',
             'carrier_num' => 'required_if:carrier_type,==,0|required_if:carrier_type,==,1',
+            'carrier_email' => 'required_if:carrier_type,==,2',
 
             "orderer.name" => "required",
             "orderer.phone" => "required",
@@ -432,9 +433,12 @@ class OrderCtrl extends Controller
 
         $payinfo = null;
         $payinfo['category'] = $payLoad['category'] ?? null;
+        $payinfo['invoice_method'] = $d['invoice_method'] ?? null;
+        $payinfo['inv_title'] = $payLoad['inv_title'] ?? null;
         $payinfo['buyer_ubn'] = $payLoad['buyer_ubn'] ?? null;
         $payinfo['love_code'] = $payLoad['love_code'] ?? null;
         $payinfo['carrier_type'] = $payLoad['carrier_type'] ?? null;
+        $payinfo['carrier_email'] = $payLoad['carrier_email'] ?? null;
         $payinfo['carrier_num'] = $payLoad['carrier_num'] ?? null;
 
         $dividend = [];

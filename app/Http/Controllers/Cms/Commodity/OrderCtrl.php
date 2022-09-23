@@ -180,13 +180,15 @@ class OrderCtrl extends Controller
 
         $customer = $request->user();
         $customer_id = $customer->customer_id;
+        $customer_email = '';
         $mcode = '';
         if ($customer_id) {
             $salechannels = UserSalechannel::getSalechannels($request->user()->id)->get()->toArray();
             if (CustomerProfit::getProfitData($customer_id, ProfitStatus::Success())) {
                 $mcode = Customer::where('id', $customer_id)->get()->first()->sn;
             }
-
+            $customer_in_db = Customer::where('id', $customer_id)->get()->first();
+            $customer_email = ($customer_in_db) ? $customer_in_db->email : '';
         } else {
             $salechannels = [];
         }
@@ -228,6 +230,7 @@ class OrderCtrl extends Controller
 
         return view('cms.commodity.order.edit', [
             'customer_id' => $customer_id,
+            'customer_email' => $customer_email,
             'customers' => Customer::where('id', $customer_id)->get(),
             'defaultAddress' => $defaultAddress,
             'otherOftenUsedAddresses' => $otherOftenUsedAddresses,
@@ -287,6 +290,7 @@ class OrderCtrl extends Controller
             'love_code' => 'required_if:invoice_method,==,give',
             'carrier_type' => 'required_if:invoice_method,==,e_inv|in:0,1,2',
             'carrier_num' => 'required_if:carrier_type,==,0|required_if:carrier_type,==,1',
+            'carrier_email' => 'required_if:carrier_type,==,2',
         ], $arrVali));
 
         $d = $request->all();
@@ -331,9 +335,12 @@ class OrderCtrl extends Controller
 
         $payinfo = null;
         $payinfo['category'] = $d['category'] ?? null;
+        $payinfo['invoice_method'] = $d['invoice_method'] ?? null;
+        $payinfo['inv_title'] = $d['inv_title'] ?? null;
         $payinfo['buyer_ubn'] = $d['buyer_ubn'] ?? null;
         $payinfo['love_code'] = $d['love_code'] ?? null;
         $payinfo['carrier_type'] = $d['carrier_type'] ?? null;
+        $payinfo['carrier_email'] = $d['carrier_email'] ?? null;
         $payinfo['carrier_num'] = $d['carrier_num'] ?? null;
 
         $re = Order::createOrder($customer->email, $d['salechannel_id'], $address, $items, $d['mcode'] ?? null, $d['note'], $coupon, $payinfo, null, $dividend, $request->user());
@@ -1522,7 +1529,7 @@ class OrderCtrl extends Controller
 
         $zh_price = num_to_str($paying_order->price);
 
-        if($paying_order && $paying_order->append_po_id){
+        if ($paying_order && $paying_order->append_po_id) {
             $append_po = PayingOrder::find($paying_order->append_po_id);
             $paying_order->append_po_link = PayingOrder::paying_order_link($append_po->source_type, $append_po->source_id, $append_po->source_sub_id, $append_po->type);
         }
@@ -1784,7 +1791,7 @@ class OrderCtrl extends Controller
 
         $zh_price = num_to_str($paying_order->price);
 
-        if($paying_order && $paying_order->append_po_id){
+        if ($paying_order && $paying_order->append_po_id) {
             $append_po = PayingOrder::find($paying_order->append_po_id);
             $paying_order->append_po_link = PayingOrder::paying_order_link($append_po->source_type, $append_po->source_id, $append_po->source_sub_id, $append_po->type);
         }
@@ -2055,6 +2062,7 @@ class OrderCtrl extends Controller
             'love_code' => 'required_if:invoice_method,==,give',
             'carrier_type' => 'required_if:invoice_method,==,e_inv|in:0,1,2',
             'carrier_num' => 'required_if:carrier_type,==,0|required_if:carrier_type,==,1',
+            'carrier_email' => 'required_if:carrier_type,==,2',
             'create_status_time' => 'nullable|date|date_format:Y-m-d',
         ]);
 
@@ -2349,7 +2357,7 @@ class OrderCtrl extends Controller
             $address[$value->type]->default_region = Addr::getRegions($value->city_id);
         }
 
-        $shipmentCategory = ShipmentCategory::whereIn('code',['deliver','pickup'])->get();
+        $shipmentCategory = ShipmentCategory::whereIn('code', ['deliver', 'pickup'])->get();
 
         $shipEvent = [];
 
@@ -2424,9 +2432,9 @@ class OrderCtrl extends Controller
                 ]
             );
         }
-        Order::where('id', $id)->update(['note' => $d['order_note']]);
-        // Addr::fullAddr()
 
+        // Addr::fullAddr()
+        $total_dlv_fee = 0;
         foreach ($d['sub_order_id'] as $key => $value) {
 
             $sCategory = ShipmentCategory::where('code', $d['ship_category'][$key])->get()->first();
@@ -2450,8 +2458,18 @@ class OrderCtrl extends Controller
                 'ship_event' => $ship_event,
                 'note' => $d['sub_order_note'][$key],
             ]);
-        }
 
+            $total_dlv_fee += $d['dlv_fee'][$key];
+        }
+        $order = Order::where('id', $id)->get()->first();
+        $total_price = $order->total_price - $order->dlv_fee + $total_dlv_fee;
+
+        Order::where('id', $id)->update([
+            'dlv_fee' => $total_dlv_fee,
+            'total_price' => $total_price,
+            'note' => $d['order_note'],
+        ]);
+        
         DB::commit();
         wToast('修改完成');
 
