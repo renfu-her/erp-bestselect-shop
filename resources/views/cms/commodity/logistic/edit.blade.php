@@ -471,7 +471,7 @@
 @endif
     <x-b-modal id="return-audit">
         <x-slot name="title">取消確認</x-slot>
-        <x-slot name="body">取消後將留有取消紀錄！確認要取消？</x-slot>
+        <x-slot name="body">確認取消？</x-slot>
         <x-slot name="foot">
             <form action="{{ Route('cms.logistic.auditReturnInbound', [], true) }}" method="post">
                 @method('POST')
