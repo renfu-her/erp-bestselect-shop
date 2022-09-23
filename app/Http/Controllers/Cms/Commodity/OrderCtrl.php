@@ -453,6 +453,13 @@ class OrderCtrl extends Controller
         } else {
             $dividend = 0;
         }
+        // 是否入款
+        $receive = DB::table('ord_orders as order')
+            ->join('ord_received_orders as receive', 'order.id', '=', 'receive.source_id')
+            ->select('order.id')
+            ->where('source_type', 'ord_orders')
+            ->where('order.id', $id)
+            ->whereNotNull('receive.receipt_date')->get()->first();
 
         return view('cms.commodity.order.detail', [
             'sn' => $sn,
@@ -470,6 +477,7 @@ class OrderCtrl extends Controller
             'delivery' => $delivery,
             'canSplit' => Order::checkCanSplit($id),
             'po_check' => $delivery ? PayingOrder::source_confirmation(app(Delivery::class)->getTable(), $delivery->id) : true,
+            'canEdit' => $receive ? false : true,
         ]);
     }
 
@@ -2469,7 +2477,7 @@ class OrderCtrl extends Controller
             'total_price' => $total_price,
             'note' => $d['order_note'],
         ]);
-        
+
         DB::commit();
         wToast('修改完成');
 
