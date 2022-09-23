@@ -5,8 +5,8 @@
     <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
         <div class="p-1 pe-2">
             @if (!$receivable && in_array($order->status, ['建立', '收款單未平']))
-                <a href="{{ Route('cms.order.ro-edit', ['id' => $order->id]) }}"
-                    class="btn btn-primary btn-sm my-1 ms-1" role="button">新增收款單</a>
+                <a href="{{ Route('cms.order.ro-edit', ['id' => $order->id]) }}" class="btn btn-primary btn-sm my-1 ms-1"
+                    role="button">新增收款單</a>
             @endif
 
             @if ($received_order || !in_array($order->status, ['建立']))
@@ -29,8 +29,10 @@
 
 
             @can('cms.order.edit-item')
-                <a href="{{ Route('cms.order.edit-item', ['id' => $order->id]) }}" role="button"
-                    class="btn btn-dark btn-sm my-1 ms-1">編輯訂單</a>
+                @if ($canEdit)
+                    <a href="{{ Route('cms.order.edit-item', ['id' => $order->id]) }}" role="button"
+                        class="btn btn-dark btn-sm my-1 ms-1">編輯訂單</a>
+                @endif
             @endcan
 
             @if ($canSplit)
@@ -41,11 +43,12 @@
             @endif
 
             @can('cms.order_invoice_manager.index')
-            @if ($received_order && !$order->invoice_number
-                && \App\Enums\Order\InvoiceMethod::getDescription(\App\Enums\Order\InvoiceMethod::e_inv()) == $order->invoice_category)
-                <a href="{{ Route('cms.order.create-invoice', ['id' => $order->id]) }}" role="button"
-                    class="btn btn-success btn-sm my-1 ms-1">開立發票</a>
-            @endif
+                @if ($received_order &&
+                    !$order->invoice_number &&
+                    \App\Enums\Order\InvoiceMethod::getDescription(\App\Enums\Order\InvoiceMethod::e_inv()) == $order->invoice_category)
+                    <a href="{{ Route('cms.order.create-invoice', ['id' => $order->id]) }}" role="button"
+                        class="btn btn-success btn-sm my-1 ms-1">開立發票</a>
+                @endif
             @endcan
 
             @if ($canCancel)
@@ -55,7 +58,7 @@
                 @endcan
             @endif
             <a href="{{ Route('cms.order.order-flow', ['id' => $order->id]) }}" role="button"
-               class="btn btn-primary btn-sm my-1 ms-1">訂單紀錄</a>
+                class="btn btn-primary btn-sm my-1 ms-1">訂單紀錄</a>
 
             @if (!$order->return_pay_order_id && in_array($order->status, ['取消']) && $po_check)
                 <a href="{{ Route('cms.order.return-pay-order', ['id' => $order->id]) }}" role="button"
@@ -95,7 +98,7 @@
                 </div>
                 <div class="col">
                     <dt>訂單狀態</dt>
-                    @if(\App\Enums\Order\OrderStatus::getDescription(\App\Enums\Order\OrderStatus::Canceled()) == $order->status)
+                    @if (\App\Enums\Order\OrderStatus::getDescription(\App\Enums\Order\OrderStatus::Canceled()) == $order->status)
                         <dd class="text-danger">{{ $order->status }}</dd>
                     @else
                         <dd>{{ $order->status }}</dd>
@@ -157,11 +160,13 @@
                 <div class="col">
                     <dt>發票類型</dt>
                     <dd>
-                        @if (\App\Enums\Order\InvoiceMethod::getDescription(\App\Enums\Order\InvoiceMethod::print()) == $order->invoice_category)
+                        @if (\App\Enums\Order\InvoiceMethod::getDescription(\App\Enums\Order\InvoiceMethod::print()) ==
+                            $order->invoice_category)
                             {{ $order->invoice_category }}
                         @else
-                            {{ $order->invoice_number ? $order->invoice_category : '尚未開立發票' }}</dd>
-                        @endif
+                            {{ $order->invoice_number ? $order->invoice_category : '尚未開立發票' }}
+                    </dd>
+                    @endif
                 </div>
                 <div class="col">
                     <dt>發票號碼</dt>
@@ -170,15 +175,17 @@
                             <a href="{{ route('cms.order.show-invoice', ['id' => $order->id]) }}"
                                 class="-text">{{ $order->invoice_number ? $order->invoice_number : '' }}</a>
                         @else
-                            @if (\App\Enums\Order\InvoiceMethod::getDescription(\App\Enums\Order\InvoiceMethod::print()) == $order->invoice_category)
-                                <span>{{ empty($order->invoice_number)? '-': $order->invoice_number }}</span>
+                            @if (\App\Enums\Order\InvoiceMethod::getDescription(\App\Enums\Order\InvoiceMethod::print()) ==
+                                $order->invoice_category)
+                                <span>{{ empty($order->invoice_number) ? '-' : $order->invoice_number }}</span>
                             @else
                                 <span>尚未開立發票</span>
                             @endif
                         @endif
                     </dd>
                 </div>
-                @if (\App\Enums\Order\InvoiceMethod::getDescription(\App\Enums\Order\InvoiceMethod::print()) != $order->invoice_category)
+                @if (\App\Enums\Order\InvoiceMethod::getDescription(\App\Enums\Order\InvoiceMethod::print()) !=
+                    $order->invoice_category)
                     <div class="col-md-5">
                         <dt>電子發票資訊</dt>
                         <dd>{{ $order->carrier_type ?? '' }} {{ $order->carrier_num ?? '' }}</dd>
@@ -205,7 +212,8 @@
                 <div class="col col-md-5">
                     <dt>統一編號</dt>
                     <dd>
-                        @if (\App\Enums\Order\InvoiceMethod::getDescription(\App\Enums\Order\InvoiceMethod::print()) != $order->invoice_category)
+                        @if (\App\Enums\Order\InvoiceMethod::getDescription(\App\Enums\Order\InvoiceMethod::print()) !=
+                            $order->invoice_category)
                             {{ $order->buyer_ubn }}
                         @else
                             {{ $order->invoice_number ? $order->gui_number : '尚未開立發票' }}
@@ -267,7 +275,7 @@
         @php
             $dlv_fee = 0;
             $price = 0;
-
+            
         @endphp
         @foreach ($subOrders as $subOrder)
             @php
@@ -315,13 +323,13 @@
                                     href="{{ Route('cms.delivery.back_detail', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">銷貨退回明細</a>
 
                                 @can('cms.delivery.edit')
-                                @if (isset($delivery->back_inbound_date))
-                                    <a class="btn btn-sm btn-danger -in-header mb-1"
-                                        href="{{ Route('cms.delivery.back_inbound_delete', ['deliveryId' => $delivery->id], true) }}">刪除退貨入庫</a>
-                                @else
-                                    <a class="btn btn-sm btn-success -in-header mb-1"
-                                        href="{{ Route('cms.delivery.back_inbound', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">退貨入庫審核</a>
-                                @endif
+                                    @if (isset($delivery->back_inbound_date))
+                                        <a class="btn btn-sm btn-danger -in-header mb-1"
+                                            href="{{ Route('cms.delivery.back_inbound_delete', ['deliveryId' => $delivery->id], true) }}">刪除退貨入庫</a>
+                                    @else
+                                        <a class="btn btn-sm btn-success -in-header mb-1"
+                                            href="{{ Route('cms.delivery.back_inbound', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">退貨入庫審核</a>
+                                    @endif
                                 @endcan
 
                                 {{-- <a class="btn btn-sm btn-success -in-header mb-1" --}}
@@ -470,14 +478,14 @@
                                     {{ $subOrder->package_sn }}
                                 @endif
                                 <!--
-                                                    @if (false == empty($subOrder->projlgt_order_sn))
+                                                        @if (false == empty($subOrder->projlgt_order_sn))
     <a href="{{ env('LOGISTIC_URL') . 'guest/order-flow/' . $subOrder->projlgt_order_sn }}">
-                                                            {{ $subOrder->projlgt_order_sn }}
-                                                        </a>
+                                                                {{ $subOrder->projlgt_order_sn }}
+                                                            </a>
 @else
     {{ $subOrder->package_sn ?? '(待處理)' }}
     @endif
-                                                    -->
+                                                        -->
                             </dd>
                         </div>
                         <div class="col">
