@@ -64,6 +64,7 @@ class LogisticCtrl extends Controller
             $payingOrder = PayingOrder::where('source_type', '=', app(Order::class)->getTable())
                 ->where('source_id', '=', $sub_order->order_id)
                 ->where('source_sub_id', '=', $sub_order->id)
+                ->whereNull('deleted_at')
                 ->first();
             if (isset($payingOrder) && isset($payingOrder->balance_date)) {
                 $has_already_pay_logistic = true;
