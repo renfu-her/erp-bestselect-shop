@@ -413,198 +413,198 @@ class Order extends Model
      */
     public static function createOrder($email, $sale_channel_id, $address, $items, $mcode = null, $note = null, $coupon_obj = null, $payinfo = null, ReceivedMethod $payment = null, $dividend = [], $operator_user)
     {
+        DB::beginTransaction();
 
-        return DB::transaction(function () use ($email, $sale_channel_id, $address, $items, $mcode, $note, $coupon_obj, $payinfo, $payment, $dividend, $operator_user) {
-
-            $customer = Customer::where('email', $email)->get()->first();
-            if (isset($mcode) && !empty($mcode)) {
-                $customerM = Customer::where('sn', $mcode)->get()->first();
-                if (null == $customerM) {
-                    DB::rollBack();
-                    return ['success' => '0', 'error_msg' => '無此推薦人'];
-                }
-            } else {
-                $mcode = null;
-            }
-            $order = OrderCart::cartFormater($items, $sale_channel_id, $coupon_obj, true, $customer, $dividend);
-
-            if ($order['success'] != 1) {
+        $customer = Customer::where('email', $email)->get()->first();
+        if (isset($mcode) && !empty($mcode)) {
+            $customerM = Customer::where('sn', $mcode)->get()->first();
+            if (null == $customerM) {
                 DB::rollBack();
-                return $order;
+                return ['success' => '0', 'error_msg' => '無此推薦人'];
             }
+        } else {
+            $mcode = null;
+        }
+        $order = OrderCart::cartFormater($items, $sale_channel_id, $coupon_obj, true, $customer, $dividend);
 
-            $order_sn = "O" . date("Ymd") . str_pad((self::whereDate('created_at', '=', date('Y-m-d'))
+        if ($order['success'] != 1) {
+            DB::rollBack();
+            return $order;
+        }
+
+        $order_sn = "O" . date("Ymd") . str_pad((self::whereDate('created_at', '=', date('Y-m-d'))
+                ->get()
+                ->count()) + 1, 4, '0', STR_PAD_LEFT);
+
+        $order['order_sn'] = $order_sn;
+        // 處理紅利
+        $dividend_re = CustomerDividend::orderDiscount($customer->id, $order); //$order_sn, $order['use_dividend']
+        // dd($order);
+        if ($dividend_re['success'] != '1') {
+            DB::rollBack();
+            return $dividend_re;
+        }
+
+        $dividendSetting = DividendSetting::getData();
+
+        $updateData = [
+            "sn" => $order_sn,
+            "sale_channel_id" => $sale_channel_id,
+            "email" => $email,
+            "total_price" => $order['total_price'],
+            "origin_price" => $order['origin_price'],
+            "mcode" => $mcode ?? null,
+            "dlv_fee" => $order['dlv_fee'],
+            "discount_value" => $order['discount_value'],
+            "discounted_price" => $order['discounted_price'],
+            'note' => $note,
+            'unique_id' => self::generate_unique_id(),
+            'payment_status' => PaymentStatus::Unpaid()->value,
+            'payment_status_title' => PaymentStatus::Unpaid()->description,
+            'dividend_lifecycle' => $dividendSetting->limit_day,
+            'active_delay_day' => $dividendSetting->auto_active_day,
+            'love_code' => $love_code ?? null,
+            'carrier_type' => $carrier_type ?? null,
+            'carrier_num' => $carrier_num ?? null,
+        ];
+
+        if ($payment) {
+            $updateData['payment_method'] = $payment->value;
+            $updateData['payment_method_title'] = $payment->description;
+        }
+
+        $order_id = self::create($updateData)->id;
+        $order['order_id'] = $order_id;
+        Discount::createOrderDiscount('main', $order_id, $customer, $order['discounts']);
+
+        foreach ($address as $key => $user) {
+
+            $addr = Addr::addrFormating($user['address']);
+            if (!$addr->city_id) {
+                DB::rollBack();
+                return ['success' => '0', 'error_msg' => 'address format error', 'event' => 'address', 'event_id' => $user['type']];
+            }
+            $address[$key]['city_id'] = $addr->city_id;
+            $address[$key]['city_title'] = $addr->city_title;
+            $address[$key]['region_id'] = $addr->region_id;
+            $address[$key]['region_title'] = $addr->region_title;
+            $address[$key]['zipcode'] = $addr->zipcode;
+            $address[$key]['addr'] = $addr->addr;
+            $address[$key]['order_id'] = $order_id;
+        }
+        try {
+            DB::table('ord_address')->insert($address);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return ['success' => '0', 'error_msg' => 'address format error', 'event' => 'address', 'event_id' => ''];
+        }
+        //   dd($order);
+        foreach ($order['shipments'] as $key => $value) {
+            $sub_order_sn = $order_sn . "-" . str_pad((DB::table('ord_sub_orders')->where('order_id', $order_id)
                     ->get()
-                    ->count()) + 1, 4, '0', STR_PAD_LEFT);
+                    ->count()) + 1, 2, '0', STR_PAD_LEFT);
 
-            $order['order_sn'] = $order_sn;
-            // 處理紅利
-            $dividend_re = CustomerDividend::orderDiscount($customer->id, $order); //$order_sn, $order['use_dividend']
-            // dd($order);
-            if ($dividend_re['success'] != '1') {
-                DB::rollBack();
-                return $dividend_re;
-            }
+            $order['shipments'][$key]->sub_order_sn = $sub_order_sn;
 
-            $dividendSetting = DividendSetting::getData();
-
-            $updateData = [
-                "sn" => $order_sn,
-                "sale_channel_id" => $sale_channel_id,
-                "email" => $email,
-                "total_price" => $order['total_price'],
-                "origin_price" => $order['origin_price'],
-                "mcode" => $mcode ?? null,
-                "dlv_fee" => $order['dlv_fee'],
-                "discount_value" => $order['discount_value'],
-                "discounted_price" => $order['discounted_price'],
-                'note' => $note,
-                'unique_id' => self::generate_unique_id(),
-                'payment_status' => PaymentStatus::Unpaid()->value,
-                'payment_status_title' => PaymentStatus::Unpaid()->description,
-                'dividend_lifecycle' => $dividendSetting->limit_day,
-                'active_delay_day' => $dividendSetting->auto_active_day,
-                'love_code' => $love_code ?? null,
-                'carrier_type' => $carrier_type ?? null,
-                'carrier_num' => $carrier_num ?? null,
+            $insertData = [
+                'order_id' => $order_id,
+                'sn' => $sub_order_sn,
+                'ship_category' => $value->category,
+                'ship_category_name' => $value->category_name,
+                'dlv_fee' => $value->dlv_fee,
+                'total_price' => $value->origin_price,
+                'origin_price' => $value->origin_price,
+                'discounted_price' => $value->discounted_price,
+                'discount_value' => $value->discount_value,
+                'status' => '',
             ];
 
-            if ($payment) {
-                $updateData['payment_method'] = $payment->value;
-                $updateData['payment_method_title'] = $payment->description;
+            switch ($value->category) {
+                case 'deliver':
+                    // dd( $value['use_role']);
+                    $insertData['ship_event_id'] = $value->group_id;
+                    $insertData['ship_event'] = $value->group_name;
+                    $insertData['ship_temp'] = $value->temps;
+                    $insertData['ship_temp_id'] = $value->temp_id;
+                    $insertData['ship_rule_id'] = $value->use_rule->id;
+                    break;
+                case 'pickup':
+                    $insertData['ship_event_id'] = $value->id;
+                    $insertData['ship_event'] = $value->depot_name;
+                    break;
+
             }
 
-            $order_id = self::create($updateData)->id;
-            $order['order_id'] = $order_id;
-            Discount::createOrderDiscount('main', $order_id, $customer, $order['discounts']);
-
-            foreach ($address as $key => $user) {
-
-                $addr = Addr::addrFormating($user['address']);
-                if (!$addr->city_id) {
-                    DB::rollBack();
-                    return ['success' => '0', 'error_msg' => 'address format error', 'event' => 'address', 'event_id' => $user['type']];
-                }
-                $address[$key]['city_id'] = $addr->city_id;
-                $address[$key]['city_title'] = $addr->city_title;
-                $address[$key]['region_id'] = $addr->region_id;
-                $address[$key]['region_title'] = $addr->region_title;
-                $address[$key]['zipcode'] = $addr->zipcode;
-                $address[$key]['addr'] = $addr->addr;
-                $address[$key]['order_id'] = $order_id;
-            }
-            try {
-                DB::table('ord_address')->insert($address);
-            } catch (\Exception $e) {
+            $subOrderId = DB::table('ord_sub_orders')->insertGetId($insertData);
+            $order['shipments'][$key]->sub_order_id = $subOrderId;
+            Discount::createOrderDiscount('sub', $order_id, $customer, $value->discounts, $subOrderId);
+            //TODO 目前做DEMO 在新增訂單時，就新增出貨單，若未來串好付款，則在付款完畢後才新增出貨單
+            $reDelivery = Delivery::createData(
+                $operator_user
+                , Event::order()->value
+                , $subOrderId
+                , $insertData['sn']
+                , $insertData['ship_temp_id'] ?? null
+                , $insertData['ship_temp'] ?? null
+                , $insertData['ship_category'] ?? null
+                , $insertData['ship_category_name'] ?? null
+                , $insertData['ship_event_id'] ?? null
+            );
+            if ($reDelivery['success'] == 0) {
                 DB::rollBack();
-                return ['success' => '0', 'error_msg' => 'address format error', 'event' => 'address', 'event_id' => ''];
+                return $reDelivery;
             }
-            //   dd($order);
-            foreach ($order['shipments'] as $key => $value) {
-                $sub_order_sn = $order_sn . "-" . str_pad((DB::table('ord_sub_orders')->where('order_id', $order_id)
-                        ->get()
-                        ->count()) + 1, 2, '0', STR_PAD_LEFT);
 
-                $order['shipments'][$key]->sub_order_sn = $sub_order_sn;
+            foreach ($value->products as $product) {
 
-                $insertData = [
+                $reStock = ProductStock::stockChange($product->id, $product->qty * -1, 'order', $order_id, $product->sku . "新增訂單");
+                if ($reStock['success'] == 0) {
+                    DB::rollBack();
+                    return $reStock;
+                }
+                $pid = DB::table('ord_items')->insertGetId([
                     'order_id' => $order_id,
-                    'sn' => $sub_order_sn,
-                    'ship_category' => $value->category,
-                    'ship_category_name' => $value->category_name,
-                    'dlv_fee' => $value->dlv_fee,
-                    'total_price' => $value->origin_price,
-                    'origin_price' => $value->origin_price,
-                    'discounted_price' => $value->discounted_price,
-                    'discount_value' => $value->discount_value,
-                    'status' => '',
-                ];
+                    'sub_order_id' => $subOrderId,
+                    'product_style_id' => $product->product_style_id,
+                    'sku' => $product->sku,
+                    'product_title' => $product->product_title . '-' . $product->spec,
+                    'price' => $product->price,
+                    'dealer_price' => $product->dealer_price,
+                    'bonus' => $product->bonus,
+                    'qty' => $product->qty,
+                    'discounted_price' => $product->discounted_price,
+                    'discount_value' => $product->discount_value,
+                    'origin_price' => $product->origin_price,
+                    'img_url' => $product->img_url,
+                ]);
 
-                switch ($value->category) {
-                    case 'deliver':
-                        // dd( $value['use_role']);
-                        $insertData['ship_event_id'] = $value->group_id;
-                        $insertData['ship_event'] = $value->group_name;
-                        $insertData['ship_temp'] = $value->temps;
-                        $insertData['ship_temp_id'] = $value->temp_id;
-                        $insertData['ship_rule_id'] = $value->use_rule->id;
-                        break;
-                    case 'pickup':
-                        $insertData['ship_event_id'] = $value->id;
-                        $insertData['ship_event'] = $value->depot_name;
-                        break;
-
-                }
-
-                $subOrderId = DB::table('ord_sub_orders')->insertGetId($insertData);
-                $order['shipments'][$key]->sub_order_id = $subOrderId;
-                Discount::createOrderDiscount('sub', $order_id, $customer, $value->discounts, $subOrderId);
-                //TODO 目前做DEMO 在新增訂單時，就新增出貨單，若未來串好付款，則在付款完畢後才新增出貨單
-                $reDelivery = Delivery::createData(
-                    $operator_user
-                    , Event::order()->value
-                    , $subOrderId
-                    , $insertData['sn']
-                    , $insertData['ship_temp_id'] ?? null
-                    , $insertData['ship_temp'] ?? null
-                    , $insertData['ship_category'] ?? null
-                    , $insertData['ship_category_name'] ?? null
-                    , $insertData['ship_event_id'] ?? null
-                );
-                if ($reDelivery['success'] == 0) {
-                    DB::rollBack();
-                    return $reDelivery;
-                }
-
-                foreach ($value->products as $product) {
-
-                    $reStock = ProductStock::stockChange($product->id, $product->qty * -1, 'order', $order_id, $product->sku . "新增訂單");
-                    if ($reStock['success'] == 0) {
-                        DB::rollBack();
-                        return $reStock;
-                    }
-                    $pid = DB::table('ord_items')->insertGetId([
-                        'order_id' => $order_id,
-                        'sub_order_id' => $subOrderId,
-                        'product_style_id' => $product->product_style_id,
-                        'sku' => $product->sku,
-                        'product_title' => $product->product_title . '-' . $product->spec,
-                        'price' => $product->price,
-                        'dealer_price' => $product->dealer_price,
-                        'bonus' => $product->bonus,
-                        'qty' => $product->qty,
-                        'discounted_price' => $product->discounted_price,
-                        'discount_value' => $product->discount_value,
-                        'origin_price' => $product->origin_price,
-                        'img_url' => $product->img_url,
-                    ]);
-
-                    Discount::createOrderDiscount('item', $order_id, $customer, $product->discounts, $subOrderId, $pid);
-
-                }
+                Discount::createOrderDiscount('item', $order_id, $customer, $product->discounts, $subOrderId, $pid);
 
             }
 
-            //付款資訊
-            $updateOrdUPM = self::updateOrderUsrPayMethod($order_id, $payinfo);
-            if ($updateOrdUPM['success'] == 0) {
-                DB::rollBack();
-                return $updateOrdUPM;
-            }
-            // 分潤
-            self::orderProfit($order, $mcode);
+        }
 
-            OrderFlow::changeOrderStatus($order_id, OrderStatus::Add());
+        //付款資訊
+        $updateOrdUPM = self::updateOrderUsrPayMethod($order_id, $payinfo);
+        if ($updateOrdUPM['success'] == 0) {
+            DB::rollBack();
+            return $updateOrdUPM;
+        }
+        // 分潤
+        self::orderProfit($order, $mcode);
 
-            if ($order['get_dividend']) {
-                CustomerDividend::fromOrder($customer->id, $order_sn, $order['get_dividend']);
-            }
-            // CustomerDividend::activeDividend(DividendCategory::Order(), $order_sn);
-            //  CustomerCoupon::activeCoupon($order_id);
+        OrderFlow::changeOrderStatus($order_id, OrderStatus::Add());
 
-            Order::sendMail_OrderEstablished($order_id);
-            return ['success' => '1', 'order_id' => $order_id];
-        });
+        if ($order['get_dividend']) {
+            CustomerDividend::fromOrder($customer->id, $order_sn, $order['get_dividend']);
+        }
+        // CustomerDividend::activeDividend(DividendCategory::Order(), $order_sn);
+        //  CustomerCoupon::activeCoupon($order_id);
+
+        Order::sendMail_OrderEstablished($order_id);
+        DB::commit();
+        return ['success' => '1', 'order_id' => $order_id];
+
     }
 
     //付款資訊
@@ -1283,7 +1283,7 @@ class Order extends Model
             ->where('source_type', 'ord_orders')
             ->where('order.id', $order_id)
             ->whereNotNull('receive.receipt_date')->get()->first();
-        
+
         return $re ? true : false;
     }
 }
