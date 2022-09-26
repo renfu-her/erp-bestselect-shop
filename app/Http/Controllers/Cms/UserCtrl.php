@@ -36,7 +36,7 @@ class UserCtrl extends Controller
 
         return view('cms.admin.user.list', [
             "roleData" => $roleData,
-            "dataList" => $user['dataList'], "users" => $user['account'],
+            "dataList" => $user,
         ]);
     }
 

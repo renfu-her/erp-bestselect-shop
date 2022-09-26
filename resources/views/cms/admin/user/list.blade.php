@@ -77,19 +77,19 @@
                     @foreach ($dataList as $key => $data)
                         <tr>
                             <th scope="row">{{ $key + 1 }}</th>
-                            <td>{{ $data['name'] }}</td>
-                            <td>{{ $data['account'] }}</td>
-                            <td class="text-truncate" style="max-width: 3em">{{ $data['api_token'] }}</td>
-                            <td @class(['text-danger' => count($data['role']) < 1])>
-                                @if (count($data['role']) >= 1)
-                                    已設定角色
-                                @else
+                            <td>{{ $data->name }}</td>
+                            <td>{{ $data->account }}</td>
+                            <td class="text-truncate" style="max-width: 3em">{{ $data->api_token }}</td>
+                            <td @class(['text-danger' => is_null($data->role_id)])>
+                                @if (is_null($data->role_id))
                                     未設定角色
+                                @else
+                                    已設定角色
                                 @endif
                             </td>
                             <td class="text-center">
                                 @can('cms.user.salechannel')
-                                    <a href="{{ Route('cms.user.salechannel', ['id' => $data['id']], true) }}"
+                                    <a href="{{ Route('cms.user.salechannel', ['id' => $data->id], true) }}"
                                         data-bs-toggle="tooltip" title="通路權限"
                                         class="icon icon-btn fs-5 text-primary rounded-circle border-0">
                                         <i class="bi bi-key"></i>
@@ -98,7 +98,7 @@
                             </td>
                             <td class="text-center">
                                 @can('cms.user.edit')
-                                    <a href="{{ Route('cms.user.edit', ['id' => $data['id']], true) }}"
+                                    <a href="{{ Route('cms.user.edit', ['id' => $data->id], true) }}"
                                         data-bs-toggle="tooltip" title="編輯"
                                         class="icon icon-btn fs-5 text-primary rounded-circle border-0">
                                         <i class="bi bi-pencil-square"></i>
@@ -108,7 +108,7 @@
                             <td class="text-center">
                                 @can('cms.user.delete')
                                     <a href="javascript:void(0)"
-                                        data-href="{{ Route('cms.user.delete', ['id' => $data['id']], true) }}"
+                                        data-href="{{ Route('cms.user.delete', ['id' => $data->id], true) }}"
                                         data-bs-toggle="modal" data-bs-target="#confirm-delete"
                                         class="icon -del icon-btn fs-5 text-danger rounded-circle border-0">
                                         <i class="bi bi-trash"></i>
@@ -124,7 +124,7 @@
     <div class="row flex-column-reverse flex-sm-row">
         <div class="col d-flex justify-content-end align-items-center mb-3 mb-sm-0">
             {{-- 頁碼 --}}
-            <div class="d-flex justify-content-center">{{ $users->links() }}</div>
+            <div class="d-flex justify-content-center">{{ $dataList->links() }}</div>
         </div>
     </div>
 
