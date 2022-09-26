@@ -88,9 +88,15 @@
             </div>
             <div class="col">
                 <input type="hidden" name="logistic_id" value="{{ $logistic->id }}">
-                @if(false == $has_already_pay_logistic)
+                @if(false == $has_payable_data_logistic)
                     <button type="submit" class="btn btn-primary px-4">儲存</button>
                 @endif
+
+                <div class="col">
+                    <mark class="fw-light small">
+                        <i class="bi bi-exclamation-diamond-fill mx-2 text-warning"></i>已有付款紀錄不可編輯呦！
+                    </mark>
+                </div>
             </div>
         </div>
     </form>
