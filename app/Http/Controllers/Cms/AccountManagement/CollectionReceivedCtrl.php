@@ -254,6 +254,11 @@ class CollectionReceivedCtrl extends Controller
         $depot = Depot::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
         $supplier = Supplier::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
         $drawee_merged = array_merge($user, $customer, $depot, $supplier);
+        // $user = User::whereNull('deleted_at')->pluck('name')->toArray();
+        // $customer = Customer::whereNull('deleted_at')->pluck('name')->toArray();
+        // $depot = Depot::whereNull('deleted_at')->pluck('name')->toArray();
+        // $supplier = Supplier::whereNull('deleted_at')->pluck('name')->toArray();
+        // $drawee_merged = array_unique(array_merge($user, $customer, $depot, $supplier));
 
         return view('cms.account_management.collection_received.list', [
             'data_per_page' => $page,

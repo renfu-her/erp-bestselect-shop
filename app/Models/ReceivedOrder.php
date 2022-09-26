@@ -242,7 +242,8 @@ class ReceivedOrder extends Model
                 'order.dlv_fee AS order_dlv_fee',
                 'order.discount_value AS order_discount_value',
 
-                // 'undertaker.name AS undertaker_name',
+                'undertaker.name AS undertaker_name',
+                'undertaker.department AS undertaker_department',
 
                 'discounts_table.discount_list AS order_discount',
             )
