@@ -109,6 +109,12 @@ class User extends Authenticatable
         $user_table = DB::table('usr_users')
                         ->leftJoin('per_model_has_roles', 'usr_users.id', '=', 'per_model_has_roles.model_id');
 
+        if (isset($query['roleIds']) && $query['roleIds']) {
+            foreach ($query['roleIds'] as $roleId) {
+                $user_table->orWhere('per_model_has_roles.role_id', $roleId);
+            }
+        }
+
         if (isset($query['roles'])) {
             if ($query['roles'] == '1') {
                 $user_table->whereNotNull('model_id');
@@ -123,12 +129,6 @@ class User extends Authenticatable
 
         if (isset($query['account']) && $query['account']) {
             $user_table->where('account', 'like', "%{$query['account']}%");
-        }
-
-        if (isset($query['roleIds']) && $query['roleIds']) {
-            foreach ($query['roleIds'] as $roleId) {
-                $user_table->orWhere('per_model_has_roles.role_id', $roleId);
-            }
         }
 
         $users = $user_table
