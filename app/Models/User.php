@@ -125,8 +125,10 @@ class User extends Authenticatable
             $user_table->where('account', 'like', "%{$query['account']}%");
         }
 
-        if (isset($query['roleId']) && $query['roleId']) {
-            $user_table->where('per_model_has_roles.role_id', $query['roleId']);
+        if (isset($query['roleIds']) && $query['roleIds']) {
+            foreach ($query['roleIds'] as $roleId) {
+                $user_table->orWhere('per_model_has_roles.role_id', $roleId);
+            }
         }
 
         $users = $user_table
@@ -137,7 +139,8 @@ class User extends Authenticatable
                 'api_token',
                 'model_id',
             ])
-            ->selectRaw('IF(role_id IS NOT NULL,"exist",role_id) as role_id')
+            ->selectRaw('GROUP_CONCAT(DISTINCT role_id) as role_ids')
+            ->groupBy('id')
             ->distinct()
             ->paginate($per_page)
             ->appends($query);

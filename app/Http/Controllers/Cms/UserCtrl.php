@@ -33,9 +33,10 @@ class UserCtrl extends Controller
                         'title',
                     ])
                     ->get();
+        $roleDataArray = collect($roleData)->keyBy('id');
 
         return view('cms.admin.user.list', [
-            "roleData" => $roleData,
+            "roleData" => $roleDataArray->all(),
             "dataList" => $user,
         ]);
     }
