@@ -46,6 +46,7 @@ use App\Models\PayableOther;
 use App\Models\PayableRemit;
 use App\Models\PayingOrder;
 use App\Models\Product;
+use App\Models\Purchase;
 use App\Models\PurchaseInbound;
 use App\Models\ReceivedDefault;
 use App\Models\ReceiveDepot;
@@ -701,23 +702,10 @@ class OrderCtrl extends Controller
     public function ro_edit(Request $reqeust, $id)
     {
         $order_id = request('id');
-        $order_data = Order::findOrFail($order_id);
-
-        $order_purchaser = Customer::leftJoin('usr_customers_address AS customer_add', function ($join) {
-            $join->on('usr_customers.id', '=', 'customer_add.usr_customers_id_fk');
-            $join->where([
-                'customer_add.is_default_addr' => 1,
-            ]);
-        })->where([
-            'email' => $order_data->email,
-            // 'deleted_at'=>null,
-        ])->select(
-            'usr_customers.id',
-            'usr_customers.name',
-            'usr_customers.phone AS phone',
-            'usr_customers.email',
-            'customer_add.address AS address'
-        )->first();
+        $order_data = Order::orderDetail($order_id)->first();
+        if(! $order_data){
+            return abort(404);
+        }
 
         $order_list_data = OrderItem::item_order($order_id)->get();
 
@@ -838,7 +826,6 @@ class OrderCtrl extends Controller
 
             'breadcrumb_data' => ['id' => $order_data->id, 'sn' => $order_data->sn],
             'order_data' => $order_data,
-            'order_purchaser' => $order_purchaser,
             'order_list_data' => $order_list_data,
             'order_discount' => $order_discount,
             'received_order_data' => $received_order_data,

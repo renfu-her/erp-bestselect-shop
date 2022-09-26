@@ -346,22 +346,10 @@ class ReceivedOrder extends Model
         $product_grade_id = ReceivedDefault::where('name', 'product')->first() ? ReceivedDefault::where('name', 'product')->first()->default_grade_id : 0;
 
         if($source_type == app(Order::class)->getTable()){
-            $order_data = Order::findOrFail($source_id);
-            $purchaser = Customer::leftJoin('usr_customers_address AS customer_add', function ($join) {
-                    $join->on('usr_customers.id', '=', 'customer_add.usr_customers_id_fk');
-                    $join->where([
-                        'customer_add.is_default_addr'=>1,
-                    ]);
-                })->where([
-                    'email'=>$order_data->email,
-                    // 'deleted_at'=>null,
-                ])->select(
-                    'usr_customers.id',
-                    'usr_customers.name',
-                    'usr_customers.phone AS phone',
-                    'usr_customers.email',
-                    'customer_add.address AS address'
-                )->first();
+            $order_data = Order::orderDetail($source_id)->first();
+            if(! $order_data){
+                return abort(404);
+            }
 
             $re = self::create([
                 'source_type'=>$source_type,
@@ -373,10 +361,10 @@ class ReceivedOrder extends Model
                 // 'rate'=>1,
                 'logistics_grade_id'=>$logistics_grade_id,
                 'product_grade_id'=>$product_grade_id,
-                'drawee_id'=>$purchaser->id,
-                'drawee_name'=>$purchaser->name,
-                'drawee_phone'=>$purchaser->phone,
-                'drawee_address'=>$purchaser->address,
+                'drawee_id'=>null,
+                'drawee_name'=>$order_data->ord_name,
+                'drawee_phone'=>$order_data->ord_phone,
+                'drawee_address'=>$order_data->ord_address,
                 // 'created_at'=>date('Y-m-d H:i:s'),
             ]);
 
