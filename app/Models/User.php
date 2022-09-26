@@ -271,4 +271,19 @@ class User extends Authenticatable
             ->get()
             ->first();
     }
+
+    public static function getRoleTitleByUserId($userId)
+    {
+        $data = DB::table('usr_users')
+            ->whereNull('usr_users.deleted_at')
+            ->where('usr_users.id', $userId)
+            ->leftJoin('per_model_has_roles', 'usr_users.id', '=', 'per_model_has_roles.model_id')
+            ->join('per_roles', 'per_roles.id', '=', 'per_model_has_roles.role_id')
+            ->select([
+                'per_roles.title',
+            ])
+            ->get();
+
+        return $data;
+    }
 }

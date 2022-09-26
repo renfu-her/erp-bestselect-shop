@@ -80,13 +80,16 @@
                             <td>{{ $data->name }}</td>
                             <td>{{ $data->account }}</td>
                             <td>
-                                @if(!is_null($data->role_ids))
+                                @php
+                                    $roleNames = \App\Models\User::getRoleTitleByUserId($data->id);
+								@endphp
+                                @if(count($roleNames ?? []) > 0)
                                     @php
-                                        $i = substr_count($data->role_ids, ",");
+                                        $i = count($roleNames);
                                     @endphp
-                                    @foreach(explode(',', $data->role_ids) as $role_id)
-                                        {{ $roleData[$role_id]['title'] }}
-                                        @if($i > 0)
+                                    @foreach($roleNames as $roleName)
+                                            {{ $roleName->title }}
+                                        @if($i > 1)
                                             {{ ',' }}
                                         @endif
                                         @php
