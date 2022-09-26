@@ -9,7 +9,7 @@ class Event extends Enum
     const purchase = 'purchase'; //採購
 
     const order = 'order'; //訂單
-    const ord_pickup = 'ord_pickup'; //訂單自取
+    const ord_pickup = 'ord_pickup'; //訂單自取 //只在pcs_purchase_inbound用到 因只有event欄位紀錄 但要區隔訂單和訂單自取
     const consignment = 'consignment'; //寄倉
     const csn_order = 'csn_order'; //寄倉訂購
 
