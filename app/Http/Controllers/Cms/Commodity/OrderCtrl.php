@@ -27,6 +27,7 @@ use App\Models\Delivery;
 use App\Models\Depot;
 use App\Models\Discount;
 use App\Models\GeneralLedger;
+use App\Models\Logistic;
 use App\Models\LogisticFlow;
 use App\Models\Order;
 use App\Models\OrderCart;
@@ -2002,6 +2003,39 @@ class OrderCtrl extends Controller
                 'chequeStatus' => PayableChequeStatus::get_key_value(),
             ]);
         }
+    }
+
+    //同步物流成本價格
+    public function logistic_sync_price(Request $request, $id, $sid)
+    {
+        $request->validate([
+            'id' => 'required|exists:ord_orders,id',
+            'sid' => 'required|exists:ord_sub_orders,id',
+        ]);
+
+        $delivery = Delivery::where('event', '=', Event::order()->value)
+            ->where('event_id', '=', $sid)
+            ->first();
+        $logistic = Logistic::where('delivery_id', '=', $delivery->id)
+            ->whereNull('deleted_at')
+            ->orderByDesc('id')
+            ->first();
+        if (false == isset($logistic)) {
+            return abort(404);
+        }
+
+        $source_type = app(Order::class)->getTable();
+        PayingOrder::where('source_type', '=', $source_type)
+            ->where('source_id', '=', $id)
+            ->where('source_sub_id', '=', $sid)
+            ->whereNull('deleted_at')
+            ->update(['price' => $logistic->cost]);
+
+        wToast(__('物流成本同步完成'));
+        return redirect()->route('cms.order.logistic-po', [
+            'id' => $id,
+            'sid' => $sid,
+        ]);
     }
 
     public function create_invoice(Request $request, $id)

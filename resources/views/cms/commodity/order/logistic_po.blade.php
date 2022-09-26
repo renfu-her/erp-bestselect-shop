@@ -9,25 +9,28 @@
             @endcan
 
             @if(! $paying_order->balance_date)
-                <a href="{{ Route('cms.order.logistic-po-create', ['id' => $sub_order->order_id, 'sid' => $sub_order->id]) }}" 
+                <a href="{{ Route('cms.order.logistic-po-create', ['id' => $sub_order->order_id, 'sid' => $sub_order->id]) }}"
                     class="btn btn-sm btn-primary px-3" role="button">付款</a>
             @endif
             {{-- <button type="button" class="btn btn-sm btn-primary">圖片管理</button> --}}
 
             @can('cms.collection_payment.delete')
-            @if(! $data_status_check)
-            @if(! ($paying_order->payment_date && $paying_order->append_po_id))
-                <a href="{{ route('cms.collection_payment.payable_list', ['id' => $paying_order->id]) }}" class="btn btn-sm btn-primary" role="button">付款記錄</a>
+                @if(! $data_status_check)
+                    @if(! ($paying_order->payment_date && $paying_order->append_po_id))
+                        <a href="{{ route('cms.collection_payment.payable_list', ['id' => $paying_order->id]) }}" class="btn btn-sm btn-primary" role="button">付款記錄</a>
 
-                <a href="javascript:void(0)" role="button" class="btn btn-outline-danger btn-sm"
-                    data-bs-toggle="modal" data-bs-target="#confirm-delete"
-                    data-href="{{ Route('cms.collection_payment.delete', ['id' => $paying_order->id]) }}">刪除付款單</a>
-            @endif
-            @endif
+                        <a href="javascript:void(0)" role="button" class="btn btn-outline-danger btn-sm"
+                            data-bs-toggle="modal" data-bs-target="#confirm-delete"
+                            data-href="{{ Route('cms.collection_payment.delete', ['id' => $paying_order->id]) }}">刪除付款單</a>
+                    @endif
+                @endif
             @endcan
 
-            <a href="{{ url()->full() . '?action=print' }}" target="_blank" 
+            <a href="{{ url()->full() . '?action=print' }}" target="_blank"
                 class="btn btn-sm btn-warning" rel="noopener noreferrer">中一刀列印畫面</a>
+
+            <a href="{{ Route('cms.order.logistic-sync-price', ['id' => $sub_order->order_id, 'sid' => $sub_order->id]) }}"
+               class="btn btn-sm btn-outline-primary px-3" role="button">同步物流成本</a>
         </div>
     </nav>
 
@@ -156,9 +159,9 @@
     </div>
 
     <div class="col-auto">
-        <a href="{{ Route('cms.collection_payment.index') }}" class="btn btn-outline-primary px-4" 
+        <a href="{{ Route('cms.collection_payment.index') }}" class="btn btn-outline-primary px-4"
             role="button">返回 付款作業列表</a>
-        <a href="{{ Route('cms.order.detail', ['id' => $sub_order->order_id, 'subOrderId' => $sub_order->id]) }}" 
+        <a href="{{ Route('cms.order.detail', ['id' => $sub_order->order_id, 'subOrderId' => $sub_order->id]) }}"
             class="btn btn-outline-primary px-4" role="button">返回 訂單資訊</a>
     </div>
 
