@@ -29,10 +29,8 @@
 
 
             @can('cms.order.edit-item')
-                @if ($canEdit)
-                    <a href="{{ Route('cms.order.edit-item', ['id' => $order->id]) }}" role="button"
-                        class="btn btn-dark btn-sm my-1 ms-1">編輯訂單</a>
-                @endif
+                <a href="{{ Route('cms.order.edit-item', ['id' => $order->id]) }}" role="button"
+                    class="btn btn-dark btn-sm my-1 ms-1">編輯訂單</a>
             @endcan
 
             @if ($canSplit)
@@ -275,7 +273,7 @@
         @php
             $dlv_fee = 0;
             $price = 0;
-
+            
         @endphp
         @foreach ($subOrders as $subOrder)
             @php
@@ -478,14 +476,14 @@
                                     {{ $subOrder->package_sn }}
                                 @endif
                                 <!--
-                                                        @if (false == empty($subOrder->projlgt_order_sn))
+                                                            @if (false == empty($subOrder->projlgt_order_sn))
     <a href="{{ env('LOGISTIC_URL') . 'guest/order-flow/' . $subOrder->projlgt_order_sn }}">
-                                                                {{ $subOrder->projlgt_order_sn }}
-                                                            </a>
+                                                                    {{ $subOrder->projlgt_order_sn }}
+                                                                </a>
 @else
     {{ $subOrder->package_sn ?? '(待處理)' }}
     @endif
-                                                        -->
+                                                            -->
                             </dd>
                         </div>
                         <div class="col">
