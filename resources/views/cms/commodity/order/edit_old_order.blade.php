@@ -62,15 +62,17 @@
                         </table>
                     </div>
                 </div>
-                <div class="card-body px-4 py-0">
-                    <div class="table-responsive tableOverBox">
-                        @if ($canEdit)
+
+                @if ($canEdit)
+                    <div class="card-header px-4 text-secondary border-top border-bottom-0">物流資訊</div>
+                    <div class="card-body px-4 py-0">
+                        <div class="table-responsive tableOverBox">
                             <table class="table tableList table-sm table-hover mb-0">
                                 <tbody>
                                     <tr>
                                         <td>物流</td>
                                         <td>
-                                            <select name="ship_category[]" class="form-select -sx" required>
+                                            <select name="ship_category[]" class="form-select form-select-sm -sx w-100" required>
                                                 @foreach ($shipmentCategory as $key => $value)
                                                     <option value="{{ $value->code }}"
                                                         @if ($subOrder->ship_category == $value->code) selected @endif>
@@ -79,7 +81,7 @@
                                             </select>
                                         </td>
                                         <td>
-                                            <select name="ship_event_id[]" class="form-select  -sx">
+                                            <select name="ship_event_id[]" class="-select2 -single form-select form-select-sm -sx">
                                                 @foreach ($shipEvent[$subOrder->ship_category] as $key => $value)
                                                     <option value="{{ $value->id }}"
                                                         @if ($subOrder->ship_event_id == $value->id) selected @endif>
@@ -88,22 +90,25 @@
                                                 @endforeach
                                             </select>
                                         </td>
-                                        <td>
-                                            <input class="form-control form-control-sm -sx" name="dlv_fee[]" type="number"
+                                        <td>運費</td>
+                                        <td style="width: 20%;">
+                                            <div class="input-group input-group-sm flex-nowrap">
+                                                <span class="input-group-text">$</span>
+                                                <input class="form-control -sx" name="dlv_fee[]" type="number"
                                                 aria-label="運費" value="{{ $subOrder->dlv_fee }}" required>
+                                            </div>
                                         </td>
-
                                     </tr>
                                     <tr>
                                         <td>銷貨備註</td>
-                                        <td colspan="3"> <input class="form-control form-control-sm -sx"
+                                        <td colspan="4"> <input class="form-control form-control-sm -sx"
                                                 name="sub_order_note[]" aria-label="運費" value="{{ $subOrder->note }}"></td>
                                     </tr>
                                 </tbody>
                             </table>
-                        @endif
+                        </div>
                     </div>
-                </div>
+                @endif
             </div>
         @endforeach
 
