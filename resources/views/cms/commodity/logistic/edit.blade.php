@@ -274,7 +274,7 @@
                                 @enderror
                             </div>
                             <div class="col-12 mb-3">
-                                <label class="form-label">溫層 <span class="text-danger">*</span></label>
+                                <label class="form-label">材積 <span class="text-danger">*</span></label>
                                 <select name="dim_id" class="-select2 -single form-select" required data-placeholder="請單選">
                                     <option value="" selected disabled>請選擇</option>
                                     @foreach ($dims as $dim)
