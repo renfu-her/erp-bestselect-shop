@@ -17,7 +17,6 @@ use App\Models\LogisticProjLogisticLog;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\PayingOrder;
-use App\Models\Product;
 use App\Models\ShipmentGroup;
 use App\Models\SubOrders;
 use App\Models\User;
@@ -198,6 +197,8 @@ class LogisticCtrl extends Controller
         $errors = [];
         $logistic = Logistic::where('id', '=', $logistic_id)->get()->first();
         $delivery = Delivery::where('id', $logistic->delivery_id)->get()->first();
+        $pay_order_id = $delivery->event_id;
+        $pay_order_sid = null;
         //判斷若為子訂單 則回寫到子訂單資料表
         if (Event::order()->value == $delivery->event) {
             SubOrders::updateLogisticData($delivery->event_id
@@ -205,7 +206,11 @@ class LogisticCtrl extends Controller
                 , $input['actual_ship_group_id']
                 , $input['cost']
                 , $input['memo']);
+            $subOrder = SubOrders::where('id', '=', $delivery->event_id)->first();
+            $pay_order_id = $subOrder->order_id;
+            $pay_order_sid = $subOrder->id;
         }
+        $source_type = Event::getTable($delivery->event);
 
         $reLgt = Logistic::updateData(
             $input['logistic_id']
@@ -218,6 +223,7 @@ class LogisticCtrl extends Controller
             $errors['error_msg'] = $reLgt['error_msg'];
             return redirect()->back()->withInput()->withErrors($errors);
         }
+        PayingOrder::sync_logistic_cost($source_type, $pay_order_id, $pay_order_sid, $input['cost']);
 
         wToast('儲存成功');
         return redirect(Route('cms.logistic.create', [

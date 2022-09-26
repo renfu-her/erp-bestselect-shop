@@ -2,6 +2,10 @@
 
 namespace App\Enums\Delivery;
 
+use App\Models\Consignment;
+use App\Models\CsnOrder;
+use App\Models\Order;
+use App\Models\Purchase;
 use BenSampo\Enum\Enum;
 
 class Event extends Enum
@@ -31,6 +35,30 @@ class Event extends Enum
                 break;
             case self::csn_order:
                 $result = '寄倉訂購';
+                break;
+            default:
+                $result = parent::getDescription($value);
+                break;
+        }
+        return $result;
+    }
+
+    public static function getTable($value): string
+    {
+        $result = '';
+        switch ($value) {
+            case self::purchase:
+                $result =  app(Purchase::class)->getTable();
+                break;
+            case self::order:
+            case self::ord_pickup:
+                $result = app(Order::class)->getTable();
+                break;
+            case self::consignment:
+                $result = app(Consignment::class)->getTable();
+                break;
+            case self::csn_order:
+                $result = app(CsnOrder::class)->getTable();
                 break;
             default:
                 $result = parent::getDescription($value);

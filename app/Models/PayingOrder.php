@@ -1380,4 +1380,20 @@ class PayingOrder extends Model
             }
         }
     }
+
+    //同步物流成本
+    public static function sync_logistic_cost($source_type, $id, $sid = null, $cost) {
+        $whereQuery = [
+            'source_type' => $source_type
+            , 'source_id' => $id
+            , 'deleted_at' => null
+        ];
+        //若為訂單則sub_id有值
+        if (app(Order::class)->getTable() == $source_type) {
+            $whereQuery['source_sub_id'] = $sid;
+        } else {
+            $whereQuery['source_sub_id'] = null;
+        }
+        PayingOrder::where($whereQuery)->update(['price' => $cost]);
+    }
 }

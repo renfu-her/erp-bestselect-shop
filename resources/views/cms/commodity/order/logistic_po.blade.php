@@ -28,9 +28,6 @@
 
             <a href="{{ url()->full() . '?action=print' }}" target="_blank"
                 class="btn btn-sm btn-warning" rel="noopener noreferrer">中一刀列印畫面</a>
-
-            <a href="{{ Route('cms.order.logistic-sync-price', ['id' => $sub_order->order_id, 'sid' => $sub_order->id]) }}"
-               class="btn btn-sm btn-outline-primary px-3" role="button">同步物流成本</a>
         </div>
     </nav>
 
