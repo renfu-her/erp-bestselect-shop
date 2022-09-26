@@ -49,9 +49,18 @@ class UserCtrl extends Controller
     public function create()
     {
         //
+        $employeeRoleId = Role::where([
+            'deleted_at' => null,
+            'title' => '員工',
+        ])
+            ->select('id')
+            ->get()
+            ->first()
+            ->id;
 
         return view('cms.admin.user.edit', [
             'method' => 'create',
+            'employeeRoleId' => $employeeRoleId ?? null,
             'formAction' => Route('cms.user.create'),
             'permissions' => Permission::getPermissionGroups('user'),
             'roles' => Role::roleList('user'),

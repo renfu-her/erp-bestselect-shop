@@ -81,7 +81,12 @@
                         <div class="form-check form-check-inline">
                             <input class="form-check-input" type="checkbox" name="role_id[]"
                                    id="role{{ $key }}"
-                                   @if (in_array($role['id'], old('role_id', $role_ids ?? []))) checked @endif
+                                   @if (in_array($role['id'], old('role_id', $role_ids ?? [])))
+                                       checked
+                                   @elseif($role['id'] == ($employeeRoleId ?? null))
+                                        {{--  員工角色預設勾選--}}
+                                       checked
+                                   @endif
                                    value="{{ $role['id'] }}">
                             <label class="form-check-label" for="role{{ $key }}">
                                 {{ $role['title'] }}
