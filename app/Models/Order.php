@@ -139,7 +139,7 @@ class Order extends Model
 
         if ($purchase_sn) {
             //整理出入庫單和採購單的關係
-            $inbound = DB::table(app(PurchaseInbound::class)->getTable(). ' as inbound')
+            $inbound = DB::table(app(PurchaseInbound::class)->getTable() . ' as inbound')
                 ->leftJoin('pcs_purchase as pcs', function ($join) {
                     $join->on('pcs.id', '=', 'inbound.event_id')
                         ->where('inbound.event', '=', Event::purchase()->value);
@@ -150,9 +150,9 @@ class Order extends Model
             $order->leftJoin('dlv_receive_depot as dlv_receive_depot', function ($join) {
                 $join->on('dlv_receive_depot.delivery_id', '=', 'dlv_delivery.id');
             })
-                ->leftJoinSub($inbound, 'inbound', function($join) {
-                $join->on('inbound.id', '=', 'dlv_receive_depot.inbound_id');
-            });
+                ->leftJoinSub($inbound, 'inbound', function ($join) {
+                    $join->on('inbound.id', '=', 'dlv_receive_depot.inbound_id');
+                });
 
             $order->where(function ($query) use ($purchase_sn) {
                 $query->Where('inbound.pcs_sn', '=', "$purchase_sn");
@@ -440,7 +440,7 @@ class Order extends Model
             $order['order_sn'] = $order_sn;
             // 處理紅利
             $dividend_re = CustomerDividend::orderDiscount($customer->id, $order); //$order_sn, $order['use_dividend']
-           // dd($order);
+            // dd($order);
             if ($dividend_re['success'] != '1') {
                 DB::rollBack();
                 return $dividend_re;
@@ -933,10 +933,10 @@ class Order extends Model
         // 紅利返還
         $dividend = DB::table('ord_dividend as d')
             ->leftJoin('usr_cusotmer_dividend as cd', 'd.customer_dividend_id', '=', 'cd.id')
-            ->select(['cd.*','d.dividend as new_dividend'])
+            ->select(['cd.*', 'd.dividend as new_dividend'])
             ->where('d.order_sn', $order->sn)->get();
 
-        foreach($dividend as $value){
+        foreach ($dividend as $value) {
             CustomerDividend::create([
                 'category' => $value->category,
                 'category_sn' => $value->category_sn,
@@ -945,15 +945,15 @@ class Order extends Model
                 'flag' => DividendFlag::Back(),
                 'flag_title' => DividendFlag::Back()->description,
                 'dividend' => $value->new_dividend,
-                'weight'=> $value->weight,
-                'deadline'=>$value->deadline,
-                'active_sdate'=>$value->active_sdate,
-                'active_edate'=>$value->active_edate,
-                'note' => '由'.$order->sn."訂單返還"
+                'weight' => $value->weight,
+                'deadline' => $value->deadline,
+                'active_sdate' => $value->active_sdate,
+                'active_edate' => $value->active_edate,
+                'note' => '由' . $order->sn . "訂單返還",
             ]);
 
         }
-        DB::table('ord_dividend')->where('order_sn',$order->sn)->delete();
+        DB::table('ord_dividend')->where('order_sn', $order->sn)->delete();
         // 刪除分潤
         OrderProfit::where('order_id', $order_id)->delete();
 
@@ -1273,5 +1273,17 @@ class Order extends Model
             ];
             Mail::to($email)->queue(new OrderShipped($data));
         }
+    }
+
+    public static function checkReceived($order_id)
+    {
+        $re = DB::table('ord_orders as order')
+            ->join('ord_received_orders as receive', 'order.id', '=', 'receive.source_id')
+            ->select('order.id')
+            ->where('source_type', 'ord_orders')
+            ->where('order.id', $order_id)
+            ->whereNotNull('receive.receipt_date')->get()->first();
+        
+        return $re ? true : false;
     }
 }

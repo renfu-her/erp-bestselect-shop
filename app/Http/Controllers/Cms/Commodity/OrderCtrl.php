@@ -46,7 +46,6 @@ use App\Models\PayableOther;
 use App\Models\PayableRemit;
 use App\Models\PayingOrder;
 use App\Models\Product;
-use App\Models\Purchase;
 use App\Models\PurchaseInbound;
 use App\Models\ReceivedDefault;
 use App\Models\ReceiveDepot;
@@ -463,13 +462,6 @@ class OrderCtrl extends Controller
         } else {
             $dividend = 0;
         }
-        // 是否入款
-        $receive = DB::table('ord_orders as order')
-            ->join('ord_received_orders as receive', 'order.id', '=', 'receive.source_id')
-            ->select('order.id')
-            ->where('source_type', 'ord_orders')
-            ->where('order.id', $id)
-            ->whereNotNull('receive.receipt_date')->get()->first();
 
         return view('cms.commodity.order.detail', [
             'sn' => $sn,
@@ -487,7 +479,6 @@ class OrderCtrl extends Controller
             'delivery' => $delivery,
             'canSplit' => Order::checkCanSplit($id),
             'po_check' => $delivery ? PayingOrder::source_confirmation(app(Delivery::class)->getTable(), $delivery->id) : true,
-            'canEdit' => $receive ? false : true,
             'has_already_pay_delivery_back' => $has_already_pay_delivery_back,
         ]);
     }
@@ -703,7 +694,7 @@ class OrderCtrl extends Controller
     {
         $order_id = request('id');
         $order_data = Order::orderDetail($order_id)->first();
-        if(! $order_data){
+        if (!$order_data) {
             return abort(404);
         }
 
@@ -2383,6 +2374,9 @@ class OrderCtrl extends Controller
             $shipEvent[$value->code] = $arr;
         }
 
+        // 是否入款
+        $receive = Order::checkReceived($id);
+      
         return view('cms.commodity.order.edit_old_order', [
             'breadcrumb_data' => ['id' => $id, 'sn' => $order->sn],
             'subOrders' => $subOrder,
@@ -2391,6 +2385,7 @@ class OrderCtrl extends Controller
             'citys' => Addr::getCitys(),
             'shipmentCategory' => $shipmentCategory,
             'shipEvent' => $shipEvent,
+            'canEdit' => $receive ? false : true,
         ]);
     }
 
@@ -2437,42 +2432,47 @@ class OrderCtrl extends Controller
             );
         }
 
-        // Addr::fullAddr()
-        $total_dlv_fee = 0;
-        foreach ($d['sub_order_id'] as $key => $value) {
-
-            $sCategory = ShipmentCategory::where('code', $d['ship_category'][$key])->get()->first();
-
-            switch ($d['ship_category'][$key]) {
-                case "deliver":
-                    $ship_event = ShipmentGroup::where('id', $d['ship_event_id'][$key])->get()->first()->name;
-                    break;
-                case "pickup":
-                    $ship_event = Depot::where('id', $d['ship_event_id'][$key])->get()->first()->name;
-                    break;
-                default:
-                    $ship_event = '全家';
-            }
-
-            SubOrders::where('id', $value)->update([
-                'ship_category' => $d['ship_category'][$key],
-                'ship_category_name' => $sCategory->category,
-                'dlv_fee' => $d['dlv_fee'][$key],
-                'ship_event_id' => isset($d['ship_event_id'][$key]) ? $d['ship_event_id'][$key] : 0,
-                'ship_event' => $ship_event,
-                'note' => $d['sub_order_note'][$key],
-            ]);
-
-            $total_dlv_fee += $d['dlv_fee'][$key];
-        }
-        $order = Order::where('id', $id)->get()->first();
-        $total_price = $order->total_price - $order->dlv_fee + $total_dlv_fee;
-
-        Order::where('id', $id)->update([
-            'dlv_fee' => $total_dlv_fee,
-            'total_price' => $total_price,
+        $updateData = [
             'note' => $d['order_note'],
-        ]);
+        ];
+        // Addr::fullAddr()
+        $received = Order::checkReceived($id);
+        if (!$received) {
+            $total_dlv_fee = 0;
+            foreach ($d['sub_order_id'] as $key => $value) {
+
+                $sCategory = ShipmentCategory::where('code', $d['ship_category'][$key])->get()->first();
+
+                switch ($d['ship_category'][$key]) {
+                    case "deliver":
+                        $ship_event = ShipmentGroup::where('id', $d['ship_event_id'][$key])->get()->first()->name;
+                        break;
+                    case "pickup":
+                        $ship_event = Depot::where('id', $d['ship_event_id'][$key])->get()->first()->name;
+                        break;
+                    default:
+                        $ship_event = '全家';
+                }
+
+                SubOrders::where('id', $value)->update([
+                    'ship_category' => $d['ship_category'][$key],
+                    'ship_category_name' => $sCategory->category,
+                    'dlv_fee' => $d['dlv_fee'][$key],
+                    'ship_event_id' => isset($d['ship_event_id'][$key]) ? $d['ship_event_id'][$key] : 0,
+                    'ship_event' => $ship_event,
+                    'note' => $d['sub_order_note'][$key],
+                ]);
+
+                $total_dlv_fee += $d['dlv_fee'][$key];
+            }
+            $order = Order::where('id', $id)->get()->first();
+            $total_price = $order->total_price - $order->dlv_fee + $total_dlv_fee;
+
+            $updateData['dlv_fee'] = $total_dlv_fee;
+            $updateData['total_price'] = $total_price;
+        }
+
+        Order::where('id', $id)->update($updateData);
 
         DB::commit();
         wToast('修改完成');
