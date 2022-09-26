@@ -64,41 +64,44 @@
                 </div>
                 <div class="card-body px-4 py-0">
                     <div class="table-responsive tableOverBox">
-                        <table class="table tableList table-sm table-hover mb-0">
-                            <tbody>
-                                <tr>
-                                    <td>物流</td>
-                                    <td>
-                                        <select name="ship_category[]" class="form-select -sx" required>
-                                            @foreach ($shipmentCategory as $key => $value)
-                                                <option value="{{ $value->code }}"
-                                                    @if ($subOrder->ship_category == $value->code) selected @endif>
-                                                    {{ $value->category }}</option>
-                                            @endforeach
-                                        </select>
-                                    </td>
-                                    <td>
-                                        <select name="ship_event_id[]" class="form-select  -sx">
-                                            @foreach ($shipEvent[$subOrder->ship_category] as $key => $value)
-                                                <option value="{{ $value->id }}"
-                                                    @if ($subOrder->ship_event_id == $value->id) selected @endif>{{ $value->name }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </td>
-                                    <td>
-                                        <input class="form-control form-control-sm -sx" name="dlv_fee[]" type="number"
-                                            aria-label="運費" value="{{ $subOrder->dlv_fee }}" required>
-                                    </td>
+                        @if ($canEdit)
+                            <table class="table tableList table-sm table-hover mb-0">
+                                <tbody>
+                                    <tr>
+                                        <td>物流</td>
+                                        <td>
+                                            <select name="ship_category[]" class="form-select -sx" required>
+                                                @foreach ($shipmentCategory as $key => $value)
+                                                    <option value="{{ $value->code }}"
+                                                        @if ($subOrder->ship_category == $value->code) selected @endif>
+                                                        {{ $value->category }}</option>
+                                                @endforeach
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <select name="ship_event_id[]" class="form-select  -sx">
+                                                @foreach ($shipEvent[$subOrder->ship_category] as $key => $value)
+                                                    <option value="{{ $value->id }}"
+                                                        @if ($subOrder->ship_event_id == $value->id) selected @endif>
+                                                        {{ $value->name }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <input class="form-control form-control-sm -sx" name="dlv_fee[]" type="number"
+                                                aria-label="運費" value="{{ $subOrder->dlv_fee }}" required>
+                                        </td>
 
-                                </tr>
-                                <tr>
-                                    <td>銷貨備註</td>
-                                    <td colspan="3"> <input class="form-control form-control-sm -sx" name="sub_order_note[]" aria-label="運費"
-                                            value="{{ $subOrder->note }}"></td>
-                                </tr>
-                            </tbody>
-                        </table>
+                                    </tr>
+                                    <tr>
+                                        <td>銷貨備註</td>
+                                        <td colspan="3"> <input class="form-control form-control-sm -sx"
+                                                name="sub_order_note[]" aria-label="運費" value="{{ $subOrder->note }}"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        @endif
                     </div>
                 </div>
             </div>

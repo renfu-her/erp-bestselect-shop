@@ -17,7 +17,7 @@
         <div class="card shadow p-4 mb-4">
             <h6>收款單明細</h6>
 
-            <p class="fw-bold">客戶：{{ $order_purchaser->name }}</p>
+            <p class="fw-bold">客戶：{{ $order_data->ord_name }}</p>
 
             <div class="table-responsive tableOverBox border-bottom border-dark">
                 <table class="table table-sm table-hover tableList mb-0">
