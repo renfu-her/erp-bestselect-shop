@@ -27,6 +27,7 @@ use App\Models\Delivery;
 use App\Models\Depot;
 use App\Models\Discount;
 use App\Models\GeneralLedger;
+use App\Models\Logistic;
 use App\Models\LogisticFlow;
 use App\Models\Order;
 use App\Models\OrderCart;

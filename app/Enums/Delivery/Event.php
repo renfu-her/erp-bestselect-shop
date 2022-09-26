@@ -2,6 +2,10 @@
 
 namespace App\Enums\Delivery;
 
+use App\Models\Consignment;
+use App\Models\CsnOrder;
+use App\Models\Order;
+use App\Models\Purchase;
 use BenSampo\Enum\Enum;
 
 class Event extends Enum
@@ -9,7 +13,7 @@ class Event extends Enum
     const purchase = 'purchase'; //採購
 
     const order = 'order'; //訂單
-    const ord_pickup = 'ord_pickup'; //訂單自取
+    const ord_pickup = 'ord_pickup'; //訂單自取 //只在pcs_purchase_inbound用到 因只有event欄位紀錄 但要區隔訂單和訂單自取
     const consignment = 'consignment'; //寄倉
     const csn_order = 'csn_order'; //寄倉訂購
 
@@ -31,6 +35,30 @@ class Event extends Enum
                 break;
             case self::csn_order:
                 $result = '寄倉訂購';
+                break;
+            default:
+                $result = parent::getDescription($value);
+                break;
+        }
+        return $result;
+    }
+
+    public static function getTable($value): string
+    {
+        $result = '';
+        switch ($value) {
+            case self::purchase:
+                $result =  app(Purchase::class)->getTable();
+                break;
+            case self::order:
+            case self::ord_pickup:
+                $result = app(Order::class)->getTable();
+                break;
+            case self::consignment:
+                $result = app(Consignment::class)->getTable();
+                break;
+            case self::csn_order:
+                $result = app(CsnOrder::class)->getTable();
                 break;
             default:
                 $result = parent::getDescription($value);

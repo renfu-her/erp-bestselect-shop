@@ -17,7 +17,6 @@ use App\Models\LogisticProjLogisticLog;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\PayingOrder;
-use App\Models\Product;
 use App\Models\ShipmentGroup;
 use App\Models\SubOrders;
 use App\Models\User;
@@ -41,7 +40,7 @@ class LogisticCtrl extends Controller
         //組合包判斷兩者欄位不同都顯示:product_title rec_product_title，否則只顯示product_title
         $deliveryList = null;
         $is_order_pick_up = false; //是否為訂單自取
-        $has_already_pay_logistic = false; //物流付款單已付清
+        $has_payable_data_logistic = false; //物流付款單已有付款紀錄
         if (Event::order()->value == $event) {
             $sub_order = SubOrders::getListWithShiGroupById($eventId)->get()->first();
             if (null == $sub_order) {
@@ -61,13 +60,16 @@ class LogisticCtrl extends Controller
             $deliveryList = Delivery::getOrderListToLogistic($delivery_id, $sub_order->order_id, $sub_order->id)->get();
 
             //判斷該付款單是否已付清
-            $payingOrder = PayingOrder::where('source_type', '=', app(Order::class)->getTable())
+            $paying_order = PayingOrder::where('source_type', '=', app(Order::class)->getTable())
                 ->where('source_id', '=', $sub_order->order_id)
                 ->where('source_sub_id', '=', $sub_order->id)
                 ->whereNull('deleted_at')
                 ->first();
-            if (isset($payingOrder) && isset($payingOrder->balance_date)) {
-                $has_already_pay_logistic = true;
+            if (isset($paying_order)) {
+                $payable_data = PayingOrder::get_payable_detail($paying_order->id);
+                if (0 < count($payable_data)) {
+                    $has_payable_data_logistic = true;
+                }
             }
         } else if (Event::consignment()->value == $event) {
             $returnAction = Route('cms.consignment.edit', ['id' => $eventId ]);
@@ -172,7 +174,7 @@ class LogisticCtrl extends Controller
         $rsp_arr['dims'] = $dims;
         $rsp_arr['send_name'] = $send_name;
         $rsp_arr['projLogisticLog'] = $projLogisticLog;
-        $rsp_arr['has_already_pay_logistic'] = $has_already_pay_logistic;
+        $rsp_arr['has_payable_data_logistic'] = $has_payable_data_logistic;
         $rsp_arr['DelLogisticOrderAction'] = Route('cms.logistic.deleteLogisticOrder');
         $rsp_arr['breadcrumb_data'] = ['sn' => $event_sn, 'parent' => $event ];
         return view('cms.commodity.logistic.edit', $rsp_arr);
@@ -195,6 +197,8 @@ class LogisticCtrl extends Controller
         $errors = [];
         $logistic = Logistic::where('id', '=', $logistic_id)->get()->first();
         $delivery = Delivery::where('id', $logistic->delivery_id)->get()->first();
+        $pay_order_id = $delivery->event_id;
+        $pay_order_sid = null;
         //判斷若為子訂單 則回寫到子訂單資料表
         if (Event::order()->value == $delivery->event) {
             SubOrders::updateLogisticData($delivery->event_id
@@ -202,7 +206,11 @@ class LogisticCtrl extends Controller
                 , $input['actual_ship_group_id']
                 , $input['cost']
                 , $input['memo']);
+            $subOrder = SubOrders::where('id', '=', $delivery->event_id)->first();
+            $pay_order_id = $subOrder->order_id;
+            $pay_order_sid = $subOrder->id;
         }
+        $source_type = Event::getTable($delivery->event);
 
         $reLgt = Logistic::updateData(
             $input['logistic_id']
@@ -215,6 +223,7 @@ class LogisticCtrl extends Controller
             $errors['error_msg'] = $reLgt['error_msg'];
             return redirect()->back()->withInput()->withErrors($errors);
         }
+        PayingOrder::sync_logistic_cost($source_type, $pay_order_id, $pay_order_sid, $input['cost']);
 
         wToast('儲存成功');
         return redirect(Route('cms.logistic.create', [
