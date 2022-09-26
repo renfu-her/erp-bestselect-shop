@@ -16,7 +16,17 @@
                     </div>
                 </div>
             </fieldset>
-            
+
+            <div class="col-12 mb-3">
+                <label class="form-label" for="select2">角色搜尋</label>
+                <select name="select2[]" id="select2" class="-select2 -single form-select" data-placeholder="請單選">
+                    <option value="" selected disabled>請選擇</option>
+                    <option value="1">item 1</option>
+                    <option value="2">item 2</option>
+                    <option value="3">item 3</option>
+                </select>
+            </div>
+
             <div class="col-12 col-sm-6 mb-3">
                 <label class="form-label">姓名</label>
                 <input class="form-control" type="text" name="name" placeholder="請輸入姓名" value=""
