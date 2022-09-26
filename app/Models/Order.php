@@ -413,6 +413,8 @@ class Order extends Model
      */
     public static function createOrder($email, $sale_channel_id, $address, $items, $mcode = null, $note = null, $coupon_obj = null, $payinfo = null, ReceivedMethod $payment = null, $dividend = [], $operator_user)
     {
+
+        $order_sn = Sn::createSn('order','O');
         DB::beginTransaction();
 
         $customer = Customer::where('email', $email)->get()->first();
@@ -431,10 +433,11 @@ class Order extends Model
             DB::rollBack();
             return $order;
         }
-
+        /*
         $order_sn = "O" . date("Ymd") . str_pad((self::whereDate('created_at', '=', date('Y-m-d'))
                 ->get()
                 ->count()) + 1, 4, '0', STR_PAD_LEFT);
+                */
 
         $order['order_sn'] = $order_sn;
         // 處理紅利
