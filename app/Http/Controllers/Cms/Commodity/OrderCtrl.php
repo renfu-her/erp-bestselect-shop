@@ -424,14 +424,7 @@ class OrderCtrl extends Controller
         $has_already_pay_delivery_back = false; //有退貨付款單
         if (isset($subOrderId)) {
             $delivery = Delivery::where('event', Event::order()->value)->where('event_id', $subOrderId)->first();
-            //查詢退貨付款單
-            $payingOrder_dlv_back = PayingOrder::where('source_type', '=', app(Delivery::class)->getTable())
-                ->where('source_id', '=', $delivery->id)
-                ->whereNull('deleted_at')
-                ->first();
-            if (isset($payingOrder_dlv_back)) {
-                $has_already_pay_delivery_back = true;
-            }
+            $has_already_pay_delivery_back = PayingOrder::hasDeliveryBack($delivery->id);
         }
 
         $sn = $order->sn;
@@ -2377,7 +2370,7 @@ class OrderCtrl extends Controller
 
         // 是否入款
         $receive = Order::checkReceived($id);
-      
+
         return view('cms.commodity.order.edit_old_order', [
             'breadcrumb_data' => ['id' => $id, 'sn' => $order->sn],
             'subOrders' => $subOrder,

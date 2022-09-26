@@ -13,6 +13,7 @@
                         <option value="" selected>不限</option>
                         @foreach ($drawee as $value)
                             <option value="{{ $value['id'] . '|' . $value['name'] }}" {{ $value['id'] . '|' . $value['name'] == $cond['drawee_key'] ? 'selected' : '' }}>{{ $value['name'] }}</option>
+                            {{-- <option value="{{ $value }}" {{ $value == $cond['drawee_key'] ? 'selected' : '' }}>{{ $value }}</option> --}}
                         @endforeach
                     </select>
                 </div>
@@ -153,8 +154,8 @@
                             </td>
                             <td class="p-0 border-bottom-0" height="0">
                             </td>
-                            <td rowspan="{{ $rows }}">{{-- 業務員 --}}</td>
-                            <td rowspan="{{ $rows }}">{{-- 部門 --}}</td>
+                            <td rowspan="{{ $rows }}">{{ $data->undertaker_name }}</td>
+                            <td rowspan="{{ $rows }}">{{ $data->undertaker_department }}</td>
                             <td rowspan="{{ $rows }}" class="table-success">
                                 {{ $data->ro_receipt_date ? date('Y/m/d', strtotime($data->ro_receipt_date)) : '-' }}
                             </td>

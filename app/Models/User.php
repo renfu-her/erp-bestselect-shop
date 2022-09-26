@@ -101,28 +101,19 @@ class User extends Authenticatable
 
     /**
      * @param  array  $query
-     * @param $company_id
      * @param  int  $per_page  records in pagination
      *
-     * @return array [LengthAwarePaginator|array]
      */
-    public static function getUserBySearch(array $query, $company_id = null, int $per_page = 10)
+    public static function getUserBySearch(array $query, int $per_page = 10)
     {
-        $user_model = new User();
-        $user_table = DB::table($user_model->getTable());
-        if (isset($query['roles']) && $query['roles']) {
-            if ($query['roles'] == self::HAS_ROLE_PERMISSION) {
-                $user_table->join('per_model_has_roles', 'id', '=', 'model_id')
-                    ->where('model_type', '=', get_class($user_model));
-            } elseif ($query['roles'] == self::NO_ROLE_PERMISSION) {
-                $data = DB::table('per_model_has_roles')
-                    ->where('model_type', '=', get_class($user_model))
-                    ->select('model_id')->get()->toArray();
-                $assigned_roles = array();
-                foreach ($data as $key => $datum) {
-                    $assigned_roles[$key] = $datum->model_id;
-                }
-                $user_table->whereNotIn('id', $assigned_roles);
+        $user_table = DB::table('usr_users')
+                        ->leftJoin('per_model_has_roles', 'usr_users.id', '=', 'per_model_has_roles.model_id');
+
+        if (isset($query['roles'])) {
+            if ($query['roles'] == '1') {
+                $user_table->whereNotNull('model_id');
+            } elseif ($query['roles'] == '0') {
+                $user_table->whereNull('model_id');
             }
         }
 
@@ -134,25 +125,24 @@ class User extends Authenticatable
             $user_table->where('account', 'like', "%{$query['account']}%");
         }
 
-        $users = $user_table->paginate($per_page)->appends($query);
-
-        $users_data = array();
-        foreach ($users as $x) {
-            $users_data[] = $x;
-        }
-        $total_data = array();
-        foreach ($users_data as $user) {
-            $total_data[] = [
-                'id' => $user->id, 'name' => $user->name,
-                'account' => $user->account, 'api_token' => $user->api_token,
-                'is_master' => (isset($user->is_master) && $user->is_master) ? 1
-                : 0, 'role' => Role::getUserRoles($user->id, 'user'),
-            ];
+        if (isset($query['roleId']) && $query['roleId']) {
+            $user_table->where('per_model_has_roles.role_id', $query['roleId']);
         }
 
-        return [
-            'dataList' => $total_data, 'account' => $users,
-        ];
+        $users = $user_table
+            ->select([
+                'id',
+                'name',
+                'account',
+                'api_token',
+                'model_id',
+            ])
+            ->selectRaw('IF(role_id IS NOT NULL,"exist",role_id) as role_id')
+            ->distinct()
+            ->paginate($per_page)
+            ->appends($query);
+
+        return $users;
     }
 
     /**

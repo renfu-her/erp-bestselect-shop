@@ -1396,4 +1396,18 @@ class PayingOrder extends Model
         }
         PayingOrder::where($whereQuery)->update(['price' => $cost]);
     }
+
+    //是否有退貨付款單
+    public static function hasDeliveryBack($delivery_id) {
+        $result = false;
+        $query = PayingOrder::where('source_type', '=', app(Delivery::class)->getTable())
+            ->where('source_id', '=', $delivery_id)
+            ->whereNull('source_sub_id')
+            ->whereNull('deleted_at')
+            ->first();
+        if (isset($query)) {
+            $result = true;
+        }
+        return $result;
+    }
 }
