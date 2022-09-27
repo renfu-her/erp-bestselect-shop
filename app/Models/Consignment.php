@@ -147,7 +147,7 @@ class Consignment extends Model
     public static function del($id, $operator_user_id, $operator_user_name) {
         //判斷若有審核、否決 則不可刪除
         $consignment = Consignment::where('id', $id)->get()->first();
-        if (null != $consignment->audit_date) {
+        if (AuditStatus::approved()->value == $consignment->audit_status) {
             return ['success' => 0, 'error_msg' => '已審核無法刪除'];
         } else {
             return DB::transaction(function () use ($id, $operator_user_id, $operator_user_name
