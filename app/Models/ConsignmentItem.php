@@ -250,11 +250,11 @@ class ConsignmentItem extends Model
 
         $consignmentItemData = ConsignmentItem::getOriginInboundDataList();
         $consignmentData  = Consignment::getDeliveryData();
-        $result = DB::table(DB::raw("({$consignmentData->toSql()}) as consignment"))
+        $result = DB::query()->fromSub($consignmentData, 'consignment')
             ->leftJoinSub($consignmentItemData, 'items', function($join) {
                 $join->on('items.consignment_id', '=', 'consignment.consignment_id');
             })
-            ->mergeBindings($consignmentData);
+        ;
         if ($consignment_sn) {
             $result->where('consignment.consignment_sn', $consignment_sn);
         }
