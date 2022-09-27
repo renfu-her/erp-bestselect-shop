@@ -66,6 +66,7 @@ class HomeCtrl extends Controller
             'public' => 1,
             'online' => $d['online'] ?? null,
             'collection' => $d['collection_id'] ?? null,
+            'is_liquor' => 0,
         ];
         $dataList = Product::productList(null, null, $cond);
         $dataList = IttmsUtils::setPager($dataList, $request);
@@ -114,6 +115,8 @@ class HomeCtrl extends Controller
             'public' => 1,
             'online' => $d['online'] ?? null,
             'product_ids' => $product_id_fks ?? null,
+            'collection' => 1,
+            'is_liquor' => 0,
         ];
         $dataList = Product::productList(null, null, $cond);
         $dataList = IttmsUtils::setPager($dataList, $request);
@@ -169,6 +172,8 @@ class HomeCtrl extends Controller
             'public' => 1,
             'online' => $d['online'] ?? null,
             'product_ids' => $product_ids ?? null,
+            'collection' => 1,
+            'is_liquor' => 0,
         ];
         if (1 == $product->only_show_category) {
             //打勾 找同歸類
@@ -296,7 +301,6 @@ class HomeCtrl extends Controller
             })
             ->leftJoin('collection_prd', 'prd_products.id', '=', 'collection_prd.product_id_fk')
             ->leftJoin('collection', 'collection_prd.collection_id_fk', '=', 'collection.id')
-            ->where('collection.is_liquor', '=', 0)
             ->get();
 
         $category_ids = array_map(function ($n) {
@@ -323,6 +327,8 @@ class HomeCtrl extends Controller
             'public' => 1,
             'online' => 1,
             'product_ids' => $product_ids ?? null,
+            'collection' => 1,
+            'is_liquor' => 0,
         ];
 
         $dataList = Product::productList(null, null, $cond);
