@@ -33,8 +33,10 @@
                     value="{{ old('chargeman', $data->chargeman ?? '') }}" />
             </x-b-form-group>
             <x-b-form-group name="chargeman" title="折扣" required="true">
-                <input class="form-control @error('discount') is-invalid @enderror" type="number" max="1"
+                
+                <input class="form-control @error('discount') is-invalid @enderror" type="number" max="2"
                     step="0.01" name="discount" value="{{ old('discount', $data->discount ?? 1) }}" />
+                    <div>通路商品價格 = 基準商品價格 * 折扣</div>
             </x-b-form-group>
             <x-b-form-group name="basis_on_estimated_cost" title="商品成本為基準" required="true">
                 <div class="form-check">
