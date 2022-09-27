@@ -623,7 +623,7 @@ class PayingOrder extends Model
             ->selectRaw('
                 CASE
                     WHEN po.source_type = "' . app(Purchase::class)->getTable() . '" AND po.source_sub_id IS NULL THEN CASE WHEN po.type = "0" THEN 0 ELSE purchase.logistics_price END
-                    WHEN po.source_type = "' . app(Order::class)->getTable() . '" AND po.source_sub_id IS NOT NULL AND po.type = 1 THEN dlv_logistic.cost
+                    WHEN po.source_type = "' . app(Order::class)->getTable() . '" AND po.source_sub_id IS NOT NULL AND po.type = 1 THEN (dlv_logistic.cost * dlv_logistic.qty)
                     WHEN po.source_type = "' . app(Consignment::class)->getTable() . '" AND po.type = 1 THEN co_logistic.cost
                     WHEN po.source_type = "' . app(StituteOrder::class)->getTable() . '" AND po.type = 1 THEN 0
                     WHEN po.source_type = "' . app(Order::class)->getTable() . '" AND po.type = 9 THEN order_return.dlv_fee
@@ -691,6 +691,8 @@ class PayingOrder extends Model
                 $query->where([
                     'po.payee_id'=>$payee['id'],
                 ])->where('po.payee_name', 'like', "%{$payee['name']}%");
+
+                // $query->where('po.payee_name', 'like', "%{$payee['name']}%");
             }
         }
 

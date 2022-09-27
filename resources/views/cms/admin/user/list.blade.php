@@ -21,11 +21,10 @@
                 </fieldset>
 
                 <div class="col-12 mb-3">
-                    <label class="form-label" for="select2">角色搜尋</label>
-                    <select name="roleId" id="select2" class="-select2 -single form-select" data-placeholder="請單選">
-                        <option value="" selected disabled>請選擇</option>
+                    <label class="form-label" for="select2-multiple">角色搜尋</label>
+                    <select name="roleIds[]" id="select2-multiple" multiple class="-select2 -multiple form-select" data-placeholder="請複選">
                         @foreach($roleData as $roleDatum)
-                            <option value="{{ $roleDatum->id }}">{{ $roleDatum->title }}</option>
+                            <option value="{{ $roleDatum['id'] }}">{{ $roleDatum['title'] }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -62,6 +61,7 @@
                         <th scope="col" style="width:40px;">#</th>
                         <th scope="col" style="width:10%;">姓名</th>
                         <th scope="col">帳號</th>
+                        <th scope="col">角色</th>
                         <th scope="col">api_token</th>
                         <th scope="col" style="width:10%;">角色設定狀況</th>
                         <th scope="col" class="text-center" style="width:40px;">通路權限</th>
@@ -79,9 +79,28 @@
                             <th scope="row">{{ $key + 1 }}</th>
                             <td>{{ $data->name }}</td>
                             <td>{{ $data->account }}</td>
+                            <td>
+                                @php
+                                    $roleNames = \App\Models\User::getRoleTitleByUserId($data->id);
+								@endphp
+                                @if(count($roleNames ?? []) > 0)
+                                    @php
+                                        $i = count($roleNames);
+                                    @endphp
+                                    @foreach($roleNames as $roleName)
+                                            {{ $roleName->title }}
+                                        @if($i > 1)
+                                            {{ ',' }}
+                                        @endif
+                                        @php
+                                            $i--;
+                                        @endphp
+                                    @endforeach
+                                @endif
+                            </td>
                             <td class="text-truncate" style="max-width: 3em">{{ $data->api_token }}</td>
-                            <td @class(['text-danger' => is_null($data->role_id)])>
-                                @if (is_null($data->role_id))
+                            <td @class(['text-danger' => is_null($data->role_ids)])>
+                                @if (is_null($data->role_ids))
                                     未設定角色
                                 @else
                                     已設定角色

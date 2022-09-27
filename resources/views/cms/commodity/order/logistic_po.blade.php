@@ -94,9 +94,9 @@
                         @if($sub_order->logistic_cost > 0)
                             <tr>
                                 <td>{{ $logistics_grade_name . ' - 物流費用' }}</td>
-                                <td class="text-end">1</td>
+                                <td class="text-end">{{ number_format($logistic->qty) }}</td>
                                 <td class="text-end">{{ number_format($sub_order->logistic_cost, 2) }}</td>
-                                <td class="text-end">{{ number_format($sub_order->logistic_cost) }}</td>
+                                <td class="text-end">{{ number_format($sub_order->logistic_cost * $logistic->qty) }}</td>
                                 <td>{{ $sub_order->logistic_memo }}</td>
                             </tr>
                         @endif

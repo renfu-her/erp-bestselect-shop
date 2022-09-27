@@ -1472,9 +1472,11 @@ class OrderCtrl extends Controller
         $order = Order::orderDetail($id)->get()->first();
         $sub_order = Order::subOrderDetail($id, $sid, true)->get()->toArray()[0];
         $supplier = Supplier::find($sub_order->supplier_id);
+        $delivery = Delivery::where('event', Event::order()->value)->where('event_id', $sid)->first();
+        $logistic = Logistic::where('delivery_id', $delivery->id)->whereNull('deleted_at')->first();
 
         if (!$paying_order) {
-            $price = $sub_order->logistic_cost;
+            $price = $sub_order->logistic_cost * $logistic->qty;
             $product_grade = PayableDefault::where('name', '=', 'product')->first()->default_grade_id;
             $logistics_grade = PayableDefault::where('name', '=', 'logistics')->first()->default_grade_id;
 
@@ -1537,6 +1539,7 @@ class OrderCtrl extends Controller
             'data_status_check' => $data_status_check,
             'order' => $order,
             'sub_order' => $sub_order,
+            'logistic' => $logistic,
             'undertaker' => $undertaker,
             'applied_company' => $applied_company,
             'logistics_grade_name' => $logistics_grade_name,
@@ -1641,6 +1644,8 @@ class OrderCtrl extends Controller
             $order = Order::orderDetail($id)->get()->first();
             $sub_order = Order::subOrderDetail($id, $sid, true)->get()->toArray()[0];
             $supplier = Supplier::find($sub_order->supplier_id);
+            $delivery = Delivery::where('event', Event::order()->value)->where('event_id', $sid)->first();
+            $logistic = Logistic::where('delivery_id', $delivery->id)->whereNull('deleted_at')->first();
 
             $logistics_grade_name = AllGrade::find($paying_order->logistics_grade_id)->eachGrade->code . ' ' . AllGrade::find($paying_order->logistics_grade_id)->eachGrade->name;
 
@@ -1664,6 +1669,7 @@ class OrderCtrl extends Controller
                 'payable_data' => $payable_data,
                 'order' => $order,
                 'sub_order' => $sub_order,
+                'logistic' => $logistic,
                 'supplier' => $supplier,
                 'logistics_grade_name' => $logistics_grade_name,
                 'currency' => $currency,
@@ -2464,6 +2470,13 @@ class OrderCtrl extends Controller
 
             $updateData['dlv_fee'] = $total_dlv_fee;
             $updateData['total_price'] = $total_price;
+
+        } else {
+            foreach ($d['sub_order_id'] as $key => $value) {
+                SubOrders::where('id', $value)->update([
+                    'note' => $d['sub_order_note'][$key],
+                ]);
+            }
         }
 
         Order::where('id', $id)->update($updateData);

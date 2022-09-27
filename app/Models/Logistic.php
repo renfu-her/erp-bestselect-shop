@@ -50,7 +50,7 @@ class Logistic extends Model
     }
 
     //更新物流單資料
-    public static function updateData($id, $package_sn, $ship_group_id, $cost, $memo) {
+    public static function updateData($id, $package_sn, $ship_group_id, $qty, $cost, $memo) {
         $data = Logistic::where('id', $id);
         $dataGet = null;
         if (null != $data) {
@@ -61,6 +61,7 @@ class Logistic extends Model
             $updateData = [
                 'package_sn' => $package_sn
                 , 'ship_group_id' => $ship_group_id
+                , 'qty' => $qty
                 , 'cost' => $cost
                 , 'memo' => $memo
             ];

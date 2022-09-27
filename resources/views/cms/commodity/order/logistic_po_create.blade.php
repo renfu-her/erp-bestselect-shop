@@ -12,7 +12,7 @@
             @endif
 
             <p class="fw-bold">支付對象：{{ $supplier ? $supplier->name . ' - ' . $supplier->contact_person : '' }}</p>
-            
+
             <div class="table-responsive tableOverBox border-bottom border-dark">
                 <table class="table table-sm table-hover tableList mb-1">
                     <thead class="table-secondary align-middle">
@@ -42,10 +42,10 @@
                                 <td class="text-wrap">{{ $logistics_grade_name }}</td>
                                 <td class="text-wrap">{{ $sub_order->logistic_memo }}</td>
                                 <td class="text-end">${{ number_format($sub_order->logistic_cost, 2) }}</td>
-                                <td class="text-end">1</td>
+                                <td class="text-end">{{ number_format($logistic->qty) }}</td>
                                 <td class="text-end">{{ $currency->rate }}</td>
                                 <td>{{ $currency->name }}</td>
-                                <td class="text-end">${{ number_format($sub_order->logistic_cost) }}</td>
+                                <td class="text-end">${{ number_format($sub_order->logistic_cost * $logistic->qty) }}</td>
                                 <td class="text-end"></td>
                             </tr>
                         @endif
@@ -89,11 +89,11 @@
                     @foreach($transactTypeList as $transactData)
                         <div class="form-check form-check-inline">
                             <label class="form-check-label transactType" data-type="{{ $transactData['key'] }}">
-                                <input class="form-check-input" name="acc_transact_type_fk" type="radio" 
+                                <input class="form-check-input" name="acc_transact_type_fk" type="radio"
                                 @if ($method === 'create' && $isFirst)
                                     checked
                                 @endif
-                                {{ ( $method === 'edit' && count($payable_data) > 0 ? $payable_data->last()->acc_income_type_fk : 0) === $transactData['value'] ? 'checked' : ''}} 
+                                {{ ( $method === 'edit' && count($payable_data) > 0 ? $payable_data->last()->acc_income_type_fk : 0) === $transactData['value'] ? 'checked' : ''}}
                                 value="{{ $transactData['value'] }}" required>
                                 {{ $transactData['name'] }}
                             </label>
@@ -114,7 +114,7 @@
                 {{-- 現金 --}}
                 <div class="col-12 col-sm-6 mb-3 cash">
                     <label class="form-label cash">會計科目 <span class="text-danger">*</span></label>
-                    <select name="cash[grade_id_fk]" class="form-select -select2 -single cash @error('cash[grade_id_fk]') is-invalid @enderror" 
+                    <select name="cash[grade_id_fk]" class="form-select -select2 -single cash @error('cash[grade_id_fk]') is-invalid @enderror"
                         required data-placeholder="請選擇會計科目">
                         @php
                             $cash_first = true;
@@ -132,11 +132,11 @@
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
-                
+
                 {{-- 支票 --}}
                 <div class="col-12 col-sm-6 mb-3 cheque d-none">
                     <label class="form-label cheque">會計科目 <span class="text-danger">*</span></label>
-                    <select name="cheque[grade_id_fk]" class="form-select -select2 -single cheque @error('cheque[grade_id_fk]') is-invalid @enderror" 
+                    <select name="cheque[grade_id_fk]" class="form-select -select2 -single cheque @error('cheque[grade_id_fk]') is-invalid @enderror"
                         required data-placeholder="請選擇會計科目">
                         @foreach($total_grades as $value)
                             @if(in_array($value['primary_id'], $chequeDefault))
@@ -151,7 +151,7 @@
 
                 <div class="col-12 col-sm-6 mb-3 cheque">
                     <label class="form-label cheque">支存銀行 <span class="text-danger">*</span></label>
-                    <select name="cheque[grade_id]" class="form-select -select2 -single cheque @error('cheque[grade_id]') is-invalid @enderror" 
+                    <select name="cheque[grade_id]" class="form-select -select2 -single cheque @error('cheque[grade_id]') is-invalid @enderror"
                         required data-placeholder="請選擇支存銀行">
                         @php
                             $cheque_first = true;
@@ -213,11 +213,11 @@
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
-            
+
                 {{-- 匯款 --}}
                 <div class="col-12 col-sm-6 mb-3 remit">
                     <label class="form-label remit">匯款銀行 <span class="text-danger">*</span></label>
-                    <select name="remit[grade_id_fk]" class="form-select -select2 -single remit @error('remit[grade_id_fk]') is-invalid @enderror" 
+                    <select name="remit[grade_id_fk]" class="form-select -select2 -single remit @error('remit[grade_id_fk]') is-invalid @enderror"
                         required data-placeholder="請選擇匯款銀行">
                         @php
                             $remit_first = true;
@@ -244,11 +244,11 @@
                             required
                             value="{{ old('remit[remit_date]', date('Y-m-d', strtotime( date('Y-m-d'))) ) }}"/>
                 </x-b-form-group>
-                
+
                 {{-- 外幣 --}}
                 <div class="col-12 col-sm-6 mb-3 foreign_currency">
                     <label for="" class="form-label foreign_currency">外幣 <span class="text-danger">*</span></label>
-                    <select name="foreign_currency[currency]" class="form-select -select2 -single foreign_currency @error('foreign_currency[currency]') is-invalid @enderror" 
+                    <select name="foreign_currency[currency]" class="form-select -select2 -single foreign_currency @error('foreign_currency[currency]') is-invalid @enderror"
                         required data-placeholder="請選擇外幣">
                         <option value="" selected disabled>請選擇</option>
                         @foreach($all_currency as $value)
@@ -283,7 +283,7 @@
 
                 <div class="col-12 col-sm-6 mb-3 foreign_currency">
                     <label for="" class="form-label foreign_currency">會計科目 <span class="text-danger">*</span></label>
-                    <select name="foreign_currency[grade_id_fk]" class="form-select -select2 -single foreign_currency 
+                    <select name="foreign_currency[grade_id_fk]" class="form-select -select2 -single foreign_currency
                         @error('foreign_currency[grade_id_fk]') is-invalid @enderror" required data-placeholder="請選擇會計科目">
                         @php
                             $foreign_first = true;
@@ -301,11 +301,11 @@
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
-                
+
                 {{-- 應付帳款 --}}
                 <div class="col-12 col-sm-6 mb-3 payable_account">
                     <label for="" class="form-label payable_account">會計科目 <span class="text-danger">*</span></label>
-                    <select name="payable_account[grade_id_fk]" class="form-select -select2 -single payable_account 
+                    <select name="payable_account[grade_id_fk]" class="form-select -select2 -single payable_account
                         @error('payable_account[grade_id_fk]') is-invalid @enderror" required data-placeholder="請選擇會計科目">
                         @php
                             $account_first = true;
@@ -323,13 +323,13 @@
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
-                
+
                 {{-- 其他 --}}
                 <div class="col-12 col-sm-6 mb-3 other">
                     <label for="" class="form-label other">會計科目
                         <span class="text-danger">*</span>
                     </label>
-                    <select name="other[grade_id_fk]" class="form-select -select2 -single other 
+                    <select name="other[grade_id_fk]" class="form-select -select2 -single other
                         @error('other[grade_id_fk]') is-invalid @enderror" required data-placeholder="請選擇會計科目">
                         @php
                             $other_first = true;

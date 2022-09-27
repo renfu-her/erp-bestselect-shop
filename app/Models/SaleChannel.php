@@ -131,46 +131,68 @@ class SaleChannel extends Model
 
     public static function batchPrice($sale_id)
     {
-        DB::transaction(function () use ($sale_id) {
-            $masterSale = self::where('is_master', 1)->select('id')->get()->first();
-            if (!$masterSale) {
-                return;
+        DB::beginTransaction();
+
+        $currentSale = self::where('is_master', '<>', 1)
+            ->where('id', $sale_id)
+            ->select('id', 'discount', 'dividend_rate', 'basis_on_estimated_cost')
+            ->get()
+            ->first();
+
+        $masterSale = self::where('is_master', 1)->select('id')->get()->first();
+        if (!$masterSale) {
+            return;
+        }
+
+        $originProduct = DB::table('prd_salechannel_style_price')
+            ->where('sale_channel_id', $masterSale->id)
+            ->get();
+
+        foreach ($originProduct as $product) {
+            // dd($product);
+
+            $newPrice = DB::table('prd_salechannel_style_price')
+                ->where('sale_channel_id', $currentSale->id)
+                ->where('style_id', $product->style_id)
+                ->get()->first();
+
+            $p = $product->price;
+            if ($currentSale->basis_on_estimated_cost == '1') {
+                $p = ProductStyle::where('id', $product->style_id)->get()->first()->estimated_cost;
             }
 
-            $currentSale = self::where('is_master', '<>', 1)
-                ->where('id', $sale_id)
-                ->select('id', 'discount', 'dividend_rate')
-                ->get()
-                ->first();
+            $price = round($p * $currentSale->discount);
+            $bonus = round(($price - $product->dealer_price) * Bonus::bonus()->value);
+            $bonus = $bonus > 0 ? $bonus : 0;
+            $dividend = round($price * $currentSale->dividend_rate / 100);
+            $dividend = $dividend > 0 ? $dividend : 0;
 
-            $originProduct = DB::table('prd_salechannel_style_price')
-                ->where('sale_channel_id', $masterSale->id)
-                ->get();
-
-            foreach ($originProduct as $product) {
-                // dd($product);
-                $newPrice = DB::table('prd_salechannel_style_price')
-                    ->where('sale_channel_id', $currentSale->id)
-                    ->where('style_id', $product->style_id)
-                    ->get()->first();
-
-                if (!$newPrice) {
-                    $price = round($product->price * $currentSale->discount);
-                    $bonus = round(($price - $product->dealer_price) * Bonus::bonus()->value);
-                    $dividend = round($price * $currentSale->dividend_rate / 100);
-                    DB::table('prd_salechannel_style_price')
-                        ->insert([
-                            'style_id' => $product->style_id,
-                            'sale_channel_id' => $currentSale->id,
-                            'dealer_price' => $product->dealer_price,
-                            'origin_price' => $product->origin_price,
-                            'price' => $price,
-                            'bonus' => $bonus,
-                            'dividend' => $dividend,
-                        ]);
-                }
+            if (!$newPrice) {
+                DB::table('prd_salechannel_style_price')
+                    ->insert([
+                        'style_id' => $product->style_id,
+                        'sale_channel_id' => $currentSale->id,
+                        'dealer_price' => $product->dealer_price,
+                        'origin_price' => $product->origin_price,
+                        'price' => $price,
+                        'bonus' => $bonus,
+                        'dividend' => $dividend,
+                    ]);
+            } else {
+                DB::table('prd_salechannel_style_price')
+                    ->where(['style_id' => $product->style_id,
+                        'sale_channel_id' => $currentSale->id])
+                    ->update([
+                        'dealer_price' => $product->dealer_price,
+                        'origin_price' => $product->origin_price,
+                        'price' => $price,
+                        'bonus' => $bonus,
+                        'dividend' => $dividend,
+                    ]);
             }
-        });
+        }
+
+        DB::commit();
     }
 
     public static function addPriceForStyle($style_id)

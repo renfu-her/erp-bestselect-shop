@@ -78,7 +78,15 @@
                     <div class="input-group">
                         <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
                         <input type="number" class="form-control" name="cost" min="0" placeholder="請輸入成本"
-                            value="{{ $logistic->cost !== 0 ? $logistic->cost : 0 }}" required>
+                               value="{{ $logistic->cost !== 0 ? $logistic->cost : 0 }}" required>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 mb-3">
+                    <label class="form-label">數量 <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
+                        <input type="number" class="form-control" name="qty" min="1" placeholder="請輸入數量"
+                               value="{{ $logistic->qty?? 1 }}" required>
                     </div>
                 </div>
                 <div class="col-12 mb-3">
