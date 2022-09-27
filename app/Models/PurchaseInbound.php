@@ -783,7 +783,7 @@ class PurchaseInbound extends Model
             )
             ->selectRaw('sum(dlv_consum.qty) as qty')
             ->selectRaw('sum(dlv_consum.back_qty) as back_qty')
-            ->whereNotNull('qty')
+            ->whereNotNull('dlv_consum.qty')
             ->whereNull('dlv_logistic.audit_date')
             ->whereNull('dlv_logistic.deleted_at')
             ->groupBy('dlv_consum.inbound_id')
