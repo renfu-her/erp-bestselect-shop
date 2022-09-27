@@ -1,25 +1,31 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>@switch($type)
-        @case('sales')
-            銷貨單明細
+    <title>
+        @switch($type)
+            @case('sales')
+                銷貨單明細
             @break
-        @case('ship')
-            出貨單明細
+
+            @case('ship')
+                出貨單明細
             @break
-        @default
-            明細列印
-    @endswitch</title>
+
+            @default
+                明細列印
+        @endswitch
+    </title>
     <style>
         * {
             font-family: "Nunito", "Noto Sans TC", sans-serif;
             position: relative;
         }
+
         @page {
             size: 214.9mm 140mm;
             margin: 0;
@@ -29,29 +35,35 @@
         .font {
             display: inline-block;
         }
+
         .print {
             margin-top: 2em;
         }
+
         .print button {
             font-size: 1.5rem;
             margin: 0 10px;
         }
+
         @media print {
             * {
                 font-weight: lighter;
             }
+
             a,
             a:active,
             a:visited {
                 color: #000000;
                 text-decoration: none;
             }
+
             .print {
                 display: none;
             }
         }
     </style>
 </head>
+
 <body style="margin-top: 0px;">
     <div style="position: absolute; left: 0; top: 0; width:100%">
         <div style="text-align: center;">
@@ -66,10 +78,11 @@
                 @switch($type)
                     @case('sales')
                         銷貨單明細
-                        @break
+                    @break
+
                     @case('ship')
                         出貨單明細
-                        @break
+                    @break
                 @endswitch
             </div>
             <div>
@@ -87,7 +100,8 @@
                         </tr>
                         <tr>
                             <td>收件人：{{ $order->rec_name }} {{ $order->rec_phone }}</td>
-                            <td>送貨地址：{{ $order->rec_zipcode ? $order->rec_zipcode.' ' : ''}}{{ $order->rec_address }}</td>
+                            <td>送貨地址：{{ $order->rec_zipcode ? $order->rec_zipcode . ' ' : '' }}{{ $order->rec_address }}
+                            </td>
                         </tr>
                         <tr>
                             <td>取貨方式：{{ $subOrders->ship_event }}</td>
@@ -123,7 +137,7 @@
                                 <td></td>
                             </tr>
                         @endforeach
-                        
+
                         {{-- 最少 8 行 --}}
                         @for ($i = count($subOrders->items); $i < 8; $i++)
                             <tr height="24">
@@ -140,8 +154,11 @@
                         <tr height="70">
                             <td style="vertical-align:top;" colspan="4">
                                 備註：{{ $order->note }}
-                                <div style="font-size: small;margin-top:5px;">{{ $user->name }} {{ date('Y/m/d H:i:s') }}</div>
-                                銷貨備註：{{ $subOrders->note }}
+                                <div style="font-size: small;margin-top:5px;">{{ $user->name }}
+                                    {{ date('Y/m/d H:i:s') }}</div>
+                                @if ($type === 'sales')
+                                    銷貨備註：{{ $subOrders->note }}
+                                @endif
                             </td>
                             @if ($type === 'sales')
                                 <td style="text-align: right;">總計 {{ number_format($subOrders->total_price) }}</td>
@@ -158,4 +175,5 @@
         </div>
     </div>
 </body>
+
 </html>
