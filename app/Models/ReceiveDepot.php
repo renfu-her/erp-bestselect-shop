@@ -879,7 +879,8 @@ class ReceiveDepot extends Model
                         && $ord_items_arr[$num_item]->product_style_id == $rcv_repot_combo[$num_combo]->product_style_child_id
                     ) {
                         $ord_items_arr[$num_item]->total_to_back_qty = $rcv_repot_combo[$num_combo]->to_back_qty * $rcv_repot_combo[$num_combo]->unit_qty;
-                    } else if ($ord_items_arr[$num_item]->prd_type == 'p' && null == $ord_items_arr[$num_item]->papa_product_style_id) {
+                    } else if ($ord_items_arr[$num_item]->prd_type == 'p' && null == $ord_items_arr[$num_item]->papa_product_style_id
+                        && $ord_items_arr[$num_item]->product_style_id == $rcv_repot_combo[$num_combo]->product_style_id) {
                         $ord_items_arr[$num_item]->total_to_back_qty = $rcv_repot_combo[$num_combo]->to_back_qty;
                     }
                 }
