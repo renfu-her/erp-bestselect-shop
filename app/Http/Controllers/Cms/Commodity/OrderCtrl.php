@@ -2470,6 +2470,13 @@ class OrderCtrl extends Controller
 
             $updateData['dlv_fee'] = $total_dlv_fee;
             $updateData['total_price'] = $total_price;
+
+        } else {
+            foreach ($d['sub_order_id'] as $key => $value) {
+                SubOrders::where('id', $value)->update([
+                    'note' => $d['sub_order_note'][$key],
+                ]);
+            }
         }
 
         Order::where('id', $id)->update($updateData);
