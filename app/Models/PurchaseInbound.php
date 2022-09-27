@@ -534,7 +534,7 @@ class PurchaseInbound extends Model
     }
 
     //採購單入庫總覽
-    public static function getOverviewInboundList($event, $event_id)
+    public static function getOverviewInboundList($event, $event_id = null)
     {
         $tempInboundSql = DB::table('pcs_purchase_inbound as inbound')
 
@@ -587,6 +587,7 @@ class PurchaseInbound extends Model
                 ->selectRaw('(case
                     when '. $queryTotalInboundNum. ' = 0 and COALESCE(inbound.inbound_num, 0) <> 0 then "'.InboundStatus::getDescription(InboundStatus::normal()->value).'"
                     when COALESCE(inbound.inbound_num, 0) = 0 then "'.InboundStatus::getDescription(InboundStatus::not_yet()->value).'"
+                    when COALESCE(inbound.inbound_num, 0) is null then "'.InboundStatus::getDescription(InboundStatus::not_yet()->value).'"
                     when COALESCE(sum(items.num), 0) < COALESCE(inbound.inbound_num) then "'.InboundStatus::getDescription(InboundStatus::overflow()->value).'"
                     when COALESCE(sum(items.num), 0) > COALESCE(inbound.inbound_num) then "'.InboundStatus::getDescription(InboundStatus::shortage()->value).'"
                 end) as inbound_type') //採購狀態
@@ -633,6 +634,7 @@ class PurchaseInbound extends Model
                 ->selectRaw('(case
                     when '. $queryTotalInboundNum. ' = 0 and COALESCE(inbound.inbound_num, 0) <> 0 then "'.InboundStatus::getDescription(InboundStatus::normal()->value).'"
                     when COALESCE(inbound.inbound_num, 0) = 0 then "'.InboundStatus::getDescription(InboundStatus::not_yet()->value).'"
+                    when COALESCE(inbound.inbound_num, 0) is null then "'.InboundStatus::getDescription(InboundStatus::not_yet()->value).'"
                     when COALESCE(sum(items.num), 0) < COALESCE(inbound.inbound_num) then "'.InboundStatus::getDescription(InboundStatus::overflow()->value).'"
                     when COALESCE(sum(items.num), 0) > COALESCE(inbound.inbound_num) then "'.InboundStatus::getDescription(InboundStatus::shortage()->value).'"
                 end) as inbound_type') //採購狀態
@@ -683,6 +685,7 @@ class PurchaseInbound extends Model
                 ->selectRaw('(case
                     when '. $queryTotalInboundNum. ' = 0 and COALESCE(inbound.inbound_num, 0) <> 0 then "'.InboundStatus::getDescription(InboundStatus::normal()->value).'"
                     when COALESCE(inbound.inbound_num, 0) = 0 then "'.InboundStatus::getDescription(InboundStatus::not_yet()->value).'"
+                    when COALESCE(inbound.inbound_num, 0) is null then "'.InboundStatus::getDescription(InboundStatus::not_yet()->value).'"
                     when COALESCE(sum(items.qty), 0) < COALESCE(inbound.inbound_num) then "'.InboundStatus::getDescription(InboundStatus::overflow()->value).'"
                     when COALESCE(sum(items.qty), 0) > COALESCE(inbound.inbound_num) then "'.InboundStatus::getDescription(InboundStatus::shortage()->value).'"
                 end) as inbound_type') //採購狀態
