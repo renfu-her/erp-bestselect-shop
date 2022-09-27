@@ -691,6 +691,8 @@ class PayingOrder extends Model
                 $query->where([
                     'po.payee_id'=>$payee['id'],
                 ])->where('po.payee_name', 'like', "%{$payee['name']}%");
+
+                // $query->where('po.payee_name', 'like', "%{$payee['name']}%");
             }
         }
 

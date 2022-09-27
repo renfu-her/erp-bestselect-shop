@@ -914,6 +914,7 @@
             });
             // 儲存前設定name
             $('#form1').submit(function(e) {
+                $('#form1 button:submit').prop('disabled', true);
                 $('input:hidden[name="customer_id"]').val($('#customer').val());
                 $('input:hidden[name="salechannel_id"]').val($('#salechannel').val());
                 $('input:hidden[name$="_address"]').val(function() {
