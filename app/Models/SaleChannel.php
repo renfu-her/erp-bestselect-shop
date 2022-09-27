@@ -157,13 +157,15 @@ class SaleChannel extends Model
                 ->get()->first();
 
             $p = $product->price;
-            if($currentSale->basis_on_estimated_cost =='1'){
-                $p = ProductStyle::where('id',$product->style_id)->get()->first()->estimated_cost;         
+            if ($currentSale->basis_on_estimated_cost == '1') {
+                $p = ProductStyle::where('id', $product->style_id)->get()->first()->estimated_cost;
             }
 
             $price = round($p * $currentSale->discount);
             $bonus = round(($price - $product->dealer_price) * Bonus::bonus()->value);
+            $bonus = $bonus > 0 ? $bonus : 0;
             $dividend = round($price * $currentSale->dividend_rate / 100);
+            $dividend = $dividend > 0 ? $dividend : 0;
 
             if (!$newPrice) {
                 DB::table('prd_salechannel_style_price')
@@ -189,7 +191,7 @@ class SaleChannel extends Model
                     ]);
             }
         }
-       
+
         DB::commit();
     }
 
