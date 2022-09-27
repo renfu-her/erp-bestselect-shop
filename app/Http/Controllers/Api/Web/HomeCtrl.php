@@ -295,9 +295,7 @@ class HomeCtrl extends Controller
         //找同物流商品
         $prd_shipment_1 = DB::table('prd_product_shipment as prd_shipment')
             ->join('prd_products', function ($join){
-                $join->on('prd_shipment.product_id', '=', 'prd_products.id')
-                    ->where('prd_products.public', '=', 1)
-                    ->where('prd_products.online', '=', 1);
+                $join->on('prd_shipment.product_id', '=', 'prd_products.id');
             })
             ->leftJoin('collection_prd', 'prd_products.id', '=', 'collection_prd.product_id_fk')
             ->leftJoin('collection', 'collection_prd.collection_id_fk', '=', 'collection.id')
