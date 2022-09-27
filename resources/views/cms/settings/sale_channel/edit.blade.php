@@ -33,8 +33,16 @@
                     value="{{ old('chargeman', $data->chargeman ?? '') }}" />
             </x-b-form-group>
             <x-b-form-group name="chargeman" title="折扣" required="true">
-                <input class="form-control @error('discount') is-invalid @enderror" type="number" max="1" step="0.01"
-                    name="discount" value="{{ old('discount', $data->discount ?? 1) }}" />
+                <input class="form-control @error('discount') is-invalid @enderror" type="number" max="1"
+                    step="0.01" name="discount" value="{{ old('discount', $data->discount ?? 1) }}" />
+            </x-b-form-group>
+            <x-b-form-group name="basis_on_estimated_cost" title="商品成本為基準" required="true">
+                <div class="form-check">
+                    <input class="form-check-input" name="basis_on_estimated_cost" type="checkbox" value="1"
+                        @if (old('basis_on_estimated_cost', $data->basis_on_estimated_cost ?? '')) checked @endif>
+
+                </div>
+
             </x-b-form-group>
             <x-b-form-group name="sales_type" title="銷售類型" required="true">
                 <select class="form-select @error('sales_type') is-invalid @enderror" name="sales_type" id="sales_type">
@@ -72,16 +80,17 @@
             </x-b-form-group>
 
             <x-b-form-group name="dividend_limit" title="鴻利可抵扣上限(%)" required="true">
-                <input class="form-control @error('dividend_limit') is-invalid @enderror" type="number" max="100" step="1"
-                    name="dividend_limit" value="{{ old('dividend_limit', $data->dividend_limit ?? 100) }}" />
+                <input class="form-control @error('dividend_limit') is-invalid @enderror" type="number" max="100"
+                    step="1" name="dividend_limit"
+                    value="{{ old('dividend_limit', $data->dividend_limit ?? 100) }}" />
             </x-b-form-group>
             <x-b-form-group name="dividend_rate" title="鴻利回饋比例(%)" required="true">
-                <input class="form-control @error('dividend_rate') is-invalid @enderror" type="number" max="50" step="1"
-                    name="dividend_rate" value="{{ old('dividend_rate', $data->dividend_rate ?? 0) }}" />
+                <input class="form-control @error('dividend_rate') is-invalid @enderror" type="number" max="50"
+                    step="1" name="dividend_rate" value="{{ old('dividend_rate', $data->dividend_rate ?? 0) }}" />
             </x-b-form-group>
             <x-b-form-group name="event_dividend_rate" title="活動鴻利回饋比例(%)" required="true">
-                <input class="form-control @error('event_dividend_rate') is-invalid @enderror" type="number" min="0"
-                    max="50" step="1" name="event_dividend_rate"
+                <input class="form-control @error('event_dividend_rate') is-invalid @enderror" type="number"
+                    min="0" max="50" step="1" name="event_dividend_rate"
                     value="{{ old('event_dividend_rate', $data->event_dividend_rate ?? 0) }}" />
             </x-b-form-group>
             <x-b-form-group name="event_sdate" title="活動起始時間" required="true">
