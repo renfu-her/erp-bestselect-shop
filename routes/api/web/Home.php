@@ -9,5 +9,7 @@ Route::group(['prefix' => 'home', 'as' => 'home.'], function () {
     Route::post('template-list1', [HomeCtrl::class, 'getType1']);
     Route::post('get-recommend-collection-list', [HomeCtrl::class, 'getRecommendCollectionList']);
     Route::post('get-same-category-list', [HomeCtrl::class, 'getSameCategoryList']);
+    Route::post('get-prd-category-by-shipment', [HomeCtrl::class, 'getProductCategoryByShipment']);
+    Route::post('get-prd-list-by-shipment', [HomeCtrl::class, 'getProductListByShipment']);
 
 });

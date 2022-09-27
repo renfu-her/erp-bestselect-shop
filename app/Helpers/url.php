@@ -71,10 +71,10 @@ if (!function_exists('frontendUrl')) {
     }
 }
 
-/**
- * 回傳商品資訊url
- */
 if (!function_exists('getImageUrl')) {
+    /**
+     * 回傳商品資訊url
+     */
     function getImageUrl($subImageUrl, $cdn = false)
     {
         if (App::environment(AppEnvClass::Release) && $cdn) {

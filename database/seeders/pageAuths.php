@@ -682,6 +682,10 @@ return [
                 "cms.consignment.delete",
                 "刪除",
             ],
+            [
+                "cms.consignment.inbound",
+                "入庫",
+            ],
         ],
     ],
     [
