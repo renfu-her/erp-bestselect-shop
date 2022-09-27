@@ -370,4 +370,13 @@ class ProductStyle extends Model
 
         return $output;
     }
+
+    public static function willBeShipped($style_id, $qty)
+    {
+       // dd('aaa');
+        self::where('id', $style_id)->update([
+            'will_be_shipped' => DB::raw('will_be_shipped +' . $qty),
+        ]);
+    }
+
 }
