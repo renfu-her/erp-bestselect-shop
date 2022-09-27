@@ -225,7 +225,7 @@ class LogisticCtrl extends Controller
             $errors['error_msg'] = $reLgt['error_msg'];
             return redirect()->back()->withInput()->withErrors($errors);
         }
-        PayingOrder::sync_logistic_cost($source_type, $pay_order_id, $pay_order_sid, $input['cost']);
+        PayingOrder::sync_logistic_cost($source_type, $pay_order_id, $pay_order_sid, $input['cost'] * $input['qty']);
 
         wToast('儲存成功');
         return redirect(Route('cms.logistic.create', [

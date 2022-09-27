@@ -11,7 +11,7 @@
             font-family: "Nunito", "Noto Sans TC", sans-serif;
             position: relative;
         }
-        
+
         .font {
             display: inline-block;
         }
@@ -85,9 +85,9 @@
                 @if($sub_order->logistic_cost > 0)
                     <tr>
                         <td>{{ $logistics_grade_name . ' - 物流費用' }}</td>
-                        <td style="text-align: right;">{{ number_format(1) }}</td>
+                        <td style="text-align: right;">{{ number_format($logistic->qty) }}</td>
                         <td style="text-align: right;">{{ number_format($sub_order->logistic_cost, 2) }}</td>
-                        <td style="text-align: right;">{{ number_format($sub_order->logistic_cost) }}</td>
+                        <td style="text-align: right;">{{ number_format($sub_order->logistic_cost * $logistic->qty) }}</td>
                         <td>{{ $sub_order->logistic_memo }}</td>
                     </tr>
                 @endif
