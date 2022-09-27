@@ -114,6 +114,9 @@ class SaleChannelCtrl extends Controller
         $query = $request->query();
         $this->validInputValue($request);
         $v = $this->getInputValue($request);
+       
+        $v['basis_on_estimated_cost'] = $request->input('basis_on_estimated_cost') ? '1' : '0';
+
 
         SaleChannel::where('id', '=', $id)->update($v);
         wToast(__('Edit finished.'));
