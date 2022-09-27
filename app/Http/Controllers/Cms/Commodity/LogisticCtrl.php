@@ -187,11 +187,12 @@ class LogisticCtrl extends Controller
             'logistic_id' => 'required|numeric',
             'package_sn' => 'sometimes|nullable|string',
             'actual_ship_group_id' => 'required|numeric',
+            'qty' => 'required|numeric|min:1',
             'cost' => 'required|numeric|min:0',
             'memo' => 'sometimes|nullable|string',
         ]);
         $logistic_id = $request->input('logistic_id');
-        $input = $request->only('logistic_id', 'actual_ship_group_id', 'cost', 'package_sn', 'memo');
+        $input = $request->only('logistic_id', 'actual_ship_group_id', 'qty', 'cost', 'package_sn', 'memo');
 
 
         $errors = [];
@@ -216,6 +217,7 @@ class LogisticCtrl extends Controller
             $input['logistic_id']
             , $input['package_sn']
             , $input['actual_ship_group_id']
+            , $input['qty']
             , $input['cost']
             , $input['memo']
         );
