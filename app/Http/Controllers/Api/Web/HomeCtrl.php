@@ -17,6 +17,18 @@ use Illuminate\Support\Facades\Validator;
 
 class HomeCtrl extends Controller
 {
+    //常溫990免運專區
+    const NORMAL_SHIP_ID = 2;
+    //冷藏1599免運專區
+    const COLD_SHIP_ID = 4;
+    //冷凍1599免運專區
+    const FROZEN_SHIP_ID = 1;
+
+    //溫層DB shi_temps的ID
+    const NORMAL_TEMP_ID = 1;
+    const COLD_TEMP_ID = 2;
+    const FROZEN_TEMP_ID = 3;
+
     //
     public function getBannerList(Request $request)
     {
@@ -224,6 +236,14 @@ class HomeCtrl extends Controller
         $shipMethodId = $req['ship_id'] ?? ShipmentMethod::findShipmentMethodIdByName('喜鴻出貨');
         $shiTempId = $req['tmp_id'];
 
+        // key: tempId
+        // value: shipId
+        $tempShipIds = [
+            $this::NORMAL_TEMP_ID => $this::NORMAL_SHIP_ID,
+            $this::COLD_TEMP_ID => $this::COLD_SHIP_ID,
+            $this::FROZEN_TEMP_ID => $this::FROZEN_SHIP_ID,
+        ];
+
         $dataList = DB::table('prd_product_shipment')
                         ->join('prd_products', function ($join){
                             $join->on('prd_product_shipment.product_id', '=', 'prd_products.id')
@@ -234,6 +254,7 @@ class HomeCtrl extends Controller
                         ->leftJoin('collection', 'collection_prd.collection_id_fk', '=', 'collection.id')
                         ->where('collection.is_liquor', '=', 0)
                         ->leftJoin('shi_group', 'prd_product_shipment.group_id', '=', 'shi_group.id')
+                        ->where('shi_group.id', '=', $tempShipIds[$shiTempId])
                         ->where('shi_group.method_fk', '=', $shipMethodId)
                         ->leftJoin('shi_temps', 'shi_group.temps_fk', '=', 'shi_temps.id')
                         ->where('shi_temps.id', $shiTempId)
@@ -292,6 +313,14 @@ class HomeCtrl extends Controller
         $categoryId = $req['category_id'];
         $shipMethodId = $req['ship_id'] ?? ShipmentMethod::findShipmentMethodIdByName('喜鴻出貨');
 
+        // key: tempId
+        // value: shipId
+        $tempShipIds = [
+            $this::NORMAL_TEMP_ID => $this::NORMAL_SHIP_ID,
+            $this::COLD_TEMP_ID => $this::COLD_SHIP_ID,
+            $this::FROZEN_TEMP_ID => $this::FROZEN_SHIP_ID,
+        ];
+
         //找同物流商品
         $prd_shipment_1 = DB::table('prd_product_shipment as prd_shipment')
             ->join('prd_products', function ($join){
@@ -332,6 +361,7 @@ class HomeCtrl extends Controller
         $dataList = Product::productList(null, null, $cond);
         $dataList->join('prd_product_shipment', 'product.id', '=', 'prd_product_shipment.product_id')
                 ->leftJoin('shi_group', 'prd_product_shipment.group_id', '=', 'shi_group.id')
+                ->where('shi_group.id', '=', $tempShipIds[$shiTempId])
                 ->where('shi_group.method_fk', '=', $shipMethodId)
                 ->leftJoin('shi_temps', 'shi_group.temps_fk', '=', 'shi_temps.id')
                 ->where('shi_temps.id', '=', $shiTempId)
