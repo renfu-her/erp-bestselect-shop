@@ -276,7 +276,7 @@ return [
         ],
     ],
     [
-        "unit" => "採購單管理",
+        "unit" => "採購單列表",
         "permissions" => [
             [
                 "cms.purchase.index",
