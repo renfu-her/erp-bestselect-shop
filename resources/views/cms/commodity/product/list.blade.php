@@ -199,7 +199,7 @@
                                 @endif
                             </td>
                             <td class="text-center">
-                                @if (isset($data->hasDelivery) && !is_null($data->hasDelivery))
+                                @if (!is_null($data->hasDelivery))
                                     <i class="bi bi-check-lg text-success fs-5"></i>
                                 @else
                                     <i class="bi bi-x-lg text-danger"></i>
