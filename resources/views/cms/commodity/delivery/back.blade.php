@@ -66,12 +66,19 @@
                                     <td>
                                         <input type="number" value="{{ $item->bonus ?? '' }}" name="bonus[]" class="form-control form-control-sm -l" min="0" step="1" required>
                                     </td>
-                                    <td>{{ $item->origin_qty ? number_format($item->origin_qty) : '' }}</td>
-                                    <td>
-                                        <x-b-qty-adjuster name="back_qty[]" value="{{ $item->back_qty ?? 0 }}"
-                                            min="0" max="{{ $item->origin_qty ?? '' }}"
-                                            size="sm" minus="-" plus="+"></x-b-qty-adjuster>
-                                    </td>
+                                    <td class="text-center">{{ $item->origin_qty ? number_format($item->origin_qty) : '' }}</td>
+                                    @if(null == $delivery->back_inbound_date)
+                                        <td>
+                                            <x-b-qty-adjuster name="back_qty[]" value="{{ $item->back_qty ?? 0 }}"
+                                                              min="0" max="{{ $item->origin_qty ?? '' }}"
+                                                              size="sm" minus="-" plus="+"></x-b-qty-adjuster>
+                                        </td>
+                                    @else
+                                        <td class="text-center">
+                                            <input type="hidden" name="back_qty[]" value="{{ $item->back_qty ?? '' }}" />
+                                            {{ $item->back_qty ? number_format($item->back_qty) : '' }}
+                                        </td>
+                                    @endif
                                     <td>
                                         <input type="text" value="{{ $item->memo ?? '' }}" name="memo[]" class="form-control form-control-sm -l">
                                     </td>

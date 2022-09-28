@@ -463,6 +463,7 @@ class DeliveryCtrl extends Controller
         $order = null;
         $orderInvoice = null;
         $logistic = null;
+        $rsp_arr['has_payable_data_back'] = false; //退貨付款單已有付款紀錄
         if (Event::order()->value == $delivery->event) {
             $subOrder = SubOrders::where('id', '=', $delivery->event_id)->first();
             $order = Order::orderDetail($subOrder->order_id)->get()->first();
@@ -471,6 +472,18 @@ class DeliveryCtrl extends Controller
             $item_table = app(OrderItem::class)->getTable();
             $rsp_arr['order'] = $order;
             $rsp_arr['orderInvoice'] = $orderInvoice;
+            //判斷該付款單是否有付款紀錄
+            $paying_order = PayingOrder::where('source_type', '=', app(Delivery::class)->getTable())
+                ->where('source_id', '=', $delivery->id)
+                ->whereNull('source_sub_id')
+                ->whereNull('deleted_at')
+                ->first();
+            if (isset($paying_order)) {
+                $payable_data = PayingOrder::get_payable_detail($paying_order->id);
+                if (0 < count($payable_data)) {
+                    $rsp_arr['has_payable_data_back'] = true;
+                }
+            }
         } else if (Event::consignment()->value == $delivery->event) {
             $item_table = app(ConsignmentItem::class)->getTable();
             return abort(404);

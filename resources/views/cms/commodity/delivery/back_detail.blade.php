@@ -24,8 +24,10 @@
                 <a class="btn btn-primary btn-sm my-1 ms-1"
                     href="{{ Route('cms.delivery.return-pay-order', ['id' => $delivery->id]) }}">新增退貨付款單</a>
             @endif
-            <a class="btn btn-primary btn-sm my-1 ms-1"
-               href="{{ Route('cms.delivery.back_edit', ['event' => $delivery->event, 'eventId' => $delivery->event_id]) }}">編輯退貨</a>
+            @if (false == $has_payable_data_back)
+                <a class="btn btn-primary btn-sm my-1 ms-1"
+                   href="{{ Route('cms.delivery.back_edit', ['event' => $delivery->event, 'eventId' => $delivery->event_id]) }}">編輯退貨</a>
+            @endif
         </div>
     </nav>
 
