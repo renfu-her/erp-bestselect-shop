@@ -99,11 +99,7 @@
 
                         <tbody>
                         @php
-                            if($method == 'create'){
-                                $items = [];
-                            } else {
-                                $items = $dlv_other_items;
-                            }
+                            $items = $dlv_other_items;
                         @endphp
 
                         @for ($i = 0; $i < 5; $i++)

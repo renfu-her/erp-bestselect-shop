@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Cms\Commodity;
 use App\Enums\Delivery\BackStatus;
 use App\Enums\Delivery\Event;
 use App\Enums\Delivery\LogisticStatus;
+use App\Enums\DlvBack\DlvBackType;
 use App\Enums\Order\OrderStatus;
 use App\Enums\Purchase\LogEventFeature;
 use App\Enums\Payable\ChequeStatus;
@@ -217,9 +218,18 @@ class DeliveryCtrl extends Controller
             return abort(404);
         }
 
+        $rsp_arr['dlv_other_items'] = [];
         if(Event::order()->value == $event) {
             $sub_order = SubOrders::where('id', $delivery->event_id)->get()->first();
             $rsp_arr['order_id'] = $sub_order->order_id;
+            $rsp_arr['dlv_other_items'] = json_decode(json_encode([[
+                'id' => null,
+                'delivery_id' => $delivery->id,
+                'type' => DlvBackType::logistic()->value,
+                'title' => $sub_order->ship_event,
+                'price' => $sub_order->dlv_fee,
+                'qty' => 1,
+            ]]));
         }
         $ord_items = null;
 
