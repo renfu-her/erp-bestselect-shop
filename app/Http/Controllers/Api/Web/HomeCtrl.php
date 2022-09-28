@@ -290,6 +290,10 @@ class HomeCtrl extends Controller
             ],
             'category_id' => [
                 'required',
+                'array',
+            ],
+            'category_id.*' => [
+                'required',
                 'exists:prd_categorys,id',
             ],
             'ship_id' => [
@@ -310,7 +314,7 @@ class HomeCtrl extends Controller
 
         $req = $request->all();
         $shiTempId = $req['tmp_id'];
-        $categoryId = $req['category_id'];
+        $categoryIds = $req['category_id'];
         $shipMethodId = $req['ship_id'] ?? ShipmentMethod::findShipmentMethodIdByName('喜鴻出貨');
 
         // key: tempId
@@ -366,7 +370,7 @@ class HomeCtrl extends Controller
                 ->leftJoin('shi_temps', 'shi_group.temps_fk', '=', 'shi_temps.id')
                 ->where('shi_temps.id', '=', $shiTempId)
                 ->leftJoin('prd_categorys', 'product.category_id', '=', 'prd_categorys.id')
-                ->where('prd_categorys.id', '=', $categoryId)
+                ->whereIn('prd_categorys.id', $categoryIds)
                 ->addSelect([
                     'shi_temps.temps',
                     'prd_categorys.category',
