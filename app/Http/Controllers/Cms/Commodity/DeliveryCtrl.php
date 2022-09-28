@@ -22,6 +22,7 @@ use App\Models\DayEnd;
 use App\Models\Delivery;
 use App\Models\Depot;
 use App\Models\DlvBack;
+use App\Models\DlvBackItem;
 use App\Models\GeneralLedger;
 use App\Models\Logistic;
 use App\Models\LogisticFlow;
@@ -232,7 +233,9 @@ class DeliveryCtrl extends Controller
                 , 'dlv_back.price'
                 , 'dlv_back.origin_qty as origin_qty'
                 , 'dlv_back.qty as back_qty'
+                , 'dlv_back.bonus'
                 , 'dlv_back.memo'
+                , 'dlv_back.show'
             )->get();
         if (isset($dlv_back) && 0 < count($dlv_back)) {
             $ord_items = $dlv_back;
@@ -245,11 +248,13 @@ class DeliveryCtrl extends Controller
                         , 'ord_item.product_title'
                         , 'ord_item.sku'
                         , 'ord_item.price'
+                        , 'ord_item.bonus'
                         , 'ord_item.qty as origin_qty'
                     )->get();
             }
         }
 
+        $rsp_arr['method'] = 'create';
         $rsp_arr['delivery'] = $delivery;
         $rsp_arr['event'] = $event;
         $rsp_arr['eventId'] = $eventId;
@@ -277,6 +282,7 @@ class DeliveryCtrl extends Controller
             OrderFlow::changeOrderStatus($delivery->event_id, OrderStatus::CancleBack());
         }
         DlvBack::where('delivery_id', $delivery_id)->delete();
+        DlvBackItem::where('delivery_id', $delivery_id)->delete();
 
         wToast('刪除成功');
         return redirect()->back();
@@ -291,9 +297,18 @@ class DeliveryCtrl extends Controller
             'product_title.*' => 'required|string',
             'sku.*' => 'required|string',
             'price.*' => 'required|numeric',
+            'bonus.*' => 'required|numeric',
             'origin_qty.*' => 'required|numeric',
             'back_qty.*' => 'required|numeric',
             'memo.*' => 'nullable|string',
+            'show.*' => 'filled|bool',
+
+            'back_item_id.*' => 'nullable|numeric',
+            'btype.*' => 'required|numeric',
+            'btitle.*' => 'required|string',
+            'bprice.*' => 'required|numeric',
+            'bqty.*' => 'required|numeric',
+            'bmemo.*' => 'nullable|string',
         ]);
 
         $errors = [];
@@ -326,14 +341,18 @@ class DeliveryCtrl extends Controller
                 return $reLFCDS;
             }
 
-            $input_items = $request->only('id', 'event_item_id', 'product_style_id', 'product_title', 'sku', 'price', 'origin_qty', 'back_qty', 'memo');
+            $input_items = $request->only('id', 'event_item_id', 'product_style_id', 'product_title', 'sku', 'price', 'bonus', 'origin_qty', 'back_qty', 'memo', 'show');
             if (isset($input_items['id']) && 0 < count($input_items['id'])) {
                 if(true == isset($input_items['id'][0])) {
                     //已有資料 做編輯
                     for($i = 0; $i < count($input_items['id']); $i++) {
                         DlvBack::where('id', '=', $input_items['id'][$i])->update([
+                            'product_title' => $input_items['product_title'][$i],
+                            'price' => $input_items['price'][$i],
+                            'bonus' => $input_items['bonus'][$i],
                             'qty' => $input_items['back_qty'][$i],
                             'memo' => $input_items['memo'][$i],
+                            'show' => $input_items['show'][$i] ?? false,
                         ]);
                     }
                 } else {
@@ -346,23 +365,45 @@ class DeliveryCtrl extends Controller
                             'sku' => $input_items['sku'][$i],
                             'product_title' => $input_items['product_title'][$i],
                             'price' => $input_items['price'][$i],
+                            'bonus' => $input_items['bonus'][$i],
                             'origin_qty' => $input_items['origin_qty'][$i],
                             'qty' => $input_items['back_qty'][$i],
                             'memo' => $input_items['memo'][$i],
+                            'show' => $input_items['show'][$i] ?? false,
                         ];
-                        //判斷為訂單 則寫入目前訂單款式的bonus
-                        if (Event::order()->value == $delivery->event) {
-                            $orderItem = DB::table(app(OrderItem::class)->getTable(). ' as order_item')
-                                ->where('order_item.id', '=', $input_items['event_item_id'][$i])
-                                ->select('order_item.id', 'order_item.bonus')
-                                ->first();
-                            if (isset($orderItem)) {
-                                $addItem['bonus'] = $orderItem->bonus;
-                            }
-                        }
                         $data[] = $addItem;
                     }
                     DlvBack::insert($data);
+                }
+            }
+            $input_other_items = $request->only('back_item_id', 'btype', 'btitle', 'bprice', 'bqty', 'bmemo');
+            $dArray = array_diff(DlvBackItem::where('delivery_id', $delivery_id)->pluck('id')->toArray()
+                , array_intersect_key($input_other_items['back_item_id'], $input_other_items['btype'])
+            );
+            if($dArray) DlvBackItem::destroy($dArray);
+
+            if (isset($input_other_items['btype']) && 0 < count($input_other_items['btype'])) {
+                foreach(request('back_item_id') as $key => $value){
+                    if(true == isset($input_other_items['btype'][$key])) {
+                        if(true == isset($input_other_items['back_item_id'][$key])) {
+                            DlvBackItem::where('id', '=', $input_other_items['back_item_id'][$key])->update([
+                                'type' => $input_other_items['btype'][$key],
+                                'title' => $input_other_items['btitle'][$key],
+                                'price' => $input_other_items['bprice'][$key],
+                                'qty' => $input_other_items['bqty'][$key],
+                                'memo' => $input_other_items['bmemo'][$key],
+                            ]);
+                        } else {
+                            DlvBackItem::create([
+                                'delivery_id' => $delivery_id,
+                                'type' => $input_other_items['btype'][$key],
+                                'title' => $input_other_items['btitle'][$key],
+                                'price' => $input_other_items['bprice'][$key],
+                                'qty' => $input_other_items['bqty'][$key],
+                                'memo' => $input_other_items['bmemo'][$key],
+                            ]);
+                        }
+                    }
                 }
             }
             return ['success' => 1];
@@ -376,6 +417,56 @@ class DeliveryCtrl extends Controller
                 'eventId' => $delivery->event_id,
             ], true));
         }
+    }
+
+    public function back_edit(Request $request, $event, $eventId)
+    {
+        $delivery = Delivery::getData($event, $eventId)->get()->first();
+        if (null == $delivery) {
+            return abort(404);
+        }
+
+        if(Event::order()->value == $event) {
+            $sub_order = SubOrders::where('id', $delivery->event_id)->get()->first();
+            $rsp_arr['order_id'] = $sub_order->order_id;
+        }
+        $ord_items = DB::table(app(DlvBack::class)->getTable(). ' as dlv_back')
+            ->where('dlv_back.delivery_id', '=', $delivery->id)
+            ->select('dlv_back.id'
+                , 'dlv_back.event_item_id'
+                , 'dlv_back.product_style_id'
+                , 'dlv_back.product_title'
+                , 'dlv_back.sku'
+                , 'dlv_back.price'
+                , 'dlv_back.origin_qty as origin_qty'
+                , 'dlv_back.qty as back_qty'
+                , 'dlv_back.bonus'
+                , 'dlv_back.memo'
+                , 'dlv_back.show'
+            )->get();
+
+        $dlv_other_items = DB::table(app(DlvBackItem::class)->getTable(). ' as dlv_backitem')
+            ->where('dlv_backitem.delivery_id', '=', $delivery->id)
+            ->select('dlv_backitem.id'
+                , 'dlv_backitem.type'
+                , 'dlv_backitem.title'
+                , 'dlv_backitem.price'
+                , 'dlv_backitem.qty'
+                , 'dlv_backitem.memo'
+            )->get();
+
+        $rsp_arr['method'] = 'edit';
+        $rsp_arr['delivery'] = $delivery;
+        $rsp_arr['event'] = $event;
+        $rsp_arr['eventId'] = $eventId;
+        $rsp_arr['ord_items'] = $ord_items;
+        $rsp_arr['dlv_other_items'] = $dlv_other_items;
+        $rsp_arr['formAction'] = Route('cms.delivery.back_store', [
+            'deliveryId' => $delivery->id,
+        ], true);
+        $rsp_arr['breadcrumb_data'] = ['sn' => $delivery->sn, 'parent' => $event ];
+
+        return view('cms.commodity.delivery.back', $rsp_arr);
     }
 
     //銷貨退回明細
@@ -420,6 +511,7 @@ class DeliveryCtrl extends Controller
                     , 'dlv_back.qty'
                     , DB::raw('ifnull(dlv_back.bonus, "") as bonus')
                     , 'dlv_back.memo'
+                    , 'dlv_back.show'
                 )
             ;
             if (Event::order()->value == $delivery->event) {
@@ -427,6 +519,17 @@ class DeliveryCtrl extends Controller
             }
             $dlvBack = $dlvBack->get();
         }
+
+        $dlv_other_items = DB::table(app(DlvBackItem::class)->getTable(). ' as dlv_backitem')
+            ->where('dlv_backitem.delivery_id', '=', $delivery->id)
+            ->select('dlv_backitem.id'
+                , 'dlv_backitem.type'
+                , 'dlv_backitem.title'
+                , 'dlv_backitem.price'
+                , 'dlv_backitem.qty'
+                , 'dlv_backitem.memo'
+            )->get();
+
 //        $logistic = Logistic::where('id', '=', $delivery->event_id)->first();
 
         $logistic = DB::table(app(Logistic::class)->getTable(). ' as lgt_tb')
@@ -478,6 +581,7 @@ class DeliveryCtrl extends Controller
         $rsp_arr['delivery_id'] = $delivery->id;
         $rsp_arr['sn'] = $delivery->sn;
         $rsp_arr['dlvBack'] = $dlvBack;
+        $rsp_arr['dlv_other_items'] = $dlv_other_items;
         $rsp_arr['ord_items_arr'] = $ord_items_arr;
         $rsp_arr['breadcrumb_data'] = ['sn' => $delivery->event_sn, 'parent' => $event ];
         $back_item = Delivery::back_item($delivery->id)->get();

@@ -22,8 +22,10 @@
         <div class="p-1 pe-2">
             @if(! $back_item->po_sn && $po_check)
                 <a class="btn btn-primary btn-sm my-1 ms-1"
-                    href="{{ Route('cms.delivery.return-pay-order', ['id' => $delivery_id]) }}">新增退貨付款單</a>
+                    href="{{ Route('cms.delivery.return-pay-order', ['id' => $delivery->id]) }}">新增退貨付款單</a>
             @endif
+            <a class="btn btn-primary btn-sm my-1 ms-1"
+               href="{{ Route('cms.delivery.back_edit', ['event' => $delivery->event, 'eventId' => $delivery->event_id]) }}">編輯退貨</a>
         </div>
     </nav>
 
@@ -145,6 +147,7 @@
                 @endphp
                 <tbody>
                      @foreach ($dlvBack as $key => $item)
+                         @if(1 == ($item->show?? null))
                         @php
                             $subtotal = $item->price * $item->qty;    // 退款金額 * 退回數量
                             $total += $subtotal;
@@ -159,6 +162,7 @@
                             <td class="text-end">${{ number_format($subtotal) }}</td>
                             <td>{{ $item->memo ?? '' }}</td>
                         </tr>
+                        @endif
                      @endforeach
                 </tbody>
                 <tfoot>
@@ -171,6 +175,51 @@
             </table>
         </div>
     </div>
+    @if (null != $dlv_other_items && 0 < count($dlv_other_items))
+        <div class="card shadow p-4 mb-4">
+            <h8>其他項目</h8>
+            <div class="table-responsive tableOverBox mb-3">
+                <table class="table tableList table-striped mb-1">
+                    <thead class="small align-middle">
+                    <tr>
+                        <th scope="col" class="text-center" style="width:40px">#</th>
+                        <th scope="col">類別</th>
+                        <th scope="col">項目</th>
+                        <th scope="col" class="text-end">金額（單價）</th>
+                        <th scope="col" class="text-center">數量</th>
+                        <th scope="col">備註</th>
+                    </tr>
+                    </thead>
+                    @php
+                        $doi_total = 0;
+                    @endphp
+                    <tbody>
+                    @foreach ($dlv_other_items as $key => $val_dli)
+                        @php
+                            $doi_subtotal = $val_dli->price * $val_dli->qty;    // 退款金額 * 退回數量
+                            $doi_total += $doi_subtotal;
+                        @endphp
+                        <tr>
+                            <th scope="row">{{ $key + 1 }}</th>
+                            <td>{{ \App\Enums\DlvBack\DlvBackType::getDescription($val_dli->type) }}</td>
+                            <td class="wrap lh-sm">{{ $val_dli->title }}</td>
+                            <td class="text-end">{{ $val_dli->price }}</td>
+                            <td class="text-center">{{ $val_dli->qty }}</td>
+                            <td>{{ $val_dli->memo ?? '' }}</td>
+                        </tr>
+                    @endforeach
+                    </tbody>
+                    <tfoot>
+                    <tr>
+                        <th colspan="3">合計</th>
+                        <td class="text-end">${{ number_format($doi_total) }}</td>
+                        <td></td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    @endif
 
     @if (null != $ord_items_arr && 0 < count($ord_items_arr))
     <div class="card shadow p-4 mb-4">
