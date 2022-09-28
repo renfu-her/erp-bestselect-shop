@@ -294,6 +294,10 @@ return [
                 "cms.purchase.delete",
                 "刪除",
             ],
+            [
+                "cms.purchase.inbound",
+                "入庫",
+            ],
         ],
     ],
     [
