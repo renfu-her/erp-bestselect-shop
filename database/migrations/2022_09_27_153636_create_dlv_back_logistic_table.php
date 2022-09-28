@@ -14,7 +14,7 @@ class CreateDlvBackLogisticTable extends Migration
     public function up()
     {
         Schema::create('dlv_back_items', function (Blueprint $table) {
-            $table->id()->comment('退貨物流id ');
+            $table->id()->comment('退貨其他項目id ');
             $table->unsignedBigInteger('delivery_id')->comment('出貨單id');
             $table->tinyInteger('type')->comment('類別 1:物流 2:銷貨收入');
             $table->string('title')->nullable()->comment('名稱');
