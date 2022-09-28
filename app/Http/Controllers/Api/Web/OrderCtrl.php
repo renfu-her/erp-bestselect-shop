@@ -196,7 +196,7 @@ class OrderCtrl extends Controller
             ->orderBy('cc_log.created_at', 'desc')
             ->first();
 
-            if ($request->isMethod('post')) {
+        if ($request->isMethod('post')) {
             // avoid f5 reload
             if ($log) {
                 return redirect()->route('api.web.order.credit_card_checkout', ['id' => $id, 'unique_id' => $unique_id]);
