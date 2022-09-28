@@ -80,7 +80,7 @@ class HomeCtrl extends Controller
             'collection' => $d['collection_id'] ?? null,
             'is_liquor' => 0,
         ];
-        $dataList = Product::productList(null, null, $cond);
+        $dataList = Product::productList(null, null, $cond)->groupBy('id');
         $dataList = IttmsUtils::setPager($dataList, $request);
         $dataList = $dataList->get()->toArray();
         Product::getMinPriceProducts(1, null, $dataList);
@@ -130,7 +130,7 @@ class HomeCtrl extends Controller
             'collection' => 1,
             'is_liquor' => 0,
         ];
-        $dataList = Product::productList(null, null, $cond);
+        $dataList = Product::productList(null, null, $cond)->groupBy('id');
         $dataList = IttmsUtils::setPager($dataList, $request);
         $dataList = $dataList->get()->toArray();
         Product::getMinPriceProducts(1, null, $dataList);
@@ -191,7 +191,7 @@ class HomeCtrl extends Controller
             //打勾 找同歸類
             $cond['category_id'] = $product->category_id ?? null;
         }
-        $dataList = Product::productList(null, null, $cond);
+        $dataList = Product::productList(null, null, $cond)->groupBy('id');
         $dataList = IttmsUtils::setPager($dataList, $request);
         $dataList = $dataList->get()->toArray();
         Product::getMinPriceProducts(1, null, $dataList);
@@ -371,6 +371,8 @@ class HomeCtrl extends Controller
                 ->where('shi_temps.id', '=', $shiTempId)
                 ->leftJoin('prd_categorys', 'product.category_id', '=', 'prd_categorys.id')
                 ->whereIn('prd_categorys.id', $categoryIds)
+                ->groupBy('id')
+                ->orderBy('id')
                 ->addSelect([
                     'shi_temps.temps',
                     'prd_categorys.category',
