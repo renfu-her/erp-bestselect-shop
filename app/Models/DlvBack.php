@@ -11,7 +11,7 @@ class DlvBack extends Model
     use HasFactory;
     protected $table = 'dlv_back';
     protected $guarded = [];
-    public $timestamps = false;
+    public $timestamps = true;
 
     public static function getDataWithDeliveryID($delivery_id) {
         $result = DB::table(app(DlvBack::class)->getTable(). ' as dlv_back')
