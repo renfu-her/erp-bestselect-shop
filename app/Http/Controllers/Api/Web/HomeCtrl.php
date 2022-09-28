@@ -351,23 +351,42 @@ class HomeCtrl extends Controller
             return $n->product_id;
         }, $prd_shipments->toArray());
 
-        $cond = [
-            'img' => 1,
-            'public' => 1,
-            'online' => 1,
-            'product_ids' => $product_ids ?? null,
-            'collection' => 1,
-            'is_liquor' => 0,
-        ];
+        $dataList = DB::table('prd_products as product')
+            ->select('product.id as id',
+                'product.title as title',
+                'product.sku as sku',
+                'product.online as online',
+                'product.offline as offline',
+                'product.public as public')
+            ->selectRaw('CASE product.type WHEN "p" THEN "一般商品" WHEN "c" THEN "組合包商品" END as type_title')
+            ->orderBy('id')
+            ->whereNull('product.deleted_at')
+            ->where('product.public', 1)
+            ->leftJoin('collection_prd as cprd', 'product.id', '=', 'cprd.product_id_fk')
+            ->leftJoin('collection as colc', 'colc.id', '=', 'cprd.collection_id_fk')
+            ->where('colc.is_liquor', '=', 0)
+            ->where('product.online', 1)
+            ->whereIn('product.id', $product_ids);
 
-        $dataList = Product::productList(null, null, $cond);
-        $dataList->join('prd_product_shipment', 'product.id', '=', 'prd_product_shipment.product_id')
-                ->leftJoin('shi_group', 'prd_product_shipment.group_id', '=', 'shi_group.id')
-                ->where('shi_group.id', '=', $tempShipIds[$shiTempId])
-                ->where('shi_group.method_fk', '=', $shipMethodId)
-                ->leftJoin('shi_temps', 'shi_group.temps_fk', '=', 'shi_temps.id')
-                ->where('shi_temps.id', '=', $shiTempId)
-                ->leftJoin('prd_categorys', 'product.category_id', '=', 'prd_categorys.id');
+        $subImg = DB::table('prd_product_images as img')
+            ->select('img.url')
+            ->whereRaw('img.product_id = product.id')
+            ->limit(1);
+        $dataList->addSelect(DB::raw("({$subImg->toSql()}) as img_url"));
+
+        $dataList->where(function ($query) {
+            $now = date('Y-m-d H:i:s');
+            $query->where('product.active_sdate', '<=', $now)
+                ->where('product.active_edate', '>=', $now)
+                ->orWhereNull('product.active_sdate')
+                ->orWhereNull('product.active_edate');
+        })->join('prd_product_shipment', 'product.id', '=', 'prd_product_shipment.product_id')
+            ->leftJoin('shi_group', 'prd_product_shipment.group_id', '=', 'shi_group.id')
+            ->where('shi_group.id', '=', $tempShipIds[$shiTempId])
+            ->where('shi_group.method_fk', '=', $shipMethodId)
+            ->leftJoin('shi_temps', 'shi_group.temps_fk', '=', 'shi_temps.id')
+            ->where('shi_temps.id', '=', $shiTempId)
+            ->leftJoin('prd_categorys', 'product.category_id', '=', 'prd_categorys.id');
 
         if ($categoryIds){
             $dataList->whereIn('prd_categorys.id', $categoryIds);

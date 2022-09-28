@@ -200,7 +200,7 @@ class Product extends Model
                         'prd_product_shipment.category_id as hasDelivery',
                     );
             }
-        } elseif(isset($options['hasDelivery']) && $options['hasDelivery'] == 'all') {
+        } else {
             //不限是否設定宅配
             $re->leftJoin('prd_product_shipment', 'product.id', '=', 'prd_product_shipment.product_id')
                 ->addSelect(['prd_product_shipment.product_id AS hasDelivery']);
