@@ -192,7 +192,7 @@
                                     @elseif($c_value->d_type == 'product')
                                         {{ $c_value->product_title }}({{ $c_value->product_price }} * {{ $c_value->product_qty }}) - {{ $data->source_sn }}
                                     @else
-                                        {{ $c_value->method_name }}{{ $c_value->note ? ' - ' . $c_value->note : '' }} - {{ $data->source_sn }}
+                                        {{ $c_value->method_name }}{{$c_value->summary ? ' - ' . $c_value->summary : ''}}{{ $c_value->note ? ' - ' . $c_value->note : '' }} - {{ $data->source_sn }}
                                     @endif
                                 </td>
                                 <td class="text-end wrap pe-2">
