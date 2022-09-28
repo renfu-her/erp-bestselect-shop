@@ -54,7 +54,7 @@
                                         <input type="hidden" name="origin_qty[]" value="{{ $item->origin_qty ?? '' }}" />
                                     </th>
                                     <td>
-                                        <input type="checkbox" value="1" name="show" @if(1 == ($item->show?? null)) checked @endif>
+                                        <input type="hidden" name="show[]" value="{{$item->show?? 0}}"><input type="checkbox" onclick="this.previousSibling.value=1-this.previousSibling.value" @if(1 == ($item->show?? 0)) checked @endif>
                                     </td>
                                     <td>
                                         <input type="text" value="{{ $item->product_title ?? '' }}" name="product_title[]" class="form-control form-control-sm -l" required>
@@ -161,6 +161,7 @@
         </div>
         <div id="submitDiv">
             <div class="col-auto">
+                <input type="hidden" name="method" value="{{ $method }}" />
                 <button type="submit" class="btn btn-primary px-4" >送出</button>
                 @if($delivery->event == App\Enums\Delivery\Event::order()->value)
                     <a href="{{ Route('cms.order.detail', ['id' => $order_id, 'subOrderId' => $eventId ]) }}" class="btn btn-outline-primary px-4" role="button">返回明細</a>

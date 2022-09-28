@@ -149,7 +149,7 @@
                      @foreach ($dlvBack as $key => $item)
                          @if(1 == ($item->show?? null))
                         @php
-                            $subtotal = $item->price * $item->qty;    // 退款金額 * 退回數量
+                            $subtotal = $item->price * $item->back_qty;    // 退款金額 * 退回數量
                             $total += $subtotal;
                         @endphp
                         <tr>
@@ -158,7 +158,7 @@
                             <td class="text-end">${{ number_format($item->price) }}</td>
 {{--                            <td class="text-end">${{ number_format(450) }}</td>--}}
                             <td class="text-end">${{ number_format($item->bonus) }}</td>
-                            <td class="text-center">{{ number_format($item->qty) }}</td>
+                            <td class="text-center">{{ number_format($item->back_qty) }}</td>
                             <td class="text-end">${{ number_format($subtotal) }}</td>
                             <td>{{ $item->memo ?? '' }}</td>
                         </tr>
