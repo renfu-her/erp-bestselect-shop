@@ -289,11 +289,9 @@ class HomeCtrl extends Controller
                 'exists:shi_temps,id',
             ],
             'category_id' => [
-                'required',
                 'array',
             ],
             'category_id.*' => [
-                'required',
                 'exists:prd_categorys,id',
             ],
             'ship_id' => [
@@ -314,7 +312,7 @@ class HomeCtrl extends Controller
 
         $req = $request->all();
         $shiTempId = $req['tmp_id'];
-        $categoryIds = $req['category_id'];
+        $categoryIds = $req['category_id'] ?? null;
         $shipMethodId = $req['ship_id'] ?? ShipmentMethod::findShipmentMethodIdByName('喜鴻出貨');
 
         // key: tempId
@@ -369,9 +367,13 @@ class HomeCtrl extends Controller
                 ->where('shi_group.method_fk', '=', $shipMethodId)
                 ->leftJoin('shi_temps', 'shi_group.temps_fk', '=', 'shi_temps.id')
                 ->where('shi_temps.id', '=', $shiTempId)
-                ->leftJoin('prd_categorys', 'product.category_id', '=', 'prd_categorys.id')
-                ->whereIn('prd_categorys.id', $categoryIds)
-                ->groupBy('id')
+                ->leftJoin('prd_categorys', 'product.category_id', '=', 'prd_categorys.id');
+
+        if ($categoryIds){
+            $dataList->whereIn('prd_categorys.id', $categoryIds);
+        }
+
+        $dataList->groupBy('id')
                 ->orderBy('id')
                 ->addSelect([
                     'shi_temps.temps',
