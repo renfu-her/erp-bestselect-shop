@@ -117,6 +117,20 @@
                         @endforeach
                     </div>
                 </fieldset>
+                <fieldset class="col-12 col-sm-6 mb-3">
+                    <legend class="col-form-label p-0 mb-2">酒類群組</legend>
+                    <div class="px-1 pt-1">
+                        @foreach ($isLiquor as $key => $liquor)
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label">
+                                    <input class="form-check-input" name="is_liquor" type="radio"
+                                           value="{{ $liquor[0] }}" @if ($liquor[0] == $cond['is_liquor']) checked @endif>
+                                    {{ $liquor[1] }}
+                                </label>
+                            </div>
+                        @endforeach
+                    </div>
+                </fieldset>
 
             </div>
             <div class="col">
