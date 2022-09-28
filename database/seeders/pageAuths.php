@@ -276,7 +276,7 @@ return [
         ],
     ],
     [
-        "unit" => "採購單管理",
+        "unit" => "採購單列表",
         "permissions" => [
             [
                 "cms.purchase.index",
@@ -293,6 +293,10 @@ return [
             [
                 "cms.purchase.delete",
                 "刪除",
+            ],
+            [
+                "cms.purchase.inbound",
+                "入庫",
             ],
         ],
     ],

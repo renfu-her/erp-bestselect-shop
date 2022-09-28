@@ -131,7 +131,7 @@ class RefundCtrl extends Controller
                     $account_name = $value->po_product_grade_name ? $value->po_product_grade_name : '無設定會計科目';
                     $product_name = $account_code . ' ' . $account_name;
                     foreach(json_decode($value->product_items) as $p_value){
-                        $avg_price = $p_value->price / $p_value->num;
+                        $avg_price = $p_value->num == 0 ? 0 : $p_value->price / $p_value->num;
                         $name = $product_name . ' --- ' . $p_value->title . '（' . $avg_price . ' * ' . $p_value->num . '）';
                         $product_title = $p_value->title;
 
