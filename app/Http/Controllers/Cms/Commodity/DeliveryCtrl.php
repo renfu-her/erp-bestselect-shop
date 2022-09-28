@@ -211,57 +211,21 @@ class DeliveryCtrl extends Controller
             'eventId' => $eventId,], true));
     }
 
-    public function back($event, $eventId)
+    public function back(Request $request, $event, $eventId)
     {
         $delivery = Delivery::getData($event, $eventId)->get()->first();
         if (null == $delivery) {
             return abort(404);
         }
-
-        $rsp_arr['dlv_other_items'] = [];
-        if(Event::order()->value == $event) {
-            $sub_order = SubOrders::where('id', $delivery->event_id)->get()->first();
-            $rsp_arr['order_id'] = $sub_order->order_id;
-            $rsp_arr['dlv_other_items'] = json_decode(json_encode([[
-                'id' => null,
-                'delivery_id' => $delivery->id,
-                'type' => DlvBackType::logistic()->value,
-                'title' => $sub_order->ship_event,
-                'price' => $sub_order->dlv_fee,
-                'qty' => 1,
-            ]]));
+        $dlv_back_item = DlvBackItem::getDataWithDeliveryID($delivery->id)->get();
+        //判斷有資料代表已做過 直接返回明細列表
+        if (isset($dlv_back_item) && 0 < count($dlv_back_item)) {
+            return redirect(Route('cms.delivery.back_detail', [
+                'event' => $delivery->event,
+                'eventId' => $delivery->event_id,
+            ], true));
         }
-        $ord_items = null;
-
-        $dlvBack = DlvBack::getDataWithDeliveryID($delivery->id)->get();
-        if (isset($dlv_back) && 0 < count($dlv_back)) {
-            $ord_items = $dlv_back;
-        } else {
-            if(Event::order()->value == $event) {
-                $ord_items = DB::table(app(OrderItem::class)->getTable(). ' as ord_item')
-                    ->where('ord_item.sub_order_id', '=', $eventId)
-                    ->select('ord_item.id as event_item_id'
-                        , 'ord_item.product_style_id'
-                        , 'ord_item.product_title'
-                        , 'ord_item.sku'
-                        , 'ord_item.price'
-                        , 'ord_item.bonus'
-                        , 'ord_item.qty as origin_qty'
-                    )->get();
-            }
-        }
-
-        $rsp_arr['method'] = 'create';
-        $rsp_arr['delivery'] = $delivery;
-        $rsp_arr['event'] = $event;
-        $rsp_arr['eventId'] = $eventId;
-        $rsp_arr['ord_items'] = $ord_items;
-        $rsp_arr['formAction'] = Route('cms.delivery.back_store', [
-            'deliveryId' => $delivery->id,
-        ], true);
-        $rsp_arr['breadcrumb_data'] = ['sn' => $delivery->sn, 'parent' => $event ];
-
-        return view('cms.commodity.delivery.back', $rsp_arr);
+        return $this->do_back_edit($request, $event, $eventId, 'create');
     }
 
     //刪除退貨
@@ -358,7 +322,6 @@ class DeliveryCtrl extends Controller
                         ]);
                     }
                 } else {
-                    $data = [];
                     for($i = 0; $i < count($input_items['id']); $i++) {
                         $addItem = [
                             'delivery_id' => $delivery_id,
@@ -373,9 +336,8 @@ class DeliveryCtrl extends Controller
                             'memo' => $input_items['memo'][$i],
                             'show' => $input_items['show'][$i] ?? false,
                         ];
-                        $data[] = $addItem;
+                        DlvBack::create($addItem);
                     }
-                    DlvBack::insert($data);
                 }
             }
             $input_other_items = $request->only('back_item_id', 'btype', 'btitle', 'bprice', 'bqty', 'bmemo');
@@ -423,25 +385,58 @@ class DeliveryCtrl extends Controller
 
     public function back_edit(Request $request, $event, $eventId)
     {
+        return $this->do_back_edit($request, $event, $eventId, 'edit');
+    }
+
+    private function do_back_edit(Request $request, $event, $eventId, $method) {
         $delivery = Delivery::getData($event, $eventId)->get()->first();
         if (null == $delivery) {
             return abort(404);
         }
 
+        $rsp_arr['dlv_other_items'] = [];
         if(Event::order()->value == $event) {
             $sub_order = SubOrders::where('id', $delivery->event_id)->get()->first();
             $rsp_arr['order_id'] = $sub_order->order_id;
+            $dlv_back_item = DlvBackItem::getDataWithDeliveryID($delivery->id)->get();
+            if (isset($dlv_back_item) && 0 < count($dlv_back_item)) {
+                $rsp_arr['dlv_other_items'] = $dlv_back_item;
+            } else {
+                $rsp_arr['dlv_other_items'] = json_decode(json_encode([[
+                    'id' => null,
+                    'delivery_id' => $delivery->id,
+                    'type' => DlvBackType::logistic()->value,
+                    'title' => $sub_order->ship_event,
+                    'price' => $sub_order->dlv_fee,
+                    'qty' => 1,
+                ]]));
+            }
         }
-        $ord_items = DlvBack::getDataWithDeliveryID($delivery->id)->get();
+        $ord_items = null;
 
-        $dlv_other_items = DlvBackItem::getDataWithDeliveryID($delivery->id)->get();
+        $dlv_back = DlvBack::getDataWithDeliveryID($delivery->id)->get();
+        if (isset($dlv_back) && 0 < count($dlv_back)) {
+            $ord_items = $dlv_back;
+        } else {
+            if(Event::order()->value == $event) {
+                $ord_items = DB::table(app(OrderItem::class)->getTable(). ' as ord_item')
+                    ->where('ord_item.sub_order_id', '=', $eventId)
+                    ->select('ord_item.id as event_item_id'
+                        , 'ord_item.product_style_id'
+                        , 'ord_item.product_title'
+                        , 'ord_item.sku'
+                        , 'ord_item.price'
+                        , 'ord_item.bonus'
+                        , 'ord_item.qty as origin_qty'
+                    )->get();
+            }
+        }
 
-        $rsp_arr['method'] = 'edit';
+        $rsp_arr['method'] = $method;
         $rsp_arr['delivery'] = $delivery;
         $rsp_arr['event'] = $event;
         $rsp_arr['eventId'] = $eventId;
         $rsp_arr['ord_items'] = $ord_items;
-        $rsp_arr['dlv_other_items'] = $dlv_other_items;
         $rsp_arr['formAction'] = Route('cms.delivery.back_store', [
             'deliveryId' => $delivery->id,
         ], true);
