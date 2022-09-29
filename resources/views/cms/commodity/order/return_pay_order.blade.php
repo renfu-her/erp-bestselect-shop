@@ -28,6 +28,10 @@
 
             <a href="{{ url()->full() . '?action=print' }}" target="_blank"
                 class="btn btn-sm btn-warning" rel="noopener noreferrer">中一刀列印畫面</a>
+            @can('cms.order.edit-item')
+                <a href="{{ Route('cms.order.edit-item', ['id' => $order->id]) }}" role="button"
+                   class="btn btn-dark btn-sm my-1 ms-1">編輯訂單</a>
+            @endcan
         </div>
     </nav>
 
