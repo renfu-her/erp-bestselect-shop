@@ -457,6 +457,9 @@ class OrderCtrl extends Controller
             $dividend = 0;
         }
 
+        // 使用紅利詳細
+        $dividendList = Order::orderDividendList($id)->get();
+
         return view('cms.commodity.order.detail', [
             'sn' => $sn,
             'order' => $order,
@@ -474,6 +477,7 @@ class OrderCtrl extends Controller
             'canSplit' => Order::checkCanSplit($id),
             'po_check' => $delivery ? PayingOrder::source_confirmation(app(Delivery::class)->getTable(), $delivery->id) : true,
             'has_already_pay_delivery_back' => $has_already_pay_delivery_back,
+            'dividendList' => $dividendList,
         ]);
     }
 
