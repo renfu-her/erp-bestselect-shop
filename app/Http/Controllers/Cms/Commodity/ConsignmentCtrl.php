@@ -311,7 +311,7 @@ class ConsignmentCtrl extends Controller
                 $user_name = $request->user()->name;
 
                 //判斷audit_status變成核可，則須扣除數量
-                if(AuditStatus::approved()->value == $csnReq['audit_status']){
+                if(AuditStatus::approved()->value != $consignmentData->audit_status && AuditStatus::approved()->value == $csnReq['audit_status']){
                     $stock_note = LogEventFeature::getDescription(LogEventFeature::delivery()->value);
                     foreach($queryCsnItems as $item) {
                         $rePSSC = ProductStock::stockChange($item->product_style_id, $item->num * -1

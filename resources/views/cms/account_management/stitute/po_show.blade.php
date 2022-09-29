@@ -82,7 +82,7 @@
                             <td class="text-end">{{ $data->qty }}</td>
                             <td class="text-end">{{ number_format($data->price, 2) }}</td>
                             <td class="text-end">{{ number_format($data->total_price) }}</td>
-                            <td>{{ $data->taxation == 1 ? '應稅' : '免稅' }} {{ $data->memo }}</td>
+                            <td>{{ $data->taxation == 1 ? '應稅' : '免稅' }} @php echo $data->memo ?? '' @endphp</td>
                         </tr>
                         @endforeach
                         @endif
