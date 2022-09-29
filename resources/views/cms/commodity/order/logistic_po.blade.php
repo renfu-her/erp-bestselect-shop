@@ -97,7 +97,7 @@
                                 <td class="text-end">{{ number_format($logistic->qty) }}</td>
                                 <td class="text-end">{{ number_format($sub_order->logistic_cost, 2) }}</td>
                                 <td class="text-end">{{ number_format($sub_order->logistic_cost * $logistic->qty) }}</td>
-                                <td>{{ $sub_order->logistic_memo }}</td>
+                                <td>@php echo $sub_order->logistic_memo ?? '' @endphp</td>
                             </tr>
                         @endif
                     </tbody>

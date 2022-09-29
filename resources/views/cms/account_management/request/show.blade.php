@@ -96,7 +96,7 @@
                             <td class="text-end">{{ $request_order->qty }}</td>
                             <td class="text-end">{{ number_format($request_order->price, 2) }}</td>
                             <td class="text-end">{{ number_format($request_order->total_price) }}</td>
-                            <td>{{ $request_order->taxation == 1 ? '應稅' : '免稅' }} {{ $request_order->memo }}</td>
+                            <td>{{ $request_order->taxation == 1 ? '應稅' : '免稅' }} @php echo $request_order->memo ?? '' @endphp</td>
                         </tr>
                     </tbody>
                     <tfoot class="table-light">

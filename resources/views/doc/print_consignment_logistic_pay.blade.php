@@ -88,7 +88,7 @@
                         <td style="text-align: right;">{{ number_format(1) }}</td>
                         <td style="text-align: right;">{{ number_format($consignmentData->lgt_cost, 2) }}</td>
                         <td style="text-align: right;">{{ number_format($consignmentData->lgt_cost) }}</td>
-                        <td>{{ $consignmentData->lgt_memo }}</td>
+                        <td>@php echo $consignmentData->lgt_memo ?? '' @endphp</td>
                     </tr>
                 @endif
                 </tbody>

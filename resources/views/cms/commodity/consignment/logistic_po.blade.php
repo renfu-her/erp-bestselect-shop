@@ -92,7 +92,7 @@
                                     <td class="text-end">1</td>
                                     <td class="text-end">{{ number_format($consignmentData->lgt_cost, 2) }}</td>
                                     <td class="text-end">{{ number_format($consignmentData->lgt_cost) }}</td>
-                                    <td>{{ $consignmentData->lgt_memo }}</td>
+                                    <td>@php echo $consignmentData->lgt_memo ?? '' @endphp</td>
                                 </tr>
                             @endif
                         </tbody>
