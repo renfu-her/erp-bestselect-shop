@@ -57,7 +57,7 @@ class PurchaseInbound extends Model
             ];
 
             $id = self::create($insert_data)->id;
-            $updateLog = PurchaseInbound::updateLog(LogEventFeature::inbound_add()->value, $id, $event, $event_id, $event_item_id, $product_style_id
+            $updateLog = PurchaseInbound::addLogAndUpdateStock(LogEventFeature::inbound_add()->value, $id, $event, $event_id, $event_item_id, $product_style_id
                 , $prd_type, $title, $inbound_num, $can_tally, $memo, $inbound_user_id, $inbound_user_name);
             if ($updateLog['success'] == 0) {
                 DB::rollBack();
@@ -91,7 +91,7 @@ class PurchaseInbound extends Model
                     , 'expiry_date' => $expiry_date
                 ]);
 
-                $updateLog = PurchaseInbound::updateLog(LogEventFeature::inbound_update()->value, $inboundGet->id, $inboundGet->event, $inboundGet->event_id, $inboundGet->event_item_id, $inboundGet->product_style_id
+                $updateLog = PurchaseInbound::addLogAndUpdateStock(LogEventFeature::inbound_update()->value, $inboundGet->id, $inboundGet->event, $inboundGet->event_id, $inboundGet->event_item_id, $inboundGet->product_style_id
                     , $inboundGet->prd_type, $inboundGet->title, $add_qty, $can_tally, $memo, $update_user_id, $update_user_name);
                 if ($updateLog['success'] == 0) {
                     DB::rollBack();
@@ -102,7 +102,7 @@ class PurchaseInbound extends Model
         });
     }
 
-    private static function updateLog($eventFeature, $inbound_id, $event, $event_id, $event_item_id, $product_style_id, $prd_type, $title, $add_qty, $can_tally, $memo, $update_user_id, $update_user_name) {
+    private static function addLogAndUpdateStock($eventFeature, $inbound_id, $event, $event_id, $event_item_id, $product_style_id, $prd_type, $title, $add_qty, $can_tally, $memo, $update_user_id, $update_user_name) {
         return DB::transaction(function () use ($eventFeature, $inbound_id, $event, $event_id, $event_item_id, $product_style_id, $prd_type, $title, $add_qty, $can_tally, $memo, $update_user_id, $update_user_name) {
             $is_pcs_inbound = false;
             //入庫 新增入庫數量
