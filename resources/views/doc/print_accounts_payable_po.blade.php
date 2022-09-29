@@ -91,7 +91,7 @@
                         <td style="text-align: right;">1</td>
                         <td style="text-align: right;">{{ number_format($value->tw_price, 2) }}</td>
                         <td style="text-align: right;">{{ number_format($value->account_amt_net) }}</td>
-                        <td>{{ $value->taxation == 1 ? '應稅' : '免稅' }} {{ $value->note }}</td>
+                        <td>{{ $value->taxation == 1 ? '應稅' : '免稅' }} @php echo $value->note ?? '' @endphp</td>
                     </tr>
                 @endforeach
                 </tbody>
