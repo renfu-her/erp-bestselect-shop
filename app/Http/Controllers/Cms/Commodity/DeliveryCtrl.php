@@ -401,7 +401,7 @@ class DeliveryCtrl extends Controller
             $dlv_back_item = DlvBackItem::getDataWithDeliveryID($delivery->id)->get();
             if (isset($dlv_back_item) && 0 < count($dlv_back_item)) {
                 $rsp_arr['dlv_other_items'] = $dlv_back_item;
-            } else {
+            } else if ('create' == $method){
                 $rsp_arr['dlv_other_items'] = json_decode(json_encode([[
                     'id' => null,
                     'delivery_id' => $delivery->id,
@@ -412,12 +412,11 @@ class DeliveryCtrl extends Controller
                 ]]));
             }
         }
-        $ord_items = null;
-
+        $ord_items = [];
         $dlv_back = DlvBack::getDataWithDeliveryID($delivery->id)->get();
         if (isset($dlv_back) && 0 < count($dlv_back)) {
             $ord_items = $dlv_back;
-        } else {
+        } else if ('create' == $method){
             if(Event::order()->value == $event) {
                 $ord_items = DB::table(app(OrderItem::class)->getTable(). ' as ord_item')
                     ->where('ord_item.sub_order_id', '=', $eventId)
