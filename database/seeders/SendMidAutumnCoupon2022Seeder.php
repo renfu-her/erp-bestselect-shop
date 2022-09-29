@@ -344,7 +344,8 @@ class SendMidAutumnCoupon2022Seeder extends Seeder
                 } else {
                     //發送email
                     $data = [
-                        'active_edate' => date('Y-m-d', strtotime($eDate))
+                        'active_sdate' => date('Y-m-d', strtotime($aDate))
+                        , 'active_edate' => date('Y-m-d', strtotime($eDate))
                         , 'link_url' => env('FRONTEND_URL'),
                     ];
                     try {
