@@ -43,7 +43,7 @@
                                 </td>
                                 <td class="text-wrap">{{ isset($data->grade_code) && $data->grade_code ? $data->grade_code : $t_value->po_product_grade_code }} {{ isset($data->grade_name) && $data->grade_name ? $data->grade_name : $t_value->po_product_grade_name }}</td>
                                 <td class="text-wrap">{{ $data->title || $data->product_owner ? ($data->title . ($data->product_owner ? '（' . $data->product_owner . '）' : '') ) : $data->summary }}</td>
-                                <td class="text-end">${{ number_format($data->price / $data->num, 2) }}</td>
+                                <td class="text-end">${{ number_format(($data->num == 0 ? 0 : $data->price / $data->num), 2) }}</td>
                                 <td class="text-end">{{ number_format($data->num) }}</td>
                                 <td class="text-end">{{ $t_value->currency_rate }}</td>
                                 <td>{{ $t_value->currency_name }}</td>

@@ -21,7 +21,7 @@
                                     </tr>
                                     <tr>
                                         <th>刷卡狀態</th>
-                                        <td>{{ $order->log_status == 0 ? '刷卡成功。' : '刷卡失敗: ' . $order->log_errdesc }}</td>
+                                        <td>{{ $order->log_status === 0 ? '刷卡成功。' : '刷卡失敗: ' . $order->log_errdesc }}</td>
                                     </tr>
                                     <tr>
                                         <th>刷卡金額</th>
