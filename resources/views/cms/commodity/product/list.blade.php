@@ -213,11 +213,11 @@
                                 @endif
                             </td>
                             <td class="text-center">
-{{--                                @if (!is_null($data->hasDelivery))--}}
-{{--                                    <i class="bi bi-check-lg text-success fs-5"></i>--}}
-{{--                                @else--}}
-{{--                                    <i class="bi bi-x-lg text-danger"></i>--}}
-{{--                                @endif--}}
+                                @if (!is_null($data->hasDelivery))
+                                    <i class="bi bi-check-lg text-success fs-5"></i>
+                                @else
+                                    <i class="bi bi-x-lg text-danger"></i>
+                                @endif
                             </td>
                             {{-- <td>
                                 @if (isset($data->hasSpecList) && !is_null($data->hasSpecList))

@@ -83,6 +83,45 @@ class CollectionPaymentCtrl extends Controller
 
         // accounting classification start
             foreach($dataList as $value){
+                if($value->po_source_type == app(PayingOrder::class)->getTable() && $value->po_type == 2){
+                    if($value->product_items){
+                        $tmp_po_sn_array = collect(json_decode($value->product_items))->pluck('title')->toArray();
+                        $tmp_po = PayingOrder::paying_order_list(null, $tmp_po_sn_array, null, null, null, 'all', true)->get();
+                        $tmp_merge = [];
+
+                        foreach($tmp_po as $po_value){
+                            $product = [];
+                            $logistics = [];
+                            $discount = [];
+
+                            if($po_value->product_items){
+                                $product = json_decode($po_value->product_items);
+                            }
+                            if($po_value->logistics_price <> 0){
+                                $logistics = [(object)[
+                                    'product_owner'=>'',
+                                    'title'=>$po_value->logistics_summary,
+                                    'sku'=>'',
+                                    'all_grades_id'=>$po_value->po_logistics_grade_id,
+                                    'grade_code'=>$po_value->po_logistics_grade_code,
+                                    'grade_name'=>$po_value->po_logistics_grade_name,
+                                    'price'=>$po_value->logistics_price,
+                                    'num'=>1,
+                                    'summary'=>$po_value->logistics_summary,
+                                    'memo'=>$po_value->logistics_memo,
+                                ]];
+                            }
+                            if($po_value->discount_value > 0){
+                                $discount = json_decode(str_replace('"price":"', '"price":"-', $po_value->order_discount));
+                            }
+
+                            $tmp_merge = array_merge($tmp_merge, $product, $logistics, $discount);
+                        }
+
+                        $value->product_items = json_encode($tmp_merge, JSON_UNESCAPED_UNICODE);
+                    }
+                }
+
                 $debit = [];
                 $credit = [];
 
@@ -148,8 +187,8 @@ class CollectionPaymentCtrl extends Controller
                                 $product_title = $account_name;
 
                             } else if($value->po_type == 2){
-                                $account_code = '';
-                                $account_name = '';
+                                $account_code = $p_value->grade_code;
+                                $account_name = $p_value->grade_name;
                             }
                         }
 
@@ -792,39 +831,6 @@ class CollectionPaymentCtrl extends Controller
         $append_po_sn = PayingOrder::where('append_po_id', $id)->pluck('sn')->toArray();
         $target_items = PayingOrder::paying_order_list(null, $append_po_sn, null, null, null, '0', true)->get();
 
-        foreach($target_items as $data){
-            if($data->po_source_type == 'pcs_purchase' && $data->po_type == 1){
-                $tmp_po = PayingOrder::where([
-                    'source_type'=>'pcs_purchase',
-                    'source_id'=>$data->po_source_id,
-                    'type'=>0,
-                ])->first();
-
-                if($tmp_po){
-                    $d = (object)[
-                        'product_owner'=>'',
-                        'title'=>'訂金抵扣（訂金付款單號' . $tmp_po->sn . '）',
-                        'sku'=>'',
-                        'all_grades_id'=>"",
-                        'grade_code'=>"1118",
-                        'grade_name'=>"商品存貨",
-                        'price'=>-$tmp_po->price,
-                        'num'=>1,
-                        'summary'=>$tmp_po->memo,
-                        'memo'=>"",
-                    ];
-
-                    if($data->product_items){
-                        $items = json_decode($data->product_items);
-                        array_unshift($items, $d);
-                        $data->product_items = json_encode($items, JSON_UNESCAPED_UNICODE);
-                    } else {
-                        $data->product_items = json_encode([$d], JSON_UNESCAPED_UNICODE);
-                    }
-                }
-            }
-        }
-
         $paying_order = PayingOrder::findOrFail($id);
         $payable_data = PayingOrder::get_payable_detail($id);
 
@@ -956,37 +962,6 @@ class CollectionPaymentCtrl extends Controller
         foreach($target_items as $data){
             $data->po_url_link = PayingOrder::paying_order_link($data->po_source_type, $data->po_source_id, $data->po_source_sub_id, $data->po_type);
             $data->source_url_link = PayingOrder::paying_order_source_link($data->po_source_type, $data->po_source_id, $data->po_source_sub_id, $data->po_type);
-
-            if($data->po_source_type == 'pcs_purchase' && $data->po_type == 1){
-                $tmp_po = PayingOrder::where([
-                    'source_type'=>'pcs_purchase',
-                    'source_id'=>$data->po_source_id,
-                    'type'=>0,
-                ])->first();
-
-                if($tmp_po){
-                    $d = (object)[
-                        'product_owner'=>'',
-                        'title'=>'訂金抵扣（訂金付款單號' . $tmp_po->sn . '）',
-                        'sku'=>'',
-                        'all_grades_id'=>"",
-                        'grade_code'=>"1118",
-                        'grade_name'=>"商品存貨",
-                        'price'=>-$tmp_po->price,
-                        'num'=>1,
-                        'summary'=>$tmp_po->memo,
-                        'memo'=>"",
-                    ];
-
-                    if($data->product_items){
-                        $items = json_decode($data->product_items);
-                        array_unshift($items, $d);
-                        $data->product_items = json_encode($items, JSON_UNESCAPED_UNICODE);
-                    } else {
-                        $data->product_items = json_encode([$d], JSON_UNESCAPED_UNICODE);
-                    }
-                }
-            }
         }
 
         $paying_order = PayingOrder::findOrFail($id);

@@ -1292,4 +1292,27 @@ class Order extends Model
 
         return $re ? true : false;
     }
+
+    public static function orderDividendList($order_id)
+    {
+        $titles = "Case";
+        foreach (DividendCategory::getValues() as $value) {
+            $t = DividendCategory::fromValue($value)->description;
+            $titles .= " WHEN cd.category = \"$value\" THEN \"$t\"";
+        }
+        $titles .= " END as category_title";
+
+        return DB::table('ord_dividend as od')
+            ->leftJoin('usr_cusotmer_dividend as cd', 'od.customer_dividend_id', '=', 'cd.id')
+            ->leftJoin('ord_orders as order', 'od.order_sn', '=', 'order.sn')
+            ->select([
+                'od.dividend as dividend',
+                'cd.category_sn',
+                'cd.category',
+            ])
+            ->selectRaw($titles)
+            ->where('order.id', '=', $order_id);
+
+    }
+
 }

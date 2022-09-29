@@ -18,8 +18,8 @@ class ConsignmentStockCtrl extends Controller
     //寄倉庫存
     public function stocklist(Request $request) {
         $query = $request->query();
-        $data_per_page = Arr::get($query, 'data_per_page', 10);
-        $data_per_page = is_numeric($data_per_page) ? $data_per_page : 10;
+        $data_per_page = Arr::get($query, 'data_per_page', 100);
+        $data_per_page = is_numeric($data_per_page) ? $data_per_page : 100;
 
         $depot_id = Arr::get($query, 'depot_id', 1);
 
