@@ -266,6 +266,7 @@ class DeliveryCtrl extends Controller
             'show.*' => 'filled|bool',
 
             'back_item_id.*' => 'nullable|numeric',
+            'bgrade_id.*' => 'required_with:btype|numeric',
             'btype.*' => 'required|numeric',
             'btitle.*' => 'required|string',
             'bprice.*' => 'required|numeric',
@@ -340,7 +341,7 @@ class DeliveryCtrl extends Controller
                     }
                 }
             }
-            $input_other_items = $request->only('back_item_id', 'btype', 'btitle', 'bprice', 'bqty', 'bmemo');
+            $input_other_items = $request->only('back_item_id', 'bgrade_id', 'btype', 'btitle', 'bprice', 'bqty', 'bmemo');
             $dArray = array_diff(DlvBackOther::where('delivery_id', $delivery_id)->pluck('id')->toArray()
                 , array_intersect_key($input_other_items['back_item_id'], $input_other_items['btype']?? [] )
             );
@@ -351,6 +352,7 @@ class DeliveryCtrl extends Controller
                     if(true == isset($input_other_items['btype'][$key])) {
                         if(true == isset($input_other_items['back_item_id'][$key])) {
                             DlvBackOther::where('id', '=', $input_other_items['back_item_id'][$key])->update([
+                                'grade_id' => $input_other_items['bgrade_id'][$key],
                                 'type' => $input_other_items['btype'][$key],
                                 'title' => $input_other_items['btitle'][$key],
                                 'price' => $input_other_items['bprice'][$key],
@@ -358,8 +360,12 @@ class DeliveryCtrl extends Controller
                                 'memo' => $input_other_items['bmemo'][$key],
                             ]);
                         } else {
+                            if (false == isset($input_other_items['bgrade_id'][$key])) {
+                                return ['success' => 0, 'error_msg' => '未填入會計科目'];
+                            }
                             DlvBackOther::create([
                                 'delivery_id' => $delivery_id,
+                                'grade_id' => $input_other_items['bgrade_id'][$key],
                                 'type' => $input_other_items['btype'][$key],
                                 'title' => $input_other_items['btitle'][$key],
                                 'price' => $input_other_items['bprice'][$key],
@@ -430,12 +436,14 @@ class DeliveryCtrl extends Controller
                     )->get();
             }
         }
+        $total_grades = GeneralLedger::total_grade_list();
 
         $rsp_arr['method'] = $method;
         $rsp_arr['delivery'] = $delivery;
         $rsp_arr['event'] = $event;
         $rsp_arr['eventId'] = $eventId;
         $rsp_arr['ord_items'] = $ord_items;
+        $rsp_arr['total_grades'] = $total_grades;
         $rsp_arr['formAction'] = Route('cms.delivery.back_store', [
             'deliveryId' => $delivery->id,
         ], true);

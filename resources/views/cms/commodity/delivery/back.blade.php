@@ -96,6 +96,7 @@
                         <thead class="small">
                         <tr>
                             <th scope="col">#</th>
+                            <th scope="col">會計科目</th>
                             <th scope="col">類別</th>
                             <th scope="col">項目</th>
                             <th scope="col">金額（單價）</th>
@@ -113,6 +114,24 @@
                             <tr>
                                 <td>{{ $i + 1 }}<input type="hidden" name="back_item_id[{{ $i }}]" value="{{ $items[$i]->id ?? '' }}"></td>
 
+                                <td>
+                                    <select class="select-check form-select form-select-sm -select2 -single @error('bgrade_id.' . $i) is-invalid @enderror" name="bgrade_id[{{ $i }}]" data-placeholder="請選擇會計科目">
+                                        <option value="" selected disabled>請選擇會計科目</option>
+                                        @foreach($total_grades as $g_value)
+                                            <option value="{{ $g_value['primary_id'] }}" {{ $g_value['primary_id'] == old('bgrade_id.' . $i, $items[$i]->grade_id ?? '') ? 'selected' : '' }}
+                                            @if($g_value['grade_num'] === 1)
+                                            class="grade_1"
+                                                    @elseif($g_value['grade_num'] === 2)
+                                                    class="grade_2"
+                                                    @elseif($g_value['grade_num'] === 3)
+                                                    class="grade_3"
+                                                    @elseif($g_value['grade_num'] === 4)
+                                                    class="grade_4"
+                                                @endif
+                                            >{{ $g_value['code'] . ' ' . $g_value['name'] }}</option>
+                                        @endforeach
+                                    </select>
+                                </td>
                                 <td>
                                     <select class="select-check form-select form-select-sm -select2 -single @error('btype.' . $i) is-invalid @enderror" name="btype[{{ $i }}]" data-placeholder="請選擇類別">
                                         <option value="" selected disabled>請選擇類別 {{ $items[$i]->type ?? 'aa' }}</option>
