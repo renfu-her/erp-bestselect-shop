@@ -23,6 +23,7 @@ class countWillBeShippedSeeder extends Seeder
                 'item.product_style_id', 'item.qty',
             ])
             ->where('order.status_code', '<>', 'canceled')
+            ->whereNull('sub_order.dlv_audit_date')
             ->get();
 
         foreach ($re as $p) {
