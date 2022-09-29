@@ -69,7 +69,7 @@ class ProductCtrl extends Controller
             'product_type' => $cond['product_type'],
             'consume' => $cond['consume'] == 'all' ? null : $cond['consume'],
             'public' => $cond['public'] == 'all' ? null : $cond['public'],
-            'hasDelivery' => $cond['hasDelivery'] == 'all' ? null : $cond['hasDelivery'],
+            'hasDelivery' => $cond['hasDelivery'],
             'hasSpecList' => $cond['hasSpecList'] == 'all' ? null : $cond['hasSpecList'],
             'online' => $cond['online'],
             'search_supplier' => $cond['search_supplier'] == 'all' ? null : $cond['search_supplier'],
