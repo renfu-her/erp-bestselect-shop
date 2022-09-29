@@ -72,15 +72,52 @@ class HomeCtrl extends Controller
             return response()->json($re);
         }
         $d = $request->all();
+        $online = $d['online'] ?? null;
 
-        $cond = [
-            'img' => 1,
-            'public' => 1,
-            'online' => $d['online'] ?? null,
-            'collection' => $d['collection_id'] ?? null,
-            'is_liquor' => 0,
-        ];
-        $dataList = Product::productList(null, null, $cond)->groupBy('id');
+        $dataList = DB::table('prd_products as product')
+            ->select('product.id as id',
+                'product.title as title',
+                'product.sku as sku',
+                'product.type as type',
+                'product.consume as consume',
+                'product.online as online',
+                'product.offline as offline',
+                'product.public as public')
+            ->selectRaw('CASE product.type WHEN "p" THEN "一般商品" WHEN "c" THEN "組合包商品" END as type_title')
+            ->where('product.public', 1);
+
+        if (isset($online)) {
+            if ($online != 'all') {
+                if ($online == 'online') {
+                    $dataList->where('online', '1');
+                } else {
+                    $dataList->where('offline', '1');
+                }
+            }
+        }
+
+        $dataList->where('product.online', 1)
+            ->where(function ($query) {
+                $now = date('Y-m-d H:i:s');
+                $query->where('product.active_sdate', '<=', $now)
+                    ->where('product.active_edate', '>=', $now)
+                    ->orWhereNull('product.active_sdate')
+                    ->orWhereNull('product.active_edate');
+            })
+            ->orderBy('id')
+            ->whereNull('product.deleted_at');
+
+        $subImg = DB::table('prd_product_images as img')
+            ->select('img.url')
+            ->whereRaw('img.product_id = product.id')
+            ->limit(1);
+        $dataList->addSelect(DB::raw("({$subImg->toSql()}) as img_url"));
+
+        $dataList = $dataList->leftJoin('collection_prd as cprd', 'product.id', '=', 'cprd.product_id_fk')
+            ->leftJoin('collection as colc', 'colc.id', '=', 'cprd.collection_id_fk')
+            ->where('cprd.collection_id_fk', '=', $d['collection_id'])
+            ->where('colc.is_liquor', '=', 0)
+            ->addSelect(['colc.name as collection_name', 'collection_id_fk']);
         $dataList = IttmsUtils::setPager($dataList, $request);
         $dataList = $dataList->get()->toArray();
         Product::getMinPriceProducts(1, null, $dataList);
@@ -122,15 +159,56 @@ class HomeCtrl extends Controller
             return $n->product_id_fk;
         }, $collection_1->toArray());
 
-        $cond = [
-            'img' => 1,
-            'public' => 1,
-            'online' => $d['online'] ?? null,
-            'product_ids' => $product_id_fks ?? null,
-            'collection' => 1,
-            'is_liquor' => 0,
-        ];
-        $dataList = Product::productList(null, null, $cond)->groupBy('id');
+        $online = $d['online'] ?? null;
+        $product_id_fks = $product_id_fks ?? null;
+        $dataList = DB::table('prd_products as product')
+            ->select('product.id as id',
+                'product.title as title',
+                'product.sku as sku',
+                'product.type as type',
+                'product.consume as consume',
+                'product.online as online',
+                'product.offline as offline',
+                'product.public as public')
+            ->selectRaw('CASE product.type WHEN "p" THEN "一般商品" WHEN "c" THEN "組合包商品" END as type_title')
+            ->where('product.public', 1);
+
+        if (isset($online)) {
+            if ($online != 'all') {
+                if ($online == 'online') {
+                    $dataList->where('online', '1');
+                } else {
+                    $dataList->where('offline', '1');
+                }
+            }
+        }
+
+        if (isset($product_id_fks)) {
+            $dataList->whereIn('product.id', $product_id_fks);
+        }
+
+        $dataList->where('product.online', 1)
+            ->where(function ($query) {
+                $now = date('Y-m-d H:i:s');
+                $query->where('product.active_sdate', '<=', $now)
+                    ->where('product.active_edate', '>=', $now)
+                    ->orWhereNull('product.active_sdate')
+                    ->orWhereNull('product.active_edate');
+            })
+            ->orderBy('id')
+            ->whereNull('product.deleted_at');
+
+        $subImg = DB::table('prd_product_images as img')
+            ->select('img.url')
+            ->whereRaw('img.product_id = product.id')
+            ->limit(1);
+        $dataList->addSelect(DB::raw("({$subImg->toSql()}) as img_url"));
+
+        $dataList = $dataList->leftJoin('collection_prd as cprd', 'product.id', '=', 'cprd.product_id_fk')
+            ->leftJoin('collection as colc', 'colc.id', '=', 'cprd.collection_id_fk')
+            ->where('colc.is_liquor', '=', 0)
+            ->addSelect(['colc.name as collection_name', 'collection_id_fk'])
+            ->groupBy('id');
         $dataList = IttmsUtils::setPager($dataList, $request);
         $dataList = $dataList->get()->toArray();
         Product::getMinPriceProducts(1, null, $dataList);
@@ -179,19 +257,65 @@ class HomeCtrl extends Controller
             return $n->product_id;
         }, $prd_shipments->toArray());
 
-        $cond = [
-            'img' => 1,
-            'public' => 1,
-            'online' => $d['online'] ?? null,
-            'product_ids' => $product_ids ?? null,
-            'collection' => 1,
-            'is_liquor' => 0,
-        ];
         if (1 == $product->only_show_category) {
             //打勾 找同歸類
-            $cond['category_id'] = $product->category_id ?? null;
+            $category_id = $product->category_id ?? null;
         }
-        $dataList = Product::productList(null, null, $cond)->groupBy('id');
+
+        $online = $d['online'] ?? null;
+        $product_ids = $product_ids ?? null;
+        $dataList = DB::table('prd_products as product')
+            ->select('product.id as id',
+                'product.title as title',
+                'product.sku as sku',
+                'product.type as type',
+                'product.consume as consume',
+                'product.online as online',
+                'product.offline as offline',
+                'product.public as public')
+            ->selectRaw('CASE product.type WHEN "p" THEN "一般商品" WHEN "c" THEN "組合包商品" END as type_title')
+            ->where('product.public', 1);
+
+        if (isset($online)) {
+            if ($online != 'all') {
+                if ($online == 'online') {
+                    $dataList->where('online', '1');
+                } else {
+                    $dataList->where('offline', '1');
+                }
+            }
+        }
+
+        if (isset($category_id)) {
+            $dataList->where('product.category_id', '=', $category_id);
+        }
+
+        if (isset($product_ids)) {
+            $dataList->whereIn('product.id', $product_ids);
+        }
+
+        $dataList->where('product.online', 1)
+            ->where(function ($query) {
+                $now = date('Y-m-d H:i:s');
+                $query->where('product.active_sdate', '<=', $now)
+                    ->where('product.active_edate', '>=', $now)
+                    ->orWhereNull('product.active_sdate')
+                    ->orWhereNull('product.active_edate');
+            })
+            ->orderBy('id')
+            ->whereNull('product.deleted_at');
+
+        $subImg = DB::table('prd_product_images as img')
+            ->select('img.url')
+            ->whereRaw('img.product_id = product.id')
+            ->limit(1);
+        $dataList->addSelect(DB::raw("({$subImg->toSql()}) as img_url"));
+
+        $dataList = $dataList->leftJoin('collection_prd as cprd', 'product.id', '=', 'cprd.product_id_fk')
+            ->leftJoin('collection as colc', 'colc.id', '=', 'cprd.collection_id_fk')
+            ->where('colc.is_liquor', '=', 0)
+            ->addSelect(['colc.name as collection_name', 'collection_id_fk'])
+            ->groupBy('id');
         $dataList = IttmsUtils::setPager($dataList, $request);
         $dataList = $dataList->get()->toArray();
         Product::getMinPriceProducts(1, null, $dataList);

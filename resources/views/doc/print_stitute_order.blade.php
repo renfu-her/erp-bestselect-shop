@@ -89,7 +89,7 @@
                             <td style="text-align: right;">{{ $data->qty }}</td>
                             <td style="text-align: right;">{{ number_format($data->price, 2) }}</td>
                             <td style="text-align: right;">{{ number_format($data->total_price) }}</td>
-                            <td>{{-- $data->taxation == 1 ? '應稅' : '免稅' --}}{{ $data->memo }}</td>
+                            <td>@php echo $data->memo ?? '' @endphp</td>
                         </tr>
                         @endforeach
                         @endif
