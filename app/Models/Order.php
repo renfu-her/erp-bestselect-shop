@@ -414,7 +414,7 @@ class Order extends Model
     public static function createOrder($email, $sale_channel_id, $address, $items, $mcode = null, $note = null, $coupon_obj = null, $payinfo = null, ReceivedMethod $payment = null, $dividend = [], $operator_user)
     {
 
-        $order_sn = Sn::createSn('order','O');
+        $order_sn = Sn::createSn('order', 'O');
         DB::beginTransaction();
 
         $customer = Customer::where('email', $email)->get()->first();
@@ -435,9 +435,9 @@ class Order extends Model
         }
         /*
         $order_sn = "O" . date("Ymd") . str_pad((self::whereDate('created_at', '=', date('Y-m-d'))
-                ->get()
-                ->count()) + 1, 4, '0', STR_PAD_LEFT);
-                */
+        ->get()
+        ->count()) + 1, 4, '0', STR_PAD_LEFT);
+         */
 
         $order['order_sn'] = $order_sn;
         // 處理紅利
@@ -580,6 +580,7 @@ class Order extends Model
                     'origin_price' => $product->origin_price,
                     'img_url' => $product->img_url,
                 ]);
+                ProductStyle::willBeShipped($product->product_style_id, $product->qty);
 
                 Discount::createOrderDiscount('item', $order_id, $customer, $product->discounts, $subOrderId, $pid);
 
@@ -919,6 +920,8 @@ class Order extends Model
         foreach ($items as $item) {
             ProductStock::stockChange($item->product_style_id,
                 $item->qty, 'order', $order_id, $item->sku . "取消訂單");
+
+            ProductStyle::willBeShipped($item->product_style_id, $item->qty * -1);
         }
 
         // 返還使用的優惠券
