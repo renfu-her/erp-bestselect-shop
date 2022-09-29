@@ -116,16 +116,16 @@
                 <button class="btn btn-primary" type="button">搜尋商品</button>
             </div>
             {{-- <div class="row justify-content-end mb-2">
-        <div class="col-auto">
-            顯示
-            <select class="form-select d-inline-block w-auto" id="dataPerPageElem" aria-label="表格顯示筆數">
-                @foreach (config('global.dataPerPage') as $value)
-                    <option value="{{ $value }}">{{ $value }}</option>
-                @endforeach
-            </select>
-            筆
-        </div>
-    </div> --}}
+                <div class="col-auto">
+                    顯示
+                    <select class="form-select d-inline-block w-auto" id="dataPerPageElem" aria-label="表格顯示筆數">
+                        @foreach (config('global.dataPerPage') as $value)
+                            <option value="{{ $value }}">{{ $value }}</option>
+                        @endforeach
+                    </select>
+                    筆
+                </div>
+            </div> --}}
             <div class="table-responsive">
                 <table class="table table-hover tableList">
                     <thead>
@@ -160,6 +160,14 @@
         </style>
     @endpush
     @push('sub-scripts')
+        <script>
+            $('#form1').submit(function () {
+                if ($('tr.-cloneElem.--selectedP').length <= 0) {
+                    toast.show('必須至少新增一項款式商品！', { type: 'danger' });
+                    return false;
+                }
+            })
+        </script>
         <script>
             let addProductModal = new bootstrap.Modal(document.getElementById('addProduct'));
             let prodPages = new Pagination($('#addProduct .-pages'));
