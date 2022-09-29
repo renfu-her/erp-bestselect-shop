@@ -5,12 +5,12 @@
     <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
         <div class="p-1 pe-2">
             @can('cms.collection_payment.edit')
-            <a href="{{ route('cms.collection_payment.edit', ['id' => $paying_order->id]) }}" 
+            <a href="{{ route('cms.collection_payment.edit', ['id' => $paying_order->id]) }}"
 	    	class="btn btn-sm btn-success px-3" role="button">修改</a>
             @endcan
 
             @if(! $paying_order->balance_date)
-                <a href="{{ Route('cms.order.return-pay-create', ['id' => $paying_order->source_id, 'sid' => $paying_order->source_sub_id]) }}" 
+                <a href="{{ Route('cms.order.return-pay-create', ['id' => $paying_order->source_id, 'sid' => $paying_order->source_sub_id]) }}"
                     class="btn btn-sm btn-primary px-3" role="button">付款</a>
             @endif
 
@@ -26,7 +26,7 @@
             @endif
             @endcan
 
-            <a href="{{ url()->full() . '?action=print' }}" target="_blank" 
+            <a href="{{ url()->full() . '?action=print' }}" target="_blank"
                 class="btn btn-sm btn-warning" rel="noopener noreferrer">中一刀列印畫面</a>
         </div>
     </nav>
@@ -41,7 +41,7 @@
             </div>
             <h4 class="text-center">退貨付款單</h4>
             <hr>
-            
+
             <dl class="row mb-0">
                 <div class="col">
                     <dd>付款單號：{{ $paying_order->sn }}{!! $paying_order->append_po_id ? ' / ' . '<a href="' . $paying_order->append_po_link . '">' . $paying_order->append_po_sn . '</a>' : '' !!}</dd>
@@ -50,7 +50,7 @@
                     <dd>製表日期：{{ date('Y-m-d', strtotime($paying_order->created_at)) }}</dd>
                 </div>
             </dl>
-            
+
             <dl class="row mb-0">
                 <div class="col">
                     <dd>單據編號：</dd>
@@ -99,7 +99,7 @@
                                 <td class="text-end">{{ $p_value->qty }}</td>
                                 <td class="text-end">{{ number_format($p_value->price, 2) }}</td>
                                 <td class="text-end">{{ number_format($p_value->total_price) }}</td>
-                                <td>{{ $paying_order->memo }} <a href="{{ Route('cms.order.detail', ['id' => $order->id]) }}">{{ $order->sn }}</a> {{ $p_value->product_taxation == 1 ? '應稅' : '免稅' }} {{ $order->note }}</td>
+                                <td>{{ $paying_order->memo }} <a href="{{ Route('cms.order.detail', ['id' => $order->id]) }}">{{ $order->sn }}</a> {{ $p_value->product_taxation == 1 ? '應稅' : '免稅' }} {{ $p_value->note }}</td>
                             </tr>
                         @endforeach
                         @endforeach
