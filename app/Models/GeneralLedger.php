@@ -481,7 +481,7 @@ class GeneralLedger extends Model
             }
 
         } else if($type == 'p'){
-            if(in_array($code, [1, 5]) && $price >= 0){
+            if(in_array($code, [1, 5])){
                 $tmp = (object)[
                     'name'=>$name,
                     'price'=>+$price,
@@ -513,6 +513,7 @@ class GeneralLedger extends Model
                     array_push($debit, $tmp);
                 }
 
+            /*
             } else if(in_array($code, [1, 5]) && $price < 0){
                 $tmp = (object)[
                     'name'=>$name,
@@ -546,6 +547,7 @@ class GeneralLedger extends Model
 
                 array_push($credit, $tmp);
 
+            */
             } else if(in_array($code, [2, 3, 4]) && $price >= 0){
                 if( in_array($d_type, ['discount']) && $code == 4){
                     $price = (-$price);

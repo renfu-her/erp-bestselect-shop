@@ -235,6 +235,7 @@ class PayingOrder extends Model
             ->leftJoin(DB::raw('(
                 SELECT
                     pcs_paying_orders.id,
+                    pcs_paying_orders.source_id,
                     CONCAT(\'[\', GROUP_CONCAT(\'{
                         "product_owner":"\', "", \'",
                         "title":"\', CONCAT("訂金抵扣（訂金付款單號", sn, "）"), \'",
@@ -252,15 +253,14 @@ class PayingOrder extends Model
                 WHERE source_type = "pcs_purchase" AND type = 0 AND deleted_at IS NULL
                 GROUP BY id
                 ) AS deposit'), function ($join){
-                    $join->on('deposit.id', '=', 'po.id');
+                    $join->on('deposit.source_id', '=', 'po.source_id');
                     $join->where([
                         'po.source_type'=>app(Purchase::class)->getTable(),
                         'po.source_sub_id'=>null,
-                        'po.type'=>0,
                     ]);
             })
             // purchase - final
-            ->leftJoin('pcs_purchase as purchase', function ($join) use($po_separate) {
+            ->leftJoin('pcs_purchase as purchase', function ($join) {
                 $join->on('po.source_id', '=', 'purchase.id');
                 $join->where([
                     'po.source_type'=>app(Purchase::class)->getTable(),
@@ -278,15 +278,16 @@ class PayingOrder extends Model
                         "product_owner":"\', p_owner.name, \'",
                         "title":"\', pcs_purchase_items.title, \'",
                         "sku":"\', pcs_purchase_items.sku, \'",
-                        "all_grades_id":"\', "", \'",
-                        "grade_code":"\', "1118", \'",
-                        "grade_name":"\', "商品存貨", \'",
+                        "all_grades_id":"\', COALESCE(grade.id, ""), \'",
+                        "grade_code":"\', COALESCE(grade.code, ""), \'",
+                        "grade_name":"\', COALESCE(grade.name, ""), \'",
                         "price":"\', pcs_purchase_items.price, \'",
                         "num":"\', pcs_purchase_items.num, \'",
                         "summary":"\', COALESCE(pcs_purchase_items.memo, ""), \'",
                         "memo":"\', "", \'"
                     }\' ORDER BY pcs_purchase_items.id), \']\') AS items
                 FROM pcs_purchase_items
+                LEFT JOIN (' . $sq . ') AS grade ON grade.name = "商品存貨"
                 LEFT JOIN prd_product_styles AS p_style ON p_style.id = pcs_purchase_items.product_style_id
                 LEFT JOIN prd_products AS product ON product.id = p_style.product_id
                 LEFT JOIN usr_users AS p_owner ON p_owner.id = product.user_id
@@ -392,15 +393,16 @@ class PayingOrder extends Model
                         "product_owner":"\', p_owner.name, \'",
                         "title":"\', ord_items.product_title, \'",
                         "sku":"\', ord_items.sku, \'",
-                        "all_grades_id":"\', "", \'",
-                        "grade_code":"\', "4101", \'",
-                        "grade_name":"\', "銷貨收入", \'",
+                        "all_grades_id":"\', COALESCE(grade.id, ""), \'",
+                        "grade_code":"\', COALESCE(grade.code, ""), \'",
+                        "grade_name":"\', COALESCE(grade.name, ""), \'",
                         "price":"\', ord_items.price * ord_items.qty, \'",
                         "num":"\', ord_items.qty, \'",
                         "summary":"\', COALESCE(ord_items.note, ""), \'",
                         "memo":"\', "", \'"
                     }\' ORDER BY ord_items.id), \']\') AS items
                 FROM ord_items
+                LEFT JOIN (' . $sq . ') AS grade ON grade.name = "銷貨收入"
                 LEFT JOIN prd_product_styles AS p_style ON p_style.id = ord_items.product_style_id
                 LEFT JOIN prd_products AS product ON product.id = p_style.product_id
                 LEFT JOIN usr_users AS p_owner ON p_owner.id = product.user_id
@@ -411,11 +413,15 @@ class PayingOrder extends Model
             ->leftJoin(DB::raw('(
                 SELECT order_id,
                 CONCAT(\'[\', GROUP_CONCAT(\'{
+                        "product_owner":"\', "", \'",
                         "sub_order_id":"\', COALESCE(sub_order_id, ""), \'",
                         "order_item_id":"\', COALESCE(order_item_id, ""), \'",
                         "discount_grade_id":"\', COALESCE(discount_grade_id, ""), \'",
+                        "all_grades_id":"\', COALESCE(grade.id, ""), \'",
                         "grade_code":"\', COALESCE(grade.code, ""), \'",
                         "grade_name":"\', COALESCE(grade.name, ""), \'",
+                        "price":"\', COALESCE(discount_value, 0), \'",
+                        "num":"\', 1, \'",
                         "title":"\', COALESCE(title, ""), \'",
                         "sn":"\', COALESCE(sn, ""), \'",
                         "category_title":"\', category_title, \'",
@@ -448,15 +454,16 @@ class PayingOrder extends Model
                         "product_owner":"\', p_owner.name, \'",
                         "title":"\', dlv_back.product_title, \'",
                         "sku":"\', dlv_back.sku, \'",
-                        "all_grades_id":"\', "", \'",
-                        "grade_code":"\', "4101", \'",
-                        "grade_name":"\', "銷貨收入", \'",
+                        "all_grades_id":"\', COALESCE(grade.id, ""), \'",
+                        "grade_code":"\', COALESCE(grade.code, ""), \'",
+                        "grade_name":"\', COALESCE(grade.name, ""), \'",
                         "price":"\', dlv_back.price * dlv_back.qty, \'",
                         "num":"\', dlv_back.qty, \'",
                         "summary":"\', COALESCE(dlv_back.memo, ""), \'",
                         "memo":"\', "", \'"
                     }\' ORDER BY dlv_back.id), \']\') AS items
                 FROM dlv_back
+                LEFT JOIN (' . $sq . ') AS grade ON grade.name = "銷貨收入"
                 LEFT JOIN prd_product_styles ON prd_product_styles.id = dlv_back.product_style_id
                 LEFT JOIN prd_products AS product ON product.id = prd_product_styles.product_id
                 LEFT JOIN usr_users AS p_owner ON p_owner.id = product.user_id
@@ -562,8 +569,11 @@ class PayingOrder extends Model
                 DB::raw('IF(currency.name IS NOT NULL, currency.name, "NTD") AS currency_name'),
                 DB::raw('IF(currency.rate IS NOT NULL, currency.rate, "1") AS currency_rate'),
 
-                'payable_table.payable_price as payable_price',// 付款單金額(實付)
-                'payable_table.pay_list as payable_list',
+                'payable_table.payable_price AS payable_price',// 付款單金額(實付)
+                'payable_table.pay_list AS payable_list',
+
+                // 'deposit.items AS po_deposit_items',
+                // 'purchase_item_table.items AS po_final_items'
 
                 // 'purchase_item_table.total_price as product_total_price',//採購商品金額總計(未含運費)
 
@@ -609,7 +619,7 @@ class PayingOrder extends Model
             // IF(deposit.items IS NULL, purchase_item_table.items, CONCAT(SUBSTRING_INDEX(deposit.items, "]", 1), ",", SUBSTRING(purchase_item_table.items, 2)))
             ->selectRaw('
                 CASE
-                    WHEN po.source_type = "' . app(Purchase::class)->getTable() . '" AND po.source_sub_id IS NULL THEN CASE WHEN po.type = "0" THEN deposit.items ELSE purchase_item_table.items END
+                    WHEN po.source_type = "' . app(Purchase::class)->getTable() . '" AND po.source_sub_id IS NULL THEN CASE WHEN po.type = "0" THEN deposit.items WHEN po.type = "0,1" THEN purchase_item_table.items ELSE IF(deposit.items IS NULL, purchase_item_table.items, CONCAT(SUBSTRING_INDEX(REPLACE(deposit.items, \'"price":"\', \'"price":"-\'), "]", 1), ",", SUBSTRING(purchase_item_table.items, 2))) END
                     WHEN po.source_type = "' . app(Order::class)->getTable() . '" AND po.source_sub_id IS NOT NULL AND po.type = 1 THEN NULL
                     WHEN po.source_type = "' . app(Consignment::class)->getTable() . '" AND po.type = 1 THEN NULL
                     WHEN po.source_type = "' . app(StituteOrder::class)->getTable() . '" AND po.type = 1 THEN stitute_items_table.items

@@ -56,6 +56,12 @@ class ReceivedOrder extends Model
         ';
 
         $query = DB::table('ord_received_orders AS ro')
+            ->leftJoinSub(GeneralLedger::getAllGrade(), 'l_grade', function($join) {
+                $join->on('l_grade.primary_id', 'ro.logistics_grade_id');
+            })
+            ->leftJoinSub(GeneralLedger::getAllGrade(), 'p_grade', function($join) {
+                $join->on('p_grade.primary_id', 'ro.product_grade_id');
+            })
             ->leftJoin('usr_users AS undertaker', function($join){
                 $join->on('ro.usr_users_id', '=', 'undertaker.id');
                 $join->where([
@@ -111,6 +117,9 @@ class ReceivedOrder extends Model
                         "product_style_id":"\', product_style_id, \'",
                         "sku":"\', sku, \'",
                         "product_title":"\', product_title, \'",
+                        "all_grades_id":"\', COALESCE(grade.id, ""), \'",
+                        "grade_code":"\', COALESCE(grade.code, ""), \'",
+                        "grade_name":"\', COALESCE(grade.name, ""), \'",
                         "price":"\', price, \'",
                         "qty":"\', qty, \'",
                         "origin_price":"\', origin_price, \'",
@@ -118,6 +127,7 @@ class ReceivedOrder extends Model
                         "discounted_price":"\', discounted_price, \'"
                     }\' ORDER BY ord_items.id), \']\') AS items
                 FROM ord_items
+                LEFT JOIN (' . $sq . ') AS grade ON grade.name = "銷貨收入"
                 GROUP BY order_id
                 ) AS order_item_table'), function ($join){
                     $join->on('order_item_table.order_id', '=', 'order.id');
@@ -128,6 +138,8 @@ class ReceivedOrder extends Model
                         "sub_order_id":"\', COALESCE(sub_order_id, ""), \'",
                         "order_item_id":"\', COALESCE(order_item_id, ""), \'",
                         "discount_grade_id":"\', COALESCE(discount_grade_id, ""), \'",
+                        "grade_code":"\', COALESCE(grade.code, ""), \'",
+                        "grade_name":"\', COALESCE(grade.name, ""), \'",
                         "title":"\', COALESCE(title, ""), \'",
                         "sn":"\', COALESCE(sn, ""), \'",
                         "category_title":"\', category_title, \'",
@@ -137,6 +149,7 @@ class ReceivedOrder extends Model
                         "discount_value":"\', COALESCE(discount_value, ""), \'"
                     }\' ORDER BY ord_discounts.id), \']\') AS discount_list
                 FROM ord_discounts
+                LEFT JOIN (' . $sq . ') AS grade ON grade.id = ord_discounts.discount_grade_id
                 WHERE discount_value IS NOT NULL AND order_type = "main"
                 GROUP BY order_id
                 ) AS discounts_table'), function ($join){
@@ -159,11 +172,15 @@ class ReceivedOrder extends Model
                         "product_style_id":"\', product_style_id, \'",
                         "sku":"\', sku, \'",
                         "product_title":"\', title, \'",
+                        "all_grades_id":"\', COALESCE(grade.id, ""), \'",
+                        "grade_code":"\', COALESCE(grade.code, ""), \'",
+                        "grade_name":"\', COALESCE(grade.name, ""), \'",
                         "price":"\', price, \'",
                         "qty":"\', num, \'",
                         "origin_price":"\', price * num, \'"
                     }\' ORDER BY csn_order_items.id), \']\') AS items
                 FROM csn_order_items
+                LEFT JOIN (' . $sq . ') AS grade ON grade.name = "銷貨收入"
                 GROUP BY csnord_id
                 ) AS csn_order_item_table'), function ($join){
                     $join->on('csn_order_item_table.csnord_id', '=', 'csn_order.id');
@@ -182,12 +199,15 @@ class ReceivedOrder extends Model
                 SELECT _account.append_received_order_id,
                 CONCAT(\'[\', GROUP_CONCAT(\'{
                         "product_title":"\', "", \'",
-                        "all_grades_id":"\', acc_received.all_grades_id, \'",
+                        "all_grades_id":"\', COALESCE(acc_received.all_grades_id, ""), \'",
+                        "grade_code":"\', COALESCE(grade.code, ""), \'",
+                        "grade_name":"\', COALESCE(grade.name, ""), \'",
                         "price":"\', _account.amt_net, \'",
                         "qty":"\', 1, \'",
                         "origin_price":"\', _account.amt_net * 1, \'"
                     }\' ORDER BY acc_received.id), \']\') AS items
                 FROM acc_received
+                LEFT JOIN (' . $sq . ') AS grade ON grade.id = acc_received.all_grades_id
                 LEFT JOIN acc_received_account AS _account ON acc_received.received_method_id = _account.id AND acc_received.received_method = "account_received"
                 GROUP BY _account.append_received_order_id
                 ) AS received_account_table'), function ($join){
@@ -200,17 +220,20 @@ class ReceivedOrder extends Model
             })
             ->leftJoin(DB::raw('(
                 SELECT
-                    id,
+                    acc_request_orders.id,
                     CONCAT(\'[\', GROUP_CONCAT(\'{
                         "product_title":"\', "", \'",
-                        "all_grades_id":"\', request_grade_id, \'",
-                        "price":"\', price, \'",
-                        "qty":"\', qty, \'",
-                        "origin_price":"\', total_price, \'"
-                    }\' ORDER BY id), \']\') AS items
+                        "all_grades_id":"\', acc_request_orders.request_grade_id, \'",
+                        "grade_code":"\', COALESCE(grade.code, ""), \'",
+                        "grade_name":"\', COALESCE(grade.name, ""), \'",
+                        "price":"\', acc_request_orders.price, \'",
+                        "qty":"\', acc_request_orders.qty, \'",
+                        "origin_price":"\', acc_request_orders.total_price, \'"
+                    }\' ORDER BY acc_request_orders.id), \']\') AS items
                 FROM acc_request_orders
-                WHERE deleted_at IS NULL
-                GROUP BY id
+                LEFT JOIN (' . $sq . ') AS grade ON grade.id = acc_request_orders.request_grade_id
+                WHERE acc_request_orders.deleted_at IS NULL
+                GROUP BY acc_request_orders.id
                 ) AS request_table'), function ($join){
                     $join->on('request_o.id', '=', 'request_table.id');
             })
@@ -226,8 +249,12 @@ class ReceivedOrder extends Model
                 'ro.source_id AS ro_source_id',
                 'ro.sn AS ro_sn',
                 'ro.price AS ro_price',// 收款單金額(應收)
-                'ro.logistics_grade_id AS ro_logistics_grade_id',
-                'ro.product_grade_id AS ro_product_grade_id',
+                'ro.logistics_grade_id as ro_logistics_grade_id',
+                'l_grade.code as ro_logistics_grade_code',
+                'l_grade.name as ro_logistics_grade_name',
+                'ro.product_grade_id as ro_product_grade_id',
+                'p_grade.code as ro_product_grade_code',
+                'p_grade.name as ro_product_grade_name',
                 'ro.receipt_date AS ro_receipt_date',// 收款單入帳審核日期
                 'ro.balance_date AS ro_balance_date',
                 'ro.drawee_id AS ro_target_id',
