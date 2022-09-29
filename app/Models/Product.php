@@ -106,11 +106,22 @@ class Product extends Model
         if (isset($options['collection']) && $options['collection']) {
 
             $re->leftJoin('collection_prd as cprd', 'product.id', '=', 'cprd.product_id_fk')
-                ->leftJoin('collection as colc', 'colc.id', '=', 'cprd.collection_id_fk')
-                ->addSelect(['colc.name as collection_name', 'collection_id_fk'])
-                ->where('cprd.collection_id_fk', '=', $options['collection']);
+                ->leftJoin('collection as colc', 'colc.id', '=', 'cprd.collection_id_fk');
 
+            //使用在酒類商品搜尋
+//            if (!isset($options['is_liquor'])) {
+                $re->where('cprd.collection_id_fk', '=', $options['collection'])
+                    ->addSelect(['colc.name as collection_name', 'collection_id_fk']);
+//            } else {
+//                if ($options['is_liquor'] == 1) {
+//                    $re->where('colc.is_liquor', '=', 1)
+//                        ->where('colc.is_public', '=', 1);
+//                } elseif ($options['is_liquor'] == 0) {
+//                    $re->where('colc.is_liquor', '=', 0);
+//                }
+//            }
         }
+
         if (isset($options['category_id']) && $options['category_id']) {
             $re->where('product.category_id', '=', $options['category_id']);
         }
@@ -187,6 +198,11 @@ class Product extends Model
                     );
             }
         }
+//        else {
+            //不限是否設定宅配
+//            $re->leftJoin('prd_product_shipment', 'product.id', '=', 'prd_product_shipment.product_id')
+//                ->addSelect(['prd_product_shipment.product_id AS hasDelivery']);
+//        }
 
         if (isset($options['hasSpecList']) && $options['hasSpecList'] != 'all') {
             if ($options['hasSpecList'] == '1') {
