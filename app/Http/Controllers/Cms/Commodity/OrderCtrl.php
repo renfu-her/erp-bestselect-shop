@@ -2400,11 +2400,9 @@ class OrderCtrl extends Controller
         $d = $request->all();
         DB::beginTransaction();
         foreach ($d['item_id'] as $key => $value) {
-            if (isset($d['note'][$key])) {
-                OrderItem::where('id', $value)->update([
-                    'note' => $d['note'][$key],
-                ]);
-            }
+            OrderItem::where('id', $value)->update([
+                'note' => isset($d['note'][$key]) ? $d['note'][$key] : '',
+            ]);
         }
 
         $prefix = [
@@ -2435,12 +2433,14 @@ class OrderCtrl extends Controller
         $updateData = [
             'note' => $d['order_note'],
         ];
+
         // Addr::fullAddr()
         $received = Order::checkReceived($id);
         if (!$received) {
+
             $total_dlv_fee = 0;
             foreach ($d['sub_order_id'] as $key => $value) {
-
+                //  dd($d['sub_order_note'][$key]);
                 $sCategory = ShipmentCategory::where('code', $d['ship_category'][$key])->get()->first();
 
                 switch ($d['ship_category'][$key]) {
@@ -2460,7 +2460,7 @@ class OrderCtrl extends Controller
                     'dlv_fee' => $d['dlv_fee'][$key],
                     'ship_event_id' => isset($d['ship_event_id'][$key]) ? $d['ship_event_id'][$key] : 0,
                     'ship_event' => $ship_event,
-                    'note' => $d['sub_order_note'][$key],
+                    'note' => $d['sub_order_note'][$key] ? $d['sub_order_note'][$key] : '',
                 ]);
 
                 $total_dlv_fee += $d['dlv_fee'][$key];
@@ -2473,6 +2473,7 @@ class OrderCtrl extends Controller
 
         } else {
             foreach ($d['sub_order_id'] as $key => $value) {
+
                 SubOrders::where('id', $value)->update([
                     'note' => $d['sub_order_note'][$key],
                 ]);
