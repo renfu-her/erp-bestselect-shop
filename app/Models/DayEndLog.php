@@ -75,7 +75,13 @@ class DayEndLog extends Model
                 'de_item.sn AS sn'
             );
 
-        return $query->orderBy('de_log.closing_date', 'ASC');
+        return $query->orderBy('de_log.closing_date', 'ASC')->orderByRaw('(
+            CASE
+                WHEN de_log.source_sn REGEXP "^MSG" THEN 0
+                WHEN de_log.source_sn REGEXP "^ZSG" THEN 2
+                ELSE 1
+            END
+        ) ASC, de_log.source_sn ASC');
     }
 
 
