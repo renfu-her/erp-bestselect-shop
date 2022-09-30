@@ -1647,7 +1647,6 @@ class OrderCtrl extends Controller
 
             $order = Order::orderDetail($id)->get()->first();
             $sub_order = Order::subOrderDetail($id, $sid, true)->get()->toArray()[0];
-            $supplier = Supplier::find($sub_order->supplier_id);
             $delivery = Delivery::where('event', Event::order()->value)->where('event_id', $sid)->first();
             $logistic = Logistic::where('delivery_id', $delivery->id)->whereNull('deleted_at')->first();
 
@@ -1674,7 +1673,6 @@ class OrderCtrl extends Controller
                 'order' => $order,
                 'sub_order' => $sub_order,
                 'logistic' => $logistic,
-                'supplier' => $supplier,
                 'logistics_grade_name' => $logistics_grade_name,
                 'currency' => $currency,
                 'tw_price' => $tw_price,
