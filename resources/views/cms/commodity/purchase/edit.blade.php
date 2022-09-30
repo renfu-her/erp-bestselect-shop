@@ -167,13 +167,12 @@
         <div class="card shadow p-4 mb-4">
             <h6>採購清單</h6>
             <div class="table-responsive tableOverBox">
-                <table class="table table-hover tableList mb-0">
-                    <thead>
+                <table class="table table-hover table-sm tableList mb-0">
+                    <thead class="small">
                         <tr>
                             <th scope="col" class="text-center">刪除</th>
                             <th scope="col">商品名稱</th>
-                            <th scope="col">SKU</th>
-                            <th scope="col">參考成本單價</th>
+                            <th scope="col" class="lh-1">參考<br class="d-block d-xl-none">成本<br class="d-block d-xl-none">單價</th>
                             <th scope="col">採購數量</th>
                             <th scope="col">採購總價</th>
                             @if ($method === 'edit')
@@ -196,8 +195,10 @@
                                 <input type="hidden" name="name[]" value="">
                                 <input type="hidden" name="sku[]" value="">
                             </th>
-                            <td data-td="name"></td>
-                            <td data-td="sku"></td>
+                            <td data-td="name" class="wrap">
+                                <div class="lh-1 small text-nowrap text-secondary"></div>
+                                <div class="lh-base"></div>
+                            </td>
                             <td data-td="estimated_cost"></td>
                             <td>
                                 <input type="number" class="form-control form-control-sm" name="num[]" min="1" value="" required/>
@@ -231,8 +232,14 @@
                                         <input type="hidden" name="price[]" value="{{ old('price.'. $psItemKey, $psItemVal->price?? '') }}">
                                     @endif
                                 </th>
-                                <td data-td="name">{{ old('name.'. $psItemKey, $psItemVal->title?? '') }}</td>
-                                <td data-td="sku">{{ old('sku.'. $psItemKey, $psItemVal->sku?? '') }}</td>
+                                <td data-td="name" class="wrap">
+                                    <div class="lh-1 small text-nowrap text-secondary">
+                                        {{ old('sku.'. $psItemKey, $psItemVal->sku?? '') }}
+                                    </div>
+                                    <div class="lh-base">
+                                        {{ old('name.'. $psItemKey, $psItemVal->title?? '') }}
+                                    </div>
+                                </td>
                                 <td data-td="estimated_cost">{{ old('estimated_cost.'. $psItemKey, $psItemVal->estimated_cost?? '') }}</td>
                                 <td>
                                     <input type="number" class="form-control form-control-sm @error('num.' . $psItemKey) is-invalid @enderror"
@@ -475,9 +482,9 @@
                             <input class="form-check-input" type="checkbox"
                                    value="" data-td="p_id" aria-label="選取商品">
                         </th>
-                        <td data-td="name">【喜鴻嚴選】咖啡候機室(10入/盒)</td>
-                        <td data-td="spec">綜合口味</td>
-                        <td data-td="sku">AA2590</td>
+                        <td data-td="name"></td>
+                        <td data-td="spec"></td>
+                        <td data-td="sku"></td>
                         <td data-td="estimated_cost">0</td>
                         <td>58</td>
                         <td>20</td>
@@ -757,8 +764,8 @@
                             cloneElem.find('input[name="product_style_id[]"]').val(p.id);
                             cloneElem.find('input[name="name[]"]').val(`${p.name}-${p.spec}`);
                             cloneElem.find('input[name="sku[]"]').val(p.sku);
-                            cloneElem.find('td[data-td="name"]').text(`${p.name}-${p.spec}`);
-                            cloneElem.find('td[data-td="sku"]').text(p.sku);
+                            cloneElem.find('td[data-td="name"] .lh-base').text(`${p.name}-${p.spec}`);
+                            cloneElem.find('td[data-td="sku"] .text-secondary').text(p.sku);
                             cloneElem.find('td[data-td="estimated_cost"]').text(p.estimated_cost);
                         }
                     }, delItemOption);
