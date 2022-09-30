@@ -9,6 +9,7 @@ use App\Models\DepotProduct;
 use App\Models\Product;
 use App\Models\ProductStyle;
 use App\Models\SaleChannel;
+use App\Models\Temps;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -25,7 +26,7 @@ class DepotCtrl extends Controller
         $query = $request->query();
         $data_per_page = Arr::get($query, 'data_per_page', 10);
         $data_per_page = is_numeric($data_per_page) ? $data_per_page : 10;
-        $dataList = Depot::orderBy('sort')->paginate($data_per_page)->appends($query);
+        $dataList = Depot::dataList()->orderBy('sort')->paginate($data_per_page)->appends($query);
 
         return view('cms.settings.depot.list', [
             'dataList' => $dataList,
@@ -51,6 +52,7 @@ class DepotCtrl extends Controller
             'formAction' => Route('cms.depot.create'),
             'citys' => Addr::getCitys(),
             'regions' => $regions,
+            'temps' => Temps::get(),
         ]);
     }
 
@@ -129,6 +131,8 @@ class DepotCtrl extends Controller
             'regions' => $regions,
             'data' => $data,
             'id' => $id,
+            'temps' => Temps::get(),
+            'currentTemps' => Depot::getTempId($id),
         ]);
     }
 
@@ -164,10 +168,14 @@ class DepotCtrl extends Controller
             'region_id',
             'tel',
             'phone',
-            'sort'
+            'sort',
         );
         $d['address'] = Addr::fullAddr($d['region_id'], $d['addr']);
         Depot::where('id', '=', $id)->update($d);
+
+        // 更新溫層
+        Depot::updateTemp($id, $request->input('temp'));
+
         return redirect(Route('cms.depot.index'));
     }
 
