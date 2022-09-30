@@ -154,6 +154,7 @@
                         <th scope="col">寄件倉</th>
                         <th scope="col" class="wrap lh-sm">訂單狀態 /<br>物流狀態</th>
                         <th scope="col">物流分類</th>
+                        <th scope="col">溫層</th>
                         <th scope="col">寄件人姓名</th>
                         <th scope="col">收件人姓名</th>
                         <th scope="col">收件人地址</th>
@@ -198,6 +199,9 @@
                                     >{{ $data->ship_category_name }}</span>
                                 </div>
                                 <div class="lh-base text-nowrap">{{ $data->method ?? '-' }}</div>
+                            </td>
+                            <td>
+                                {{ $data->temp }}/{{ $data->temp_name }}
                             </td>
                             <td>{{ $data->sed_name }}</td>
                             <td>{{ $data->rec_name }}</td>
