@@ -2063,7 +2063,23 @@ class OrderCtrl extends Controller
             'carrier_type' => 'required_if:invoice_method,==,e_inv|in:0,1,2',
             'carrier_num' => 'required_if:carrier_type,==,0|required_if:carrier_type,==,1',
             'create_status_time' => 'nullable|date|date_format:Y-m-d',
+
+            'o_title' => 'required|array|min:1',
+            'o_title.*' => 'required|string|between:1,30',
+            'o_price' => 'required|array|min:1',
+            'o_price.*' => 'required',
+            'o_total_price' => 'required|array|min:1',
+            'o_total_price.*' => 'required',
+            'o_qty' => 'required|array|min:1',
+            'o_qty.*' => 'required|numeric|gt:0',
+            'o_taxation' => 'required|array|min:1',
+            'o_taxation.*' => 'required|in:0,1',
         ]);
+
+        if(array_sum(request('o_total_price')) < 1){
+            wToast(__('發票金額不可小於1', ['type'=>'danger']));
+            return redirect()->back();
+        }
 
         $data = $request->except('_token');
         $result = OrderInvoice::create_invoice(app(Order::class)->getTable(), $id, $data);
@@ -2197,7 +2213,7 @@ class OrderCtrl extends Controller
         ]);
     }
 
-    public function re_send_invoice(Request $request, $id)
+    public function send_invoice(Request $request, $id)
     {
         $request->merge([
             'id' => $id,
@@ -2207,7 +2223,7 @@ class OrderCtrl extends Controller
         ]);
         $inv_result = OrderInvoice::invoice_issue_api($id);
 
-        if ($inv_result->source_type == app(Order::class)->getTable() && $inv_result->r_msg == 'SUCCESS') {
+        if ($inv_result->source_type == app(Order::class)->getTable() && $inv_result->r_status == 'SUCCESS') {
             $parm = [
                 'order_id' => $inv_result->source_id,
                 'gui_number' => $inv_result->buyer_ubn,
