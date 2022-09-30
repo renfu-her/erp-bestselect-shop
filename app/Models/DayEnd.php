@@ -153,12 +153,6 @@ class DayEnd extends Model
 
         foreach([$ro, $po, $tv, $io] as $collection){
             foreach($collection as $real_value){
-                $day_end_item = DayEndItem::where([
-                    'source_type' => $real_value->getTable(),
-                    'source_id' => $real_value->id,
-                    'source_sn' => $real_value->sn,
-                ])->first();
-
                 if($real_value->getTable() == 'ord_received_orders'){
                     $t_data = ReceivedOrder::received_order_list(null, $real_value->sn)->first();
 
@@ -485,6 +479,12 @@ class DayEnd extends Model
                         }
                     }
                 }
+
+                $day_end_item = DayEndItem::where([
+                    'source_type' => $real_value->getTable(),
+                    'source_id' => $real_value->id,
+                    'source_sn' => $real_value->sn,
+                ])->first();
 
                 if($day_end_item){
                     $day_end_item->update([
