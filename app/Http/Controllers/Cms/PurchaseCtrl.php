@@ -358,10 +358,11 @@ class PurchaseCtrl extends Controller
         //判斷原採購單已審核
         if (null != $purchaseGet && AuditStatus::unreviewed()->value != $purchaseGet->audit_status) {
             $purchase = Purchase::checkInputApprovedDataDirty($id, $taxReq, $purchaseReq, $purchasePayReq);
+            /*
             if ($purchase->isDirty()) {
                 throw ValidationException::withMessages(['item_error' => '已審核，無法再修改']);
             }
-
+            */
             //刪除現有款式
             if (isset($request['del_item_id']) && null != $request['del_item_id']) {
                 throw ValidationException::withMessages(['item_error' => '已審核，不可刪除商品款式']);
