@@ -78,7 +78,7 @@ class DepotCtrl extends Controller
 
         $v = $request->all();
 
-        Depot::create([
+        $depot_id = Depot::create([
             'name' => $v['name'],
             'sender' => $v['sender'],
             'can_pickup' => $v['can_pickup'],
@@ -89,7 +89,10 @@ class DepotCtrl extends Controller
             'tel' => $v['tel'],
             'sort' => $v['sort'],
             'address' => Addr::fullAddr($v['region_id'], $v['addr']),
-        ]);
+        ])->id;
+
+        // 更新溫層
+        Depot::updateTemp($depot_id, $request->input('temp'));
         return redirect(Route('cms.depot.index'));
     }
 
