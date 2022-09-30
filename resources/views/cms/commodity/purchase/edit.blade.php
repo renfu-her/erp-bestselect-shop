@@ -167,8 +167,8 @@
         <div class="card shadow p-4 mb-4">
             <h6>採購清單</h6>
             <div class="table-responsive tableOverBox">
-                <table class="table table-hover tableList mb-0">
-                    <thead>
+                <table class="table table-hover table-sm tableList mb-0">
+                    <thead class="small">
                         <tr>
                             <th scope="col" class="text-center">刪除</th>
                             <th scope="col">商品名稱</th>
@@ -196,7 +196,7 @@
                                 <input type="hidden" name="name[]" value="">
                                 <input type="hidden" name="sku[]" value="">
                             </th>
-                            <td data-td="name"></td>
+                            <td data-td="name" class="wrap"></td>
                             <td data-td="sku"></td>
                             <td data-td="estimated_cost"></td>
                             <td>
@@ -231,7 +231,7 @@
                                         <input type="hidden" name="price[]" value="{{ old('price.'. $psItemKey, $psItemVal->price?? '') }}">
                                     @endif
                                 </th>
-                                <td data-td="name">{{ old('name.'. $psItemKey, $psItemVal->title?? '') }}</td>
+                                <td data-td="name" class="wrap">{{ old('name.'. $psItemKey, $psItemVal->title?? '') }}</td>
                                 <td data-td="sku">{{ old('sku.'. $psItemKey, $psItemVal->sku?? '') }}</td>
                                 <td data-td="estimated_cost">{{ old('estimated_cost.'. $psItemKey, $psItemVal->estimated_cost?? '') }}</td>
                                 <td>
