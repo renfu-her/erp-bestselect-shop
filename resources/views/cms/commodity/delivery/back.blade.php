@@ -33,7 +33,7 @@
                         <tr>
                             <th style="width:3rem;">#</th>
                             <th>商品名稱</th>
-                            <th>SKUCode</th>
+                            <th>SKU</th>
                             <th>價格</th>
                             <th>原數量</th>
                             <th class="text-center" style="width: 10%">欲退數量</th>
