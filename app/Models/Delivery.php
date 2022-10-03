@@ -133,7 +133,8 @@ class Delivery extends Model
                 , 'ord_sub_orders.ship_event_id as depot_id'
                 , 'temp.temp_id as depot_temp_id'
                 , 'temp.temp as depot_temp_name'
-                , DB::raw('@ship_temp:=null as ship_temp')
+                , DB::raw('@ship_temp:=null as ship_temp_id')
+                , DB::raw('@ship_temp:=null as ship_temp_name')
             )
             ->where('ord_sub_orders.ship_category', '=', 'pickup');
 
@@ -150,7 +151,8 @@ class Delivery extends Model
                 , DB::raw('@depot_id:=null as depot_id')
                 , DB::raw('@temp_id:=null as depot_temp_id')
                 , DB::raw('@temp:=null as depot_temp_name')
-                , 'ord_sub_orders.ship_temp'
+                , 'ord_sub_orders.ship_temp_id as ship_temp_id'
+                , 'ord_sub_orders.ship_temp as ship_temp_name'
             )
             ->where('ord_sub_orders.ship_category', '=', 'deliver');
 
@@ -214,7 +216,8 @@ class Delivery extends Model
                 , 'query_order.depot_id'
                 , 'query_order.depot_temp_id as depot_temp_id'
                 , 'query_order.depot_temp_name as depot_temp_name'
-                , 'query_order.ship_temp'
+                , 'query_order.ship_temp_id'
+                , 'query_order.ship_temp_name'
                 , 'query_order.rec_name'
                 , 'query_order.rec_address'
                 , 'query_order.rec_phone'
@@ -267,7 +270,7 @@ class Delivery extends Model
 
         //篩選宅配溫層
         if (isset($param['ship_temp_id']) && is_array($param['ship_temp_id']) && $param['ship_temp_id']) {
-            $query->whereIn('delivery.temp_id', $param['ship_temp_id']);
+            $query->whereIn('query_order.ship_temp_id', $param['ship_temp_id']);
         }
         //篩選自取倉溫層
         if (isset($param['depot_temp_id']) && is_array($param['depot_temp_id']) && $param['depot_temp_id']) {
