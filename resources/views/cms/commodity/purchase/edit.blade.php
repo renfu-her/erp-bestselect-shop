@@ -786,11 +786,42 @@
 
             // 綁定計算
             function bindPriceSum() {
+                $('.-cloneElem.--selectedP input[name="num[]"]')
+                    .off('change.sum').on('change.sum', function () {
+                    sumEstimatedPrice();
+                    sumPrice();
+                });
                 $('.-cloneElem.--selectedP input[name="price[]"]')
                     .off('change.sum').on('change.sum', function () {
                     sumPrice();
                 });
             }
+
+            /*
+             商品總價 = 預估價格 * 數量
+             */
+            function sumEstimatedPrice() {
+                let priceArray = [];
+                let quantityArray = [];
+                $('.-cloneElem.--selectedP td[data-td="estimated_cost"]').each(function () {
+                    priceArray.push(Math.round(parseInt($(this).text())));
+                });
+
+                $('.-cloneElem.--selectedP input[name="num[]"]').each(function () {
+                    quantityArray.push($(this).val());
+                });
+                $('.-cloneElem.--selectedP input[name="price[]"]').each(function (index) {
+                    if (!isNaN(quantityArray[index])) {
+                        //尚未有商品總價才更新
+                        if ($(this).val() === "" ||
+                            parseInt($(this).val()) === 0
+                        ) {
+                            $(this).val(priceArray[index] * quantityArray[index]);
+                        }
+                    }
+                });
+            }
+
             // 計算小計
             function sumPrice() {
                 let sum = 0;
