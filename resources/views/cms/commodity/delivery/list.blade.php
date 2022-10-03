@@ -55,8 +55,8 @@
                     </select>
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
-                    <label class="form-label">宅配溫層</label>
-                    <select class="form-select -select2 -multiple" multiple name="ship_temp_id[]" aria-label="自取倉溫層宅配溫層"
+                    <label class="form-label">物流溫層</label>
+                    <select class="form-select -select2 -multiple" multiple name="ship_temp_id[]" aria-label="物流溫層"
                             data-placeholder="多選">
                         @foreach ($temps as $key => $value)
                             <option value="{{ $value->id }}" @if (in_array($value->id, $searchParam['ship_temp_id'] ?? [])) selected @endif>
@@ -180,7 +180,7 @@
                         <th scope="col">寄件倉</th>
                         <th scope="col" class="wrap lh-sm">訂單狀態 /<br>物流狀態</th>
                         <th scope="col">物流分類</th>
-                        <th scope="col">溫層</th>
+                        <th scope="col">物流溫層</th>
                         <th scope="col">自取倉溫層</th>
                         <th scope="col">寄件人姓名</th>
                         <th scope="col">收件人姓名</th>
