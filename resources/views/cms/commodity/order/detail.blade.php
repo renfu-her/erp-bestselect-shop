@@ -43,8 +43,7 @@
             @can('cms.order_invoice_manager.index')
                 @if ($received_order &&
                     !$order->invoice_number &&
-                    in_array($order->invoice_category, [null, '電子發票']))
-                    {{-- \App\Enums\Order\InvoiceMethod::getDescription(\App\Enums\Order\InvoiceMethod::e_inv()) == $order->invoice_category) --}}
+                     \App\Enums\Order\InvoiceMethod::getDescription(\App\Enums\Order\InvoiceMethod::e_inv()) == $order->invoice_category)
                     <a href="{{ Route('cms.order.create-invoice', ['id' => $order->id]) }}" role="button"
                         class="btn btn-success btn-sm my-1 ms-1">開立發票</a>
                 @endif
@@ -274,7 +273,7 @@
         @php
             $dlv_fee = 0;
             $price = 0;
-            
+
         @endphp
         @foreach ($subOrders as $subOrder)
             @php
