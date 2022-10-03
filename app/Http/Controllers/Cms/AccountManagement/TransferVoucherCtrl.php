@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use App\Models\DayEnd;
+use App\Models\DayEndItem;
 use App\Models\GeneralLedger;
 use App\Models\User;
 use App\Models\TransferVoucher;
@@ -187,8 +188,11 @@ class TransferVoucherCtrl extends Controller
             return abort(404);
         }
 
+        $day_emd_item = DayEndItem::where('source_sn', $voucher->tv_sn)->first();
+
         return view('cms.account_management.transfer_voucher.show', [
             'voucher' => $voucher,
+            'day_emd_item' => $day_emd_item,
         ]);
     }
 
