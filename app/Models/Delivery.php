@@ -121,14 +121,14 @@ class Delivery extends Model
                 , 'ord_sub_orders.ship_category_name as ship_category_name'
             );
         Order::orderAddress($query_order, 'order', 'order_id');
-        
+
         // 溫層
         $depotTemps = DB::table('depot_temp as dt')
             ->leftJoin('shi_temps as temp', 'dt.temp_id', '=', 'temp.id')
             ->select('dt.depot_id')
             ->selectRaw("GROUP_CONCAT(temp.temps) as temp")
             ->groupBy('dt.depot_id');
-        
+
         $query_receive_depot = DB::table('dlv_receive_depot')
             ->leftJoinSub($depotTemps, 'temp', 'temp.depot_id', '=', 'dlv_receive_depot.depot_id')
             ->select('dlv_receive_depot.delivery_id as dlv_id'
@@ -214,8 +214,26 @@ class Delivery extends Model
             $delivery_edate = date('Y-m-d 23:59:59', strtotime($param['delivery_edate']));
             $query->whereBetween('delivery.created_at', [$delivery_sdate, $delivery_edate]);
         }
+
+        if (isset($param['depot_temp']) && is_array($param['depot_temp']) && $param['depot_temp']) {
+            /*
+            $condDepotTempSub = DB::table('dlv_receive_depot as rd')
+                ->leftJoin('depot_temp as dt', 'rd.depot_id', '=', 'dt.depot_id')
+                ->select('rd.depot_id as depot_id')
+                ->whereIn('dt.temp_id', $param['depot_temp'])
+                ->groupBy('depot_id');
+            
+            
+            
+            $query->joinSub($condDepotTempSub, 'depot_temp_sub', function ($join) {
+                $join->on('query_receive_depot.dlv_id', '=', 'depot_temp_sub.depot_id');
+             //   $join->where('query_receive_depot.depot_id', '<>', 0);
+            });
+            */
+        }
+
         $query->orderByDesc('delivery.id');
-        
+
         return $query;
     }
 
