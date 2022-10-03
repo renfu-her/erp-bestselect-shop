@@ -92,7 +92,7 @@
                         <td style="text-align: right;">{{ $db_value->qty }}</td>
                         <td style="text-align: right;">{{ number_format($db_value->price, 2) }}</td>
                         <td style="text-align: right;">{{ number_format($db_value->total_price) }}</td>
-                        <td>{{ $delivery->po_memo }} <a href="{{ route('cms.delivery.back_detail', ['event' => $delivery->delivery_event, 'eventId' => $delivery->delivery_event_id]) }}">{{ $delivery->delivery_event_sn }}</a> {{ $db_value->taxation == 1 ? '應稅' : '免稅' }} {{ $delivery->order_note }}</td>
+                        <td>{{ $delivery->po_memo }} <a href="{{ route('cms.delivery.back_detail', ['event' => $delivery->delivery_event, 'eventId' => $delivery->delivery_event_id]) }}">{{ $delivery->delivery_event_sn }}</a> {{ $db_value->taxation == 1 ? '應稅' : '免稅' }} {{ $db_value->note }} {{ $db_value->po_note }}</td>
                     </tr>
                 @endforeach
                 @endif
