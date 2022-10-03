@@ -13,6 +13,7 @@
                             <th scope="col">摘要說明</th>
                             <th scope="col" class="text-end">數量</th>
                             <th scope="col" class="text-end">金額</th>
+                            <th scope="col">備註</th>
                             <th scope="col">付款項目備註</th>
                         </tr>
                     </thead>
@@ -28,6 +29,7 @@
                                 <td>{{ $value->product_title }}</td>
                                 <td class="text-end">{{ $value->qty }}</td>
                                 <td class="text-end">{{ number_format($value->total_price, 2) }}</td>
+                                <td><input class="form-control form-control-sm -l" name="order_item[{{ $value->event_item_id }}][note]" type="text" value="{{ $value->note }}"></td>
                                 <td><input class="form-control form-control-sm -l" name="order_item[{{ $value->event_item_id }}][po_note]" type="text" value="{{ $value->po_note }}"></td>
                             </tr>
                             @php

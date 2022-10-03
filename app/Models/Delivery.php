@@ -18,7 +18,8 @@ class Delivery extends Model
     protected $table = 'dlv_delivery';
     protected $guarded = [];
 
-    public static function getData($event, $event_id) {
+    public static function getData($event, $event_id)
+    {
         $data = null;
         if (null != $event && null != $event_id) {
             $data = Delivery::where('event', $event)->where('event_id', $event_id);
@@ -40,9 +41,9 @@ class Delivery extends Model
         if (null == $dataGet) {
 
             $sn = "DL" . date("ymd") . str_pad((self::whereDate('created_at', '=', date('Y-m-d'))
-                        ->withTrashed()
-                        ->get()
-                        ->count()) + 1, 5, '0', STR_PAD_LEFT);
+                    ->withTrashed()
+                    ->get()
+                    ->count()) + 1, 5, '0', STR_PAD_LEFT);
 
             $result = Delivery::create([
                 'sn' => $sn,
@@ -66,6 +67,30 @@ class Delivery extends Model
             $result = $dataGet->id;
             return ['success' => 1, 'error_msg' => "", 'id' => $result];
         }
+    }
+
+    //更新宅配、自取資訊
+    public static function updateShipCategory($event, $event_id, $temp_id, $temp_name, $ship_category, $ship_category_name)
+    {
+        $data = Delivery::getData($event, $event_id);
+        $dataGet = null;
+        if (null != $data) {
+            $dataGet = $data->get()->first();
+        }
+        $result = null;
+        if (null != $dataGet) {
+            $result = DB::transaction(function () use ($data, $dataGet, $temp_id, $temp_name, $ship_category, $ship_category_name
+            ) {
+                $data->update([
+                    'temp_id' => $temp_id,
+                    'temp_name' => $temp_name,
+                    'ship_category' => $ship_category,
+                    'ship_category_name' => $ship_category_name,
+                ]);
+                return ['success' => 1, 'error_msg' => "", 'id' => $dataGet->id];
+            });
+        }
+        return ['success' => 0, 'error_msg' => "更新失敗 無此物流單"];
     }
 
     //更新出貨倉庫
@@ -108,16 +133,56 @@ class Delivery extends Model
         });
     }
 
-    public static function getList($param) {
-        $query_order = DB::table('ord_orders as order')
+    public static function getList($param)
+    {
+        // 溫層
+        $depotTemps = DB::table('depot_temp as dt')
+            ->leftJoin('shi_temps as temp', 'dt.temp_id', '=', 'temp.id')
+            ->select('dt.depot_id')
+            ->selectRaw("GROUP_CONCAT(dt.temp_id) as temp_id")
+            ->selectRaw("GROUP_CONCAT(temp.temps) as temp")
+            ->groupBy('dt.depot_id');
+
+        //判斷訂單自取溫層
+        $query_order_pickup = DB::table('ord_orders as order')
             ->leftJoin('ord_sub_orders', 'ord_sub_orders.order_id', '=', 'order.id')
+            ->leftJoinSub($depotTemps, 'temp', 'temp.depot_id', '=', 'ord_sub_orders.ship_event_id')
             ->select('order.id as order_id'
+                , 'order.id as id' // 給func orderAddress使用
                 , 'order.status as order_status'
                 , 'order.created_at as order_created_at'
                 , 'ord_sub_orders.id as sub_order_id'
                 , 'ord_sub_orders.ship_category as ship_category'
                 , 'ord_sub_orders.ship_category_name as ship_category_name'
-            );
+                , 'ord_sub_orders.ship_event_id as depot_id'
+                , 'temp.temp_id as depot_temp_id'
+                , 'temp.temp as depot_temp_name'
+                , DB::raw('@ship_temp:=null as ship_temp_id')
+                , DB::raw('@ship_temp:=null as ship_temp_name')
+            )
+            ->where('ord_sub_orders.ship_category', '=', 'pickup');
+
+        //判斷訂單溫層 配合訂單自取欄位
+        $query_order_delivery = DB::table('ord_orders as order')
+            ->leftJoin('ord_sub_orders', 'ord_sub_orders.order_id', '=', 'order.id')
+            ->select('order.id as order_id'
+                , 'order.id as id' // 給func orderAddress使用
+                , 'order.status as order_status'
+                , 'order.created_at as order_created_at'
+                , 'ord_sub_orders.id as sub_order_id'
+                , 'ord_sub_orders.ship_category as ship_category'
+                , 'ord_sub_orders.ship_category_name as ship_category_name'
+                , DB::raw('@depot_id:=null as depot_id')
+                , DB::raw('@temp_id:=null as depot_temp_id')
+                , DB::raw('@temp:=null as depot_temp_name')
+                , 'ord_sub_orders.ship_temp_id as ship_temp_id'
+                , 'ord_sub_orders.ship_temp as ship_temp_name'
+            )
+            ->where('ord_sub_orders.ship_category', '=', 'deliver');
+
+        $query_order_delivery = $query_order_delivery->union($query_order_pickup);
+        $query_order = DB::query()->fromSub($query_order_delivery, 'order')
+            ->select('order.*');
         Order::orderAddress($query_order, 'order', 'order_id');
 
         $query_receive_depot = DB::table('dlv_receive_depot')
@@ -130,19 +195,19 @@ class Delivery extends Model
             ->groupBy('dlv_receive_depot.depot_name');
 
         $query = DB::table('dlv_delivery as delivery')
-            ->leftJoin('shi_group', function($join) {
+            ->leftJoin('shi_group', function ($join) {
                 $join->on('shi_group.id', '=', 'delivery.ship_group_id');
                 $join->where('delivery.ship_category', '=', 'deliver');
             })
-            ->leftJoin('shi_method', function($join) {
+            ->leftJoin('shi_method', function ($join) {
                 $join->on('shi_method.id', '=', 'shi_group.method_fk');
                 $join->whereNotNull('shi_group.method_fk');
             })
-            ->leftJoinSub($query_order, 'query_order', function($join) {
+            ->leftJoinSub($query_order, 'query_order', function ($join) {
                 $join->on('query_order.sub_order_id', '=', 'delivery.event_id')
                     ->where('delivery.event', '=', 'order');
             })
-            ->leftJoinSub($query_receive_depot, 'query_receive_depot', function($join) {
+            ->leftJoinSub($query_receive_depot, 'query_receive_depot', function ($join) {
                 $join->on('query_receive_depot.dlv_id', '=', 'delivery.id');
                 $join->where('query_receive_depot.depot_id', '<>', 0);
             })
@@ -166,14 +231,37 @@ class Delivery extends Model
                 , 'delivery.updated_at'
                 , 'delivery.deleted_at'
                 , 'shi_method.method'
-                , 'query_order.*'
+                , 'query_order.order_id'
+                , 'query_order.order_status'
+                , 'query_order.order_created_at'
+                , 'query_order.sub_order_id'
+                , 'query_order.ship_category'
+                , 'query_order.ship_category_name'
+                , 'query_order.depot_id'
+                , 'query_order.depot_temp_id as depot_temp_id'
+                , 'query_order.depot_temp_name as depot_temp_name'
+                , 'query_order.ship_temp_id'
+                , 'query_order.ship_temp_name'
+                , 'query_order.rec_name'
+                , 'query_order.rec_address'
+                , 'query_order.rec_phone'
+                , 'query_order.rec_zipcode'
+                , 'query_order.ord_name'
+                , 'query_order.ord_address'
+                , 'query_order.ord_phone'
+                , 'query_order.ord_zipcode'
+                , 'query_order.sed_name'
+                , 'query_order.sed_address'
+                , 'query_order.sed_phone'
+                , 'query_order.sed_zipcode'
+
                 , 'query_receive_depot.*'
             );
         if (isset($param['delivery_sn'])) {
-            $query->where('delivery.sn', 'like', "%".$param['delivery_sn']."%");
+            $query->where('delivery.sn', 'like', "%" . $param['delivery_sn'] . "%");
         }
         if (isset($param['event_sn'])) {
-            $query->where('delivery.event_sn', 'like', "%".$param['event_sn']."%");
+            $query->where('delivery.event_sn', 'like', "%" . $param['event_sn'] . "%");
         }
         if (isset($param['receive_depot_id']) && 0 < count($param['receive_depot_id'])) {
             $query->whereIn('query_receive_depot.depot_id', $param['receive_depot_id']);
@@ -203,12 +291,23 @@ class Delivery extends Model
             $delivery_edate = date('Y-m-d 23:59:59', strtotime($param['delivery_edate']));
             $query->whereBetween('delivery.created_at', [$delivery_sdate, $delivery_edate]);
         }
+
+        //篩選宅配溫層
+        if (isset($param['ship_temp_id']) && is_array($param['ship_temp_id']) && $param['ship_temp_id']) {
+            $query->whereIn('query_order.ship_temp_id', $param['ship_temp_id']);
+        }
+        //篩選自取倉溫層
+        if (isset($param['depot_temp_id']) && is_array($param['depot_temp_id']) && $param['depot_temp_id']) {
+            $query->whereRaw('FIND_IN_SET(?, query_order.depot_temp_id)', $param['depot_temp_id']);
+        }
+
         $query->orderByDesc('delivery.id');
 
         return $query;
     }
 
-    private static function getSumQtyWithRecDepot() {
+    private static function getSumQtyWithRecDepot()
+    {
         $sub_rec_depot = DB::table('dlv_receive_depot')
             ->select('dlv_receive_depot.delivery_id'
                 , 'dlv_receive_depot.event_item_id'
@@ -236,7 +335,7 @@ class Delivery extends Model
         $sub_rec_depot = self::getSumQtyWithRecDepot();
 
         $sub_orders = DB::table('ord_sub_orders')
-            ->leftJoin('ord_items as items', function($join) {
+            ->leftJoin('ord_items as items', function ($join) {
                 $join->on('items.sub_order_id', '=', 'ord_sub_orders.id');
             })
             ->select('items.id as item_id'
@@ -251,7 +350,7 @@ class Delivery extends Model
             );
 
         $query = DB::table(DB::raw("({$sub_rec_depot->toSql()}) as rec_depot"))
-            ->leftJoinSub($sub_orders, 'orders', function($join) use($delivery_id) {
+            ->leftJoinSub($sub_orders, 'orders', function ($join) use ($delivery_id) {
                 $join->on('orders.item_id', '=', 'rec_depot.event_item_id');
                 $join->where('rec_depot.delivery_id', $delivery_id);
             })
@@ -276,7 +375,7 @@ class Delivery extends Model
         $sub_rec_depot = self::getSumQtyWithRecDepot();
 
         $sub_orders = DB::table('csn_consignment')
-            ->leftJoin('csn_consignment_items as items', function($join) {
+            ->leftJoin('csn_consignment_items as items', function ($join) {
                 $join->on('items.consignment_id', '=', 'csn_consignment.id');
             })
             ->select('items.id as item_id'
@@ -291,7 +390,7 @@ class Delivery extends Model
             );
 
         $query = DB::table(DB::raw("({$sub_rec_depot->toSql()}) as rec_depot"))
-            ->leftJoinSub($sub_orders, 'csn', function($join) use($delivery_id) {
+            ->leftJoinSub($sub_orders, 'csn', function ($join) use ($delivery_id) {
                 $join->on('csn.item_id', '=', 'rec_depot.event_item_id');
                 $join->where('rec_depot.delivery_id', $delivery_id);
             })
@@ -313,7 +412,7 @@ class Delivery extends Model
         $sub_rec_depot = self::getSumQtyWithRecDepot();
 
         $sub_orders = DB::table('csn_orders as csnord')
-            ->leftJoin('csn_order_items as items', function($join) {
+            ->leftJoin('csn_order_items as items', function ($join) {
                 $join->on('items.csnord_id', '=', 'csnord.id');
             })
             ->select('items.id as item_id'
@@ -328,7 +427,7 @@ class Delivery extends Model
             );
 
         $query = DB::table(DB::raw("({$sub_rec_depot->toSql()}) as rec_depot"))
-            ->leftJoinSub($sub_orders, 'sub_csnord', function($join) use($delivery_id) {
+            ->leftJoinSub($sub_orders, 'sub_csnord', function ($join) use ($delivery_id) {
                 $join->on('sub_csnord.item_id', '=', 'rec_depot.event_item_id');
                 $join->where('rec_depot.delivery_id', $delivery_id);
             })
@@ -360,7 +459,8 @@ class Delivery extends Model
         return $query;
     }
 
-    public static function getDeliveryWithEventWithSn($event, $event_id) {
+    public static function getDeliveryWithEventWithSn($event, $event_id)
+    {
         $query = DB::table('dlv_delivery as delivery');
         if (isset($event)) {
             $query->where('delivery.event', $event);
@@ -371,17 +471,17 @@ class Delivery extends Model
         return $query;
     }
 
-    public static function changeBackStatus($delivery_id, BackStatus $status) {
+    public static function changeBackStatus($delivery_id, BackStatus $status)
+    {
         if (false == BackStatus::hasKey($status->key)) {
             throw ValidationException::withMessages(['error_msg' => '無此退貨狀態']);
         }
 
         Delivery::where('id', '=', $delivery_id)->update([
             'back_status' => $status->value
-            , 'back_status_date' => date('Y-m-d H:i:s')
+            , 'back_status_date' => date('Y-m-d H:i:s'),
         ]);
     }
-
 
     public static function back_item($delivery_id = null)
     {
@@ -408,13 +508,13 @@ class Delivery extends Model
                 LEFT JOIN ord_items ON ord_items.id = dlv_back.event_item_id
                 LEFT JOIN prd_products AS product ON product.id = prd_product_styles.product_id WHERE product.deleted_at IS NULL
                 GROUP BY delivery_id
-                ) AS delivery_back'), function ($join){
-                    $join->on('delivery_back.delivery_id', '=', 'delivery.id');
+                ) AS delivery_back'), function ($join) {
+                $join->on('delivery_back.delivery_id', '=', 'delivery.id');
             })
             ->leftJoin('ord_sub_orders AS sub_order', function ($join) {
                 $join->on('sub_order.id', '=', 'delivery.event_id');
                 $join->where([
-                    'delivery.event'=>'order',
+                    'delivery.event' => 'order',
                 ]);
             })
             ->leftJoin('ord_orders as order', 'order.id', '=', 'sub_order.order_id')
@@ -422,20 +522,20 @@ class Delivery extends Model
             ->leftJoin('usr_customers_address AS buyer_add', function ($join) {
                 $join->on('buyer.id', '=', 'buyer_add.usr_customers_id_fk');
                 $join->where([
-                    'buyer_add.is_default_addr'=>1,
+                    'buyer_add.is_default_addr' => 1,
                 ]);
             })
             ->leftJoin('pcs_paying_orders AS po', function ($join) {
                 $join->on('po.source_id', '=', 'delivery.id');
                 $join->where([
-                    'po.source_type'=>app(self::class)->getTable(),
-                    'po.source_sub_id'=>null,
-                    'po.deleted_at'=>null,
+                    'po.source_type' => app(self::class)->getTable(),
+                    'po.source_sub_id' => null,
+                    'po.deleted_at' => null,
                 ]);
             })
             ->where(function ($q) use ($delivery_id) {
-                if($delivery_id){
-                    if(gettype($delivery_id) == 'array') {
+                if ($delivery_id) {
+                    if (gettype($delivery_id) == 'array') {
                         $q->whereIn('delivery.id', $delivery_id);
                     } else {
                         $q->where('delivery.id', $delivery_id);

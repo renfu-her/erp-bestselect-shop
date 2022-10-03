@@ -6,13 +6,13 @@ use App\Enums\Delivery\BackStatus;
 use App\Enums\Delivery\Event;
 use App\Enums\Delivery\LogisticStatus;
 use App\Enums\Order\OrderStatus;
-use App\Enums\Purchase\LogEventFeature;
 use App\Enums\Payable\ChequeStatus;
+use App\Enums\Purchase\LogEventFeature;
 use App\Enums\StockEvent;
 use App\Enums\Supplier\Payment;
 use App\Http\Controllers\Controller;
-use App\Models\AllGrade;
 use App\Models\AccountPayable;
+use App\Models\AllGrade;
 use App\Models\Consignment;
 use App\Models\ConsignmentItem;
 use App\Models\CsnOrder;
@@ -29,14 +29,14 @@ use App\Models\Order;
 use App\Models\OrderFlow;
 use App\Models\OrderInvoice;
 use App\Models\OrderItem;
-use App\Models\PayingOrder;
 use App\Models\PayableAccount;
 use App\Models\PayableCash;
 use App\Models\PayableCheque;
-use App\Models\PayableRemit;
+use App\Models\PayableDefault;
 use App\Models\PayableForeignCurrency;
 use App\Models\PayableOther;
-use App\Models\PayableDefault;
+use App\Models\PayableRemit;
+use App\Models\PayingOrder;
 use App\Models\ProductStock;
 use App\Models\ProductStyle;
 use App\Models\PurchaseInbound;
@@ -46,6 +46,7 @@ use App\Models\ReceiveDepot;
 use App\Models\ShipmentCategory;
 use App\Models\ShipmentGroup;
 use App\Models\SubOrders;
+use App\Models\Temps;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -73,6 +74,8 @@ class DeliveryCtrl extends Controller
         $cond['delivery_sdate'] = Arr::get($query, 'delivery_sdate', null);
         $cond['delivery_edate'] = Arr::get($query, 'delivery_edate', null);
         $cond['has_csn'] = Arr::get($query, 'has_csn', $has_csn[0][0]);
+        $cond['ship_temp_id'] = Arr::get($query, 'ship_temp_id', []);
+        $cond['depot_temp_id'] = Arr::get($query, 'depot_temp_id', []);
 
         $cond['data_per_page'] = getPageCount(Arr::get($query, 'data_per_page'));
 
@@ -102,7 +105,9 @@ class DeliveryCtrl extends Controller
             'order_status' => $order_status,
             'has_csn' => $has_csn,
             'searchParam' => $cond,
-            'data_per_page' => $cond['data_per_page']]);
+            'data_per_page' => $cond['data_per_page'],
+            'temps' => Temps::get()]);
+
     }
 
     public function create($event, $eventId)
@@ -114,7 +119,7 @@ class DeliveryCtrl extends Controller
         $delivery = null;
         $delivery_id = null;
         $event_sn = '';
-        if(Event::order()->value == $event) {
+        if (Event::order()->value == $event) {
             $sub_order = SubOrders::getListWithShiGroupById($eventId)->get()->first();
             $event_sn = $sub_order->sn;
             if (null == $sub_order) {
@@ -126,7 +131,7 @@ class DeliveryCtrl extends Controller
             $delivery = Delivery::getData($event, $sub_order->id)->get()->first();
             $delivery_id = $delivery->id;
             $ord_items_arr = ReceiveDepot::getOrderShipItemWithDeliveryWithReceiveDepotList($event, $eventId, $delivery_id);
-        } else if(Event::consignment()->value == $event) {
+        } else if (Event::consignment()->value == $event) {
             // 出貨單號ID
             $delivery = Delivery::getData($event, $eventId)->get()->first();
             $delivery_id = $delivery->id;
@@ -134,7 +139,7 @@ class DeliveryCtrl extends Controller
             $consignment = Consignment::where('id', $delivery->event_id)->get()->first();
             $event_sn = $consignment->sn;
             $rsp_arr['depot_id'] = $consignment->send_depot_id;
-        } else if(Event::csn_order()->value == $event) {
+        } else if (Event::csn_order()->value == $event) {
             // 出貨單號ID
             $delivery = Delivery::getData($event, $eventId)->get()->first();
             $delivery_id = $delivery->id;
@@ -152,7 +157,7 @@ class DeliveryCtrl extends Controller
         $rsp_arr['formAction'] = Route('cms.delivery.store', [
             'deliveryId' => $delivery_id,
         ], true);
-        $rsp_arr['breadcrumb_data'] = ['sn' => $event_sn, 'parent' => $event ];
+        $rsp_arr['breadcrumb_data'] = ['sn' => $event_sn, 'parent' => $event];
 
         return view('cms.commodity.delivery.edit', $rsp_arr);
     }
@@ -170,7 +175,7 @@ class DeliveryCtrl extends Controller
                 return redirect(Route('cms.delivery.create', [
                     'event' => $delivery->event,
                     'eventId' => $delivery->event_id,
-                    ], true));
+                ], true));
             }
             $errors['error_msg'] = $re['error_msg'];
         }
@@ -206,7 +211,7 @@ class DeliveryCtrl extends Controller
 
         return redirect(Route('cms.delivery.create', [
             'event' => $event,
-            'eventId' => $eventId,], true));
+            'eventId' => $eventId], true));
     }
 
     public function back($event, $eventId)
@@ -216,13 +221,13 @@ class DeliveryCtrl extends Controller
             return abort(404);
         }
 
-        if(Event::order()->value == $event) {
+        if (Event::order()->value == $event) {
             $sub_order = SubOrders::where('id', $delivery->event_id)->get()->first();
             $rsp_arr['order_id'] = $sub_order->order_id;
         }
         $ord_items = null;
 
-        $dlv_back = DB::table(app(DlvBack::class)->getTable(). ' as dlv_back')
+        $dlv_back = DB::table(app(DlvBack::class)->getTable() . ' as dlv_back')
             ->where('dlv_back.delivery_id', '=', $delivery->id)
             ->select('dlv_back.id'
                 , 'dlv_back.event_item_id'
@@ -237,8 +242,8 @@ class DeliveryCtrl extends Controller
         if (isset($dlv_back) && 0 < count($dlv_back)) {
             $ord_items = $dlv_back;
         } else {
-            if(Event::order()->value == $event) {
-                $ord_items = DB::table(app(OrderItem::class)->getTable(). ' as ord_item')
+            if (Event::order()->value == $event) {
+                $ord_items = DB::table(app(OrderItem::class)->getTable() . ' as ord_item')
                     ->where('ord_item.sub_order_id', '=', $eventId)
                     ->select('ord_item.id as event_item_id'
                         , 'ord_item.product_style_id'
@@ -257,20 +262,21 @@ class DeliveryCtrl extends Controller
         $rsp_arr['formAction'] = Route('cms.delivery.back_store', [
             'deliveryId' => $delivery->id,
         ], true);
-        $rsp_arr['breadcrumb_data'] = ['sn' => $delivery->sn, 'parent' => $event ];
+        $rsp_arr['breadcrumb_data'] = ['sn' => $delivery->sn, 'parent' => $event];
 
         return view('cms.commodity.delivery.back', $rsp_arr);
     }
 
     //刪除退貨
-    public function back_delete(Request $request, int $delivery_id) {
+    public function back_delete(Request $request, int $delivery_id)
+    {
         $delivery = Delivery::where('id', '=', $delivery_id)->first();
         Delivery::where('id', $delivery_id)->update([
             'back_date' => null
             , 'back_sn' => null
             , 'back_memo' => null
             , 'back_user_id' => null
-            , 'back_user_name' => null
+            , 'back_user_name' => null,
         ]);
         Delivery::changeBackStatus($delivery_id, BackStatus::del_back());
         if (Event::order()->value == $delivery->event) {
@@ -282,7 +288,8 @@ class DeliveryCtrl extends Controller
         return redirect()->back();
     }
 
-    public function back_store(Request $request, int $delivery_id) {
+    public function back_store(Request $request, int $delivery_id)
+    {
         $request->validate([
             'dlv_memo' => 'nullable|string',
             'id.*' => 'nullable|numeric',
@@ -300,13 +307,13 @@ class DeliveryCtrl extends Controller
         $delivery = Delivery::where('id', $delivery_id)->first();
         $msg = DB::transaction(function () use ($request, $delivery, $delivery_id) {
             $dlv_memo = $request->input('dlv_memo', null);
-            $back_sn = str_replace("DL","BK",$delivery->sn); //將出貨單號改為銷貨退回單號
+            $back_sn = str_replace("DL", "BK", $delivery->sn); //將出貨單號改為銷貨退回單號
             Delivery::where('id', $delivery_id)->update([
                 'back_date' => date("Y-m-d H:i:s")
                 , 'back_sn' => $back_sn //寫入銷貨退回單號
                 , 'back_memo' => $dlv_memo
                 , 'back_user_id' => $request->user()->id
-                , 'back_user_name' => $request->user()->name
+                , 'back_user_name' => $request->user()->name,
             ]);
             Delivery::changeBackStatus($delivery_id, BackStatus::add_back());
             if (Event::order()->value == $delivery->event) {
@@ -328,9 +335,9 @@ class DeliveryCtrl extends Controller
 
             $input_items = $request->only('id', 'event_item_id', 'product_style_id', 'product_title', 'sku', 'price', 'origin_qty', 'back_qty', 'memo');
             if (isset($input_items['id']) && 0 < count($input_items['id'])) {
-                if(true == isset($input_items['id'][0])) {
+                if (true == isset($input_items['id'][0])) {
                     //已有資料 做編輯
-                    for($i = 0; $i < count($input_items['id']); $i++) {
+                    for ($i = 0; $i < count($input_items['id']); $i++) {
                         DlvBack::where('id', '=', $input_items['id'][$i])->update([
                             'qty' => $input_items['back_qty'][$i],
                             'memo' => $input_items['memo'][$i],
@@ -338,7 +345,7 @@ class DeliveryCtrl extends Controller
                     }
                 } else {
                     $data = [];
-                    for($i = 0; $i < count($input_items['id']); $i++) {
+                    for ($i = 0; $i < count($input_items['id']); $i++) {
                         $addItem = [
                             'delivery_id' => $delivery_id,
                             'event_item_id' => $input_items['event_item_id'][$i],
@@ -352,7 +359,7 @@ class DeliveryCtrl extends Controller
                         ];
                         //判斷為訂單 則寫入目前訂單款式的bonus
                         if (Event::order()->value == $delivery->event) {
-                            $orderItem = DB::table(app(OrderItem::class)->getTable(). ' as order_item')
+                            $orderItem = DB::table(app(OrderItem::class)->getTable() . ' as order_item')
                                 ->where('order_item.id', '=', $input_items['event_item_id'][$i])
                                 ->select('order_item.id', 'order_item.bonus')
                                 ->first();
@@ -408,8 +415,8 @@ class DeliveryCtrl extends Controller
         }
 
         if (isset($item_table)) {
-            $dlvBack = DB::table(app(DlvBack::class)->getTable(). ' as dlv_back')
-                ->leftJoin($item_table. ' as item_tb', 'item_tb.id', '=', 'dlv_back.event_item_id')
+            $dlvBack = DB::table(app(DlvBack::class)->getTable() . ' as dlv_back')
+                ->leftJoin($item_table . ' as item_tb', 'item_tb.id', '=', 'dlv_back.event_item_id')
                 ->select(
                     'dlv_back.id'
                     , 'dlv_back.event_item_id'
@@ -429,8 +436,8 @@ class DeliveryCtrl extends Controller
         }
 //        $logistic = Logistic::where('id', '=', $delivery->event_id)->first();
 
-        $logistic = DB::table(app(Logistic::class)->getTable(). ' as lgt_tb')
-            ->leftJoin(app(ShipmentGroup::class)->getTable(). ' as shi_group', 'shi_group.id', '=', 'lgt_tb.ship_group_id')
+        $logistic = DB::table(app(Logistic::class)->getTable() . ' as lgt_tb')
+            ->leftJoin(app(ShipmentGroup::class)->getTable() . ' as shi_group', 'shi_group.id', '=', 'lgt_tb.ship_group_id')
             ->select(
                 'lgt_tb.*', 'shi_group.name as group_name'
             )
@@ -468,7 +475,7 @@ class DeliveryCtrl extends Controller
                 }
             }
             $ord_items_arr = json_decode($ord_items_arr);
-            $ord_items_arr = array_values((array)$ord_items_arr);
+            $ord_items_arr = array_values((array) $ord_items_arr);
         }
 
         $rsp_arr['logistic'] = $logistic;
@@ -479,7 +486,7 @@ class DeliveryCtrl extends Controller
         $rsp_arr['sn'] = $delivery->sn;
         $rsp_arr['dlvBack'] = $dlvBack;
         $rsp_arr['ord_items_arr'] = $ord_items_arr;
-        $rsp_arr['breadcrumb_data'] = ['sn' => $delivery->event_sn, 'parent' => $event ];
+        $rsp_arr['breadcrumb_data'] = ['sn' => $delivery->event_sn, 'parent' => $event];
         $back_item = Delivery::back_item($delivery->id)->get();
         foreach ($back_item as $key => $value) {
             $back_item[$key]->delivery_back_items = json_decode($value->delivery_back_items);
@@ -500,16 +507,16 @@ class DeliveryCtrl extends Controller
         $delivery_id = $delivery->id;
         $event_sn = $delivery->event_sn;
 
-        if(Event::order()->value == $event) {
+        if (Event::order()->value == $event) {
             $sub_order = SubOrders::getListWithShiGroupById($eventId)->get()->first();
             if (null == $sub_order) {
                 return abort(404);
             }
             $rsp_arr['order_id'] = $sub_order->order_id;
-        } else if(Event::consignment()->value == $event) {
+        } else if (Event::consignment()->value == $event) {
             $consignment = Consignment::where('id', $delivery->event_id)->get()->first();
             $rsp_arr['depot_id'] = $consignment->send_depot_id;
-        } else if(Event::csn_order()->value == $event) {
+        } else if (Event::csn_order()->value == $event) {
             $csn_order = CsnOrder::where('id', $delivery->event_id)->get()->first();
             $rsp_arr['depot_id'] = $csn_order->depot_id;
         }
@@ -523,7 +530,7 @@ class DeliveryCtrl extends Controller
         $rsp_arr['formAction'] = Route('cms.delivery.back_inbound_store', [
             'deliveryId' => $delivery_id,
         ], true);
-        $rsp_arr['breadcrumb_data'] = ['sn' => $event_sn, 'parent' => $event ];
+        $rsp_arr['breadcrumb_data'] = ['sn' => $event_sn, 'parent' => $event];
 
         return view('cms.commodity.delivery.back_inbound', $rsp_arr);
     }
@@ -553,7 +560,7 @@ class DeliveryCtrl extends Controller
                 Delivery::where('id', '=', $delivery->id)->update([
                     'back_inbound_user_id' => $request->user()->id
                     , 'back_inbound_user_name' => $request->user()->name
-                    , 'back_inbound_date' => date("Y-m-d H:i:s")
+                    , 'back_inbound_date' => date("Y-m-d H:i:s"),
                 ]);
                 Delivery::changeBackStatus($delivery->id, BackStatus::add_back_inbound());
 
@@ -564,19 +571,19 @@ class DeliveryCtrl extends Controller
                 }
 
                 //查找相關退貨的組合包 將數量加回
-                $dlvBack_combo = DB::table(app(DlvBack::class)->getTable(). ' as dlv_back')
-                    ->leftJoin(app(ProductStyle::class)->getTable(). ' as style', 'style.id', '=', 'dlv_back.product_style_id')
+                $dlvBack_combo = DB::table(app(DlvBack::class)->getTable() . ' as dlv_back')
+                    ->leftJoin(app(ProductStyle::class)->getTable() . ' as style', 'style.id', '=', 'dlv_back.product_style_id')
                     ->where('dlv_back.delivery_id', '=', $delivery->id)
                     ->where('style.type', '=', 'c')
                     ->get();
                 if (isset($dlvBack_combo) && 0 < count($dlvBack_combo)
                     //(訂單在取消訂單已做) 做寄倉的即可
-                    && (Event::consignment()->value == $delivery->event)
+                     && (Event::consignment()->value == $delivery->event)
                 ) {
                     foreach ($dlvBack_combo as $back_item) {
                         $rePSSC = ProductStock::stockChange($back_item->product_style_id, $back_item->qty
                             , StockEvent::send_back()->value, $delivery->event_id
-                            , $request->user()->name. ' '. $delivery->sn. ' ' . $back_item->memo);
+                            , $request->user()->name . ' ' . $delivery->sn . ' ' . $back_item->memo);
                         if ($rePSSC['success'] == 0) {
                             DB::rollBack();
                             return $rePSSC;
@@ -585,8 +592,8 @@ class DeliveryCtrl extends Controller
                 }
 
                 //直接依據退貨數量 寫回出貨單組合包的退貨數量
-                $dlvBack = DB::table(app(DlvBack::class)->getTable(). ' as dlv_back')
-                    ->leftJoin(app(ReceiveDepot::class)->getTable(). ' as rcv_depot', function ($join) {
+                $dlvBack = DB::table(app(DlvBack::class)->getTable() . ' as dlv_back')
+                    ->leftJoin(app(ReceiveDepot::class)->getTable() . ' as rcv_depot', function ($join) {
                         $join->on('rcv_depot.delivery_id', '=', 'dlv_back.delivery_id')
                             ->on('rcv_depot.event_item_id', '=', 'dlv_back.event_item_id');
                     })
@@ -602,12 +609,12 @@ class DeliveryCtrl extends Controller
                 if (isset($dlvBack) && 0 < count($dlvBack)) {
                     foreach ($dlvBack as $key_back => $val_back) {
                         ReceiveDepot::where('id', '=', $val_back->rcv_depot_id)->update([
-                            'back_qty' => $val_back->qty
+                            'back_qty' => $val_back->qty,
                         ]);
                     }
                 }
 
-                if(isset($bdcisc['data']) && 0 < count($bdcisc['data']) && isset($bdcisc['data']['id']) && 0 < count($bdcisc['data']['id'])) {
+                if (isset($bdcisc['data']) && 0 < count($bdcisc['data']) && isset($bdcisc['data']['id']) && 0 < count($bdcisc['data']['id'])) {
                     for ($num_bdcisc = 0; $num_bdcisc < count($bdcisc['data']['id']); $num_bdcisc++) {
                         $rcv_depot_item = new \stdClass();
                         $rcv_depot_item->id = $bdcisc['data']['id'][$num_bdcisc];
@@ -671,7 +678,7 @@ class DeliveryCtrl extends Controller
                                 $memo = $rcv_depot_item->memo ?? '';
                                 $rePSSC = ProductStock::stockChange($inboundDataGet->product_style_id, $rcv_depot_item->back_qty
                                     , StockEvent::send_back()->value, $delivery->event_id
-                                    , $request->user()->name. ' '. $delivery->sn. ' ' . $memo
+                                    , $request->user()->name . ' ' . $delivery->sn . ' ' . $memo
                                     , false, $inboundDataGet->can_tally);
                                 if ($rePSSC['success'] == 0) {
                                     DB::rollBack();
@@ -698,8 +705,9 @@ class DeliveryCtrl extends Controller
     }
 
     //找自取倉已入庫 且數量小於欲退數量資料
-    private function getPickUpInboundLessThenBackQtyList($rcv_depot_id, $back_qty) {
-        $pcsInbound_sub = DB::table(app(PurchaseInbound::class)->getTable(). ' as inbound')
+    private function getPickUpInboundLessThenBackQtyList($rcv_depot_id, $back_qty)
+    {
+        $pcsInbound_sub = DB::table(app(PurchaseInbound::class)->getTable() . ' as inbound')
             ->where('inbound.event', '=', Event::ord_pickup()->value)
             ->where('inbound.event_id', '=', $rcv_depot_id)
             ->whereNull('inbound.deleted_at')
@@ -718,13 +726,14 @@ class DeliveryCtrl extends Controller
         return $pcsInbound_pickup;
     }
 
-    public function back_inbound_delete(Request $request, int $delivery_id) {
+    public function back_inbound_delete(Request $request, int $delivery_id)
+    {
         $delivery = Delivery::where('id', '=', $delivery_id)->get()->first();
         if (false == isset($delivery) || false == isset($delivery->back_inbound_date)) {
             return abort(404);
         }
-        $rcv_depot = DB::table(app(Delivery::class)->getTable(). ' as dlv_tb')
-            ->leftJoin(app(ReceiveDepot::class)->getTable(). ' as rcv_depot', 'rcv_depot.delivery_id', '=', 'dlv_tb.id')
+        $rcv_depot = DB::table(app(Delivery::class)->getTable() . ' as dlv_tb')
+            ->leftJoin(app(ReceiveDepot::class)->getTable() . ' as rcv_depot', 'rcv_depot.delivery_id', '=', 'dlv_tb.id')
             ->select(
                 'rcv_depot.id'
                 , 'rcv_depot.back_qty'
@@ -742,24 +751,24 @@ class DeliveryCtrl extends Controller
                 Delivery::where('id', '=', $delivery->id)->update([
                     'back_inbound_user_id' => null
                     , 'back_inbound_user_name' => null
-                    , 'back_inbound_date' => null
+                    , 'back_inbound_date' => null,
                 ]);
                 Delivery::changeBackStatus($delivery->id, BackStatus::del_back_inbound());
 
                 //查找相關退貨的組合包 將數量扣回
-                $dlvBack_combo = DB::table(app(DlvBack::class)->getTable(). ' as dlv_back')
-                    ->leftJoin(app(ProductStyle::class)->getTable(). ' as style', 'style.id', '=', 'dlv_back.product_style_id')
+                $dlvBack_combo = DB::table(app(DlvBack::class)->getTable() . ' as dlv_back')
+                    ->leftJoin(app(ProductStyle::class)->getTable() . ' as style', 'style.id', '=', 'dlv_back.product_style_id')
                     ->where('dlv_back.delivery_id', '=', $delivery->id)
                     ->where('style.type', '=', 'c')
                     ->get();
                 if (isset($dlvBack_combo) && 0 < count($dlvBack_combo)
                     //(訂單在取消訂單已做) 做寄倉的即可
-                    && (Event::consignment()->value == $delivery->event)
+                     && (Event::consignment()->value == $delivery->event)
                 ) {
                     foreach ($dlvBack_combo as $back_item) {
                         $rePSSC = ProductStock::stockChange($back_item->product_style_id, $back_item->qty * -1
                             , StockEvent::send_back_cancle()->value, $delivery->event_id
-                            , $request->user()->name. ' '. $delivery->sn. ' ' . $back_item->memo);
+                            , $request->user()->name . ' ' . $delivery->sn . ' ' . $back_item->memo);
                         if ($rePSSC['success'] == 0) {
                             DB::rollBack();
                             return $rePSSC;
@@ -820,7 +829,7 @@ class DeliveryCtrl extends Controller
                             $memo = '';
                             $rePSSC = ProductStock::stockChange($inboundDataGet->product_style_id, $val_rcv->back_qty * -1
                                 , StockEvent::send_back_cancle()->value, $delivery->event_id
-                                , $request->user()->name. ' '. $delivery->sn. ' ' . $memo
+                                , $request->user()->name . ' ' . $delivery->sn . ' ' . $memo
                                 , false, $inboundDataGet->can_tally);
                             if ($rePSSC['success'] == 0) {
                                 DB::rollBack();
@@ -925,7 +934,7 @@ class DeliveryCtrl extends Controller
 
         $zh_price = num_to_str($paying_order->price);
 
-        if($paying_order && $paying_order->append_po_id){
+        if ($paying_order && $paying_order->append_po_id) {
             $append_po = PayingOrder::find($paying_order->append_po_id);
             $paying_order->append_po_link = PayingOrder::paying_order_link($append_po->source_type, $append_po->source_id, $append_po->source_sub_id, $append_po->type);
         }
@@ -946,7 +955,7 @@ class DeliveryCtrl extends Controller
             'applied_company' => $applied_company,
             'product_grade_name' => $product_grade_name,
             'logistics_grade_name' => $logistics_grade_name,
-            'accountant'=>implode(',', $accountant),
+            'accountant' => implode(',', $accountant),
             'undertaker' => $undertaker,
             'zh_price' => $zh_price,
         ]);
@@ -973,7 +982,7 @@ class DeliveryCtrl extends Controller
             'deleted_at' => null,
         ])->first();
 
-        if(! $paying_order) {
+        if (!$paying_order) {
             return abort(404);
         }
 
@@ -983,9 +992,9 @@ class DeliveryCtrl extends Controller
         }
         $delivery = $delivery->first();
 
-        if($request->isMethod('post')){
+        if ($request->isMethod('post')) {
             $request->merge([
-                'pay_order_id'=>$paying_order->id,
+                'pay_order_id' => $paying_order->id,
             ]);
 
             $request->validate([
@@ -1002,7 +1011,7 @@ class DeliveryCtrl extends Controller
                     break;
                 case Payment::Cheque:
                     $request->validate([
-                        'cheque.ticket_number'=>'required|unique:acc_payable_cheque,ticket_number,po_delete,status_code|regex:/^[A-Z]{2}[0-9]{7}$/'
+                        'cheque.ticket_number' => 'required|unique:acc_payable_cheque,ticket_number,po_delete,status_code|regex:/^[A-Z]{2}[0-9]{7}$/',
                     ]);
                     PayableCheque::storePayableCheque($req);
                     break;
@@ -1043,7 +1052,7 @@ class DeliveryCtrl extends Controller
 
         } else {
 
-            if($paying_order->balance_date) {
+            if ($paying_order->balance_date) {
                 return abort(404);
             }
 
@@ -1060,10 +1069,10 @@ class DeliveryCtrl extends Controller
             // }
 
             $currency = DB::table('acc_currency')->find($paying_order->acc_currency_fk);
-            if(!$currency){
-                $currency = (object)[
-                    'name'=>'NTD',
-                    'rate'=>1,
+            if (!$currency) {
+                $currency = (object) [
+                    'name' => 'NTD',
+                    'rate' => 1,
                 ];
             }
 

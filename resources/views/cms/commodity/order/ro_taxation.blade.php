@@ -133,9 +133,7 @@
                                         </label>
                                     </div>
                                 </td>
-                                <td>
-                                    {{ $value->product_note }}
-                                </td>
+                                <td><input class="form-control form-control-sm -l" name="order_item[{{ $value->order_item_id }}][note]" type="text" value="{{ $value->product_note }}"></td>
                                 <td><input class="form-control form-control-sm -l" name="order_item[{{ $value->order_item_id }}][ro_note]" type="text" value="{{ $value->product_ro_note }}"></td>
                             </tr>
                             @php
