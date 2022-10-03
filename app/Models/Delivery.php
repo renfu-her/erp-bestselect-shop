@@ -111,30 +111,58 @@ class Delivery extends Model
 
     public static function getList($param)
     {
-        $query_order = DB::table('ord_orders as order')
+        // 溫層
+        $depotTemps = DB::table('depot_temp as dt')
+            ->leftJoin('shi_temps as temp', 'dt.temp_id', '=', 'temp.id')
+            ->select('dt.depot_id')
+            ->selectRaw("GROUP_CONCAT(dt.temp_id) as temp_id")
+            ->selectRaw("GROUP_CONCAT(temp.temps) as temp")
+            ->groupBy('dt.depot_id');
+
+        //判斷訂單自取溫層
+        $query_order_pickup = DB::table('ord_orders as order')
             ->leftJoin('ord_sub_orders', 'ord_sub_orders.order_id', '=', 'order.id')
+            ->leftJoinSub($depotTemps, 'temp', 'temp.depot_id', '=', 'ord_sub_orders.ship_event_id')
             ->select('order.id as order_id'
+                , 'order.id as id' // 給func orderAddress使用
                 , 'order.status as order_status'
                 , 'order.created_at as order_created_at'
                 , 'ord_sub_orders.id as sub_order_id'
                 , 'ord_sub_orders.ship_category as ship_category'
                 , 'ord_sub_orders.ship_category_name as ship_category_name'
-            );
+                , 'ord_sub_orders.ship_event_id as depot_id'
+                , 'temp.temp_id as depot_temp_id'
+                , 'temp.temp as depot_temp_name'
+                , DB::raw('@ship_temp:=null as ship_temp')
+            )
+            ->where('ord_sub_orders.ship_category', '=', 'pickup');
+
+        //判斷訂單溫層 配合訂單自取欄位
+        $query_order_delivery = DB::table('ord_orders as order')
+            ->leftJoin('ord_sub_orders', 'ord_sub_orders.order_id', '=', 'order.id')
+            ->select('order.id as order_id'
+                , 'order.id as id' // 給func orderAddress使用
+                , 'order.status as order_status'
+                , 'order.created_at as order_created_at'
+                , 'ord_sub_orders.id as sub_order_id'
+                , 'ord_sub_orders.ship_category as ship_category'
+                , 'ord_sub_orders.ship_category_name as ship_category_name'
+                , DB::raw('@depot_id:=null as depot_id')
+                , DB::raw('@temp_id:=null as depot_temp_id')
+                , DB::raw('@temp:=null as depot_temp_name')
+                , 'ord_sub_orders.ship_temp'
+            )
+            ->where('ord_sub_orders.ship_category', '=', 'deliver');
+
+        $query_order_delivery = $query_order_delivery->union($query_order_pickup);
+        $query_order = DB::query()->fromSub($query_order_delivery, 'order')
+            ->select('order.*');
         Order::orderAddress($query_order, 'order', 'order_id');
 
-        // 溫層
-        $depotTemps = DB::table('depot_temp as dt')
-            ->leftJoin('shi_temps as temp', 'dt.temp_id', '=', 'temp.id')
-            ->select('dt.depot_id')
-            ->selectRaw("GROUP_CONCAT(temp.temps) as temp")
-            ->groupBy('dt.depot_id');
-
         $query_receive_depot = DB::table('dlv_receive_depot')
-            ->leftJoinSub($depotTemps, 'temp', 'temp.depot_id', '=', 'dlv_receive_depot.depot_id')
             ->select('dlv_receive_depot.delivery_id as dlv_id'
                 , 'dlv_receive_depot.depot_id'
                 , 'dlv_receive_depot.depot_name'
-                , 'temp.temp'
             )
             ->groupBy('dlv_receive_depot.delivery_id')
             ->groupBy('dlv_receive_depot.depot_id')
@@ -177,7 +205,29 @@ class Delivery extends Model
                 , 'delivery.updated_at'
                 , 'delivery.deleted_at'
                 , 'shi_method.method'
-                , 'query_order.*'
+                , 'query_order.order_id'
+                , 'query_order.order_status'
+                , 'query_order.order_created_at'
+                , 'query_order.sub_order_id'
+                , 'query_order.ship_category'
+                , 'query_order.ship_category_name'
+                , 'query_order.depot_id'
+                , 'query_order.depot_temp_id as depot_temp_id'
+                , 'query_order.depot_temp_name as depot_temp_name'
+                , 'query_order.ship_temp'
+                , 'query_order.rec_name'
+                , 'query_order.rec_address'
+                , 'query_order.rec_phone'
+                , 'query_order.rec_zipcode'
+                , 'query_order.ord_name'
+                , 'query_order.ord_address'
+                , 'query_order.ord_phone'
+                , 'query_order.ord_zipcode'
+                , 'query_order.sed_name'
+                , 'query_order.sed_address'
+                , 'query_order.sed_phone'
+                , 'query_order.sed_zipcode'
+
                 , 'query_receive_depot.*'
             );
         if (isset($param['delivery_sn'])) {
@@ -215,21 +265,13 @@ class Delivery extends Model
             $query->whereBetween('delivery.created_at', [$delivery_sdate, $delivery_edate]);
         }
 
-        if (isset($param['depot_temp']) && is_array($param['depot_temp']) && $param['depot_temp']) {
-            /*
-            $condDepotTempSub = DB::table('dlv_receive_depot as rd')
-                ->leftJoin('depot_temp as dt', 'rd.depot_id', '=', 'dt.depot_id')
-                ->select('rd.depot_id as depot_id')
-                ->whereIn('dt.temp_id', $param['depot_temp'])
-                ->groupBy('depot_id');
-            
-            
-            
-            $query->joinSub($condDepotTempSub, 'depot_temp_sub', function ($join) {
-                $join->on('query_receive_depot.dlv_id', '=', 'depot_temp_sub.depot_id');
-             //   $join->where('query_receive_depot.depot_id', '<>', 0);
-            });
-            */
+        //篩選宅配溫層
+        if (isset($param['ship_temp_id']) && is_array($param['ship_temp_id']) && $param['ship_temp_id']) {
+            $query->whereIn('delivery.temp_id', $param['ship_temp_id']);
+        }
+        //篩選自取倉溫層
+        if (isset($param['depot_temp_id']) && is_array($param['depot_temp_id']) && $param['depot_temp_id']) {
+            $query->whereRaw('FIND_IN_SET(?, query_order.depot_temp_id)', $param['depot_temp_id']);
         }
 
         $query->orderByDesc('delivery.id');

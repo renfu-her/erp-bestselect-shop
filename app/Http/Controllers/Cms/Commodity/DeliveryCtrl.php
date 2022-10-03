@@ -74,7 +74,8 @@ class DeliveryCtrl extends Controller
         $cond['delivery_sdate'] = Arr::get($query, 'delivery_sdate', null);
         $cond['delivery_edate'] = Arr::get($query, 'delivery_edate', null);
         $cond['has_csn'] = Arr::get($query, 'has_csn', $has_csn[0][0]);
-        $cond['depot_temp'] = Arr::get($query, 'depot_temp', []);
+        $cond['ship_temp_id'] = Arr::get($query, 'ship_temp_id', []);
+        $cond['depot_temp_id'] = Arr::get($query, 'depot_temp_id', []);
 
         $cond['data_per_page'] = getPageCount(Arr::get($query, 'data_per_page'));
 

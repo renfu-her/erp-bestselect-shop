@@ -55,11 +55,21 @@
                     </select>
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
+                    <label class="form-label">宅配溫層</label>
+                    <select class="form-select -select2 -multiple" multiple name="ship_temp_id[]" aria-label="自取倉溫層宅配溫層"
+                            data-placeholder="多選">
+                        @foreach ($temps as $key => $value)
+                            <option value="{{ $value->id }}" @if (in_array($value->id, $searchParam['ship_temp_id'] ?? [])) selected @endif>
+                                {{ $value->temps }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">自取倉溫層</label>
-                    <select class="form-select -select2 -multiple" multiple name="depot_temp[]" aria-label="物流型態"
+                    <select class="form-select -select2 -multiple" multiple name="depot_temp_id[]" aria-label="自取倉溫層"
                         data-placeholder="多選">
                         @foreach ($temps as $key => $value)
-                            <option value="{{ $value->id }}" @if (in_array($value->id, $searchParam['depot_temp'] ?? [])) selected @endif>
+                            <option value="{{ $value->id }}" @if (in_array($value->id, $searchParam['depot_temp_id'] ?? [])) selected @endif>
                                 {{ $value->temps }}</option>
                         @endforeach
                     </select>
@@ -220,7 +230,7 @@
                                 {{ $data->temp_name }}
                             </td>
                             <td>
-                                {{ $data->temp }}
+                                {{ $data->depot_temp_name }}
                             </td>
                             <td>{{ $data->sed_name }}</td>
                             <td>{{ $data->rec_name }}</td>
