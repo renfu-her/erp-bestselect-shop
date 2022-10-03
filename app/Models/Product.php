@@ -1203,6 +1203,7 @@ class Product extends Model
                 'prd.title as title',
                 'sale_channel.price as price',
                 'sale_channel.origin_price as origin_price',
+                'images.id as img_id',
                 'images.url as img_url',
             )
             ->orderBy('price', $isPriceDescend ? 'desc' : 'asc')
@@ -1210,13 +1211,22 @@ class Product extends Model
             //用groupBy(product_id)及transform min(price, origin_price) 取得product_id的不同款式中價錢最小
             ->groupBy('id')
             ->transform(function ($item) {
+                //只取image id排序最小的image url（搜尋時，預覽圖片為第1張)
+                $minImageId = $item->min('img_id');
+                $minImageUrl = $item[0]->img_url;
+                foreach ($item as $datum) {
+                    if($datum->img_id === $minImageId){
+                        $minImageUrl = $datum->img_url;
+                    }
+                }
+
                 return [
                     'id' => $item[0]->id,
                     'sku' => $item[0]->sku,
                     'title' => $item[0]->title,
                     'price' => $item->min('price'),
                     'origin_price' => $item->min('origin_price'),
-                    'img_url' => $item[0]->img_url,
+                    'img_url' => $minImageUrl,
                 ];
             })
         ;
