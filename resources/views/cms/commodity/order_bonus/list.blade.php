@@ -42,6 +42,7 @@
                         <th scope="col">名稱</th>
                         <th scope="col">筆數</th>
                         <th scope="col">銷售獎金</th>
+                        <th scope="col">匯款日期</th>
                         <th scope="col">建立日期</th>
                         <th scope="col" class="text-center">刪除</th>
                     </tr>
@@ -60,8 +61,7 @@
                             </td>
                             <td>{{ $data->qty }}</td>
                             <td>{{ $data->bonus }}</td>
-
-
+                            <td>{{ $data->transfer_at }}</td>
                             <td>{{ $data->created_at }}</td>
                             <td class="text-center">
                                 @can('cms.order-bonus.delete')
