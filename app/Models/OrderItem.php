@@ -120,10 +120,21 @@ class OrderItem extends Model
 
     public static function update_order_item($parm)
     {
-        self::where('id', $parm['order_item_id'])->update([
-            'ro_note'=>$parm['ro_note'] ?? null,
-            'po_note'=>$parm['po_note'] ?? null,
-        ]);
+        if(isset($parm['note'])){
+            self::where('id', $parm['order_item_id'])->update([
+                'note' => $parm['note'],
+            ]);
+        }
+        if(isset($parm['ro_note'])){
+            self::where('id', $parm['order_item_id'])->update([
+                'ro_note' => $parm['ro_note'],
+            ]);
+        }
+        if(isset($parm['po_note'])){
+            self::where('id', $parm['order_item_id'])->update([
+                'po_note' => $parm['po_note'],
+            ]);
+        }
     }
 
     public static function itemList($order_id, $options = [])
