@@ -244,6 +244,9 @@ class OrderBonusCtrl extends Controller
         // return response()->stream($callback, 200, $headers);
         return response()->streamDownload(function () use ($title, $datas, $bank_type, $baseData) {
             $file = fopen('php://output', 'w');
+           
+            fwrite($file, "\xEF\xBB\xBF");
+
             fputcsv($file, $title);
 
             if ($bank_type == 'a') {
