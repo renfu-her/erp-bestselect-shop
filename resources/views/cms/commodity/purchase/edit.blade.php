@@ -195,9 +195,9 @@
                                 <input type="hidden" name="name[]" value="">
                                 <input type="hidden" name="sku[]" value="">
                             </th>
-                            <td data-td="name" class="wrap">
-                                <div class="lh-1 small text-nowrap text-secondary"></div>
-                                <div class="lh-base"></div>
+                            <td class="wrap">
+                                <div data-td="sku" class="lh-1 small text-nowrap text-secondary"></div>
+                                <div data-td="name" class="lh-base"></div>
                             </td>
                             <td data-td="estimated_cost"></td>
                             <td>
@@ -232,11 +232,11 @@
                                         <input type="hidden" name="price[]" value="{{ old('price.'. $psItemKey, $psItemVal->price?? '') }}">
                                     @endif
                                 </th>
-                                <td data-td="name" class="wrap">
-                                    <div class="lh-1 small text-nowrap text-secondary">
+                                <td class="wrap">
+                                    <div data-td="sku" class="lh-1 small text-nowrap text-secondary">
                                         {{ old('sku.'. $psItemKey, $psItemVal->sku?? '') }}
                                     </div>
-                                    <div class="lh-base">
+                                    <div data-td="name" class="lh-base">
                                         {{ old('name.'. $psItemKey, $psItemVal->title?? '') }}
                                     </div>
                                 </td>
@@ -486,8 +486,8 @@
                         <td data-td="spec"></td>
                         <td data-td="sku"></td>
                         <td data-td="estimated_cost">0</td>
-                        <td>58</td>
-                        <td>20</td>
+                        <td></td>
+                        <td></td>
                     </tr>
                     </tbody>
                 </table>
@@ -764,8 +764,8 @@
                             cloneElem.find('input[name="product_style_id[]"]').val(p.id);
                             cloneElem.find('input[name="name[]"]').val(`${p.name}-${p.spec}`);
                             cloneElem.find('input[name="sku[]"]').val(p.sku);
-                            cloneElem.find('td[data-td="name"] .lh-base').text(`${p.name}-${p.spec}`);
-                            cloneElem.find('td[data-td="sku"] .text-secondary').text(p.sku);
+                            cloneElem.find('div[data-td="name"]').text(`${p.name}-${p.spec}`);
+                            cloneElem.find('div[data-td="sku"]').text(p.sku);
                             cloneElem.find('td[data-td="estimated_cost"]').text(p.estimated_cost);
                         }
                     }, delItemOption);
