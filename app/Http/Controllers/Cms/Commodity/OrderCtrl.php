@@ -460,6 +460,16 @@ class OrderCtrl extends Controller
         // 使用紅利詳細
         $dividendList = Order::orderDividendList($id)->get();
 
+
+        if(count($subOrder) > 0){
+            $po_check = true;
+            foreach($subOrder as $so_value){
+                $delivery = Delivery::where('event', Event::order()->value)->where('event_id', $so_value->id)->first();
+                $po_check = PayingOrder::source_confirmation(app(Delivery::class)->getTable(), $delivery->id);
+                if(!$po_check) break;
+            }
+        }
+
         return view('cms.commodity.order.detail', [
             'sn' => $sn,
             'order' => $order,
@@ -475,7 +485,7 @@ class OrderCtrl extends Controller
             'canCancel' => Order::checkCanCancel($id, 'backend'),
             'delivery' => $delivery,
             'canSplit' => Order::checkCanSplit($id),
-            'po_check' => $delivery ? PayingOrder::source_confirmation(app(Delivery::class)->getTable(), $delivery->id) : true,
+            'po_check' => $po_check,
             'has_already_pay_delivery_back' => $has_already_pay_delivery_back,
             'dividendList' => $dividendList,
         ]);
@@ -1368,6 +1378,7 @@ class OrderCtrl extends Controller
                 'received' => 'required|array',
                 'product_grade_id' => 'required|exists:acc_all_grades,id',
                 'product' => 'required|array',
+                'order_item' => 'required|array',
                 'logistics_grade_id' => 'nullable|exists:acc_all_grades,id',
                 'order_dlv' => 'nullable|array',
                 'discount' => 'nullable|array',
@@ -1394,6 +1405,14 @@ class OrderCtrl extends Controller
                     foreach ($product as $key => $value) {
                         $value['product_id'] = $key;
                         Product::update_product_taxation($value);
+                    }
+                }
+
+                if (request('order_item') && is_array(request('order_item'))) {
+                    $order_item = request('order_item');
+                    foreach ($order_item as $key => $value) {
+                        $value['order_item_id'] = $key;
+                        OrderItem::update_order_item($value);
                     }
                 }
 
@@ -1980,6 +1999,55 @@ class OrderCtrl extends Controller
                 'method' => 'create',
                 'transactTypeList' => AccountPayable::getTransactTypeList(),
                 'chequeStatus' => PayableChequeStatus::get_key_value(),
+            ]);
+        }
+    }
+
+    public function return_po_edit(Request $request, $id, $sid = null)
+    {
+        $request->merge([
+            'id' => $id,
+        ]);
+        $request->validate([
+            'id' => 'required|exists:ord_orders,id',
+        ]);
+
+        if ($request->isMethod('post')) {
+            $request->validate([
+                'order_item' => 'required|array',
+            ]);
+
+            DB::beginTransaction();
+
+            try {
+                if (request('order_item') && is_array(request('order_item'))) {
+                    $order_item = request('order_item');
+                    foreach ($order_item as $key => $value) {
+                        $value['order_item_id'] = $key;
+                        OrderItem::update_order_item($value);
+                    }
+                }
+
+                DB::commit();
+                wToast(__('付款項目備註更新成功'));
+
+            } catch (\Exception $e) {
+                DB::rollback();
+                wToast(__('付款項目備註更新失敗', ['type' => 'danger']));
+            }
+
+            return redirect()->route('cms.order.return-pay-order', ['id' => request('id')]);
+
+        } else if ($request->isMethod('get')) {
+
+            $order = Order::findOrFail(request('id'));
+            $order_list_data = OrderItem::item_order(request('id'))->get();
+
+            return view('cms.commodity.order.return_po_edit', [
+                'form_action' => route('cms.order.return-po-edit', ['id' => request('id')]),
+                'order_list_data' => $order_list_data,
+
+                'breadcrumb_data' => ['id' => $id, 'sid' => $sid, 'sn' => $order->sn],
             ]);
         }
     }

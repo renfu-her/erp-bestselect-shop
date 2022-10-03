@@ -399,10 +399,13 @@ class Delivery extends Model
                         "qty":"\', dlv_back.qty, \'",
                         "total_price":"\', dlv_back.price * dlv_back.qty, \'",
                         "memo":"\', COALESCE(dlv_back.memo, ""), \'",
+                        "note":"\', COALESCE(ord_items.note, ""), \'",
+                        "po_note":"\', COALESCE(ord_items.po_note, ""), \'",
                         "taxation":"\', product.has_tax, \'"
                     }\' ORDER BY dlv_back.id), \']\') AS items
                 FROM dlv_back
                 LEFT JOIN prd_product_styles ON prd_product_styles.id = dlv_back.product_style_id
+                LEFT JOIN ord_items ON ord_items.id = dlv_back.event_item_id
                 LEFT JOIN prd_products AS product ON product.id = prd_product_styles.product_id WHERE product.deleted_at IS NULL
                 GROUP BY delivery_id
                 ) AS delivery_back'), function ($join){
