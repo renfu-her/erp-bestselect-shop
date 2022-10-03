@@ -301,7 +301,7 @@
                             <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
                             <input class="form-control" name="logistics_price" type="number" min="0" placeholder="請輸入運費"
                                    value="{{ old('logistics_price', $purchaseData->logistics_price  ?? '') }}"
-                                   @if ($hasCreatedFinalPayment) disabled @endif
+                                   @if ($hasCreatedFinalPayment) readonly @endif
                                    @if ($hasLogistics) required @endif/>
                         </div>
                     </div>
@@ -309,7 +309,7 @@
                         <label class="form-label">物流備註</label>
                         <input class="form-control" name="logistics_memo" type="text" placeholder="請輸入物流備註" aria-label="物流備註"
                                value="{{ old('logistics_memo', $purchaseData->logistics_memo  ?? '') }}"
-                               @if ($hasCreatedFinalPayment) disabled @endif>
+                               @if ($hasCreatedFinalPayment) readonly @endif>
                     </div>
                 </div>
                 <div class="col-auto">
@@ -786,11 +786,42 @@
 
             // 綁定計算
             function bindPriceSum() {
+                $('.-cloneElem.--selectedP input[name="num[]"]')
+                    .off('change.sum').on('change.sum', function () {
+                    sumEstimatedPrice();
+                    sumPrice();
+                });
                 $('.-cloneElem.--selectedP input[name="price[]"]')
                     .off('change.sum').on('change.sum', function () {
                     sumPrice();
                 });
             }
+
+            /*
+             商品總價 = 預估價格 * 數量
+             */
+            function sumEstimatedPrice() {
+                let priceArray = [];
+                let quantityArray = [];
+                $('.-cloneElem.--selectedP td[data-td="estimated_cost"]').each(function () {
+                    priceArray.push(Math.round(parseInt($(this).text())));
+                });
+
+                $('.-cloneElem.--selectedP input[name="num[]"]').each(function () {
+                    quantityArray.push($(this).val());
+                });
+                $('.-cloneElem.--selectedP input[name="price[]"]').each(function (index) {
+                    if (!isNaN(quantityArray[index])) {
+                        //尚未有商品總價才更新
+                        if ($(this).val() === "" ||
+                            parseInt($(this).val()) === 0
+                        ) {
+                            $(this).val(priceArray[index] * quantityArray[index]);
+                        }
+                    }
+                });
+            }
+
             // 計算小計
             function sumPrice() {
                 let sum = 0;

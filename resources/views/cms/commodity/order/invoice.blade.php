@@ -6,7 +6,7 @@
     @if($errors->any())
         <div class="alert alert-danger mt-3">{!! implode('', $errors->all('<div>:message</div>')) !!}</div>
     @endif
-    <form method="POST" action="{{ $form_action }}">
+    <form method="POST" action="{{ $form_action }}" class="form">
         @csrf
         <div class="card shadow p-4 mb-4">
             <div class="row">
@@ -202,56 +202,239 @@
 
         <div class="card shadow p-4 mb-4">
             <h6>電子發票明細</h6>
-
-            <div class="table-responsive">
-                <table class="table table-bordered text-center align-middle d-sm-table d-none text-nowrap">
-                    <tbody class="border-top-0 m_row">
-                    <tr class="table-light">
-                        <td class="col-2" style="display:none">收款單號</td>
-                        <td class="col-2">產品名稱</td>
-                        <td class="col-2">價格(總價)</td>
-                        <td class="col-2">數量</td>
-                        <td class="col-2">說明</td>
-                        <td class="col-2">稅別</td>
-                    </tr>
-                    @foreach($sub_order as $s_value)
-                        @foreach($s_value->items as $value)
-                            <tr>
-                                <td style="display:none">{{ $received_order->sn }}</td>
-                                <td>{{ $value->product_title }}</td>
-                                <td>{{ number_format($value->total_price) }}</td>
-                                <td>{{ $value->qty }}</td>
-                                <td></td>
-                                <td>{{ $value->product_taxation == 1 ? '應稅' : '免稅'}}</td>
-                            </tr>
-                        @endforeach
-                    @endforeach
-
-                    @if($order->dlv_fee > 0)
-                        <tr>
-                            <td style="display:none">{{ $received_order->sn }}</td>
-                            <td>物流費用</td>
-                            <td>{{ number_format($order->dlv_fee) }}</td>
-                            <td>1</td>
-                            <td></td>
-                            <td>{{ $order->dlv_taxation == 1 ? '應稅' : '免稅'}}</td>
+            {{--
+            <div class="list-wrap-1">
+                <div class="table-responsive">
+                    <table class="table table-bordered text-center align-middle d-sm-table d-none text-nowrap">
+                        <tbody class="border-top-0 m_row">
+                        <tr class="table-light">
+                            <td class="col-2" style="display:none">收款單號</td>
+                            <td class="col-2">產品名稱</td>
+                            <td class="col-2">價格(總價)</td>
+                            <td class="col-2">數量</td>
+                            <td class="col-2">說明</td>
+                            <td class="col-2">稅別</td>
                         </tr>
-                    @endif
+                        @foreach($sub_order as $s_value)
+                            @foreach($s_value->items as $value)
+                                <tr>
+                                    <td style="display:none">{{ $received_order->sn }}</td>
+                                    <td>{{ $value->product_title }}</td>
+                                    <td>{{ number_format($value->total_price) }}</td>
+                                    <td>{{ $value->qty }}</td>
+                                    <td></td>
+                                    <td>{{ $value->product_taxation == 1 ? '應稅' : '免稅'}}</td>
+                                </tr>
+                            @endforeach
+                        @endforeach
 
-                    @if(count($order_discount) > 0)
-                        @foreach($order_discount as $value)
+                        @if($order->dlv_fee > 0)
                             <tr>
                                 <td style="display:none">{{ $received_order->sn }}</td>
-                                <td>{{ $value->title }}</td>
-                                <td>-{{ number_format($value->discount_value) }}</td>
+                                <td>物流費用</td>
+                                <td>{{ number_format($order->dlv_fee) }}</td>
                                 <td>1</td>
                                 <td></td>
-                                <td>{{ $value->discount_taxation == 1 ? '應稅' : '免稅'}}</td>
+                                <td>{{ $order->dlv_taxation == 1 ? '應稅' : '免稅'}}</td>
                             </tr>
-                        @endforeach
-                    @endif
-                    </tbody>
-                </table>
+                        @endif
+
+                        @if(count($order_discount) > 0)
+                            @foreach($order_discount as $value)
+                                <tr>
+                                    <td style="display:none">{{ $received_order->sn }}</td>
+                                    <td>{{ $value->title }}</td>
+                                    <td>-{{ number_format($value->discount_value) }}</td>
+                                    <td>1</td>
+                                    <td></td>
+                                    <td>{{ $value->discount_taxation == 1 ? '應稅' : '免稅'}}</td>
+                                </tr>
+                            @endforeach
+                        @endif
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            --}}
+            <div class="list-wrap-2">
+                <div class="table-responsive tableOverBox">
+                    <table class="table tableList table-hover mb-1">
+                        <thead>
+                            <tr>
+                                <th scope="col" class="text-center">刪除</th>
+                                <th class="col" style="display:none">收款單號</th>
+                                <th class="col">產品名稱 <i class="bi bi-info-circle" data-bs-toggle="tooltip" title="商品名稱至多為30個字元"></i></th>
+                                <th class="col">價格(單價)</th>
+                                <th class="col">價格(總價)</th>
+                                <th class="col">數量</th>
+                                <th class="col">稅別</th>
+                            </tr>
+                        </thead>
+
+                        <tbody class="-appendClone m_row">
+                            <tr class="-cloneElem d-none">
+                                <td class="text-center">
+                                    <button type="button" class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </td>
+                                <td style="display:none">{{ $received_order->sn }}</td>
+                                <td>
+                                    <input type="text" name="o_title[]" class="form-control form-control-sm -l" value="" aria-label="產品名稱" minlength="1" maxlength="30" required>
+                                </td>
+                                <td>
+                                    <div class="input-group input-group-sm flex-nowrap">
+                                        <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
+                                        <input type="number" name="o_price[]" class="form-control form-control-sm -l" value="1" aria-label="價格(單價)" required>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="input-group input-group-sm flex-nowrap">
+                                        <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
+                                        <input type="number" name="o_total_price[]" class="form-control form-control-sm -l" value="1" aria-label="價格(總價)" required>
+                                    </div>
+                                </td>
+                                <td>
+                                    <input type="number" name="o_qty[]" class="form-control form-control-sm -l" value="1" aria-label="數量" min="1" required>
+                                </td>
+                                <td>
+                                    <select name="o_taxation[]" class="form-select form-select-sm" required>
+                                        @php
+                                            $tax = [
+                                                1 => '應稅',
+                                                0 => '免稅',
+                                            ];
+
+                                            foreach($tax as $t_key => $t_value){
+                                                echo '<option value="' . $t_key . '"' . ($t_key === 1 ? ' selected' : '') . '>' . $t_value . '</option>';
+                                            }
+                                        @endphp
+                                    </select>
+                                </td>
+                            </tr>
+
+                            @foreach($sub_order as $s_value)
+                                @foreach($s_value->items as $value)
+                                    <tr class="-cloneElem">
+                                        <td class="text-center">
+                                            <button type="button" class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </td>
+                                        <td style="display:none">{{ $received_order->sn }}</td>
+                                        <td><input type="text" name="o_title[]" class="form-control form-control-sm -l" value="{{ mb_substr($value->product_title, 0, 30) }}" aria-label="產品名稱" minlength="1" maxlength="30" required>
+                                        <td>
+                                            <div class="input-group input-group-sm flex-nowrap">
+                                                <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
+                                                <input type="number" name="o_price[]" class="form-control form-control-sm -l" value="{{ $value->price }}" aria-label="價格(單價)" required>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="input-group input-group-sm flex-nowrap">
+                                                <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
+                                                <input type="number" name="o_total_price[]" class="form-control form-control-sm -l" value="{{ $value->total_price }}" aria-label="價格(總價)" required>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <input type="number" name="o_qty[]" class="form-control form-control-sm -l" value="{{ $value->qty }}" aria-label="數量" min="1" required>
+                                        </td>
+                                        <td>
+                                            <select name="o_taxation[]" class="form-select form-select-sm" required>
+                                                @php
+                                                    foreach($tax as $t_key => $t_value){
+                                                        echo '<option value="' . $t_key . '"' . ($t_key === $value->product_taxation ? ' selected' : '') . '>' . $t_value . '</option>';
+                                                    }
+                                                @endphp
+                                            </select>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            @endforeach
+
+                            @if($order->dlv_fee > 0)
+                                <tr class="-cloneElem">
+                                    <td class="text-center">
+                                        <button type="button" class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </td>
+                                    <td style="display:none">{{ $received_order->sn }}</td>
+                                    <td><input type="text" name="o_title[]" class="form-control form-control-sm -l" value="物流費用" aria-label="產品名稱" minlength="1" maxlength="30" required>
+                                    <td>
+                                        <div class="input-group input-group-sm flex-nowrap">
+                                            <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
+                                            <input type="number" name="o_price[]" class="form-control form-control-sm -l" value="{{ $order->dlv_fee }}" aria-label="價格(單價)" required>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="input-group input-group-sm flex-nowrap">
+                                            <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
+                                            <input type="number" name="o_total_price[]" class="form-control form-control-sm -l" value="{{ $order->dlv_fee }}" aria-label="價格(總價)" required>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <input type="number" name="o_qty[]" class="form-control form-control-sm -l" value="1" aria-label="數量" min="1" required>
+                                    </td>
+                                    <td>
+                                        <select name="o_taxation[]" class="form-select form-select-sm" required>
+                                            @php
+                                                foreach($tax as $t_key => $t_value){
+                                                    echo '<option value="' . $t_key . '"' . ($t_key === $order->dlv_taxation ? ' selected' : '') . '>' . $t_value . '</option>';
+                                                }
+                                            @endphp
+                                        </select>
+                                    </td>
+                                </tr>
+                            @endif
+
+                            @if(count($order_discount) > 0)
+                                @foreach($order_discount as $value)
+                                    <tr class="-cloneElem">
+                                        <td class="text-center">
+                                            <button type="button" class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </td>
+
+                                        <td style="display:none">{{ $received_order->sn }}</td>
+
+                                        <td><input type="text" name="o_title[]" class="form-control form-control-sm -l" value="{{ mb_substr($value->title, 0, 30) }}" aria-label="產品名稱" minlength="1" maxlength="30" required>
+                                        <td>
+                                            <div class="input-group input-group-sm flex-nowrap">
+                                                <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
+                                                <input type="number" name="o_price[]" class="form-control form-control-sm -l" value="{{ -($value->discount_value) }}" aria-label="價格(單價)" required>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="input-group input-group-sm flex-nowrap">
+                                                <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
+                                                <input type="number" name="o_total_price[]" class="form-control form-control-sm -l" value="{{ -($value->discount_value) }}" aria-label="價格(總價)" required>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <input type="number" name="o_qty[]" class="form-control form-control-sm -l" value="1" aria-label="數量" min="1" required>
+                                        </td>
+                                        <td>
+                                            <select name="o_taxation[]" class="form-select form-select-sm" required>
+                                                @php
+                                                    foreach($tax as $t_key => $t_value){
+                                                        echo '<option value="' . $t_key . '"' . ($t_key === $value->discount_taxation ? ' selected' : '') . '>' . $t_value . '</option>';
+                                                    }
+                                                @endphp
+                                            </select>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            @endif
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="d-grid gap-2 mt-3">
+                    <button type="button" class="btn btn-outline-primary border-dashed -newClone" style="font-weight: 500;">
+                        <i class="bi bi-plus-circle"></i> 新增項目
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -270,15 +453,39 @@
     @endpush
     @push('sub-scripts')
         <script>
+            const $clone = $('.-cloneElem:first-child').clone();
+            $('.-cloneElem.d-none').remove();
+
+            // 新增
+            $('.-newClone').off('click').on('click', function() {
+                Clone_bindCloneBtn($clone, function() {});
+            });
+
+            // del
+            Clone_bindDelElem($('.-del'));
+
             $(function() {
                 //開立狀態
                 $('input[type=radio][name=status]').on('click change', function() {
                     if (this.value == 9) {
                         $('.c_status').addClass('d-none');
                         $('#merge_source').prop('disabled', true);
+
+                        //     $('.list-wrap-1').removeClass('d-none');
+                        //     $('.list-wrap-2').addClass('d-none').find('input, select, button').prop({
+                        //         disabled:true,
+                        //         required:false
+                        //     });
+
                     } else {
                         $('.c_status').removeClass('d-none');
                         $('#merge_source').prop('disabled', false);
+
+                        //     $('.list-wrap-1').addClass('d-none');
+                        //     $('.list-wrap-2').removeClass('d-none').find('input, select, button').prop({
+                        //         disabled:false,
+                        //         required:true
+                        //     });
                     }
                 });
 
@@ -303,16 +510,43 @@
                                 if (res && res.length) {
                                     (res).forEach(data => {
                                         $('.m_row').append(
-                                            `<tr class="new_row">
+                                            `<tr class="-cloneElem new_row">
+                                                <td class="text-center">
+                                                    <button type="button" class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </td>
+
                                                 <td style="display:none">${data.received_sn}</td>
-                                                <td>${data.name}</td>
-                                                <td>${data.amt}</td>
-                                                <td>${data.count}</td>
-                                                <td></td>
-                                                <td>${data.tax}</td>
+
+                                                <td><input type="text" name="o_title[]" class="form-control form-control-sm -l" value="${data.name.substring(0, 30)}" aria-label="產品名稱" minlength="1" maxlength="30" required>
+                                                <td>
+                                                    <div class="input-group input-group-sm flex-nowrap">
+                                                        <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
+                                                        <input type="number" name="o_price[]" class="form-control form-control-sm -l" value="${data.price}" aria-label="價格(單價)" required>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="input-group input-group-sm flex-nowrap">
+                                                        <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
+                                                        <input type="number" name="o_total_price[]" class="form-control form-control-sm -l" value="${data.amt}" aria-label="價格(總價)" required>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <input type="number" name="o_qty[]" class="form-control form-control-sm -l" value="${data.count}" aria-label="數量" min="1" required>
+                                                </td>
+                                                <td>
+                                                    <select name="o_taxation[]" class="form-select form-select-sm" required>
+                                                    <option value="1"${ data.tax === 1 ? ' selected' : '' }>應稅</option>
+                                                    <option value="0"${ data.tax === 0 ? ' selected' : '' }>免稅</option>
+                                                    </select>
+                                                </td>
                                             </tr>`
                                         );
                                     });
+
+                                    // del
+                                    Clone_bindDelElem($('.-del'));
                                 }
 
                             }).catch((err) => {
@@ -484,6 +718,25 @@
                             required:true
                         });
                         $('.l_carrier_num').html('載具號碼 <span class="text-danger">*</span>');
+                    }
+                });
+
+                $('.form').submit((e) => {
+                    $('#err_msg').remove();
+
+                    if ($('.list-wrap-2 input[name^="o_title"]').length < 1) {
+                        $('div.list-wrap-2').append('<div id="err_msg" class="alert alert-danger mt-3">項目不可空白</div>');
+                        return false;
+                    }
+
+                    let sum = 0;
+                    $('input[name^="o_total_price"]').each(function(){
+                        sum += (+$(this).val());
+                    });
+
+                    if (sum <= 0) {
+                        $('div.list-wrap-2').append('<div id="err_msg" class="alert alert-danger mt-3">總價合計不可小於1</div>');
+                        return false;
                     }
                 });
             });
