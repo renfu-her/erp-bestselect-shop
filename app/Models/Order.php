@@ -247,6 +247,8 @@ class Order extends Model
             'img_url' => 'IF(item.img_url IS NULL,"",item.img_url)',
             'total_price' => 'item.origin_price',
             'note' => 'IF(item.note IS NULL,"",item.note)',
+            'ro_note' => 'IF(item.ro_note IS NULL,"",item.ro_note)',
+            'po_note' => 'IF(item.po_note IS NULL,"",item.po_note)',
             'dealer_price' => 'item.dealer_price',
             'item_id' => 'item.id',
         ]);

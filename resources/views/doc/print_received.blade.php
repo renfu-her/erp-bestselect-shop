@@ -97,7 +97,7 @@
                                 <td style="text-align: right;">{{ number_format($value->product_qty) }}</td>
                                 <td style="text-align: right;">{{ number_format($value->product_price, 2) }}</td>
                                 <td style="text-align: right;">{{ number_format($value->product_origin_price) }}</td>
-                                <td>{{ $received_order->memo }} {{ $order->sn }} {{ $value->product_taxation == 1 ? '應稅' : '免稅' }} {{ $value->product_note ?? '' }}{{-- $order->note --}}</td>
+                                <td>{{ $received_order->memo }} {{ $order->sn }} {{ $value->product_taxation == 1 ? '應稅' : '免稅' }} {{ $value->product_note ?? '' }} {{ $value->product_ro_note }}{{-- $order->note --}}</td>
                             </tr>
                         @endforeach
                         @if($order->dlv_fee > 0)
