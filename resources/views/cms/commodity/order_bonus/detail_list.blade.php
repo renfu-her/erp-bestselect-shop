@@ -59,7 +59,7 @@
                             </td>
                             <td>{{ $data->qty }}</td>
                             <td>{{ $data->bonus }}</td>
-                            <td>{{ $data->created_at }}</td>
+                            <td>{{ $month_report->transfer_at }}</td>
                             <td>{{ $data->bank_title }}</td>
                             <td>{{ $data->bank_account }}</td>
                             <td>{{ $data->new_bank_code }}</td>
