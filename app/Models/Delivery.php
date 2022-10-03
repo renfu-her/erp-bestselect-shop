@@ -69,6 +69,30 @@ class Delivery extends Model
         }
     }
 
+    //更新宅配、自取資訊
+    public static function updateShipCategory($event, $event_id, $temp_id, $temp_name, $ship_category, $ship_category_name)
+    {
+        $data = Delivery::getData($event, $event_id);
+        $dataGet = null;
+        if (null != $data) {
+            $dataGet = $data->get()->first();
+        }
+        $result = null;
+        if (null != $dataGet) {
+            $result = DB::transaction(function () use ($data, $dataGet, $temp_id, $temp_name, $ship_category, $ship_category_name
+            ) {
+                $data->update([
+                    'temp_id' => $temp_id,
+                    'temp_name' => $temp_name,
+                    'ship_category' => $ship_category,
+                    'ship_category_name' => $ship_category_name,
+                ]);
+                return ['success' => 1, 'error_msg' => "", 'id' => $dataGet->id];
+            });
+        }
+        return ['success' => 0, 'error_msg' => "更新失敗 無此物流單"];
+    }
+
     //更新出貨倉庫
     public static function updateShipDepot($event, $event_id, $ship_depot_id, $ship_depot_name)
     {

@@ -2462,10 +2462,19 @@ class OrderCtrl extends Controller
             foreach ($d['sub_order_id'] as $key => $value) {
                 //  dd($d['sub_order_note'][$key]);
                 $sCategory = ShipmentCategory::where('code', $d['ship_category'][$key])->get()->first();
+                $ship_event = null;
+                $ship_temp = null;
+                $ship_temp_id = null;
 
                 switch ($d['ship_category'][$key]) {
                     case "deliver":
-                        $ship_event = ShipmentGroup::where('id', $d['ship_event_id'][$key])->get()->first()->name;
+                        $ship_group = DB::table(app(ShipmentGroup::class)->getTable(). ' as sg')
+                            ->where('sg.id', $d['ship_event_id'][$key])
+                            ->leftJoin('shi_temps', 'shi_temps.id', '=', 'sg.temps_fk')
+                            ->get()->first();
+                        $ship_event = $ship_group->name;
+                        $ship_temp = $ship_group->temps;
+                        $ship_temp_id = $ship_group->temps_fk;
                         break;
                     case "pickup":
                         $ship_event = Depot::where('id', $d['ship_event_id'][$key])->get()->first()->name;
@@ -2475,6 +2484,8 @@ class OrderCtrl extends Controller
                 }
 
                 SubOrders::where('id', $value)->update([
+                    'ship_temp' => $ship_temp,
+                    'ship_temp_id' => $ship_temp_id,
                     'ship_category' => $d['ship_category'][$key],
                     'ship_category_name' => $sCategory->category,
                     'dlv_fee' => $d['dlv_fee'][$key],
@@ -2482,6 +2493,12 @@ class OrderCtrl extends Controller
                     'ship_event' => $ship_event,
                     'note' => $d['sub_order_note'][$key] ? $d['sub_order_note'][$key] : '',
                 ]);
+                $reDlvUsc = Delivery::updateShipCategory(Event::order()->value, $value, $ship_temp_id, $ship_temp, $d['ship_category'][$key], $sCategory->category);
+                if ($reDlvUsc['success'] == 0) {
+                    DB::rollBack();
+                    wToast($reDlvUsc['error_msg']);
+                    return redirect()->back()->withInput()->withErrors($reDlvUsc);
+                }
 
                 $total_dlv_fee += $d['dlv_fee'][$key];
             }
