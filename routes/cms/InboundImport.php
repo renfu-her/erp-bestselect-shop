@@ -12,4 +12,7 @@ Route::group(['prefix' => 'inbound_import','as'=>'inbound_import.'], function ()
     Route::get('inbound_edit\{inboundId}', [InboundImportCtrl::class, 'inbound_edit'])->name('inbound_edit')->middleware('permission:cms.inbound_import.edit');
     Route::post('inbound_edit_store\{inboundId}', [InboundImportCtrl::class, 'inbound_edit_store'])->name('inbound_edit_store')->middleware('permission:cms.inbound_import.edit');
     Route::get('inbound_log', [InboundImportCtrl::class, 'inbound_log'])->name('inbound_log')->middleware('permission:cms.inbound_import.index');
+
+    Route::get('compare_old_to_diff_new_stock', [InboundImportCtrl::class, 'compare_old_to_diff_new_stock_page'])->name('compare_old_to_diff_new_stock')->middleware('permission:cms.inbound_import.index');
+    Route::post('compare_old_to_diff_new_stock', [InboundImportCtrl::class, 'compare_old_to_diff_new_stock_todo']);
 });

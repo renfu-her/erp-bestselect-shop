@@ -6,7 +6,9 @@ use App\Enums\Consignment\AuditStatus;
 use App\Enums\Delivery\Event;
 use App\Enums\Globals\Status;
 use App\Enums\Purchase\LogEventFeature;
+use App\Exports\Stock\OldNewStockDiffExport;
 use App\Http\Controllers\Controller;
+use App\Imports\PurchaseInbound\CompareOldNonStock;
 use App\Imports\PurchaseInbound\InboundImport;
 use App\Models\Consignment;
 use App\Models\CsnOrder;
@@ -421,6 +423,32 @@ class InboundImportCtrl extends Controller
             'data_per_page' => $data_per_page,
             'purchaseLog' => $logPurchase,
         ]);
+    }
+
+    //找舊系統沒有庫存，新系統卻是有庫存的
+    public function compare_old_to_diff_new_stock_page(Request $request)
+    {
+        return view('cms.commodity.inbound_import.compare_old_to_diff_new_stock', [
+        ]);
+    }
+
+    public function compare_old_to_diff_new_stock_todo(Excel $excel, Request $request)
+    {
+        ini_set('memory_limit', '-1');
+        $request->validate([
+            'file' => 'required|max:10000|mimes:xlsx,xls',
+        ]);
+        $errors = [];
+        $errMsg = null;
+
+        $query = $request->query();
+        $path = $request->file('file')->store('excel');
+
+        $inboundImport = new CompareOldNonStock;
+        $excel->import($inboundImport, storage_path('app/' . $path));
+        $prdStyle = $inboundImport->prdStyle;
+
+        return (new OldNewStockDiffExport($prdStyle))->download("stock-diff-" . date('Ymd His') . ".xlsx");
     }
 
 }

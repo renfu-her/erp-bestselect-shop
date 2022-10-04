@@ -14,46 +14,23 @@
         <li class="nav-item">
             <a class="nav-link" href="{{ Route('cms.inbound_import.inbound_log', [], true) }}">入庫單調整紀錄</a>
         </li>
-        <li class="nav-item">
-            <a class="nav-link" href="{{ Route('cms.inbound_import.compare_old_to_diff_new_stock', [], true) }}">找舊沒庫存，新有的</a>
-        </li>
     </ul>
     <hr class="narbarBottomLine mb-3">
 
     <div class="card shadow p-4 mb-4">
-        <p>重新匯入相同採購單號時，不會再次產生採購單和入庫單，請自行手動調整。
-            <span class="text-danger">上傳時將造成伺服器停滯，待轉檔完畢後可至匯入紀錄查看結果。</span>
-        </p>
+        <p>找舊系統沒有庫存，新系統卻是有庫存的商品</p>
 
         <form method="POST" id="upload-excel" enctype="multipart/form-data"
-              action="{{ Route('cms.inbound_import.upload_excel') }}">
+              action="{{ Route('cms.inbound_import.compare_old_to_diff_new_stock') }}">
             @csrf
             <div class="row mb-3">
-                <div class="col-12 mb-3">
-                    <label class="form-label">選擇倉庫 <span class="text-danger">* 請確認EXCEL倉庫於所選倉庫相同</span></label>
-                    <select name="depot_id"
-                            class="form-select @error('depot_id') is-invalid @enderror"
-                            aria-label="請選擇倉庫" required>
-                        <option value="" selected disabled>請選擇</option>
-                        @foreach ($depotList as $depotItem)
-                            <option value="{{ $depotItem['id'] }}">
-                                {{ $depotItem['name'] }} {{ $depotItem['can_tally'] ? '(理貨倉)' : '(非理貨倉)' }}
-                            </option>
-                        @endforeach
-                    </select>
-                    <div class="invalid-feedback">
-                        @error('depot_id')
-                        {{ $message }}
-                        @enderror
-                    </div>
-                </div>
                 <div class="col-12 mb-3">
                     <label class="form-label">匯入Excel（.xls, .xlsx）<span class="text-danger">*</span></label>
                     <div class="input-group has-validation">
                         <input id="file_name" type="text" class="form-control @error('file') is-invalid @enderror"
-                                style="background-color: #fff;" placeholder="請選擇匯入喜鴻採購庫存Excel表單" required readonly>
+                               style="background-color: #fff;" placeholder="請選擇匯入舊系統庫存Excel表單" required readonly>
                         <input id="formFile" type="file" name="file" hidden required aria-label="匯入Excel"
-                                accept="application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+                               accept="application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
                         <label class="btn btn-success" for="formFile">選擇檔案</label>
                         <div class="invalid-feedback">
                             @error('file')
@@ -64,9 +41,9 @@
                 </div>
 
                 @can('cms.inbound_import.edit')
-                <div class="col-auto">
-                    <button id="button1" class="btn btn-primary px-4" type="submit" disabled>上傳</button>
-                </div>
+                    <div class="col-auto">
+                        <button id="button1" class="btn btn-primary px-4" type="submit" disabled>上傳</button>
+                    </div>
                 @endcan
             </div>
         </form>
@@ -74,7 +51,6 @@
             <div class="alert alert-danger mt-3">{!! implode('', $errors->all('<div>:message</div>')) !!}</div>
         @endif
     </div>
-
 @endsection
 
 @once
