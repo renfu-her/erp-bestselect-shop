@@ -97,8 +97,22 @@ class DeliveryCtrl extends Controller
             $order_status[$item] = OrderStatus::getDescription($item);
         }
 
+        $uniqueSubOrderDataList = [];
+        $subOrderIdArray = [];
+        foreach ($delivery as $deliveryDatum) {
+            if (!in_array($deliveryDatum->sub_order_id, $subOrderIdArray)){
+                $subOrderIdArray[] = $deliveryDatum->sub_order_id;
+                $deliveryDatum->productTitles = DB::table('ord_items')
+                    ->where('sub_order_id', $deliveryDatum->sub_order_id)
+                    ->select('product_title')
+                    ->get();
+                $uniqueSubOrderDataList[] = $deliveryDatum;
+            }
+        }
+
         return view('cms.commodity.delivery.list', [
             'dataList' => $delivery,
+            'uniqueSubOrderDataList' => $uniqueSubOrderDataList,
             'depotList' => Depot::all(),
             'shipmentCategory' => ShipmentCategory::all(),
             'logisticStatus' => LogisticStatus::asArray(),

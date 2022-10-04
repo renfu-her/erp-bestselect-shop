@@ -162,6 +162,7 @@ class Delivery extends Model
                 , 'ord_sub_orders.id as sub_order_id'
                 , 'ord_sub_orders.ship_category as ship_category'
                 , 'ord_sub_orders.ship_category_name as ship_category_name'
+                , 'ord_sub_orders.total_price'
                 , 'ord_sub_orders.ship_event_id as depot_id'
                 , 'temp.temp_id as depot_temp_id'
                 , 'temp.temp as depot_temp_name'
@@ -180,6 +181,7 @@ class Delivery extends Model
                 , 'ord_sub_orders.id as sub_order_id'
                 , 'ord_sub_orders.ship_category as ship_category'
                 , 'ord_sub_orders.ship_category_name as ship_category_name'
+                , 'ord_sub_orders.total_price'
                 , DB::raw('@depot_id:=null as depot_id')
                 , DB::raw('@temp_id:=null as depot_temp_id')
                 , DB::raw('@temp:=null as depot_temp_name')
@@ -215,6 +217,7 @@ class Delivery extends Model
                 $join->on('query_order.sub_order_id', '=', 'delivery.event_id')
                     ->where('delivery.event', '=', 'order');
             })
+            ->leftJoin('ord_items', 'query_order.sub_order_id', '=', 'ord_items.sub_order_id')
             ->leftJoinSub($query_receive_depot, 'query_receive_depot', function ($join) {
                 $join->on('query_receive_depot.dlv_id', '=', 'delivery.id');
                 $join->where('query_receive_depot.depot_id', '<>', 0);
@@ -262,7 +265,7 @@ class Delivery extends Model
                 , 'query_order.sed_address'
                 , 'query_order.sed_phone'
                 , 'query_order.sed_zipcode'
-
+                , 'query_order.total_price'
                 , 'query_receive_depot.*'
             );
         if (isset($param['delivery_sn'])) {
