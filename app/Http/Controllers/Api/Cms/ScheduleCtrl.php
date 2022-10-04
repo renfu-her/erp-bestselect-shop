@@ -8,12 +8,13 @@ use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use App\Models\CustomerCoupon;
 use App\Models\CustomerDividend;
+use App\Models\CustomerReportDaily;
+use App\Models\CustomerReportMonth;
 use App\Models\Order;
 use App\Models\OrderReportDaily;
 use App\Models\OrderReportMonth;
-use App\Models\CustomerReportDaily;
-use App\Models\CustomerReportMonth;
-
+use App\Models\RptOrganizeReportMonthly;
+use App\Models\RptUserReportMonthly;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 
@@ -70,7 +71,7 @@ class ScheduleCtrl extends Controller
 
     public function customerReportMonth(Request $request)
     {
-       
+
         $query = $request->query();
 
         $date = Arr::get($query, 'date', null);
@@ -79,5 +80,16 @@ class ScheduleCtrl extends Controller
         return ['status' => '0', 'data' => CustomerReportMonth::createData($date)];
     }
 
+    public function userReportMonth(Request $request)
+    {
+
+        $query = $request->query();
+
+        $date = Arr::get($query, 'date', null);
+        RptUserReportMonthly::report($date);
+        RptOrganizeReportMonthly::report($date);
+        // OrderReportMonth::createData($date);
+        return ['status' => '0'];
+    }
 
 }
