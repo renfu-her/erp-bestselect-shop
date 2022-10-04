@@ -90,7 +90,11 @@ class Delivery extends Model
                 return ['success' => 1, 'error_msg' => "", 'id' => $dataGet->id];
             });
         }
-        return ['success' => 0, 'error_msg' => "更新失敗 無此物流單"];
+        if ($result['success'] == 1) {
+            return $result;
+        } else {
+            return ['success' => 0, 'error_msg' => "更新失敗 無此出貨單"];
+        }
     }
 
     //更新出貨倉庫
@@ -112,7 +116,11 @@ class Delivery extends Model
                 return ['success' => 1, 'error_msg' => "", 'id' => $dataGet->id];
             });
         }
-        return ['success' => 0, 'error_msg' => "更新失敗 無此物流單"];
+        if ($result['success'] == 1) {
+            return $result;
+        } else {
+            return ['success' => 0, 'error_msg' => "更新失敗 無此出貨單"];
+        }
     }
 
     public static function deleteByEventId($event, $event_id)
