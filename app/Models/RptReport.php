@@ -18,17 +18,19 @@ class RptReport extends Model
             ->leftJoin('ord_received_orders as ro', 'order.id', '=', 'ro.source_id')
             ->leftJoin('ord_sub_orders as sub_order', 'order.id', '=', 'sub_order.order_id')
             ->leftJoin('ord_items as item', 'sub_order.id', '=', 'item.sub_order_id')
+            ->leftJoin('prd_product_styles as style','style.id','=','item.product_style_id')
             ->select([
                 'order.sale_channel_id',
                 'order.email',
                 'item.qty',
-                'item.unit_cost',
+              //  'item.unit_cost',
                 'item.price',
                 'ro.receipt_date',
+                'style.estimated_cost'
             ])
-            ->selectRaw("item.price * item.qty - item.unit_cost * item.qty as gross_profit")
+            ->selectRaw("item.price * item.qty - style.estimated_cost * item.qty as gross_profit")
             ->selectRaw("item.price * item.qty as total_price")
-            ->whereNotNull('item.unit_cost')
+            ->whereNotNull('style.estimated_cost')
             ->where('ro.source_type', 'ord_orders')
             ->where('order.payment_status', PaymentStatus::Received())
             ->whereNotNull('ro.receipt_date');

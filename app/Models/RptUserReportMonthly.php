@@ -13,12 +13,13 @@ class RptUserReportMonthly extends Model
     protected $guarded = [];
     public $timestamps = false;
 
-    public static function report($date = '2022-09-01')
+    public static function report($date = null)
     {
 
         if (!$date) {
-            $sdate = Date("Y-m-1 00:00:00");
-            $edate = Date("Y-m-t 23:59:59");
+            $d = strtotime(date('Y-m-d') . " -1 day");    
+            $sdate = Date("Y-m-1 00:00:00", $d);
+            $edate = Date("Y-m-t 23:59:59", $d);
         } else {
             $sdate = Date("Y-m-1 00:00:00", strtotime($date));
             $edate = Date("Y-m-t 23:59:59", strtotime($date));

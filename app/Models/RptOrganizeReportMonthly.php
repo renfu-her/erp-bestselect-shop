@@ -13,9 +13,10 @@ class RptOrganizeReportMonthly extends Model
     protected $guarded = [];
     public $timestamps = false;
 
-    public static function report($date = '2022-09-01')
+    public static function report($date = null)
     {
-
+        $date = $date ? $date : Date("Y-m-01 00:00:00", strtotime(date('Y-m-d') . " -1 day"));
+       
         $currentMonth = Date("Y-m-01", strtotime($date));
         self::where('month', $currentMonth)->delete();
         // 三階
