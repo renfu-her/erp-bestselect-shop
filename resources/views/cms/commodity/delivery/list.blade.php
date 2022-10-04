@@ -177,6 +177,7 @@
                             <div class="fw-bold">出貨單號</div>
                             <div>單據編號</div>
                         </td>
+                        <th scope="col">訂單金額</th>
                         <th scope="col">寄件倉</th>
                         <th scope="col" class="wrap lh-sm">訂單狀態 /<br>物流狀態</th>
                         <th scope="col">物流分類</th>
@@ -185,10 +186,11 @@
                         <th scope="col">寄件人姓名</th>
                         <th scope="col">收件人姓名</th>
                         <th scope="col">收件人地址</th>
+                        <th scope="col">產品名稱</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($dataList as $key => $data)
+                    @foreach ($uniqueSubOrderDataList as $key => $data)
                         <tr>
                             <th scope="row">{{ $key + 1 }}</th>
                             <td class="text-center">
@@ -209,6 +211,7 @@
                                 <div class="fw-bold">{{ $data->delivery_sn }}</div>
                                 <div class="text-nowrap">{{ $data->event_sn }}</div>
                             </td>
+                            <td>{{ number_format($data->total_price) }}</td>
                             <td>{{ $data->depot_name ?? '-' }}</td>
                             <td class="wrap">
                                 <div class="text-nowrap lh-sm @if ($data->order_status === '取消') text-danger @endif">
@@ -235,6 +238,12 @@
                             <td>{{ $data->sed_name }}</td>
                             <td>{{ $data->rec_name }}</td>
                             <td>{{ $data->rec_address }}</td>
+                            <td>
+                                @foreach($data->productTitles as $productTitle)
+                                    {{ $productTitle->product_title }}
+                                    <br>
+                                @endforeach
+                            </td>
                         </tr>
                     @endforeach
                 </tbody>
