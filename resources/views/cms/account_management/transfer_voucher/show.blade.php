@@ -26,7 +26,7 @@
             <hr>
             <dl class="row mb-0">
                 <div class="col">
-                    <dd>傳票編號：</dd>
+                    <dd>傳票編號：{{ $day_emd_item ? $day_emd_item->sn : '' }}</dd>
                 </div>
                 <div class="col">
                     <dd>單號：{{ $voucher->tv_sn }}</dd>

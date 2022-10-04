@@ -32,7 +32,7 @@ class OrderMonthProfitReport extends Model
         return $re;
     }
 
-    public static function createReport($title, $date, $user_id)
+    public static function createReport($title, $date, $user_id, $transfer_at)
     {
         DB::beginTransaction();
 
@@ -56,6 +56,7 @@ class OrderMonthProfitReport extends Model
             'bonus' => $profits->bonus,
             'qty' => $profits->qty,
             'report_at' => $profits->dlv_audit_date . "/1",
+            'transfer_at' => $transfer_at,
             'create_user_id' => $user_id,
         ])->id;
 

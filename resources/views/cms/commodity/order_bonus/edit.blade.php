@@ -16,6 +16,11 @@
                         value="{{ old('month', $data['month'] ?? '') }}"  type="month" required/>
                 </x-b-form-group>
 
+                <x-b-form-group name="transfer_at" title="匯款日期" required="true">
+                    <input class="form-control @error('transfer_at') is-invalid @enderror" name="transfer_at"
+                        value="{{ old('transfer_at', $data['transfer_at'] ?? '') }}" type="date"  required/>
+                </x-b-form-group>
+
             </div>
         </div>
 

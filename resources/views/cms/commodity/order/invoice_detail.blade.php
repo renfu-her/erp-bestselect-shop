@@ -96,10 +96,10 @@
 
     <div class="col-auto">
         @can('cms.order_invoice_manager.index')
-        @if($invoice->status == 1 && $invoice->r_status != 'SUCCESS')
+        @if($invoice->status == 1 && is_null($invoice->r_status))
         <a href="javascript:void(0)" role="button" class="btn btn-primary px-4" data-bs-toggle="modal" 
-            data-bs-target="#confirm-invoice" data-href="{{ Route('cms.order.re-send-invoice', ['id' => $invoice->id]) }}">
-            重新開立發票
+            data-bs-target="#confirm-invoice" data-href="{{ Route('cms.order.send-invoice', ['id' => $invoice->id]) }}">
+            開立發票
         </a>
         @endif
         @endcan
@@ -110,8 +110,8 @@
 
     <!-- Modal -->
     <x-b-modal id="confirm-invoice">
-        <x-slot name="title">重新開立發票</x-slot>
-        <x-slot name="body">確認要重新開立此發票？</x-slot>
+        <x-slot name="title">開立發票</x-slot>
+        <x-slot name="body">確認要開立此發票？</x-slot>
         <x-slot name="foot">
             <a class="btn btn-danger btn-ok" href="#">確認</a>
         </x-slot>

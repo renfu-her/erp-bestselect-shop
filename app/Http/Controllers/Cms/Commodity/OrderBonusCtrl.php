@@ -59,13 +59,14 @@ class OrderBonusCtrl extends Controller
         $request->validate([
             'title' => 'required',
             'month' => 'date',
+            'transfer_at' => 'date',
         ]);
 
         //  dd($_POST);
 
         $d = $request->all();
         // dd($d);
-        $re = OrderMonthProfitReport::createReport($d['title'], $d['month'], $request->user()->id);
+        $re = OrderMonthProfitReport::createReport($d['title'], $d['month'], $request->user()->id, $d['transfer_at']);
 
         if ($re['success'] == '1') {
             wToast('新增完成');
@@ -126,6 +127,7 @@ class OrderBonusCtrl extends Controller
     public function detail($id)
     {
         $month_report = OrderMonthProfitReport::where('id', $id)->get()->first();
+        
         if (!$month_report) {
             return abort(404);
         }
@@ -242,8 +244,11 @@ class OrderBonusCtrl extends Controller
         //  dd($baseData);
         //  exit;
         // return response()->stream($callback, 200, $headers);
-        return response()->streamDownload(function () use ($title, $datas, $bank_type, $baseData) {
+        return response()->streamDownload(function () use ($title, $datas, $bank_type, $baseData,$month_report) {
             $file = fopen('php://output', 'w');
+           
+            fwrite($file, "\xEF\xBB\xBF");
+
             fputcsv($file, $title);
 
             if ($bank_type == 'a') {
@@ -252,7 +257,7 @@ class OrderBonusCtrl extends Controller
                         str_pad($key + 1, 3, '0', STR_PAD_LEFT),
                         $baseData->pay_edi,
                         $baseData->pay_code,
-                        $data->created_at,
+                        $month_report->transfer_at,
                         "",
                         $data->bonus,
                         $baseData->pay_bank_account,
@@ -284,7 +289,7 @@ class OrderBonusCtrl extends Controller
                         $data->bonus,
                         $data->bank_account,
                         $data->identity_sn,
-                        $data->created_at,
+                        $month_report->transfer_at,
                         $data->new_bank_code,
                         "",
                         "",

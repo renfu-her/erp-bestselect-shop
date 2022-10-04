@@ -102,7 +102,7 @@
                                 <td class="text-end">{{ number_format($value->product_qty) }}</td>
                                 <td class="text-end">{{ number_format($value->product_price, 2) }}</td>
                                 <td class="text-end">{{ number_format($value->product_origin_price) }}</td>
-                                <td>{{ $received_order->memo }} <a href="{{ Route('cms.order.detail', ['id' => $order->id], true) }}">{{ $order->sn }}</a> {{ $value->product_taxation == 1 ? '應稅' : '免稅' }} {{ $value->product_note ?? '' }}{{-- $order->note --}}</td>
+                                <td>{{ $received_order->memo }} <a href="{{ Route('cms.order.detail', ['id' => $order->id], true) }}">{{ $order->sn }}</a> {{ $value->product_taxation == 1 ? '應稅' : '免稅' }} {{ $value->product_note ?? '' }} {{ $value->product_ro_note }}{{-- $order->note --}}</td>
                             </tr>
                         @endforeach
 

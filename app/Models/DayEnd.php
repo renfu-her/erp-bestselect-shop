@@ -130,8 +130,10 @@ class DayEnd extends Model
         $po = PayingOrder::whereDate('payment_date', $date)->where('append_po_id', null)->get();
         $tv = TransferVoucher::whereDate('created_at', $date)->get();
         $io = IncomeOrder::whereDate('posting_date', $date)->get();
+        $nro = NoteReceivableOrder::whereDate('cashing_date', $date)->get();
+        $npo = NotePayableOrder::whereDate('cashing_date', $date)->get();
 
-        $counter = $ro->count() + $po->count() + $tv->count() + $io->count();
+        $counter = $ro->count() + $po->count() + $tv->count() + $io->count() + $nro->count() + $npo->count();
 
         return $counter;
     }
@@ -146,19 +148,15 @@ class DayEnd extends Model
         $tv = TransferVoucher::whereDate('created_at', $date)->get();
 
         $io = IncomeOrder::whereDate('posting_date', $date)->get();
+        $nro = NoteReceivableOrder::whereDate('cashing_date', $date)->get();
+        $npo = NotePayableOrder::whereDate('cashing_date', $date)->get();
 
         $remark = null;
 
         DayEndLog::delete_log($closing_date);
 
-        foreach([$ro, $po, $tv, $io] as $collection){
+        foreach([$ro, $po, $tv, $io, $nro, $npo] as $collection){
             foreach($collection as $real_value){
-                $day_end_item = DayEndItem::where([
-                    'source_type' => $real_value->getTable(),
-                    'source_id' => $real_value->id,
-                    'source_sn' => $real_value->sn,
-                ])->first();
-
                 if($real_value->getTable() == 'ord_received_orders'){
                     $t_data = ReceivedOrder::received_order_list(null, $real_value->sn)->first();
 
@@ -331,8 +329,8 @@ class DayEnd extends Model
                             $source_summary = $method_name . ' ' . $suffix . ' ' . $pay_v->summary;
 
                             $data = [
-                                'day_end_id'=>$day_end_id,
-                                'closing_date'=>$closing_date,
+                                'day_end_id' => $day_end_id,
+                                'closing_date' => $closing_date,
                                 'source_type' => $real_value->getTable(),
                                 'source_id' => $real_value->id,
                                 'source_sn' => $real_value->sn,
@@ -425,8 +423,8 @@ class DayEnd extends Model
                     if($t_data->tv_items){
                         foreach(json_decode($t_data->tv_items) as $tv_value){
                             $data = [
-                                'day_end_id'=>$day_end_id,
-                                'closing_date'=>$closing_date,
+                                'day_end_id' => $day_end_id,
+                                'closing_date' => $closing_date,
                                 'source_type' => $real_value->getTable(),
                                 'source_id' => $real_value->id,
                                 'source_sn' => $real_value->sn,
@@ -437,7 +435,6 @@ class DayEnd extends Model
                                 'grade_code' => $tv_value->grade_code,
                                 'grade_name' => $tv_value->grade_name,
                             ];
-
                             DayEndLog::create_day_end_log($data);
                         }
                     }
@@ -446,13 +443,13 @@ class DayEnd extends Model
                     $income = [
                         [
                             'price'=>$real_value->amt_total_service_fee,
-                            'desc'=>"信用卡手續費",
+                            'desc'=>'信用卡手續費',
                             'grade_id'=>$real_value->service_fee_grade_id,
                             'grade_code'=>AllGrade::find($real_value->service_fee_grade_id)->eachGrade->code,
                             'grade_name'=>AllGrade::find($real_value->service_fee_grade_id)->eachGrade->name,
                         ], [
                             'price'=>$real_value->amt_total_net,
-                            'desc'=>"信用卡入款",
+                            'desc'=>'信用卡入款',
                             'grade_id'=>$real_value->net_grade_id,
                             'grade_code'=>AllGrade::find($real_value->net_grade_id)->eachGrade->code,
                             'grade_name'=>AllGrade::find($real_value->net_grade_id)->eachGrade->name,
@@ -468,8 +465,8 @@ class DayEnd extends Model
                     foreach($income as $value){
                         if($value['price'] > 0){
                             $data = [
-                                'day_end_id'=>$day_end_id,
-                                'closing_date'=>$closing_date,
+                                'day_end_id' => $day_end_id,
+                                'closing_date' => $closing_date,
                                 'source_type' => $real_value->getTable(),
                                 'source_id' => $real_value->id,
                                 'source_sn' => $real_value->sn,
@@ -480,11 +477,64 @@ class DayEnd extends Model
                                 'grade_code' => $value['grade_code'],
                                 'grade_name' => $value['grade_name'],
                             ];
-
                             DayEndLog::create_day_end_log($data);
                         }
                     }
+
+                } else if($real_value->getTable() == 'acc_note_receivable_orders'){
+                    $data_list = NoteReceivableOrder::get_cheque_received_list(null, 'cashed', null, null, null, null, null, null, null, null, null, [$closing_date, $closing_date])->whereNotNull('_cheque.sn')->get();
+
+                    $grade = AllGrade::find($real_value->net_grade_id)->eachGrade;
+
+                    $d_price = $data_list->sum('cheque_amt_net');
+                    $c_price = $real_value->amt_total_net;
+                    $d_c_net = $d_price - $c_price;
+
+                    $data = [
+                        'day_end_id' => $day_end_id,
+                        'closing_date' => $closing_date,
+                        'source_type' => $real_value->getTable(),
+                        'source_id' => $real_value->id,
+                        'source_sn' => $real_value->sn,
+                        'source_summary' => $grade->name . ' ' . implode(',', $data_list->pluck('cheque_ticket_number')->toArray()),
+                        'debit_price' => null,
+                        'credit_price' => $real_value->amt_total_net,
+                        'grade_id' => $real_value->net_grade_id,
+                        'grade_code' => $grade->code,
+                        'grade_name' => $grade->name,
+                    ];
+                    DayEndLog::create_day_end_log($data);
+
+                } else if($real_value->getTable() == 'acc_note_payable_orders'){
+                    $data_list = NotePayableOrder::get_cheque_payable_list(null, 'cashed', null, null, null, null, null, [$closing_date, $closing_date])->whereNotNull('_cheque.sn')->get();
+
+                    $grade = AllGrade::find($real_value->net_grade_id)->eachGrade;
+
+                    $d_price = $real_value->amt_total_net;
+                    $c_price = $data_list->sum('cheque_amt_net');
+                    $d_c_net = $d_price - $c_price;
+
+                    $data = [
+                        'day_end_id' => $day_end_id,
+                        'closing_date' => $closing_date,
+                        'source_type' => $real_value->getTable(),
+                        'source_id' => $real_value->id,
+                        'source_sn' => $real_value->sn,
+                        'source_summary' => $grade->name . ' ' . implode(',', $data_list->pluck('cheque_ticket_number')->toArray()),
+                        'debit_price' => $real_value->amt_total_net,
+                        'credit_price' => null,
+                        'grade_id' => $real_value->net_grade_id,
+                        'grade_code' => $grade->code,
+                        'grade_name' => $grade->name,
+                    ];
+                    DayEndLog::create_day_end_log($data);
                 }
+
+                $day_end_item = DayEndItem::where([
+                    'source_type' => $real_value->getTable(),
+                    'source_id' => $real_value->id,
+                    'source_sn' => $real_value->sn,
+                ])->first();
 
                 if($day_end_item){
                     $day_end_item->update([
@@ -537,6 +587,19 @@ class DayEnd extends Model
         } else if($source_type == 'acc_income_orders') {
             $link = route('cms.credit_manager.income-detail', ['id' => $source_id]);
 
+        } else if($source_type == 'acc_note_receivable_orders') {
+            $target = NoteReceivableOrder::find($source_id);
+
+            if($target){
+                $link = route('cms.note_receivable.detail', ['type' => 'cashed', 'qd' => date('Y-m-d', strtotime($target->cashing_date))]);
+            }
+
+        } else if($source_type == 'acc_note_payable_orders') {
+            $target = NotePayableOrder::find($source_id);
+
+            if($target){
+                $link = route('cms.note_payable.detail', ['type' => 'cashed', 'qd' => date('Y-m-d', strtotime($target->cashing_date))]);
+            }
         }
 
         return $link;

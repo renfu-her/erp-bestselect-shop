@@ -11,7 +11,7 @@
             <div class="alert alert-danger">{!! implode('', $errors->all('<div>:message</div>')) !!}</div>
             @endif
 
-            <p class="fw-bold">支付對象：{{ $supplier ? $supplier->name . ' - ' . $supplier->contact_person : '' }}</p>
+            <p class="fw-bold">支付對象：{{ $paying_order->payee_name }}</p>
 
             <div class="table-responsive tableOverBox border-bottom border-dark">
                 <table class="table table-sm table-hover tableList mb-1">
