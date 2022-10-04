@@ -16,7 +16,7 @@ class reportDevelopmentSeeder extends Seeder
     public function run()
     {
         //
-         RptUserReportMonthly::report();
-         RptOrganizeReportMonthly::report();
+         RptUserReportMonthly::report('2022-09-01');
+         RptOrganizeReportMonthly::report('2022-09-01');
     }
 }

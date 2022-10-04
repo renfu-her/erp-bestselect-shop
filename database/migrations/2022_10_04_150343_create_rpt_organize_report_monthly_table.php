@@ -23,6 +23,8 @@ class CreateRptOrganizeReportMonthlyTable extends Migration
             $table->integer('off_gross_profit')->default(0)->comment('線下毛利');
             $table->integer('total_price')->default(0)->comment('營業額');
             $table->integer('total_gross_profit')->default(0)->comment('毛利');
+            $table->integer('users')->default(0)->comment('人數');
+
         });
     }
 

@@ -30,6 +30,7 @@ class RptOrganizeReportMonthly extends Model
             ->selectRaw('SUM(off_gross_profit) as off_gross_profit')
             ->selectRaw('SUM(total_price) as total_price')
             ->selectRaw('SUM(total_gross_profit) as total_gross_profit')
+            ->selectRaw('COUNT(user.id) as users')
             ->where('report.month', $currentMonth)
             ->where('org.level', 3)
             ->groupBy('org.id')->get()->toArray();
@@ -49,6 +50,7 @@ class RptOrganizeReportMonthly extends Model
                 ->selectRaw('SUM(report.off_gross_profit) as off_gross_profit')
                 ->selectRaw('SUM(report.total_price) as total_price')
                 ->selectRaw('SUM(report.total_gross_profit) as total_gross_profit')
+                ->selectRaw('COUNT(report.users) as users')
                 ->where('org.level', $value)
                 ->where('report.month', $currentMonth)
                 ->groupBy('org.parent')->get()->toArray();
