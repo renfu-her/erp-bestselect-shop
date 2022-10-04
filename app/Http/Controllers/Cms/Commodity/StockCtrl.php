@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Cms\Commodity;
 
 use App\Enums\Delivery\Event;
+use App\Exports\Stock\ProductWithExitInboundCheckExport;
 use App\Exports\Stock\ProductWithExitInboundDetailExport;
 use App\Http\Controllers\Controller;
 use App\Models\Depot;
@@ -14,10 +15,22 @@ use App\Models\Supplier;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\DB;
 
 class StockCtrl extends Controller
 {
+    private $typeRadios = [
+        'all' => '不限',
+        'p' => '一般',
+        'c' => '組合包',
+    ];
+    private $consumes = [['all', '不限'], ['1', '耗材'], ['0', '商品']];
+
+    private $stockRadios = [
+        'warning' => '低於安全庫存',
+        'out_of_stock' => '無庫存',
+        'still_actual_stock' => '尚有實際庫存',
+    ];
+
     /**
      * Display a listing of the resource.
      *
@@ -26,32 +39,7 @@ class StockCtrl extends Controller
     public function index(Request $request)
     {
         $query = $request->query();
-        $searchParam = [];
-        $searchParam['keyword'] = Arr::get($query, 'keyword');
-        $searchParam['type'] = Arr::get($query, 'type');
-        $searchParam['consume'] = Arr::get($query, 'consume', '0');
-        $searchParam['user'] = Arr::get($query, 'user');
-        $searchParam['supplier'] = Arr::get($query, 'supplier');
-        $searchParam['stock'] = Arr::get($query, 'stock',[]);
-        $searchParam['depot_id'] = Arr::get($query, 'depot_id',[]);
-        $searchParam['data_per_page'] = getPageCount(Arr::get($query, 'data_per_page', 100));
-      //  dd($searchParam['stock']);
-        $typeRadios = [
-            'all' => '不限',
-            'p' => '一般',
-            'c' => '組合包',
-        ];
-        $consumes = [['all', '不限'], ['1', '耗材'], ['0', '商品']];
-
-        $stockRadios = [
-            'warning' => '低於安全庫存',
-            'out_of_stock' => '無庫存',
-            'still_actual_stock' => '尚有實際庫存',
-        ];
-
-        if (!in_array($searchParam['type'], array_keys($typeRadios))) {
-            $searchParam['type'] = 'all';
-        }
+        $searchParam = $this->initQueryParam($query);
         $depot_id = $searchParam['depot_id'];
 
         $products = PurchaseInbound::productStyleListWithExistInbound($depot_id, $searchParam)
@@ -66,9 +54,9 @@ class StockCtrl extends Controller
             'suppliers' => Supplier::select('name', 'id', 'vat_no')->get()->toArray(),
             'depotList' => Depot::all(),
             'users' => User::select('id', 'name')->get()->toArray(),
-            'typeRadios' => $typeRadios,
-            'stockRadios' => $stockRadios,
-            'consumes' => $consumes,
+            'typeRadios' => $this->typeRadios,
+            'stockRadios' => $this->stockRadios,
+            'consumes' => $this->consumes,
             'searchParam' => $searchParam,
         ]);
     }
@@ -105,9 +93,25 @@ class StockCtrl extends Controller
         ]);
     }
 
+    //匯出庫存明細EXCEL
     public function exportDetail(Request $request)
     {
         $query = $request->input();
+        $searchParam = $this->initQueryParam($query);
+        $depot_id = $searchParam['depot_id'];
+        return (new ProductWithExitInboundDetailExport($depot_id, $searchParam))->download("stock-detail-" . date('YmdHis') . ".xlsx");
+    }
+
+    //匯出盤點明細EXCEL
+    public function exportCheck(Request $request)
+    {
+        $query = $request->input();
+        $searchParam = $this->initQueryParam($query);
+        $depot_id = $searchParam['depot_id'];
+        return (new ProductWithExitInboundCheckExport($depot_id, $searchParam))->download("stock-check-" . date('YmdHis') . ".xlsx");
+    }
+
+    private function initQueryParam($query) {
         $searchParam = [];
         $searchParam['keyword'] = Arr::get($query, 'keyword');
         $searchParam['type'] = Arr::get($query, 'type');
@@ -117,17 +121,10 @@ class StockCtrl extends Controller
         $searchParam['stock'] = Arr::get($query, 'stock',[]);
         $searchParam['depot_id'] = Arr::get($query, 'depot_id',[]);
         $searchParam['data_per_page'] = getPageCount(Arr::get($query, 'data_per_page', 100));
-        //  dd($searchParam['stock']);
-        $typeRadios = [
-            'all' => '不限',
-            'p' => '一般',
-            'c' => '組合包',
-        ];
 
-        if (!in_array($searchParam['type'], array_keys($typeRadios))) {
+        if (!in_array($searchParam['type'], array_keys($this->typeRadios))) {
             $searchParam['type'] = 'all';
         }
-        $depot_id = $searchParam['depot_id'];
-        return (new ProductWithExitInboundDetailExport($depot_id, $searchParam))->download("stock_detail-" . date('YmdHis') . ".xlsx");
+        return $searchParam;
     }
 }

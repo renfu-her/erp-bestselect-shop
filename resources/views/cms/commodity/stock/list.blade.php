@@ -91,6 +91,7 @@
                 <div type="submit" class="btn btn-primary px-4" onclick="submitAction('{{ Route('cms.stock.index') }}', 'GET')">搜尋</div>
                 <div class="col">
                     <div type="submit" class="btn btn-primary btn-sm my-1 ms-1" onclick="submitAction('{{ Route('cms.stock.export-detail') }}', 'POST')">匯出庫存明細EXCEL</div>
+                    <div type="submit" class="btn btn-primary btn-sm my-1 ms-1" onclick="submitAction('{{ Route('cms.stock.export-check') }}', 'POST')">匯出盤點明細EXCEL</div>
                     <mark class="fw-light small">
                         <i class="bi bi-exclamation-diamond-fill mx-2 text-warning"></i>匯出excel會根據上面當前篩選條件輸出資料呦！
                     </mark>
