@@ -111,7 +111,21 @@ class OrderCtrl extends Controller
             null,
             $cond['item_title'],
             $cond['purchase_sn'])
-            ->paginate($page)->appends($query);
+            ->paginate($page)
+            ->appends($query);
+
+        $uniqueSubOrderIdArray = [];
+        $uniqueDataList = [];
+        foreach ($dataList as $datum) {
+            if (!in_array($datum->sub_order_id, $uniqueSubOrderIdArray)) {
+                $uniqueSubOrderIdArray[] = $datum->sub_order_id;
+                $datum->productTitleGroup = DB::table('ord_items')
+                    ->where('sub_order_id', $datum->sub_order_id)
+                    ->select('product_title')
+                    ->get();
+                $uniqueDataList[] = $datum;
+            }
+        }
 
         $orderStatus = [];
         foreach (\App\Enums\Order\OrderStatus::asArray() as $key => $val) {
@@ -122,6 +136,7 @@ class OrderCtrl extends Controller
 
         return view('cms.commodity.order.list', [
             'dataList' => $dataList,
+            'uniqueDataList' => $uniqueDataList,
             'cond' => $cond,
             'orderStatus' => $orderStatus,
             'shipmentStatus' => LogisticStatus::asArray(),

@@ -85,19 +85,9 @@ class ProductStyle extends Model
     /**
      * 款式列表與其價格
      */
-
     public static function styleList($product_id)
     {
-
-        $channelSub = DB::table('prd_sale_channels as sale_channel')
-            ->leftJoin('prd_salechannel_style_price as price', 'sale_channel.id', '=', 'price.sale_channel_id')
-            ->select('price.style_id')
-            ->selectRaw('IF(price.dealer_price,price.dealer_price,0) as dealer_price')
-            ->selectRaw('IF(price.origin_price,price.origin_price,0) as origin_price')
-            ->selectRaw('IF(price.price,price.price,0) as price')
-            ->selectRaw('IF(price.bonus,price.bonus,0) as bonus')
-            ->selectRaw('IF(price.dividend,price.dividend,0) as dividend')
-            ->where('is_master', '1');
+        $channelSub = self::getChannelSubList();
 
         $re = DB::table('prd_product_styles as style')
             ->leftJoin(DB::raw("({$channelSub->toSql()}) as price"), function ($join) {
@@ -114,6 +104,21 @@ class ProductStyle extends Model
             ->whereNull('style.deleted_at');
 
         return $re;
+    }
+
+    // 取得官網價格
+    public static function getChannelSubList()
+    {
+        $channelSub = DB::table('prd_sale_channels as sale_channel')
+            ->leftJoin('prd_salechannel_style_price as price', 'sale_channel.id', '=', 'price.sale_channel_id')
+            ->select('price.style_id')
+            ->selectRaw('IF(price.dealer_price,price.dealer_price,0) as dealer_price')
+            ->selectRaw('IF(price.origin_price,price.origin_price,0) as origin_price')
+            ->selectRaw('IF(price.price,price.price,0) as price')
+            ->selectRaw('IF(price.bonus,price.bonus,0) as bonus')
+            ->selectRaw('IF(price.dividend,price.dividend,0) as dividend')
+            ->where('is_master', '1');
+        return $channelSub;
     }
 
     /**

@@ -40,21 +40,27 @@ class Order extends Model
     ) {
         $order = DB::table('ord_orders as order')
             ->select(['order.id as id',
+                'order.sn as main_order_sn',
                 'order.status as order_status',
                 'ord_address.name',
                 'sale.title as sale_title',
                 'so.ship_category_name',
-                'so.ship_event', 'so.ship_sn',
+                'so.ship_event',
+                'so.ship_sn',
+                'so.total_price',
                 'dlv_delivery.logistic_status as logistic_status',
                 'dlv_logistic.package_sn as package_sn',
                 'shi_group.name as ship_group_name',
                 'ord_received_orders.sn as or_sn',
                 'so.projlgt_order_sn',
                 'so.package_sn',
+                'ord_items.product_title',
+                'ord_items.sub_order_id',
             ])
             ->selectRaw('DATE_FORMAT(order.created_at,"%Y-%m-%d") as order_date')
             ->selectRaw('so.sn as order_sn')
             ->leftJoin('ord_sub_orders as so', 'order.id', '=', 'so.order_id')
+            ->leftJoin('ord_items', 'so.id', '=', 'ord_items.sub_order_id')
             ->leftJoin('usr_customers as customer', 'order.email', '=', 'customer.email')
             ->leftJoin('prd_sale_channels as sale', 'sale.id', '=', 'order.sale_channel_id')
             ->leftJoin('ord_address', function ($join) {

@@ -1018,6 +1018,47 @@ class PurchaseInbound extends Model
         return $result;
     }
 
+    //找全部商品款式 整合實際庫存
+    public static function productStyleListWithExistInbound($depot_id, $searchParam)
+    {
+        $extPrdStyleList_send = PurchaseInbound::getExistInboundProductStyleList($depot_id);
+        $products = Product::productStyleList($searchParam['keyword'], $searchParam['type'], $searchParam['stock'],
+            ['supplier' => ['condition' => $searchParam['supplier'], 'show' => true],
+                'user' => ['show' => true, 'condition' => $searchParam['user']],
+                'consume' => $searchParam['consume'] == 'all' ? null : $searchParam['consume'],
+            ])
+
+            ->leftJoinSub($extPrdStyleList_send, 'inbound', function($join) use($depot_id) {
+                //對應到入庫倉可入到進貨倉 相同的product_style_id
+                $join->on('inbound.product_style_id', '=', 's.id');
+                if (null != $depot_id && 0 < count($depot_id)) {
+                    $join->whereIn('inbound.depot_id', $depot_id);
+                }
+            })
+            ->leftJoin('depot', 'depot.id', '=', 'inbound.depot_id')
+            ->addSelect(
+                'inbound.product_style_id'
+//                , 'inbound.event'
+                , 'inbound.depot_id'
+                , 'depot.name as depot_name'
+                , 'inbound.total_inbound_num'
+                , 'inbound.total_sale_num'
+                , 'inbound.total_csn_num'
+                , 'inbound.total_consume_num'
+                , 'inbound.total_back_num'
+                , 'inbound.total_scrap_num'
+                , 'inbound.total_in_stock_num'
+                , 'inbound.total_in_stock_num_csn'
+            );
+        if (null != $depot_id && 0 < count($depot_id)) {
+            $products->whereIn('inbound.depot_id', $depot_id);
+        }
+        if ($searchParam['stock'] && in_array('still_actual_stock', $searchParam['stock'])) {
+            $products->where('inbound.total_in_stock_num', '>', 0);
+        }
+        return $products;
+    }
+
     //取得寄倉商品款式現有數量
     public static function getCsnExistInboundProductStyleList($event) {
         $queryInbound = DB::table('pcs_purchase_inbound as inbound')

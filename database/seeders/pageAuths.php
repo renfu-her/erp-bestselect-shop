@@ -64,6 +64,14 @@ return [
                 "cms.stock.index",
                 "瀏覽",
             ],
+            [
+                "cms.stock.export-detail",
+                "匯出庫存明細",
+            ],
+            [
+                "cms.stock.export-check",
+                "匯出盤點明細",
+            ],
         ],
     ],
     [

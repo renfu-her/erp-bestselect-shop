@@ -164,6 +164,7 @@
                         <th scope="col" style="width:40px">#</th>
                         <th scope="col" style="width:40px" class="text-center">明細</th>
                         <th scope="col">訂單編號</th>
+                        <th scope="col">費用</th>
                         <th scope="col" class="wrap lh-sm">
                             <span class="text-nowrap">訂單狀態 /</span>
                             <span class="text-nowrap">物流狀態</span>
@@ -176,11 +177,12 @@
                         <th scope="col">客戶物流</th>
                         <th scope="col">實際物流</th>
                         <th scope="col">包裹編號</th>
+                        <th scope="col">產品名稱</th>
                         {{-- <th scope="col">退貨狀態</th> --}}
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($dataList as $key => $data)
+                    @foreach ($uniqueDataList as $key => $data)
                         <tr>
                             <th scope="row">{{ $key + 1 }}</th>
                             <td class="text-center">
@@ -192,6 +194,9 @@
                                 @endcan
                             </td>
                             <td>{{ $data->order_sn }}</td>
+                            <td>
+                                ${{ number_format($data->total_price) }}
+                            </td>
                             <td class="wrap">
                                 <div class="text-nowrap lh-sm @if ($data->order_status === '取消') text-danger @endif">
                                     {{ $data->order_status ?? '-' }} /</div>
@@ -223,6 +228,12 @@
                             </td>
                             <td>{{ $data->ship_group_name }}</td>
                             <td>{{ $data->package_sn }}</td>
+                            <td>
+                                @foreach($data->productTitleGroup as $x => $productTitle)
+                                    {{ $productTitle->product_title }}
+                                    <br>
+                                @endforeach
+                            </td>
                             {{-- <td>-</td> --}}
                         </tr>
                     @endforeach

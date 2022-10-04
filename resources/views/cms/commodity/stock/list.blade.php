@@ -2,7 +2,8 @@
 @section('sub-content')
     <h2 class="mb-4">庫存管理</h2>
 
-    <form id="search" action="{{ Route('cms.stock.index') }}" method="GET">
+    <form id="search">
+        @csrf
         <div class="card shadow p-4 mb-4">
             <h6>搜尋條件</h6>
             <div class="row">
@@ -87,7 +88,18 @@
 
             <div class="col">
                 <input type="hidden" name="data_per_page" value="{{ $searchParam['data_per_page'] }}" />
-                <button type="submit" class="btn btn-primary px-4">搜尋</button>
+                <div type="submit" class="btn btn-primary px-4" onclick="submitAction('{{ Route('cms.stock.index') }}', 'GET')">搜尋</div>
+                <div class="col">
+                    @can('cms.stock.export-detail')
+                        <div type="submit" class="btn btn-primary btn-sm my-1 ms-1" onclick="submitAction('{{ Route('cms.stock.export-detail') }}', 'POST')">匯出庫存明細EXCEL</div>
+                    @endcan
+                    @can('cms.stock.export-check')
+                        <div type="submit" class="btn btn-primary btn-sm my-1 ms-1" onclick="submitAction('{{ Route('cms.stock.export-check') }}', 'POST')">匯出盤點明細EXCEL</div>
+                    @endcan
+                    <mark class="fw-light small">
+                        <i class="bi bi-exclamation-diamond-fill mx-2 text-warning"></i>匯出excel會根據上面當前篩選條件輸出資料呦！
+                    </mark>
+                </div>
             </div>
         </div>
     </form>
@@ -138,7 +150,7 @@
                             </td>
                             <td class="wrap">
                                 <div class="lh-1 small text-nowrap">
-                                    <span @class(['badge rounded-pill me-2', 
+                                    <span @class(['badge rounded-pill me-2',
                                         'bg-warning text-dark' => $data->type_title === '組合包商品',
                                         'bg-success' => $data->type_title === '一般商品'])
                                     >{{ $data->type_title === '組合包商品' ? '組合包' : '一般' }}</span>
@@ -201,6 +213,14 @@
                 $('input[name=data_per_page]').val($(this).val());
                 $('#search').submit();
             });
+
+            function submitAction(route, method)
+            {
+                console.log(route, method);
+                document.getElementById("search").action = route;
+                document.getElementById("search").setAttribute("method", method);
+                document.getElementById("search").submit();
+            }
         </script>
     @endpush
 @endOnce
