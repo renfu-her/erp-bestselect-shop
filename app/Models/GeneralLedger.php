@@ -73,6 +73,7 @@ class GeneralLedger extends Model
                 'acc_company.company',
                 'acc_income_statement.name as category'
             )
+            ->orderBy('acc_second_grade.code')
             ->get();
 
         if (!$stdResult) {
@@ -104,6 +105,7 @@ class GeneralLedger extends Model
                 'acc_company.company',
                 'acc_income_statement.name as category'
             )
+            ->orderBy('acc_third_grade.code')
             ->get();
 
         if (!$stdResult) {
@@ -133,6 +135,7 @@ class GeneralLedger extends Model
                 'acc_company.company',
                 'acc_income_statement.name as category'
             )
+            ->orderBy('acc_fourth_grade.code')
             ->get();
 
         if (!$stdResult) {
