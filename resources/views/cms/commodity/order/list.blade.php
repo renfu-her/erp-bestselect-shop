@@ -146,6 +146,16 @@
                 </a>
             </div>
             <div class="col-auto">
+                <div class="btn-group">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" 
+                        data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                        顯示欄位
+                    </button>
+                    <ul id="selectField" class="dropdown-menu">
+                    </ul>
+                </div>
+            </div>
+            <div class="col-auto">
                 顯示
                 <select class="form-select d-inline-block w-auto" id="dataPerPageElem" aria-label="表格顯示筆數">
                     @foreach (config('global.dataPerPage') as $value)
@@ -275,7 +285,8 @@
                 $('#search').submit();
             });
 
-            // Chip
+            // 選擇表格顯示欄位
+            setPrintTrCheckbox($('table.tableList'), $('#selectField'), [], 'dropdown');
 
             // - 物態
             let selectedShipment = $('input[name="shipment_status"]').val();
