@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 class OrderItem extends Model
@@ -121,14 +123,13 @@ class OrderItem extends Model
     public static function update_order_item($parm)
     {
         $update = [];
-
-        if(isset($parm['note'])){
+        if(Arr::exists($parm, 'note')){
             $update['note'] = $parm['note'];
         }
-        if(isset($parm['ro_note'])){
+        if(Arr::exists($parm, 'ro_note')){
             $update['ro_note'] = $parm['ro_note'];
         }
-        if(isset($parm['po_note'])){
+        if(Arr::exists($parm, 'po_note')){
             $update['po_note'] = $parm['po_note'];
         }
 

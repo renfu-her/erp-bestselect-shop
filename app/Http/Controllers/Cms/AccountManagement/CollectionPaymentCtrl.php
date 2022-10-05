@@ -20,8 +20,10 @@ use App\Models\DayEnd;
 use App\Models\Delivery;
 use App\Models\Depot;
 use App\Models\GeneralLedger;
+use App\Models\Logistic;
 use App\Models\NotePayableOrder;
 use App\Models\Order;
+use App\Models\OrderItem;
 use App\Models\PayableAccount;
 use App\Models\PayableCash;
 use App\Models\PayableCheque;
@@ -353,6 +355,121 @@ class CollectionPaymentCtrl extends Controller
             'client' => $client_merged,
             'paying_order' => $paying_order,
         ]);
+    }
+
+
+    public function edit_note(Request $request, $id)
+    {
+        $paying_order = PayingOrder::findOrFail($id);
+
+        if($request->isMethod('post')){
+            $request->validate([
+                'item' => 'required|array',
+            ]);
+
+            DB::beginTransaction();
+
+            try {
+                if($paying_order->source_type == 'ord_orders' && $paying_order->source_sub_id != null){
+                    if (request('item') && is_array(request('item'))) {
+                        $logistic_item = request('item');
+                        foreach ($logistic_item as $key => $value) {
+                            $logistic_id = $key;
+                            Logistic::where('id', $logistic_id)->update([
+                                'memo' => $value['note'],
+                            ]);
+                        }
+                    }
+
+                } else if($paying_order->source_type == 'ord_orders' && $paying_order->source_sub_id == null){
+                    if (request('item') && is_array(request('item'))) {
+                        $order_item = request('item');
+                        foreach ($order_item as $key => $value) {
+                            $value['order_item_id'] = $key;
+                            OrderItem::update_order_item($value);
+                        }
+                    }
+
+                } else if($paying_order->source_type == 'dlv_delivery'){
+                    if (request('item') && is_array(request('item'))) {
+                        $order_item = request('item');
+                        foreach ($order_item as $key => $value) {
+                            $value['order_item_id'] = $key;
+                            OrderItem::update_order_item($value);
+                        }
+                    }
+                }
+
+                DB::commit();
+                wToast(__('付款項目備註更新成功'));
+                return redirect()->to(PayingOrder::paying_order_link($paying_order->source_type, $paying_order->source_id, $paying_order->source_sub_id, $paying_order->type));
+
+            } catch (\Exception $e) {
+                DB::rollback();
+                wToast(__('付款項目備註更新失敗', ['type' => 'danger']));
+            }
+
+            return redirect()->back();
+
+        } else if ($request->isMethod('get')) {
+
+            if($paying_order->source_type == 'ord_orders' && $paying_order->source_sub_id != null){
+                $order = Order::findOrFail($paying_order->source_id);
+                $sub_order = Order::subOrderDetail($paying_order->source_id, $paying_order->source_sub_id, true)->get()->toArray()[0];
+
+                $item_list_data[] = (object)[
+                    'item_id' => $sub_order->logistic_id,
+                    'title' => AllGrade::find($paying_order->logistics_grade_id)->eachGrade->name . ' ' . $sub_order->ship_group_name . ' #' . ($sub_order->projlgt_order_sn ?? $sub_order->package_sn),
+                    'price' => $sub_order->logistic_cost,
+                    'qty' => 1,
+                    'total_price' => $sub_order->logistic_cost,
+                    'note' => $sub_order->logistic_memo,
+                    'po_note' => null,
+                ];
+
+            } else if($paying_order->source_type == 'ord_orders' && $paying_order->source_sub_id == null){
+                $order = Order::findOrFail($paying_order->source_id);
+                $order_item = OrderItem::item_order($paying_order->source_id)->get();
+                $item_list_data = [];
+                foreach($order_item as $value){
+                    $item_list_data[] = (object)[
+                        'item_id' =>$value->order_item_id,
+                        'title' =>$value->product_title,
+                        'price' =>$value->product_price,
+                        'qty' =>$value->product_qty,
+                        'total_price' =>$value->product_origin_price,
+                        'note' =>$value->product_note,
+                        'po_note' =>$value->product_po_note,
+                    ];
+                }
+
+            } else if($paying_order->source_type == 'dlv_delivery'){
+                $delivery = Delivery::back_item($paying_order->source_id)->get();
+                foreach ($delivery as $key => $value) {
+                    $delivery[$key]->delivery_back_items = json_decode($value->delivery_back_items);
+                }
+                $delivery = $delivery->first();
+
+                $item_list_data = [];
+                foreach($delivery->delivery_back_items as $value){
+                    $item_list_data[] = (object)[
+                        'item_id' => $value->event_item_id,
+                        'title' => $value->product_title,
+                        'price' => $value->price,
+                        'qty' => $value->qty,
+                        'total_price' => $value->total_price,
+                        'note' => $value->note,
+                        'po_note' => $value->po_note,
+                    ];
+                }
+            }
+
+            return view('cms.account_management.collection_payment.edit_note', [
+                'form_action' => route('cms.collection_payment.edit_note', ['id' => $id]),
+                'paying_order' => $paying_order,
+                'item_list_data' => $item_list_data,
+            ]);
+        }
     }
 
 
