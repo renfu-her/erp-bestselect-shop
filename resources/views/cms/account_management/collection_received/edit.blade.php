@@ -14,7 +14,7 @@
                             @php
                                 $drawee_name = explode(' - ', $received_order->drawee_name);
                             @endphp
-                            <option value="{{ $value['id'] . '|' . $value['name'] }}" {{ $value['id'] . '|' . $value['name'] == old('client_key', $received_order->drawee_id . '|' . $drawee_name[0]) ? 'selected' : '' }}>{{ $value['name'] }}</option>
+                            <option value="{{ $value['id'] . '|' . $value['name'] }}" {{ $value['id'] . '|' . $value['name'] == old('client_key', $received_order->drawee_id . '|' . $drawee_name[0]) ? 'selected' : '' }}>{{ $value['name'] . ' - ' . ($value['email'] ?? $value['id']) }}</option>
                         @endforeach
                     </select>
                 </div>

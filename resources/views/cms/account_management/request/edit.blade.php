@@ -14,7 +14,7 @@
                             @php
                                 $client_name = explode(' - ', $request_order->client_name);
                             @endphp
-                            <option value="{{ $value['id'] . '|' . $value['name'] }}" {{ $value['id'] . '|' . $value['name'] == old('client_key', $request_order->client_id . '|' . $client_name[0]) ? 'selected' : '' }}>{{ $value['name'] }}</option>
+                            <option value="{{ $value['id'] . '|' . $value['name'] }}" {{ $value['id'] . '|' . $value['name'] == old('client_key', $request_order->client_id . '|' . $client_name[0]) ? 'selected' : '' }}>{{ $value['name'] . ' - ' . ($value['email'] ?? $value['id']) }}</option>
                         @endforeach
                     </select>
                 </div>

@@ -77,10 +77,10 @@ class StituteOrderCtrl extends Controller
             $cond['check_payment'],
         )->paginate($page)->appends($query);
 
-        $user = User::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
-        $customer = Customer::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+        $user = User::whereNull('deleted_at')->select('id', 'name', 'account', 'email')->get()->toArray();
+        $customer = Customer::whereNull('deleted_at')->select('id', 'name', 'email')->get()->toArray();
         $depot = Depot::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
-        $supplier = Supplier::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+        $supplier = Supplier::whereNull('deleted_at')->select('id', 'name', 'contact_person')->get()->toArray();
         $client_merged = array_merge($user, $customer, $depot, $supplier);
 
         $check_payment_status = [
@@ -173,10 +173,10 @@ class StituteOrderCtrl extends Controller
             return redirect()->back();
         }
 
-        $user = User::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
-        $customer = Customer::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+        $user = User::whereNull('deleted_at')->select('id', 'name', 'account', 'email')->get()->toArray();
+        $customer = Customer::whereNull('deleted_at')->select('id', 'name', 'email')->get()->toArray();
         $depot = Depot::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
-        $supplier = Supplier::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+        $supplier = Supplier::whereNull('deleted_at')->select('id', 'name', 'contact_person')->get()->toArray();
         $client_merged = array_merge($user, $customer, $depot, $supplier);
 
         $total_grades = GeneralLedger::total_grade_list();
@@ -281,10 +281,10 @@ class StituteOrderCtrl extends Controller
 
         $stitute_order = StituteOrder::stitute_order_list($id)->first();
 
-        $user = User::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
-        $customer = Customer::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+        $user = User::whereNull('deleted_at')->select('id', 'name', 'account', 'email')->get()->toArray();
+        $customer = Customer::whereNull('deleted_at')->select('id', 'name', 'email')->get()->toArray();
         $depot = Depot::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
-        $supplier = Supplier::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+        $supplier = Supplier::whereNull('deleted_at')->select('id', 'name', 'contact_person')->get()->toArray();
         $client_merged = array_merge($user, $customer, $depot, $supplier);
 
         $total_grades = GeneralLedger::total_grade_list();
