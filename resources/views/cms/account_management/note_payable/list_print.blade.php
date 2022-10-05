@@ -86,7 +86,9 @@
             });
 
             // 選擇表格顯示欄位
-            setPrintTrCheckbox($('#DivIdToPrint table'), $('#printTD > div'), [9, 11, 12]);
+            setPrintTrCheckbox($('#DivIdToPrint table'), $('#printTD > div'), 
+                { defaultHide: [9, 11, 12] }
+            );
         </script>
     @endpush
 @endonce
