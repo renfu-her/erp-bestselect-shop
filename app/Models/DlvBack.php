@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\DlvBack\DlvBackType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -16,6 +17,7 @@ class DlvBack extends Model
     public static function getDataWithDeliveryID($delivery_id) {
         $result = DB::table(app(DlvBack::class)->getTable(). ' as dlv_back')
             ->where('dlv_back.delivery_id', $delivery_id)
+            ->where('dlv_back.type', DlvBackType::product()->value)
             ->select(
                 'dlv_back.id'
                 , 'dlv_back.event_item_id'

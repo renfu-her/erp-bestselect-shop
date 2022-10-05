@@ -354,6 +354,8 @@ class DeliveryCtrl extends Controller
                             'qty' => $input_items['back_qty'][$i],
                             'memo' => $input_items['memo'][$i],
                             'show' => $input_items['show'][$i] ?? false,
+                            'type' => DlvBackType::product()->value,
+                            'grade_id' => 0,
                         ];
 						//判斷為訂單 則寫入目前訂單款式的bonus
                         if (Event::order()->value == $delivery->event) {
@@ -669,6 +671,7 @@ class DeliveryCtrl extends Controller
                 //查找相關退貨的組合包 將數量加回
                 $dlvBack_combo = DB::table(app(DlvBack::class)->getTable(). ' as dlv_back')
                     ->leftJoin(app(ProductStyle::class)->getTable(). ' as style', 'style.id', '=', 'dlv_back.product_style_id')
+                    ->where('dlv_back.type', DlvBackType::product()->value)
                     ->where('dlv_back.delivery_id', '=', $delivery->id)
                     ->where('style.type', '=', 'c')
                     ->get();
@@ -693,6 +696,7 @@ class DeliveryCtrl extends Controller
                         $join->on('rcv_depot.delivery_id', '=', 'dlv_back.delivery_id')
                             ->on('rcv_depot.event_item_id', '=', 'dlv_back.event_item_id');
                     })
+                    ->where('dlv_back.type', DlvBackType::product()->value)
                     ->where('rcv_depot.prd_type', '=', 'c')
                     ->where('dlv_back.qty', '>', 0)
                     ->select(
@@ -856,6 +860,7 @@ class DeliveryCtrl extends Controller
                     ->leftJoin(app(ProductStyle::class)->getTable(). ' as style', 'style.id', '=', 'dlv_back.product_style_id')
                     ->where('dlv_back.delivery_id', '=', $delivery->id)
                     ->where('style.type', '=', 'c')
+                    ->where('dlv_back.type', DlvBackType::product()->value)
                     ->get();
                 if (isset($dlvBack_combo) && 0 < count($dlvBack_combo)
                     //(訂單在取消訂單已做) 做寄倉的即可
