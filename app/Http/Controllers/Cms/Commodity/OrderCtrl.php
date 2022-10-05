@@ -2018,54 +2018,6 @@ class OrderCtrl extends Controller
         }
     }
 
-    public function return_po_edit(Request $request, $id, $sid = null)
-    {
-        $request->merge([
-            'id' => $id,
-        ]);
-        $request->validate([
-            'id' => 'required|exists:ord_orders,id',
-        ]);
-
-        if ($request->isMethod('post')) {
-            $request->validate([
-                'order_item' => 'required|array',
-            ]);
-
-            DB::beginTransaction();
-
-            try {
-                if (request('order_item') && is_array(request('order_item'))) {
-                    $order_item = request('order_item');
-                    foreach ($order_item as $key => $value) {
-                        $value['order_item_id'] = $key;
-                        OrderItem::update_order_item($value);
-                    }
-                }
-
-                DB::commit();
-                wToast(__('付款項目備註更新成功'));
-
-            } catch (\Exception $e) {
-                DB::rollback();
-                wToast(__('付款項目備註更新失敗', ['type' => 'danger']));
-            }
-
-            return redirect()->route('cms.order.return-pay-order', ['id' => request('id')]);
-
-        } else if ($request->isMethod('get')) {
-
-            $order = Order::findOrFail(request('id'));
-            $order_list_data = OrderItem::item_order(request('id'))->get();
-
-            return view('cms.commodity.order.return_po_edit', [
-                'form_action' => route('cms.order.return-po-edit', ['id' => request('id')]),
-                'order_list_data' => $order_list_data,
-
-                'breadcrumb_data' => ['id' => $id, 'sid' => $sid, 'sn' => $order->sn],
-            ]);
-        }
-    }
 
     public function create_invoice(Request $request, $id)
     {

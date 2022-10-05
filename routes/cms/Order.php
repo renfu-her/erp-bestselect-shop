@@ -32,7 +32,6 @@ Route::group(['prefix' => 'order', 'as' => 'order.'], function () {
     Route::match(['get', 'post'], 'logistic_pay_create/{id}/{sid}', [OrderCtrl::class, 'logistic_po_create'])->name('logistic-po-create');
     Route::get('return_pay/{id}/{sid?}', [OrderCtrl::class, 'return_pay_order'])->name('return-pay-order');
     Route::match(['get', 'post'], 'return_pay_create/{id}/{sid?}', [OrderCtrl::class, 'return_pay_create'])->name('return-pay-create');
-    Route::match(['get', 'post'], 'return_po_edit/{id}/{sid?}', [OrderCtrl::class, 'return_po_edit'])->name('return-po-edit');
 
     Route::get('invoice/{id}', [OrderCtrl::class, 'create_invoice'])->name('create-invoice')->middleware('permission:cms.order_invoice_manager.index');
     Route::post('invoice/{id}', [OrderCtrl::class, 'store_invoice'])->name('store-invoice');
