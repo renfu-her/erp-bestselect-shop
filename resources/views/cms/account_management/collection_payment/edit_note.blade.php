@@ -23,14 +23,14 @@
                             $serial = 1;
                         @endphp
 
-                        @foreach($delivery->delivery_back_items as $value)
+                        @foreach($item_list_data as $value)
                             <tr>
                                 <td class="text-center">{{ $serial }}</td>
-                                <td>{{ $value->product_title }}</td>
+                                <td>{{ $value->title }}</td>
                                 <td class="text-end">{{ $value->qty }}</td>
                                 <td class="text-end">{{ number_format($value->total_price, 2) }}</td>
-                                <td><input class="form-control form-control-sm -l" name="order_item[{{ $value->event_item_id }}][note]" type="text" value="{{ $value->note }}"></td>
-                                <td><input class="form-control form-control-sm -l" name="order_item[{{ $value->event_item_id }}][po_note]" type="text" value="{{ $value->po_note }}"></td>
+                                <td><input class="form-control form-control-sm -l" name="item[{{ $value->item_id }}][note]" type="text" value="{{ $value->note }}"></td>
+                                <td><input class="form-control form-control-sm -l" name="item[{{ $value->item_id }}][po_note]" type="text" value="{{ $value->po_note }}"></td>
                             </tr>
                             @php
                                 $serial++;

@@ -22,5 +22,4 @@ Route::group(['prefix' => 'delivery','as'=>'delivery.'], function () {
 
     Route::get('return_pay/{id}', [DeliveryCtrl::class, 'return_pay_order'])->name('return-pay-order');
     Route::match(['get', 'post'], 'return_pay_create/{id}', [DeliveryCtrl::class, 'return_pay_create'])->name('return-pay-create');
-    Route::match(['get', 'post'], 'return_po_edit/{id}', [DeliveryCtrl::class, 'return_po_edit'])->name('return-po-edit');
 });

@@ -278,7 +278,8 @@ class NotePayableOrder extends Model
             ]);
 
         } else {
-            $default_net_grade = PayableDefault::where('name', 'cheque')->first() ? PayableDefault::where('name', 'cheque')->first()->default_grade_id : 44;
+            // $default_net_grade = PayableDefault::where('name', 'cheque')->first() ? PayableDefault::where('name', 'cheque')->first()->default_grade_id : 44;
+            $default_net_grade = collect(GeneralLedger::total_grade_list())->where('code', '11020002')->first() ? collect(GeneralLedger::total_grade_list())->where('code', '11020002')->first()['primary_id'] : 253;
 
             $target = self::create([
                 'sn'=>'BSG' . date('ymd', strtotime($cashing_date)),
