@@ -23,7 +23,6 @@ use App\Models\DayEnd;
 use App\Models\Delivery;
 use App\Models\Depot;
 use App\Models\DlvBack;
-use App\Models\DlvBackOther;
 use App\Models\GeneralLedger;
 use App\Models\Logistic;
 use App\Models\LogisticFlow;
@@ -189,7 +188,7 @@ class DeliveryCtrl extends Controller
                 return redirect(Route('cms.delivery.create', [
                     'event' => $delivery->event,
                     'eventId' => $delivery->event_id,
-                    ], true));
+                ], true));
             }
             $errors['error_msg'] = $re['error_msg'];
         }
@@ -234,7 +233,7 @@ class DeliveryCtrl extends Controller
         if (null == $delivery) {
             return abort(404);
         }
-        $dlv_back_other = DlvBackOther::getDataWithDeliveryID($delivery->id)->get();
+        $dlv_back_other = DlvBack::getOtherDataWithDeliveryID($delivery->id)->get();
         //判斷有資料代表已做過 直接返回明細列表
         if (isset($dlv_back_other) && 0 < count($dlv_back_other)) {
             return redirect(Route('cms.delivery.back_detail', [
@@ -260,7 +259,6 @@ class DeliveryCtrl extends Controller
             OrderFlow::changeOrderStatus($delivery->event_id, OrderStatus::CancleBack());
         }
         DlvBack::where('delivery_id', $delivery_id)->delete();
-        DlvBackOther::where('delivery_id', $delivery_id)->delete();
 
         wToast('刪除成功');
         return redirect()->back();
@@ -357,7 +355,7 @@ class DeliveryCtrl extends Controller
                             'type' => DlvBackType::product()->value,
                             'grade_id' => 0,
                         ];
-						//判斷為訂單 則寫入目前訂單款式的bonus
+                        //判斷為訂單 則寫入目前訂單款式的bonus
                         if (Event::order()->value == $delivery->event) {
                             $orderItem = DB::table(app(OrderItem::class)->getTable() . ' as order_item')
                                 ->where('order_item.id', '=', $input_items['event_item_id'][$i])
@@ -373,16 +371,16 @@ class DeliveryCtrl extends Controller
                 }
             }
             $input_other_items = $request->only('back_item_id', 'bgrade_id', 'btype', 'btitle', 'bprice', 'bqty', 'bmemo');
-            $dArray = array_diff(DlvBackOther::where('delivery_id', $delivery_id)->pluck('id')->toArray()
+            $dArray = array_diff(DlvBack::where('delivery_id', $delivery_id)->where('type', '<>', DlvBackType::product()->value)->pluck('id')->toArray()
                 , array_intersect_key($input_other_items['back_item_id'], $input_other_items['btype']?? [] )
             );
-            if($dArray) DlvBackOther::destroy($dArray);
+            if($dArray) DlvBack::destroy($dArray);
 
             if (isset($input_other_items['btype']) && 0 < count($input_other_items['btype'])) {
                 foreach(request('back_item_id') as $key => $value){
                     if(true == isset($input_other_items['btype'][$key])) {
                         if(true == isset($input_other_items['back_item_id'][$key])) {
-                            DlvBackOther::where('id', '=', $input_other_items['back_item_id'][$key])->update([
+                            DlvBack::where('id', '=', $input_other_items['back_item_id'][$key])->update([
                                 'grade_id' => $input_other_items['bgrade_id'][$key],
                                 'type' => $input_other_items['btype'][$key],
                                 'title' => $input_other_items['btitle'][$key],
@@ -394,7 +392,7 @@ class DeliveryCtrl extends Controller
                             if (false == isset($input_other_items['bgrade_id'][$key])) {
                                 return ['success' => 0, 'error_msg' => '未填入會計科目'];
                             }
-                            DlvBackOther::create([
+                            DlvBack::create([
                                 'delivery_id' => $delivery_id,
                                 'grade_id' => $input_other_items['bgrade_id'][$key],
                                 'type' => $input_other_items['btype'][$key],
@@ -402,6 +400,10 @@ class DeliveryCtrl extends Controller
                                 'price' => $input_other_items['bprice'][$key],
                                 'qty' => $input_other_items['bqty'][$key],
                                 'memo' => $input_other_items['bmemo'][$key],
+                                'sku' => '',
+                                'product_title' => '',
+                                'origin_qty' => 0,
+                                'bonus' => '',
                             ]);
                         }
                     }
@@ -435,7 +437,7 @@ class DeliveryCtrl extends Controller
         if(Event::order()->value == $event) {
             $sub_order = SubOrders::where('id', $delivery->event_id)->get()->first();
             $rsp_arr['order_id'] = $sub_order->order_id;
-            $dlv_back_other = DlvBackOther::getDataWithDeliveryID($delivery->id)->get();
+            $dlv_back_other = DlvBack::getOtherDataWithDeliveryID($delivery->id)->get();
             if (isset($dlv_back_other) && 0 < count($dlv_back_other)) {
                 $rsp_arr['dlv_other_items'] = $dlv_back_other;
             } else if ('create' == $method){
@@ -529,7 +531,7 @@ class DeliveryCtrl extends Controller
             $dlvBack = DlvBack::getDataWithDeliveryID($delivery->id)->get();
         }
 
-        $dlv_other_items = DlvBackOther::getDataWithDeliveryID($delivery->id)->get();
+        $dlv_other_items = DlvBack::getOtherDataWithDeliveryID($delivery->id)->get();
 
 //        $logistic = Logistic::where('id', '=', $delivery->event_id)->first();
 
