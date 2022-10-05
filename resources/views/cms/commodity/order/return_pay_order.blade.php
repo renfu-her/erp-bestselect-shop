@@ -33,7 +33,7 @@
                    class="btn btn-dark btn-sm my-1 ms-1">編輯訂單</a>
 
                 <a href="{{ route('cms.collection_payment.edit_note', ['id' => $paying_order->id]) }}"
-                    class="btn btn-dark btn-sm my-1 ms-1" role="button">編輯付款項目備註</a>
+                    class="btn btn-dark btn-sm" role="button">編輯付款項目備註</a>
             @endcan
         </div>
     </nav>

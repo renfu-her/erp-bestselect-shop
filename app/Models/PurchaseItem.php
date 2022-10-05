@@ -10,6 +10,7 @@ use App\Helpers\IttmsUtils;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 class PurchaseItem extends Model
@@ -599,6 +600,8 @@ class PurchaseItem extends Model
                 'pcs_items.price as total_price',
                 'pcs_items.num',
                 'pcs_items.memo',
+                'pcs_items.ro_note',
+                'pcs_items.po_note',
                 'pcs_items.product_style_id as style_ids',
                 'usr_users.name',
             )
@@ -606,5 +609,22 @@ class PurchaseItem extends Model
             ->unique('style_ids');
 
         return $result;
+    }
+
+
+    public static function update_purchase_item($parm)
+    {
+        $update = [];
+        if(Arr::exists($parm, 'note')){
+            $update['memo'] = $parm['note'];
+        }
+        if(Arr::exists($parm, 'ro_note')){
+            $update['ro_note'] = $parm['ro_note'];
+        }
+        if(Arr::exists($parm, 'po_note')){
+            $update['po_note'] = $parm['po_note'];
+        }
+
+        self::where('id', $parm['purchase_item_id'])->update($update);
     }
 }

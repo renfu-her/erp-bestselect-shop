@@ -78,7 +78,7 @@
                     <th scope="col" width="8%" style="padding-bottom:7px;text-align: right;">數量</th>
                     <th scope="col" width="8%" style="padding-bottom:7px;text-align: right;">單價</th>
                     <th scope="col" width="10%" style="padding-bottom:7px;text-align: right;">應付金額</th>
-                    <th scope="col" width="34%" style="padding-bottom:7px;">備註</th>
+                    <th scope="col" width="34%" style="padding-bottom:7px;" colspan="2">備註</th>
                 </tr>
                 </thead>
                 <tbody style="text-align: left;">
@@ -88,7 +88,8 @@
                         <td style="text-align: right;">{{ number_format(1) }}</td>
                         <td style="text-align: right;">{{ number_format($consignmentData->lgt_cost, 2) }}</td>
                         <td style="text-align: right;">{{ number_format($consignmentData->lgt_cost) }}</td>
-                        <td>@php echo $consignmentData->lgt_memo ?? '' @endphp</td>
+                        <td>{!! nl2br(e($consignmentData->lgt_memo)) !!}</td>
+                        <td>{!! nl2br(e($consignmentData->lgt_po_note)) !!}</td>
                     </tr>
                 @endif
                 </tbody>

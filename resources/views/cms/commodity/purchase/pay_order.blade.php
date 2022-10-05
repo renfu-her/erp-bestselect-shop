@@ -45,7 +45,10 @@
             {{-- <button type="button" class="btn btn-primary">修改</button> --}}
             {{-- <button type="button" class="btn btn-primary">修改備註</button> --}}
             {{-- <button type="button" class="btn btn-primary">新增細項</button> --}}
-            {{-- <button type="button" class="btn btn-primary">變更支付對象</button> --}}
+            @if($type == 'final')
+            <a href="{{ route('cms.collection_payment.edit_note', ['id' => $payOrdId]) }}"
+                class="btn btn-dark btn-sm" role="button">編輯付款項目備註</a>
+            @endif
         </div>
     </nav>
 
@@ -98,7 +101,7 @@
                                 <th scope="col" class="text-end">數量</th>
                                 <th scope="col" class="text-end">單價</th>
                                 <th scope="col" class="text-end">應付金額</th>
-                                <th scope="col">備註</th>
+                                <th scope="col" colspan="2">備註</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -108,7 +111,8 @@
                                 <td class="text-end">1</td>
                                 <td class="text-end">{{ number_format($depositPaymentData->price, 2) }}</td>
                                 <td class="text-end">{{ number_format($depositPaymentData->price) }}</td>
-                                <td>@php echo $depositPaymentData->memo @endphp</td>
+                                <td>{!! nl2br(e($depositPaymentData->memo)) !!}</td>
+                                <td></td>
                             </tr>
                         @elseif($type === 'final')
                             @foreach($purchaseItemData as $purchaseItem)
@@ -117,7 +121,8 @@
                                     <td class="text-end">{{ $purchaseItem->num }}</td>
                                     <td class="text-end">{{ number_format($purchaseItem->total_price / $purchaseItem->num, 2) }}</td>
                                     <td class="text-end">{{ number_format($purchaseItem->total_price) }}</td>
-                                    <td>@php echo $purchaseItem->memo @endphp</td>
+                                    <td>{!! nl2br(e($purchaseItem->memo)) !!}</td>
+                                    <td>{!! nl2br(e($purchaseItem->po_note)) !!}</td>
                                 </tr>
                             @endforeach
                             @if($logisticsPrice > 0)
@@ -126,7 +131,8 @@
                                     <td class="text-end"></td>
                                     <td class="text-end"></td>
                                     <td class="text-end">{{ number_format($logisticsPrice) }}</td>
-                                    <td>@php echo $purchaseData->logistics_memo @endphp</td>
+                                    <td>{!! nl2br(e($purchaseData->logistics_memo)) !!}</td>
+                                    <td>{!! nl2br(e($purchaseData->logistics_po_note)) !!}</td>
                                 </tr>
                             @endif
                             @if(!is_null($depositPaymentData))
@@ -135,7 +141,8 @@
                                     <td class="text-end">1</td>
                                     <td class="text-end">-{{ number_format($depositPaymentData->price, 2) }}</td>
                                     <td class="text-end">-{{ number_format($depositPaymentData->price) }}</td>
-                                    <td>@php echo $depositPaymentData->memo @endphp</td>
+                                    <td>{!! nl2br(e($depositPaymentData->memo)) !!}</td>
+                                    <td></td>
                                 </tr>
                             @endif
                         @endif
@@ -155,6 +162,7 @@
                                         {{ number_format($finalPaymentPrice) }}
                                     @endif
                                 </td>
+                                <td></td>
                                 <td></td>
                             </tr>
                         </tfoot>
