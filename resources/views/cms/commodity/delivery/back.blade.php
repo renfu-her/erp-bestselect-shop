@@ -147,7 +147,7 @@
 
                                 <td>
                                     <input type="text" name="btitle[{{ $i }}]"
-                                           value="{{ old('btitle.' . $i, $items[$i]->title ?? '') }}"
+                                           value="{{ old('btitle.' . $i, $items[$i]->product_title ?? '') }}"
                                            class="d-target form-control form-control-sm @error('btitle.' . $i) is-invalid @enderror"
                                            aria-label="項目" placeholder="請輸入項目" disabled>
                                 </td>
