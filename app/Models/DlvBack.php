@@ -46,7 +46,7 @@ class DlvBack extends Model
                 , 'l_grade.name as grade_name'
                 , 'dlv_backoth.grade_id'
                 , 'dlv_backoth.type'
-                , 'dlv_backoth.title'
+                , 'dlv_backoth.product_title'
                 , 'dlv_backoth.price'
                 , 'dlv_backoth.qty'
                 , 'dlv_backoth.memo'

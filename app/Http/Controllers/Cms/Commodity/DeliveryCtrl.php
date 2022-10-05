@@ -383,7 +383,7 @@ class DeliveryCtrl extends Controller
                             DlvBack::where('id', '=', $input_other_items['back_item_id'][$key])->update([
                                 'grade_id' => $input_other_items['bgrade_id'][$key],
                                 'type' => $input_other_items['btype'][$key],
-                                'title' => $input_other_items['btitle'][$key],
+                                'product_title' => $input_other_items['btitle'][$key],
                                 'price' => $input_other_items['bprice'][$key],
                                 'qty' => $input_other_items['bqty'][$key],
                                 'memo' => $input_other_items['bmemo'][$key],
@@ -396,12 +396,11 @@ class DeliveryCtrl extends Controller
                                 'delivery_id' => $delivery_id,
                                 'grade_id' => $input_other_items['bgrade_id'][$key],
                                 'type' => $input_other_items['btype'][$key],
-                                'title' => $input_other_items['btitle'][$key],
+                                'product_title' => $input_other_items['btitle'][$key],
                                 'price' => $input_other_items['bprice'][$key],
                                 'qty' => $input_other_items['bqty'][$key],
                                 'memo' => $input_other_items['bmemo'][$key],
                                 'sku' => '',
-                                'product_title' => '',
                                 'origin_qty' => 0,
                                 'bonus' => '',
                             ]);
