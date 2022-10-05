@@ -11,7 +11,7 @@
                     <select class="form-select -select2 -single" name="client_key" aria-label="客戶" data-placeholder="請選擇客戶" required>
                         <option value="" selected disabled>請選擇</option>
                         @foreach ($client as $value)
-                            <option value="{{ $value['id'] . '|' . $value['name'] }}" {{ $value['id'] . '|' . $value['name'] == old('client_key') ? 'selected' : '' }}>{{ $value['name'] }}</option>
+                            <option value="{{ $value['id'] . '|' . $value['name'] }}" {{ $value['id'] . '|' . $value['name'] == old('client_key') ? 'selected' : '' }}>{{ $value['name'] . ' - ' . ($value['email'] ?? $value['id']) }}</option>
                         @endforeach
                     </select>
                 </div>

@@ -497,6 +497,7 @@
      * @param {*} $table 資料的表格
      * @param {*} $fieldset 選擇欄位Checkbox的容器
      * @param {*} defaultHide 預設隱藏的欄位 (預設全顯示)
+     * @param {*} type 選項類型 (預設fieldset): dropdown 下拉
      */
      window.setPrintTrCheckbox = function ($table, $fieldset, defaultHide = [], type = '') {
         const $th = $table.find('thead tr > *');
