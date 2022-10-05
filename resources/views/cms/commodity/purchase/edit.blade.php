@@ -368,7 +368,7 @@
                         </div>
                         <div class="col-12 col-sm-6 mb-3">
                             <label class="form-label">發票號碼</label>
-                            <input class="form-control" name="invoice_num" type="text" placeholder="請輸入發票號碼" maxlength="10"
+                            <input class="form-control" name="invoice_num" type="text" placeholder="請輸入發票號碼" maxlength="80"
                                 aria-label="發票號碼" value="{{ old('invoice_num', $purchaseData->invoice_num  ?? '') }}">
                         </div>
                         <div class="col-12 col-sm-6 mb-3">
