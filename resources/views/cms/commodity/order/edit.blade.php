@@ -136,7 +136,7 @@
                             <div class="input-group">
                                 <input type="text" class="form-control -recommender"  value="{{ old('mcode', $mcode ?? '') }}" 
                                     placeholder="請輸入推薦人編號" aria-label="推薦人編號">
-                                <button class="btn btn-outline-danger -del" type="button">
+                                <button class="btn btn-outline-danger -del" type="button" data-bs-toggle="tooltip" title="清空">
                                     <i class="bi bi-trash3"></i>
                                 </button>
                             </div>
