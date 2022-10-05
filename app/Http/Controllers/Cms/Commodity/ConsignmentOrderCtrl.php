@@ -318,6 +318,7 @@ class ConsignmentOrderCtrl extends Controller
     public function print_order_ship(Request $request, $id)
     {
         $query = $request->query();
+        $ptype = empty($query['type']) ? 'M1': $query['type'];
         $consignmentData  = CsnOrder::getData($id)->get()->first();
         $consignmentItemData = CsnOrderItem::getData($id)->get();
 
@@ -346,6 +347,7 @@ class ConsignmentOrderCtrl extends Controller
 
         return view('doc.print_csnorder_order', [
             'type' => 'ship',
+            'ptype' => $ptype,
             'id' => $id,
             'user' => $request->user(),
             'consignmentData' => $consignmentData,
