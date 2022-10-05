@@ -237,10 +237,10 @@ class PurchaseInbound extends Model
         }
         return DB::transaction(function () use (
             $id,
-            $user_id
+            $user_id,
+            $inboundData,
+            $inboundDataGet
         ) {
-            $inboundData = PurchaseInbound::where('id', '=', $id);
-            $inboundDataGet = $inboundData->get()->first();
             if (null != $inboundDataGet) {
                 $event = $inboundDataGet->event;
 
