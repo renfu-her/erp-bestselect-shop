@@ -20,6 +20,7 @@ use App\Models\DayEnd;
 use App\Models\Delivery;
 use App\Models\Depot;
 use App\Models\GeneralLedger;
+use App\Models\Logistic;
 use App\Models\NotePayableOrder;
 use App\Models\Order;
 use App\Models\OrderItem;
@@ -369,7 +370,18 @@ class CollectionPaymentCtrl extends Controller
             DB::beginTransaction();
 
             try {
-                if($paying_order->source_type == 'ord_orders' && $paying_order->source_sub_id == null){
+                if($paying_order->source_type == 'ord_orders' && $paying_order->source_sub_id != null){
+                    if (request('item') && is_array(request('item'))) {
+                        $logistic_item = request('item');
+                        foreach ($logistic_item as $key => $value) {
+                            $logistic_id = $key;
+                            Logistic::where('id', $logistic_id)->update([
+                                'memo' => $value['note'],
+                            ]);
+                        }
+                    }
+
+                } else if($paying_order->source_type == 'ord_orders' && $paying_order->source_sub_id == null){
                     if (request('item') && is_array(request('item'))) {
                         $order_item = request('item');
                         foreach ($order_item as $key => $value) {
@@ -401,7 +413,21 @@ class CollectionPaymentCtrl extends Controller
 
         } else if ($request->isMethod('get')) {
 
-            if($paying_order->source_type == 'ord_orders' && $paying_order->source_sub_id == null){
+            if($paying_order->source_type == 'ord_orders' && $paying_order->source_sub_id != null){
+                $order = Order::findOrFail($paying_order->source_id);
+                $sub_order = Order::subOrderDetail($paying_order->source_id, $paying_order->source_sub_id, true)->get()->toArray()[0];
+
+                $item_list_data[] = (object)[
+                    'item_id' => $sub_order->logistic_id,
+                    'title' => AllGrade::find($paying_order->logistics_grade_id)->eachGrade->name . ' ' . $sub_order->ship_group_name . ' #' . ($sub_order->projlgt_order_sn ?? $sub_order->package_sn),
+                    'price' => $sub_order->logistic_cost,
+                    'qty' => 1,
+                    'total_price' => $sub_order->logistic_cost,
+                    'note' => $sub_order->logistic_memo,
+                    'po_note' => null,
+                ];
+
+            } else if($paying_order->source_type == 'ord_orders' && $paying_order->source_sub_id == null){
                 $order = Order::findOrFail($paying_order->source_id);
                 $order_item = OrderItem::item_order($paying_order->source_id)->get();
                 $item_list_data = [];

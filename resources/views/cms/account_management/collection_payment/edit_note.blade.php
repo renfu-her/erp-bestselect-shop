@@ -13,8 +13,12 @@
                             <th scope="col">摘要說明</th>
                             <th scope="col" class="text-end">數量</th>
                             <th scope="col" class="text-end">金額</th>
+                            @if($paying_order->type == 1)
+                            <th scope="col">備註</th>
+                            @elseif($paying_order->type == 9)
                             <th scope="col">備註</th>
                             <th scope="col">付款項目備註</th>
+                            @endif
                         </tr>
                     </thead>
 
@@ -29,8 +33,12 @@
                                 <td>{{ $value->title }}</td>
                                 <td class="text-end">{{ $value->qty }}</td>
                                 <td class="text-end">{{ number_format($value->total_price, 2) }}</td>
+                                @if($paying_order->type == 1)
+                                <td><textarea class="form-control form-control-sm -l" name="item[{{ $value->item_id }}][note]" placeholder="物流備註">{{ $value->note }}</textarea></td>
+                                @elseif($paying_order->type == 9)
                                 <td><input class="form-control form-control-sm -l" name="item[{{ $value->item_id }}][note]" type="text" value="{{ $value->note }}"></td>
                                 <td><input class="form-control form-control-sm -l" name="item[{{ $value->item_id }}][po_note]" type="text" value="{{ $value->po_note }}"></td>
+                                @endif
                             </tr>
                             @php
                                 $serial++;
