@@ -39,7 +39,6 @@ use App\Models\PayableRemit;
 use App\Models\PayableForeignCurrency;
 use App\Models\PayableOther;
 use App\Models\PayableDefault;
-use App\Models\PayingOrder;
 use App\Models\ProductStock;
 use App\Models\ProductStyle;
 use App\Models\PurchaseInbound;
