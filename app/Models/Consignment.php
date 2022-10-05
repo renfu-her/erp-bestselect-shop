@@ -109,14 +109,18 @@ class Consignment extends Model
                     }
                 }
                 $curr_date = date('Y-m-d H:i:s');
-                self::where('id', $id)->update([
+                $updateArr = [
                     "scheduled_date" => $purchaseReq['scheduled_date'] ?? null,
                     "memo" => $purchaseReq['order_memo'] ?? null,
-                    "audit_date" => $curr_date,
-                    "audit_user_id" => $operator_user_id,
-                    "audit_user_name" => $operator_user_name,
-                    "audit_status" => $purchaseReq['audit_status'] ?? App\Enums\Consignment\AuditStatus::unreviewed()->value,
-                ]);
+                ];
+                //判斷變更審核狀態 才寫入審核人員
+                if ($purchase->getRawOriginal('audit_status') != $purchaseReq['audit_status']) {
+                    $updateArr['audit_date'] = $curr_date;
+                    $updateArr['audit_user_id'] = $operator_user_id;
+                    $updateArr['audit_user_name'] = $operator_user_name;
+                    $updateArr['audit_status'] = $purchaseReq['audit_status'] ?? App\Enums\Consignment\AuditStatus::unreviewed()->value;
+                }
+                self::where('id', $id)->update($updateArr);
 
                 $user = new \stdClass();
                 $user->id = $operator_user_id;

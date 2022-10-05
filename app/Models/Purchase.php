@@ -188,10 +188,13 @@ class Purchase extends Model
                     ];
 
                     $curr_date = date('Y-m-d H:i:s');
-                    $updArr['audit_date'] = $curr_date;
-                    $updArr['audit_user_id'] = $operator_user_id;
-                    $updArr['audit_user_name'] = $operator_user_name;
-                    $updArr['audit_status'] = $purchaseReq['audit_status'] ?? App\Enums\Consignment\AuditStatus::unreviewed()->value;
+                    //判斷變更審核狀態 才寫入審核人員
+                    if ($purchase->getRawOriginal('audit_status') != $purchaseReq['audit_status']) {
+                        $updArr['audit_date'] = $curr_date;
+                        $updArr['audit_user_id'] = $operator_user_id;
+                        $updArr['audit_user_name'] = $operator_user_name;
+                        $updArr['audit_status'] = $purchaseReq['audit_status'] ?? App\Enums\Consignment\AuditStatus::unreviewed()->value;
+                    }
                 } else {
                     $updArr = [
                         "supplier_sn" => $purchaseReq['supplier_sn'] ?? null,
