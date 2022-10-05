@@ -303,7 +303,7 @@ class PurchaseInbound extends Model
                         DB::rollBack();
                         return $rePSSC;
                     }
-                    $inboundData->delete();
+                    $inboundData->forceDelete();
                     return ['success' => 1, 'error_msg' => ""];
                 }
             } else {
