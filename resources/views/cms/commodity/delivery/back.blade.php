@@ -136,9 +136,11 @@
                                     <select class="select-check form-select form-select-sm -select2 -single @error('btype.' . $i) is-invalid @enderror" name="btype[{{ $i }}]" data-placeholder="請選擇類別">
                                         <option value="" selected disabled>請選擇類別 {{ $items[$i]->type ?? 'aa' }}</option>
                                         @foreach( \App\Enums\DlvBack\DlvBackType::asArray() as $backType)
+                                            @if(\App\Enums\DlvBack\DlvBackType::product()->value != $backType)
                                             <option value="{{ $backType }}"
                                                     @if($backType == ($items[$i]->type ?? null)) selected @endif
                                             > {{ \App\Enums\DlvBack\DlvBackType::getDescription($backType) }}</option>
+                                            @endif
                                         @endforeach
                                     </select>
                                 </td>

@@ -206,7 +206,7 @@
                             <th scope="row">{{ $key + 1 }}</th>
                             <td class="wrap lh-sm">{{ $val_dli->grade_code }} {{ $val_dli->grade_name }}</td>
                             <td>{{ \App\Enums\DlvBack\DlvBackType::getDescription($val_dli->type) }}</td>
-                            <td class="wrap lh-sm">{{ $val_dli->title }}</td>
+                            <td class="wrap lh-sm">{{ $val_dli->product_title }}</td>
                             <td class="text-end">{{ $val_dli->price }}</td>
                             <td class="text-center">{{ $val_dli->qty }}</td>
                             <td>{{ $val_dli->memo ?? '' }}</td>

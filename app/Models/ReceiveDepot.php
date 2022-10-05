@@ -4,8 +4,8 @@ namespace App\Models;
 
 use App\Enums\Delivery\Event;
 use App\Enums\Delivery\LogisticStatus;
+use App\Enums\DlvBack\DlvBackType;
 use App\Enums\Purchase\LogEventFeature;
-use App\Enums\StockEvent;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
