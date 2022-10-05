@@ -20,6 +20,7 @@ use App\Models\DayEnd;
 use App\Models\Delivery;
 use App\Models\Depot;
 use App\Models\ProductStock;
+use App\Models\ProductStyle;
 use App\Models\PurchaseInbound;
 use App\Models\PurchaseLog;
 use App\Models\ReceiveDepot;
@@ -109,6 +110,7 @@ class ConsignmentCtrl extends Controller
             'send_depot_id' => 'required|numeric',
             'receive_depot_id' => 'required|numeric',
             'scheduled_date' => 'required|string',
+            'order_memo' => 'present',
             'product_style_id.*' => 'required|numeric|distinct',
             'name.*' => 'required|string',
             'prd_type.*' => 'required|string',
@@ -118,7 +120,7 @@ class ConsignmentCtrl extends Controller
         ]);
         $query = $request->query();
 
-        $csnReq = $request->only('send_depot_id', 'receive_depot_id', 'scheduled_date');
+        $csnReq = $request->only('send_depot_id', 'receive_depot_id', 'scheduled_date', 'order_memo');
         $csnItemReq = $request->only('product_style_id', 'name', 'prd_type', 'sku', 'num', 'price', 'memo');
 //        $purchasePayReq = $request->only('logistics_price', 'logistics_memo', 'invoice_num', 'invoice_date');
 
@@ -131,7 +133,7 @@ class ConsignmentCtrl extends Controller
         ) {
             $reCsn = Consignment::createData($send_depot->id, $send_depot->name, $receive_depot->id, $receive_depot->name
                 , $request->user()->id, $request->user()->name
-                , $csnReq['scheduled_date']);
+                , $csnReq['scheduled_date'] , $csnReq['order_memo']);
 
             $consignmentID = null;
             if (isset($reCsn['id'])) {
@@ -192,11 +194,19 @@ class ConsignmentCtrl extends Controller
     {
         $query = $request->query();
         $consignmentData  = Consignment::getDeliveryData($id)->get()->first();
-        $consignmentItemData = ConsignmentItem::getOriginInboundDataList($id)->get();
+        $consignmentItemData = ConsignmentItem::getOriginInboundDataList($id)
+            ->leftJoin(app(ProductStyle::class)->getTable() . ' as style', 'style.id', '=', 'items.product_style_id')
+            ->addSelect('style.in_stock')
+            ->get();
 
         if (!$consignmentData) {
             return abort(404);
         }
+
+        $delivery = DB::table('dlv_delivery')
+            ->where('dlv_delivery.event_id', '=', $consignmentData->consignment_id)
+            ->where('dlv_delivery.event', '=', Event::consignment()->value)
+            ->first();
         $rcv_depot = ReceiveDepot::getDataList(['delivery_id' => $consignmentData->dlv_id])->get();
         $consumeItems = Consum::getConsumWithEvent(Event::consignment()->value, $id)->get()->toArray();
 
@@ -205,6 +215,7 @@ class ConsignmentCtrl extends Controller
             'query' => $query,
             'consignmentData' => $consignmentData,
             'consignmentItemData' => $consignmentItemData,
+            'delivery' => $delivery,
             'consume_items' => $consumeItems,
             'rcv_depot' => $rcv_depot,
             'method' => 'edit',
@@ -216,6 +227,7 @@ class ConsignmentCtrl extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
+            'order_memo' => 'present',
             'product_style_id.*' => 'required|numeric|distinct',
             'name.*' => 'required|string',
             'sku.*' => 'required|string',
@@ -224,7 +236,7 @@ class ConsignmentCtrl extends Controller
         ]);
         $query = $request->query();
 
-        $csnReq = $request->only('scheduled_date', 'audit_status');
+        $csnReq = $request->only('scheduled_date', 'audit_status', 'order_memo');
         $csnItemReq = $request->only('item_id', 'product_style_id', 'name', 'prd_type', 'sku', 'num', 'price');
 
         //判斷是否有出貨審核，有則不可新增刪除商品款式
@@ -311,7 +323,7 @@ class ConsignmentCtrl extends Controller
                 $user_name = $request->user()->name;
 
                 //判斷audit_status變成核可，則須扣除數量
-                if(AuditStatus::approved()->value == $csnReq['audit_status']){
+                if(AuditStatus::approved()->value != $consignmentData->audit_status && AuditStatus::approved()->value == $csnReq['audit_status']){
                     $stock_note = LogEventFeature::getDescription(LogEventFeature::delivery()->value);
                     foreach($queryCsnItems as $item) {
                         $rePSSC = ProductStock::stockChange($item->product_style_id, $item->num * -1

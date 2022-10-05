@@ -40,21 +40,27 @@ class Order extends Model
     ) {
         $order = DB::table('ord_orders as order')
             ->select(['order.id as id',
+                'order.sn as main_order_sn',
                 'order.status as order_status',
                 'ord_address.name',
                 'sale.title as sale_title',
                 'so.ship_category_name',
-                'so.ship_event', 'so.ship_sn',
+                'so.ship_event',
+                'so.ship_sn',
+                'so.total_price',
                 'dlv_delivery.logistic_status as logistic_status',
                 'dlv_logistic.package_sn as package_sn',
                 'shi_group.name as ship_group_name',
                 'ord_received_orders.sn as or_sn',
                 'so.projlgt_order_sn',
                 'so.package_sn',
+                'ord_items.product_title',
+                'ord_items.sub_order_id',
             ])
             ->selectRaw('DATE_FORMAT(order.created_at,"%Y-%m-%d") as order_date')
             ->selectRaw('so.sn as order_sn')
             ->leftJoin('ord_sub_orders as so', 'order.id', '=', 'so.order_id')
+            ->leftJoin('ord_items', 'so.id', '=', 'ord_items.sub_order_id')
             ->leftJoin('usr_customers as customer', 'order.email', '=', 'customer.email')
             ->leftJoin('prd_sale_channels as sale', 'sale.id', '=', 'order.sale_channel_id')
             ->leftJoin('ord_address', function ($join) {
@@ -127,10 +133,6 @@ class Order extends Model
         }
 
         if ($item_title) {
-            $order->leftJoin('ord_items as ord_items', function ($join) {
-                $join->on('ord_items.order_id', '=', 'so.order_id')
-                    ->on('ord_items.sub_order_id', '=', 'so.id');
-            });
             $order->where(function ($query) use ($item_title) {
                 $query->Where('ord_items.product_title', 'like', "%{$item_title}%")
                     ->orWhere('ord_items.sku', 'like', "%{$item_title}%");
@@ -247,6 +249,8 @@ class Order extends Model
             'img_url' => 'IF(item.img_url IS NULL,"",item.img_url)',
             'total_price' => 'item.origin_price',
             'note' => 'IF(item.note IS NULL,"",item.note)',
+            'ro_note' => 'IF(item.ro_note IS NULL,"",item.ro_note)',
+            'po_note' => 'IF(item.po_note IS NULL,"",item.po_note)',
             'dealer_price' => 'item.dealer_price',
             'item_id' => 'item.id',
         ]);
@@ -414,7 +418,7 @@ class Order extends Model
     public static function createOrder($email, $sale_channel_id, $address, $items, $mcode = null, $note = null, $coupon_obj = null, $payinfo = null, ReceivedMethod $payment = null, $dividend = [], $operator_user)
     {
 
-        $order_sn = Sn::createSn('order','O');
+        $order_sn = Sn::createSn('order', 'O');
         DB::beginTransaction();
 
         $customer = Customer::where('email', $email)->get()->first();
@@ -435,9 +439,9 @@ class Order extends Model
         }
         /*
         $order_sn = "O" . date("Ymd") . str_pad((self::whereDate('created_at', '=', date('Y-m-d'))
-                ->get()
-                ->count()) + 1, 4, '0', STR_PAD_LEFT);
-                */
+        ->get()
+        ->count()) + 1, 4, '0', STR_PAD_LEFT);
+         */
 
         $order['order_sn'] = $order_sn;
         // 處理紅利
@@ -580,6 +584,7 @@ class Order extends Model
                     'origin_price' => $product->origin_price,
                     'img_url' => $product->img_url,
                 ]);
+                ProductStyle::willBeShipped($product->product_style_id, $product->qty);
 
                 Discount::createOrderDiscount('item', $order_id, $customer, $product->discounts, $subOrderId, $pid);
 
@@ -919,6 +924,8 @@ class Order extends Model
         foreach ($items as $item) {
             ProductStock::stockChange($item->product_style_id,
                 $item->qty, 'order', $order_id, $item->sku . "取消訂單");
+
+            ProductStyle::willBeShipped($item->product_style_id, $item->qty * -1);
         }
 
         // 返還使用的優惠券
@@ -1289,4 +1296,27 @@ class Order extends Model
 
         return $re ? true : false;
     }
+
+    public static function orderDividendList($order_id)
+    {
+        $titles = "Case";
+        foreach (DividendCategory::getValues() as $value) {
+            $t = DividendCategory::fromValue($value)->description;
+            $titles .= " WHEN cd.category = \"$value\" THEN \"$t\"";
+        }
+        $titles .= " END as category_title";
+
+        return DB::table('ord_dividend as od')
+            ->leftJoin('usr_cusotmer_dividend as cd', 'od.customer_dividend_id', '=', 'cd.id')
+            ->leftJoin('ord_orders as order', 'od.order_sn', '=', 'order.sn')
+            ->select([
+                'od.dividend as dividend',
+                'cd.category_sn',
+                'cd.category',
+            ])
+            ->selectRaw($titles)
+            ->where('order.id', '=', $order_id);
+
+    }
+
 }

@@ -18,7 +18,7 @@
                                     $client_key = $stitute_order->so_client_id . '|' . $client_name[0];
                                 }
                             @endphp
-                            <option value="{{ $value['id'] . '|' . $value['name'] }}" {{ $value['id'] . '|' . $value['name'] == old('client_key', $client_key) ? 'selected' : '' }}>{{ $value['name'] }}</option>
+                            <option value="{{ $value['id'] . '|' . $value['name'] }}" {{ $value['id'] . '|' . $value['name'] == old('client_key', $client_key) ? 'selected' : '' }}>{{ $value['name'] . ' - ' . ($value['email'] ?? $value['id']) }}</option>
                         @endforeach
                     </select>
                     <div class="invalid-feedback">

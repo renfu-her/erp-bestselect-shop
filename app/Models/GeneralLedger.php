@@ -73,6 +73,7 @@ class GeneralLedger extends Model
                 'acc_company.company',
                 'acc_income_statement.name as category'
             )
+            ->orderBy('acc_second_grade.code')
             ->get();
 
         if (!$stdResult) {
@@ -104,6 +105,7 @@ class GeneralLedger extends Model
                 'acc_company.company',
                 'acc_income_statement.name as category'
             )
+            ->orderBy('acc_third_grade.code')
             ->get();
 
         if (!$stdResult) {
@@ -133,6 +135,7 @@ class GeneralLedger extends Model
                 'acc_company.company',
                 'acc_income_statement.name as category'
             )
+            ->orderBy('acc_fourth_grade.code')
             ->get();
 
         if (!$stdResult) {
@@ -481,7 +484,7 @@ class GeneralLedger extends Model
             }
 
         } else if($type == 'p'){
-            if(in_array($code, [1, 5]) && $price >= 0){
+            if(in_array($code, [1, 5])){
                 $tmp = (object)[
                     'name'=>$name,
                     'price'=>+$price,
@@ -513,6 +516,7 @@ class GeneralLedger extends Model
                     array_push($debit, $tmp);
                 }
 
+            /*
             } else if(in_array($code, [1, 5]) && $price < 0){
                 $tmp = (object)[
                     'name'=>$name,
@@ -546,6 +550,7 @@ class GeneralLedger extends Model
 
                 array_push($credit, $tmp);
 
+            */
             } else if(in_array($code, [2, 3, 4]) && $price >= 0){
                 if( in_array($d_type, ['discount']) && $code == 4){
                     $price = (-$price);
@@ -607,38 +612,6 @@ class GeneralLedger extends Model
                 ];
 
                 array_push($debit, $tmp);
-            } else {
-                // multiple po data - pcs_paying_orders && type == 2
-                $tmp = (object)[
-                    'name'=>$name,
-                    'price'=>+$price,
-                    'type'=>$type,
-                    'd_type'=>$d_type,
-
-                    'account_code'=>$account_code,
-                    'account_name'=>$account_name,
-                    'method_name'=>$method_name,
-                    'summary'=>$summary,
-                    'note'=>$note,
-                    'product_title'=>$product_title,
-                    'del_even'=>$del_even,
-                    'del_category_name'=>$del_category_name,
-                    'product_price'=>$product_price,
-                    'product_qty'=>$product_qty,
-                    'product_owner'=>$product_owner,
-                    'discount_title'=>$discount_title,
-                    'payable_type'=>$payable_type,
-                    'received_info'=>$received_info,
-                ];
-
-                if(in_array($d_type, ['payable'])){
-                    // 貸方
-                    array_push($credit, $tmp);
-
-                } else {
-                    // 借方
-                    array_push($debit, $tmp);
-                }
             }
         }
     }

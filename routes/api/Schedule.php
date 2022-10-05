@@ -11,5 +11,6 @@ Route::group(['prefix' => 'schedule', 'as' => 'schedule.'], function () {
 
     Route::get('customer-report-daily', [ScheduleCtrl::class, 'customerReportDaily']);
     Route::get('customer-report-month', [ScheduleCtrl::class, 'customerReportMonth']);
+    Route::get('user-report-month', [ScheduleCtrl::class, 'userReportMonth']);
 
 });

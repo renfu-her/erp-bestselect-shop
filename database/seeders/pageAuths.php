@@ -64,6 +64,14 @@ return [
                 "cms.stock.index",
                 "瀏覽",
             ],
+            [
+                "cms.stock.export-detail",
+                "匯出庫存明細",
+            ],
+            [
+                "cms.stock.export-check",
+                "匯出盤點明細",
+            ],
         ],
     ],
     [
@@ -98,23 +106,23 @@ return [
                 "刪除",
             ],
             /*
-            [
-                "cms.depot.product-index",
-                "寄倉選品瀏覽",
-            ],
-            [
-                "cms.depot.product-create",
-                "寄倉選品新增",
-            ],
-            [
-                "cms.depot.product-edit",
-                "寄倉選品修改",
-            ],
-            [
-                "cms.depot.product-delete",
-                "寄倉選品刪除",
-            ],
-            */
+        [
+        "cms.depot.product-index",
+        "寄倉選品瀏覽",
+        ],
+        [
+        "cms.depot.product-create",
+        "寄倉選品新增",
+        ],
+        [
+        "cms.depot.product-edit",
+        "寄倉選品修改",
+        ],
+        [
+        "cms.depot.product-delete",
+        "寄倉選品刪除",
+        ],
+         */
         ],
     ],
     [
@@ -268,11 +276,11 @@ return [
                 "刪除",
             ],
             /*
-            [
-                "cms.collection.publish",
-                "公開商品群組",
-            ],
-            */
+        [
+        "cms.collection.publish",
+        "公開商品群組",
+        ],
+         */
         ],
     ],
     [
@@ -768,8 +776,8 @@ return [
             ],
             [
                 'cms.user.salechannel',
-                '通路權限'
-            ]
+                '通路權限',
+            ],
         ],
     ],
     [
@@ -1057,6 +1065,15 @@ return [
             [
                 "cms.customer-profit.edit",
                 "編輯",
+            ],
+        ],
+    ],
+    [
+        "unit" => "業績報表",
+        "permissions" => [
+            [
+                "cms.user-performance-report.index",
+                "瀏覽",
             ],
         ],
     ],

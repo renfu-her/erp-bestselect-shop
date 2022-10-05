@@ -88,67 +88,86 @@ class OrderInvoice extends Model
                 $source_id_arr = array_unique(array_merge($source_id_arr, $parm['merge_source']));
             }
 
-            foreach($source_id_arr as $o_id){
-                $n_order = Order::orderDetail($o_id)->first();
-                $n_sub_order = Order::subOrderDetail($o_id)->get();
-                foreach ($n_sub_order as $key => $value) {
-                    $n_sub_order[$key]->items = json_decode($value->items);
-                    $n_sub_order[$key]->consume_items = json_decode($value->consume_items);
-                }
-                $n_order_discount = DB::table('ord_discounts')->where([
-                    'order_type'=>'main',
-                    'order_id'=>$o_id,
-                ])->where('discount_value', '>', 0)->get()->toArray();
+            /*
+                foreach($source_id_arr as $o_id){
+                    $n_order = Order::orderDetail($o_id)->first();
+                    $n_sub_order = Order::subOrderDetail($o_id)->get();
+                    foreach ($n_sub_order as $key => $value) {
+                        $n_sub_order[$key]->items = json_decode($value->items);
+                        $n_sub_order[$key]->consume_items = json_decode($value->consume_items);
+                    }
+                    $n_order_discount = DB::table('ord_discounts')->where([
+                        'order_type'=>'main',
+                        'order_id'=>$o_id,
+                    ])->where('discount_value', '>', 0)->get()->toArray();
 
-                foreach($n_sub_order as $s_value){
-                    foreach($s_value->items as $i_value){
-                        $item_name_arr[] = trim(mb_substr(str_replace('|', '｜', $i_value->product_title), 0, 30));
-                        $item_count_arr[] = $i_value->qty;
+                    foreach($n_sub_order as $s_value){
+                        foreach($s_value->items as $i_value){
+                            $item_name_arr[] = trim(mb_substr(str_replace('|', '｜', $i_value->product_title), 0, 30));
+                            $item_count_arr[] = $i_value->qty;
+                            $item_unit_arr[] = '-';
+                            $item_price_arr[] = $i_value->price;
+                            $item_amt_arr[] = $i_value->total_price;
+                            $item_tax_type_arr[] = $i_value->product_taxation == 1 ? 1 : 3;
+
+                            if($i_value->product_taxation == 1){
+                                $amt_sales += round($i_value->total_price/1.05);
+                                $amt += round($i_value->total_price/1.05);
+                            } else if($i_value->product_taxation == 0){
+                                $amt_free += round($i_value->total_price/1);
+                                $amt += round($i_value->total_price/1);
+                            }
+                        }
+                    }
+                    if($n_order->dlv_fee > 0){
+                        $item_name_arr[] = trim(mb_substr(str_replace('|', '｜', '物流費用'), 0, 30));
+                        $item_count_arr[] = 1;
                         $item_unit_arr[] = '-';
-                        $item_price_arr[] = $i_value->price;
-                        $item_amt_arr[] = $i_value->total_price;
-                        $item_tax_type_arr[] = $i_value->product_taxation == 1 ? 1 : 3;
+                        $item_price_arr[] = $n_order->dlv_fee;
+                        $item_amt_arr[] = $n_order->dlv_fee;
+                        $item_tax_type_arr[] = $n_order->dlv_taxation == 1 ? 1 : 3;
 
-                        if($i_value->product_taxation == 1){
-                            $amt_sales += round($i_value->total_price/1.05);
-                            $amt += round($i_value->total_price/1.05);
-                        } else if($i_value->product_taxation == 0){
-                            $amt_free += round($i_value->total_price/1);
-                            $amt += round($i_value->total_price/1);
+                        if($n_order->dlv_taxation == 1){
+                            $amt_sales += round($n_order->dlv_fee/1.05);
+                            $amt += round($n_order->dlv_fee/1.05);
+                        } else if($n_order->dlv_taxation == 0){
+                            $amt_free += round($n_order->dlv_fee/1);
+                            $amt += round($n_order->dlv_fee/1);
+                        }
+                    }
+                    foreach($n_order_discount as $d_value){
+                        $item_name_arr[] = trim(mb_substr(str_replace('|', '｜', $d_value->title), 0, 30));
+                        $item_count_arr[] = 1;
+                        $item_unit_arr[] = '-';
+                        $item_price_arr[] = -$d_value->discount_value;
+                        $item_amt_arr[] = -$d_value->discount_value;
+                        $item_tax_type_arr[] = $d_value->discount_taxation == 1 ? 1 : 3;
+
+                        if($d_value->discount_taxation == 1){
+                            $amt_sales -= round($d_value->discount_value/1.05);
+                            $amt -= round($d_value->discount_value/1.05);
+                        } else if($d_value->discount_taxation == 0){
+                            $amt_free -= round($d_value->discount_value/1);
+                            $amt -= round($d_value->discount_value/1);
                         }
                     }
                 }
-                if($n_order->dlv_fee > 0){
-                    $item_name_arr[] = trim(mb_substr(str_replace('|', '｜', '物流費用'), 0, 30));
-                    $item_count_arr[] = 1;
-                    $item_unit_arr[] = '-';
-                    $item_price_arr[] = $n_order->dlv_fee;
-                    $item_amt_arr[] = $n_order->dlv_fee;
-                    $item_tax_type_arr[] = $n_order->dlv_taxation == 1 ? 1 : 3;
+            */
 
-                    if($n_order->dlv_taxation == 1){
-                        $amt_sales += round($n_order->dlv_fee/1.05);
-                        $amt += round($n_order->dlv_fee/1.05);
-                    } else if($n_order->dlv_taxation == 0){
-                        $amt_free += round($n_order->dlv_fee/1);
-                        $amt += round($n_order->dlv_fee/1);
-                    }
-                }
-                foreach($n_order_discount as $d_value){
-                    $item_name_arr[] = trim(mb_substr(str_replace('|', '｜', $d_value->title), 0, 30));
-                    $item_count_arr[] = 1;
-                    $item_unit_arr[] = '-';
-                    $item_price_arr[] = -$d_value->discount_value;
-                    $item_amt_arr[] = -$d_value->discount_value;
-                    $item_tax_type_arr[] = $d_value->discount_taxation == 1 ? 1 : 3;
+            foreach($parm['o_title'] as $key => $value){
+                $item_name_arr[] = trim(mb_substr(str_replace('|', '｜', $parm['o_title'][$key]), 0, 30));
+                $item_count_arr[] = $parm['o_qty'][$key];
+                $item_unit_arr[] = '-';
+                $item_price_arr[] = $parm['o_price'][$key];
+                $item_amt_arr[] = $parm['o_total_price'][$key];
+                $item_tax_type_arr[] = $parm['o_taxation'][$key] == 1 ? 1 : 3;
 
-                    if($d_value->discount_taxation == 1){
-                        $amt_sales -= round($d_value->discount_value/1.05);
-                        $amt -= round($d_value->discount_value/1.05);
-                    } else if($d_value->discount_taxation == 0){
-                        $amt_free -= round($d_value->discount_value/1);
-                        $amt -= round($d_value->discount_value/1);
-                    }
+                if($parm['o_taxation'][$key] == 1){
+                    $amt_sales += round($parm['o_total_price'][$key]/1.05);
+                    $amt += round($parm['o_total_price'][$key]/1.05);
+                } else if($parm['o_taxation'][$key] == 0){
+                    $amt_free += round($parm['o_total_price'][$key]/1);
+                    $amt += round($parm['o_total_price'][$key]/1);
                 }
             }
         }
@@ -168,7 +187,6 @@ class OrderInvoice extends Model
         $buyer_email = isset($parm['buyer_email']) ? $parm['buyer_email'] : null;
         $carrier_type = isset($parm['carrier_type']) ? $parm['carrier_type'] : null;
         $carrier_num = isset($parm['carrier_num']) ? trim($parm['carrier_num']) : null;
-        $carrier_email = isset($parm['carrier_email']) ? trim($parm['carrier_email']) : null;
         $love_code = isset($parm['love_code']) ? $parm['love_code'] : null;
 
         $print_flag = $carrier_type != null || $love_code ? 'N' : 'Y';
@@ -356,18 +374,18 @@ class OrderInvoice extends Model
                 ]);
             }
 
-            wToast(__('發票開立成功'));
-            if($status == 1 && $inv_result){
-                $inv_result = self::invoice_issue_api($inv_result->id);
-                wToast(__($inv_result->r_msg));
-            }
+            wToast(__('發票資料新增成功'));
+            // if($status == 1 && $inv_result){
+            //     $inv_result = self::invoice_issue_api($inv_result->id);
+            //     wToast(__($inv_result->r_msg));
+            // }
 
             DB::commit();
 
         } catch (\Exception $e) {
             $inv_result = null;
             // $e->getMessage();
-            wToast(__('發票開立失敗', ['type'=>'danger']));
+            wToast(__('發票資料新增失敗', ['type'=>'danger']));
             DB::rollback();
         }
 
@@ -449,6 +467,23 @@ class OrderInvoice extends Model
 
         return $target;
     }
+
+
+    public static function invoice_invalid_api($id)
+    {
+        // $target = self::find($id);
+
+        // $data = [
+        //     'RespondType' => 'JSON',
+        //     'Version' => '1.0',
+        //     'TimeStamp' => time(),
+        //     'InvoiceNumber' => $target->invoice_number,
+        //     'InvalidReason' => $target->invalid_reason,
+        // ];
+
+        // $api_result = self::api_send('invoice_invalid', $data);
+    }
+
 
     public static function getData($param) {
         $query = DB::table(app(OrderInvoice::class)->getTable(). ' as ord_invoice')

@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 class OrderItem extends Model
@@ -96,9 +98,12 @@ class OrderItem extends Model
                 'ord_sub_orders.ship_event AS del_even',
                 'ord_sub_orders.ship_temp AS del_temp',
 
+                'ord_items.id AS order_item_id',
                 'ord_items.sku AS product_sku',
                 'ord_items.product_title AS product_title',
                 'ord_items.note AS product_note',
+                'ord_items.ro_note AS product_ro_note',
+                'ord_items.po_note AS product_po_note',
                 'ord_items.price AS product_price',
                 'ord_items.qty AS product_qty',
                 'ord_items.origin_price AS product_origin_price',
@@ -113,6 +118,22 @@ class OrderItem extends Model
             );
 
         return $query;
+    }
+
+    public static function update_order_item($parm)
+    {
+        $update = [];
+        if(Arr::exists($parm, 'note')){
+            $update['note'] = $parm['note'];
+        }
+        if(Arr::exists($parm, 'ro_note')){
+            $update['ro_note'] = $parm['ro_note'];
+        }
+        if(Arr::exists($parm, 'po_note')){
+            $update['po_note'] = $parm['po_note'];
+        }
+
+        self::where('id', $parm['order_item_id'])->update($update);
     }
 
     public static function itemList($order_id, $options = [])

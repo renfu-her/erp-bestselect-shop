@@ -9,6 +9,7 @@
     @php
         $hasCreatedFinalPayment = $hasCreatedFinalPayment ?? false;
         $consignmentData = $consignmentData ?? null;
+        $editable = false == (isset($delivery) && isset($delivery->audit_date));
     @endphp
 
     @if ($consignmentData->audit_status == App\Enums\Consignment\AuditStatus::approved()->value)
@@ -22,75 +23,79 @@
         </nav>
     @endif
 
-    <div class="card shadow p-4 mb-4">
-        <h6>寄倉單明細</h6>
-        <dl class="row">
-            <div class="col">
-                <dt>寄倉單編號</dt>
-                <dd>{{ $consignmentData->consignment_sn }}</dd>
-            </div>
-            <div class="col">
-                <dt>建單時間</dt>
-                <dd>{{ date('Y/m/d', strtotime($consignmentData->created_at)) }}</dd>
-            </div>
-            <div class="col-sm-5">
-                <dt>建單人員</dt>
-                <dd>{{ $consignmentData->create_user_name }}</dd>
-            </div>
-        </dl>
-        <dl class="row">
-            <div class="col">
-                <dt>審核人員</dt>
-                <dd>{{ $consignmentData->audit_user_name ?? '-' }}</dd>
-            </div>
-            <div class="col">
-                <dt>審核日期</dt>
-                <dd>{{ date('Y/m/d', strtotime($consignmentData->audit_date)) ?? '-' }}</dd>
-            </div>
-            <div class="col-sm-5">
-                <dt></dt>
-                <dd></dd>
-            </div>
-        </dl>
-        <dl class="row">
-            <div class="col">
-                <dt>寄件倉</dt>
-                <dd>{{ $consignmentData->send_depot_name ?? '-' }}</dd>
-            </div>
-            <div class="col">
-                <dt>寄件倉電話</dt>
-                <dd>{{ $consignmentData->send_depot_tel ?? '-' }}</dd>
-            </div>
-            <div class="col-sm-5">
-                <dt>寄件倉地址</dt>
-                <dd>{{ $consignmentData->send_depot_address ?? '-' }}</dd>
-            </div>
-        </dl>
-        <dl class="row">
-            <div class="col">
-                <dt>收件倉</dt>
-                <dd>{{ $consignmentData->receive_depot_name ?? '-' }}</dd>
-            </div>
-            <div class="col">
-                <dt>收件倉電話</dt>
-                <dd>{{ $consignmentData->receive_depot_tel ?? '-' }}</dd>
-            </div>
-            <div class="col-sm-5">
-                <dt>收件倉地址</dt>
-                <dd>{{ $consignmentData->receive_depot_address ?? '-' }}</dd>
-            </div>
-        </dl>
-        <dl class="row">
-            <div class="col-auto" style="width: calc(100%/12*8.5);">
-                <dt>寄倉單備註</dt>
-                <dd>{{ $consignmentData->memo ?? '-' }}</dd>
-            </div>
-        </dl>
-    </div>
-
     <form id="form1" method="post" action="{{ $formAction }}">
         @method('POST')
         @csrf
+        <div class="card shadow p-4 mb-4">
+            <h6>寄倉單明細</h6>
+            <dl class="row">
+                <div class="col">
+                    <dt>寄倉單編號</dt>
+                    <dd>{{ $consignmentData->consignment_sn }}</dd>
+                </div>
+                <div class="col">
+                    <dt>建單時間</dt>
+                    <dd>{{ date('Y/m/d', strtotime($consignmentData->created_at)) }}</dd>
+                </div>
+                <div class="col-sm-5">
+                    <dt>建單人員</dt>
+                    <dd>{{ $consignmentData->create_user_name }}</dd>
+                </div>
+            </dl>
+            <dl class="row">
+                <div class="col">
+                    <dt>審核人員</dt>
+                    <dd>{{ $consignmentData->audit_user_name ?? '-' }}</dd>
+                </div>
+                <div class="col">
+                    <dt>審核日期</dt>
+                    <dd>{{ date('Y/m/d', strtotime($consignmentData->audit_date)) ?? '-' }}</dd>
+                </div>
+                <div class="col-sm-5">
+                    <dt></dt>
+                    <dd></dd>
+                </div>
+            </dl>
+            <dl class="row">
+                <div class="col">
+                    <dt>寄件倉</dt>
+                    <dd>{{ $consignmentData->send_depot_name ?? '-' }}</dd>
+                </div>
+                <div class="col">
+                    <dt>寄件倉電話</dt>
+                    <dd>{{ $consignmentData->send_depot_tel ?? '-' }}</dd>
+                </div>
+                <div class="col-sm-5">
+                    <dt>寄件倉地址</dt>
+                    <dd>{{ $consignmentData->send_depot_address ?? '-' }}</dd>
+                </div>
+            </dl>
+            <dl class="row">
+                <div class="col">
+                    <dt>收件倉</dt>
+                    <dd>{{ $consignmentData->receive_depot_name ?? '-' }}</dd>
+                </div>
+                <div class="col">
+                    <dt>收件倉電話</dt>
+                    <dd>{{ $consignmentData->receive_depot_tel ?? '-' }}</dd>
+                </div>
+                <div class="col-sm-5">
+                    <dt>收件倉地址</dt>
+                    <dd>{{ $consignmentData->receive_depot_address ?? '-' }}</dd>
+                </div>
+            </dl>
+
+            <dl class="row">
+                <div class="col-auto" style="width: calc(100%/12*8.5);">
+                    <dt>寄倉單備註</dt>
+                    @if(null == $consignmentData || (isset($consignmentData) && true == $editable))
+                        <textarea id="order_memo" name="order_memo" class="form-control" rows="3">{{ old('order_memo', $consignmentData->memo  ?? '') }}</textarea>
+                    @else
+                        <dd>{{ $consignmentData->memo ?? '-' }}</dd>
+                    @endif
+                </div>
+            </dl>
+        </div>
 
         @php
             $editable = !$hasCreatedFinalPayment && $consignmentData->close_date == null
@@ -146,6 +151,7 @@
                                 <th scope="col">採購入庫單號</th>
                                 <th scope="col">狀態</th>
                                 <th scope="col">入庫人員</th>
+                                <th scope="col">目前可售數量</th>
                             </tr>
                         </thead>
                         <tbody class="-appendClone --selectedP">
@@ -206,9 +212,10 @@
                                     </td>
                                     <td data-td="price" class="text-end">$ {{ old('price.'. $psItemKey, $psItemVal->price ?? '') }}</td>
                                     <td data-td="total" class="text-end">$ 0</td>
-                                    <td data-td="inbound_type">{{$psItemVal->origin_inbound_sn ?? ''}}</td>
-                                    <td data-td="inbound_type">{{$psItemVal->inbound_type ?? ''}}</td>
-                                    <td data-td="inbound_user_name">{{$psItemVal->inbound_user_name ?? ''}}</td>
+                                    <td data-td="origin_inbound_sn">{{ old('origin_inbound_sn.'. $psItemKey, $psItemVal->origin_inbound_sn ?? '') }}</td>
+                                    <td data-td="inbound_type">{{ old('inbound_type.'. $psItemKey, $psItemVal->inbound_type ?? '') }}</td>
+                                    <td data-td="inbound_user_name">{{ old('inbound_user_name.'. $psItemKey, $psItemVal->inbound_user_name ?? '') }}</td>
+                                    <td data-td="in_stock">{{ old('in_stock.'. $psItemKey, $psItemVal->in_stock ?? '') }}</td>
                                 </tr>
                             @endforeach
                         @endif
@@ -615,12 +622,13 @@
                                 <input type="hidden" data-td="name" value="${p.product_title}">
                                 <input type="hidden" data-td="spec" value="${p.spec || ''}">
                                 <input type="hidden" data-td="price" value="${p.depot_price}">
+                                <input type="hidden" data-td="in_stock" value="${p.in_stock}">
                             </th>
                             <td data-td="name">${p.product_title}</td>
                             <td data-td="spec">${p.spec || ''}</td>
                             <td data-td="sku">${p.sku}</td>
                             <td>${p.total_in_stock_num}</td>
-                            <td>${p.in_stock}</td>
+                            <td data-td="in_stock">${p.in_stock}</td>
                             <td data-td="price">$ ${formatNumber(p.depot_price)}</td>
                         </tr>`);
                         $('#addProduct .-appendClone.--product').append($tr);
@@ -643,7 +651,8 @@
                                 prd_type: $(element).siblings('[data-td="prd_type"]').val(),
                                 sku: sku,
                                 spec: $(element).siblings('[data-td="spec"]').val(),
-                                price: $(element).siblings('[data-td="price"]').val()
+                                price: $(element).siblings('[data-td="price"]').val(),
+                                in_stock: $(element).siblings('[data-td="in_stock"]').val()
                             });
                         }
                     } else {
@@ -689,6 +698,7 @@
                             cloneElem.find('td[data-td="sku"]').text(p.sku);
                             cloneElem.find('input[name="num[]"]').val(1);
                             cloneElem.find('td[data-td="price"], td[data-td="total"]').text(`$ ${formatNumber(p.price)}`);
+                            cloneElem.find('td[data-td="in_stock"]').text(p.in_stock);
                         }
                     }, delItemOption);
                 }

@@ -39,6 +39,7 @@ use App\Models\PayableRemit;
 use App\Models\PayableForeignCurrency;
 use App\Models\PayableOther;
 use App\Models\PayableDefault;
+use App\Models\PayingOrder;
 use App\Models\ProductStock;
 use App\Models\ProductStyle;
 use App\Models\PurchaseInbound;
@@ -48,6 +49,7 @@ use App\Models\ReceiveDepot;
 use App\Models\ShipmentCategory;
 use App\Models\ShipmentGroup;
 use App\Models\SubOrders;
+use App\Models\Temps;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -75,6 +77,8 @@ class DeliveryCtrl extends Controller
         $cond['delivery_sdate'] = Arr::get($query, 'delivery_sdate', null);
         $cond['delivery_edate'] = Arr::get($query, 'delivery_edate', null);
         $cond['has_csn'] = Arr::get($query, 'has_csn', $has_csn[0][0]);
+        $cond['ship_temp_id'] = Arr::get($query, 'ship_temp_id', []);
+        $cond['depot_temp_id'] = Arr::get($query, 'depot_temp_id', []);
 
         $cond['data_per_page'] = getPageCount(Arr::get($query, 'data_per_page'));
 
@@ -96,15 +100,29 @@ class DeliveryCtrl extends Controller
             $order_status[$item] = OrderStatus::getDescription($item);
         }
 
+        $uniqueSubOrderDataList = [];
+        $subOrderIdArray = [];
+        foreach ($delivery as $deliveryDatum) {
+            if (!in_array($deliveryDatum->sub_order_id, $subOrderIdArray)){
+                $subOrderIdArray[] = $deliveryDatum->sub_order_id;
+                $deliveryDatum->productTitles = DB::table('ord_items')
+                    ->where('sub_order_id', $deliveryDatum->sub_order_id)
+                    ->select('product_title')
+                    ->get();
+                $uniqueSubOrderDataList[] = $deliveryDatum;
+            }
+        }
         return view('cms.commodity.delivery.list', [
             'dataList' => $delivery,
+            'uniqueSubOrderDataList' => $uniqueSubOrderDataList,
             'depotList' => Depot::all(),
             'shipmentCategory' => ShipmentCategory::all(),
             'logisticStatus' => LogisticStatus::asArray(),
             'order_status' => $order_status,
             'has_csn' => $has_csn,
             'searchParam' => $cond,
-            'data_per_page' => $cond['data_per_page']]);
+            'data_per_page' => $cond['data_per_page'],
+            'temps' => Temps::get()]);
     }
 
     public function create($event, $eventId)
@@ -323,6 +341,7 @@ class DeliveryCtrl extends Controller
                         ]);
                     }
                 } else {
+                    $data = [];
                     for($i = 0; $i < count($input_items['id']); $i++) {
                         $addItem = [
                             'delivery_id' => $delivery_id,
@@ -337,8 +356,19 @@ class DeliveryCtrl extends Controller
                             'memo' => $input_items['memo'][$i],
                             'show' => $input_items['show'][$i] ?? false,
                         ];
-                        DlvBack::create($addItem);
+						//判斷為訂單 則寫入目前訂單款式的bonus
+                        if (Event::order()->value == $delivery->event) {
+                            $orderItem = DB::table(app(OrderItem::class)->getTable() . ' as order_item')
+                                ->where('order_item.id', '=', $input_items['event_item_id'][$i])
+                                ->select('order_item.id', 'order_item.bonus')
+                                ->first();
+                            if (isset($orderItem)) {
+                                $addItem['bonus'] = $orderItem->bonus;
+                            }
+                        }
+                        $data[] = $addItem;
                     }
+                    DlvBack::insert($data);
                 }
             }
             $input_other_items = $request->only('back_item_id', 'bgrade_id', 'btype', 'btitle', 'bprice', 'bqty', 'bmemo');
@@ -627,7 +657,7 @@ class DeliveryCtrl extends Controller
                 Delivery::where('id', '=', $delivery->id)->update([
                     'back_inbound_user_id' => $request->user()->id
                     , 'back_inbound_user_name' => $request->user()->name
-                    , 'back_inbound_date' => date("Y-m-d H:i:s")
+                    , 'back_inbound_date' => date("Y-m-d H:i:s"),
                 ]);
                 Delivery::changeBackStatus($delivery->id, BackStatus::add_back_inbound());
 
@@ -676,7 +706,7 @@ class DeliveryCtrl extends Controller
                 if (isset($dlvBack) && 0 < count($dlvBack)) {
                     foreach ($dlvBack as $key_back => $val_back) {
                         ReceiveDepot::where('id', '=', $val_back->rcv_depot_id)->update([
-                            'back_qty' => $val_back->qty
+                            'back_qty' => $val_back->qty,
                         ]);
                     }
                 }
@@ -772,7 +802,8 @@ class DeliveryCtrl extends Controller
     }
 
     //找自取倉已入庫 且數量小於欲退數量資料
-    private function getPickUpInboundLessThenBackQtyList($rcv_depot_id, $back_qty) {
+    private function getPickUpInboundLessThenBackQtyList($rcv_depot_id, $back_qty)
+    {
         $pcsInbound_sub = DB::table(app(PurchaseInbound::class)->getTable(). ' as inbound')
             ->where('inbound.event', '=', Event::ord_pickup()->value)
             ->where('inbound.event_id', '=', $rcv_depot_id)
@@ -792,7 +823,8 @@ class DeliveryCtrl extends Controller
         return $pcsInbound_pickup;
     }
 
-    public function back_inbound_delete(Request $request, int $delivery_id) {
+    public function back_inbound_delete(Request $request, int $delivery_id)
+    {
         $delivery = Delivery::where('id', '=', $delivery_id)->get()->first();
         if (false == isset($delivery) || false == isset($delivery->back_inbound_date)) {
             return abort(404);
@@ -816,7 +848,7 @@ class DeliveryCtrl extends Controller
                 Delivery::where('id', '=', $delivery->id)->update([
                     'back_inbound_user_id' => null
                     , 'back_inbound_user_name' => null
-                    , 'back_inbound_date' => null
+                    , 'back_inbound_date' => null,
                 ]);
                 Delivery::changeBackStatus($delivery->id, BackStatus::del_back_inbound());
 
@@ -1076,7 +1108,7 @@ class DeliveryCtrl extends Controller
                     break;
                 case Payment::Cheque:
                     $request->validate([
-                        'cheque.ticket_number'=>'required|unique:acc_payable_cheque,ticket_number,po_delete,status_code|regex:/^[A-Z]{2}[0-9]{7}$/'
+                        'cheque.ticket_number' => 'required|unique:acc_payable_cheque,ticket_number,po_delete,status_code|regex:/^[A-Z]{2}[0-9]{7}$/',
                     ]);
                     PayableCheque::storePayableCheque($req);
                     break;
@@ -1175,3 +1207,4 @@ class DeliveryCtrl extends Controller
         }
     }
 }
+

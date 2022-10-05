@@ -10,6 +10,7 @@ use App\Enums\StockEvent;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class PurchaseInbound extends Model
@@ -57,7 +58,7 @@ class PurchaseInbound extends Model
             ];
 
             $id = self::create($insert_data)->id;
-            $updateLog = PurchaseInbound::updateLog(LogEventFeature::inbound_add()->value, $id, $event, $event_id, $event_item_id, $product_style_id
+            $updateLog = PurchaseInbound::addLogAndUpdateStock(LogEventFeature::inbound_add()->value, $id, $event, $event_id, $event_item_id, $product_style_id
                 , $prd_type, $title, $inbound_num, $can_tally, $memo, $inbound_user_id, $inbound_user_name);
             if ($updateLog['success'] == 0) {
                 DB::rollBack();
@@ -91,7 +92,7 @@ class PurchaseInbound extends Model
                     , 'expiry_date' => $expiry_date
                 ]);
 
-                $updateLog = PurchaseInbound::updateLog(LogEventFeature::inbound_update()->value, $inboundGet->id, $inboundGet->event, $inboundGet->event_id, $inboundGet->event_item_id, $inboundGet->product_style_id
+                $updateLog = PurchaseInbound::addLogAndUpdateStock(LogEventFeature::inbound_update()->value, $inboundGet->id, $inboundGet->event, $inboundGet->event_id, $inboundGet->event_item_id, $inboundGet->product_style_id
                     , $inboundGet->prd_type, $inboundGet->title, $add_qty, $can_tally, $memo, $update_user_id, $update_user_name);
                 if ($updateLog['success'] == 0) {
                     DB::rollBack();
@@ -102,7 +103,7 @@ class PurchaseInbound extends Model
         });
     }
 
-    private static function updateLog($eventFeature, $inbound_id, $event, $event_id, $event_item_id, $product_style_id, $prd_type, $title, $add_qty, $can_tally, $memo, $update_user_id, $update_user_name) {
+    private static function addLogAndUpdateStock($eventFeature, $inbound_id, $event, $event_id, $event_item_id, $product_style_id, $prd_type, $title, $add_qty, $can_tally, $memo, $update_user_id, $update_user_name) {
         return DB::transaction(function () use ($eventFeature, $inbound_id, $event, $event_id, $event_item_id, $product_style_id, $prd_type, $title, $add_qty, $can_tally, $memo, $update_user_id, $update_user_name) {
             $is_pcs_inbound = false;
             //入庫 新增入庫數量
@@ -237,10 +238,10 @@ class PurchaseInbound extends Model
         }
         return DB::transaction(function () use (
             $id,
-            $user_id
+            $user_id,
+            $inboundData,
+            $inboundDataGet
         ) {
-            $inboundData = PurchaseInbound::where('id', '=', $id);
-            $inboundDataGet = $inboundData->get()->first();
             if (null != $inboundDataGet) {
                 $event = $inboundDataGet->event;
 
@@ -292,17 +293,17 @@ class PurchaseInbound extends Model
                         DB::rollBack();
                         return $rePcsItemUAN;
                     }
-                    $rePcsLSC = PurchaseLog::stockChange($purchaseData->id, $inboundDataGet->product_style_id, $event, $inboundDataGet->event_id, LogEventFeature::inbound_del()->value, $id, $qty, null, $inboundDataGet->title, $inboundDataGet->prd_type, $inboundDataGet->inbound_user_id, $inboundDataGet->inbound_user_name);
+                    $rePcsLSC = PurchaseLog::stockChange($purchaseData->id, $inboundDataGet->product_style_id, $event, $inboundDataGet->event_id, LogEventFeature::inbound_del()->value, $id, $qty, null, $inboundDataGet->title, $inboundDataGet->prd_type, Auth::user()->id ?? null, Auth::user()->name ?? null);
                     if ($rePcsLSC['success'] == 0) {
                         DB::rollBack();
                         return $rePcsLSC;
                     }
-                    $rePSSC = ProductStock::stockChange($inboundDataGet->product_style_id, $qty, StockEvent::inbound_del()->value, $id, $inboundDataGet->inbound_user_name . LogEventFeature::inbound_del()->getDescription(LogEventFeature::inbound_del()->value), $is_pcs_inbound, $can_tally);
+                    $rePSSC = ProductStock::stockChange($inboundDataGet->product_style_id, $qty, StockEvent::inbound_del()->value, $id, Auth::user()->name ?? null . LogEventFeature::inbound_del()->getDescription(LogEventFeature::inbound_del()->value), $is_pcs_inbound, $can_tally);
                     if ($rePSSC['success'] == 0) {
                         DB::rollBack();
                         return $rePSSC;
                     }
-                    $inboundData->delete();
+                    $inboundData->forceDelete();
                     return ['success' => 1, 'error_msg' => ""];
                 }
             } else {
@@ -1016,6 +1017,47 @@ class PurchaseInbound extends Model
         $result = $queryInbound_group_pcs_csn;
 
         return $result;
+    }
+
+    //找全部商品款式 整合實際庫存
+    public static function productStyleListWithExistInbound($depot_id, $searchParam)
+    {
+        $extPrdStyleList_send = PurchaseInbound::getExistInboundProductStyleList($depot_id);
+        $products = Product::productStyleList($searchParam['keyword'], $searchParam['type'], $searchParam['stock'],
+            ['supplier' => ['condition' => $searchParam['supplier'], 'show' => true],
+                'user' => ['show' => true, 'condition' => $searchParam['user']],
+                'consume' => $searchParam['consume'] == 'all' ? null : $searchParam['consume'],
+            ])
+
+            ->leftJoinSub($extPrdStyleList_send, 'inbound', function($join) use($depot_id) {
+                //對應到入庫倉可入到進貨倉 相同的product_style_id
+                $join->on('inbound.product_style_id', '=', 's.id');
+                if (null != $depot_id && 0 < count($depot_id)) {
+                    $join->whereIn('inbound.depot_id', $depot_id);
+                }
+            })
+            ->leftJoin('depot', 'depot.id', '=', 'inbound.depot_id')
+            ->addSelect(
+                'inbound.product_style_id'
+//                , 'inbound.event'
+                , 'inbound.depot_id'
+                , 'depot.name as depot_name'
+                , 'inbound.total_inbound_num'
+                , 'inbound.total_sale_num'
+                , 'inbound.total_csn_num'
+                , 'inbound.total_consume_num'
+                , 'inbound.total_back_num'
+                , 'inbound.total_scrap_num'
+                , 'inbound.total_in_stock_num'
+                , 'inbound.total_in_stock_num_csn'
+            );
+        if (null != $depot_id && 0 < count($depot_id)) {
+            $products->whereIn('inbound.depot_id', $depot_id);
+        }
+        if ($searchParam['stock'] && in_array('still_actual_stock', $searchParam['stock'])) {
+            $products->where('inbound.total_in_stock_num', '>', 0);
+        }
+        return $products;
     }
 
     //取得寄倉商品款式現有數量

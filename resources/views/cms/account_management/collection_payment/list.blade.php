@@ -180,9 +180,9 @@
                                 </td>
                                 <td class="wrap">
                                     @if($c_value->payable_type == 0)
-                                    {{$c_value->method_name}}{{$c_value->note ? ' - ' . $c_value->note : ''}} - {{ $data->source_sn }} - {{ $po_sn[0] }}
+                                    {{$c_value->method_name}}{{$c_value->summary ? ' - ' . $c_value->summary : ''}}{{$c_value->note ? ' - ' . $c_value->note : ''}} - {{ $data->source_sn }} - {{ $po_sn[0] }}
                                     @else
-                                    {{$c_value->method_name}}{{$c_value->note ? ' - ' . $c_value->note : ''}} - {{ $data->source_sn }} - {{ count($po_sn) > 1 ? $po_sn[1] : $po_sn[0]  }}
+                                    {{$c_value->method_name}}{{$c_value->summary ? ' - ' . $c_value->summary : ''}}{{$c_value->note ? ' - ' . $c_value->note : ''}} - {{ $data->source_sn }} - {{ count($po_sn) > 1 ? $po_sn[1] : $po_sn[0]  }}
                                     @endif
                                 </td>
                                 <td class="wrap text-end"></td>

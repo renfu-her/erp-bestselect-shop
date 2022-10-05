@@ -103,14 +103,19 @@ class Product extends Model
 
         }
 
-        if (isset($options['collection']) && $options['collection']) {
-
+        //使用在酒類商品搜尋, use strict comparison === '1'
+        if (isset($options['is_liquor']) && $options['is_liquor'] === '1') {
             $re->leftJoin('collection_prd as cprd', 'product.id', '=', 'cprd.product_id_fk')
                 ->leftJoin('collection as colc', 'colc.id', '=', 'cprd.collection_id_fk')
-                ->addSelect(['colc.name as collection_name', 'collection_id_fk'])
-                ->where('cprd.collection_id_fk', '=', $options['collection']);
-
+                ->addSelect([
+                    'colc.name as collection_name',
+                    'collection_id_fk'
+                ])
+                ->groupBy('id')
+                ->where('colc.is_liquor', '=', 1)
+                ->where('colc.is_public', '=', 1);
         }
+
         if (isset($options['category_id']) && $options['category_id']) {
             $re->where('product.category_id', '=', $options['category_id']);
         }
@@ -186,6 +191,10 @@ class Product extends Model
                         'prd_product_shipment.category_id as hasDelivery',
                     );
             }
+        } elseif(isset($options['hasDelivery']) && $options['hasDelivery'] == 'all') {
+            //不限是否設定宅配
+            $re->leftJoin('prd_product_shipment', 'product.id', '=', 'prd_product_shipment.product_id')
+                ->addSelect(['prd_product_shipment.product_id AS hasDelivery']);
         }
 
         if (isset($options['hasSpecList']) && $options['hasSpecList'] != 'all') {
@@ -562,16 +571,34 @@ class Product extends Model
             ->select('id')
             ->get();
 
-        $sale_channel_id = 1;
         $skuData = [];
         foreach ($collections as $collection) {
-            $temp = Product::productList(null, null, [
-                'collection' => $collection->id,
-                'public' => '1',
-                'active_date' => '1',
-                'online' => 'online',
-                'sale_channel_id' => $sale_channel_id,
-            ])
+            $temp = DB::table('prd_products as product')
+                ->select('product.id as id',
+                    'product.title as title',
+                    'product.sku as sku',
+                    'product.type as type',
+                    'product.consume as consume',
+                    'product.online as online',
+                    'product.offline as offline',
+                    'product.public as public')
+                ->selectRaw('CASE product.type WHEN "p" THEN "一般商品" WHEN "c" THEN "組合包商品" END as type_title')
+                ->where('product.public', 1)
+                ->where('online', '1')
+                ->where('product.online', 1)
+                ->where(function ($query) {
+                    $now = date('Y-m-d H:i:s');
+                    $query->where('product.active_sdate', '<=', $now)
+                        ->where('product.active_edate', '>=', $now)
+                        ->orWhereNull('product.active_sdate')
+                        ->orWhereNull('product.active_edate');
+                })
+                ->orderBy('id')
+                ->whereNull('product.deleted_at')
+                ->leftJoin('collection_prd as cprd', 'product.id', '=', 'cprd.product_id_fk')
+                ->leftJoin('collection as colc', 'colc.id', '=', 'cprd.collection_id_fk')
+                ->where('cprd.collection_id_fk', '=', $collection->id)
+                ->addSelect(['colc.name as collection_name', 'collection_id_fk'])
                 ->get();
             if ($temp) {
                 foreach ($temp as $data) {
@@ -1171,6 +1198,7 @@ class Product extends Model
                 'prd.title as title',
                 'sale_channel.price as price',
                 'sale_channel.origin_price as origin_price',
+                'images.id as img_id',
                 'images.url as img_url',
             )
             ->orderBy('price', $isPriceDescend ? 'desc' : 'asc')
@@ -1178,13 +1206,22 @@ class Product extends Model
             //用groupBy(product_id)及transform min(price, origin_price) 取得product_id的不同款式中價錢最小
             ->groupBy('id')
             ->transform(function ($item) {
+                //只取image id排序最小的image url（搜尋時，預覽圖片為第1張)
+                $minImageId = $item->min('img_id');
+                $minImageUrl = $item[0]->img_url;
+                foreach ($item as $datum) {
+                    if($datum->img_id === $minImageId){
+                        $minImageUrl = $datum->img_url;
+                    }
+                }
+
                 return [
                     'id' => $item[0]->id,
                     'sku' => $item[0]->sku,
                     'title' => $item[0]->title,
                     'price' => $item->min('price'),
                     'origin_price' => $item->min('origin_price'),
-                    'img_url' => $item[0]->img_url,
+                    'img_url' => $minImageUrl,
                 ];
             })
         ;

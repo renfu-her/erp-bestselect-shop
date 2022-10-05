@@ -102,7 +102,7 @@
                                 <td class="text-end">{{ number_format($data->num) }}</td>
                                 <td class="text-end">${{ number_format($data->price / $data->num, 2) }}</td>
                                 <td class="text-end">${{ number_format($data->price) }}</td>
-                                <td>{{ $data->memo }}</td>
+                                <td>@php echo $data->memo ?? '' @endphp</td>
                             </tr>
                             @endforeach
                             @endif
@@ -113,7 +113,7 @@
                                 <td class="text-end">1</td>
                                 <td class="text-end">${{ number_format($t_value->logistics_price, 2) }}</td>
                                 <td class="text-end">${{ number_format($t_value->logistics_price) }}</td>
-                                <td>{{ $t_value->logistics_memo }}</td>
+                                <td>@php echo $t_value->logistics_memo ?? '' @endphp</td>
                             </tr>
                             @endif
 

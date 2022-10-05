@@ -2,7 +2,8 @@
 @section('sub-content')
     <h2 class="mb-4">庫存管理</h2>
 
-    <form id="search" action="{{ Route('cms.stock.index') }}" method="GET">
+    <form id="search">
+        @csrf
         <div class="card shadow p-4 mb-4">
             <h6>搜尋條件</h6>
             <div class="row">
@@ -87,13 +88,36 @@
 
             <div class="col">
                 <input type="hidden" name="data_per_page" value="{{ $searchParam['data_per_page'] }}" />
-                <button type="submit" class="btn btn-primary px-4">搜尋</button>
+                <button type="submit" class="btn btn-primary px-4 mb-1" onclick="submitAction('{{ Route('cms.stock.index') }}', 'GET')">搜尋</button>
+                
+                @can('cms.stock.export-detail')
+                    <button type="button" class="btn btn-outline-success mb-1" onclick="submitAction('{{ Route('cms.stock.export-detail') }}', 'POST')">匯出庫存明細EXCEL</button>
+                @endcan
+                @can('cms.stock.export-check')
+                    <button type="button" class="btn btn-outline-success mb-1" onclick="submitAction('{{ Route('cms.stock.export-check') }}', 'POST')">匯出盤點明細EXCEL</button>
+                @endcan
+
+                <div class="mt-1">
+                    <mark class="fw-light small">
+                        <i class="bi bi-exclamation-diamond-fill mx-2 text-warning"></i>匯出excel會根據上面當前篩選條件輸出資料呦！
+                    </mark>
+                </div>
             </div>
         </div>
     </form>
 
     <div class="card shadow p-4 mb-4">
         <div class="row justify-content-end mb-4">
+            <div class="col-auto">
+                <div class="btn-group">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" 
+                        data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                        顯示欄位
+                    </button>
+                    <ul id="selectField" class="dropdown-menu">
+                    </ul>
+                </div>
+            </div>
             <div class="col-auto">
                 顯示
                 <select class="form-select d-inline-block w-auto" id="dataPerPageElem" aria-label="表格顯示筆數">
@@ -138,7 +162,7 @@
                             </td>
                             <td class="wrap">
                                 <div class="lh-1 small text-nowrap">
-                                    <span @class(['badge rounded-pill me-2', 
+                                    <span @class(['badge rounded-pill me-2',
                                         'bg-warning text-dark' => $data->type_title === '組合包商品',
                                         'bg-success' => $data->type_title === '一般商品'])
                                     >{{ $data->type_title === '組合包商品' ? '組合包' : '一般' }}</span>
@@ -191,16 +215,45 @@
     </div>
 @endsection
 @once
-    @push('sub-styles')
-        <style>
-        </style>
-    @endpush
     @push('sub-scripts')
         <script>
+            // 顯示筆數
             $('#dataPerPageElem').on('change', function(e) {
                 $('input[name=data_per_page]').val($(this).val());
                 $('#search').submit();
             });
+            
+            // 選擇表格顯示欄位
+            let DefHide = {};
+            try {
+                DefHide = JSON.parse(localStorage.getItem('table-hide-field')) || {};
+            } catch (error) {}
+            const Key = location.pathname;
+            
+            setPrintTrCheckbox($('table.tableList'), $('#selectField'), 
+                { type: 'dropdown', defaultHide: DefHide[Key] || [] }
+            );
+            // 紀錄選項
+            $('#selectField').parent().on('hidden.bs.dropdown', function () {
+                let temp = [];
+                $('#selectField input[type="checkbox"][data-nth]').each((i, elem) => {
+                    if (!$(elem).prop('checked')) {
+                        temp.push(Number($(elem).data('nth')));
+                    }
+                });
+                localStorage.setItem('table-hide-field', JSON.stringify({
+                    ...DefHide,
+                    [Key]: temp
+                }));
+            });
+
+            function submitAction(route, method)
+            {
+                console.log(route, method);
+                document.getElementById("search").action = route;
+                document.getElementById("search").setAttribute("method", method);
+                document.getElementById("search").submit();
+            }
         </script>
     @endpush
 @endOnce

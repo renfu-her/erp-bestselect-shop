@@ -43,7 +43,7 @@
             @can('cms.order_invoice_manager.index')
                 @if ($received_order &&
                     !$order->invoice_number &&
-                    \App\Enums\Order\InvoiceMethod::getDescription(\App\Enums\Order\InvoiceMethod::e_inv()) == $order->invoice_category)
+                     \App\Enums\Order\InvoiceMethod::getDescription(\App\Enums\Order\InvoiceMethod::e_inv()) == $order->invoice_category)
                     <a href="{{ Route('cms.order.create-invoice', ['id' => $order->id]) }}" role="button"
                         class="btn btn-success btn-sm my-1 ms-1">開立發票</a>
                 @endif
@@ -273,7 +273,7 @@
         @php
             $dlv_fee = 0;
             $price = 0;
-            
+
         @endphp
         @foreach ($subOrders as $subOrder)
             @php
@@ -476,14 +476,14 @@
                                     {{ $subOrder->package_sn }}
                                 @endif
                                 <!--
-                                                            @if (false == empty($subOrder->projlgt_order_sn))
+                                                                            @if (false == empty($subOrder->projlgt_order_sn))
     <a href="{{ env('LOGISTIC_URL') . 'guest/order-flow/' . $subOrder->projlgt_order_sn }}">
-                                                                    {{ $subOrder->projlgt_order_sn }}
-                                                                </a>
+                                                                                    {{ $subOrder->projlgt_order_sn }}
+                                                                                </a>
 @else
     {{ $subOrder->package_sn ?? '(待處理)' }}
     @endif
-                                                            -->
+                                                                            -->
                             </dd>
                         </div>
                         <div class="col">
@@ -688,6 +688,47 @@
                                 </td>
                             </tr>
                         </tbody>
+                    </table>
+                </div>
+            </div>
+        @endif
+        @if (isset($dividendList) && count($dividendList) > 0)
+            <div class="card shadow p-4 mb-4">
+
+                <h6>購物金使用明細</h6>
+                <div class="table-responsive">
+                    <table class="table table-bordered text-center align-middle d-sm-table d-none text-nowrap">
+
+                        <tbody class="border-top-0">
+                            <tr class="table-light">
+                                <td class="col-2">來源名稱</td>
+                                <td class="col-2">來源</td>
+                                <td class="col-2">購物金</td>
+                            </tr>
+                            @foreach ($dividendList as $key => $value)
+                                <tr>
+                                    <td>{{ $value->category_title }}</td>
+                                    <td>{{ $value->category_sn }}</td>
+                                    <td>{{ $value->dividend }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                    <table class="table table-bordered table-sm text-center align-middle d-table d-sm-none">
+                        <tbody class="border-top-0">
+                            <tr class="table-light">
+                                <td class="col-2">來源名稱</td>
+                                <td class="col-2">來源</td>
+                                <td class="col-2">購物金</td>
+                            </tr>
+                            @foreach ($dividendList as $key => $value)
+                                <tr>
+                                    <td>{{ $value->category_title }}</td>
+                                    <td>{{ $value->category_sn }}</td>
+                                    <td>{{ $value->dividend }}</td>
+                                </tr>
+                            @endforeach
+                        <tbody>
                     </table>
                 </div>
             </div>

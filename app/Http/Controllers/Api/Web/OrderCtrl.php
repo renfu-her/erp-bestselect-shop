@@ -193,8 +193,8 @@ class OrderCtrl extends Controller
                 'order.id' => $id,
                 'order.unique_id' => $unique_id,
             ])
-            ->get()
-            ->last();
+            ->orderBy('cc_log.created_at', 'desc')
+            ->first();
 
         if ($request->isMethod('post')) {
             // avoid f5 reload

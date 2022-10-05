@@ -102,7 +102,7 @@
                             @foreach ($supplierList as $supplierItem)
                                 <option value="{{ $supplierItem->id }}"
                                         @if ($supplierItem->id == old('supplier', $supplierData->id ?? '')) selected @endif>
-                                    {{ $supplierItem->name }}@if ($supplierItem->nickname)（{{ $supplierItem->nickname }}） @endif
+                                    {{ $supplierItem->name }}@if ($supplierItem->nickname)（{{ $supplierItem->nickname }}）（{{ $supplierItem->id }}） @endif
                                 </option>
                             @endforeach
                         </select>
@@ -307,7 +307,7 @@
             }).then((editors) => {
                 editors[0].setContent(content);
             });
-            
+
             $('#form1').submit(function(e) {
                 $('textarea[name="note"]').val(tinymce.get('editor').getContent());
             });

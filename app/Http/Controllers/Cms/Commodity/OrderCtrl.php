@@ -111,7 +111,21 @@ class OrderCtrl extends Controller
             null,
             $cond['item_title'],
             $cond['purchase_sn'])
-            ->paginate($page)->appends($query);
+            ->paginate($page)
+            ->appends($query);
+
+        $uniqueSubOrderIdArray = [];
+        $uniqueDataList = [];
+        foreach ($dataList as $datum) {
+            if (!in_array($datum->sub_order_id, $uniqueSubOrderIdArray)) {
+                $uniqueSubOrderIdArray[] = $datum->sub_order_id;
+                $datum->productTitleGroup = DB::table('ord_items')
+                    ->where('sub_order_id', $datum->sub_order_id)
+                    ->select('product_title')
+                    ->get();
+                $uniqueDataList[] = $datum;
+            }
+        }
 
         $orderStatus = [];
         foreach (\App\Enums\Order\OrderStatus::asArray() as $key => $val) {
@@ -122,6 +136,7 @@ class OrderCtrl extends Controller
 
         return view('cms.commodity.order.list', [
             'dataList' => $dataList,
+            'uniqueDataList' => $uniqueDataList,
             'cond' => $cond,
             'orderStatus' => $orderStatus,
             'shipmentStatus' => LogisticStatus::asArray(),
@@ -457,6 +472,19 @@ class OrderCtrl extends Controller
             $dividend = 0;
         }
 
+        // 使用紅利詳細
+        $dividendList = Order::orderDividendList($id)->get();
+
+
+        if(count($subOrder) > 0){
+            $po_check = true;
+            foreach($subOrder as $so_value){
+                $delivery = Delivery::where('event', Event::order()->value)->where('event_id', $so_value->id)->first();
+                $po_check = PayingOrder::source_confirmation(app(Delivery::class)->getTable(), $delivery->id);
+                if(!$po_check) break;
+            }
+        }
+
         return view('cms.commodity.order.detail', [
             'sn' => $sn,
             'order' => $order,
@@ -472,8 +500,9 @@ class OrderCtrl extends Controller
             'canCancel' => Order::checkCanCancel($id, 'backend'),
             'delivery' => $delivery,
             'canSplit' => Order::checkCanSplit($id),
-            'po_check' => $delivery ? PayingOrder::source_confirmation(app(Delivery::class)->getTable(), $delivery->id) : true,
+            'po_check' => $po_check,
             'has_already_pay_delivery_back' => $has_already_pay_delivery_back,
+            'dividendList' => $dividendList,
         ]);
     }
 
@@ -1364,6 +1393,7 @@ class OrderCtrl extends Controller
                 'received' => 'required|array',
                 'product_grade_id' => 'required|exists:acc_all_grades,id',
                 'product' => 'required|array',
+                'order_item' => 'required|array',
                 'logistics_grade_id' => 'nullable|exists:acc_all_grades,id',
                 'order_dlv' => 'nullable|array',
                 'discount' => 'nullable|array',
@@ -1390,6 +1420,14 @@ class OrderCtrl extends Controller
                     foreach ($product as $key => $value) {
                         $value['product_id'] = $key;
                         Product::update_product_taxation($value);
+                    }
+                }
+
+                if (request('order_item') && is_array(request('order_item'))) {
+                    $order_item = request('order_item');
+                    foreach ($order_item as $key => $value) {
+                        $value['order_item_id'] = $key;
+                        OrderItem::update_order_item($value);
                     }
                 }
 
@@ -1643,7 +1681,6 @@ class OrderCtrl extends Controller
 
             $order = Order::orderDetail($id)->get()->first();
             $sub_order = Order::subOrderDetail($id, $sid, true)->get()->toArray()[0];
-            $supplier = Supplier::find($sub_order->supplier_id);
             $delivery = Delivery::where('event', Event::order()->value)->where('event_id', $sid)->first();
             $logistic = Logistic::where('delivery_id', $delivery->id)->whereNull('deleted_at')->first();
 
@@ -1670,7 +1707,6 @@ class OrderCtrl extends Controller
                 'order' => $order,
                 'sub_order' => $sub_order,
                 'logistic' => $logistic,
-                'supplier' => $supplier,
                 'logistics_grade_name' => $logistics_grade_name,
                 'currency' => $currency,
                 'tw_price' => $tw_price,
@@ -1982,6 +2018,7 @@ class OrderCtrl extends Controller
         }
     }
 
+
     public function create_invoice(Request $request, $id)
     {
         $request->merge([
@@ -2059,7 +2096,23 @@ class OrderCtrl extends Controller
             'carrier_type' => 'required_if:invoice_method,==,e_inv|in:0,1,2',
             'carrier_num' => 'required_if:carrier_type,==,0|required_if:carrier_type,==,1',
             'create_status_time' => 'nullable|date|date_format:Y-m-d',
+
+            'o_title' => 'required|array|min:1',
+            'o_title.*' => 'required|string|between:1,30',
+            'o_price' => 'required|array|min:1',
+            'o_price.*' => 'required',
+            'o_total_price' => 'required|array|min:1',
+            'o_total_price.*' => 'required',
+            'o_qty' => 'required|array|min:1',
+            'o_qty.*' => 'required|numeric|gt:0',
+            'o_taxation' => 'required|array|min:1',
+            'o_taxation.*' => 'required|in:0,1',
         ]);
+
+        if(array_sum(request('o_total_price')) < 1){
+            wToast(__('發票金額不可小於1', ['type'=>'danger']));
+            return redirect()->back();
+        }
 
         $data = $request->except('_token');
         $result = OrderInvoice::create_invoice(app(Order::class)->getTable(), $id, $data);
@@ -2193,7 +2246,7 @@ class OrderCtrl extends Controller
         ]);
     }
 
-    public function re_send_invoice(Request $request, $id)
+    public function send_invoice(Request $request, $id)
     {
         $request->merge([
             'id' => $id,
@@ -2203,7 +2256,7 @@ class OrderCtrl extends Controller
         ]);
         $inv_result = OrderInvoice::invoice_issue_api($id);
 
-        if ($inv_result->source_type == app(Order::class)->getTable() && $inv_result->r_msg == 'SUCCESS') {
+        if ($inv_result->source_type == app(Order::class)->getTable() && $inv_result->r_status == 'SUCCESS') {
             $parm = [
                 'order_id' => $inv_result->source_id,
                 'gui_number' => $inv_result->buyer_ubn,
@@ -2400,11 +2453,9 @@ class OrderCtrl extends Controller
         $d = $request->all();
         DB::beginTransaction();
         foreach ($d['item_id'] as $key => $value) {
-            if (isset($d['note'][$key])) {
-                OrderItem::where('id', $value)->update([
-                    'note' => $d['note'][$key],
-                ]);
-            }
+            OrderItem::where('id', $value)->update([
+                'note' => isset($d['note'][$key]) ? $d['note'][$key] : '',
+            ]);
         }
 
         $prefix = [
@@ -2435,17 +2486,28 @@ class OrderCtrl extends Controller
         $updateData = [
             'note' => $d['order_note'],
         ];
+
         // Addr::fullAddr()
         $received = Order::checkReceived($id);
         if (!$received) {
+
             $total_dlv_fee = 0;
             foreach ($d['sub_order_id'] as $key => $value) {
-
+                //  dd($d['sub_order_note'][$key]);
                 $sCategory = ShipmentCategory::where('code', $d['ship_category'][$key])->get()->first();
+                $ship_event = null;
+                $ship_temp = null;
+                $ship_temp_id = null;
 
                 switch ($d['ship_category'][$key]) {
                     case "deliver":
-                        $ship_event = ShipmentGroup::where('id', $d['ship_event_id'][$key])->get()->first()->name;
+                        $ship_group = DB::table(app(ShipmentGroup::class)->getTable(). ' as sg')
+                            ->where('sg.id', $d['ship_event_id'][$key])
+                            ->leftJoin('shi_temps', 'shi_temps.id', '=', 'sg.temps_fk')
+                            ->get()->first();
+                        $ship_event = $ship_group->name;
+                        $ship_temp = $ship_group->temps;
+                        $ship_temp_id = $ship_group->temps_fk;
                         break;
                     case "pickup":
                         $ship_event = Depot::where('id', $d['ship_event_id'][$key])->get()->first()->name;
@@ -2455,13 +2517,21 @@ class OrderCtrl extends Controller
                 }
 
                 SubOrders::where('id', $value)->update([
+                    'ship_temp' => $ship_temp,
+                    'ship_temp_id' => $ship_temp_id,
                     'ship_category' => $d['ship_category'][$key],
                     'ship_category_name' => $sCategory->category,
                     'dlv_fee' => $d['dlv_fee'][$key],
                     'ship_event_id' => isset($d['ship_event_id'][$key]) ? $d['ship_event_id'][$key] : 0,
                     'ship_event' => $ship_event,
-                    'note' => $d['sub_order_note'][$key],
+                    'note' => $d['sub_order_note'][$key] ? $d['sub_order_note'][$key] : '',
                 ]);
+                $reDlvUsc = Delivery::updateShipCategory(Event::order()->value, $value, $ship_temp_id, $ship_temp, $d['ship_category'][$key], $sCategory->category);
+                if ($reDlvUsc['success'] == 0) {
+                    DB::rollBack();
+                    wToast($reDlvUsc['error_msg']);
+                    return redirect()->back()->withInput()->withErrors($reDlvUsc);
+                }
 
                 $total_dlv_fee += $d['dlv_fee'][$key];
             }
@@ -2473,6 +2543,7 @@ class OrderCtrl extends Controller
 
         } else {
             foreach ($d['sub_order_id'] as $key => $value) {
+
                 SubOrders::where('id', $value)->update([
                     'note' => $d['sub_order_note'][$key],
                 ]);

@@ -146,6 +146,16 @@
                 </a>
             </div>
             <div class="col-auto">
+                <div class="btn-group">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" 
+                        data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                        顯示欄位
+                    </button>
+                    <ul id="selectField" class="dropdown-menu">
+                    </ul>
+                </div>
+            </div>
+            <div class="col-auto">
                 顯示
                 <select class="form-select d-inline-block w-auto" id="dataPerPageElem" aria-label="表格顯示筆數">
                     @foreach (config('global.dataPerPage') as $value)
@@ -164,6 +174,7 @@
                         <th scope="col" style="width:40px">#</th>
                         <th scope="col" style="width:40px" class="text-center">明細</th>
                         <th scope="col">訂單編號</th>
+                        <th scope="col">費用</th>
                         <th scope="col" class="wrap lh-sm">
                             <span class="text-nowrap">訂單狀態 /</span>
                             <span class="text-nowrap">物流狀態</span>
@@ -176,11 +187,12 @@
                         <th scope="col">客戶物流</th>
                         <th scope="col">實際物流</th>
                         <th scope="col">包裹編號</th>
+                        <th scope="col">產品名稱</th>
                         {{-- <th scope="col">退貨狀態</th> --}}
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($dataList as $key => $data)
+                    @foreach ($uniqueDataList as $key => $data)
                         <tr>
                             <th scope="row">{{ $key + 1 }}</th>
                             <td class="text-center">
@@ -192,6 +204,9 @@
                                 @endcan
                             </td>
                             <td>{{ $data->order_sn }}</td>
+                            <td>
+                                ${{ number_format($data->total_price) }}
+                            </td>
                             <td class="wrap">
                                 <div class="text-nowrap lh-sm @if ($data->order_status === '取消') text-danger @endif">
                                     {{ $data->order_status ?? '-' }} /</div>
@@ -223,6 +238,12 @@
                             </td>
                             <td>{{ $data->ship_group_name }}</td>
                             <td>{{ $data->package_sn }}</td>
+                            <td>
+                                @foreach($data->productTitleGroup as $x => $productTitle)
+                                    {{ $productTitle->product_title }}
+                                    <br>
+                                @endforeach
+                            </td>
                             {{-- <td>-</td> --}}
                         </tr>
                     @endforeach
@@ -264,7 +285,29 @@
                 $('#search').submit();
             });
 
-            // Chip
+            // 選擇表格顯示欄位
+            let DefHide = {};
+            try {
+                DefHide = JSON.parse(localStorage.getItem('table-hide-field')) || {};
+            } catch (error) {}
+            const Key = location.pathname;
+            
+            setPrintTrCheckbox($('table.tableList'), $('#selectField'), 
+                { type: 'dropdown', defaultHide: DefHide[Key] || [] }
+            );
+            // 紀錄選項
+            $('#selectField').parent().on('hidden.bs.dropdown', function () {
+                let temp = [];
+                $('#selectField input[type="checkbox"][data-nth]').each((i, elem) => {
+                    if (!$(elem).prop('checked')) {
+                        temp.push(Number($(elem).data('nth')));
+                    }
+                });
+                localStorage.setItem('table-hide-field', JSON.stringify({
+                    ...DefHide,
+                    [Key]: temp
+                }));
+            });
 
             // - 物態
             let selectedShipment = $('input[name="shipment_status"]').val();

@@ -470,6 +470,7 @@ Breadcrumbs::for('cms.delivery.return-pay-create', function (BreadcrumbTrail $tr
     $trail->push('退貨付款單', route('cms.delivery.return-pay-order', ['id' => $value['id']]));
     $trail->push('新增付款');
 });
+
 /**
  * 行銷設定
  **/
@@ -790,6 +791,10 @@ Breadcrumbs::for('cms.collection_payment.index', function (BreadcrumbTrail $trai
 Breadcrumbs::for('cms.collection_payment.edit', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.collection_payment.index', route('cms.collection_payment.index'));
     $trail->push('編輯付款單');
+});
+Breadcrumbs::for('cms.collection_payment.edit_note', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.collection_payment.index', route('cms.collection_payment.index'));
+    $trail->push('編輯付款項目備註');
 });
 Breadcrumbs::for('cms.collection_payment.payable_list', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.collection_payment.index', route('cms.collection_payment.index'));

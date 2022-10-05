@@ -89,7 +89,7 @@
                             <td class="text-end">1</td>
                             <td class="text-end">{{ number_format($value->tw_price, 2) }}</td>
                             <td class="text-end">{{ number_format($value->account_amt_net) }}</td>
-                            <td>{{ $value->taxation == 1 ? '應稅' : '免稅' }} {{ $value->note }}</td>
+                            <td>{{ $value->taxation == 1 ? '應稅' : '免稅' }} @php echo $value->note ?? '' @endphp</td>
                         </tr>
                         @endforeach
                     </tbody>

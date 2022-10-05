@@ -34,7 +34,7 @@
                             <th style="width:3rem;">#</th>
                             <th>顯示</th>
                             <th>商品名稱</th>
-                            <th>SKUCode</th>
+                            <th>SKU</th>
                             <th>價格</th>
                             <th>扣除獎金</th>
                             <th>原數量</th>

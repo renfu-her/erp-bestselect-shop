@@ -77,7 +77,7 @@
                     <label class="form-label">採購廠商 <span class="text-danger">*</span></label>
                     @if ($method === 'edit')
                         <div class="form-control" readonly>
-                            {{ $purchaseData->supplier_name }}@if ($purchaseData->supplier_nickname)（{{ $purchaseData->supplier_nickname }}） @endif
+                            {{ $purchaseData->supplier_name }}@if ($purchaseData->supplier_nickname)（{{ $purchaseData->supplier_nickname }}） @endif （{{ $purchaseData->supplier_id }}）
                         </div>
                     @else
                         <select id="supplier" aria-label="採購廠商" required
@@ -86,7 +86,7 @@
                             @foreach ($supplierList as $supplierItem)
                                 <option value="{{ $supplierItem->id }}"
                                         @if ($supplierItem->id == old('supplier')) selected @endif>
-                                    {{ $supplierItem->name }}@if ($supplierItem->nickname)（{{ $supplierItem->nickname }}） @endif
+                                    {{ $supplierItem->name }}@if ($supplierItem->nickname)（{{ $supplierItem->nickname }}）（{{ $supplierItem->id }}） @endif
                                 </option>
                             @endforeach
                         </select>
@@ -167,13 +167,12 @@
         <div class="card shadow p-4 mb-4">
             <h6>採購清單</h6>
             <div class="table-responsive tableOverBox">
-                <table class="table table-hover tableList mb-0">
-                    <thead>
+                <table class="table table-hover table-sm tableList mb-0">
+                    <thead class="small">
                         <tr>
                             <th scope="col" class="text-center">刪除</th>
                             <th scope="col">商品名稱</th>
-                            <th scope="col">SKU</th>
-                            <th scope="col">參考成本單價</th>
+                            <th scope="col" class="lh-1">參考<br class="d-block d-xl-none">成本<br class="d-block d-xl-none">單價</th>
                             <th scope="col">採購數量</th>
                             <th scope="col">採購總價</th>
                             @if ($method === 'edit')
@@ -196,8 +195,10 @@
                                 <input type="hidden" name="name[]" value="">
                                 <input type="hidden" name="sku[]" value="">
                             </th>
-                            <td data-td="name"></td>
-                            <td data-td="sku"></td>
+                            <td class="wrap">
+                                <div data-td="sku" class="lh-1 small text-nowrap text-secondary"></div>
+                                <div data-td="name" class="lh-base"></div>
+                            </td>
                             <td data-td="estimated_cost"></td>
                             <td>
                                 <input type="number" class="form-control form-control-sm" name="num[]" min="1" value="" required/>
@@ -231,8 +232,14 @@
                                         <input type="hidden" name="price[]" value="{{ old('price.'. $psItemKey, $psItemVal->price?? '') }}">
                                     @endif
                                 </th>
-                                <td data-td="name">{{ old('name.'. $psItemKey, $psItemVal->title?? '') }}</td>
-                                <td data-td="sku">{{ old('sku.'. $psItemKey, $psItemVal->sku?? '') }}</td>
+                                <td class="wrap">
+                                    <div data-td="sku" class="lh-1 small text-nowrap text-secondary">
+                                        {{ old('sku.'. $psItemKey, $psItemVal->sku?? '') }}
+                                    </div>
+                                    <div data-td="name" class="lh-base">
+                                        {{ old('name.'. $psItemKey, $psItemVal->title?? '') }}
+                                    </div>
+                                </td>
                                 <td data-td="estimated_cost">{{ old('estimated_cost.'. $psItemKey, $psItemVal->estimated_cost?? '') }}</td>
                                 <td>
                                     <input type="number" class="form-control form-control-sm @error('num.' . $psItemKey) is-invalid @enderror"
@@ -294,7 +301,7 @@
                             <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
                             <input class="form-control" name="logistics_price" type="number" min="0" placeholder="請輸入運費"
                                    value="{{ old('logistics_price', $purchaseData->logistics_price  ?? '') }}"
-                                   @if ($hasCreatedFinalPayment) disabled @endif
+                                   @if ($hasCreatedFinalPayment) readonly @endif
                                    @if ($hasLogistics) required @endif/>
                         </div>
                     </div>
@@ -302,7 +309,7 @@
                         <label class="form-label">物流備註</label>
                         <input class="form-control" name="logistics_memo" type="text" placeholder="請輸入物流備註" aria-label="物流備註"
                                value="{{ old('logistics_memo', $purchaseData->logistics_memo  ?? '') }}"
-                               @if ($hasCreatedFinalPayment) disabled @endif>
+                               @if ($hasCreatedFinalPayment) readonly @endif>
                     </div>
                 </div>
                 <div class="col-auto">
@@ -361,7 +368,7 @@
                         </div>
                         <div class="col-12 col-sm-6 mb-3">
                             <label class="form-label">發票號碼</label>
-                            <input class="form-control" name="invoice_num" type="text" placeholder="請輸入發票號碼" maxlength="10"
+                            <input class="form-control" name="invoice_num" type="text" placeholder="請輸入發票號碼" maxlength="80"
                                 aria-label="發票號碼" value="{{ old('invoice_num', $purchaseData->invoice_num  ?? '') }}">
                         </div>
                         <div class="col-12 col-sm-6 mb-3">
@@ -475,12 +482,12 @@
                             <input class="form-check-input" type="checkbox"
                                    value="" data-td="p_id" aria-label="選取商品">
                         </th>
-                        <td data-td="name">【喜鴻嚴選】咖啡候機室(10入/盒)</td>
-                        <td data-td="spec">綜合口味</td>
-                        <td data-td="sku">AA2590</td>
+                        <td data-td="name"></td>
+                        <td data-td="spec"></td>
+                        <td data-td="sku"></td>
                         <td data-td="estimated_cost">0</td>
-                        <td>58</td>
-                        <td>20</td>
+                        <td></td>
+                        <td></td>
                     </tr>
                     </tbody>
                 </table>
@@ -757,8 +764,8 @@
                             cloneElem.find('input[name="product_style_id[]"]').val(p.id);
                             cloneElem.find('input[name="name[]"]').val(`${p.name}-${p.spec}`);
                             cloneElem.find('input[name="sku[]"]').val(p.sku);
-                            cloneElem.find('td[data-td="name"]').text(`${p.name}-${p.spec}`);
-                            cloneElem.find('td[data-td="sku"]').text(p.sku);
+                            cloneElem.find('div[data-td="name"]').text(`${p.name}-${p.spec}`);
+                            cloneElem.find('div[data-td="sku"]').text(p.sku);
                             cloneElem.find('td[data-td="estimated_cost"]').text(p.estimated_cost);
                         }
                     }, delItemOption);
@@ -779,11 +786,42 @@
 
             // 綁定計算
             function bindPriceSum() {
+                $('.-cloneElem.--selectedP input[name="num[]"]')
+                    .off('change.sum').on('change.sum', function () {
+                    sumEstimatedPrice();
+                    sumPrice();
+                });
                 $('.-cloneElem.--selectedP input[name="price[]"]')
                     .off('change.sum').on('change.sum', function () {
                     sumPrice();
                 });
             }
+
+            /*
+             商品總價 = 預估價格 * 數量
+             */
+            function sumEstimatedPrice() {
+                let priceArray = [];
+                let quantityArray = [];
+                $('.-cloneElem.--selectedP td[data-td="estimated_cost"]').each(function () {
+                    priceArray.push(Math.round(parseInt($(this).text())));
+                });
+
+                $('.-cloneElem.--selectedP input[name="num[]"]').each(function () {
+                    quantityArray.push($(this).val());
+                });
+                $('.-cloneElem.--selectedP input[name="price[]"]').each(function (index) {
+                    if (!isNaN(quantityArray[index])) {
+                        //尚未有商品總價才更新
+                        if ($(this).val() === "" ||
+                            parseInt($(this).val()) === 0
+                        ) {
+                            $(this).val(priceArray[index] * quantityArray[index]);
+                        }
+                    }
+                });
+            }
+
             // 計算小計
             function sumPrice() {
                 let sum = 0;

@@ -496,26 +496,75 @@
      * 選擇表格顯示欄位
      * @param {*} $table 資料的表格
      * @param {*} $fieldset 選擇欄位Checkbox的容器
-     * @param {*} defaultHide 預設隱藏的欄位 (預設全顯示)
+     * @param {Object} option 選項
+     *  - @param {*} defaultHide 預設隱藏的欄位 (預設全顯示)
+     *  - @param {*} type 選項類型 (預設fieldset): dropdown 下拉
      */
-     window.setPrintTrCheckbox = function ($table, $fieldset, defaultHide = []) {
+     window.setPrintTrCheckbox = function ($table, $fieldset, option = {
+        defaultHide: [], 
+        type: ''
+     }) {
         const $th = $table.find('thead tr > *');
+        // 全選
+        switch (option.type) {
+            case 'dropdown':
+                $fieldset.append(`
+                <li class="dropdown-item">
+                    <div class="form-check fw-bold">
+                        <label class="form-check-label w-100" role="button">
+                            <input class="form-check-input -all" type="checkbox" 
+                                ${option.defaultHide.length === 0 ? 'checked' : ''}>
+                            全選
+                        </label>
+                    </div>
+                </li>
+                `);
+                break;
+            default:
+                $fieldset.append(`
+                <div class="form-check form-check-inline fw-bold">
+                    <label class="form-check-label">
+                        <input class="form-check-input -all" type="checkbox" 
+                            ${option.defaultHide.length === 0 ? 'checked' : ''}>
+                        全選
+                    </label>
+                </div>
+                `);
+                break;
+        }
         $th.each(function (index, element) {
             // element == this
             const nth = index + 1;
             const field = $(element).text();
-            const checked = defaultHide.indexOf(nth) < 0 ? 'checked' : '';
-            $fieldset.append(`
-                <div class="form-check form-check-inline">
-                    <label class="form-check-label">
-                        <input data-nth="${nth}" class="form-check-input" type="checkbox" ${checked}>
-                        ${field}
-                    </label>
-                </div>
-            `);
+            const checked = option.defaultHide.indexOf(nth) < 0 ? 'checked' : '';
+            switch (option.type) {
+                case 'dropdown':
+                    $fieldset.append(`
+                    <li class="dropdown-item">
+                        <div class="form-check">
+                            <label class="form-check-label w-100" role="button">
+                                <input data-nth="${nth}" class="form-check-input" type="checkbox" ${checked}>
+                                ${field}
+                            </label>
+                        </div>
+                    </li>
+                    `);
+                    break;
+                default:
+                    $fieldset.append(`
+                    <div class="form-check form-check-inline">
+                        <label class="form-check-label">
+                            <input data-nth="${nth}" class="form-check-input" type="checkbox" ${checked}>
+                            ${field}
+                        </label>
+                    </div>
+                    `);
+                    break;
+            }
         });
 
-        $fieldset.find('input[type="checkbox"]').off('change').on('change', function () {
+        // 隱藏/顯示 事件
+        $fieldset.find('input[type="checkbox"][data-nth]:not(.-all)').off('change').on('change', function () {
             const nth = Number($(this).data('nth'));
             const checked = $(this).prop('checked');
             if (checked) {
@@ -530,9 +579,20 @@
                 tfoot tr > *:nth-child(${nth})`).addClass('d-none');
             }
         });
+        // 全選事件
+        $fieldset.find('input[type="checkbox"].-all').off('change').on('change', function () {
+            const checked = $(this).prop('checked');
+            $fieldset.find('input[type="checkbox"][data-nth]').prop('checked', checked);
+            if (checked) {
+                $table.find(`tr > *`).removeClass('d-none');
+            } else {
+                $table.find(`tr > *`).addClass('d-none');
+            }
+        });
 
-        if (defaultHide.length > 0) {
-            for (const i of defaultHide) {
+        // 預設隱藏的欄位
+        if (option.defaultHide.length > 0) {
+            for (const i of option.defaultHide) {
                 if (isFinite(i)) {
                     $table.find(`
                     thead tr > *:nth-child(${i}), 

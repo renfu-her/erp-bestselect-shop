@@ -8,6 +8,7 @@ Route::group(['prefix' => 'collection_payment', 'as' => 'collection_payment.'], 
     Route::get('', [CollectionPaymentCtrl::class, 'index'])->name('index')->middleware('permission:cms.collection_payment.index');
 
     Route::match(['get', 'post'], 'edit/{id}', [CollectionPaymentCtrl::class, 'edit'])->name('edit')->middleware('permission:cms.collection_payment.edit');
+    Route::match(['get', 'post'], 'edit_note/{id}', [CollectionPaymentCtrl::class, 'edit_note'])->name('edit_note')->middleware('permission:cms.collection_payment.edit');
     Route::get('delete/{id}', [CollectionPaymentCtrl::class, 'destroy'])->name('delete')->middleware('permission:cms.collection_payment.delete');
 
     Route::get('payable_list/{id}', [CollectionPaymentCtrl::class, 'payable_list'])->name('payable_list')->middleware('permission:cms.collection_payment.delete');

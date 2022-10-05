@@ -20,8 +20,10 @@ use App\Models\DayEnd;
 use App\Models\Delivery;
 use App\Models\Depot;
 use App\Models\GeneralLedger;
+use App\Models\Logistic;
 use App\Models\NotePayableOrder;
 use App\Models\Order;
+use App\Models\OrderItem;
 use App\Models\PayableAccount;
 use App\Models\PayableCash;
 use App\Models\PayableCheque;
@@ -83,6 +85,45 @@ class CollectionPaymentCtrl extends Controller
 
         // accounting classification start
             foreach($dataList as $value){
+                if($value->po_source_type == app(PayingOrder::class)->getTable() && $value->po_type == 2){
+                    if($value->product_items){
+                        $tmp_po_sn_array = collect(json_decode($value->product_items))->pluck('title')->toArray();
+                        $tmp_po = PayingOrder::paying_order_list(null, $tmp_po_sn_array, null, null, null, 'all', true)->get();
+                        $tmp_merge = [];
+
+                        foreach($tmp_po as $po_value){
+                            $product = [];
+                            $logistics = [];
+                            $discount = [];
+
+                            if($po_value->product_items){
+                                $product = json_decode($po_value->product_items);
+                            }
+                            if($po_value->logistics_price <> 0){
+                                $logistics = [(object)[
+                                    'product_owner'=>'',
+                                    'title'=>$po_value->logistics_summary,
+                                    'sku'=>'',
+                                    'all_grades_id'=>$po_value->po_logistics_grade_id,
+                                    'grade_code'=>$po_value->po_logistics_grade_code,
+                                    'grade_name'=>$po_value->po_logistics_grade_name,
+                                    'price'=>$po_value->logistics_price,
+                                    'num'=>1,
+                                    'summary'=>$po_value->logistics_summary,
+                                    'memo'=>$po_value->logistics_memo,
+                                ]];
+                            }
+                            if($po_value->discount_value > 0){
+                                $discount = json_decode(str_replace('"price":"', '"price":"-', $po_value->order_discount));
+                            }
+
+                            $tmp_merge = array_merge($tmp_merge, $product, $logistics, $discount);
+                        }
+
+                        $value->product_items = json_encode($tmp_merge, JSON_UNESCAPED_UNICODE);
+                    }
+                }
+
                 $debit = [];
                 $credit = [];
 
@@ -148,8 +189,8 @@ class CollectionPaymentCtrl extends Controller
                                 $product_title = $account_name;
 
                             } else if($value->po_type == 2){
-                                $account_code = '';
-                                $account_name = '';
+                                $account_code = $p_value->grade_code;
+                                $account_name = $p_value->grade_name;
                             }
                         }
 
@@ -251,10 +292,10 @@ class CollectionPaymentCtrl extends Controller
             }
         // accounting classification end
 
-        $user = User::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
-        $customer = Customer::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+        $user = User::whereNull('deleted_at')->select('id', 'name', 'account', 'email')->get()->toArray();
+        $customer = Customer::whereNull('deleted_at')->select('id', 'name', 'email')->get()->toArray();
         $depot = Depot::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
-        $supplier = Supplier::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+        $supplier = Supplier::whereNull('deleted_at')->select('id', 'name', 'contact_person')->get()->toArray();
         $payee_merged = array_merge($user, $customer, $depot, $supplier);
 
         $balance_status = [
@@ -303,10 +344,10 @@ class CollectionPaymentCtrl extends Controller
             return redirect()->back();
         }
 
-        $user = User::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
-        $customer = Customer::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+        $user = User::whereNull('deleted_at')->select('id', 'name', 'account', 'email')->get()->toArray();
+        $customer = Customer::whereNull('deleted_at')->select('id', 'name', 'email')->get()->toArray();
         $depot = Depot::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
-        $supplier = Supplier::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+        $supplier = Supplier::whereNull('deleted_at')->select('id', 'name', 'contact_person')->get()->toArray();
         $client_merged = array_merge($user, $customer, $depot, $supplier);
 
         return view('cms.account_management.collection_payment.edit', [
@@ -314,6 +355,121 @@ class CollectionPaymentCtrl extends Controller
             'client' => $client_merged,
             'paying_order' => $paying_order,
         ]);
+    }
+
+
+    public function edit_note(Request $request, $id)
+    {
+        $paying_order = PayingOrder::findOrFail($id);
+
+        if($request->isMethod('post')){
+            $request->validate([
+                'item' => 'required|array',
+            ]);
+
+            DB::beginTransaction();
+
+            try {
+                if($paying_order->source_type == 'ord_orders' && $paying_order->source_sub_id != null){
+                    if (request('item') && is_array(request('item'))) {
+                        $logistic_item = request('item');
+                        foreach ($logistic_item as $key => $value) {
+                            $logistic_id = $key;
+                            Logistic::where('id', $logistic_id)->update([
+                                'memo' => $value['note'],
+                            ]);
+                        }
+                    }
+
+                } else if($paying_order->source_type == 'ord_orders' && $paying_order->source_sub_id == null){
+                    if (request('item') && is_array(request('item'))) {
+                        $order_item = request('item');
+                        foreach ($order_item as $key => $value) {
+                            $value['order_item_id'] = $key;
+                            OrderItem::update_order_item($value);
+                        }
+                    }
+
+                } else if($paying_order->source_type == 'dlv_delivery'){
+                    if (request('item') && is_array(request('item'))) {
+                        $order_item = request('item');
+                        foreach ($order_item as $key => $value) {
+                            $value['order_item_id'] = $key;
+                            OrderItem::update_order_item($value);
+                        }
+                    }
+                }
+
+                DB::commit();
+                wToast(__('付款項目備註更新成功'));
+                return redirect()->to(PayingOrder::paying_order_link($paying_order->source_type, $paying_order->source_id, $paying_order->source_sub_id, $paying_order->type));
+
+            } catch (\Exception $e) {
+                DB::rollback();
+                wToast(__('付款項目備註更新失敗', ['type' => 'danger']));
+            }
+
+            return redirect()->back();
+
+        } else if ($request->isMethod('get')) {
+
+            if($paying_order->source_type == 'ord_orders' && $paying_order->source_sub_id != null){
+                $order = Order::findOrFail($paying_order->source_id);
+                $sub_order = Order::subOrderDetail($paying_order->source_id, $paying_order->source_sub_id, true)->get()->toArray()[0];
+
+                $item_list_data[] = (object)[
+                    'item_id' => $sub_order->logistic_id,
+                    'title' => AllGrade::find($paying_order->logistics_grade_id)->eachGrade->name . ' ' . $sub_order->ship_group_name . ' #' . ($sub_order->projlgt_order_sn ?? $sub_order->package_sn),
+                    'price' => $sub_order->logistic_cost,
+                    'qty' => 1,
+                    'total_price' => $sub_order->logistic_cost,
+                    'note' => $sub_order->logistic_memo,
+                    'po_note' => null,
+                ];
+
+            } else if($paying_order->source_type == 'ord_orders' && $paying_order->source_sub_id == null){
+                $order = Order::findOrFail($paying_order->source_id);
+                $order_item = OrderItem::item_order($paying_order->source_id)->get();
+                $item_list_data = [];
+                foreach($order_item as $value){
+                    $item_list_data[] = (object)[
+                        'item_id' =>$value->order_item_id,
+                        'title' =>$value->product_title,
+                        'price' =>$value->product_price,
+                        'qty' =>$value->product_qty,
+                        'total_price' =>$value->product_origin_price,
+                        'note' =>$value->product_note,
+                        'po_note' =>$value->product_po_note,
+                    ];
+                }
+
+            } else if($paying_order->source_type == 'dlv_delivery'){
+                $delivery = Delivery::back_item($paying_order->source_id)->get();
+                foreach ($delivery as $key => $value) {
+                    $delivery[$key]->delivery_back_items = json_decode($value->delivery_back_items);
+                }
+                $delivery = $delivery->first();
+
+                $item_list_data = [];
+                foreach($delivery->delivery_back_items as $value){
+                    $item_list_data[] = (object)[
+                        'item_id' => $value->event_item_id,
+                        'title' => $value->product_title,
+                        'price' => $value->price,
+                        'qty' => $value->qty,
+                        'total_price' => $value->total_price,
+                        'note' => $value->note,
+                        'po_note' => $value->po_note,
+                    ];
+                }
+            }
+
+            return view('cms.account_management.collection_payment.edit_note', [
+                'form_action' => route('cms.collection_payment.edit_note', ['id' => $id]),
+                'paying_order' => $paying_order,
+                'item_list_data' => $item_list_data,
+            ]);
+        }
     }
 
 
@@ -646,7 +802,7 @@ class CollectionPaymentCtrl extends Controller
                     $account_name = $value->po_product_grade_name ? $value->po_product_grade_name : '無設定會計科目';
                     $product_name = $account_code . ' ' . $account_name;
                     foreach(json_decode($value->product_items) as $p_value){
-                        $avg_price = $p_value->price / $p_value->num;
+                        $avg_price = $p_value->num == 0 ? 0 : $p_value->price / $p_value->num;
                         $name = $product_name . ' --- ' . $p_value->title . '（' . $avg_price . ' * ' . $p_value->num . '）';
                         $product_title = $p_value->title;
 
@@ -756,10 +912,10 @@ class CollectionPaymentCtrl extends Controller
             }
         // accounting classification end
 
-        $user = User::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
-        $customer = Customer::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+        $user = User::whereNull('deleted_at')->select('id', 'name', 'account', 'email')->get()->toArray();
+        $customer = Customer::whereNull('deleted_at')->select('id', 'name', 'email')->get()->toArray();
         $depot = Depot::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
-        $supplier = Supplier::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+        $supplier = Supplier::whereNull('deleted_at')->select('id', 'name', 'contact_person')->get()->toArray();
         $payee_merged = array_merge($user, $customer, $depot, $supplier);
 
         $balance_status = [
@@ -791,39 +947,6 @@ class CollectionPaymentCtrl extends Controller
 
         $append_po_sn = PayingOrder::where('append_po_id', $id)->pluck('sn')->toArray();
         $target_items = PayingOrder::paying_order_list(null, $append_po_sn, null, null, null, '0', true)->get();
-
-        foreach($target_items as $data){
-            if($data->po_source_type == 'pcs_purchase' && $data->po_type == 1){
-                $tmp_po = PayingOrder::where([
-                    'source_type'=>'pcs_purchase',
-                    'source_id'=>$data->po_source_id,
-                    'type'=>0,
-                ])->first();
-
-                if($tmp_po){
-                    $d = (object)[
-                        'product_owner'=>'',
-                        'title'=>'訂金抵扣（訂金付款單號' . $tmp_po->sn . '）',
-                        'sku'=>'',
-                        'all_grades_id'=>"",
-                        'grade_code'=>"1118",
-                        'grade_name'=>"商品存貨",
-                        'price'=>-$tmp_po->price,
-                        'num'=>1,
-                        'summary'=>$tmp_po->memo,
-                        'memo'=>"",
-                    ];
-
-                    if($data->product_items){
-                        $items = json_decode($data->product_items);
-                        array_unshift($items, $d);
-                        $data->product_items = json_encode($items, JSON_UNESCAPED_UNICODE);
-                    } else {
-                        $data->product_items = json_encode([$d], JSON_UNESCAPED_UNICODE);
-                    }
-                }
-            }
-        }
 
         $paying_order = PayingOrder::findOrFail($id);
         $payable_data = PayingOrder::get_payable_detail($id);
@@ -956,37 +1079,6 @@ class CollectionPaymentCtrl extends Controller
         foreach($target_items as $data){
             $data->po_url_link = PayingOrder::paying_order_link($data->po_source_type, $data->po_source_id, $data->po_source_sub_id, $data->po_type);
             $data->source_url_link = PayingOrder::paying_order_source_link($data->po_source_type, $data->po_source_id, $data->po_source_sub_id, $data->po_type);
-
-            if($data->po_source_type == 'pcs_purchase' && $data->po_type == 1){
-                $tmp_po = PayingOrder::where([
-                    'source_type'=>'pcs_purchase',
-                    'source_id'=>$data->po_source_id,
-                    'type'=>0,
-                ])->first();
-
-                if($tmp_po){
-                    $d = (object)[
-                        'product_owner'=>'',
-                        'title'=>'訂金抵扣（訂金付款單號' . $tmp_po->sn . '）',
-                        'sku'=>'',
-                        'all_grades_id'=>"",
-                        'grade_code'=>"1118",
-                        'grade_name'=>"商品存貨",
-                        'price'=>-$tmp_po->price,
-                        'num'=>1,
-                        'summary'=>$tmp_po->memo,
-                        'memo'=>"",
-                    ];
-
-                    if($data->product_items){
-                        $items = json_decode($data->product_items);
-                        array_unshift($items, $d);
-                        $data->product_items = json_encode($items, JSON_UNESCAPED_UNICODE);
-                    } else {
-                        $data->product_items = json_encode([$d], JSON_UNESCAPED_UNICODE);
-                    }
-                }
-            }
         }
 
         $paying_order = PayingOrder::findOrFail($id);

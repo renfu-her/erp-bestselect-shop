@@ -43,6 +43,7 @@ class ProductCtrl extends Controller
         $publics = [['all', '不限'], ['1', '公開'], ['0', '不公開']];
         $hasDelivery = [['all', '不限'], ['1', '有'], ['0', '無']];
         $hasSpecList = [['all', '不限'], ['1', '有'], ['0', '無']];
+        $isLiquor = [['all', '不限'], ['1', '有']];
         $page = getPageCount(Arr::get($query, 'data_per_page'));
         $cond = [];
         $cond['keyword'] = Arr::get($query, 'keyword');
@@ -61,16 +62,18 @@ class ProductCtrl extends Controller
         $cond['hasDelivery'] = Arr::get($query, 'hasDelivery', 'all');
         $cond['hasSpecList'] = Arr::get($query, 'hasSpecList', 'all');
         $cond['search_supplier'] = Arr::get($query, 'search_supplier', 'all');
+        $cond['is_liquor'] = Arr::get($query, 'is_liquor', 'all');
 
         $products = Product::productList($cond['keyword'], null, [
             'user' => $condUser,
             'product_type' => $cond['product_type'],
             'consume' => $cond['consume'] == 'all' ? null : $cond['consume'],
             'public' => $cond['public'] == 'all' ? null : $cond['public'],
-            'hasDelivery' => $cond['hasDelivery'] == 'all' ? null : $cond['hasDelivery'],
+            'hasDelivery' => $cond['hasDelivery'],
             'hasSpecList' => $cond['hasSpecList'] == 'all' ? null : $cond['hasSpecList'],
             'online' => $cond['online'],
             'search_supplier' => $cond['search_supplier'] == 'all' ? null : $cond['search_supplier'],
+            'is_liquor' => $cond['is_liquor'],
         ])
             ->paginate($page)->appends($query);
 
@@ -82,6 +85,7 @@ class ProductCtrl extends Controller
             'data_per_page' => $page,
             'consumes' => $consumes,
             'publics' => $publics,
+            'isLiquor' => $isLiquor,
             'hasDelivery' => $hasDelivery,
             'hasSpecList' => $hasSpecList,
             'suppliers' => Supplier::select('name', 'id', 'vat_no')->get()->toArray(),
