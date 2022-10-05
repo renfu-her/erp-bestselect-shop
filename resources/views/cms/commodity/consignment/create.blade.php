@@ -84,6 +84,10 @@
                     @endif
 
                 </div>
+                <div class="col-12 mb-3">
+                    <label class="form-label">備註</label>
+                    <textarea id="order_memo" name="order_memo" class="form-control">{{ old('order_memo', '') }}</textarea>
+                </div>
             </div>
         </div>
 

@@ -24,12 +24,14 @@ class Consignment extends Model
     public static function createData($send_depot_id, $send_depot_name, $receive_depot_id, $receive_depot_name
         , $create_user_id = null, $create_user_name = null
         , $scheduled_date = null
+        , $memo = null
     )
     {
         return DB::transaction(function () use (
             $send_depot_id, $send_depot_name, $receive_depot_id, $receive_depot_name
             , $create_user_id, $create_user_name
             , $scheduled_date
+            , $memo
 //            , $audit_date, $audit_user_id, $audit_user_name, $audit_status
             ) {
 
@@ -47,6 +49,7 @@ class Consignment extends Model
                 'create_user_id' => $create_user_id ?? null,
                 'create_user_name' => $create_user_name ?? null,
                 'scheduled_date' => $scheduled_date ?? null,
+                'memo' => $memo ?? null,
             ])->id;
 
             $rePcsLSC = PurchaseLog::stockChange($id, null, Event::consignment()->value, $id, LogEventFeature::add()->value, null,null, null,null, null, $create_user_id, $create_user_name);
@@ -84,7 +87,7 @@ class Consignment extends Model
 
         $orign_audit_status = $purchase->audit_status;
 //        $purchase->scheduled_date = $purchaseReq['scheduled_date'] ?? null;
-        $purchase->memo = $purchaseReq['memo'] ?? null;
+        $purchase->memo = $purchaseReq['order_memo'] ?? null;
         $purchase->audit_status = $purchaseReq['audit_status'] ?? null;
 
         return DB::transaction(function () use ($purchase, $id, $purchaseReq, $operator_user_id, $operator_user_name, $orign_audit_status
@@ -96,6 +99,8 @@ class Consignment extends Model
                         $event = '預計入庫日期';
                     } else if($key == 'audit_status') {
                         $event = '修改審核狀態';
+                    } else if($key == 'memo') {
+                        $event = '修改備註';
                     }
                     $rePcsLSC = PurchaseLog::stockChange($id, null, Event::consignment()->value, $id, LogEventFeature::change_data()->value, null,null, $event,null, null, $operator_user_id, $operator_user_name);
                     if ($rePcsLSC['success'] == 0) {
@@ -106,7 +111,7 @@ class Consignment extends Model
                 $curr_date = date('Y-m-d H:i:s');
                 self::where('id', $id)->update([
                     "scheduled_date" => $purchaseReq['scheduled_date'] ?? null,
-                    "memo" => $purchaseReq['memo'] ?? null,
+                    "memo" => $purchaseReq['order_memo'] ?? null,
                     "audit_date" => $curr_date,
                     "audit_user_id" => $operator_user_id,
                     "audit_user_name" => $operator_user_name,
