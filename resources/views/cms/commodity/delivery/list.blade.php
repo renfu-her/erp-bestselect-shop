@@ -295,7 +295,28 @@
             });
             
             // 選擇表格顯示欄位
-            setPrintTrCheckbox($('table.tableList'), $('#selectField'), [], 'dropdown');
+            let DefHide = {};
+            try {
+                DefHide = JSON.parse(localStorage.getItem('table-hide-field')) || {};
+            } catch (error) {}
+            const Key = location.pathname;
+
+            setPrintTrCheckbox($('table.tableList'), $('#selectField'), 
+                { type: 'dropdown', defaultHide: DefHide[Key] || [] }
+            );
+            // 紀錄選項
+            $('#selectField').parent().on('hidden.bs.dropdown', function () {
+                let temp = [];
+                $('#selectField input[type="checkbox"][data-nth]').each((i, elem) => {
+                    if (!$(elem).prop('checked')) {
+                        temp.push(Number($(elem).data('nth')));
+                    }
+                });
+                localStorage.setItem('table-hide-field', JSON.stringify({
+                    ...DefHide,
+                    [Key]: temp
+                }));
+            });
         </script>
     @endpush
 @endOnce
