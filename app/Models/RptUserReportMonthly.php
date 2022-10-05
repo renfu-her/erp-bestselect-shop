@@ -28,11 +28,11 @@ class RptUserReportMonthly extends Model
         $currentMonth = Date("Y-m-01", strtotime($sdate));
 
         $atomic = RptReport::atomic();
-
+      
         $re = DB::table(DB::raw("({$atomic->toSql()}) as atomic"))
             ->mergeBindings($atomic)
             ->leftJoin('prd_sale_channels as sh', 'atomic.sale_channel_id', '=', 'sh.id')
-            ->leftJoin('usr_customers as customer', 'customer.email', '=', 'atomic.email')
+            ->leftJoin('usr_customers as customer', 'customer.sn', '=', 'atomic.mcode')
             ->join('usr_users as user', 'user.customer_id', '=', 'customer.id')
             ->select(['customer.email', 'user.id as user_id', 'sh.sales_type'])
             ->selectRaw('SUM(atomic.total_price) as total_price')

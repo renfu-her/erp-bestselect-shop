@@ -66,6 +66,18 @@ return
         ],
     ],
     [
+        "title" => "報表",
+        "icon" => "bi-bar-chart",
+        "menu_id" => "10",
+        "child" => [
+            [
+                "title" => "業績報表",
+                "controller_name" => "UserPerformanceReportCtrl",
+                "route_name" => "cms.user-performance-report.index",
+            ],
+        ],
+    ],
+    [
         "title" => "行銷設定",
         "icon" => "bi-shop",
         "menu_id" => "8",
@@ -126,7 +138,7 @@ return
                 "title" => "通知信管理",
                 "controller_name" => "MailSetCtrl",
                 "route_name" => "cms.mail_set.index",
-            ]
+            ],
         ],
     ],
     [
