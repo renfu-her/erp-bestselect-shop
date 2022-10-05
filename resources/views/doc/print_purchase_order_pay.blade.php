@@ -78,7 +78,7 @@
                             <th scope="col" width="8%" style="padding-bottom:7px;text-align: right;">數量</th>
                             <th scope="col" width="8%" style="padding-bottom:7px;text-align: right;">單價</th>
                             <th scope="col" width="10%" style="padding-bottom:7px;text-align: right;">應付金額</th>
-                            <th scope="col" width="34%" style="padding-bottom:7px;">備註</th>
+                                <th scope="col" width="34%" style="padding-bottom:7px;"colspan="2">備註</th>
                         </tr>
                     </thead>
                     <tbody style="text-align: left;">
@@ -88,7 +88,8 @@
                                 <td style="text-align: right;">{{ number_format(1) }}</td>
                                 <td style="text-align: right;">{{ number_format($depositPaymentData->price, 2) }}</td>
                                 <td style="text-align: right;">{{ number_format($depositPaymentData->price) }}</td>
-                                <td>@php echo $depositPaymentData->memo @endphp</td>
+                                <td>{!! nl2br(e($depositPaymentData->memo)) !!}</td>
+                                <td></td>
                             </tr>
                         @elseif($type === 'final')
                             @foreach($purchaseItemData as $purchaseItem)
@@ -97,7 +98,8 @@
                                     <td style="text-align: right;">{{ number_format($purchaseItem->num) }}</td>
                                     <td style="text-align: right;">{{ number_format($purchaseItem->total_price / $purchaseItem->num, 2) }}</td>
                                     <td style="text-align: right;">{{ number_format($purchaseItem->total_price) }}</td>
-                                    <td>@php echo $purchaseItem->memo @endphp</td>
+                                    <td>{!! nl2br(e($purchaseItem->memo)) !!}</td>
+                                    <td>{!! nl2br(e($purchaseItem->po_note)) !!}</td>
                                 </tr>
                             @endforeach
                             @if($logisticsPrice > 0)
@@ -106,7 +108,8 @@
                                     <td style="text-align: right;"></td>
                                     <td style="text-align: right;"></td>
                                     <td style="text-align: right;">{{ number_format($logisticsPrice) }}</td>
-                                    <td>@php echo $purchaseData->logistics_memo @endphp</td>
+                                    <td>{!! nl2br(e($purchaseData->logistics_memo)) !!}</td>
+                                    <td>{!! nl2br(e($purchaseData->logistics_po_note)) !!}</td>
                                 </tr>
                             @endif
                             @if(!is_null($depositPaymentData))
@@ -115,7 +118,8 @@
                                     <td style="text-align: right;">1</td>
                                     <td style="text-align: right;">-{{ number_format($depositPaymentData->price, 2) }}</td>
                                     <td style="text-align: right;">-{{ number_format($depositPaymentData->price) }}</td>
-                                    <td>@php echo $depositPaymentData->memo @endphp</td>
+                                    <td>{!! nl2br(e($depositPaymentData->memo)) !!}</td>
+                                    <td></td>
                                 </tr>
                             @endif
                         @endif

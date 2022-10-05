@@ -33,6 +33,7 @@ use App\Models\PayableOther;
 use App\Models\PayableRemit;
 use App\Models\PayingOrder;
 use App\Models\Purchase;
+use App\Models\PurchaseItem;
 use App\Models\StituteOrder;
 use App\Models\Supplier;
 use App\Models\User;
@@ -364,20 +365,45 @@ class CollectionPaymentCtrl extends Controller
 
         if($request->isMethod('post')){
             $request->validate([
-                'item' => 'required|array',
+                'item' => 'nullable|array',
+                'logistic_item' => 'nullable|array',
             ]);
 
             DB::beginTransaction();
 
             try {
-                if($paying_order->source_type == 'ord_orders' && $paying_order->source_sub_id != null){
+                if($paying_order->source_type == 'pcs_purchase'){
                     if (request('item') && is_array(request('item'))) {
-                        $logistic_item = request('item');
+                        $purchase_item = request('item');
+                        foreach ($purchase_item as $key => $value) {
+                            $value['purchase_item_id'] = $key;
+                            PurchaseItem::update_purchase_item($value);
+                        }
+                    }
+
+                    if (request('logistic_item') && is_array(request('logistic_item'))) {
+                        $logistic_item = request('logistic_item');
                         foreach ($logistic_item as $key => $value) {
-                            $logistic_id = $key;
-                            Logistic::where('id', $logistic_id)->update([
-                                'memo' => $value['note'],
-                            ]);
+                            $value['logistic_id'] = $key;
+                            Purchase::update_logistic($value);
+                        }
+                    }
+
+                } else if($paying_order->source_type == 'ord_orders' && $paying_order->source_sub_id != null){
+                    if (request('logistic_item') && is_array(request('logistic_item'))) {
+                        $logistic_item = request('logistic_item');
+                        foreach ($logistic_item as $key => $value) {
+                            $value['logistic_id'] = $key;
+                            Logistic::update_logistic($value);
+                        }
+                    }
+
+                } else if($paying_order->source_type == 'csn_consignment'){
+                    if (request('logistic_item') && is_array(request('logistic_item'))) {
+                        $logistic_item = request('logistic_item');
+                        foreach ($logistic_item as $key => $value) {
+                            $value['logistic_id'] = $key;
+                            Logistic::update_logistic($value);
                         }
                     }
 
@@ -413,26 +439,71 @@ class CollectionPaymentCtrl extends Controller
 
         } else if ($request->isMethod('get')) {
 
-            if($paying_order->source_type == 'ord_orders' && $paying_order->source_sub_id != null){
-                $order = Order::findOrFail($paying_order->source_id);
+            $item_data = [];
+            $logistic_data = [];
+
+            if($paying_order->source_type == 'pcs_purchase'){
+                $purchase = Purchase::purchase_item($paying_order->source_id)->get();
+                foreach ($purchase as $key => $value) {
+                    $purchase[$key]->purchase_table_items = json_decode($value->purchase_table_items);
+                }
+                $purchase = $purchase->first();
+
+                foreach($purchase->purchase_table_items as $value){
+                    $item_data[] = (object)[
+                        'item_id' => $value->id,
+                        'title' => $value->product_title,
+                        'price' => ($value->total_price / $value->qty),
+                        'qty' => $value->qty,
+                        'total_price' => $value->total_price,
+                        'note' => $value->memo,
+                        'po_note' => $value->po_note,
+                    ];
+                }
+
+                if($purchase->purchase_logistics_price <> 0){
+                    $logistic_data[] = (object)[
+                        'item_id' => $purchase->purchase_id,
+                        'title' => AllGrade::find($paying_order->logistics_grade_id)->eachGrade->name,
+                        'price' => $purchase->purchase_logistics_price,
+                        'qty' => 1,
+                        'total_price' => $purchase->purchase_logistics_price,
+                        'note' => $purchase->purchase_logistics_memo,
+                        'po_note' => $purchase->purchase_logistics_po_note,
+                    ];
+                }
+
+            } else if($paying_order->source_type == 'ord_orders' && $paying_order->source_sub_id != null){
                 $sub_order = Order::subOrderDetail($paying_order->source_id, $paying_order->source_sub_id, true)->get()->toArray()[0];
 
-                $item_list_data[] = (object)[
+                $logistic_data[] = (object)[
                     'item_id' => $sub_order->logistic_id,
                     'title' => AllGrade::find($paying_order->logistics_grade_id)->eachGrade->name . ' ' . $sub_order->ship_group_name . ' #' . ($sub_order->projlgt_order_sn ?? $sub_order->package_sn),
                     'price' => $sub_order->logistic_cost,
                     'qty' => 1,
                     'total_price' => $sub_order->logistic_cost,
                     'note' => $sub_order->logistic_memo,
-                    'po_note' => null,
+                    'po_note' => $sub_order->logistic_po_note,
+                ];
+
+            } else if($paying_order->source_type == 'csn_consignment'){
+                $consignment_data  = Consignment::getDeliveryData($paying_order->source_id)->get()->first();
+
+                $logistic_data[] = (object)[
+                    'item_id' => $consignment_data->lgt_id,
+                    'title' => AllGrade::find($paying_order->logistics_grade_id)->eachGrade->name . ' ' . $consignment_data->group_name . ' #' . ($consignment_data->projlgt_order_sn ?? $consignment_data->package_sn),
+                    'price' => $consignment_data->lgt_cost,
+                    'qty' => 1,
+                    'total_price' => $consignment_data->lgt_cost,
+                    'note' => $consignment_data->lgt_memo,
+                    'po_note' => $consignment_data->lgt_po_note,
                 ];
 
             } else if($paying_order->source_type == 'ord_orders' && $paying_order->source_sub_id == null){
-                $order = Order::findOrFail($paying_order->source_id);
                 $order_item = OrderItem::item_order($paying_order->source_id)->get();
-                $item_list_data = [];
+
                 foreach($order_item as $value){
-                    $item_list_data[] = (object)[
+                    $item_data[] = (object)[
                         'item_id' =>$value->order_item_id,
                         'title' =>$value->product_title,
                         'price' =>$value->product_price,
@@ -450,9 +521,8 @@ class CollectionPaymentCtrl extends Controller
                 }
                 $delivery = $delivery->first();
 
-                $item_list_data = [];
                 foreach($delivery->delivery_back_items as $value){
-                    $item_list_data[] = (object)[
+                    $item_data[] = (object)[
                         'item_id' => $value->event_item_id,
                         'title' => $value->product_title,
                         'price' => $value->price,
@@ -467,7 +537,8 @@ class CollectionPaymentCtrl extends Controller
             return view('cms.account_management.collection_payment.edit_note', [
                 'form_action' => route('cms.collection_payment.edit_note', ['id' => $id]),
                 'paying_order' => $paying_order,
-                'item_list_data' => $item_list_data,
+                'item_data' => $item_data,
+                'logistic_data' => $logistic_data,
             ]);
         }
     }

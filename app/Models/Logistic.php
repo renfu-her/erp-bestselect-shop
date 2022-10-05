@@ -6,6 +6,8 @@ use App\Enums\Delivery\Event;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 class Logistic extends Model
@@ -106,5 +108,19 @@ class Logistic extends Model
             $event_table = app(CsnOrder::class)->getTable();
         }
         DB::table($event_table. ' as event_tb')->where('event_tb.id', '=', $dvl_event_id)->update($updateData);
+    }
+
+
+    public static function update_logistic($parm)
+    {
+        $update = [];
+        if(Arr::exists($parm, 'note')){
+            $update['memo'] = $parm['note'];
+        }
+        if(Arr::exists($parm, 'po_note')){
+            $update['po_note'] = $parm['po_note'];
+        }
+
+        self::where('id', $parm['logistic_id'])->update($update);
     }
 }

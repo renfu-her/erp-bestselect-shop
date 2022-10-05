@@ -36,7 +36,7 @@
     @push('scripts')
         <script src="{{ Asset('dist/js/dashboard.js') }}?1.0"></script>
         <script src="{{ Asset('dist/js/helpers.js') }}?1.0"></script>
-        <script src="{{ Asset('dist/js/components.js') }}?2.0"></script>
+        <script src="{{ Asset('dist/js/components.js') }}?2.1"></script>
         <script>
             window.Laravel = {!! json_encode([
                 'apiToken' => auth()->user()->api_token ?? null,

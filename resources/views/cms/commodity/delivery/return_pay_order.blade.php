@@ -30,7 +30,7 @@
                 class="btn btn-sm btn-warning" rel="noopener noreferrer">中一刀列印畫面</a>
 
             <a href="{{ route('cms.collection_payment.edit_note', ['id' => $paying_order->id]) }}"
-                class="btn btn-dark btn-sm my-1 ms-1" role="button">編輯付款項目備註</a>
+                class="btn btn-sm btn-dark" role="button">編輯付款項目備註</a>
         </div>
     </nav>
 

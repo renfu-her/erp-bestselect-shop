@@ -430,6 +430,13 @@ Breadcrumbs::for('cms.consignment-stock.stock_detail_log', function (BreadcrumbT
     $trail->push('#' . $value . ' 明細');
 });
 
+// 業績報表
+Breadcrumbs::for('cms.user-performance-report.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('業績報表', route('cms.user-performance-report.index'));
+});
+
+
 // *** 共用頁 *** //
 Breadcrumbs::for('cms.logistic.changeLogisticStatus', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.' . $value['parent'] . '.index');

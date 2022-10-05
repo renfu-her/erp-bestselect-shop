@@ -316,11 +316,13 @@ class Consignment extends Model
                 , 'dlv_delivery.audit_user_name as dlv_audit_user_name'
                 , 'dlv_delivery.logistic_status as logistic_status'
 
+                , 'dlv_logistic.id as lgt_id'
                 , 'dlv_logistic.sn as lgt_sn'
                 , 'dlv_logistic.package_sn'
                 , 'dlv_logistic.projlgt_order_sn'
                 , 'dlv_logistic.cost as lgt_cost'
                 , 'dlv_logistic.memo as lgt_memo'
+                , 'dlv_logistic.po_note as lgt_po_note'
                 , 'shi_group.name as group_name'
                 , 'shi_group.note as group_note'
                 , 'shi_temps.temps'
