@@ -496,20 +496,24 @@
      * 選擇表格顯示欄位
      * @param {*} $table 資料的表格
      * @param {*} $fieldset 選擇欄位Checkbox的容器
-     * @param {*} defaultHide 預設隱藏的欄位 (預設全顯示)
-     * @param {*} type 選項類型 (預設fieldset): dropdown 下拉
+     * @param {Object} option 選項
+     *  - @param {*} defaultHide 預設隱藏的欄位 (預設全顯示)
+     *  - @param {*} type 選項類型 (預設fieldset): dropdown 下拉
      */
-     window.setPrintTrCheckbox = function ($table, $fieldset, defaultHide = [], type = '') {
+     window.setPrintTrCheckbox = function ($table, $fieldset, option = {
+        defaultHide: [], 
+        type: ''
+     }) {
         const $th = $table.find('thead tr > *');
         // 全選
-        switch (type) {
+        switch (option.type) {
             case 'dropdown':
                 $fieldset.append(`
                 <li class="dropdown-item">
                     <div class="form-check fw-bold">
                         <label class="form-check-label w-100" role="button">
                             <input class="form-check-input -all" type="checkbox" 
-                                ${defaultHide.length === 0 ? 'checked' : ''}>
+                                ${option.defaultHide.length === 0 ? 'checked' : ''}>
                             全選
                         </label>
                     </div>
@@ -521,7 +525,7 @@
                 <div class="form-check form-check-inline fw-bold">
                     <label class="form-check-label">
                         <input class="form-check-input -all" type="checkbox" 
-                            ${defaultHide.length === 0 ? 'checked' : ''}>
+                            ${option.defaultHide.length === 0 ? 'checked' : ''}>
                         全選
                     </label>
                 </div>
@@ -532,8 +536,8 @@
             // element == this
             const nth = index + 1;
             const field = $(element).text();
-            const checked = defaultHide.indexOf(nth) < 0 ? 'checked' : '';
-            switch (type) {
+            const checked = option.defaultHide.indexOf(nth) < 0 ? 'checked' : '';
+            switch (option.type) {
                 case 'dropdown':
                     $fieldset.append(`
                     <li class="dropdown-item">
@@ -587,8 +591,8 @@
         });
 
         // 預設隱藏的欄位
-        if (defaultHide.length > 0) {
-            for (const i of defaultHide) {
+        if (option.defaultHide.length > 0) {
+            for (const i of option.defaultHide) {
                 if (isFinite(i)) {
                     $table.find(`
                     thead tr > *:nth-child(${i}), 
