@@ -20,6 +20,7 @@ use App\Models\DayEnd;
 use App\Models\Delivery;
 use App\Models\Depot;
 use App\Models\ProductStock;
+use App\Models\ProductStyle;
 use App\Models\PurchaseInbound;
 use App\Models\PurchaseLog;
 use App\Models\ReceiveDepot;
@@ -193,7 +194,10 @@ class ConsignmentCtrl extends Controller
     {
         $query = $request->query();
         $consignmentData  = Consignment::getDeliveryData($id)->get()->first();
-        $consignmentItemData = ConsignmentItem::getOriginInboundDataList($id)->get();
+        $consignmentItemData = ConsignmentItem::getOriginInboundDataList($id)
+            ->leftJoin(app(ProductStyle::class)->getTable() . ' as style', 'style.id', '=', 'items.product_style_id')
+            ->addSelect('style.in_stock')
+            ->get();
 
         if (!$consignmentData) {
             return abort(404);
