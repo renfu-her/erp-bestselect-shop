@@ -16,8 +16,12 @@
         <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
             <div class="p-1 pe-2">
                 <a target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-warning"
-                   href="{{ Route('cms.consignment.print_order_ship', ['id' => $id]) }}">
-                    列印出貨單
+                   href="{{ Route('cms.consignment.print_order_ship', ['id' => $id]) . '?type=M1' }}">
+                    列印出貨單-中一刀
+                </a>
+                <a target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-warning"
+                   href="{{ Route('cms.consignment.print_order_ship', ['id' => $id]) . '?type=A4' }}">
+                    列印出貨單-A4
                 </a>
             </div>
         </nav>
