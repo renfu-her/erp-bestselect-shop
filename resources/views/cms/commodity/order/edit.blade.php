@@ -133,7 +133,13 @@
                     <div class="col-12 mb-3">
                         <label class="form-label">推薦人</label>
                         <div class="d-flex -recommender">
-                            <input class="form-control -recommender" type="text" value="{{ old('mcode', $mcode ?? '') }}" placeholder="請輸入推薦人編號" aria-label="推薦人編號">
+                            <div class="input-group">
+                                <input type="text" class="form-control -recommender"  value="{{ old('mcode', $mcode ?? '') }}" 
+                                    placeholder="請輸入推薦人編號" aria-label="推薦人編號">
+                                <button class="btn btn-outline-danger -del" type="button" data-bs-toggle="tooltip" title="清空">
+                                    <i class="bi bi-trash3"></i>
+                                </button>
+                            </div>
                             <input type="hidden" name="mcode" >
                             <button type="button" class="btn btn-outline-primary mx-1 px-4 col-auto -recommender">確認</button>
                         </div>
@@ -865,7 +871,14 @@
             if ($('input.-recommender').val() !== '') {
                 checkRecommender($('input.-recommender').val());
             }
-
+            // btn - 清空
+            $('.d-flex.-recommender button.-del').off('click').on('click', function () {
+                $('input[name="mcode"], input.-recommender').val('');
+                $('.d-flex.-recommender, input.-recommender').removeClass('is-valid is-invalid');
+                $('.-feedback.-recommender').removeClass('valid-feedback invalid-feedback')
+                    .empty().prop('hidden', true);
+            });
+            // btn - 確認
             $('button.-recommender').off('click').on('click', function () {
                 $('input[name="mcode"]').val('');
                 // call API
