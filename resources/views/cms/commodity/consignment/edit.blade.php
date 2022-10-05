@@ -9,6 +9,7 @@
     @php
         $hasCreatedFinalPayment = $hasCreatedFinalPayment ?? false;
         $consignmentData = $consignmentData ?? null;
+        $editable = false == (isset($delivery) && isset($delivery->audit_date));
     @endphp
 
     @if ($consignmentData->audit_status == App\Enums\Consignment\AuditStatus::approved()->value)
@@ -22,75 +23,79 @@
         </nav>
     @endif
 
-    <div class="card shadow p-4 mb-4">
-        <h6>寄倉單明細</h6>
-        <dl class="row">
-            <div class="col">
-                <dt>寄倉單編號</dt>
-                <dd>{{ $consignmentData->consignment_sn }}</dd>
-            </div>
-            <div class="col">
-                <dt>建單時間</dt>
-                <dd>{{ date('Y/m/d', strtotime($consignmentData->created_at)) }}</dd>
-            </div>
-            <div class="col-sm-5">
-                <dt>建單人員</dt>
-                <dd>{{ $consignmentData->create_user_name }}</dd>
-            </div>
-        </dl>
-        <dl class="row">
-            <div class="col">
-                <dt>審核人員</dt>
-                <dd>{{ $consignmentData->audit_user_name ?? '-' }}</dd>
-            </div>
-            <div class="col">
-                <dt>審核日期</dt>
-                <dd>{{ date('Y/m/d', strtotime($consignmentData->audit_date)) ?? '-' }}</dd>
-            </div>
-            <div class="col-sm-5">
-                <dt></dt>
-                <dd></dd>
-            </div>
-        </dl>
-        <dl class="row">
-            <div class="col">
-                <dt>寄件倉</dt>
-                <dd>{{ $consignmentData->send_depot_name ?? '-' }}</dd>
-            </div>
-            <div class="col">
-                <dt>寄件倉電話</dt>
-                <dd>{{ $consignmentData->send_depot_tel ?? '-' }}</dd>
-            </div>
-            <div class="col-sm-5">
-                <dt>寄件倉地址</dt>
-                <dd>{{ $consignmentData->send_depot_address ?? '-' }}</dd>
-            </div>
-        </dl>
-        <dl class="row">
-            <div class="col">
-                <dt>收件倉</dt>
-                <dd>{{ $consignmentData->receive_depot_name ?? '-' }}</dd>
-            </div>
-            <div class="col">
-                <dt>收件倉電話</dt>
-                <dd>{{ $consignmentData->receive_depot_tel ?? '-' }}</dd>
-            </div>
-            <div class="col-sm-5">
-                <dt>收件倉地址</dt>
-                <dd>{{ $consignmentData->receive_depot_address ?? '-' }}</dd>
-            </div>
-        </dl>
-        <dl class="row">
-            <div class="col-auto" style="width: calc(100%/12*8.5);">
-                <dt>寄倉單備註</dt>
-                <dd>{{ $consignmentData->memo ?? '-' }}</dd>
-            </div>
-        </dl>
-    </div>
-
     <form id="form1" method="post" action="{{ $formAction }}">
         @method('POST')
         @csrf
+        <div class="card shadow p-4 mb-4">
+            <h6>寄倉單明細</h6>
+            <dl class="row">
+                <div class="col">
+                    <dt>寄倉單編號</dt>
+                    <dd>{{ $consignmentData->consignment_sn }}</dd>
+                </div>
+                <div class="col">
+                    <dt>建單時間</dt>
+                    <dd>{{ date('Y/m/d', strtotime($consignmentData->created_at)) }}</dd>
+                </div>
+                <div class="col-sm-5">
+                    <dt>建單人員</dt>
+                    <dd>{{ $consignmentData->create_user_name }}</dd>
+                </div>
+            </dl>
+            <dl class="row">
+                <div class="col">
+                    <dt>審核人員</dt>
+                    <dd>{{ $consignmentData->audit_user_name ?? '-' }}</dd>
+                </div>
+                <div class="col">
+                    <dt>審核日期</dt>
+                    <dd>{{ date('Y/m/d', strtotime($consignmentData->audit_date)) ?? '-' }}</dd>
+                </div>
+                <div class="col-sm-5">
+                    <dt></dt>
+                    <dd></dd>
+                </div>
+            </dl>
+            <dl class="row">
+                <div class="col">
+                    <dt>寄件倉</dt>
+                    <dd>{{ $consignmentData->send_depot_name ?? '-' }}</dd>
+                </div>
+                <div class="col">
+                    <dt>寄件倉電話</dt>
+                    <dd>{{ $consignmentData->send_depot_tel ?? '-' }}</dd>
+                </div>
+                <div class="col-sm-5">
+                    <dt>寄件倉地址</dt>
+                    <dd>{{ $consignmentData->send_depot_address ?? '-' }}</dd>
+                </div>
+            </dl>
+            <dl class="row">
+                <div class="col">
+                    <dt>收件倉</dt>
+                    <dd>{{ $consignmentData->receive_depot_name ?? '-' }}</dd>
+                </div>
+                <div class="col">
+                    <dt>收件倉電話</dt>
+                    <dd>{{ $consignmentData->receive_depot_tel ?? '-' }}</dd>
+                </div>
+                <div class="col-sm-5">
+                    <dt>收件倉地址</dt>
+                    <dd>{{ $consignmentData->receive_depot_address ?? '-' }}</dd>
+                </div>
+            </dl>
+
+            <dl class="row">
+                <div class="col-auto" style="width: calc(100%/12*8.5);">
+                    <dt>寄倉單備註</dt>
+                    @if(null == $consignmentData || (isset($consignmentData) && true == $editable))
+                        <textarea id="order_memo" name="order_memo" class="form-control" rows="3">{{ old('order_memo', $consignmentData->memo  ?? '') }}</textarea>
+                    @else
+                        <dd>{{ $consignmentData->memo ?? '-' }}</dd>
+                    @endif
+                </div>
+            </dl>
+        </div>
 
         @php
             $editable = !$hasCreatedFinalPayment && $consignmentData->close_date == null
