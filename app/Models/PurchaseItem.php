@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\DB;
 
 class PurchaseItem extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
     protected $table = 'pcs_purchase_items';
     protected $guarded = [];
 
@@ -128,7 +128,7 @@ class PurchaseItem extends Model
             } else {
                 return DB::transaction(function () use ($items, $purchase_id, $del_item_id_arr, $operator_user_id, $operator_user_name
                 ) {
-                    PurchaseItem::whereIn('id', $del_item_id_arr)->delete();
+                    PurchaseItem::whereIn('id', $del_item_id_arr)->forceDelete();
                     foreach ($items as $item) {
                         PurchaseLog::stockChange($purchase_id, $item->product_style_id, Event::purchase()->value, $item->id, LogEventFeature::style_del()->value, null, null, null, $item->title, 'p', $operator_user_id, $operator_user_name);
                     }

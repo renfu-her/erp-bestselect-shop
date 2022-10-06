@@ -1072,6 +1072,7 @@ class PurchaseInbound extends Model
     public static function getCsnExistInboundProductStyleList($event) {
         $queryInbound = DB::table('pcs_purchase_inbound as inbound')
             ->where('inbound.event', $event)
+            ->whereNull('inbound.deleted_at')
             ->select(
                 'inbound.product_style_id as product_style_id'
                 , 'inbound.depot_id as depot_id'  //入庫倉庫ID

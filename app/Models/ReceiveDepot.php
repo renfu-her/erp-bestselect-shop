@@ -187,7 +187,7 @@ class ReceiveDepot extends Model
                         ->where('rcv_depot.prd_type', 'ce')
                         ->where('sub_orders.ship_category', $delivery->ship_category)
                         ->whereNull('delivery.deleted_at')
-                        ->whereNull('delivery.deleted_at')
+                        ->whereNull('rcv_depot.deleted_at')
                         ->select(
                             'rcv_depot.delivery_id'
                             , 'rcv_depot.event_item_id'
@@ -217,8 +217,9 @@ class ReceiveDepot extends Model
                         ->where('delivery.event', Event::consignment()->value)
                         ->where('rcv_depot.prd_type', 'ce')
                         ->whereNull('delivery.deleted_at')
-                        ->whereNull('delivery.deleted_at')
+                        ->whereNull('rcv_depot.deleted_at')
                         ->whereNull('items.deleted_at')
+                        ->whereNull('consignment.deleted_at')
                         ->select(
                             'rcv_depot.delivery_id'
                             , 'rcv_depot.event_item_id'
@@ -266,6 +267,7 @@ class ReceiveDepot extends Model
                                 , DB::raw('(rcv_depot.qty) as qty')
                                 , DB::raw('(rcv_depot.unit_cost * rcv_depot.qty) as cost')
                             )
+                            ->whereNull('rcv_depot.deleted_at')
                             ->where('rcv_depot.delivery_id', '=', $delivery_id)
                             ->where('rcv_depot.event_item_id', '=', $element->event_item_id)
                             ->where('rcv_depot.prd_type', '=', 'ce');
