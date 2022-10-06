@@ -75,8 +75,8 @@
                                         </td>
                                     @else
                                         <td class="text-center">
-                                            <input type="hidden" name="back_qty[]" value="{{ $item->back_qty ?? '' }}" />
-                                            {{ $item->back_qty ? number_format($item->back_qty) : '' }}
+                                            <input type="hidden" name="back_qty[]" value="{{ $item->back_qty ?? 0 }}" />
+                                            {{ $item->back_qty ? number_format($item->back_qty) : 0 }}
                                         </td>
                                     @endif
                                     <td>
