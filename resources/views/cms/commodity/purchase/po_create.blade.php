@@ -77,7 +77,7 @@
                                     </td>
                                     <td class="text-wrap">{{ $product_grade_name }}</td>
                                     <td class="text-wrap">{{ $value->title . '（負責人：' . $value->name }}）</td>
-                                    <td class="text-end">${{ number_format($value->total_price / $value->num, 2) }}</td>
+                                    <td class="text-end">${{ $value->num > 0 ? number_format($value->total_price / $value->num, 2) : number_format(0, 2) }}</td>
                                     <td class="text-end">{{ $value->num }}</td>
                                     <td class="text-end">{{ $currency->rate }}</td>
                                     <td>{{ $currency->name }}</td>

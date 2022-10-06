@@ -242,10 +242,10 @@ class RefundCtrl extends Controller
             }
         // accounting classification end
 
-        $user = User::whereNull('deleted_at')->select('id', 'name', 'account', 'email')->get()->toArray();
+        $user = User::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
         $customer = Customer::whereNull('deleted_at')->select('id', 'name', 'email')->get()->toArray();
         $depot = Depot::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
-        $supplier = Supplier::whereNull('deleted_at')->select('id', 'name', 'contact_person')->get()->toArray();
+        $supplier = Supplier::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
         $payee_merged = array_merge($user, $customer, $depot, $supplier);
 
         $balance_status = [

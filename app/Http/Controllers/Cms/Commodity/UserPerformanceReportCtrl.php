@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Cms\Commodity;
 
 use App\Http\Controllers\Controller;
 use App\Models\RptOrganizeReportMonthly;
+use App\Models\RptUserReportMonthly;
+use App\Models\User;
 use App\Models\UserOrganize;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -135,8 +137,57 @@ class UserPerformanceReportCtrl extends Controller
             'query' => $query,
             'targetType' => 'group',
             'cond' => $cond,
+            'prevPage' => route('cms.user-performance-report.index', $cond),
 
         ]);
+    }
+
+    public function group(Request $request, $organize_id)
+    {
+        $query = $request->query();
+        $cond = self::cond($query);
+
+        $dataList = RptUserReportMonthly::dataList($cond['type'], $cond['year'], [
+            'season' => $cond['season'],
+            'month' => $cond['month'],
+            'group' => $organize_id])
+            ->get();
+
+        $organize_parent_id = UserOrganize::where('id', $organize_id)->get()->first()->parent;
+
+        return view('cms.commodity.user_performance_report.list', [
+            'dataList' => $dataList,
+            'pageTitle' => self::pageTitle($cond, $organize_id),
+            'query' => $query,
+            'targetType' => 'user',
+            'cond' => $cond,
+            'prevPage' => route('cms.user-performance-report.department', array_merge($cond, ['organize_id' => $organize_parent_id])),
+        ]);
+    }
+
+    public function user(Request $request, $user_id)
+    {
+        $query = $request->query();
+        $cond = self::cond($query);
+
+        $dataList = RptUserReportMonthly::userOrder($cond['type'], $cond['year'], [
+            'season' => $cond['season'],
+            'month' => $cond['month'],
+            'user_id' => $user_id])
+            ->get();
+
+        $user = User::where('id', $user_id)->get()->first();
+
+        $organize_id = UserOrganize::where('level', 3)->where('title', $user->group)->get()->first()->id;
+
+        return view('cms.commodity.user_performance_report.order_list', [
+            'dataList' => $dataList,
+            'pageTitle' => $user->name . " " . self::pageTitle($cond),
+            'query' => $query,
+            'cond' => $cond,
+            'prevPage' => route('cms.user-performance-report.group', array_merge($cond, ['organize_id' => $organize_id])),
+        ]);
+
     }
 
     /**

@@ -154,6 +154,7 @@ class OrderItem extends Model
                 'item.qty',
                 'item.unit_cost',
                 'item.origin_price',
+                'style.estimated_cost',
                 'user.name as product_user',
                 'sub_order.sn as sub_order_sn',
                 'channel.title as channel_title',

@@ -150,12 +150,12 @@
                                 <th scope="col">商品名稱</th>
                                 <th scope="col">SKU</th>
                                 <th scope="col" style="width: 10%">寄倉數量</th>
+                                <th scope="col">目前可售數量</th>
                                 <th scope="col" style="width: 12%" class="text-end">寄倉價錢</th>
                                 <th scope="col" style="width: 12%" class="text-end">小計</th>
                                 <th scope="col">採購入庫單號</th>
                                 <th scope="col">狀態</th>
                                 <th scope="col">入庫人員</th>
-                                <th scope="col">目前可售數量</th>
                             </tr>
                         </thead>
                         <tbody class="-appendClone --selectedP">
@@ -214,12 +214,12 @@
                                             <input type="hidden" name="num[]" value="{{ $psItemVal->num }}">
                                         @endif
                                     </td>
+                                    <td data-td="in_stock">{{ old('in_stock.'. $psItemKey, $psItemVal->in_stock ?? '') }}</td>
                                     <td data-td="price" class="text-end">$ {{ old('price.'. $psItemKey, $psItemVal->price ?? '') }}</td>
                                     <td data-td="total" class="text-end">$ 0</td>
                                     <td data-td="origin_inbound_sn">{{ old('origin_inbound_sn.'. $psItemKey, $psItemVal->origin_inbound_sn ?? '') }}</td>
                                     <td data-td="inbound_type">{{ old('inbound_type.'. $psItemKey, $psItemVal->inbound_type ?? '') }}</td>
                                     <td data-td="inbound_user_name">{{ old('inbound_user_name.'. $psItemKey, $psItemVal->inbound_user_name ?? '') }}</td>
-                                    <td data-td="in_stock">{{ old('in_stock.'. $psItemKey, $psItemVal->in_stock ?? '') }}</td>
                                 </tr>
                             @endforeach
                         @endif
