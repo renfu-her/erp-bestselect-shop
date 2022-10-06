@@ -12,7 +12,7 @@
                     <select class="form-select -select2 -single" name="drawee_key" aria-label="客戶" data-placeholder="請選擇客戶">
                         <option value="" selected>不限</option>
                         @foreach ($drawee as $value)
-                            <option value="{{ $value['id'] . '|' . $value['name'] }}" {{ $value['id'] . '|' . $value['name'] == $cond['drawee_key'] ? 'selected' : '' }}>{{ $value['name'] }}</option>
+                            <option value="{{ $value['id'] . '|' . $value['name'] }}" {{ $value['id'] . '|' . $value['name'] == $cond['drawee_key'] ? 'selected' : '' }}>{{ $value['name'] . ' - ' . ($value['email'] ?? $value['id']) }}</option>
                             {{-- <option value="{{ $value }}" {{ $value == $cond['drawee_key'] ? 'selected' : '' }}>{{ $value }}</option> --}}
                         @endforeach
                     </select>
