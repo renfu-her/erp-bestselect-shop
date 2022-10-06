@@ -58,6 +58,7 @@
                 <tfoot>
                     <tr>
                         <th colspan="2">合計</th>
+                        <th></th>
                         <th class="text-center">{{ $origin_price }}</th>
                         <th class="text-center">{{ $gross_profit }}</th>
                     </tr>
