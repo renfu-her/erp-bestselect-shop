@@ -190,7 +190,12 @@ class TransferVoucherCtrl extends Controller
 
         $day_emd_item = DayEndItem::where('source_sn', $voucher->tv_sn)->first();
 
-        return view('cms.account_management.transfer_voucher.show', [
+        $view = 'cms.account_management.transfer_voucher.show';
+        if (request('action') == 'print') {
+            $view = 'doc.print_transfer_voucher';
+        }
+
+        return view($view, [
             'voucher' => $voucher,
             'day_emd_item' => $day_emd_item,
         ]);

@@ -88,8 +88,8 @@
                         <td style="text-align: right;">{{ number_format($logistic->qty) }}</td>
                         <td style="text-align: right;">{{ number_format($sub_order->logistic_cost, 2) }}</td>
                         <td style="text-align: right;">{{ number_format($sub_order->logistic_cost * $logistic->qty) }}</td>
-                        <td>{!! nl2br(e($sub_order->logistic_memo)) !!}</td>
-                        <td>{!! nl2br(e($sub_order->logistic_po_note)) !!}</td>
+                        <td>{!! nl2br($sub_order->logistic_memo) !!}</td>
+                        <td>{!! nl2br($sub_order->logistic_po_note) !!}</td>
                     </tr>
                 @endif
                 </tbody>
