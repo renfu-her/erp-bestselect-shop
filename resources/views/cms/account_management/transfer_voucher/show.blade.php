@@ -26,17 +26,12 @@
             <h4 class="text-center">轉帳傳票</h4>
             <h4 class="text-center">中華民國 {{ date('Y', strtotime($voucher->tv_voucher_date)) - 1911 }} 年 {{ date('m', strtotime($voucher->tv_voucher_date)) }} 月 {{ date('d', strtotime($voucher->tv_voucher_date)) }} 日</h4>
             
-            <hr>
             <dl class="row mb-0">
-                <div class="col">
-                    <dd>傳票編號：{{ $day_emd_item ? $day_emd_item->sn : '' }}</dd>
-                </div>
-                <div class="col text-end">
-                    <dd>單號：{{ $voucher->tv_sn }}</dd>
-                </div>
+                <div class="col">傳票編號：{{ $day_emd_item ? $day_emd_item->sn : '' }}</div>
+                <div class="col text-end">單號：{{ $voucher->tv_sn }}</div>
             </dl>
         </div>
-
+        
         <div class="mb-3">
             <div class="table-responsive tableoverbox">
                 <table class="table tablelist table-sm mb-0 align-middle">
