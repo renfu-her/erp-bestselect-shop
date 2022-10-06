@@ -449,19 +449,25 @@ class InboundImportCtrl extends Controller
         $prdStyle = $inboundImport->prdStyle;
 
         $oldNewStockDiffExport = new OldNewStockDiffExport($prdStyle);
-        //寫入DB
-        $curr_date = date('Y-m-d H:i:s');
-        PcsErrStock0917::truncate();
-        foreach ($oldNewStockDiffExport->array() as $key_ps => $val_ps) {
-            PcsErrStock0917::create([
-                'no' => $val_ps['no']
-                , 'type_title' => $val_ps['type_title']
-                , 'product_title' => $val_ps['product_title']
-                , 'spec' => $val_ps['spec']
-                , 'sku' => $val_ps['sku']
-                , 'total_in_stock_num' => $val_ps['total_in_stock_num']
-                , 'user_name' => $val_ps['user_name']
-            ]);
+
+        $pcsErrStock0917 = PcsErrStock0917::all();
+        if (0 < count($pcsErrStock0917)) {
+            dd('已匯入過，不可在匯入');
+        } else {
+            //寫入DB
+            $curr_date = date('Y-m-d H:i:s');
+            PcsErrStock0917::truncate();
+            foreach ($oldNewStockDiffExport->array() as $key_ps => $val_ps) {
+                PcsErrStock0917::create([
+                    'no' => $val_ps['no']
+                    , 'type_title' => $val_ps['type_title']
+                    , 'product_title' => $val_ps['product_title']
+                    , 'spec' => $val_ps['spec']
+                    , 'sku' => $val_ps['sku']
+                    , 'total_in_stock_num' => $val_ps['total_in_stock_num']
+                    , 'user_name' => $val_ps['user_name']
+                ]);
+            }
         }
         return ($oldNewStockDiffExport)->download("stock-diff-" . date('Ymd His') . ".xlsx");
     }
