@@ -40,7 +40,13 @@ class ProductStock extends Model
 
             //若為理貨倉 才需做判斷是否通路庫存in_stock是否足夠
             if (true == $inbound_can_tally && $style['in_stock'] + $qty < 0 && false == $is_pcs_inbound) {
-                return ['success' => 0, 'error_msg' => '數量超出範圍', 'event' => 'stock', 'event_id' => $product_style_id];
+                //回傳具體商品款式名稱
+                $style = DB::table(app(ProductStyle::class)->getTable() . ' as style')
+                    ->leftJoin(app(Product::class)->getTable(). ' as product', 'product.id', '=', 'style.product_id')
+                    ->where('style.id', '=', $product_style_id)
+                    ->select('product.title as product_title', 'style.title as spec')
+                    ->get()->first();
+                return ['success' => 0, 'error_msg' => '數量超出範圍 ' . $style->product_title. '-'. $style->spec, 'event' => 'stock', 'event_id' => $product_style_id];
             }
 
             $product_style = ProductStyle::where('id', $product_style_id);

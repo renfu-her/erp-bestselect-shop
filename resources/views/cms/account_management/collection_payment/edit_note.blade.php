@@ -23,14 +23,32 @@
                             $serial = 1;
                         @endphp
 
-                        @foreach($delivery->delivery_back_items as $value)
+                        @foreach($item_data as $value)
                             <tr>
                                 <td class="text-center">{{ $serial }}</td>
-                                <td>{{ $value->product_title }}</td>
+                                <td>{{ $value->title }}</td>
                                 <td class="text-end">{{ $value->qty }}</td>
                                 <td class="text-end">{{ number_format($value->total_price, 2) }}</td>
-                                <td><input class="form-control form-control-sm -l" name="order_item[{{ $value->event_item_id }}][note]" type="text" value="{{ $value->note }}"></td>
-                                <td><input class="form-control form-control-sm -l" name="order_item[{{ $value->event_item_id }}][po_note]" type="text" value="{{ $value->po_note }}"></td>
+                                <td><input class="form-control form-control-sm -l" name="item[{{ $value->item_id }}][note]" type="text" value="{{ $value->note }}"></td>
+                                <td><input class="form-control form-control-sm -l" name="item[{{ $value->item_id }}][po_note]" type="text" value="{{ $value->po_note }}"></td>
+                            </tr>
+                            @php
+                                $serial++;
+                            @endphp
+                        @endforeach
+
+                        @foreach($logistic_data as $logistic_value)
+                            <tr>
+                                <td class="text-center">{{ $serial }}</td>
+                                <td>{{ $logistic_value->title }}</td>
+                                <td class="text-end">{{ $logistic_value->qty }}</td>
+                                <td class="text-end">{{ number_format($logistic_value->total_price, 2) }}</td>
+                                @if($paying_order->type == 1 && $paying_order->source_type != 'pcs_purchase')
+                                <td><textarea class="form-control form-control-sm -l" name="logistic_item[{{ $logistic_value->item_id }}][note]" placeholder="物流備註">{{ $logistic_value->note }}</textarea></td>
+                                @else
+                                <td><input class="form-control form-control-sm -l" name="logistic_item[{{ $logistic_value->item_id }}][note]" type="text" value="{{ $logistic_value->note }}"></td>
+                                @endif
+                                <td><input class="form-control form-control-sm -l" name="logistic_item[{{ $logistic_value->item_id }}][po_note]" type="text" value="{{ $logistic_value->po_note }}"></td>
                             </tr>
                             @php
                                 $serial++;

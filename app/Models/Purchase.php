@@ -8,6 +8,7 @@ use App\Enums\Purchase\LogEventFeature;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 class Purchase extends Model
@@ -188,10 +189,13 @@ class Purchase extends Model
                     ];
 
                     $curr_date = date('Y-m-d H:i:s');
-                    $updArr['audit_date'] = $curr_date;
-                    $updArr['audit_user_id'] = $operator_user_id;
-                    $updArr['audit_user_name'] = $operator_user_name;
-                    $updArr['audit_status'] = $purchaseReq['audit_status'] ?? App\Enums\Consignment\AuditStatus::unreviewed()->value;
+                    //判斷變更審核狀態 才寫入審核人員
+                    if ($purchase->getRawOriginal('audit_status') != $purchaseReq['audit_status']) {
+                        $updArr['audit_date'] = $curr_date;
+                        $updArr['audit_user_id'] = $operator_user_id;
+                        $updArr['audit_user_name'] = $operator_user_name;
+                        $updArr['audit_status'] = $purchaseReq['audit_status'] ?? App\Enums\Consignment\AuditStatus::unreviewed()->value;
+                    }
                 } else {
                     $updArr = [
                         "supplier_sn" => $purchaseReq['supplier_sn'] ?? null,
@@ -324,6 +328,8 @@ class Purchase extends Model
                 , 'purchase.has_tax as has_tax'
                 , 'purchase.logistics_price as logistics_price'
                 , 'purchase.logistics_memo as logistics_memo'
+                , 'purchase.logistics_ro_note as logistics_ro_note'
+                , 'purchase.logistics_po_note as logistics_po_note'
                 , 'purchase.audit_status as audit_status'
                 , 'purchase.audit_user_id as audit_user_id'
                 , 'purchase.audit_user_name as audit_user_name'
@@ -354,6 +360,8 @@ class Purchase extends Model
                         "qty":"\', pcs_purchase_items.num, \'",
                         "total_price":"\', pcs_purchase_items.price, \'",
                         "memo":"\', COALESCE(pcs_purchase_items.memo, ""), \'",
+                        "ro_note":"\', COALESCE(pcs_purchase_items.ro_note, ""), \'",
+                        "po_note":"\', COALESCE(pcs_purchase_items.po_note, ""), \'",
                         "taxation":"\', product.has_tax, \'"
                     }\' ORDER BY pcs_purchase_items.id), \']\') AS items
                 FROM pcs_purchase_items
@@ -402,6 +410,8 @@ class Purchase extends Model
                 'purchase.purchase_user_name AS purchase_user_name',
                 'purchase.logistics_price AS purchase_logistics_price',
                 'purchase.logistics_memo AS purchase_logistics_memo',
+                'purchase.logistics_ro_note AS purchase_logistics_ro_note',
+                'purchase.logistics_po_note AS purchase_logistics_po_note',
                 'purchase.audit_user_name AS purchase_audit_user_name',
 
                 'purchase_table.items AS purchase_table_items',
@@ -441,5 +451,21 @@ class Purchase extends Model
             ->orderBy('purchase.id', 'desc');
 
         return $query;
+    }
+
+
+    public static function update_logistic($parm)
+    {
+        $update = [];
+        if(Arr::exists($parm, 'note')){
+            $update['logistics_memo'] = $parm['note'];
+        }
+        if(Arr::exists($parm, 'ro_note')){
+            $update['logistics_ro_note'] = $parm['ro_note'];
+        }
+        if(Arr::exists($parm, 'po_note')){
+            $update['logistics_po_note'] = $parm['po_note'];
+        }
+        self::where('id', $parm['logistic_id'])->update($update);
     }
 }

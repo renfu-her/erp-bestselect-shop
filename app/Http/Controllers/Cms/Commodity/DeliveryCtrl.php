@@ -97,8 +97,22 @@ class DeliveryCtrl extends Controller
             $order_status[$item] = OrderStatus::getDescription($item);
         }
 
+        $uniqueSubOrderDataList = [];
+        $subOrderIdArray = [];
+        foreach ($delivery as $deliveryDatum) {
+            if (!in_array($deliveryDatum->sub_order_id, $subOrderIdArray)){
+                $subOrderIdArray[] = $deliveryDatum->sub_order_id;
+                $deliveryDatum->productTitles = DB::table('ord_items')
+                    ->where('sub_order_id', $deliveryDatum->sub_order_id)
+                    ->select('product_title')
+                    ->get();
+                $uniqueSubOrderDataList[] = $deliveryDatum;
+            }
+        }
+
         return view('cms.commodity.delivery.list', [
             'dataList' => $delivery,
+            'uniqueSubOrderDataList' => $uniqueSubOrderDataList,
             'depotList' => Depot::all(),
             'shipmentCategory' => ShipmentCategory::all(),
             'logisticStatus' => LogisticStatus::asArray(),
@@ -1106,58 +1120,6 @@ class DeliveryCtrl extends Controller
                 'form_action' => Route('cms.delivery.return-pay-create', ['id' => $delivery->delivery_id]),
                 'transactTypeList' => AccountPayable::getTransactTypeList(),
                 'chequeStatus' => ChequeStatus::get_key_value(),
-            ]);
-        }
-    }
-
-    public function return_po_edit(Request $request, $id)
-    {
-        $request->merge([
-            'id' => $id,
-        ]);
-
-        $request->validate([
-            'id' => 'required|exists:dlv_delivery,id',
-        ]);
-
-        if ($request->isMethod('post')) {
-            $request->validate([
-                'order_item' => 'required|array',
-            ]);
-
-            DB::beginTransaction();
-
-            try {
-                if (request('order_item') && is_array(request('order_item'))) {
-                    $order_item = request('order_item');
-                    foreach ($order_item as $key => $value) {
-                        $value['order_item_id'] = $key;
-                        OrderItem::update_order_item($value);
-                    }
-                }
-
-                DB::commit();
-                wToast(__('付款項目備註更新成功'));
-
-            } catch (\Exception $e) {
-                DB::rollback();
-                wToast(__('付款項目備註更新失敗', ['type' => 'danger']));
-            }
-
-            return redirect()->route('cms.delivery.return-pay-order', ['id' => request('id')]);
-
-        } else if ($request->isMethod('get')) {
-
-            $delivery = Delivery::back_item($id)->get();
-            foreach ($delivery as $key => $value) {
-                $delivery[$key]->delivery_back_items = json_decode($value->delivery_back_items);
-            }
-            $delivery = $delivery->first();
-
-            return view('cms.commodity.delivery.return_po_edit', [
-                'breadcrumb_data' => ['event' => $delivery->delivery_event, 'eventId' => $delivery->delivery_event_id, 'sn' => $delivery->delivery_event_sn, 'id' => $delivery->delivery_id],
-                'form_action' => route('cms.delivery.return-po-edit', ['id' => request('id')]),
-                'delivery' => $delivery,
             ]);
         }
     }

@@ -6,15 +6,31 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>寄倉訂購出貨單明細列印</title>
+    @switch($ptype)
+        @case('A4')
+            <style>
+            @page {
+                size: A4 portrait;
+                /* A4 直向 */
+                margin: 5mm auto;
+                /* 邊界 */
+            }
+            </style>
+            @break
+        @case('M1')
+        @default
+            <style>
+            @page {
+                size: 214.9mm 140mm;
+                margin: 2mm 0 0;
+                /* 邊界 */
+            }
+            </style>
+    @endswitch
     <style>
         * {
             font-family: "Nunito", "Noto Sans TC", sans-serif;
             position: relative;
-        }
-        @page {
-            size: 214.9mm 140mm;
-            margin: 0;
-            /* 邊界 */
         }
 
         .font {

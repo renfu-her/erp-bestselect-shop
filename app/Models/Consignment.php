@@ -24,12 +24,14 @@ class Consignment extends Model
     public static function createData($send_depot_id, $send_depot_name, $receive_depot_id, $receive_depot_name
         , $create_user_id = null, $create_user_name = null
         , $scheduled_date = null
+        , $memo = null
     )
     {
         return DB::transaction(function () use (
             $send_depot_id, $send_depot_name, $receive_depot_id, $receive_depot_name
             , $create_user_id, $create_user_name
             , $scheduled_date
+            , $memo
 //            , $audit_date, $audit_user_id, $audit_user_name, $audit_status
             ) {
 
@@ -47,6 +49,7 @@ class Consignment extends Model
                 'create_user_id' => $create_user_id ?? null,
                 'create_user_name' => $create_user_name ?? null,
                 'scheduled_date' => $scheduled_date ?? null,
+                'memo' => $memo ?? null,
             ])->id;
 
             $rePcsLSC = PurchaseLog::stockChange($id, null, Event::consignment()->value, $id, LogEventFeature::add()->value, null,null, null,null, null, $create_user_id, $create_user_name);
@@ -84,7 +87,7 @@ class Consignment extends Model
 
         $orign_audit_status = $purchase->audit_status;
 //        $purchase->scheduled_date = $purchaseReq['scheduled_date'] ?? null;
-        $purchase->memo = $purchaseReq['memo'] ?? null;
+        $purchase->memo = $purchaseReq['order_memo'] ?? null;
         $purchase->audit_status = $purchaseReq['audit_status'] ?? null;
 
         return DB::transaction(function () use ($purchase, $id, $purchaseReq, $operator_user_id, $operator_user_name, $orign_audit_status
@@ -96,6 +99,8 @@ class Consignment extends Model
                         $event = '預計入庫日期';
                     } else if($key == 'audit_status') {
                         $event = '修改審核狀態';
+                    } else if($key == 'memo') {
+                        $event = '修改備註';
                     }
                     $rePcsLSC = PurchaseLog::stockChange($id, null, Event::consignment()->value, $id, LogEventFeature::change_data()->value, null,null, $event,null, null, $operator_user_id, $operator_user_name);
                     if ($rePcsLSC['success'] == 0) {
@@ -104,14 +109,18 @@ class Consignment extends Model
                     }
                 }
                 $curr_date = date('Y-m-d H:i:s');
-                self::where('id', $id)->update([
+                $updateArr = [
                     "scheduled_date" => $purchaseReq['scheduled_date'] ?? null,
-                    "memo" => $purchaseReq['memo'] ?? null,
-                    "audit_date" => $curr_date,
-                    "audit_user_id" => $operator_user_id,
-                    "audit_user_name" => $operator_user_name,
-                    "audit_status" => $purchaseReq['audit_status'] ?? App\Enums\Consignment\AuditStatus::unreviewed()->value,
-                ]);
+                    "memo" => $purchaseReq['order_memo'] ?? null,
+                ];
+                //判斷變更審核狀態 才寫入審核人員
+                if ($purchase->getRawOriginal('audit_status') != $purchaseReq['audit_status']) {
+                    $updateArr['audit_date'] = $curr_date;
+                    $updateArr['audit_user_id'] = $operator_user_id;
+                    $updateArr['audit_user_name'] = $operator_user_name;
+                    $updateArr['audit_status'] = $purchaseReq['audit_status'] ?? App\Enums\Consignment\AuditStatus::unreviewed()->value;
+                }
+                self::where('id', $id)->update($updateArr);
 
                 $user = new \stdClass();
                 $user->id = $operator_user_id;
@@ -307,11 +316,13 @@ class Consignment extends Model
                 , 'dlv_delivery.audit_user_name as dlv_audit_user_name'
                 , 'dlv_delivery.logistic_status as logistic_status'
 
+                , 'dlv_logistic.id as lgt_id'
                 , 'dlv_logistic.sn as lgt_sn'
                 , 'dlv_logistic.package_sn'
                 , 'dlv_logistic.projlgt_order_sn'
                 , 'dlv_logistic.cost as lgt_cost'
                 , 'dlv_logistic.memo as lgt_memo'
+                , 'dlv_logistic.po_note as lgt_po_note'
                 , 'shi_group.name as group_name'
                 , 'shi_group.note as group_note'
                 , 'shi_temps.temps'

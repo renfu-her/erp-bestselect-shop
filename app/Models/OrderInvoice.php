@@ -468,6 +468,23 @@ class OrderInvoice extends Model
         return $target;
     }
 
+
+    public static function invoice_invalid_api($id)
+    {
+        // $target = self::find($id);
+
+        // $data = [
+        //     'RespondType' => 'JSON',
+        //     'Version' => '1.0',
+        //     'TimeStamp' => time(),
+        //     'InvoiceNumber' => $target->invoice_number,
+        //     'InvalidReason' => $target->invalid_reason,
+        // ];
+
+        // $api_result = self::api_send('invoice_invalid', $data);
+    }
+
+
     public static function getData($param) {
         $query = DB::table(app(OrderInvoice::class)->getTable(). ' as ord_invoice')
             ->select('ord_invoice.*'

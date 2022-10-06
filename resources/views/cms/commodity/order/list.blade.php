@@ -146,6 +146,16 @@
                 </a>
             </div>
             <div class="col-auto">
+                <div class="btn-group">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" 
+                        data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                        顯示欄位
+                    </button>
+                    <ul id="selectField" class="dropdown-menu">
+                    </ul>
+                </div>
+            </div>
+            <div class="col-auto">
                 顯示
                 <select class="form-select d-inline-block w-auto" id="dataPerPageElem" aria-label="表格顯示筆數">
                     @foreach (config('global.dataPerPage') as $value)
@@ -275,7 +285,29 @@
                 $('#search').submit();
             });
 
-            // Chip
+            // 選擇表格顯示欄位
+            let DefHide = {};
+            try {
+                DefHide = JSON.parse(localStorage.getItem('table-hide-field')) || {};
+            } catch (error) {}
+            const Key = location.pathname;
+            
+            setPrintTrCheckbox($('table.tableList'), $('#selectField'), 
+                { type: 'dropdown', defaultHide: DefHide[Key] || [] }
+            );
+            // 紀錄選項
+            $('#selectField').parent().on('hidden.bs.dropdown', function () {
+                let temp = [];
+                $('#selectField input[type="checkbox"][data-nth]').each((i, elem) => {
+                    if (!$(elem).prop('checked')) {
+                        temp.push(Number($(elem).data('nth')));
+                    }
+                });
+                localStorage.setItem('table-hide-field', JSON.stringify({
+                    ...DefHide,
+                    [Key]: temp
+                }));
+            });
 
             // - 物態
             let selectedShipment = $('input[name="shipment_status"]').val();

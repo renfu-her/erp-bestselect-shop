@@ -28,6 +28,9 @@
 
             <a href="{{ url()->full() . '?action=print' }}" target="_blank"
                 class="btn btn-sm btn-warning" rel="noopener noreferrer">中一刀列印畫面</a>
+
+            <a href="{{ route('cms.collection_payment.edit_note', ['id' => $paying_order->id]) }}"
+                class="btn btn-dark btn-sm" role="button">編輯付款項目備註</a>
         </div>
     </nav>
 
@@ -87,7 +90,7 @@
                             <th scope="col" class="text-end">數量</th>
                             <th scope="col" class="text-end">單價</th>
                             <th scope="col" class="text-end">應付金額</th>
-                            <th scope="col">備註</th>
+                            <th scope="col" colspan="2">備註</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -97,7 +100,8 @@
                                 <td class="text-end">{{ number_format($logistic->qty) }}</td>
                                 <td class="text-end">{{ number_format($sub_order->logistic_cost, 2) }}</td>
                                 <td class="text-end">{{ number_format($sub_order->logistic_cost * $logistic->qty) }}</td>
-                                <td>@php echo $sub_order->logistic_memo ?? '' @endphp</td>
+                                <td>{!! nl2br($sub_order->logistic_memo) !!}</td>
+                                <td>{!! nl2br($sub_order->logistic_po_note) !!}</td>
                             </tr>
                         @endif
                     </tbody>
@@ -110,6 +114,7 @@
                                 </div>
                             </td>
                             <td class="text-end">{{ number_format($paying_order->price) }}</td>
+                            <td></td>
                             <td></td>
                         </tr>
                     </tfoot>

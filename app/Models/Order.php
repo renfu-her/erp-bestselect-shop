@@ -133,10 +133,6 @@ class Order extends Model
         }
 
         if ($item_title) {
-            $order->leftJoin('ord_items as ord_items', function ($join) {
-                $join->on('ord_items.order_id', '=', 'so.order_id')
-                    ->on('ord_items.sub_order_id', '=', 'so.id');
-            });
             $order->where(function ($query) use ($item_title) {
                 $query->Where('ord_items.product_title', 'like', "%{$item_title}%")
                     ->orWhere('ord_items.sku', 'like', "%{$item_title}%");
@@ -344,6 +340,7 @@ class Order extends Model
             ->selectRaw("IF(dlv_logistic.ship_group_id IS NULL,'',dlv_logistic.ship_group_id) as ship_group_id")
             ->selectRaw("IF(dlv_logistic.cost IS NULL,'',dlv_logistic.cost) as logistic_cost")
             ->selectRaw("IF(dlv_logistic.memo IS NULL,'',dlv_logistic.memo) as logistic_memo")
+            ->selectRaw("IF(dlv_logistic.po_note IS NULL,'',dlv_logistic.po_note) as logistic_po_note")
         // ->selectRaw("IF(dlv_logistic.projlgt_order_sn IS NULL,'',dlv_logistic.projlgt_order_sn) as projlgt_order_sn")
             ->selectRaw("IF(shi_group.name IS NULL,'',shi_group.name) as ship_group_name")
             ->selectRaw("IF(shi_group.note IS NULL,'',shi_group.note) as ship_group_note")

@@ -77,7 +77,7 @@
                     <label class="form-label">採購廠商 <span class="text-danger">*</span></label>
                     @if ($method === 'edit')
                         <div class="form-control" readonly>
-                            {{ $purchaseData->supplier_name }}@if ($purchaseData->supplier_nickname)（{{ $purchaseData->supplier_nickname }}） @endif
+                            {{ $purchaseData->supplier_name }}@if ($purchaseData->supplier_nickname)（{{ $purchaseData->supplier_nickname }}） @endif （{{ $purchaseData->supplier_id }}）
                         </div>
                     @else
                         <select id="supplier" aria-label="採購廠商" required
@@ -86,7 +86,7 @@
                             @foreach ($supplierList as $supplierItem)
                                 <option value="{{ $supplierItem->id }}"
                                         @if ($supplierItem->id == old('supplier')) selected @endif>
-                                    {{ $supplierItem->name }}@if ($supplierItem->nickname)（{{ $supplierItem->nickname }}） @endif
+                                    {{ $supplierItem->name }}@if ($supplierItem->nickname)（{{ $supplierItem->nickname }}）（{{ $supplierItem->id }}） @endif
                                 </option>
                             @endforeach
                         </select>
@@ -368,7 +368,7 @@
                         </div>
                         <div class="col-12 col-sm-6 mb-3">
                             <label class="form-label">發票號碼</label>
-                            <input class="form-control" name="invoice_num" type="text" placeholder="請輸入發票號碼" maxlength="10"
+                            <input class="form-control" name="invoice_num" type="text" placeholder="請輸入發票號碼" maxlength="80"
                                 aria-label="發票號碼" value="{{ old('invoice_num', $purchaseData->invoice_num  ?? '') }}">
                         </div>
                         <div class="col-12 col-sm-6 mb-3">

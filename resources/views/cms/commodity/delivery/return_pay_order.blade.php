@@ -29,7 +29,8 @@
             <a href="{{ url()->full() . '?action=print' }}" target="_blank" 
                 class="btn btn-sm btn-warning" rel="noopener noreferrer">中一刀列印畫面</a>
 
-            <a href="{{ Route('cms.delivery.return-po-edit', ['id' => $delivery->delivery_id]) }}" role="button" class="btn btn-dark btn-sm my-1 ms-1">編輯付款項目備註</a>
+            <a href="{{ route('cms.collection_payment.edit_note', ['id' => $paying_order->id]) }}"
+                class="btn btn-sm btn-dark" role="button">編輯付款項目備註</a>
         </div>
     </nav>
 

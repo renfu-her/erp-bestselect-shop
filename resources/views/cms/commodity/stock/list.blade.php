@@ -88,14 +88,16 @@
 
             <div class="col">
                 <input type="hidden" name="data_per_page" value="{{ $searchParam['data_per_page'] }}" />
-                <div type="submit" class="btn btn-primary px-4" onclick="submitAction('{{ Route('cms.stock.index') }}', 'GET')">搜尋</div>
-                <div class="col">
-                    @can('cms.stock.export-detail')
-                        <div type="submit" class="btn btn-primary btn-sm my-1 ms-1" onclick="submitAction('{{ Route('cms.stock.export-detail') }}', 'POST')">匯出庫存明細EXCEL</div>
-                    @endcan
-                    @can('cms.stock.export-check')
-                        <div type="submit" class="btn btn-primary btn-sm my-1 ms-1" onclick="submitAction('{{ Route('cms.stock.export-check') }}', 'POST')">匯出盤點明細EXCEL</div>
-                    @endcan
+                <button type="submit" class="btn btn-primary px-4 mb-1" onclick="submitAction('{{ Route('cms.stock.index') }}', 'GET')">搜尋</button>
+                
+                @can('cms.stock.export-detail')
+                    <button type="button" class="btn btn-outline-success mb-1" onclick="submitAction('{{ Route('cms.stock.export-detail') }}', 'POST')">匯出庫存明細EXCEL</button>
+                @endcan
+                @can('cms.stock.export-check')
+                    <button type="button" class="btn btn-outline-success mb-1" onclick="submitAction('{{ Route('cms.stock.export-check') }}', 'POST')">匯出盤點明細EXCEL</button>
+                @endcan
+
+                <div class="mt-1">
                     <mark class="fw-light small">
                         <i class="bi bi-exclamation-diamond-fill mx-2 text-warning"></i>匯出excel會根據上面當前篩選條件輸出資料呦！
                     </mark>
@@ -106,6 +108,16 @@
 
     <div class="card shadow p-4 mb-4">
         <div class="row justify-content-end mb-4">
+            <div class="col-auto">
+                <div class="btn-group">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" 
+                        data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                        顯示欄位
+                    </button>
+                    <ul id="selectField" class="dropdown-menu">
+                    </ul>
+                </div>
+            </div>
             <div class="col-auto">
                 顯示
                 <select class="form-select d-inline-block w-auto" id="dataPerPageElem" aria-label="表格顯示筆數">
@@ -203,15 +215,36 @@
     </div>
 @endsection
 @once
-    @push('sub-styles')
-        <style>
-        </style>
-    @endpush
     @push('sub-scripts')
         <script>
+            // 顯示筆數
             $('#dataPerPageElem').on('change', function(e) {
                 $('input[name=data_per_page]').val($(this).val());
                 $('#search').submit();
+            });
+            
+            // 選擇表格顯示欄位
+            let DefHide = {};
+            try {
+                DefHide = JSON.parse(localStorage.getItem('table-hide-field')) || {};
+            } catch (error) {}
+            const Key = location.pathname;
+            
+            setPrintTrCheckbox($('table.tableList'), $('#selectField'), 
+                { type: 'dropdown', defaultHide: DefHide[Key] || [] }
+            );
+            // 紀錄選項
+            $('#selectField').parent().on('hidden.bs.dropdown', function () {
+                let temp = [];
+                $('#selectField input[type="checkbox"][data-nth]').each((i, elem) => {
+                    if (!$(elem).prop('checked')) {
+                        temp.push(Number($(elem).data('nth')));
+                    }
+                });
+                localStorage.setItem('table-hide-field', JSON.stringify({
+                    ...DefHide,
+                    [Key]: temp
+                }));
             });
 
             function submitAction(route, method)
