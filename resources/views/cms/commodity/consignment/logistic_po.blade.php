@@ -95,8 +95,8 @@
                                     <td class="text-end">1</td>
                                     <td class="text-end">{{ number_format($consignmentData->lgt_cost, 2) }}</td>
                                     <td class="text-end">{{ number_format($consignmentData->lgt_cost) }}</td>
-                                    <td>{!! nl2br(e($consignmentData->lgt_memo)) !!}</td>
-                                    <td>{!! nl2br(e($consignmentData->lgt_po_note)) !!}</td>
+                                    <td>{!! nl2br($consignmentData->lgt_memo) !!}</td>
+                                    <td>{!! nl2br($consignmentData->lgt_po_note) !!}</td>
                                 </tr>
                             @endif
                         </tbody>

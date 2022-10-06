@@ -88,7 +88,7 @@
                                 <td style="text-align: right;">{{ number_format(1) }}</td>
                                 <td style="text-align: right;">{{ number_format($depositPaymentData->price, 2) }}</td>
                                 <td style="text-align: right;">{{ number_format($depositPaymentData->price) }}</td>
-                                <td>{!! nl2br(e($depositPaymentData->memo)) !!}</td>
+                                <td>{!! nl2br($depositPaymentData->memo) !!}</td>
                                 <td></td>
                             </tr>
                         @elseif($type === 'final')
@@ -98,8 +98,8 @@
                                     <td style="text-align: right;">{{ number_format($purchaseItem->num) }}</td>
                                     <td style="text-align: right;">{{ number_format($purchaseItem->total_price / $purchaseItem->num, 2) }}</td>
                                     <td style="text-align: right;">{{ number_format($purchaseItem->total_price) }}</td>
-                                    <td>{!! nl2br(e($purchaseItem->memo)) !!}</td>
-                                    <td>{!! nl2br(e($purchaseItem->po_note)) !!}</td>
+                                    <td>{!! nl2br($purchaseItem->memo) !!}</td>
+                                    <td>{!! nl2br($purchaseItem->po_note) !!}</td>
                                 </tr>
                             @endforeach
                             @if($logisticsPrice > 0)
@@ -108,8 +108,8 @@
                                     <td style="text-align: right;"></td>
                                     <td style="text-align: right;"></td>
                                     <td style="text-align: right;">{{ number_format($logisticsPrice) }}</td>
-                                    <td>{!! nl2br(e($purchaseData->logistics_memo)) !!}</td>
-                                    <td>{!! nl2br(e($purchaseData->logistics_po_note)) !!}</td>
+                                    <td>{!! nl2br($purchaseData->logistics_memo) !!}</td>
+                                    <td>{!! nl2br($purchaseData->logistics_po_note) !!}</td>
                                 </tr>
                             @endif
                             @if(!is_null($depositPaymentData))
@@ -118,7 +118,7 @@
                                     <td style="text-align: right;">1</td>
                                     <td style="text-align: right;">-{{ number_format($depositPaymentData->price, 2) }}</td>
                                     <td style="text-align: right;">-{{ number_format($depositPaymentData->price) }}</td>
-                                    <td>{!! nl2br(e($depositPaymentData->memo)) !!}</td>
+                                    <td>{!! nl2br($depositPaymentData->memo) !!}</td>
                                     <td></td>
                                 </tr>
                             @endif

@@ -88,8 +88,8 @@
                         <td style="text-align: right;">{{ number_format(1) }}</td>
                         <td style="text-align: right;">{{ number_format($consignmentData->lgt_cost, 2) }}</td>
                         <td style="text-align: right;">{{ number_format($consignmentData->lgt_cost) }}</td>
-                        <td>{!! nl2br(e($consignmentData->lgt_memo)) !!}</td>
-                        <td>{!! nl2br(e($consignmentData->lgt_po_note)) !!}</td>
+                        <td>{!! nl2br($consignmentData->lgt_memo) !!}</td>
+                        <td>{!! nl2br($consignmentData->lgt_po_note) !!}</td>
                     </tr>
                 @endif
                 </tbody>
