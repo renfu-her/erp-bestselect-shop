@@ -452,7 +452,7 @@ class InboundImportCtrl extends Controller
 
         $pcsErrStock0917 = PcsErrStock0917::all();
         if (0 < count($pcsErrStock0917)) {
-            dd('已匯入過，不可在匯入');
+            dd('已匯入過，不可再匯入');
         } else {
             //寫入DB
             $curr_date = date('Y-m-d H:i:s');
