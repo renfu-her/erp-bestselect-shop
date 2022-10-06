@@ -23,7 +23,8 @@ class RptOrganizeReportMonthly extends Model
             ->selectRaw('SUM(off_price) as off_price')
             ->selectRaw('SUM(off_gross_profit) as off_gross_profit')
             ->selectRaw('SUM(total_price) as total_price')
-            ->selectRaw('SUM(total_gross_profit) as total_gross_profit');
+            ->selectRaw('SUM(total_gross_profit) as total_gross_profit')
+            ->selectRaw('SUM(users) as users');
 
         switch ($type) {
             case 'year':
@@ -71,7 +72,8 @@ class RptOrganizeReportMonthly extends Model
             ->selectRaw('IFNULL(report.off_price, 0) as off_price')
             ->selectRaw('IFNULL(report.off_gross_profit, 0) as off_gross_profit')
             ->selectRaw('IFNULL(report.total_gross_profit, 0) as total_gross_profit')
-            ->selectRaw('IFNULL(report.total_price, 0) as total_price');
+            ->selectRaw('IFNULL(report.total_price, 0) as total_price')
+            ->selectRaw('IFNULL(report.users, 0) as users');
 
         if (isset($options['level'])) {
             $re->where('level', $options['level']);
@@ -129,7 +131,7 @@ class RptOrganizeReportMonthly extends Model
                 ->selectRaw('SUM(report.off_gross_profit) as off_gross_profit')
                 ->selectRaw('SUM(report.total_price) as total_price')
                 ->selectRaw('SUM(report.total_gross_profit) as total_gross_profit')
-                ->selectRaw('COUNT(report.users) as users')
+                ->selectRaw('SUM(report.users) as users')
                 ->where('org.level', $value)
                 ->where('report.month', $currentMonth)
                 ->groupBy('org.parent')->get()->toArray();
