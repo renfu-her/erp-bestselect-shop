@@ -18,17 +18,17 @@
     <hr class="narbarBottomLine mb-3">
 
     <div class="card shadow p-4 mb-4">
-        <p>找舊系統沒有庫存，新系統卻是有庫存的商品</p>
+        <p> {{ $discription }}</p>
 
         <form method="POST" id="upload-excel" enctype="multipart/form-data"
-              action="{{ Route('cms.inbound_import.compare_old_to_diff_new_stock') }}">
+              action="{{ $formAction }}">
             @csrf
             <div class="row mb-3">
                 <div class="col-12 mb-3">
                     <label class="form-label">匯入Excel（.xls, .xlsx）<span class="text-danger">*</span></label>
                     <div class="input-group has-validation">
                         <input id="file_name" type="text" class="form-control @error('file') is-invalid @enderror"
-                               style="background-color: #fff;" placeholder="請選擇匯入舊系統庫存Excel表單" required readonly>
+                               style="background-color: #fff;" placeholder="請選擇Excel表單" required readonly>
                         <input id="formFile" type="file" name="file" hidden required aria-label="匯入Excel"
                                accept="application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
                         <label class="btn btn-success" for="formFile">選擇檔案</label>

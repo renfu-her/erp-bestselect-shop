@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\DB;
 
 class PurchaseItem extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
     protected $table = 'pcs_purchase_items';
     protected $guarded = [];
 

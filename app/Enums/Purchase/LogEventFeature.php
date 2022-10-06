@@ -11,6 +11,7 @@ use BenSampo\Enum\Enum;
  */
 final class LogEventFeature extends Enum
 {
+    //採購單
     const add = 'add';
     const del = 'del';
     const close = 'close';
@@ -45,6 +46,7 @@ final class LogEventFeature extends Enum
     const pay_change_pay_type = 'pay_change_pay_type';
     const pay_change_shipping_fee = 'pay_change_shipping_fee';
 
+    const purchase_del = 'purchase_del';
 
     public static function getDescription($value): string
     {
@@ -130,6 +132,9 @@ final class LogEventFeature extends Enum
                 break;
             case self::pay_change_shipping_fee:
                 $result = '變更運費';
+                break;
+            case self::purchase_del:
+                $result = '刪除採購單';
                 break;
 
 

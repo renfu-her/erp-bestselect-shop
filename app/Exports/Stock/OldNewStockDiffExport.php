@@ -43,7 +43,7 @@ class OldNewStockDiffExport implements FromArray, WithHeadings
         $searchParam['user'] = Arr::get($query, 'user');
         $searchParam['supplier'] = Arr::get($query, 'supplier');
         $searchParam['stock'] = Arr::get($query, 'stock',[]);
-        $searchParam['depot_id'] = Arr::get($query, 'depot_id',[]);
+        $searchParam['depot_id'] = [1]; //當初匯入的只有在新莊理貨倉
         $searchParam['type'] = 'all';
 
         $products = PurchaseInbound::productStyleListWithExistInbound([], $searchParam)
@@ -57,8 +57,9 @@ class OldNewStockDiffExport implements FromArray, WithHeadings
                 foreach ($this->prdStyle as $key_style => $val_style) {
                     if ($val_prd->sku == $val_style['sku'] && 0 < $val_prd->total_in_stock_num) {
                         $diffStock[] = [
-                            'type_title' => $val_prd->type_title
-                            ,'product_title' => $val_prd->product_title
+                            'no' => $val_style['no']
+                            , 'type_title' => $val_prd->type_title
+                            , 'product_title' => $val_prd->product_title
                             , 'spec' => $val_prd->spec
                             , 'sku' => $val_prd->sku
                             , 'total_in_stock_num' => $val_prd->total_in_stock_num

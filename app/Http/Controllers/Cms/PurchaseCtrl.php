@@ -483,7 +483,7 @@ class PurchaseCtrl extends Controller
     public function inbound(Request $request, $id) {
         $purchaseData = Purchase::getPurchase($id)->first();
         $purchaseItemList = PurchaseItem::getDataForInbound($id)->get()->toArray();
-        $inboundList = PurchaseInbound::getInboundList(['event' => Event::purchase()->value, 'purchase_id' => $id])
+        $inboundList = PurchaseInbound::getInboundList(['event' => Event::purchase()->value, 'event_id' => $id])
             ->orderByDesc('inbound.created_at')
             ->get()->toArray();
         $inboundOverviewList = PurchaseInbound::getOverviewInboundList(Event::purchase()->value, $id)->get()->toArray();

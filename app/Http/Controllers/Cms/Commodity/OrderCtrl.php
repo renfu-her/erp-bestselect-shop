@@ -607,7 +607,7 @@ class OrderCtrl extends Controller
         }
         $purchaseItemList = ReceiveDepot::getShouldEnterNumDataList(Event::order()->value, $subOrderId);
 
-        $inboundList = PurchaseInbound::getInboundList(['event' => Event::ord_pickup()->value, 'purchase_id' => $subOrderId])
+        $inboundList = PurchaseInbound::getInboundList(['event' => Event::ord_pickup()->value, 'event_id' => $subOrderId])
             ->orderByDesc('inbound.created_at')
             ->get()->toArray();
         $inboundOverviewList = PurchaseInbound::getOverviewInboundList(Event::ord_pickup()->value, $subOrderId)->get()->toArray();
