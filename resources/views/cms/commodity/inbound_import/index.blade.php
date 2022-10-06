@@ -18,10 +18,10 @@
             <a class="nav-link" href="{{ Route('cms.inbound_import.compare_old_to_diff_new_stock', [], true) }}">找庫存舊沒但新有</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="{{ Route('cms.inbound_import.import_no_delivery', [], true) }}">採購單尚未出貨</a>
+            <a class="nav-link" href="{{ Route('cms.inbound_import.import_no_delivery', [], true) }}">0917前採購單尚未出貨</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="{{ Route('cms.inbound_import.import_has_delivery', [], true) }}">採購單已出貨</a>
+            <a class="nav-link" href="{{ Route('cms.inbound_import.import_has_delivery', [], true) }}">0917前採購單已出貨</a>
         </li>
     </ul>
     <hr class="narbarBottomLine mb-3">
