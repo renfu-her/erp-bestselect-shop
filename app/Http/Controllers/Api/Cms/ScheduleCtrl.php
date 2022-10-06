@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Cms;
 
 use App\Enums\Discount\DividendCategory;
 use App\Enums\Order\OrderStatus;
+use App\Exports\Marketing\FacebookShopExport;
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use App\Models\CustomerCoupon;
@@ -18,6 +19,7 @@ use App\Models\RptUserReportMonthly;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ScheduleCtrl extends Controller
 {
@@ -100,11 +102,7 @@ class ScheduleCtrl extends Controller
      */
     public function facebookShop()
     {
-        $table = self::getFacebookShopTable();
-
-        $fileName = 'shop.csv';
-        $handle = fopen($fileName, 'w+');
-        fputcsv($handle, [
+        $columns = [
             'id',
             'availability',
             'condition',
@@ -116,31 +114,10 @@ class ScheduleCtrl extends Controller
             'sale_price',
             'brand',
             'custom_label_0',
-        ]);
-
-        foreach($table as $row) {
-            fputcsv($handle,[
-                $row['id'],
-                $row['availability'],
-                $row['condition'],
-                $row['description'],
-                $row['image_link'],
-                $row['link'],
-                $row['title'],
-                $row['price'],
-                $row['sale_price'],
-                $row['brand'],
-                $row['custom_label_0'],
-            ]);
-        }
-
-        fclose($handle);
-
-        $headers = array(
-            'Content-Type' => 'text/csv',
-        );
-
-        return response()->download($fileName, 'shop.csv', $headers);
+        ];
+        $table = self::getFacebookShopTable();
+        $export = new FacebookShopExport([$columns, $table]);
+        return Excel::download($export, 'shop.csv');
     }
 
     /**
