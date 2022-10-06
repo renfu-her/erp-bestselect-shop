@@ -21,6 +21,7 @@
                     <tr>
                         <th scope="col" style="width:40px">#</th>
                         <th scope="col"> 訂單號碼 </th>
+                        <th scope="col"> 銷售類型 </th>
                         <th scope="col" class="text-center">營業額</th>
                         <th scope="col" class="text-center">毛利</th>
                     </tr>
@@ -41,6 +42,13 @@
                                 <a href="{{ route('cms.order.detail', ['id' => $data->id]) }}">
                                     {{ $data->sn }}
                                 </a>
+                            </td>
+                            <td>
+                                @if ($data->sales_type == '1')
+                                    線上
+                                @else
+                                    線下
+                                @endif
                             </td>
                             <td class="text-center">{{ $data->origin_price }}</td>
                             <td class="text-center">{{ $data->gross_profit }}</td>

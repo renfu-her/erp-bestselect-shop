@@ -2282,6 +2282,7 @@ class OrderCtrl extends Controller
         // dd(OrderItem::itemList($id,['profit'=>1])->get()->toArray());
 
         $dataList = OrderItem::itemList($id, ['profit' => 1])->get();
+       // dd($dataList);
         $bonus = [0, 0];
         foreach ($dataList as $value) {
             $bonus[0] = $bonus[0] += $value->bonus;
