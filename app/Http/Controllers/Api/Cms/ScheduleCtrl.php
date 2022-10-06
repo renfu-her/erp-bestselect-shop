@@ -191,7 +191,7 @@ class ScheduleCtrl extends Controller
                 'id' => $datum->sku,
                 'availability' => 'in stock',
                 'condition' => 'new',
-                'description' => $datum->description,
+                'description' => strip_tags($datum->description),
                 'image_link' => $datum->image_link,
                 'link' => self::getUrlLink($datum->sku, $datum->title),
                 'title' => $datum->title,
