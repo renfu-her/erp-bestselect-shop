@@ -52,10 +52,11 @@ class RptUserReportMonthly extends Model
     public static function userOrder($type = null, $year = null, $options = [])
     {
         $_date = RptReport::dateRange($type, $year, $options);
-       
+
         $re = DB::table('ord_orders as order')
             ->leftJoin('ord_received_orders as ro', 'order.id', '=', 'ro.source_id')
-            ->select(['order.sn', 'order.id', 'order.origin_price', 'order.gross_profit'])
+            ->leftJoin('prd_sale_channels as sale_channel', 'sale_channel.id', '=', 'order.sale_channel_id')
+            ->select(['order.sn', 'order.id', 'order.origin_price', 'order.gross_profit', 'sale_channel.sales_type'])
             ->whereBetween('ro.receipt_date', $_date);
 
         if (isset($options['user_id'])) {
