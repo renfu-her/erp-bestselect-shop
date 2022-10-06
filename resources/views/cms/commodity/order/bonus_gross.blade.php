@@ -176,9 +176,9 @@
                             <th scope="col">銷售通路</th>
                             <th scope="col" class="text-center px-3">金額</th>
                             <th scope="col" class="text-center px-3">經銷價</th>
-                            <th scope="col" class="text-center px-3">商品成本</th>
                             <th scope="col" class="text-center px-3">數量</th>
                             <th scope="col" class="text-center px-3">小計</th>
+                            <th scope="col" class="text-center px-3">商品成本</th>
                             <th scope="col" class="text-center px-3">毛利</th>
                             <th scope="col" class="text-center px-3">出庫數量</th>
                             <th scope="col">倉庫</th>
@@ -188,6 +188,10 @@
                     </thead>
                     <tbody>
                         @foreach ($dataList as $key => $item)
+                            @php
+                                $estimated_cost = $item->estimated_cost * $item->qty;
+                                $gross_profit = $item->origin_price - $estimated_cost;
+                            @endphp
                             <tr>
                                 <th scope="row">{{ $key + 1 }}</th>
                                 <td>{{ $item->sub_order_sn }}</td>
@@ -195,10 +199,10 @@
                                 <td>{{ $item->channel_title }}</td>
                                 <td class="text-center">$ {{ number_format($item->price) }}</td>
                                 <td class="text-center">$ {{ number_format($item->dealer_price) }}</td>
-                                <td class="text-center">$ {{ number_format(0) * $item->qty }}</td>
                                 <td class="text-center">{{ number_format($item->qty) }}</td>
                                 <td class="text-center">$ {{ number_format($item->origin_price) }}</td>
-                                <td class="text-center">$ {{ number_format(0) }}</td>
+                                <td class="text-center">$ {{ number_format($estimated_cost) }}</td>
+                                <td class="text-center">$ {{ number_format($gross_profit) }}</td>
                                 <td class="text-center">{{ number_format(0) }}</td>
                                 <td>-</td>
                                 <td>-</td>
