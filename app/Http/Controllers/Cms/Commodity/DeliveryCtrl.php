@@ -444,7 +444,7 @@ class DeliveryCtrl extends Controller
                     'id' => null,
                     'delivery_id' => $delivery->id,
                     'type' => DlvBackType::logistic()->value,
-                    'title' => $sub_order->ship_event,
+                    'product_title' => $sub_order->ship_event,
                     'price' => $sub_order->dlv_fee,
                     'qty' => 1,
                 ]]));
