@@ -14,6 +14,9 @@
                 data-bs-toggle="modal" data-bs-target="#confirm-delete" 
                 data-href="{{ Route('cms.transfer_voucher.delete', ['id' => $voucher->tv_id]) }}">刪除傳票</a>
             @endcan
+
+            <a href="{{ url()->full() . '?action=print' }}" target="_blank" 
+                class="btn btn-sm btn-warning" rel="noopener noreferrer">中一刀列印畫面</a>
         </div>
     </nav>
 
@@ -28,7 +31,7 @@
                 <div class="col">
                     <dd>傳票編號：{{ $day_emd_item ? $day_emd_item->sn : '' }}</dd>
                 </div>
-                <div class="col">
+                <div class="col text-end">
                     <dd>單號：{{ $voucher->tv_sn }}</dd>
                 </div>
             </dl>
