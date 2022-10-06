@@ -86,6 +86,7 @@ class ScheduleCtrl extends Controller
         $query = $request->query();
 
         $date = Arr::get($query, 'date', null);
+        RptUserReportMonthly::grossProfit();
         RptUserReportMonthly::report($date);
         RptOrganizeReportMonthly::report($date);
         // OrderReportMonth::createData($date);

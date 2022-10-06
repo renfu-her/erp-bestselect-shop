@@ -26,42 +26,9 @@ class RptOrganizeReportMonthly extends Model
             ->selectRaw('SUM(total_gross_profit) as total_gross_profit')
             ->selectRaw('SUM(users) as users');
 
-        switch ($type) {
-            case 'year':
-                $sdate = date("Y-01-01", strtotime($year));
-                $edate = date("Y-12-31", strtotime($year));
-                break;
-            case 'month':
-                if (isset($options['month'])) {
-                    $sdate = date("Y-" . $options['month'] . "-01", strtotime($year));
-                    $edate = date("Y-" . $options['month'] . "-t", strtotime($year));
-                }
-                break;
-            case 'season':
-                if (isset($options['season'])) {
-                    switch ($options['season']) {
-                        case '1':
-                            $_m = [1, 3];
-                            break;
-                        case '2':
-                            $_m = [4, 6];
-                            break;
-                        case '3':
-                            $_m = [7, 9];
-                            break;
-                        case '4':
-                            $_m = [10, 12];
-                            break;
-                    }
+        $_date = RptReport::dateRange($type, $year, $options);
 
-                    $sdate = date("Y-$_m[0]-01", strtotime($year));
-                    $edate = date("Y-$_m[1]-t", strtotime($year));
-
-                }
-                break;
-
-        }
-        $sub->whereBetween('month', [$sdate, $edate])
+        $sub->whereBetween('month', [$_date[0], $_date[1]])
             ->groupBy('organize_id');
 
         $re = DB::table('usr_user_organize as organize')

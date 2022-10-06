@@ -1,5 +1,12 @@
 @extends('layouts.main')
 @section('sub-content')
+    <div class="col-auto">
+        @if (isset($prevPage))
+            <a href="{{ $prevPage }}" class="btn btn-outline-primary px-4" role="button">
+                返回上一頁
+            </a>
+        @endif
+    </div>
     <h2 class="mb-4">業績報表</h2>
     @if (isset($search))
         <form id="search" action="" method="GET">
@@ -75,14 +82,20 @@
                 <thead class="small">
                     <tr>
                         <th scope="col" style="width:40px">#</th>
-                        <th scope="col">部門名稱</th>
+                        <th scope="col">
+                            @if ($targetType != 'user')
+                                部門名稱
+                            @else
+                                姓名
+                            @endif
+                        </th>
                         <th scope="col" class="text-center">線上營業額</th>
                         <th scope="col" class="text-center">線上毛利</th>
                         <th scope="col" class="text-center">線下營業額</th>
                         <th scope="col" class="text-center">線下毛利</th>
                         <th scope="col" class="text-center">總營業額</th>
                         <th scope="col" class="text-center">總毛利</th>
-                       <!-- <th scope="col" class="text-center">人數</th>-->
+                        <!-- <th scope="col" class="text-center">人數</th>-->
                     </tr>
                 </thead>
                 <tbody>
@@ -93,7 +106,7 @@
                         $off_gross_profit = 0;
                         $total_gross_profit = 0;
                         $total_price = 0;
-                        $users = 0;
+                        
                     @endphp
                     @foreach ($dataList as $key => $data)
                         @php
@@ -103,7 +116,7 @@
                             $off_gross_profit += $data->off_gross_profit;
                             $total_gross_profit += $data->total_gross_profit;
                             $total_price += $data->total_price;
-                            $users += $data->users;
+                            // $users += $data->users;
                         @endphp
                         <tr>
                             <th scope="row">{{ $key + 1 }}</th>
@@ -112,6 +125,16 @@
                                     @case('department')
                                         <a
                                             href="{{ route('cms.user-performance-report.department', array_merge($query, ['organize_id' => $data->id])) }}">{{ $data->title }}</a>
+                                    @break
+
+                                    @case('group')
+                                        <a
+                                            href="{{ route('cms.user-performance-report.group', array_merge($query, ['organize_id' => $data->id])) }}">{{ $data->title }}</a>
+                                    @break
+
+                                    @case('user')
+                                        <a
+                                            href="{{ route('cms.user-performance-report.user', array_merge($query, ['user_id' => $data->id])) }}">{{ $data->title }}</a>
                                     @break
 
                                     @default
@@ -125,8 +148,8 @@
                             <td class="text-center">{{ $data->off_gross_profit }}</td>
                             <td class="text-center">{{ $data->total_price }}</td>
                             <td class="text-center">{{ $data->total_gross_profit }}</td>
-                          
-                           <!-- <td class="text-center">{{ $data->users }}</td>-->
+
+
                         </tr>
                     @endforeach
                 </tbody>
@@ -137,9 +160,8 @@
                         <th class="text-center">{{ $on_gross_profit }}</th>
                         <th class="text-center">{{ $off_price }}</th>
                         <th class="text-center">{{ $off_gross_profit }}</th>
-                        <th class="text-center">{{ $total_gross_profit }}</th>
                         <th class="text-center">{{ $total_price }}</th>
-                        <!--<th class="text-center">{{ $users }}</th>-->
+                        <th class="text-center">{{ $total_gross_profit }}</th>
                     </tr>
                 </tfoot>
             </table>
