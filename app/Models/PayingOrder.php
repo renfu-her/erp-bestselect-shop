@@ -238,14 +238,14 @@ class PayingOrder extends Model
                     pcs_paying_orders.source_id,
                     CONCAT(\'[\', GROUP_CONCAT(\'{
                         "product_owner":"\', "", \'",
-                        "title":"\', CONCAT("訂金抵扣（訂金付款單號", sn, "）"), \'",
+                        "title":"\', COALESCE(pcs_paying_orders.summary, ""), \'",
                         "sku":"\', "", \'",
                         "all_grades_id":"\', pcs_paying_orders.product_grade_id, \'",
                         "grade_code":"\', COALESCE(grade.code, ""), \'",
                         "grade_name":"\', COALESCE(grade.name, ""), \'",
                         "price":"\', price, \'",
                         "num":"\', 1, \'",
-                        "summary":"\', COALESCE(pcs_paying_orders.summary, ""), \'",
+                        "summary":"\', CONCAT("訂金抵扣（訂金付款單號", sn, "）"), \'",
                         "memo":"\', COALESCE(pcs_paying_orders.memo, ""), \'"
                     }\' ORDER BY pcs_paying_orders.id), \']\') AS items
                 FROM pcs_paying_orders
