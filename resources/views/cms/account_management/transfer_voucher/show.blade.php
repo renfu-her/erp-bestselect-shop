@@ -14,6 +14,9 @@
                 data-bs-toggle="modal" data-bs-target="#confirm-delete" 
                 data-href="{{ Route('cms.transfer_voucher.delete', ['id' => $voucher->tv_id]) }}">刪除傳票</a>
             @endcan
+
+            <a href="{{ url()->full() . '?action=print' }}" target="_blank" 
+                class="btn btn-sm btn-warning" rel="noopener noreferrer">中一刀列印畫面</a>
         </div>
     </nav>
 
@@ -23,17 +26,12 @@
             <h4 class="text-center">轉帳傳票</h4>
             <h4 class="text-center">中華民國 {{ date('Y', strtotime($voucher->tv_voucher_date)) - 1911 }} 年 {{ date('m', strtotime($voucher->tv_voucher_date)) }} 月 {{ date('d', strtotime($voucher->tv_voucher_date)) }} 日</h4>
             
-            <hr>
             <dl class="row mb-0">
-                <div class="col">
-                    <dd>傳票編號：{{ $day_emd_item ? $day_emd_item->sn : '' }}</dd>
-                </div>
-                <div class="col">
-                    <dd>單號：{{ $voucher->tv_sn }}</dd>
-                </div>
+                <div class="col">傳票編號：{{ $day_emd_item ? $day_emd_item->sn : '' }}</div>
+                <div class="col text-end">單號：{{ $voucher->tv_sn }}</div>
             </dl>
         </div>
-
+        
         <div class="mb-3">
             <div class="table-responsive tableoverbox">
                 <table class="table tablelist table-sm mb-0 align-middle">

@@ -348,7 +348,7 @@ class DayEnd extends Model
                         foreach(json_decode($t_data->product_items) as $p_value){
                             $p_value->price > 0 ? $d_price += $p_value->price : $c_price += (-$p_value->price);
 
-                            $source_summary = $p_value->title;
+                            $source_summary = ( ($p_value->price < 0 && $p_value->grade_code == '1118') ? $p_value->summary : $p_value->title );
 
                             if(isset($p_value->product_owner) && $p_value->product_owner != ''){
                                 $source_summary = $p_value->title . '（' . ($p_value->num > 1 ? ($p_value->price / $p_value->num) : $p_value->price) . ' * ' . $p_value->num . '）';
