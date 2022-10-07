@@ -592,6 +592,7 @@ class PurchaseItem extends Model
     {
         $result = DB::table('pcs_purchase_items as pcs_items')
             ->where('pcs_items.purchase_id', '=', $purchaseId)
+            ->whereNull('pcs_items.deleted_at')
             ->leftJoin('prd_product_styles as prd_styles', 'pcs_items.product_style_id', '=', 'prd_styles.id')
             ->leftJoin('prd_products', 'prd_styles.product_id', '=', 'prd_products.id')
             ->leftJoin('usr_users', 'prd_products.user_id', '=', 'usr_users.id')
@@ -605,8 +606,7 @@ class PurchaseItem extends Model
                 'pcs_items.product_style_id as style_ids',
                 'usr_users.name',
             )
-            ->get()
-            ->unique('style_ids');
+            ->get();
 
         return $result;
     }
