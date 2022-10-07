@@ -400,7 +400,7 @@ class Purchase extends Model
         $query = DB::table('pcs_purchase as purchase')
             ->leftJoin(DB::raw('(
                 SELECT
-                    purchase_id,
+                    pcs_purchase_items.purchase_id,
                     SUM(pcs_purchase_items.price) AS total_price,
                     CONCAT(\'[\', GROUP_CONCAT(\'{
                         "id":"\', pcs_purchase_items.id, \'",
@@ -416,8 +416,9 @@ class Purchase extends Model
                     }\' ORDER BY pcs_purchase_items.id), \']\') AS items
                 FROM pcs_purchase_items
                 LEFT JOIN prd_product_styles ON prd_product_styles.id = pcs_purchase_items.product_style_id
-                LEFT JOIN prd_products AS product ON product.id = prd_product_styles.product_id WHERE product.deleted_at IS NULL
-                GROUP BY purchase_id
+                LEFT JOIN prd_products AS product ON product.id = prd_product_styles.product_id
+                WHERE (product.deleted_at IS NULL AND pcs_purchase_items.deleted_at IS NULL)
+                GROUP BY pcs_purchase_items.purchase_id
                 ) AS purchase_table'), function ($join){
                     $join->on('purchase_table.purchase_id', '=', 'purchase.id');
             })
