@@ -40,7 +40,8 @@ class RptUserReportMonthly extends Model
             ->selectRaw('IFNULL(report.off_price, 0) as off_price')
             ->selectRaw('IFNULL(report.off_gross_profit, 0) as off_gross_profit')
             ->selectRaw('IFNULL(report.total_gross_profit, 0) as total_gross_profit')
-            ->selectRaw('IFNULL(report.total_price, 0) as total_price');
+            ->selectRaw('IFNULL(report.total_price, 0) as total_price')
+            ->whereNotNull('user.id');
 
         if (isset($options['group']) && $options['group']) {
             $re->where('organize.id', $options['group']);
