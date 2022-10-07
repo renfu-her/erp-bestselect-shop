@@ -417,7 +417,12 @@
 
         <div class="col-auto">
             <button type="submit" class="btn btn-primary px-4">儲存</button>
+            {{--
             <a href="{{ $previous_url }}" class="btn btn-outline-primary px-4" role="button">返回上一頁</a>
+            --}}
+            <a href="{{ url()->previous() }}" class="btn btn-outline-primary px-4" role="button">
+                返回上一頁
+            </a>
         </div>
     </form>
 @endsection

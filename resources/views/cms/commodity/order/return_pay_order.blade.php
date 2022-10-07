@@ -188,6 +188,12 @@
         </div>
     </div>
 
+    <div class="col-auto">
+        <a href="{{ url()->previous() }}" class="btn btn-outline-primary px-4" role="button">
+            返回上一頁
+        </a>
+    </div>
+
     <!-- Modal -->
     <x-b-modal id="confirm-delete">
         <x-slot name="title">刪除確認</x-slot>

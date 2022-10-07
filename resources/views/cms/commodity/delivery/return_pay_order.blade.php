@@ -163,8 +163,13 @@
     </div>
     
     <div class="col-auto">
+        {{--
         <a href="{{ Route('cms.delivery.back_detail', ['event' => $delivery->delivery_event, 'eventId' => $delivery->delivery_event_id]) }}" 
             class="btn btn-outline-primary px-4" role="button">返回 銷貨退回明細</a>
+        --}}
+        <a href="{{ url()->previous() }}" class="btn btn-outline-primary px-4" role="button">
+            返回上一頁
+        </a>
     </div>
 
     <!-- Modal -->
