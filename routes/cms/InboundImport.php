@@ -19,4 +19,5 @@ Route::group(['prefix' => 'inbound_import','as'=>'inbound_import.'], function ()
     Route::get('import_no_delivery', [InboundImportCtrl::class, 'import_no_delivery_page'])->name('import_no_delivery')->middleware('permission:cms.inbound_import.index');
     Route::get('import_has_delivery', [InboundImportCtrl::class, 'import_has_delivery_page'])->name('import_has_delivery')->middleware('permission:cms.inbound_import.index');
     Route::get('del_purchase\{purchaseID}', [InboundImportCtrl::class, 'del_purchase'])->name('del_purchase')->middleware('permission:cms.inbound_import.edit');
+    Route::post('del_multi_purchase', [InboundImportCtrl::class, 'del_multi_purchase'])->name('del_multi_purchase')->middleware('permission:cms.inbound_import.edit');
 });

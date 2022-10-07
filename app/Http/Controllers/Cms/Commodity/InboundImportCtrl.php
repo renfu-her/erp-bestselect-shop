@@ -649,4 +649,38 @@ class InboundImportCtrl extends Controller
         return redirect()->back()->withInput()->withErrors($errors);
     }
 
+    public function del_multi_purchase(Request $request)
+    {
+        dd('del_multi_purchase', $request['del_item_id']);
+        $errors = [];
+        $result = DB::transaction(function () use ($request) {
+            if (isset($request['del_item_id']) && null != $request['del_item_id']) {
+                $del_item_id_arr = explode(",", $request['del_item_id']);
+                if (isset($del_item_id_arr) && 0 < count($del_item_id_arr)) {
+                        $errors = [];
+                        foreach ($del_item_id_arr as $key_del => $val_del) {
+                            $result = Purchase::forceDel($val_del, $request->user()->id, $request->user()->name);
+                            if ($result['success'] == 0) {
+                                $errors[] = $result['error_msg'];
+                            }
+                        }
+                        if (0 < count($errors)) {
+                            DB::rollBack();
+                            return ['success' => 0, 'error_msg' => implode(" ",$errors)];
+                        } else {
+                            return ['success' => 1, 'error_msg' => ""];
+                        }
+                }
+            }
+        });
+
+        if ($result['success'] == 0) {
+            $errors[] = $result['error_msg'];
+            wToast($result['error_msg'], ['type'=>'danger']);
+        } else {
+            wToast(__('Delete finished.'));
+        }
+        return redirect()->back()->withInput()->withErrors($errors);
+    }
+
 }
