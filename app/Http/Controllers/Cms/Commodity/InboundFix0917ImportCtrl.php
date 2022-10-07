@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Cms\Commodity;
 
 use App\Enums\Delivery\Event;
 use App\Exports\Stock\OldNewStockDiffExport;
+use App\Exports\Stock\OldNewStockDiffOnlyExport;
 use App\Http\Controllers\Controller;
 use App\Imports\PurchaseInbound\CompareOldNonStock;
 use App\Models\PcsErrStock0917;
@@ -20,30 +21,37 @@ class InboundFix0917ImportCtrl extends Controller
     //找舊系統沒有庫存，新系統卻是有庫存的
     public function index(Request $request)
     {
+        $pcsErrStock0917 = PcsErrStock0917::find(1);
+        $can_upload = true;
+        if (isset($pcsErrStock0917)) {
+            $can_upload = false;
+        }
         return view('cms.commodity.fix.inbound_fix0917_import.compare_old_to_diff_new_stock', [
+            'can_upload' => $can_upload,
             'discription' => '找舊系統沒有庫存，新系統卻是有庫存的商品 ( 最後結果將紀錄在資料庫 )',
-            'formAction' => Route('cms.inbound_import.compare_old_to_diff_new_stock', [], true),
+            'formAction' => Route('cms.inbound_fix0917_import.compare_old_to_diff_new_stock', [], true),
         ]);
     }
 
     public function compare_old_to_diff_new_stock(Excel $excel, Request $request)
     {
-        ini_set('memory_limit', '-1');
-        $request->validate([
-            'file' => 'required|max:10000|mimes:xlsx,xls',
-        ]);
-        $path = $request->file('file')->store('excel');
-
-        $inboundImport = new CompareOldNonStock;
-        $excel->import($inboundImport, storage_path('app/' . $path));
-        $prdStyle = $inboundImport->prdStyle;
-
-        $oldNewStockDiffExport = new OldNewStockDiffExport($prdStyle);
-
-        $pcsErrStock0917 = PcsErrStock0917::all();
-        if (0 < count($pcsErrStock0917)) {
-            dd('已匯入過，不可再匯入');
+        $pcsErrStock0917 = PcsErrStock0917::find(1);
+        if (isset($pcsErrStock0917)) {
+            //已匯入過，不再匯入
+            return (new OldNewStockDiffOnlyExport())->download("stock-diff-" . date('Ymd His', strtotime($pcsErrStock0917->created_at)) . ".xlsx");
         } else {
+            ini_set('memory_limit', '-1');
+            $request->validate([
+                'file' => 'required|max:10000|mimes:xlsx,xls',
+            ]);
+            $path = $request->file('file')->store('excel');
+
+            $inboundImport = new CompareOldNonStock;
+            $excel->import($inboundImport, storage_path('app/' . $path));
+            $prdStyle = $inboundImport->prdStyle;
+
+            $oldNewStockDiffExport = new OldNewStockDiffExport($prdStyle);
+
             //寫入DB
             $curr_date = date('Y-m-d H:i:s');
             PcsErrStock0917::truncate();
@@ -58,15 +66,15 @@ class InboundFix0917ImportCtrl extends Controller
                     , 'user_name' => $val_ps['user_name']
                 ]);
             }
+            return ($oldNewStockDiffExport)->download("stock-diff-" . date('Ymd His') . ".xlsx");
         }
-        return ($oldNewStockDiffExport)->download("stock-diff-" . date('Ymd His') . ".xlsx");
     }
 
     //找到採購單ID是在'2022/09/18'之前建立的
     private function getErr0918Pcs($param) {
         $pcsErrStock0917 = PcsErrStock0917::all();
         if (0 >= count($pcsErrStock0917)) {
-            dd('DB無資料 請先執行 找舊沒庫存，新有的');
+            dd('DB無資料 請先上傳檔案 找舊系統沒有庫存，新系統卻是有庫存的商品');
         }
         //找出擁有這些商品的採購單ID
         $query_pcs_items = DB::table(app(PurchaseItem::class)->getTable(). ' as item')

@@ -72,7 +72,7 @@
                             <td>
                                 @can('cms.depot.delete')
                                     <a href="javascript:void(0)"
-                                       data-href="{{ Route('cms.inbound_import.del_purchase', ['purchaseID' => $data->id], true) }}"
+                                       data-href="{{ Route('cms.inbound_fix0917_import.del_purchase', ['purchaseID' => $data->id], true) }}"
                                        data-bs-toggle="modal" data-bs-target="#confirm-delete"
                                        class="icon -del icon-btn fs-5 text-danger rounded-circle border-0">
                                         <i class="bi bi-trash"></i>

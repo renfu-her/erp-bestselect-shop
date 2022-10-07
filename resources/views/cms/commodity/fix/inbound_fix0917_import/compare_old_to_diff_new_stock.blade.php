@@ -21,27 +21,33 @@
               action="{{ $formAction }}">
             @csrf
             <div class="row mb-3">
-                <div class="col-12 mb-3">
-                    <label class="form-label">匯入Excel（.xls, .xlsx）<span class="text-danger">*</span></label>
-                    <div class="input-group has-validation">
-                        <input id="file_name" type="text" class="form-control @error('file') is-invalid @enderror"
-                               style="background-color: #fff;" placeholder="請選擇Excel表單" required readonly>
-                        <input id="formFile" type="file" name="file" hidden required aria-label="匯入Excel"
-                               accept="application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
-                        <label class="btn btn-success" for="formFile">選擇檔案</label>
-                        <div class="invalid-feedback">
-                            @error('file')
-                            {{ $message }}
-                            @enderror
+                @if(true == $can_upload)
+                    <div class="col-12 mb-3">
+                        <label class="form-label">匯入Excel（.xls, .xlsx）<span class="text-danger">*</span></label>
+                        <div class="input-group has-validation">
+                            <input id="file_name" type="text" class="form-control @error('file') is-invalid @enderror"
+                                   style="background-color: #fff;" placeholder="請選擇Excel表單" required readonly>
+                            <input id="formFile" type="file" name="file" hidden required aria-label="匯入Excel"
+                                   accept="application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+                            <label class="btn btn-success" for="formFile">選擇檔案</label>
+                            <div class="invalid-feedback">
+                                @error('file')
+                                {{ $message }}
+                                @enderror
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                @can('cms.inbound_import.edit')
+                    @can('cms.inbound_import.edit')
+                        <div class="col-auto">
+                            <button id="button1" class="btn btn-primary px-4" type="submit" disabled>上傳</button>
+                        </div>
+                    @endcan
+                @else
                     <div class="col-auto">
-                        <button id="button1" class="btn btn-primary px-4" type="submit" disabled>上傳</button>
+                        <button id="button" class="btn btn-primary px-4" type="submit">下載檔案</button>
                     </div>
-                @endcan
+                @endif
             </div>
         </form>
         @if($errors->any())
