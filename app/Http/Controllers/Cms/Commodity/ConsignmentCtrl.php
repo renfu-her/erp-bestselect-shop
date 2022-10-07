@@ -386,7 +386,7 @@ class ConsignmentCtrl extends Controller
         ]);
     }
 
-    public function destroy(Request $request, $id)
+    public function delete(Request $request, $id)
     {
         $result = Consignment::del($id, $request->user()->id, $request->user()->name);
         if ($result['success'] == 0) {
