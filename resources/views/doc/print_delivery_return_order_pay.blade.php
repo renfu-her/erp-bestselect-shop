@@ -88,7 +88,7 @@
                 @if($delivery->delivery_back_items)
                 @foreach($delivery->delivery_back_items as $db_value)
                     <tr>
-                        <td>{{ $product_grade_name }} - {{ $db_value->product_title }}{{'（' . $delivery->sub_order_ship_event . ' - ' . $delivery->sub_order_ship_category_name . '）'}}{{'（' . $db_value->price . ' * ' . $db_value->qty . '）'}}</td>
+                        <td>{{ $db_value->grade_code . ' ' . $db_value->grade_name }} - {{ $db_value->product_title }}{{'（' . $delivery->sub_order_ship_event . ' - ' . $delivery->sub_order_ship_category_name . '）'}}{{'（' . $db_value->price . ' * ' . $db_value->qty . '）'}}</td>
                         <td style="text-align: right;">{{ $db_value->qty }}</td>
                         <td style="text-align: right;">{{ number_format($db_value->price, 2) }}</td>
                         <td style="text-align: right;">{{ number_format($db_value->total_price) }}</td>

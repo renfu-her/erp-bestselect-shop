@@ -476,8 +476,8 @@ class OrderCtrl extends Controller
         $dividendList = Order::orderDividendList($id)->get();
 
 
+        $po_check = true;
         if(count($subOrder) > 0){
-            $po_check = true;
             foreach($subOrder as $so_value){
                 $delivery = Delivery::where('event', Event::order()->value)->where('event_id', $so_value->id)->first();
                 $po_check = PayingOrder::source_confirmation(app(Delivery::class)->getTable(), $delivery->id);

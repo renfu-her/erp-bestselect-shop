@@ -403,6 +403,7 @@ class DeliveryCtrl extends Controller
                                 'sku' => '',
                                 'origin_qty' => 0,
                                 'bonus' => '',
+                                'show' => 1,
                             ]);
                         }
                     }
@@ -1013,9 +1014,6 @@ class DeliveryCtrl extends Controller
 
         $applied_company = DB::table('acc_company')->where('id', 1)->first();
 
-        $product_grade_name = AllGrade::find($paying_order->product_grade_id)->eachGrade->code . ' ' . AllGrade::find($paying_order->product_grade_id)->eachGrade->name;
-        $logistics_grade_name = AllGrade::find($paying_order->logistics_grade_id)->eachGrade->code . ' ' . AllGrade::find($paying_order->logistics_grade_id)->eachGrade->name;
-
         // $order_discount = DB::table('ord_discounts')->where([
         //         'order_type'=>'main',
         //         'order_id'=>request('id'),
@@ -1055,8 +1053,6 @@ class DeliveryCtrl extends Controller
             'delivery' => $delivery,
             // 'order_discount' => $order_discount,
             'applied_company' => $applied_company,
-            'product_grade_name' => $product_grade_name,
-            'logistics_grade_name' => $logistics_grade_name,
             'accountant'=>implode(',', $accountant),
             'undertaker' => $undertaker,
             'zh_price' => $zh_price,
@@ -1158,9 +1154,6 @@ class DeliveryCtrl extends Controller
                 return abort(404);
             }
 
-            $product_grade_name = AllGrade::find($paying_order->product_grade_id)->eachGrade->code . ' ' . AllGrade::find($paying_order->product_grade_id)->eachGrade->name;
-            $logistics_grade_name = AllGrade::find($paying_order->logistics_grade_id)->eachGrade->code . ' ' . AllGrade::find($paying_order->logistics_grade_id)->eachGrade->name;
-
             // $order_discount = DB::table('ord_discounts')->where([
             //         'order_type'=>'main',
             //         'order_id'=>request('id'),
@@ -1191,8 +1184,6 @@ class DeliveryCtrl extends Controller
                 'payable_data' => $payable_data,
                 'delivery' => $delivery,
                 // 'order_discount' => $order_discount,
-                'product_grade_name' => $product_grade_name,
-                'logistics_grade_name' => $logistics_grade_name,
                 'currency' => $currency,
                 'tw_price' => $tw_price,
                 'total_grades' => $total_grades,
