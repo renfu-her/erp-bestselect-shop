@@ -127,7 +127,15 @@
     </div>
 
     <div class="col-auto">
-        <a href="{{ Route('cms.stitute.index') }}" class="btn btn-outline-primary px-4" role="button">
+        @php
+            $pre_url = url()->previous();
+            if (strstr($pre_url, 'stitute?')) {
+                $url = str_replace(url()->full(), '', $pre_url);
+            } else {
+                $url = route('cms.stitute.index');
+            }
+        @endphp
+        <a href="{{ $url }}" class="btn btn-outline-primary px-4" role="button">
             返回列表
         </a>
     </div>
