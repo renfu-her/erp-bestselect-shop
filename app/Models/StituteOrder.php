@@ -67,6 +67,7 @@ class StituteOrder extends Model
                             "grade_name":"\', COALESCE(grade.name, ""), \'",
                             "summary":"\', COALESCE(so_item.summary, ""), \'",
                             "memo":"\', COALESCE(so_item.memo, ""), \'",
+                            "po_note":"\', COALESCE(so_item.po_note, ""), \'",
                             "taxation":"\', so_item.taxation,\'"
                         }\' ORDER BY so_item.id), \']\') AS items
                 FROM acc_stitute_order_items AS so_item
