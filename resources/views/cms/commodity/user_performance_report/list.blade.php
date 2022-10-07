@@ -1,7 +1,7 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h2 class="mb-4">業績報表</h2>
     @if (isset($search))
+        <h2 class="mb-4">業績報表</h2>
         <form id="search" action="" method="GET">
             <div class="card shadow p-4 mb-4">
                 <h6>搜尋條件</h6>
@@ -34,25 +34,25 @@
                         <label class="form-label">年度</label>
                         <select class="form-select -select" name="year" aria-label="年度">
                             @foreach ($year as $value)
-                                <option value="{{ $value }}" @if ($value === $cond['year']) selected @endif>
+                                <option value="{{ $value }}" @if ($value == $cond['year']) selected @endif>
                                     {{ $value }}</option>
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-12 col-sm-6 mb-3 -season" @if ($cond['type'] !== 'season') hidden @endif >
+                    <div class="col-12 col-sm-6 mb-3 -season" @if ($cond['type'] !== 'season') hidden @endif>
                         <label class="form-label">季</label>
                         <select class="form-select -select" name="season" aria-label="季">
                             @foreach ($season as $key => $value)
-                                <option value="{{ $key }}" @if ($key === $cond['season']) selected @endif>
+                                <option value="{{ $key }}" @if ($key == $cond['season']) selected @endif>
                                     第{{ $value }}季</option>
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-12 col-sm-6 mb-3 -month"@if ($cond['type'] !== 'month') hidden @endif >
+                    <div class="col-12 col-sm-6 mb-3 -month"@if ($cond['type'] !== 'month') hidden @endif>
                         <label class="form-label">月份</label>
                         <select class="form-select -select" name="month" aria-label="月份">
                             @for ($i = 1; $i < 13; $i++)
-                                <option value="{{ $i }}" @if ($i === $cond['month']) selected @endif>
+                                <option value="{{ $i }}" @if ($i == $cond['month']) selected @endif>
                                     {{ $i }}月</option>
                             @endfor
                         </select>
@@ -63,25 +63,34 @@
                 </div>
             </div>
         </form>
+    @else
+        <h2 class="mb-4">{{ $pageTitle }}</h2>
     @endif
 
     <div class="card shadow p-4 mb-4">
-        <h4>
-            {{ $pageTitle }}
-        </h4>
+        @if (isset($search))
+            <h4>{{ $pageTitle }}</h4>
+        @endif
 
         <div class="table-responsive tableOverBox">
-            <table class="table table-striped tableList">
+            <table class="table table-striped tableList mb-0">
                 <thead class="small">
                     <tr>
                         <th scope="col" style="width:40px">#</th>
-                        <th scope="col">部門名稱</th>
-                        <th scope="col" class="text-center">線上營業額</th>
-                        <th scope="col" class="text-center">線上毛利</th>
-                        <th scope="col" class="text-center">線下營業額</th>
-                        <th scope="col" class="text-center">線下毛利</th>
-                        <th scope="col" class="text-center">總營業額</th>
-                        <th scope="col" class="text-center">總毛利</th>
+                        <th scope="col">
+                            @if ($targetType != 'user')
+                                部門名稱
+                            @else
+                                姓名
+                            @endif
+                        </th>
+                        <th scope="col" class="text-end table-success">線上營業額</th>
+                        <th scope="col" class="text-end table-success">線上毛利</th>
+                        <th scope="col" class="text-end table-warning">線下營業額</th>
+                        <th scope="col" class="text-end table-warning">線下毛利</th>
+                        <th scope="col" class="text-end">總營業額</th>
+                        <th scope="col" class="text-end">總毛利</th>
+                        <!-- <th scope="col" class="text-end">人數</th>-->
                     </tr>
                 </thead>
                 <tbody>
@@ -92,6 +101,7 @@
                         $off_gross_profit = 0;
                         $total_gross_profit = 0;
                         $total_price = 0;
+                        
                     @endphp
                     @foreach ($dataList as $key => $data)
                         @php
@@ -101,6 +111,7 @@
                             $off_gross_profit += $data->off_gross_profit;
                             $total_gross_profit += $data->total_gross_profit;
                             $total_price += $data->total_price;
+                            // $users += $data->users;
                         @endphp
                         <tr>
                             <th scope="row">{{ $key + 1 }}</th>
@@ -110,33 +121,54 @@
                                         <a
                                             href="{{ route('cms.user-performance-report.department', array_merge($query, ['organize_id' => $data->id])) }}">{{ $data->title }}</a>
                                     @break
+
+                                    @case('group')
+                                        <a
+                                            href="{{ route('cms.user-performance-report.group', array_merge($query, ['organize_id' => $data->id])) }}">{{ $data->title }}</a>
+                                    @break
+
+                                    @case('user')
+                                        <a
+                                            href="{{ route('cms.user-performance-report.user', array_merge($query, ['user_id' => $data->id])) }}">{{ $data->title }}</a>
+                                    @break
+
                                     @default
                                         {{ $data->title }}
                                 @endswitch
 
                             </td>
-                            <td class="text-center">{{ $data->on_price }}</td>
-                            <td class="text-center">{{ $data->on_gross_profit }}</td>
-                            <td class="text-center">{{ $data->off_price }}</td>
-                            <td class="text-center">{{ $data->off_gross_profit }}</td>
-                            <td class="text-center">{{ $data->total_gross_profit }}</td>
-                            <td class="text-center">{{ $data->total_price }}</td>
+                            <td @class(['text-end table-success', 'text-danger fw-bold negative' => $data->on_price < 0])>${{ number_format(abs($data->on_price)) }}</td>
+                            <td @class(['text-end table-success', 'text-danger fw-bold negative' => $data->on_gross_profit < 0])>${{ number_format(abs($data->on_gross_profit)) }}</td>
+                            <td @class(['text-end table-warning', 'text-danger fw-bold negative' => $data->off_price < 0])>${{ number_format(abs($data->off_price)) }}</td>
+                            <td @class(['text-end table-warning', 'text-danger fw-bold negative' => $data->off_gross_profit < 0])>${{ number_format(abs($data->off_gross_profit)) }}</td>
+                            <td @class(['text-end', 'text-danger fw-bold negative' => $data->total_price < 0])>${{ number_format(abs($data->total_price)) }}</td>
+                            <td @class(['text-end', 'text-danger fw-bold negative' => $data->total_gross_profit < 0])>${{ number_format(abs($data->total_gross_profit)) }}</td>
+
+
                         </tr>
                     @endforeach
                 </tbody>
                 <tfoot>
                     <tr>
                         <th colspan="2">合計</th>
-                        <th class="text-center">{{ $on_price }}</th>
-                        <th class="text-center">{{ $on_gross_profit }}</th>
-                        <th class="text-center">{{ $off_price }}</th>
-                        <th class="text-center">{{ $off_gross_profit }}</th>
-                        <th class="text-center">{{ $total_gross_profit }}</th>
-                        <th class="text-center">{{ $total_price }}</th>
+                        <th @class(['text-end table-success', 'text-danger fw-bold negative' => $on_price < 0])>${{ number_format(abs($on_price)) }}</th>
+                        <th @class(['text-end table-success', 'text-danger fw-bold negative' => $on_gross_profit < 0])>${{ number_format(abs($on_gross_profit)) }}</th>
+                        <th @class(['text-end table-warning', 'text-danger fw-bold negative' => $off_price < 0])>${{ number_format(abs($off_price)) }}</th>
+                        <th @class(['text-end table-warning', 'text-danger fw-bold negative' => $off_gross_profit < 0])>${{ number_format(abs($off_gross_profit)) }}</th>
+                        <th @class(['text-end', 'text-danger fw-bold negative' => $total_price < 0])>${{ number_format(abs($total_price)) }}</th>
+                        <th @class(['text-end', 'text-danger fw-bold negative' => $total_gross_profit < 0])>${{ number_format(abs($total_gross_profit)) }}</th>
                     </tr>
                 </tfoot>
             </table>
         </div>
+    </div>
+
+    <div class="col-auto">
+        @if (isset($prevPage))
+            <a href="{{ $prevPage }}" class="btn btn-outline-primary px-4" role="button">
+                返回上一頁
+            </a>
+        @endif
     </div>
 @endsection
 @once
@@ -145,6 +177,9 @@
             h4 {
                 color: #415583;
             }
+            .negative::before {
+                content: '-';
+            }
         </style>
     @endpush
     @push('sub-scripts')
@@ -152,18 +187,18 @@
             $('input[name="type"][type="radio"]').on('change', function(e) {
                 const val = $(this).val();
                 switch (val) {
-                    case 'year':    // 年度
+                    case 'year': // 年度
                         $('div.-season, div.-month').prop('hidden', true);
                         break;
-                    case 'season':    // 季
+                    case 'season': // 季
                         $('div.-month').prop('hidden', true);
                         $('div.-season').prop('hidden', false);
                         break;
-                    case 'month':    // 月份
+                    case 'month': // 月份
                         $('div.-season').prop('hidden', true);
                         $('div.-month').prop('hidden', false);
                         break;
-                
+
                     default:
                         break;
                 }

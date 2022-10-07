@@ -348,7 +348,7 @@ class DayEnd extends Model
                         foreach(json_decode($t_data->product_items) as $p_value){
                             $p_value->price > 0 ? $d_price += $p_value->price : $c_price += (-$p_value->price);
 
-                            $source_summary = $p_value->title;
+                            $source_summary = ( ($p_value->price < 0 && $p_value->grade_code == '1118') ? $p_value->summary : $p_value->title );
 
                             if(isset($p_value->product_owner) && $p_value->product_owner != ''){
                                 $source_summary = $p_value->title . '（' . ($p_value->num > 1 ? ($p_value->price / $p_value->num) : $p_value->price) . ' * ' . $p_value->num . '）';
@@ -484,48 +484,88 @@ class DayEnd extends Model
                 } else if($real_value->getTable() == 'acc_note_receivable_orders'){
                     $data_list = NoteReceivableOrder::get_cheque_received_list(null, 'cashed', null, null, null, null, null, null, null, null, null, [$closing_date, $closing_date])->whereNotNull('_cheque.sn')->get();
 
-                    $grade = AllGrade::find($real_value->net_grade_id)->eachGrade;
-
-                    $d_price = $data_list->sum('cheque_amt_net');
-                    $c_price = $real_value->amt_total_net;
-                    $d_c_net = $d_price - $c_price;
-
-                    $data = [
-                        'day_end_id' => $day_end_id,
-                        'closing_date' => $closing_date,
-                        'source_type' => $real_value->getTable(),
-                        'source_id' => $real_value->id,
-                        'source_sn' => $real_value->sn,
-                        'source_summary' => $grade->name . ' ' . implode(',', $data_list->pluck('cheque_ticket_number')->toArray()),
-                        'debit_price' => null,
-                        'credit_price' => $real_value->amt_total_net,
-                        'grade_id' => $real_value->net_grade_id,
-                        'grade_code' => $grade->code,
-                        'grade_name' => $grade->name,
-                    ];
-                    DayEndLog::create_day_end_log($data);
-
-                } else if($real_value->getTable() == 'acc_note_payable_orders'){
-                    $data_list = NotePayableOrder::get_cheque_payable_list(null, 'cashed', null, null, null, null, null, [$closing_date, $closing_date])->whereNotNull('_cheque.sn')->get();
-
-                    $grade = AllGrade::find($real_value->net_grade_id)->eachGrade;
+                    $d_grade = AllGrade::find($real_value->net_grade_id)->eachGrade;
+                    $c_grade = collect(GeneralLedger::total_grade_list())->where('code', '1104')->first();
 
                     $d_price = $real_value->amt_total_net;
                     $c_price = $data_list->sum('cheque_amt_net');
                     $d_c_net = $d_price - $c_price;
 
+                    //debit
                     $data = [
                         'day_end_id' => $day_end_id,
                         'closing_date' => $closing_date,
                         'source_type' => $real_value->getTable(),
                         'source_id' => $real_value->id,
                         'source_sn' => $real_value->sn,
-                        'source_summary' => $grade->name . ' ' . implode(',', $data_list->pluck('cheque_ticket_number')->toArray()),
+                        'source_summary' => '應收票據兌現 ' . date('Y-m-d', strtotime($closing_date)),
                         'debit_price' => $real_value->amt_total_net,
                         'credit_price' => null,
                         'grade_id' => $real_value->net_grade_id,
-                        'grade_code' => $grade->code,
-                        'grade_name' => $grade->name,
+                        'grade_code' => $d_grade->code,
+                        'grade_name' => $d_grade->name,
+                    ];
+                    DayEndLog::create_day_end_log($data);
+
+                    //credit
+                    foreach($data_list as $nr_value){
+                        $data = [
+                            'day_end_id' => $day_end_id,
+                            'closing_date' => $closing_date,
+                            'source_type' => $real_value->getTable(),
+                            'source_id' => $real_value->id,
+                            'source_sn' => $real_value->sn,
+                            'source_summary' => $c_grade['name'] . ' ' . $nr_value->cheque_ticket_number . '（' . date('Y-m-d', strtotime($nr_value->cheque_due_date)) . '）',
+                            'debit_price' => null,
+                            'credit_price' => $nr_value->cheque_amt_net,
+                            'grade_id' => $c_grade['primary_id'],
+                            'grade_code' => $c_grade['code'],
+                            'grade_name' => $c_grade['name'],
+                        ];
+                        DayEndLog::create_day_end_log($data);
+                    }
+
+                } else if($real_value->getTable() == 'acc_note_payable_orders'){
+                    $data_list = NotePayableOrder::get_cheque_payable_list(null, 'cashed', null, null, null, null, null, [$closing_date, $closing_date])->whereNotNull('_cheque.sn')->get();
+
+                    $d_grade = collect(GeneralLedger::total_grade_list())->where('name', '應付票據')->first();
+                    $c_grade = AllGrade::find($real_value->net_grade_id)->eachGrade;
+
+                    $d_price = $data_list->sum('cheque_amt_net');
+                    $c_price = $real_value->amt_total_net;
+                    $d_c_net = $d_price - $c_price;
+
+                    // debit
+                    foreach($data_list as $np_value){
+                        $data = [
+                            'day_end_id' => $day_end_id,
+                            'closing_date' => $closing_date,
+                            'source_type' => $real_value->getTable(),
+                            'source_id' => $real_value->id,
+                            'source_sn' => $real_value->sn,
+                            'source_summary' => $d_grade['name'] . ' ' . $np_value->cheque_ticket_number . '（' . date('Y-m-d', strtotime($np_value->cheque_due_date)) . '）',
+                            'debit_price' => $np_value->cheque_amt_net,
+                            'credit_price' => null,
+                            'grade_id' => $d_grade['primary_id'],
+                            'grade_code' => $d_grade['code'],
+                            'grade_name' => $d_grade['name'],
+                        ];
+                        DayEndLog::create_day_end_log($data);
+                    }
+
+                    // credit
+                    $data = [
+                        'day_end_id' => $day_end_id,
+                        'closing_date' => $closing_date,
+                        'source_type' => $real_value->getTable(),
+                        'source_id' => $real_value->id,
+                        'source_sn' => $real_value->sn,
+                        'source_summary' => '應付票據兌現 ' . date('Y-m-d', strtotime($closing_date)),
+                        'debit_price' => null,
+                        'credit_price' => $real_value->amt_total_net,
+                        'grade_id' => $real_value->net_grade_id,
+                        'grade_code' => $c_grade->code,
+                        'grade_name' => $c_grade->name,
                     ];
                     DayEndLog::create_day_end_log($data);
                 }

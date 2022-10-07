@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Route;
 Route::group(['prefix' => 'user-performance-report', 'as' => 'user-performance-report.'], function () {
     Route::get('', [UserPerformanceReportCtrl::class, 'index'])->name('index')->middleware('permission:cms.user-performance-report.index');
     Route::get('department/{organize_id}', [UserPerformanceReportCtrl::class, 'department'])->name('department')->middleware('permission:cms.user-performance-report.index');
+    Route::get('group/{organize_id}', [UserPerformanceReportCtrl::class, 'group'])->name('group')->middleware('permission:cms.user-performance-report.index');
+    Route::get('user/{user_id}', [UserPerformanceReportCtrl::class, 'user'])->name('user')->middleware('permission:cms.user-performance-report.index');
 
     /*  Route::get('create', [UserPerformanceReportCtrl::class, 'create'])->name('create')->middleware('permission:cms.role.create');
 Route::post('create', [UserPerformanceReportCtrl::class, 'store']);

@@ -35,6 +35,7 @@ use App\Models\PayingOrder;
 use App\Models\Purchase;
 use App\Models\PurchaseItem;
 use App\Models\StituteOrder;
+use App\Models\StituteOrderItem;
 use App\Models\Supplier;
 use App\Models\User;
 
@@ -293,10 +294,10 @@ class CollectionPaymentCtrl extends Controller
             }
         // accounting classification end
 
-        $user = User::whereNull('deleted_at')->select('id', 'name', 'account', 'email')->get()->toArray();
+        $user = User::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
         $customer = Customer::whereNull('deleted_at')->select('id', 'name', 'email')->get()->toArray();
         $depot = Depot::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
-        $supplier = Supplier::whereNull('deleted_at')->select('id', 'name', 'contact_person')->get()->toArray();
+        $supplier = Supplier::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
         $payee_merged = array_merge($user, $customer, $depot, $supplier);
 
         $balance_status = [
@@ -345,10 +346,10 @@ class CollectionPaymentCtrl extends Controller
             return redirect()->back();
         }
 
-        $user = User::whereNull('deleted_at')->select('id', 'name', 'account', 'email')->get()->toArray();
+        $user = User::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
         $customer = Customer::whereNull('deleted_at')->select('id', 'name', 'email')->get()->toArray();
         $depot = Depot::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
-        $supplier = Supplier::whereNull('deleted_at')->select('id', 'name', 'contact_person')->get()->toArray();
+        $supplier = Supplier::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
         $client_merged = array_merge($user, $customer, $depot, $supplier);
 
         return view('cms.account_management.collection_payment.edit', [
@@ -404,6 +405,15 @@ class CollectionPaymentCtrl extends Controller
                         foreach ($logistic_item as $key => $value) {
                             $value['logistic_id'] = $key;
                             Logistic::update_logistic($value);
+                        }
+                    }
+
+                } else if($paying_order->source_type == 'acc_stitute_orders'){
+                    if (request('item') && is_array(request('item'))) {
+                        $stitute_order_item = request('item');
+                        foreach ($stitute_order_item as $key => $value) {
+                            $value['stitute_order_item_id'] = $key;
+                            StituteOrderItem::update_stitute_order_item($value);
                         }
                     }
 
@@ -498,6 +508,21 @@ class CollectionPaymentCtrl extends Controller
                     'note' => $consignment_data->lgt_memo,
                     'po_note' => $consignment_data->lgt_po_note,
                 ];
+
+            } else if($paying_order->source_type == 'acc_stitute_orders'){
+                $stitute_order = StituteOrder::stitute_order_list($paying_order->source_id)->first();
+
+                foreach(json_decode($stitute_order->so_items) as $value){
+                    $item_data[] = (object)[
+                        'item_id' =>$value->id,
+                        'title' =>$value->summary,
+                        'price' =>$value->price,
+                        'qty' =>$value->qty,
+                        'total_price' =>$value->total_price,
+                        'note' =>$value->memo,
+                        'po_note' =>$value->po_note,
+                    ];
+                }
 
             } else if($paying_order->source_type == 'ord_orders' && $paying_order->source_sub_id == null){
                 $order_item = OrderItem::item_order($paying_order->source_id)->get();
@@ -983,10 +1008,10 @@ class CollectionPaymentCtrl extends Controller
             }
         // accounting classification end
 
-        $user = User::whereNull('deleted_at')->select('id', 'name', 'account', 'email')->get()->toArray();
+        $user = User::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
         $customer = Customer::whereNull('deleted_at')->select('id', 'name', 'email')->get()->toArray();
         $depot = Depot::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
-        $supplier = Supplier::whereNull('deleted_at')->select('id', 'name', 'contact_person')->get()->toArray();
+        $supplier = Supplier::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
         $payee_merged = array_merge($user, $customer, $depot, $supplier);
 
         $balance_status = [

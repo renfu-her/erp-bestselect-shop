@@ -22,6 +22,9 @@
 
             <a href="{{ url()->full() . '?action=print' }}" target="_blank" 
                 class="btn btn-sm btn-warning" rel="noopener noreferrer">中一刀列印畫面</a>
+
+            <a href="{{ route('cms.collection_payment.edit_note', ['id' => $paying_order->id]) }}"
+                class="btn btn-dark btn-sm" role="button">編輯付款項目備註</a>
         </div>
     </nav>
 
@@ -142,10 +145,15 @@
     </div>
 
     <div class="col-auto">
+        {{--
         <a href="{{ route('cms.stitute.show', ['id' => $stitute_order->so_id]) }}" 
             class="btn btn-outline-primary px-4" role="button">返回 代墊單</a>
         <a href="{{ Route('cms.stitute.index') }}" class="btn btn-outline-primary px-4" role="button">
             返回列表
+        </a>
+        --}}
+        <a href="{{ url()->previous() }}" class="btn btn-outline-primary px-4" role="button">
+            返回上一頁
         </a>
     </div>
 

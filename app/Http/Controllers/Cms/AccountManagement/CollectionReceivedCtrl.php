@@ -249,10 +249,10 @@ class CollectionReceivedCtrl extends Controller
             }
         // accounting classification end
 
-        $user = User::whereNull('deleted_at')->select('id', 'name', 'account', 'email')->get()->toArray();
+        $user = User::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
         $customer = Customer::whereNull('deleted_at')->select('id', 'name', 'email')->get()->toArray();
         $depot = Depot::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
-        $supplier = Supplier::whereNull('deleted_at')->select('id', 'name', 'contact_person')->get()->toArray();
+        $supplier = Supplier::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
         $drawee_merged = array_merge($user, $customer, $depot, $supplier);
         // $user = User::whereNull('deleted_at')->pluck('name')->toArray();
         // $customer = Customer::whereNull('deleted_at')->pluck('name')->toArray();
@@ -300,10 +300,10 @@ class CollectionReceivedCtrl extends Controller
             return redirect()->back();
         }
 
-        $user = User::whereNull('deleted_at')->select('id', 'name', 'account', 'email')->get()->toArray();
+        $user = User::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
         $customer = Customer::whereNull('deleted_at')->select('id', 'name', 'email')->get()->toArray();
         $depot = Depot::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
-        $supplier = Supplier::whereNull('deleted_at')->select('id', 'name', 'contact_person')->get()->toArray();
+        $supplier = Supplier::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
         $client_merged = array_merge($user, $customer, $depot, $supplier);
 
         return view('cms.account_management.collection_received.edit', [

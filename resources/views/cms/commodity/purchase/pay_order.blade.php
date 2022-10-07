@@ -111,7 +111,7 @@
                                 <td class="text-end">1</td>
                                 <td class="text-end">{{ number_format($depositPaymentData->price, 2) }}</td>
                                 <td class="text-end">{{ number_format($depositPaymentData->price) }}</td>
-                                <td>{!! nl2br(e($depositPaymentData->memo)) !!}</td>
+                                <td>{!! nl2br($depositPaymentData->memo) !!}</td>
                                 <td></td>
                             </tr>
                         @elseif($type === 'final')
@@ -119,10 +119,10 @@
                                 <tr>
                                     <td>{{ $productGradeName . ' - ' .$purchaseItem->title . '（負責人：' . $purchaseItem->name }}）</td>
                                     <td class="text-end">{{ $purchaseItem->num }}</td>
-                                    <td class="text-end">{{ number_format($purchaseItem->total_price / $purchaseItem->num, 2) }}</td>
+                                    <td class="text-end">{{ $purchaseItem->num > 0 ? number_format($purchaseItem->total_price / $purchaseItem->num, 2) : number_format(0, 2) }}</td>
                                     <td class="text-end">{{ number_format($purchaseItem->total_price) }}</td>
-                                    <td>{!! nl2br(e($purchaseItem->memo)) !!}</td>
-                                    <td>{!! nl2br(e($purchaseItem->po_note)) !!}</td>
+                                    <td>{!! nl2br($purchaseItem->memo) !!}</td>
+                                    <td>{!! nl2br($purchaseItem->po_note) !!}</td>
                                 </tr>
                             @endforeach
                             @if($logisticsPrice > 0)
@@ -131,8 +131,8 @@
                                     <td class="text-end"></td>
                                     <td class="text-end"></td>
                                     <td class="text-end">{{ number_format($logisticsPrice) }}</td>
-                                    <td>{!! nl2br(e($purchaseData->logistics_memo)) !!}</td>
-                                    <td>{!! nl2br(e($purchaseData->logistics_po_note)) !!}</td>
+                                    <td>{!! nl2br($purchaseData->logistics_memo) !!}</td>
+                                    <td>{!! nl2br($purchaseData->logistics_po_note) !!}</td>
                                 </tr>
                             @endif
                             @if(!is_null($depositPaymentData))
@@ -141,7 +141,7 @@
                                     <td class="text-end">1</td>
                                     <td class="text-end">-{{ number_format($depositPaymentData->price, 2) }}</td>
                                     <td class="text-end">-{{ number_format($depositPaymentData->price) }}</td>
-                                    <td>{!! nl2br(e($depositPaymentData->memo)) !!}</td>
+                                    <td>{!! nl2br($depositPaymentData->memo) !!}</td>
                                     <td></td>
                                 </tr>
                             @endif
@@ -218,10 +218,15 @@
         <div class="col-auto">
             <input type="hidden" name="del_item_id">
             {{-- <button type="submit" class="btn btn-primary px-4">儲存</button>--}}
+            {{--
             <a href="{{ Route('cms.collection_payment.index') }}" class="btn btn-outline-primary px-4"
                 role="button">返回 付款作業列表</a>
             <a href="{{ Route('cms.purchase.edit', ['id' => $id], true) }}" class="btn btn-outline-primary px-4"
                 role="button">返回 採購單資訊</a>
+            --}}
+            <a href="{{ url()->previous() }}" class="btn btn-outline-primary px-4" role="button">
+                返回上一頁
+            </a>
         </div>
     </form>
 

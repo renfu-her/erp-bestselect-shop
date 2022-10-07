@@ -95,8 +95,8 @@
                                     <td class="text-end">1</td>
                                     <td class="text-end">{{ number_format($consignmentData->lgt_cost, 2) }}</td>
                                     <td class="text-end">{{ number_format($consignmentData->lgt_cost) }}</td>
-                                    <td>{!! nl2br(e($consignmentData->lgt_memo)) !!}</td>
-                                    <td>{!! nl2br(e($consignmentData->lgt_po_note)) !!}</td>
+                                    <td>{!! nl2br($consignmentData->lgt_memo) !!}</td>
+                                    <td>{!! nl2br($consignmentData->lgt_po_note) !!}</td>
                                 </tr>
                             @endif
                         </tbody>
@@ -156,10 +156,15 @@
         </div>
 
         <div class="col-auto">
+            {{--
             <a href="{{ Route('cms.collection_payment.index') }}" class="btn btn-outline-primary px-4" 
                 role="button">返回 付款作業列表</a>
             <a href="{{ Route('cms.consignment.edit', ['id' => $consignmentData->consignment_id]) }}" 
                 class="btn btn-outline-primary px-4" role="button">返回 寄倉單資訊</a>
+            --}}
+            <a href="{{ url()->previous() }}" class="btn btn-outline-primary px-4" role="button">
+                返回上一頁
+            </a>
         </div>
     </form>
 

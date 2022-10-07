@@ -18,15 +18,17 @@ class RptReport extends Model
             ->leftJoin('ord_received_orders as ro', 'order.id', '=', 'ro.source_id')
             ->leftJoin('ord_sub_orders as sub_order', 'order.id', '=', 'sub_order.order_id')
             ->leftJoin('ord_items as item', 'sub_order.id', '=', 'item.sub_order_id')
-            ->leftJoin('prd_product_styles as style','style.id','=','item.product_style_id')
+            ->leftJoin('prd_product_styles as style', 'style.id', '=', 'item.product_style_id')
             ->select([
                 'order.sale_channel_id',
                 'order.email',
+                'order.sn as order_sn',
+                'order.id as order_id',
                 'item.qty',
                 'order.mcode',
                 'item.price',
                 'ro.receipt_date',
-                'style.estimated_cost'
+                'style.estimated_cost',
             ])
             ->selectRaw("item.price * item.qty - style.estimated_cost * item.qty as gross_profit")
             ->selectRaw("item.price * item.qty as total_price")
@@ -36,6 +38,46 @@ class RptReport extends Model
             ->where('order.payment_status', PaymentStatus::Received())
             ->whereNotNull('ro.receipt_date');
 
+    }
+
+    public static function dateRange($type = null, $year = null, $options = [])
+    {
+        switch ($type) {
+            case 'year':
+                $sdate = date("Y-01-01", strtotime($year));
+                $edate = date("Y-12-31", strtotime($year));
+                break;
+            case 'month':
+                if (isset($options['month'])) {
+                    $sdate = date("Y-" . $options['month'] . "-01", strtotime($year));
+                    $edate = date("Y-" . $options['month'] . "-t", strtotime($year));
+                }
+                break;
+            case 'season':
+                if (isset($options['season'])) {
+                    switch ($options['season']) {
+                        case '1':
+                            $_m = [1, 3];
+                            break;
+                        case '2':
+                            $_m = [4, 6];
+                            break;
+                        case '3':
+                            $_m = [7, 9];
+                            break;
+                        case '4':
+                            $_m = [10, 12];
+                            break;
+                    }
+
+                    $sdate = date("Y-$_m[0]-01", strtotime($year));
+                    $edate = date("Y-$_m[1]-t", strtotime($year));
+
+                }
+                break;
+
+        }
+        return [$sdate, $edate];
     }
 
     public static function report($date = '2022-09-01')
