@@ -164,6 +164,7 @@ class PurchaseInbound extends Model
                     , 'items.product_style_id as product_style_id'
                     , DB::raw('(items.price / items.num) as unit_cost')
                 )
+                ->whereNull('items.deleted_at')
                 ->where('items.purchase_id', $event_id)
                 ->whereIn('items.id', $event_item_id)
                 ->get()->toArray();
@@ -185,6 +186,8 @@ class PurchaseInbound extends Model
                     , 'rcv_depot.product_style_id as product_style_id'
                     , 'rcv_depot.unit_cost as unit_cost'
                 )
+                ->whereNull('rcv_depot.deleted_at')
+                ->whereNull('delivery.deleted_at')
                 ->where('delivery.event_id', $event_id)
                 ->whereIn('rcv_depot.id', $event_item_id)
                 ->get()->toArray();
