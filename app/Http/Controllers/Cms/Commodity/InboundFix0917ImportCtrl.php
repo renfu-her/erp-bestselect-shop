@@ -249,7 +249,6 @@ class InboundFix0917ImportCtrl extends Controller
 
     public function del_multi_purchase(Request $request)
     {
-        dd('del_multi_purchase', $request['del_item_id']);
         $errors = [];
         $result = DB::transaction(function () use ($request) {
             if (isset($request['del_item_id']) && null != $request['del_item_id']) {
