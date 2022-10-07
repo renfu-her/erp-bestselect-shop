@@ -135,13 +135,8 @@
                 $url = route('cms.stitute.index');
             }
         @endphp
-        {{--
         <a href="{{ $url }}" class="btn btn-outline-primary px-4" role="button">
-            返回列表
-        </a>
-        --}}
-        <a href="{{ url()->previous() }}" class="btn btn-outline-primary px-4" role="button">
-            返回上一頁
+            返回 代墊單作業
         </a>
     </div>
 

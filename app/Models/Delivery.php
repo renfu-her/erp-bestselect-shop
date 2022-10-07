@@ -496,6 +496,30 @@ class Delivery extends Model
 
     public static function back_item($delivery_id = null)
     {
+        $sq = '
+            SELECT
+                acc_all_grades.id,
+                CASE
+                    WHEN acc_first_grade.code IS NOT NULL THEN acc_first_grade.code
+                    WHEN acc_second_grade.code IS NOT NULL THEN acc_second_grade.code
+                    WHEN acc_third_grade.code IS NOT NULL THEN acc_third_grade.code
+                    WHEN acc_fourth_grade.code IS NOT NULL THEN acc_fourth_grade.code
+                    ELSE ""
+                END AS code,
+                CASE
+                    WHEN acc_first_grade.name IS NOT NULL THEN acc_first_grade.name
+                    WHEN acc_second_grade.name IS NOT NULL THEN acc_second_grade.name
+                    WHEN acc_third_grade.name IS NOT NULL THEN acc_third_grade.name
+                    WHEN acc_fourth_grade.name IS NOT NULL THEN acc_fourth_grade.name
+                    ELSE ""
+                END AS name
+            FROM acc_all_grades
+            LEFT JOIN acc_first_grade ON acc_all_grades.grade_id = acc_first_grade.id AND acc_all_grades.grade_type = "App\\\Models\\\FirstGrade"
+            LEFT JOIN acc_second_grade ON acc_all_grades.grade_id = acc_second_grade.id AND acc_all_grades.grade_type = "App\\\Models\\\SecondGrade"
+            LEFT JOIN acc_third_grade ON acc_all_grades.grade_id = acc_third_grade.id AND acc_all_grades.grade_type = "App\\\Models\\\ThirdGrade"
+            LEFT JOIN acc_fourth_grade ON acc_all_grades.grade_id = acc_fourth_grade.id AND acc_all_grades.grade_type = "App\\\Models\\\FourthGrade"
+        ';
+
         $query = DB::table('dlv_delivery as delivery')
             ->leftJoin(DB::raw('(
                 SELECT
@@ -503,21 +527,26 @@ class Delivery extends Model
                     SUM(dlv_back.price * dlv_back.qty) AS total_price,
                     CONCAT(\'[\', GROUP_CONCAT(\'{
                         "id":"\', dlv_back.id, \'",
-                        "event_item_id":"\', dlv_back.event_item_id, \'",
-                        "sku":"\', dlv_back.sku, \'",
+                        "event_item_id":"\', COALESCE(dlv_back.event_item_id, ""), \'",
+                        "sku":"\', COALESCE(dlv_back.sku, ""), \'",
                         "product_title":"\', dlv_back.product_title, \'",
                         "price":"\', dlv_back.price, \'",
                         "qty":"\', dlv_back.qty, \'",
                         "total_price":"\', dlv_back.price * dlv_back.qty, \'",
+                        "grade_id":"\', COALESCE(grade.id, dlv_back.grade_id), \'",
+                        "grade_code":"\', COALESCE(grade.code, ""), \'",
+                        "grade_name":"\', COALESCE(grade.name, ""), \'",
                         "memo":"\', COALESCE(dlv_back.memo, ""), \'",
                         "note":"\', COALESCE(ord_items.note, ""), \'",
                         "po_note":"\', COALESCE(ord_items.po_note, ""), \'",
-                        "taxation":"\', product.has_tax, \'"
+                        "taxation":"\', COALESCE(product.has_tax, 1), \'"
                     }\' ORDER BY dlv_back.id), \']\') AS items
                 FROM dlv_back
+                LEFT JOIN (' . $sq . ') AS grade ON grade.id = dlv_back.grade_id
                 LEFT JOIN prd_product_styles ON prd_product_styles.id = dlv_back.product_style_id
                 LEFT JOIN ord_items ON ord_items.id = dlv_back.event_item_id
-                LEFT JOIN prd_products AS product ON product.id = prd_product_styles.product_id WHERE product.deleted_at IS NULL
+                LEFT JOIN prd_products AS product ON product.id = prd_product_styles.product_id
+                WHERE (product.deleted_at IS NULL AND dlv_back.qty > 0 AND dlv_back.show = 1)
                 GROUP BY delivery_id
                 ) AS delivery_back'), function ($join) {
                 $join->on('delivery_back.delivery_id', '=', 'delivery.id');

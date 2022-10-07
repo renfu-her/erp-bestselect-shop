@@ -183,14 +183,14 @@ class CollectionPaymentCtrl extends Controller
                         $name = $product_name . ' --- ' . $p_value->title . '（' . $avg_price . ' * ' . $p_value->num . '）';
                         $product_title = $p_value->title;
 
-                        if($value->po_source_type == 'acc_stitute_orders' || $value->po_source_type == 'pcs_paying_orders'){
+                        if(in_array($value->po_source_type, ['acc_stitute_orders', 'dlv_delivery', 'pcs_paying_orders'])) {
                             if($value->po_type == 1){
                                 $product_account = AllGrade::find($p_value->all_grades_id) ? AllGrade::find($p_value->all_grades_id)->eachGrade : null;
                                 $account_code = $product_account ? $product_account->code : '1000';
                                 $account_name = $product_account ? $product_account->name : '無設定會計科目';
                                 $product_title = $account_name;
 
-                            } else if($value->po_type == 2){
+                            } else if($value->po_type == 9 || $value->po_type == 2){
                                 $account_code = $p_value->grade_code;
                                 $account_name = $p_value->grade_name;
                             }
@@ -547,15 +547,17 @@ class CollectionPaymentCtrl extends Controller
                 $delivery = $delivery->first();
 
                 foreach($delivery->delivery_back_items as $value){
-                    $item_data[] = (object)[
-                        'item_id' => $value->event_item_id,
-                        'title' => $value->product_title,
-                        'price' => $value->price,
-                        'qty' => $value->qty,
-                        'total_price' => $value->total_price,
-                        'note' => $value->note,
-                        'po_note' => $value->po_note,
-                    ];
+                    if($value->event_item_id){
+                        $item_data[] = (object)[
+                            'item_id' => $value->event_item_id,
+                            'title' => $value->product_title,
+                            'price' => $value->price,
+                            'qty' => $value->qty,
+                            'total_price' => $value->total_price,
+                            'note' => $value->note,
+                            'po_note' => $value->po_note,
+                        ];
+                    }
                 }
             }
 
@@ -902,11 +904,17 @@ class CollectionPaymentCtrl extends Controller
                         $name = $product_name . ' --- ' . $p_value->title . '（' . $avg_price . ' * ' . $p_value->num . '）';
                         $product_title = $p_value->title;
 
-                        if($value->po_source_type == 'acc_stitute_orders' || $value->po_source_type == 'pcs_paying_orders'){
-                            $product_account = AllGrade::find($p_value->all_grades_id) ? AllGrade::find($p_value->all_grades_id)->eachGrade : null;
-                            $account_code = $product_account ? $product_account->code : '1000';
-                            $account_name = $product_account ? $product_account->name : '無設定會計科目';
-                            $product_title = $account_name;
+                        if(in_array($value->po_source_type, ['acc_stitute_orders', 'dlv_delivery', 'pcs_paying_orders'])) {
+                            if($value->po_type == 1){
+                                $product_account = AllGrade::find($p_value->all_grades_id) ? AllGrade::find($p_value->all_grades_id)->eachGrade : null;
+                                $account_code = $product_account ? $product_account->code : '1000';
+                                $account_name = $product_account ? $product_account->name : '無設定會計科目';
+                                $product_title = $account_name;
+
+                            } else if($value->po_type == 9 || $value->po_type == 2){
+                                $account_code = $p_value->grade_code;
+                                $account_name = $p_value->grade_name;
+                            }
                         }
 
                         $tmp = [

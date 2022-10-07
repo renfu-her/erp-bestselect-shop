@@ -4,8 +4,8 @@ namespace App\Models;
 
 use App\Enums\Delivery\Event;
 use App\Enums\Delivery\LogisticStatus;
+use App\Enums\DlvBack\DlvBackType;
 use App\Enums\Purchase\LogEventFeature;
-use App\Enums\StockEvent;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -821,7 +821,8 @@ class ReceiveDepot extends Model
             ->whereNull('rcv_depot.combo_id')
             ->leftJoin(app(DlvBack::class)->getTable(). ' as back', function ($join) use($delivery_id) {
                 $join->on('back.product_style_id', '=', 'rcv_depot.product_style_id')
-                    ->where('back.delivery_id', '=', $delivery_id);
+                    ->where('back.delivery_id', '=', $delivery_id)
+                    ->where('back.type', DlvBackType::product()->value);
             })
             ->select(
                 'rcv_depot.event_item_id'
@@ -843,7 +844,8 @@ class ReceiveDepot extends Model
             })
             ->leftJoin(app(DlvBack::class)->getTable(). ' as back', function ($join) use($delivery_id) {
                 $join->on('back.product_style_id', '=', 'rcv_depot.product_style_id')
-                    ->where('back.delivery_id', '=', $delivery_id);
+                    ->where('back.delivery_id', '=', $delivery_id)
+                    ->where('back.type', DlvBackType::product()->value);
             })
             ->select(
                 'rcv_depot.event_item_id'
