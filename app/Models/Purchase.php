@@ -244,40 +244,21 @@ class Purchase extends Model
 
     //刪除
     public static function del($id, $operator_user_id, $operator_user_name) {
-        //判斷若有入庫、付款單 則不可刪除
+        //判斷若有審核、付款單 則不可刪除
         $returnMsg = [];
         $purchase = Purchase::where('id', '=', $id)->get()->first();
         if (AuditStatus::approved()->value == $purchase->audit_status) {
             return ['success' => 0, 'error_msg' => '已審核無法刪除'];
         }
-        $inbounds = PurchaseInbound::deliveryPcsInboundList($id)->get()->toArray();
-        $payingOrderList = PayingOrder::getPayingOrdersWithPurchaseID($id)->get();
-        if (null != $inbounds && 0 < count($inbounds)) {
-            return ['success' => 0, 'error_msg' => '已入庫無法刪除'];
-        } else if (null != $payingOrderList && 0 < count($payingOrderList)) {
-            return ['success' => 0, 'error_msg' => '已有付款單無法刪除'];
-        } else {
-            return DB::transaction(function () use ($id, $operator_user_id, $operator_user_name
-            ) {
-                $rePcsLSC = PurchaseLog::stockChange($id, null, Event::purchase()->value, $id, LogEventFeature::del()->value, null, null, null, null, null, $operator_user_id, $operator_user_name);
-                if ($rePcsLSC['success'] == 0) {
-                    DB::rollBack();
-                    return $rePcsLSC;
-                }
-                Purchase::where('id', '=', $id)->delete();
-                return ['success' => 1, 'error_msg' => ""];
-            });
-        }
+        return self::delAndRelatedData($id, $operator_user_id, $operator_user_name);
     }
 
     //刪除採購單 並刪除 入庫單
     public static function delAndRelatedData($id, $operator_user_id, $operator_user_name) {
-        //判斷若有入庫、付款單 則不可刪除
-//        $purchase = Purchase::where('id', '=', $id)->get()->first();
-//        if (AuditStatus::approved()->value == $purchase->audit_status) {
-//            return ['success' => 0, 'error_msg' => '已審核無法刪除'];
-//        }
-
+        $purchase = Purchase::where('id', '=', $id)->get()->first();
+        if (false == isset($purchase)) {
+            return ['success' => 0, 'error_msg' => '查無採購單'];
+        }
         $dlv_inbounds = PurchaseInbound::deliveryPcsInboundList($id)->get()->toArray();
         $payingOrderList = PayingOrder::getPayingOrdersWithPurchaseID($id)->get();
         if (null != $dlv_inbounds && 0 < count($dlv_inbounds)) {
