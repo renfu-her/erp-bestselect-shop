@@ -97,7 +97,6 @@
                         <tr>
                             <th scope="col">#</th>
                             <th scope="col">會計科目</th>
-                            <th scope="col">類別</th>
                             <th scope="col">項目</th>
                             <th scope="col">金額（單價）</th>
                             <th scope="col">數量</th>
@@ -129,18 +128,6 @@
                                                     class="grade_4"
                                                 @endif
                                             >{{ $g_value['code'] . ' ' . $g_value['name'] }}</option>
-                                        @endforeach
-                                    </select>
-                                </td>
-                                <td>
-                                    <select class="select-check form-select form-select-sm -select2 -single @error('btype.' . $i) is-invalid @enderror" name="btype[{{ $i }}]" data-placeholder="請選擇類別">
-                                        <option value="" selected disabled>請選擇類別 {{ $items[$i]->type ?? 'aa' }}</option>
-                                        @foreach( \App\Enums\DlvBack\DlvBackType::asArray() as $backType)
-                                            @if(\App\Enums\DlvBack\DlvBackType::product()->value != $backType)
-                                            <option value="{{ $backType }}"
-                                                    @if($backType == ($items[$i]->type ?? null)) selected @endif
-                                            > {{ \App\Enums\DlvBack\DlvBackType::getDescription($backType) }}</option>
-                                            @endif
                                         @endforeach
                                     </select>
                                 </td>
