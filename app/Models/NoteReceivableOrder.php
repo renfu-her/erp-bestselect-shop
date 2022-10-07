@@ -300,7 +300,8 @@ class NoteReceivableOrder extends Model
             ]);
 
         } else {
-            $default_net_grade = ReceivedDefault::where('name', 'cheque')->first() ? ReceivedDefault::where('name', 'cheque')->first()->default_grade_id : 21;
+            // $default_net_grade = ReceivedDefault::where('name', 'cheque')->first() ? ReceivedDefault::where('name', 'cheque')->first()->default_grade_id : 21;
+            $default_net_grade = collect(GeneralLedger::total_grade_list())->where('code', '11020001')->first() ? collect(GeneralLedger::total_grade_list())->where('code', '11020001')->first()['primary_id'] : 252;
 
             $target = self::create([
                 'sn'=>'ASG' . date('ymd', strtotime($cashing_date)),
