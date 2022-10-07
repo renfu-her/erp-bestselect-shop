@@ -42,6 +42,16 @@
     <div class="card shadow p-4 mb-4">
         <div class="row justify-content-end mb-4">
             <div class="col-auto">
+                <button disabled
+                    data-bs-toggle="modal" data-bs-target="#confirm-delete"
+                    class="btn btn-danger -multi-del">
+                    多選刪除
+                </button>
+            </div>
+            <div class="col align-self-center">
+                已選擇 <span class="fw-bold -count">0</span> 筆資料
+            </div>
+            <div class="col-auto">
                 顯示
                 <select class="form-select d-inline-block w-auto" id="dataPerPageElem" aria-label="表格顯示筆數">
                     @foreach (config('global.dataPerPage') as $value)
@@ -58,7 +68,14 @@
                     <tr>
                         <th scope="col" style="width:40px">#</th>
                         @if(true == $showDelBtn)
-                        <th scope="col">刪除</th>
+                        <th scope="col">刪除 / 
+                            <div class="d-inline-block ms-1">
+                                <label class="form-check-label">
+                                    <input id="Del-select-all" class="form-check-input" type="checkbox" >
+                                    全選
+                                </label>
+                            </div>
+                        </th>
                         @endif
                         <th scope="col">採購單號</th>
                         <th scope="col">建立時間</th>
@@ -77,6 +94,12 @@
                                        class="icon -del icon-btn fs-5 text-danger rounded-circle border-0">
                                         <i class="bi bi-trash"></i>
                                     </a>
+                                    <div class="d-inline-block">
+                                        <label class="form-check-label">
+                                            <input class="form-check-input -del-select" type="checkbox" value="{{ $data->id }}" >
+                                            選擇
+                                        </label>
+                                    </div>
                                 @endcan
                             </td>
                             @endif
@@ -97,7 +120,7 @@
                                     <tr class="border-top-0" style="border-bottom-color:var(--bs-secondary);">
                                         <td scope="col">入庫單號</td>
                                         <td scope="col">名稱</td>
-                                        <td scope="col">sku</td>
+                                        <td scope="col">SKU</td>
                                         <td scope="col">倉庫</td>
                                         <td scope="col">入庫數量</td>
                                         <td scope="col">售出數量</td>
@@ -128,6 +151,24 @@
                 </tbody>
             </table>
         </div>
+
+        <div class="row">
+            <div class="col-auto">
+                <button disabled
+                    data-bs-toggle="modal" data-bs-target="#confirm-delete"
+                    class="btn btn-danger -multi-del">
+                    多選刪除
+                </button>
+            </div>
+            <div class="col-auto align-self-center">
+                已選擇 <span class="fw-bold -count">0</span> 筆資料
+            </div>
+            <div class="col-auto align-self-center mark">
+                <i class="bi bi-exclamation-diamond-fill me-2 text-warning"></i>
+                換頁刪除選擇不保留，請先執行多選刪除
+            </div>
+        </div>
+        
     </div>
     <div class="row flex-column-reverse flex-sm-row">
         <div class="col d-flex justify-content-end align-items-center mb-3 mb-sm-0">
@@ -145,14 +186,56 @@
         <x-slot name="body">刪除後將無法復原！確認要刪除？</x-slot>
         <x-slot name="foot">
             <a class="btn btn-danger btn-ok" href="#">確認並刪除</a>
+            <form id="multiForm" action="{{ Route('cms.inbound_fix0917_import.del_multi_purchase') }}" method="post" hidden>
+                @csrf
+            </form>
         </x-slot>
     </x-b-modal>
 @endsection
 @once
     @push('sub-scripts')
         <script>
+            // 刪除
             $('#confirm-delete').on('show.bs.modal', function(e) {
-                $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
+                if ($(e.relatedTarget).hasClass('-del')) {
+                    $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
+                }
+                if ($(e.relatedTarget).hasClass('-multi-del')) {
+                    let del_item_id = [];
+                    $('input[type="checkbox"]:checked.-del-select').each(function (index, element) {
+                        // element == this
+                        del_item_id.push($(element).val());
+                    });
+                    del_item_id = del_item_id.toString();
+                    console.log('多刪on', del_item_id);
+                    // 送form
+                    const form = $('#multiForm');
+                    form.append(`<input type="hidden" name="del_item_id" value="${del_item_id}">`);
+                    $(this).find('.btn-ok').on('click.multi', function () {
+                        form.submit();
+                    });
+                }
+            });
+            $('#confirm-delete').on('hidden.bs.modal', function (e) {
+                $('#multiForm input[name="del_item_id"]').remove();
+                $(this).find('.btn-ok').off('click.multi');
+            });
+
+            // 全選
+            $('#Del-select-all').on('change', function () {
+                const checked = $(this).prop('checked');
+                $('input[type="checkbox"].-del-select').prop('checked', checked);
+                const checked_n = $('input[type="checkbox"]:checked.-del-select').length;
+                $('.-count').text(checked_n);
+                $('.-multi-del').prop('disabled', checked_n === 0);
+            });
+            // 多選
+            $('input[type="checkbox"].-del-select').on('change', function () {
+                const checked_n = $('input[type="checkbox"]:checked.-del-select').length;
+                $('.-count').text(checked_n);
+                const n = $('input[type="checkbox"].-del-select').length;
+                $('#Del-select-all').prop('checked', checked_n === n);
+                $('.-multi-del').prop('disabled', checked_n === 0);
             });
         </script>
     @endpush
