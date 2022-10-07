@@ -237,7 +237,7 @@
                             </td>
                             <td>{{ $data->ship_group_name }}</td>
                             <td>{{ $data->package_sn }}</td>
-                            <td class="wrap py-0">
+                            <td class="wrap small py-0">
                                 <ul class="list-group list-group-flush">
                                 @foreach($data->productTitleGroup as $x => $productTitle)
                                     <li class="list-group-item bg-transparent pe-1">{{ $productTitle->product_title }}</li>
