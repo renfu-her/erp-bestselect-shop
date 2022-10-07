@@ -477,6 +477,11 @@ class ConsignmentCtrl extends Controller
 
             $result = DB::transaction(function () use ($inboundItemReq, $id, $depot_id, $depot, $request, $style_arr
             ) {
+                $consignment = Consignment::where('id', '=', $id)->first();
+                if (false == isset($consignment)) {
+                    DB::rollBack();
+                    return ['success' => 0, 'error_msg' => "無此寄倉單 不可入庫"];
+                }
                 foreach ($style_arr as $key => $val) {
                     $re = PurchaseInbound::createInbound(
                         Event::consignment()->value,

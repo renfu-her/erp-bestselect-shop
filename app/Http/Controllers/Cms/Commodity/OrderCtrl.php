@@ -655,6 +655,12 @@ class OrderCtrl extends Controller
 
             $result = DB::transaction(function () use ($inboundItemReq, $id, $depot_id, $depot, $request, $style_arr
             ) {
+                $suborder = SubOrders::where('id', '=', $id)->first();
+                $order = Order::where('id', '=', $suborder->order_id)->first();
+                if (OrderStatus::Canceled()->value == $order->status_code) {
+                    DB::rollBack();
+                    return ['success' => 0, 'error_msg' => "訂單已刪除 不可入庫"];
+                }
                 foreach ($style_arr as $key => $val) {
                     $re = PurchaseInbound::createInbound(
                         Event::ord_pickup()->value,
