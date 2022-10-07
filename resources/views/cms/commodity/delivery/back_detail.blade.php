@@ -186,7 +186,6 @@
                     <tr>
                         <th scope="col" class="text-center" style="width:40px">#</th>
                         <th scope="col">會計科目</th>
-                        <th scope="col">類別</th>
                         <th scope="col">項目</th>
                         <th scope="col" class="text-end">金額（單價）</th>
                         <th scope="col" class="text-center">數量</th>
@@ -205,7 +204,6 @@
                         <tr>
                             <th scope="row">{{ $key + 1 }}</th>
                             <td class="wrap lh-sm">{{ $val_dli->grade_code }} {{ $val_dli->grade_name }}</td>
-                            <td>{{ \App\Enums\DlvBack\DlvBackType::getDescription($val_dli->type) }}</td>
                             <td class="wrap lh-sm">{{ $val_dli->product_title }}</td>
                             <td class="text-end">{{ $val_dli->price }}</td>
                             <td class="text-center">{{ $val_dli->qty }}</td>

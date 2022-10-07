@@ -282,7 +282,6 @@ class DeliveryCtrl extends Controller
 
             'back_item_id.*' => 'nullable|numeric',
             'bgrade_id.*' => 'required_with:btype|numeric',
-            'btype.*' => 'required|numeric',
             'btitle.*' => 'required|string',
             'bprice.*' => 'required|numeric',
             'bqty.*' => 'required|numeric',
@@ -339,6 +338,7 @@ class DeliveryCtrl extends Controller
                     }
                 } else {
                     $data = [];
+                    $default_grade_id = ReceivedDefault::where('name', '=', 'product')->first()->default_grade_id;
                     for($i = 0; $i < count($input_items['id']); $i++) {
                         $addItem = [
                             'delivery_id' => $delivery_id,
@@ -353,7 +353,7 @@ class DeliveryCtrl extends Controller
                             'memo' => $input_items['memo'][$i],
                             'show' => $input_items['show'][$i] ?? false,
                             'type' => DlvBackType::product()->value,
-                            'grade_id' => 0,
+                            'grade_id' => $default_grade_id,
                         ];
                         //判斷為訂單 則寫入目前訂單款式的bonus
                         if (Event::order()->value == $delivery->event) {
@@ -370,19 +370,19 @@ class DeliveryCtrl extends Controller
                     DlvBack::insert($data);
                 }
             }
-            $input_other_items = $request->only('back_item_id', 'bgrade_id', 'btype', 'btitle', 'bprice', 'bqty', 'bmemo');
+            $input_other_items = $request->only('back_item_id', 'bgrade_id', 'btitle', 'bprice', 'bqty', 'bmemo');
+
             $dArray = array_diff(DlvBack::where('delivery_id', $delivery_id)->where('type', '<>', DlvBackType::product()->value)->pluck('id')->toArray()
-                , array_intersect_key($input_other_items['back_item_id'], $input_other_items['btype']?? [] )
+                , array_intersect_key($input_other_items['back_item_id'], $input_other_items['bgrade_id']?? [] )
             );
             if($dArray) DlvBack::destroy($dArray);
 
-            if (isset($input_other_items['btype']) && 0 < count($input_other_items['btype'])) {
+            if (isset($input_other_items['bgrade_id']) && 0 < count($input_other_items['bgrade_id'])) {
                 foreach(request('back_item_id') as $key => $value){
-                    if(true == isset($input_other_items['btype'][$key])) {
+                    if(true == isset($input_other_items['bgrade_id'][$key])) {
                         if(true == isset($input_other_items['back_item_id'][$key])) {
                             DlvBack::where('id', '=', $input_other_items['back_item_id'][$key])->update([
                                 'grade_id' => $input_other_items['bgrade_id'][$key],
-                                'type' => $input_other_items['btype'][$key],
                                 'product_title' => $input_other_items['btitle'][$key],
                                 'price' => $input_other_items['bprice'][$key],
                                 'qty' => $input_other_items['bqty'][$key],
@@ -395,7 +395,7 @@ class DeliveryCtrl extends Controller
                             DlvBack::create([
                                 'delivery_id' => $delivery_id,
                                 'grade_id' => $input_other_items['bgrade_id'][$key],
-                                'type' => $input_other_items['btype'][$key],
+                                'type' => DlvBackType::other()->value,
                                 'product_title' => $input_other_items['btitle'][$key],
                                 'price' => $input_other_items['bprice'][$key],
                                 'qty' => $input_other_items['bqty'][$key],
@@ -443,7 +443,7 @@ class DeliveryCtrl extends Controller
                 $rsp_arr['dlv_other_items'] = json_decode(json_encode([[
                     'id' => null,
                     'delivery_id' => $delivery->id,
-                    'type' => DlvBackType::logistic()->value,
+                    'type' => DlvBackType::other()->value,
                     'product_title' => $sub_order->ship_event,
                     'price' => $sub_order->dlv_fee,
                     'qty' => 1,
