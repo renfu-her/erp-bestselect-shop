@@ -122,22 +122,13 @@
                         <th scope="col">寄倉單號</th>
                         <th scope="col" class="text-center">編輯</th>
                         <th scope="col">寄倉出貨單號</th>
-                        <th scope="col">採購入庫單號</th>
-                        <th scope="col">商品名稱</th>
-                        <th scope="col">SKU碼</th>
-                        <th scope="col">審核狀態</th>
-                        <th scope="col">寄倉日期</th>
-                        <th scope="col">寄倉數量</th>
-                        <th scope="col">入倉狀態</th>
-                        <th scope="col">出貨倉庫</th>
-                        <th scope="col">入庫倉庫</th>
 
                         <th scope="col" class="text-center">刪除</th>
                     </tr>
                     </thead>
                     <tbody>
-                    @if($dataList)
-                        @foreach ($dataList as $key => $data)
+                    @if($uniqueDataList)
+                        @foreach ($uniqueDataList as $key => $data)
                             <tr>
                                 <th scope="row">{{ $key + 1 }}</th>
                                 <td>{{ $data->consignment_sn }}</td>
@@ -151,26 +142,57 @@
                                     @endcan
                                 </td>
                                 <td>{{ $data->dlv_sn }}</td>
-                                <td>{{ $data->origin_inbound_sn }}</td>
-                                <td>{{ $data->title }}</td>
-                                <td>{{ $data->sku }}</td>
-                                <td>{{ $data->audit_status_str }}</td>
-                                <td>{{ $data->created_at }}</td>
-                                <td>{{ $data->num }}</td>
-                                <td>{{ $data->inbound_type }}</td>
-                                <td>{{ $data->send_depot_name }}</td>
-                                <td>{{ $data->receive_depot_name }}</td>
-
                                 <td class="text-center">
                                     @can('cms.consignment.delete')
-                                    @if(\App\Enums\Consignment\AuditStatus::approved()->value != $data->audit_status)
-                                    <a href="javascript:void(0)" data-href="{{ Route('cms.consignment.delete', ['id' => $data->consignment_id], true) }}"
-                                       data-bs-toggle="modal" data-bs-target="#confirm-delete"
-                                       class="icon -del icon-btn fs-5 text-danger rounded-circle border-0">
-                                        <i class="bi bi-trash"></i>
-                                    </a>
-                                    @endif
+                                        @if(\App\Enums\Consignment\AuditStatus::approved()->value != $data->audit_status)
+                                            <a href="javascript:void(0)" data-href="{{ Route('cms.consignment.delete', ['id' => $data->consignment_id], true) }}"
+                                               data-bs-toggle="modal" data-bs-target="#confirm-delete"
+                                               class="icon -del icon-btn fs-5 text-danger rounded-circle border-0">
+                                                <i class="bi bi-trash"></i>
+                                            </a>
+                                        @endif
                                     @endcan
+                                </td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td colspan="9" class="pt-0 ps-0 wrap">
+                                    <table class="table table-bordered table-sm mb-0">
+                                        <thead class="small table-light">
+                                        <tr class="border-top-0" style="border-bottom-color:var(--bs-secondary);">
+                                            <td scope="col">名稱</td>
+                                            <td scope="col">sku</td>
+                                            <td scope="col">數量</td>
+                                            <th scope="col">採購入庫單號</th>
+                                            <th scope="col">商品名稱</th>
+                                            <th scope="col">SKU碼</th>
+                                            <th scope="col">審核狀態</th>
+                                            <th scope="col">寄倉日期</th>
+                                            <th scope="col">寄倉數量</th>
+                                            <th scope="col">入倉狀態</th>
+                                            <th scope="col">出貨倉庫</th>
+                                            <th scope="col">入庫倉庫</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody class="border-top-0">
+                                            @foreach($data->subGroups as $subGroup)
+                                                <tr>
+                                                    <td>{{ $subGroup->title }}</td>
+                                                    <td>{{ $subGroup->sku }}</td>
+                                                    <td>{{ $subGroup->num }}</td>
+                                                    <td>{{ $subGroup->origin_inbound_sn }}</td>
+                                                    <td>{{ $subGroup->title }}</td>
+                                                    <td>{{ $subGroup->sku }}</td>
+                                                    <td>{{ $subGroup->audit_status_str }}</td>
+                                                    <td>{{ $subGroup->created_at }}</td>
+                                                    <td>{{ $subGroup->num }}</td>
+                                                    <td>{{ $subGroup->inbound_type }}</td>
+                                                    <td>{{ $subGroup->send_depot_name }}</td>
+                                                    <td>{{ $subGroup->receive_depot_name }}</td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
                                 </td>
                             </tr>
                         @endforeach

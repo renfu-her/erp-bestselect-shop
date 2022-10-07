@@ -156,7 +156,9 @@ class ConsignmentItem extends Model
         return $consignment_item;
     }
 
-    //取得寄倉商品和原本對應的採購入庫單
+    /**
+     * 取得寄倉商品和原本對應的採購入庫單
+     */
     public static function getOriginInboundDataList($consignment_id = null) {
         //取得原對應採購單
         $subQuery = DB::table('pcs_purchase_inbound as inbound1')
@@ -290,6 +292,19 @@ class ConsignmentItem extends Model
             $result->whereIn('inbound_type', $arr_status);
         }
         $result->orderByDesc('consignment.consignment_id');
+        return $result;
+    }
+
+    public static function getItemsByConsignmentIdAndDlvId($consignmentId, $dlv_id) {
+        $consignmentItemData = ConsignmentItem::getOriginInboundDataList($consignmentId);
+        $consignmentData  = Consignment::getDeliveryData($consignmentId);
+        $result = DB::query()->fromSub($consignmentData, 'consignment')
+            ->leftJoinSub($consignmentItemData, 'items', function($join) {
+                $join->on('items.consignment_id', '=', 'consignment.consignment_id');
+            })
+            ->where('dlv_id', '=', $dlv_id)
+        ->get();
+
         return $result;
     }
 }

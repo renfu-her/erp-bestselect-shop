@@ -78,8 +78,32 @@ class ConsignmentCtrl extends Controller
             )
             ->paginate($data_per_page)->appends($query);
 
+        $uniqueGroups = [];
+        $uniqueDataList = [];
+        foreach ($dataList as $datum) {
+            $isInUniqueGroup = false;
+            //check if in group
+            foreach ($uniqueGroups as $uniqueGroup) {
+                if (
+                    $uniqueGroup['consignment_id'] == $datum->consignment_id &&
+                    $uniqueGroup['dlv_id'] == $datum->dlv_id
+                ) {
+                    $isInUniqueGroup = true;
+                }
+            }
+            if (!$isInUniqueGroup) {
+                $uniqueGroups[] = [
+                    'consignment_id' => $datum->consignment_id,
+                    'dlv_id'         => $datum->dlv_id,
+                ];
+                $datum->subGroups = ConsignmentItem::getItemsByConsignmentIdAndDlvId($datum->consignment_id, $datum->dlv_id);
+                $uniqueDataList[] = $datum;
+            }
+        }
+
         return view('cms.commodity.consignment.list', [
             'dataList' => $dataList
+            , 'uniqueDataList' => $uniqueDataList
             , 'data_per_page' => $data_per_page
             , 'depotList' => Depot::all()
 

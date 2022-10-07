@@ -554,7 +554,9 @@ class PurchaseInbound extends Model
         return $result;
     }
 
-    //採購單入庫總覽
+    /**
+     * 採購單入庫總覽
+     */
     public static function getOverviewInboundList($event, $event_id = null)
     {
         $tempInboundSql = DB::table('pcs_purchase_inbound as inbound')
