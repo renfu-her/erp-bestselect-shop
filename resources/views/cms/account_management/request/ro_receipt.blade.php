@@ -165,10 +165,15 @@
     </div>
 
     <div class="col-auto">
+        {{--
         <a href="{{ route('cms.request.show', ['id' => $received_order->source_id]) }}" 
             class="btn btn-outline-primary px-4" role="button">返回 請款單</a>
         <a href="{{ Route('cms.request.index') }}" class="btn btn-outline-primary px-4" 
             role="button">返回 請款單列表</a>
+        --}}
+        <a href="{{ url()->previous() }}" class="btn btn-outline-primary px-4" role="button">
+            返回上一頁
+        </a>
     </div>
 
     <!-- Modal -->
