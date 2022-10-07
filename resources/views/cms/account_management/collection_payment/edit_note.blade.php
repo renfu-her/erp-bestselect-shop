@@ -43,8 +43,8 @@
                                 <td>{{ $logistic_value->title }}</td>
                                 <td class="text-end">{{ $logistic_value->qty }}</td>
                                 <td class="text-end">{{ number_format($logistic_value->total_price, 2) }}</td>
-                                @if($paying_order->type == 1 && $paying_order->source_type != 'pcs_purchase')
-                                <td><textarea class="form-control form-control-sm -l" name="logistic_item[{{ $logistic_value->item_id }}][note]" placeholder="物流備註">{{ $logistic_value->note }}</textarea></td>
+                                @if($paying_order->type == 1 && in_array($paying_order->source_type, ['ord_orders', 'csn_consignment']))
+                                <td><textarea class="form-control form-control-sm -l" name="logistic_item[{{ $logistic_value->item_id }}][note]" placeholder="請輸入物流備註">{{ $logistic_value->note }}</textarea></td>
                                 @else
                                 <td><input class="form-control form-control-sm -l" name="logistic_item[{{ $logistic_value->item_id }}][note]" type="text" value="{{ $logistic_value->note }}"></td>
                                 @endif

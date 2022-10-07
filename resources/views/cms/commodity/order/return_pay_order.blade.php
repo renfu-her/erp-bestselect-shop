@@ -106,7 +106,7 @@
                                 <td class="text-end">{{ $p_value->qty }}</td>
                                 <td class="text-end">{{ number_format($p_value->price, 2) }}</td>
                                 <td class="text-end">{{ number_format($p_value->total_price) }}</td>
-                                <td>{{ $paying_order->memo }} <a href="{{ Route('cms.order.detail', ['id' => $order->id]) }}">{{ $order->sn }}</a> {{ $p_value->product_taxation == 1 ? '應稅' : '免稅' }} {{ $p_value->note }} {{ $p_value->po_note }}</td>
+                                <td>{{ $paying_order->memo }} <a href="{{ Route('cms.order.detail', ['id' => $order->id]) }}">{{ $order->sn }}</a> {{ $p_value->product_taxation == 1 ? '應稅' : '免稅' }} {!! nl2br($p_value->note) !!} {!! nl2br($p_value->po_note) !!}</td>
                             </tr>
                         @endforeach
                         @endforeach
