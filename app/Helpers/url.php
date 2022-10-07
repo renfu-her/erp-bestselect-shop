@@ -77,14 +77,13 @@ if (!function_exists('getImageUrl')) {
      */
     function getImageUrl($subImageUrl, $cdn = false)
     {
+        if (preg_match('/.*\/(cyberbiz|liquor)\/.*/', $subImageUrl) === 1) {
+            return ImageDomain::CDN . $subImageUrl;
+        }
         if (App::environment(AppEnvClass::Release) && $cdn) {
             return ImageDomain::CDN . $subImageUrl;
         } else {
-            if (preg_match('/.*\/(cyberbiz|liquor)\/.*/', $subImageUrl) === 1) {
-                return ImageDomain::CDN . $subImageUrl;
-            } else {
-                return asset($subImageUrl);
-            }
+            return asset($subImageUrl);
         }
     }
 }
