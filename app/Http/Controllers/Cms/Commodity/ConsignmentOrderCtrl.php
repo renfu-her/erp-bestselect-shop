@@ -53,7 +53,9 @@ class ConsignmentOrderCtrl extends Controller
                 , 'items.memo as item_memo'
                 , 'delivery.logistic_status as logistic_status'
                 , DB::raw('DATE_FORMAT(delivery.audit_date,"%Y-%m-%d") as audit_date')
-            );
+                , DB::raw('ifnull(DATE_FORMAT(csnord.dlv_audit_date,"%Y-%m-%d"), null) as dlv_audit_date')
+            )
+            ->orderByDesc('csnord.id');
 
         if ($depot_id) {
             $queryCsnOrd->where('csnord.depot_id', $depot_id);
@@ -357,6 +359,17 @@ class ConsignmentOrderCtrl extends Controller
             'receivable' => $receivable,
             'received_order_data' => $received_order_data,
         ]);
+    }
+
+    public function delete(Request $request, $id)
+    {
+        $result = CsnOrder::del($id, $request->user()->id, $request->user()->name);
+        if ($result['success'] == 0) {
+            wToast($result['error_msg']);
+        } else {
+            wToast(__('Delete finished.'));
+        }
+        return redirect(Route('cms.consignment-order.index'));
     }
 
     public function historyLog(Request $request, $id) {
