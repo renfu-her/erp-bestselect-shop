@@ -188,7 +188,6 @@
                         <th scope="col">實際物流</th>
                         <th scope="col">包裹編號</th>
                         <th scope="col">產品名稱</th>
-                        {{-- <th scope="col">退貨狀態</th> --}}
                     </tr>
                 </thead>
                 <tbody>
@@ -203,7 +202,7 @@
                                     </a>
                                 @endcan
                             </td>
-                            <td>{{ $data->order_sn }}</td>
+                            <td class="wrap">{{ $data->order_sn }}</td>
                             <td>
                                 ${{ number_format($data->total_price) }}
                             </td>
@@ -238,11 +237,12 @@
                             </td>
                             <td>{{ $data->ship_group_name }}</td>
                             <td>{{ $data->package_sn }}</td>
-                            <td>
+                            <td class="wrap py-0">
+                                <ul class="list-group list-group-flush">
                                 @foreach($data->productTitleGroup as $x => $productTitle)
-                                    {{ $productTitle->product_title }}
-                                    <br>
+                                    <li class="list-group-item bg-transparent pe-1">{{ $productTitle->product_title }}</li>
                                 @endforeach
+                                </ul>
                             </td>
                             {{-- <td>-</td> --}}
                         </tr>
