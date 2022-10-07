@@ -237,7 +237,7 @@ class InboundFix0917ImportCtrl extends Controller
     public function del_purchase(Request $request, $purchase_id)
     {
         $errors = [];
-        $result = Purchase::forceDel($purchase_id, $request->user()->id, $request->user()->name);
+        $result = Purchase::delAndRelatedData($purchase_id, $request->user()->id, $request->user()->name);
         if ($result['success'] == 0) {
             $errors[] = $result['error_msg'];
             wToast($result['error_msg'], ['type'=>'danger']);
@@ -257,7 +257,7 @@ class InboundFix0917ImportCtrl extends Controller
                 if (isset($del_item_id_arr) && 0 < count($del_item_id_arr)) {
                         $errors = [];
                         foreach ($del_item_id_arr as $key_del => $val_del) {
-                            $result = Purchase::forceDel($val_del, $request->user()->id, $request->user()->name);
+                            $result = Purchase::delAndRelatedData($val_del, $request->user()->id, $request->user()->name);
                             if ($result['success'] == 0) {
                                 $errors[] = $result['error_msg'];
                             }

@@ -270,8 +270,8 @@ class Purchase extends Model
         }
     }
 
-    //強制刪除 並刪除 入庫單
-    public static function forceDel($id, $operator_user_id, $operator_user_name) {
+    //刪除採購單 並刪除 入庫單
+    public static function delAndRelatedData($id, $operator_user_id, $operator_user_name) {
         //判斷若有入庫、付款單 則不可刪除
 //        $purchase = Purchase::where('id', '=', $id)->get()->first();
 //        if (AuditStatus::approved()->value == $purchase->audit_status) {
