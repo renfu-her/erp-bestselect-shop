@@ -484,7 +484,7 @@ class PurchaseInbound extends Model
             ->selectRaw('DATE_FORMAT(inbound.expiry_date,"%Y-%m-%d") as expiry_date') //有效期限
             ->selectRaw('DATE_FORMAT(inbound.inbound_date,"%Y-%m-%d") as inbound_date') //入庫日期
             ->selectRaw('DATE_FORMAT(inbound.deleted_at,"%Y-%m-%d") as deleted_at') //刪除日期
-            ->selectRaw('DATE_FORMAT(inbound.created_at,"%Y-%m-%d") as created_at') //新增日期
+            ->selectRaw('DATE_FORMAT(inbound.created_at,"%Y-%m-%d %H:%i:%s") as created_at') //新增日期
             ->selectRaw('DATE_FORMAT(inbound.updated_at,"%Y-%m-%d") as updated_at') //修改日期
             ->whereNotNull('inbound.id')
             ->whereNotNull('event.sn');
@@ -530,6 +530,14 @@ class PurchaseInbound extends Model
                 $result->where('inventory.status', '=', $param['inventory_status']);
             }
 
+        }
+        if (isset($param['inbound_user_id'])) {
+            $result->where('inbound.inbound_user_id', '=', $param['inbound_user_id']);
+        }
+        if (isset($param['inbound_sdate']) && isset($param['inbound_edate'])) {
+            $s_date = date('Y-m-d', strtotime($param['inbound_sdate']));
+            $e_date = date('Y-m-d', strtotime($param['inbound_edate'] . ' +1 day'));
+            $result->whereBetween('inbound.created_at', [$s_date, $e_date]);
         }
         return $result;
     }
