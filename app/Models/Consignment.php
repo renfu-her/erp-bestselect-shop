@@ -167,6 +167,7 @@ class Consignment extends Model
                     return $rePcsLSC;
                 }
                 self::where('id', '=', $id)->delete();
+                ConsignmentItem::where('consignment_id', '=', $id)->delete();
                 return ['success' => 1, 'error_msg' => ""];
             });
         }

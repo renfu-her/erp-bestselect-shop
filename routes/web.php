@@ -85,6 +85,7 @@ Route::group(['prefix' => 'cms', 'as' => 'cms.', 'middleware' => 'auth:user'], f
     require base_path('routes/cms/StituteOrder.php');
 
     require base_path('routes/cms/InboundImport.php');
+    require base_path('routes/cms/InboundFix0917Import.php');
     require base_path('routes/cms/TransferVoucher.php');
     require base_path('routes/cms/AccountsPayable.php');
     require base_path('routes/cms/NoteReceivable.php');
@@ -94,10 +95,10 @@ Route::group(['prefix' => 'cms', 'as' => 'cms.', 'middleware' => 'auth:user'], f
     require base_path('routes/cms/Refund.php');
     require base_path('routes/cms/DayEnd.php');
     require base_path('routes/cms/Ledger.php');
-    
+
     require base_path('routes/cms/UserPerformanceReport.php');
 
-    
+
 });
 
 Route::group(['prefix' => 'customer', 'as' => 'customer.', 'middleware' => 'guest:customer'], function () {

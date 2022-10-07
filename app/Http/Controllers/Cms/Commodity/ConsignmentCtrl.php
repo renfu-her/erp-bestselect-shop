@@ -386,7 +386,7 @@ class ConsignmentCtrl extends Controller
         ]);
     }
 
-    public function destroy(Request $request, $id)
+    public function delete(Request $request, $id)
     {
         $result = Consignment::del($id, $request->user()->id, $request->user()->name);
         if ($result['success'] == 0) {
@@ -427,7 +427,7 @@ class ConsignmentCtrl extends Controller
         $purchaseData  = Consignment::getData($id)->get()->first();
         $purchaseItemList = ReceiveDepot::getShouldEnterNumDataList(Event::consignment()->value, $id);
 
-        $inboundList = PurchaseInbound::getInboundList(['event' => Event::consignment()->value, 'purchase_id' => $id])
+        $inboundList = PurchaseInbound::getInboundList(['event' => Event::consignment()->value, 'event_id' => $id])
             ->orderByDesc('inbound.created_at')
             ->get()->toArray();
         $inboundOverviewList = PurchaseInbound::getOverviewInboundList(Event::consignment()->value, $id)->get()->toArray();
@@ -477,6 +477,11 @@ class ConsignmentCtrl extends Controller
 
             $result = DB::transaction(function () use ($inboundItemReq, $id, $depot_id, $depot, $request, $style_arr
             ) {
+                $consignment = Consignment::where('id', '=', $id)->first();
+                if (false == isset($consignment)) {
+                    DB::rollBack();
+                    return ['success' => 0, 'error_msg' => "無此寄倉單 不可入庫"];
+                }
                 foreach ($style_arr as $key => $val) {
                     $re = PurchaseInbound::createInbound(
                         Event::consignment()->value,

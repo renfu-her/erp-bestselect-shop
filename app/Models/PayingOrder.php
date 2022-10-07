@@ -291,7 +291,7 @@ class PayingOrder extends Model
                 LEFT JOIN prd_product_styles AS p_style ON p_style.id = pcs_purchase_items.product_style_id
                 LEFT JOIN prd_products AS product ON product.id = p_style.product_id
                 LEFT JOIN usr_users AS p_owner ON p_owner.id = product.user_id
-                WHERE product.deleted_at IS NULL
+                WHERE product.deleted_at IS NULL AND pcs_purchase_items.deleted_at IS NULL)
                 GROUP BY purchase_id
                 ) AS purchase_item_table'), function ($join){
                     $join->on('purchase_item_table.purchase_id', '=', 'purchase.id');

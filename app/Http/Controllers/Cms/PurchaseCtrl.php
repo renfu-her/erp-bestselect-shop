@@ -483,7 +483,7 @@ class PurchaseCtrl extends Controller
     public function inbound(Request $request, $id) {
         $purchaseData = Purchase::getPurchase($id)->first();
         $purchaseItemList = PurchaseItem::getDataForInbound($id)->get()->toArray();
-        $inboundList = PurchaseInbound::getInboundList(['event' => Event::purchase()->value, 'purchase_id' => $id])
+        $inboundList = PurchaseInbound::getInboundList(['event' => Event::purchase()->value, 'event_id' => $id])
             ->orderByDesc('inbound.created_at')
             ->get()->toArray();
         $inboundOverviewList = PurchaseInbound::getOverviewInboundList(Event::purchase()->value, $id)->get()->toArray();
@@ -531,7 +531,11 @@ class PurchaseCtrl extends Controller
             $result = DB::transaction(function () use ($inboundItemReq, $id, $depot_id, $depot, $request, $style_arr
             ) {
                 $purchase = Purchase::where('id', '=', $id)->first();
-                if (AuditStatus::veto()->value == $purchase->audit_status) {
+                if (false == isset($purchase)) {
+                    DB::rollBack();
+                    return ['success' => 0, 'error_msg' => "無此採購單 不可入庫"];
+                } else if (AuditStatus::veto()->value == $purchase->audit_status) {
+                    DB::rollBack();
                     return ['success' => 0, 'error_msg' => "否決後 不可入庫"];
                 }
                 foreach ($style_arr as $key => $val) {
