@@ -189,9 +189,11 @@
     </div>
 
     <div class="col-auto">
-        <a href="{{ url()->previous() }}" class="btn btn-outline-primary px-4" role="button">
-            返回上一頁
+        @can('cms.collection_payment.index')
+        <a href="{{ session('collection_payment_url') ?? route('cms.collection_payment.index') }}" class="btn btn-outline-primary px-4" role="button">
+            返回 付款作業
         </a>
+        @endcan
     </div>
 
     <!-- Modal -->

@@ -82,6 +82,18 @@ class RequestOrderCtrl extends Controller
             '1'=>'已入款',
         ];
 
+        if(count($request->query()) > 0){
+            session([
+                'request_url' => $request->fullUrl()
+            ]);
+
+        } else {
+            session([
+                'request_url' => null
+            ]);
+            session()->forget(['request_url']);
+        }
+
         return view('cms.account_management.request.list', [
             'data_per_page' => $page,
             'dataList' => $dataList,

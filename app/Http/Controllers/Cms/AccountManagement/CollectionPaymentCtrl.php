@@ -306,6 +306,18 @@ class CollectionPaymentCtrl extends Controller
             '1'=>'已付款',
         ];
 
+        if(count($request->query()) > 0){
+            session([
+                'collection_payment_url' => $request->fullUrl()
+            ]);
+
+        } else {
+            session([
+                'collection_payment_url' => null
+            ]);
+            session()->forget(['collection_payment_url']);
+        }
+
         return view('cms.account_management.collection_payment.list', [
             'data_per_page' => $page,
             'dataList' => $dataList,

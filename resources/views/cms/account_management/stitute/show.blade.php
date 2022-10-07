@@ -127,17 +127,11 @@
     </div>
 
     <div class="col-auto">
-        @php
-            $pre_url = url()->previous();
-            if (strstr($pre_url, 'stitute?')) {
-                $url = str_replace(url()->full(), '', $pre_url);
-            } else {
-                $url = route('cms.stitute.index');
-            }
-        @endphp
-        <a href="{{ $url }}" class="btn btn-outline-primary px-4" role="button">
+        @can('cms.stitute.index')
+        <a href="{{ session('stitute_url') ?? route('cms.stitute.index') }}" class="btn btn-outline-primary px-4" role="button">
             返回 代墊單作業
         </a>
+        @endcan
     </div>
 
     <!-- Modal -->
