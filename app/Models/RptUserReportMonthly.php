@@ -71,10 +71,17 @@ class RptUserReportMonthly extends Model
     // 毛利計算
     public static function grossProfit()
     {
-        $order = Order::select('id')->where('gross_profit', 0)->get()->toArray();
+        $order = DB::table('ord_orders as order')
+            ->leftJoin('ord_received_orders as ro', 'order.id', '=', 'ro.source_id')
+            ->select('order.id')
+            ->whereNotNull('ro.receipt_date')
+            ->whereNotNull('order.mcode')
+            ->whereNull('order.gross_profit')
+            ->get()
+            ->toArray();
 
         $atomic = RptReport::atomic()->whereIn('order.id', array_map(function ($n) {
-            return $n['id'];
+            return $n->id;
         }, $order));
 
         $re = DB::table(DB::raw("({$atomic->toSql()}) as atomic"))
@@ -86,11 +93,11 @@ class RptUserReportMonthly extends Model
             ->get();
 
         foreach ($re as $value) {
-            if ($value->gross_profit > 0) {
-                Order::where('id', $value->order_id)->update([
-                    'gross_profit' => $value->gross_profit,
-                ]);
-            }
+            //  if ($value->gross_profit > 0) {
+            Order::where('id', $value->order_id)->update([
+                'gross_profit' => $value->gross_profit,
+            ]);
+            //  }
         }
 
     }
