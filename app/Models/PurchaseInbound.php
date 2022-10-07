@@ -327,11 +327,18 @@ class PurchaseInbound extends Model
         ) {
             $inboundData = DB::table('pcs_purchase_inbound as inbound')
                 ->leftJoin('depot', 'depot.id', 'inbound.depot_id')
-                ->where('inbound.id', '=', $id)
-                ->whereNull('inbound.deleted_at');
+                ->where('inbound.id', '=', $id) //取得是否為理貨倉
+                //->whereNull('inbound.deleted_at') //需額外找出被刪除的入庫單 有使用到則回傳錯誤
+                ->select(
+                    'inbound.*'
+                    , 'depot.can_tally'
+                )
+            ;
             $inboundDataGet = $inboundData->get()->first();
             if (null != $inboundDataGet) {
-                if (($inboundDataGet->inbound_num - $inboundDataGet->sale_num - $inboundDataGet->csn_num - $inboundDataGet->consume_num - $sale_num
+                if (isset($inboundDataGet->deleted_at)) {
+                    return ['success' => 0, 'error_msg' => '該入庫單已遭刪除 '. $inboundDataGet->sn];
+                } elseif (($inboundDataGet->inbound_num - $inboundDataGet->sale_num - $inboundDataGet->csn_num - $inboundDataGet->consume_num - $sale_num
                          - $inboundDataGet->back_num - $inboundDataGet->scrap_num) < 0) {
                     return ['success' => 0, 'error_msg' => '入庫單出貨數量超出範圍'];
                 } else {
