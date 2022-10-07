@@ -152,7 +152,7 @@ class UserPerformanceReportCtrl extends Controller
             'month' => $cond['month'],
             'group' => $organize_id])
             ->get();
-
+           
         $organize_parent_id = UserOrganize::where('id', $organize_id)->get()->first()->parent;
 
         return view('cms.commodity.user_performance_report.list', [

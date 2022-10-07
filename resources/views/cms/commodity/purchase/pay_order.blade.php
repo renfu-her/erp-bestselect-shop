@@ -218,10 +218,15 @@
         <div class="col-auto">
             <input type="hidden" name="del_item_id">
             {{-- <button type="submit" class="btn btn-primary px-4">儲存</button>--}}
+            {{--
             <a href="{{ Route('cms.collection_payment.index') }}" class="btn btn-outline-primary px-4"
                 role="button">返回 付款作業列表</a>
             <a href="{{ Route('cms.purchase.edit', ['id' => $id], true) }}" class="btn btn-outline-primary px-4"
                 role="button">返回 採購單資訊</a>
+            --}}
+            <a href="{{ url()->previous() }}" class="btn btn-outline-primary px-4" role="button">
+                返回上一頁
+            </a>
         </div>
     </form>
 
