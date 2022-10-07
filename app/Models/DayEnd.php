@@ -515,7 +515,7 @@ class DayEnd extends Model
                             'source_type' => $real_value->getTable(),
                             'source_id' => $real_value->id,
                             'source_sn' => $real_value->sn,
-                            'source_summary' => $d_grade['name'] . ' ' . $nr_value->cheque_ticket_number . '（' . date('Y-m-d', strtotime($nr_value->cheque_due_date)) . '）',
+                            'source_summary' => $c_grade['name'] . ' ' . $nr_value->cheque_ticket_number . '（' . date('Y-m-d', strtotime($nr_value->cheque_due_date)) . '）',
                             'debit_price' => null,
                             'credit_price' => $nr_value->cheque_amt_net,
                             'grade_id' => $c_grade['primary_id'],
