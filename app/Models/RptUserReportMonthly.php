@@ -155,15 +155,15 @@ class RptUserReportMonthly extends Model
             ];
 
             if ($n[0]) {
-                $data['on_price'] = $n[0]->total_price;
-                $data['on_gross_profit'] = $n[0]->gross_profit;
+                $data['off_price'] = $n[0]->total_price;
+                $data['off_gross_profit'] = $n[0]->gross_profit;
                 $data['total_price'] += $n[0]->total_price;
                 $data['total_gross_profit'] += $n[0]->gross_profit;
             }
 
             if ($n[1]) {
-                $data['off_price'] = $n[1]->total_price;
-                $data['off_gross_profit'] = $n[1]->gross_profit;
+                $data['on_price'] = $n[1]->total_price;
+                $data['on_gross_profit'] = $n[1]->gross_profit;
                 $data['total_price'] += $n[1]->total_price;
                 $data['total_gross_profit'] += $n[1]->gross_profit;
             }

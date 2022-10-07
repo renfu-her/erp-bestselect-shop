@@ -1,14 +1,7 @@
 @extends('layouts.main')
 @section('sub-content')
-    <div class="col-auto">
-        @if (isset($prevPage))
-            <a href="{{ $prevPage }}" class="btn btn-outline-primary px-4" role="button">
-                返回上一頁
-            </a>
-        @endif
-    </div>
-    <h2 class="mb-4">業績報表</h2>
     @if (isset($search))
+        <h2 class="mb-4">業績報表</h2>
         <form id="search" action="" method="GET">
             <div class="card shadow p-4 mb-4">
                 <h6>搜尋條件</h6>
@@ -70,15 +63,17 @@
                 </div>
             </div>
         </form>
+    @else
+        <h2 class="mb-4">{{ $pageTitle }}</h2>
     @endif
 
     <div class="card shadow p-4 mb-4">
-        <h4>
-            {{ $pageTitle }}
-        </h4>
+        @if (isset($search))
+            <h4>{{ $pageTitle }}</h4>
+        @endif
 
         <div class="table-responsive tableOverBox">
-            <table class="table table-striped tableList">
+            <table class="table table-striped tableList mb-0">
                 <thead class="small">
                     <tr>
                         <th scope="col" style="width:40px">#</th>
@@ -89,13 +84,13 @@
                                 姓名
                             @endif
                         </th>
-                        <th scope="col" class="text-center">線上營業額</th>
-                        <th scope="col" class="text-center">線上毛利</th>
-                        <th scope="col" class="text-center">線下營業額</th>
-                        <th scope="col" class="text-center">線下毛利</th>
-                        <th scope="col" class="text-center">總營業額</th>
-                        <th scope="col" class="text-center">總毛利</th>
-                        <!-- <th scope="col" class="text-center">人數</th>-->
+                        <th scope="col" class="text-end table-success">線上營業額</th>
+                        <th scope="col" class="text-end table-success">線上毛利</th>
+                        <th scope="col" class="text-end table-warning">線下營業額</th>
+                        <th scope="col" class="text-end table-warning">線下毛利</th>
+                        <th scope="col" class="text-end">總營業額</th>
+                        <th scope="col" class="text-end">總毛利</th>
+                        <!-- <th scope="col" class="text-end">人數</th>-->
                     </tr>
                 </thead>
                 <tbody>
@@ -142,12 +137,12 @@
                                 @endswitch
 
                             </td>
-                            <td class="text-center">{{ $data->on_price }}</td>
-                            <td class="text-center">{{ $data->on_gross_profit }}</td>
-                            <td class="text-center">{{ $data->off_price }}</td>
-                            <td class="text-center">{{ $data->off_gross_profit }}</td>
-                            <td class="text-center">{{ $data->total_price }}</td>
-                            <td class="text-center">{{ $data->total_gross_profit }}</td>
+                            <td @class(['text-end table-success', 'text-danger fw-bold negative' => $data->on_price < 0])>${{ number_format(abs($data->on_price)) }}</td>
+                            <td @class(['text-end table-success', 'text-danger fw-bold negative' => $data->on_gross_profit < 0])>${{ number_format(abs($data->on_gross_profit)) }}</td>
+                            <td @class(['text-end table-warning', 'text-danger fw-bold negative' => $data->off_price < 0])>${{ number_format(abs($data->off_price)) }}</td>
+                            <td @class(['text-end table-warning', 'text-danger fw-bold negative' => $data->off_gross_profit < 0])>${{ number_format(abs($data->off_gross_profit)) }}</td>
+                            <td @class(['text-end', 'text-danger fw-bold negative' => $data->total_price < 0])>${{ number_format(abs($data->total_price)) }}</td>
+                            <td @class(['text-end', 'text-danger fw-bold negative' => $data->total_gross_profit < 0])>${{ number_format(abs($data->total_gross_profit)) }}</td>
 
 
                         </tr>
@@ -156,16 +151,24 @@
                 <tfoot>
                     <tr>
                         <th colspan="2">合計</th>
-                        <th class="text-center">{{ $on_price }}</th>
-                        <th class="text-center">{{ $on_gross_profit }}</th>
-                        <th class="text-center">{{ $off_price }}</th>
-                        <th class="text-center">{{ $off_gross_profit }}</th>
-                        <th class="text-center">{{ $total_price }}</th>
-                        <th class="text-center">{{ $total_gross_profit }}</th>
+                        <th @class(['text-end table-success', 'text-danger fw-bold negative' => $on_price < 0])>${{ number_format(abs($on_price)) }}</th>
+                        <th @class(['text-end table-success', 'text-danger fw-bold negative' => $on_gross_profit < 0])>${{ number_format(abs($on_gross_profit)) }}</th>
+                        <th @class(['text-end table-warning', 'text-danger fw-bold negative' => $off_price < 0])>${{ number_format(abs($off_price)) }}</th>
+                        <th @class(['text-end table-warning', 'text-danger fw-bold negative' => $off_gross_profit < 0])>${{ number_format(abs($off_gross_profit)) }}</th>
+                        <th @class(['text-end', 'text-danger fw-bold negative' => $total_price < 0])>${{ number_format(abs($total_price)) }}</th>
+                        <th @class(['text-end', 'text-danger fw-bold negative' => $total_gross_profit < 0])>${{ number_format(abs($total_gross_profit)) }}</th>
                     </tr>
                 </tfoot>
             </table>
         </div>
+    </div>
+
+    <div class="col-auto">
+        @if (isset($prevPage))
+            <a href="{{ $prevPage }}" class="btn btn-outline-primary px-4" role="button">
+                返回上一頁
+            </a>
+        @endif
     </div>
 @endsection
 @once
@@ -173,6 +176,9 @@
         <style>
             h4 {
                 color: #415583;
+            }
+            .negative::before {
+                content: '-';
             }
         </style>
     @endpush
