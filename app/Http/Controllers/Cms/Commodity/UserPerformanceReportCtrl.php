@@ -174,6 +174,7 @@ class UserPerformanceReportCtrl extends Controller
             'season' => $cond['season'],
             'month' => $cond['month'],
             'user_id' => $user_id])
+            ->orderBy('sale_channel.sales_type')
             ->get();
 
         $user = User::where('id', $user_id)->get()->first();
