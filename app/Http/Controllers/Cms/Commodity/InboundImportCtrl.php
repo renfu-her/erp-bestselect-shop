@@ -287,9 +287,9 @@ class InboundImportCtrl extends Controller
 
         $cond['data_per_page'] = getPageCount(Arr::get($query, 'data_per_page', 100));
         $cond['inventory_status'] = Arr::get($query, 'inventory_status', 'all');
-        $cond['inbound_user_id'] = Arr::get($query, 'inbound_user_id', []);
-        $cond['inbound_sdate'] = Arr::get($query, 'inbound_sdate', '');
-        $cond['inbound_edate'] = Arr::get($query, 'inbound_edate', '');
+        $cond['inbound_user_id'] = Arr::get($query, 'inbound_user_id', null);
+        $cond['inbound_sdate'] = Arr::get($query, 'inbound_sdate', null);
+        $cond['inbound_edate'] = Arr::get($query, 'inbound_edate', null);
 
         $param = ['event' => null, 'purchase_sn' => $cond['purchase_sn'], 'inbound_sn' => $cond['inbound_sn'], 'keyword' => $cond['title']
             , 'inventory_status' => $cond['inventory_status'], 'inbound_user_id' => $cond['inbound_user_id']
