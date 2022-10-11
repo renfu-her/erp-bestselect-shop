@@ -8,7 +8,7 @@
         <x-b-csnorder-navi :id="$delivery->event_id"></x-b-csnorder-navi>
     @endif
 
-    <form method="post" action="{{ $formAction }}">
+    <form id="form1" method="post" action="{{ $formAction }}">
         @method('POST')
         @csrf
         <div class="card shadow p-4 mb-4">
@@ -31,7 +31,7 @@
                             @foreach ($ord_items_arr as $key => $ord)
                                 <tr class="--prod">
                                     <th scope="row">{{ $key + 1 }}</th>
-                                    <td>
+                                    <td class="wrap">
                                         @if ($ord->combo_product_title)
                                             <span class="badge rounded-pill bg-warning text-dark">組合包</span> [
                                         @else
@@ -62,7 +62,7 @@
                                             @foreach ($ord->receive_depot as $rec)
                                                 <tr class="-cloneElem --selectedIB">
                                                     <td class="text-center">
-                                                        <button href="javascript:void(0)" type="button"
+                                                        <button type="button"
                                                                 data-bid="{{ $rec->inbound_id }}" data-rid="{{ $rec->id }}"
                                                                 data-bs-toggle="modal" data-bs-target="#confirm-delete"
                                                                 @if (isset($delivery->audit_date)) disabled @endif
@@ -109,7 +109,8 @@
         </div>
         <div id="submitDiv">
             <div class="col-auto">
-                <button type="submit" class="btn btn-primary px-4" @if (isset($delivery->audit_date)) disabled @endif>送出</button>
+                <button type="button" class="btn btn-primary px-4" @if (isset($delivery->audit_date)) disabled @endif
+                    data-bs-toggle="modal" data-bs-target="#confirm-ok">送出</button>
 {{--                @if (isset($delivery->audit_date))--}}
 {{--                    <a href="{{ Route('cms.delivery.store_cancle', ['deliveryId' => $delivery->id ]) }}" class="btn btn-outline-dark px-4" role="button">取消送出審核</a>--}}
 {{--                @endif--}}
@@ -186,6 +187,14 @@
             <a class="btn btn-danger btn-ok" href="#">確認並刪除</a>
         </x-slot>
     </x-b-modal>
+    <!-- 送出確認 Modal -->
+    <x-b-modal id="confirm-ok">
+        <x-slot name="title">送出確認</x-slot>
+        <x-slot name="body">確認要送出？</x-slot>
+        <x-slot name="foot">
+            <button type="button" class="btn btn-success btn-ok">確認並送出</a>
+        </x-slot>
+    </x-b-modal>
 @endsection
 @once
     @push('sub-scripts')
@@ -205,6 +214,11 @@
             $('#confirm-delete').on('show.bs.modal', function (e) {
                 console.log($(e.relatedTarget).data('rid'));
                 $(this).find('.btn-ok').attr('href', DelUrl + $(e.relatedTarget).data('rid'));
+            });
+
+            // 送出
+            $('#confirm-ok button.btn-ok').on('click', function (e) {
+                $('#form1').submit();
             });
 
             // btn - 加入入庫單
