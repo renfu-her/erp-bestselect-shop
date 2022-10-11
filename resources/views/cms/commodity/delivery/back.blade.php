@@ -32,7 +32,7 @@
                     <thead>
                         <tr>
                             <th style="width:3rem;">#</th>
-                            <th>顯示</th>
+                            <th>退貨</th>
                             <th>商品名稱</th>
                             <th>SKU</th>
                             <th>價格</th>

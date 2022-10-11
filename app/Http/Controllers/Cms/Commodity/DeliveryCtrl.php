@@ -196,6 +196,27 @@ class DeliveryCtrl extends Controller
         return redirect()->back()->withInput()->withErrors($errors);
     }
 
+    public function store_cancle(Request $request, int $delivery_id)
+    {
+        $errors = [];
+        $delivery = Delivery::where('id', '=', $delivery_id)->get()->first();
+        if (null == $delivery->audit_date) {
+            $errors['error_msg'] = '尚未送出審核';
+        } else {
+            $re = ReceiveDepot::cancleShippingData($delivery->event, $delivery->event_id, $delivery_id, $request->user()->id, $request->user()->name);
+            if ($re['success'] == '1') {
+                wToast('取消出貨成功');
+                return redirect(Route('cms.delivery.create', [
+                    'event' => $delivery->event,
+                    'eventId' => $delivery->event_id,
+                ], true));
+            }
+            $errors['error_msg'] = $re['error_msg'];
+        }
+
+        return redirect()->back()->withInput()->withErrors($errors);
+    }
+
     //刪除出貨單
     public function destroy_readyUse(Request $request, $event, int $event_id)
     {

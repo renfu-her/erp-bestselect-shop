@@ -276,7 +276,7 @@ class Purchase extends Model
                 //找出每筆入庫單
                 // 退回入庫數量
                 // 判斷若為理貨倉 需紀錄可售數量
-                $inboundList = PurchaseInbound::getInboundList(['event' => Event::purchase()->value, 'event_id' => $id], false)
+                $inboundList = PurchaseInbound::getInboundList(['event' => Event::purchase()->value, 'event_id' => $id])
                     ->get()->toArray();
                 if (0 < count($inboundList)) {
                     foreach ($inboundList as $key_ib => $val_ib) {

@@ -348,22 +348,19 @@ class PurchaseInbound extends Model
                 );
             $inboundDataGet = $inboundData->get()->first();
             if (null != $inboundDataGet) {
-                if (($inboundDataGet->inbound_num - $inboundDataGet->sale_num - $inboundDataGet->csn_num - $inboundDataGet->consume_num - $sale_num
-                         - $inboundDataGet->back_num - $inboundDataGet->scrap_num) < 0) {
+                if (($inboundDataGet->inbound_num - $inboundDataGet->sale_num - $inboundDataGet->csn_num - $inboundDataGet->consume_num
+                        - $inboundDataGet->back_num - $inboundDataGet->scrap_num
+                        - $sale_num) < 0) {
                     return ['success' => 0, 'error_msg' => '入庫單出貨數量超出範圍'];
                 } else {
                     $update_arr = [];
 
-                    if (Event::order()->value == $event || Event::ord_pickup()->value == $event) {
-                        if (LogEventFeature::delivery()->value == $feature) {
+                    if (LogEventFeature::delivery()->value == $feature || LogEventFeature::delivery_cancle()->value == $feature) {
+                        if (Event::order()->value == $event || Event::ord_pickup()->value == $event) {
                             $update_arr['sale_num'] = DB::raw("sale_num + $sale_num");
-                        }
-                    } else if (Event::consignment()->value == $event) {
-                        if (LogEventFeature::delivery()->value == $feature) {
+                        } else if (Event::consignment()->value == $event) {
                             $update_arr['csn_num'] = DB::raw("csn_num + $sale_num");
-                        }
-                    } else if (Event::csn_order()->value == $event) {
-                        if (LogEventFeature::delivery()->value == $feature) {
+                        } else if (Event::csn_order()->value == $event) {
                             $update_arr['sale_num'] = DB::raw("sale_num + $sale_num");
                         }
                     }
@@ -409,7 +406,7 @@ class PurchaseInbound extends Model
     }
 
     //歷史入庫
-    public static function getInboundList($param, $showDelete = true)
+    public static function getInboundList($param)
     {
         $result = DB::table('pcs_purchase_inbound as inbound')
             ->select('inbound.event as event' //事件
@@ -435,10 +432,6 @@ class PurchaseInbound extends Model
             ->whereNotNull('inbound.id')
             ->whereNull('inbound.deleted_at');
 
-        //判斷不顯示刪除歷史
-        if (false == $showDelete) {
-            $result->whereNull('inbound.deleted_at');
-        }
         if (isset($param['event'])) {
             $result->where('inbound.event', '=', $param['event']);
         }
