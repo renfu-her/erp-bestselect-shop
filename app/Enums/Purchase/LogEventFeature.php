@@ -31,6 +31,7 @@ final class LogEventFeature extends Enum
     const combo = 'combo'; //組成組合包
     const decompose = 'decompose'; //組合包分解
     const scrapped = 'scrapped'; //報廢
+    const combo_del = 'combo_del'; //刪除組合包
 
     const delivery = 'delivery';
     const delivery_cancle = 'delivery_cancle';
@@ -96,6 +97,9 @@ final class LogEventFeature extends Enum
                 break;
             case self::scrapped:
                 $result = '報廢';
+                break;
+            case self::combo_del:
+                $result = '刪除組合包';
                 break;
 
             case self::delivery:
