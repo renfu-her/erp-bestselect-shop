@@ -16,7 +16,7 @@ class ReceiveDepot extends Model
     use HasFactory,SoftDeletes;
 
     protected $table = 'dlv_receive_depot';
-    public $timestamps = false;
+    public $timestamps = true;
     protected $guarded = [];
 
     public static function setData($id = null, $delivery_id, $event_item_id = null, $combo_id = null, $prd_type = null, $freebies, $inbound_id, $inbound_sn, $depot_id, $depot_name, $product_style_id, $sku, $product_title, $unit_cost, $qty, $expiry_date)
