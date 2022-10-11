@@ -12,17 +12,17 @@ class CsnOrderFlow extends Model
     protected $table = 'csn_order_flow';
     protected $guarded = [];
 
-    public static function changeOrderStatus($order_id, OrderStatus $stauts)
+    public static function changeOrderStatus($order_id, OrderStatus $status)
     {
         CsnOrder::where('id', $order_id)->update([
-            'status_code' => $stauts->value,
-            'status' => $stauts->description,
+            'status_code' => $status->value,
+            'status' => $status->description,
         ]);
 
         self::create([
             'order_id' => $order_id,
-            'status_code' => $stauts->value,
-            'status' => $stauts->description,
+            'status_code' => $status->value,
+            'status' => $status->description,
         ]);
     }
 }
