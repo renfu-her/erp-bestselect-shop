@@ -62,13 +62,6 @@ class ReceivedOrder extends Model
             ->leftJoinSub(GeneralLedger::getAllGrade(), 'p_grade', function($join) {
                 $join->on('p_grade.primary_id', 'ro.product_grade_id');
             })
-            ->leftJoin('usr_users AS undertaker', function($join){
-                $join->on('ro.usr_users_id', '=', 'undertaker.id');
-                $join->where([
-                    'undertaker.deleted_at'=>null,
-                    'ro.deleted_at'=>null,
-                ]);
-            })
             ->leftJoin(DB::raw('(
                 SELECT acc_received.received_order_id,
                 MAX(acc_received.created_at) AS received_date,
@@ -109,7 +102,17 @@ class ReceivedOrder extends Model
                     'ro.deleted_at'=>null,
                 ]);
             })
-            ->leftJoin('usr_customers AS customer', 'customer.email', '=', 'order.email')
+            // ->leftJoin('usr_customers AS customer', 'customer.email', '=', 'order.email')
+            ->leftJoin('usr_customers as customer', function ($join) {
+                $join->on('customer.sn', '=', 'order.mcode')
+                    ->whereNotNull('order.mcode');
+            })
+            ->leftJoin('usr_users AS undertaker', function($join){
+                $join->on('undertaker.customer_id', '=', 'customer.id');
+                $join->where([
+                    'undertaker.deleted_at'=>null,
+                ]);
+            })
             ->leftJoin(DB::raw('(
                 SELECT order_id,
                 CONCAT(\'[\', GROUP_CONCAT(\'{
@@ -371,8 +374,17 @@ class ReceivedOrder extends Model
 
     public static function create_received_order($source_type, $source_id, $price = 0, $received_order_id = null)
     {
-        $logistics_grade_id = ReceivedDefault::where('name', 'logistics')->first() ? ReceivedDefault::where('name', 'logistics')->first()->default_grade_id : 0;
-        $product_grade_id = ReceivedDefault::where('name', 'product')->first() ? ReceivedDefault::where('name', 'product')->first()->default_grade_id : 0;
+        $logistics_grade_id = 239;
+        $logistics_grade = ReceivedDefault::where('name', 'logistics')->get()->first();
+        if($logistics_grade) {
+            $logistics_grade_id = $logistics_grade->default_grade_id;
+        }
+
+        $product_grade_id = 205;
+        $product_grade = ReceivedDefault::where('name', 'product')->get()->first();
+        if($product_grade) {
+            $product_grade_id = $product_grade->default_grade_id;
+        }
 
         if($source_type == app(Order::class)->getTable()){
             $order_data = Order::orderDetail($source_id)->first();
