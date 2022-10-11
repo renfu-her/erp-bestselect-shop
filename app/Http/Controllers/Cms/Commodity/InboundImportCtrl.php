@@ -316,7 +316,8 @@ class InboundImportCtrl extends Controller
     public function inbound_edit(Request $request, $inbound_id)
     {
         $inbound = DB::table(app(PurchaseInbound::class)->getTable(). ' as inbound')
-            ->where('inbound.id', '=', $inbound_id);
+            ->where('inbound.id', '=', $inbound_id)
+            ->whereNull('inbound.deleted_at');
         $inboundGet = $inbound->first();
 
         $event_table = null;

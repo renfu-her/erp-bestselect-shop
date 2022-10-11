@@ -265,6 +265,7 @@ class PurchaseInbound extends Model
                         ->select('main_tb.id as id', 'main_tb.close_date as close_date')
                         ->where('main_tb.id', '=', $inboundDataGet->event_id)
                         ->where('inbound.event', '=', $event)
+                        ->whereNull('inbound.deleted_at')
                         ->get()->first();
                     if (null != $purchaseData && null != $purchaseData->close_date) {
                         return ['success' => 0, 'error_msg' => '已結案 不可刪除'];
@@ -328,20 +329,26 @@ class PurchaseInbound extends Model
             $user_id,
             $user_name
         ) {
+            //找出被刪除的入庫單 有使用到則回傳錯誤
+            $inboundDelData = DB::table('pcs_purchase_inbound as inbound')
+                ->where('inbound.id', '=', $id) //取得是否為理貨倉
+                ->whereNotNull('inbound.deleted_at') //需額外找出被刪除的入庫單 有使用到則回傳錯誤
+                ->get()->first();
+            if (null != $inboundDelData) {
+                return ['success' => 0, 'error_msg' => '該入庫單已遭刪除 '. $inboundDelData->sn];
+            }
+
             $inboundData = DB::table('pcs_purchase_inbound as inbound')
                 ->leftJoin('depot', 'depot.id', 'inbound.depot_id')
                 ->where('inbound.id', '=', $id) //取得是否為理貨倉
-                //->whereNull('inbound.deleted_at') //需額外找出被刪除的入庫單 有使用到則回傳錯誤
+                ->whereNull('inbound.deleted_at')
                 ->select(
                     'inbound.*'
                     , 'depot.can_tally'
-                )
-            ;
+                );
             $inboundDataGet = $inboundData->get()->first();
             if (null != $inboundDataGet) {
-                if (isset($inboundDataGet->deleted_at)) {
-                    return ['success' => 0, 'error_msg' => '該入庫單已遭刪除 '. $inboundDataGet->sn];
-                } elseif (($inboundDataGet->inbound_num - $inboundDataGet->sale_num - $inboundDataGet->csn_num - $inboundDataGet->consume_num - $sale_num
+                if (($inboundDataGet->inbound_num - $inboundDataGet->sale_num - $inboundDataGet->csn_num - $inboundDataGet->consume_num - $sale_num
                          - $inboundDataGet->back_num - $inboundDataGet->scrap_num) < 0) {
                     return ['success' => 0, 'error_msg' => '入庫單出貨數量超出範圍'];
                 } else {
@@ -425,7 +432,8 @@ class PurchaseInbound extends Model
             ->selectRaw('DATE_FORMAT(inbound.expiry_date,"%Y-%m-%d") as expiry_date') //有效期限
             ->selectRaw('DATE_FORMAT(inbound.inbound_date,"%Y-%m-%d") as inbound_date') //入庫日期
             ->selectRaw('DATE_FORMAT(inbound.deleted_at,"%Y-%m-%d") as deleted_at') //刪除日期
-            ->whereNotNull('inbound.id');
+            ->whereNotNull('inbound.id')
+            ->whereNull('inbound.deleted_at');
 
         //判斷不顯示刪除歷史
         if (false == $showDelete) {
@@ -498,6 +506,7 @@ class PurchaseInbound extends Model
             ->selectRaw('DATE_FORMAT(inbound.deleted_at,"%Y-%m-%d") as deleted_at') //刪除日期
             ->selectRaw('DATE_FORMAT(inbound.created_at,"%Y-%m-%d %H:%i:%s") as created_at') //新增日期
             ->selectRaw('DATE_FORMAT(inbound.updated_at,"%Y-%m-%d") as updated_at') //修改日期
+            ->whereNull('inbound.deleted_at')
             ->whereNotNull('inbound.id')
             ->whereNotNull('event.sn');
 
@@ -565,12 +574,11 @@ class PurchaseInbound extends Model
                 , 'inbound.product_style_id as product_style_id'
                 , 'inbound.prd_type as prd_type')
             ->selectRaw('sum(inbound.inbound_num) as inbound_num')
-            ->selectRaw('GROUP_CONCAT(DISTINCT inbound.inbound_user_name) as inbound_user_name'); //入庫人員
-
+            ->selectRaw('GROUP_CONCAT(DISTINCT inbound.inbound_user_name) as inbound_user_name') //入庫人員
+            ->whereNull('inbound.deleted_at');
         if ($event_id) {
             $tempInboundSql->where('inbound.event_id', '=', (int)$event_id);
         }
-        $tempInboundSql->whereNull('inbound.deleted_at');
         if (isset($event)) {
             $tempInboundSql->where('inbound.event', '=', $event);
         }
@@ -741,6 +749,7 @@ class PurchaseInbound extends Model
                 $join->where('inbound.event', '=', Event::purchase()->value);
             })
             ->whereNull('purchase.deleted_at')
+            ->whereNull('inbound.deleted_at')
             ->where(function ($query) {
                 $query->where('inbound.sale_num', '>', 0)
                     ->orWhere('inbound.csn_num', '>', 0)
