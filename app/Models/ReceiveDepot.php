@@ -8,11 +8,12 @@ use App\Enums\DlvBack\DlvBackType;
 use App\Enums\Purchase\LogEventFeature;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 
 class ReceiveDepot extends Model
 {
-    use HasFactory;
+    use HasFactory,SoftDeletes;
 
     protected $table = 'dlv_receive_depot';
     public $timestamps = false;
@@ -415,7 +416,7 @@ class ReceiveDepot extends Model
 
     public static function deleteById($id)
     {
-        ReceiveDepot::where('id', $id)->delete();
+        ReceiveDepot::where('id', $id)->forceDelete();
     }
 
     //更新寄倉到貨數量
@@ -432,6 +433,7 @@ class ReceiveDepot extends Model
 
     public static function getDataList($param) {
         $query = DB::table('dlv_receive_depot as rcv_depot')
+            ->whereNull('rcv_depot.deleted_at')
             ->select('rcv_depot.id as id'
                 , 'rcv_depot.delivery_id as delivery_id'
                 , 'rcv_depot.event_item_id as event_item_id'
@@ -464,7 +466,8 @@ class ReceiveDepot extends Model
             ->where('delivery.event', $event)
             ->where('delivery.event_id', $event_id)
             ->whereNotNull('delivery.audit_date') //判斷有做過出貨審核才給入
-            ->whereNotNull('rcv_depot.id');
+            ->whereNotNull('rcv_depot.id')
+            ->whereNull('rcv_depot.deleted_at');
         //判斷寄倉 則會有組合包 需去除組合元素
         $result->where('rcv_depot.prd_type', '<>', 'ce');
         return $result;
@@ -497,7 +500,8 @@ class ReceiveDepot extends Model
                 , 'rcv_depot.expiry_date as expiry_date'
                 , 'rcv_depot.audit_date as audit_date'
             )
-            ->whereNull('rcv_depot.deleted_at');
+            ->whereNull('rcv_depot.deleted_at')
+            ->whereNull('rcv_depot_papa.deleted_at');
 
         if (null != $event) {
             $result->where('delivery.event', $event);
@@ -819,6 +823,7 @@ class ReceiveDepot extends Model
             ->where('rcv_depot.delivery_id', $delivery_id)
             ->where('rcv_depot.prd_type', '=', 'p')
             ->whereNull('rcv_depot.combo_id')
+            ->whereNull('rcv_depot.deleted_at')
             ->leftJoin(app(DlvBack::class)->getTable(). ' as back', function ($join) use($delivery_id) {
                 $join->on('back.product_style_id', '=', 'rcv_depot.product_style_id')
                     ->where('back.delivery_id', '=', $delivery_id)
@@ -839,6 +844,7 @@ class ReceiveDepot extends Model
             ->where('rcv_depot.delivery_id', $delivery_id)
             ->where('rcv_depot.prd_type', '=', 'c')
             ->whereNull('rcv_depot.combo_id')
+            ->whereNull('rcv_depot.deleted_at')
             ->leftJoin(app(ProductStyleCombo::class)->getTable(). ' as style_combo', function ($join) {
                 $join->on('style_combo.product_style_id', '=', 'rcv_depot.product_style_id');
             })

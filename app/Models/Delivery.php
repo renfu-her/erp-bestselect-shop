@@ -200,6 +200,7 @@ class Delivery extends Model
                 , 'dlv_receive_depot.depot_id'
                 , 'dlv_receive_depot.depot_name'
             )
+            ->whereNull('dlv_receive_depot.deleted_at')
             ->groupBy('dlv_receive_depot.delivery_id')
             ->groupBy('dlv_receive_depot.depot_id')
             ->groupBy('dlv_receive_depot.depot_name');
@@ -320,6 +321,7 @@ class Delivery extends Model
     private static function getSumQtyWithRecDepot()
     {
         $sub_rec_depot = DB::table('dlv_receive_depot')
+            ->whereNull('dlv_receive_depot.deleted_at')
             ->select('dlv_receive_depot.delivery_id'
                 , 'dlv_receive_depot.event_item_id'
                 , 'dlv_receive_depot.prd_type'
