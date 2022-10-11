@@ -237,14 +237,13 @@
                             </td>
                             <td>{{ $data->ship_group_name }}</td>
                             <td>{{ $data->package_sn }}</td>
-                            <td class="wrap small py-0">
+                            <td class="small py-0 lh-base">
                                 <ul class="list-group list-group-flush">
                                 @foreach($data->productTitleGroup as $x => $productTitle)
                                     <li class="list-group-item bg-transparent pe-1">{{ $productTitle->product_title }}</li>
                                 @endforeach
                                 </ul>
                             </td>
-                            {{-- <td>-</td> --}}
                         </tr>
                     @endforeach
                 </tbody>
