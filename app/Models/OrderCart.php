@@ -94,7 +94,7 @@ class OrderCart extends Model
             if (!$style) {
                 $errors[$value['product_style_id']][] = [
                     'error_msg' => '查無此商品',
-                    'error_stauts' => 'no_product',
+                    'error_status' => 'no_product',
                 ];
             }
             if (!isset($errors[$value['product_style_id']])) {
@@ -103,7 +103,7 @@ class OrderCart extends Model
                     if ($value['qty'] > $style->in_stock) {
                         $errors[$value['product_style_id']][] = [
                             'error_msg' => '購買超過上限',
-                            'error_stauts' => 'overbought',
+                            'error_status' => 'overbought',
                         ];
                         //  return ['success' => 0, 'error_msg' => '購買超過上限', 'event' => 'product', 'event_id' => $value['product_style_id']];
                     }
@@ -115,7 +115,7 @@ class OrderCart extends Model
                         if (!$shipment) {
                             $errors[$value['product_style_id']][] = [
                                 'error_msg' => '無運送方式(自取)',
-                                'error_stauts' => 'shipment',
+                                'error_status' => 'shipment',
                             ];
                             //  return ['success' => 0, 'error_msg' => '無運送方式(自取)', 'event' => 'product', 'event_id' => $value['product_style_id']];
                         } else {
@@ -129,7 +129,7 @@ class OrderCart extends Model
                         if (!$shipment) {
                             $errors[$value['product_style_id']][] = [
                                 'error_msg' => '無運送方式(宅配)',
-                                'error_stauts' => 'shipment',
+                                'error_status' => 'shipment',
                             ];
                             //  return ['success' => 0, 'error_msg' => '無運送方式(宅配)', 'event' => 'product', 'event_id' => $value['product_style_id']];
                         } else {
@@ -140,7 +140,7 @@ class OrderCart extends Model
                     default:
                         $errors[$value['product_style_id']][] = [
                             'error_msg' => '無運送方式',
-                            'error_stauts' => 'shipment',
+                            'error_status' => 'shipment',
                         ];
                         //   return ['success' => 0, 'error_msg' => '無運送方式', 'event' => 'product', 'event_id' => $value['product_style_id']];
                 }
@@ -504,7 +504,7 @@ class OrderCart extends Model
             } else {
                 return ['success' => '0',
                     'error_msg' => '超過鴻利折抵額度',
-                    'error_stauts' => 'dividend'];
+                    'error_status' => 'dividend'];
             }
         }
 

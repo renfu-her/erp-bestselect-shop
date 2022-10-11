@@ -491,7 +491,7 @@ class OrderCtrl extends Controller
             'success'=> 0
         ]);
         return [
-            'stauts' => 'E05',
+            'status' => 'E05',
             'message' => $re,
         ];
     }
