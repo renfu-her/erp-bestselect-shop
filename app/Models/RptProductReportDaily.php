@@ -13,6 +13,7 @@ class RptProductReportDaily extends Model
     protected $guarded = [];
     public $timestamps = false;
 
+
     public static function report($date = null, $type = "month")
     {
         switch ($type) {
@@ -43,7 +44,7 @@ class RptProductReportDaily extends Model
                 break;
 
         }
-        
+
         self::getRawData($sdate, $edate, $currentDate);
         self::CombineSaleChannel($sdate, $edate, $currentDate);
     }
@@ -148,7 +149,6 @@ class RptProductReportDaily extends Model
             DB::table('rpt_product_sale_daily_combine')->insert($data);
 
         }
-       
 
     }
 }

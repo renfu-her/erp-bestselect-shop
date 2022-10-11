@@ -2,10 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\RptOrganizeReportMonthly;
-use App\Models\RptUserReportMonthly;
-use App\Models\RptProductReportDaily;
-use App\Models\RptProductManagerSaleDaily;
+use App\Models\RptProductManagerReport;
 use Illuminate\Database\Seeder;
 
 class reportDevelopmentSeeder extends Seeder
@@ -17,14 +14,16 @@ class reportDevelopmentSeeder extends Seeder
      */
     public function run()
     {
-      //   RptProductManagerSaleDaily::report();
+        //   RptProductManagerSaleDaily::report();
         //
 
-      RptProductReportDaily::report('2022-10-03','date');
+        // RptProductReportDaily::report('2022-10-03','date');
+        RptProductManagerReport::managerList('season', 2022, ['season' => 3]);
+
         /*
-        RptUserReportMonthly::grossProfit();
-        RptUserReportMonthly::report('2022-09-01');
-        RptOrganizeReportMonthly::report('2022-09-01');
-        */
+    RptUserReportMonthly::grossProfit();
+    RptUserReportMonthly::report('2022-09-01');
+    RptOrganizeReportMonthly::report('2022-09-01');
+     */
     }
 }
