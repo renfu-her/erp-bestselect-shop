@@ -220,10 +220,10 @@ class PurchaseLog extends Model
                 $join->on('inbound.id', '=', 'log.inbound_id');
             })
             ->whereNull('rcv_depot.deleted_at')
+            ->whereNull('inbound.deleted_at')
             ->whereIn('log.event', $logEvent_event)
             ->whereNotNull('log.product_style_id')
             ->whereNotNull('log.inbound_id')
-            ->whereNull('inbound.deleted_at')
             ->select(
                 'log.id as id'
                 , 'log.event_parent_id as event_parent_id'
@@ -297,10 +297,10 @@ class PurchaseLog extends Model
                 $join->on('inbound.id', '=', 'log.inbound_id');
             })
             ->whereNull('rcv_depot.deleted_at')
+            ->whereNull('inbound.deleted_at')
             ->whereIn('log.event', $event)
             ->whereNotNull('log.product_style_id')
             ->whereNotNull('log.inbound_id')
-            ->whereNull('inbound.deleted_at')
             ->select(
                 'log.id as id'
                 , 'event.sn as event_sn'

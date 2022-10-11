@@ -146,7 +146,8 @@ class Order extends Model
                     $join->on('pcs.id', '=', 'inbound.event_id')
                         ->where('inbound.event', '=', Event::purchase()->value);
                 })
-                ->select('pcs.id as pcs_id', 'pcs.sn as pcs_sn', 'inbound.*');
+                ->select('pcs.id as pcs_id', 'pcs.sn as pcs_sn', 'inbound.*')
+                ->whereNull('inbound.deleted_at');
 
             //找出子訂單出貨的商品
             $order->leftJoin('dlv_receive_depot as dlv_receive_depot', function ($join) {

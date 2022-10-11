@@ -175,7 +175,8 @@ class ConsignmentItem extends Model
             ->groupBy('inbound1.event_item_id')
             ->groupBy('inbound1.product_style_id')
 //            ->where('inbound1.event_id', '=', $consignment_id)
-            ->where('inbound1.event', '=', Event::consignment()->value);
+            ->where('inbound1.event', '=', Event::consignment()->value)
+            ->whereNull('inbound1.deleted_at');
         if ($consignment_id) {
             $subQuery->where('inbound1.event_id', $consignment_id);
         }

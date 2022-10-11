@@ -103,6 +103,7 @@ class InboundFix0917ImportCtrl extends Controller
             , $query_pcs->get()->toArray()
         );
         $query_inbound_total = DB::table(app(PurchaseInbound::class)->getTable(). ' as inbound')
+            ->whereNull('inbound.deleted_at')
             ->whereIn('inbound.event_id', $pcs_id_before_0918)
             ->where('inbound.event', '=', Event::purchase()->value)
             ->select('inbound.event_id as purchase_id'
@@ -150,6 +151,7 @@ class InboundFix0917ImportCtrl extends Controller
             ->whereIn('pcs.id', $purchaseIDs)
             ->where('pcs.created_at', '<', '2022/09/18')
             ->whereNull('pcs.deleted_at')
+            ->whereNull('inbound.deleted_at')
             ->groupBy('pcs.id')
         ;
         return $query_pcs;
