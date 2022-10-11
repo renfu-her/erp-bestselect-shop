@@ -8,6 +8,8 @@ Route::group(['prefix' => 'user-performance-report', 'as' => 'user-performance-r
     Route::get('department/{organize_id}', [UserPerformanceReportCtrl::class, 'department'])->name('department')->middleware('permission:cms.user-performance-report.index');
     Route::get('group/{organize_id}', [UserPerformanceReportCtrl::class, 'group'])->name('group')->middleware('permission:cms.user-performance-report.index');
     Route::get('user/{user_id}', [UserPerformanceReportCtrl::class, 'user'])->name('user')->middleware('permission:cms.user-performance-report.index');
+    Route::post('renew', [UserPerformanceReportCtrl::class, 'renew'])->name('renew')->middleware('permission:cms.user-performance-report.renew');
+
 
     /*  Route::get('create', [UserPerformanceReportCtrl::class, 'create'])->name('create')->middleware('permission:cms.role.create');
 Route::post('create', [UserPerformanceReportCtrl::class, 'store']);
