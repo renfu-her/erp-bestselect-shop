@@ -103,6 +103,7 @@ class ConsignmentItem extends Model
                     $join->where('rcv_depot.delivery_id', '=', 'delivery.id');
                 })
                 ->whereNotNull('rcv_depot.id')
+                ->whereNull('rcv_depot.deleted_at')
                 ->whereIn('csn_items.id', $del_item_id_arr)->get();
 
             if (0 < count($query)) {
@@ -196,6 +197,7 @@ class ConsignmentItem extends Model
                 , DB::raw('GROUP_CONCAT(DISTINCT origin.inbound_sn) as origin_inbound_sn')
             )
 //            ->where('delivery.event_id', $consignment_id)
+            ->whereNull('rcv_depot.deleted_at')
             ->where('delivery.event', Event::consignment()->value)
             ->groupBy('rcv_depot.event_item_id')
             ->groupBy('origin.event')

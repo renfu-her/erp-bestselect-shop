@@ -701,6 +701,7 @@ class DeliveryCtrl extends Controller
                     ->where('dlv_back.type', DlvBackType::product()->value)
                     ->where('rcv_depot.prd_type', '=', 'c')
                     ->where('dlv_back.qty', '>', 0)
+                    ->whereNull('rcv_depot.deleted_at')
                     ->select(
                         'rcv_depot.id as rcv_depot_id'
                         , 'dlv_back.event_item_id'
@@ -847,6 +848,7 @@ class DeliveryCtrl extends Controller
             )
             ->where('rcv_depot.back_qty', '>', 0)
             ->where('dlv_tb.id', '=', $delivery_id)
+            ->whereNull('rcv_depot.deleted_at')
             ->get();
         if (isset($rcv_depot) && 0 < count($rcv_depot)) {
             $msg = DB::transaction(function () use ($delivery, $rcv_depot, $request) {

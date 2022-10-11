@@ -154,7 +154,8 @@ class Order extends Model
             })
                 ->leftJoinSub($inbound, 'inbound', function ($join) {
                     $join->on('inbound.id', '=', 'dlv_receive_depot.inbound_id');
-                });
+                })
+                ->whereNull('dlv_receive_depot.deleted_at');
 
             $order->where(function ($query) use ($purchase_sn) {
                 $query->Where('inbound.pcs_sn', '=', "$purchase_sn");
