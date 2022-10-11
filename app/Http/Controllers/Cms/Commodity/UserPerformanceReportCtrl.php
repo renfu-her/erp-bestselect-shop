@@ -177,7 +177,7 @@ class UserPerformanceReportCtrl extends Controller
             ->orderBy('sale_channel.sales_type')
             ->get();
 
-        $user = User::where('id', $user_id)->get()->first();
+        $user = User::where('id', $user_id)->withTrashed()->get()->first();
 
         $organize_id = UserOrganize::where('level', 3)->where('title', $user->group)->get()->first()->id;
 
