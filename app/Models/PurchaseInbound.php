@@ -406,7 +406,7 @@ class PurchaseInbound extends Model
     }
 
     //歷史入庫
-    public static function getInboundList($param, $showDelete = true)
+    public static function getInboundList($param)
     {
         $result = DB::table('pcs_purchase_inbound as inbound')
             ->select('inbound.event as event' //事件
@@ -432,10 +432,6 @@ class PurchaseInbound extends Model
             ->whereNotNull('inbound.id')
             ->whereNull('inbound.deleted_at');
 
-        //判斷不顯示刪除歷史
-        if (false == $showDelete) {
-            $result->whereNull('inbound.deleted_at');
-        }
         if (isset($param['event'])) {
             $result->where('inbound.event', '=', $param['event']);
         }
