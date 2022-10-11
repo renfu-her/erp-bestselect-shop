@@ -160,9 +160,6 @@
                                     <table class="table table-bordered table-sm mb-0">
                                         <thead class="small table-light">
                                         <tr class="border-top-0" style="border-bottom-color:var(--bs-secondary);">
-                                            <td scope="col">名稱</td>
-                                            <td scope="col">sku</td>
-                                            <td scope="col">數量</td>
                                             <th scope="col">採購入庫單號</th>
                                             <th scope="col">商品名稱</th>
                                             <th scope="col">SKU碼</th>
@@ -177,9 +174,6 @@
                                         <tbody class="border-top-0">
                                             @foreach($data->subGroups as $subGroup)
                                                 <tr>
-                                                    <td>{{ $subGroup->title }}</td>
-                                                    <td>{{ $subGroup->sku }}</td>
-                                                    <td>{{ $subGroup->num }}</td>
                                                     <td>{{ $subGroup->origin_inbound_sn }}</td>
                                                     <td>{{ $subGroup->title }}</td>
                                                     <td>{{ $subGroup->sku }}</td>
