@@ -152,7 +152,7 @@ class UserPerformanceReportCtrl extends Controller
             'month' => $cond['month'],
             'group' => $organize_id])
             ->get();
-           
+
         $organize_parent_id = UserOrganize::where('id', $organize_id)->get()->first()->parent;
 
         return view('cms.commodity.user_performance_report.list', [
@@ -177,7 +177,7 @@ class UserPerformanceReportCtrl extends Controller
             ->orderBy('sale_channel.sales_type')
             ->get();
 
-        $user = User::where('id', $user_id)->get()->first();
+        $user = User::where('id', $user_id)->withTrashed()->get()->first();
 
         $organize_id = UserOrganize::where('level', 3)->where('title', $user->group)->get()->first()->id;
 
@@ -189,6 +189,21 @@ class UserPerformanceReportCtrl extends Controller
             'prevPage' => route('cms.user-performance-report.group', array_merge($cond, ['organize_id' => $organize_id])),
         ]);
 
+    }
+
+    public function renew(Request $request)
+    {
+        $request->validate(['year' => 'required', 'month' => 'required']);
+        $d = $request->all();
+        $date = $d['year'] . "-" . $d['month'];
+        //   RptUserReportMonthly::grossProfit();
+        RptUserReportMonthly::report($date);
+        RptOrganizeReportMonthly::report($date);
+
+        wToast('資料更新完成');
+
+        return redirect(route('cms.user-performance-report.index'));
+        
     }
 
     /**

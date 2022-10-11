@@ -114,9 +114,9 @@ class RptUserReportMonthly extends Model
             $sdate = Date("Y-m-1 00:00:00", strtotime($date));
             $edate = Date("Y-m-t 23:59:59", strtotime($date));
         }
-
+        
         $currentMonth = Date("Y-m-01", strtotime($sdate));
-
+       
         $atomic = RptReport::atomic();
 
         $re = DB::table(DB::raw("({$atomic->toSql()}) as atomic"))
