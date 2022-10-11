@@ -1088,6 +1088,10 @@ return [
                 "cms.user-performance-report.index",
                 "瀏覽",
             ],
+            [
+                "cms.user-performance-report.renew",
+                "重新統計",
+            ],
         ],
     ],
 ];
