@@ -41,6 +41,7 @@
 
     <div class="card shadow p-4 mb-4">
         <div class="row justify-content-end mb-4">
+            @if(true == $showDelBtn)
             <div class="col-auto">
                 <button disabled
                     data-bs-toggle="modal" data-bs-target="#confirm-delete"
@@ -51,6 +52,7 @@
             <div class="col align-self-center">
                 已選擇 <span class="fw-bold -count">0</span> 筆資料
             </div>
+            @endif
             <div class="col-auto">
                 顯示
                 <select class="form-select d-inline-block w-auto" id="dataPerPageElem" aria-label="表格顯示筆數">
@@ -68,7 +70,7 @@
                     <tr>
                         <th scope="col" style="width:40px">#</th>
                         @if(true == $showDelBtn)
-                        <th scope="col">刪除 / 
+                        <th scope="col">刪除 /
                             <div class="d-inline-block ms-1">
                                 <label class="form-check-label">
                                     <input id="Del-select-all" class="form-check-input" type="checkbox" >
@@ -152,6 +154,7 @@
             </table>
         </div>
 
+        @if(true == $showDelBtn)
         <div class="row">
             <div class="col-auto">
                 <button disabled
@@ -168,7 +171,8 @@
                 換頁刪除選擇不保留，請先執行多選刪除
             </div>
         </div>
-        
+        @endif
+
     </div>
     <div class="row flex-column-reverse flex-sm-row">
         <div class="col d-flex justify-content-end align-items-center mb-3 mb-sm-0">
