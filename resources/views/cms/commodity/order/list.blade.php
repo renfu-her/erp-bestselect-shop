@@ -214,7 +214,7 @@
                             <td>
                                 @if ($data->projlgt_order_sn)
                                     <a href="{{ env('LOGISTIC_URL') . 'guest/order-flow/' . $data->projlgt_order_sn }}"
-                                        target="_blank" class="btn btn-link">
+                                        target="_blank">
                                         {{ $data->projlgt_order_sn }}
                                     </a>
                                 @else
