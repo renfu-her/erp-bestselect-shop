@@ -199,6 +199,11 @@
 @once
     @push('sub-scripts')
         <script>
+            // 顯示筆數選擇
+            $('#dataPerPageElem').on('change', function(e) {
+                $('input[name=data_per_page]').val($(this).val());
+                $('#search').submit();
+            });
             // 刪除
             $('#confirm-delete').on('show.bs.modal', function(e) {
                 if ($(e.relatedTarget).hasClass('-del')) {
