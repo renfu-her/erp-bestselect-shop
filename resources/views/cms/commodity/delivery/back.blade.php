@@ -85,7 +85,7 @@
                                         </td>
                                     @endif
                                     <td>
-                                        <input type="text" value="{{ $item->memo ?? '' }}" name="memo[]" class="form-control form-control-sm -l">
+                                        <input type="text" value="{{ $item->memo ?? '' }}" name="memo[]" class="form-control form-control-sm -xl">
                                     </td>
                                 </tr>
                             @endforeach
