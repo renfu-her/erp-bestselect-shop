@@ -12,6 +12,29 @@
                        aria-label="廠商名稱 / 廠商簡稱 / 統編">
             </div>
         </div>
+        <fieldset class="col-12 mb-3">
+            <legend class="col-form-label p-0 mb-2">篩選重複資料</legend>
+            <div class="px-1 pt-1">
+                <div class="form-check form-check-inline">
+                    <label class="form-check-label">
+                        <input class="form-check-input" name="dupParam" type="radio" value="0">
+                        不篩選
+                    </label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <label class="form-check-label">
+                        <input class="form-check-input" name="dupParam" type="radio" value="1">
+                        重複統編
+                    </label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <label class="form-check-label">
+                        <input class="form-check-input" name="dupParam" type="radio" value="2">
+                        重複廠商名稱
+                    </label>
+                </div>
+            </div>
+        </fieldset>
 
         <div class="col">
             <input type="hidden" name="data_per_page" value="{{ $data_per_page }}" />
@@ -48,7 +71,7 @@
                     <th scope="col" style="width:10%">#</th>
                     <th scope="col">廠商名稱</th>
 {{--                    <th scope="col">廠商簡稱</th>--}}
-{{--                    <th scope="col">統編</th>--}}
+                    <th scope="col">統編</th>
 {{--                    <th scope="col">負責人</th>--}}
 {{--                    <th scope="col">匯款銀行</th>--}}
 {{--                    <th scope="col">匯款銀行代碼</th>--}}
@@ -73,7 +96,7 @@
                         <th scope="row">{{ $key + 1 }}</th>
                         <td>{{ $data->name }}</td>
 {{--                        <td>{{ $data->nickname }}</td>--}}
-{{--                        <td>{{ $data->vat_no }}</td>--}}
+                        <td>{{ $data->vat_no }}</td>
 {{--                        <td>{{ $data->chargeman }}</td>--}}
 {{--                        <td>{{ $data->bank_cname }}</td>--}}
 {{--                        <td>{{ $data->bank_code }}</td>--}}
