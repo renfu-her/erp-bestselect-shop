@@ -33,7 +33,7 @@
                     value="{{ old('chargeman', $data->chargeman ?? '') }}" />
             </x-b-form-group>
             <x-b-form-group name="chargeman" title="折扣" required="true">
-                
+
                 <input class="form-control @error('discount') is-invalid @enderror" type="number" max="2"
                     step="0.01" name="discount" value="{{ old('discount', $data->discount ?? 1) }}" />
                     <div>通路商品價格 = 基準商品價格 * 折扣</div>
@@ -76,6 +76,24 @@
                             <input class="form-check-input" type="radio" name="is_realtime" value="0"
                                 @if (old('is_realtime', $data->is_realtime ?? '') == 0) checked @endif>
                             非即時
+                        </label>
+                    </div>
+                </div>
+            </x-b-form-group>
+            <x-b-form-group name="has_bonus" title="有無通路獎金？" required="true">
+                <div class="px-1">
+                    <div class="form-check form-check-inline">
+                        <label class="form-check-label">
+                            <input class="form-check-input" type="radio" name="has_bonus" value="1"
+                                   @if (old('has_bonus', $data->has_bonus ?? '') == 1) checked @endif>
+                            有獎金
+                        </label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <label class="form-check-label">
+                            <input class="form-check-input" type="radio" name="has_bonus" value="0"
+                                   @if (old('has_bonus', $data->has_bonus ?? '0') == 0) checked @endif>
+                            無獎金
                         </label>
                     </div>
                 </div>
