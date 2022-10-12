@@ -223,22 +223,21 @@ class ReceivedOrder extends Model
             })
             ->leftJoin(DB::raw('(
                 SELECT
-                    acc_request_orders.id,
+                    request_o_item.request_order_id,
                     CONCAT(\'[\', GROUP_CONCAT(\'{
-                        "product_title":"\', "", \'",
-                        "all_grades_id":"\', acc_request_orders.request_grade_id, \'",
+                        "product_title":"\', COALESCE(request_o_item.summary, ""), \'",
+                        "all_grades_id":"\', request_o_item.grade_id, \'",
                         "grade_code":"\', COALESCE(grade.code, ""), \'",
                         "grade_name":"\', COALESCE(grade.name, ""), \'",
-                        "price":"\', acc_request_orders.price, \'",
-                        "qty":"\', acc_request_orders.qty, \'",
-                        "origin_price":"\', acc_request_orders.total_price, \'"
-                    }\' ORDER BY acc_request_orders.id), \']\') AS items
-                FROM acc_request_orders
-                LEFT JOIN (' . $sq . ') AS grade ON grade.id = acc_request_orders.request_grade_id
-                WHERE acc_request_orders.deleted_at IS NULL
-                GROUP BY acc_request_orders.id
-                ) AS request_table'), function ($join){
-                    $join->on('request_o.id', '=', 'request_table.id');
+                        "price":"\', request_o_item.price, \'",
+                        "qty":"\', request_o_item.qty, \'",
+                        "origin_price":"\', request_o_item.total_price, \'"
+                    }\' ORDER BY request_o_item.id), \']\') AS items
+                FROM acc_request_order_items AS request_o_item
+                LEFT JOIN (' . $sq . ') AS grade ON grade.id = request_o_item.grade_id
+                GROUP BY request_o_item.request_order_id
+                ) AS request_items_table'), function ($join){
+                    $join->on('request_items_table.request_order_id', '=', 'request_o.id');
             })
 
             ->whereNull('ro.deleted_at')
@@ -292,7 +291,7 @@ class ReceivedOrder extends Model
                     WHEN ro.source_type = "' . app(Order::class)->getTable() . '" THEN order_item_table.items
                     WHEN ro.source_type = "' . app(CsnOrder::class)->getTable() . '" THEN csn_order_item_table.items
                     WHEN ro.source_type = "' . app(self::class)->getTable() . '" THEN received_account_table.items
-                    WHEN ro.source_type = "' . app(RequestOrder::class)->getTable() . '" THEN request_table.items
+                    WHEN ro.source_type = "' . app(RequestOrder::class)->getTable() . '" THEN request_items_table.items
                     ELSE NULL
                 END AS order_items
             ');
@@ -374,17 +373,8 @@ class ReceivedOrder extends Model
 
     public static function create_received_order($source_type, $source_id, $price = 0, $received_order_id = null)
     {
-        $logistics_grade_id = 239;
-        $logistics_grade = ReceivedDefault::where('name', 'logistics')->get()->first();
-        if($logistics_grade) {
-            $logistics_grade_id = $logistics_grade->default_grade_id;
-        }
-
-        $product_grade_id = 205;
-        $product_grade = ReceivedDefault::where('name', 'product')->get()->first();
-        if($product_grade) {
-            $product_grade_id = $product_grade->default_grade_id;
-        }
+        $logistics_grade_id = ReceivedDefault::where('name', 'logistics')->first() ? ReceivedDefault::where('name', 'logistics')->first()->default_grade_id : 0;
+        $product_grade_id = ReceivedDefault::where('name', 'product')->first() ? ReceivedDefault::where('name', 'product')->first()->default_grade_id : 0;
 
         if($source_type == app(Order::class)->getTable()){
             $order_data = Order::orderDetail($source_id)->first();
