@@ -13,9 +13,9 @@ class RptUserReportMonthly extends Model
     protected $guarded = [];
     public $timestamps = false;
 
-    public static function dataList($type = null, $year = null, $options = [])
+    public static function dataList($sdate, $edate, $options = [])
     {
-
+        // 改成daily
         $sub = DB::table('rpt_user_report_monthly')
             ->select(['user_id'])
             ->selectRaw('SUM(on_price) as on_price')
@@ -26,9 +26,9 @@ class RptUserReportMonthly extends Model
             ->selectRaw('SUM(total_gross_profit) as total_gross_profit');
 
         // 時間區間
-        $_date = RptReport::dateRange($type, $year, $options);
+        //  $_date = RptReport::dateRange($type, $year, $options);
 
-        $sub->whereBetween('month', [$_date[0], $_date[1]])
+        $sub->whereBetween('month', [$sdate, $edate])
             ->groupBy('user_id');
 
         $re = DB::table('usr_user_organize as organize')
@@ -50,15 +50,14 @@ class RptUserReportMonthly extends Model
         return $re;
     }
 
-    public static function userOrder($type = null, $year = null, $options = [])
+    public static function userOrder($sdate = null, $edate = null, $options = [])
     {
-        $_date = RptReport::dateRange($type, $year, $options);
 
         $re = DB::table('ord_orders as order')
             ->leftJoin('ord_received_orders as ro', 'order.id', '=', 'ro.source_id')
             ->leftJoin('prd_sale_channels as sale_channel', 'sale_channel.id', '=', 'order.sale_channel_id')
             ->select(['order.sn', 'order.id', 'order.origin_price', 'order.gross_profit', 'sale_channel.sales_type'])
-            ->whereBetween('ro.receipt_date', $_date);
+            ->whereBetween('ro.receipt_date', [$sdate, $edate]);
 
         if (isset($options['user_id'])) {
             $re->leftJoin('usr_customers as customer', 'order.mcode', '=', 'customer.sn')
@@ -103,20 +102,25 @@ class RptUserReportMonthly extends Model
 
     }
 
-    public static function report($date = null)
+    public static function report($date = null, $type = "date")
     {
+        $date = $date ? $date : date("Y-m-d 00:00:00", strtotime(now() . " -1 days"));
 
-        if (!$date) {
-            $d = strtotime(date('Y-m-d') . " -1 day");
-            $sdate = Date("Y-m-1 00:00:00", $d);
-            $edate = Date("Y-m-t 23:59:59", $d);
-        } else {
-            $sdate = Date("Y-m-1 00:00:00", strtotime($date));
-            $edate = Date("Y-m-t 23:59:59", strtotime($date));
+        switch ($type) {
+            case 'date':
+                $sdate = date("Y-m-d 00:00:00", strtotime($date));
+                $edate = date("Y-m-d 23:59:59", strtotime($date));
+                $currentMonth = Date("Y-m-d", strtotime($sdate));
+                break;
+            case 'month':
+                $sdate = date("Y-m-01 00:00:00", strtotime($date));
+                $edate = date("Y-m-t 23:59:59", strtotime($date));
+                $currentMonth = Date("Y-m", strtotime($sdate));
+                break;
         }
-        
-        $currentMonth = Date("Y-m-01", strtotime($sdate));
-       
+
+        self::where('month','like',"%$currentMonth%")->delete();
+
         $atomic = RptReport::atomic();
 
         $re = DB::table(DB::raw("({$atomic->toSql()}) as atomic"))
@@ -127,7 +131,7 @@ class RptUserReportMonthly extends Model
             ->select(['customer.email', 'user.id as user_id', 'sh.sales_type'])
             ->selectRaw('SUM(atomic.total_price) as total_price')
             ->selectRaw('SUM(atomic.gross_profit) as gross_profit')
-            ->selectRaw('DATE_FORMAT(atomic.receipt_date, "%Y-%m-01") as dd')
+            ->selectRaw('DATE_FORMAT(atomic.receipt_date, "%Y-%m-%d") as dd')
             ->whereBetween('atomic.receipt_date', [$sdate, $edate])
             ->groupBy('dd')
             ->groupBy('atomic.email')
@@ -142,13 +146,12 @@ class RptUserReportMonthly extends Model
             $user[$value->user_id][$value->sales_type] = $value;
         }
 
-        self::where('month', $currentMonth)->delete();
+     //   self::where('month', $currentMonth)->delete();
 
         self::insert(array_map(function ($n, $idx) use ($currentMonth) {
             $data = ['user_id' => $idx,
                 'total_price' => 0,
                 'total_gross_profit' => 0,
-                'month' => $currentMonth,
                 'on_price' => 0,
                 'on_gross_profit' => 0,
                 'off_price' => 0,
@@ -160,6 +163,8 @@ class RptUserReportMonthly extends Model
                 $data['off_gross_profit'] = $n[0]->gross_profit;
                 $data['total_price'] += $n[0]->total_price;
                 $data['total_gross_profit'] += $n[0]->gross_profit;
+                $data['month'] = $n[0]->dd;
+
             }
 
             if ($n[1]) {
@@ -167,6 +172,7 @@ class RptUserReportMonthly extends Model
                 $data['on_gross_profit'] = $n[1]->gross_profit;
                 $data['total_price'] += $n[1]->total_price;
                 $data['total_gross_profit'] += $n[1]->gross_profit;
+                $data['month'] = $n[1]->dd;
             }
 
             return $data;

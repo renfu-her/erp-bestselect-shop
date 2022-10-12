@@ -143,7 +143,7 @@ class ReceivedOrder extends Model
                         "discount_grade_id":"\', COALESCE(discount_grade_id, ""), \'",
                         "grade_code":"\', COALESCE(grade.code, ""), \'",
                         "grade_name":"\', COALESCE(grade.name, ""), \'",
-                        "title":"\', COALESCE(title, ""), \'",
+                        "title":"\', COALESCE(REGEXP_REPLACE(title, \'(\\t|\\r|\\n|\\r\\n)+\', " "), ""), \'",
                         "sn":"\', COALESCE(sn, ""), \'",
                         "category_title":"\', category_title, \'",
                         "category_code":"\', category_code, \'",
