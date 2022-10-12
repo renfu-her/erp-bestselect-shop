@@ -282,4 +282,61 @@ class InboundFix0917ImportCtrl extends Controller
         return redirect()->back()->withInput()->withErrors($errors);
     }
 
+    //修正2022/10/11 18:09:00執行的採購單軟刪除
+    public function recovery_purchase_1011(Request $request)
+    {
+        dd('recovery_purchase_1011');
+        $errors = [];
+        $result = DB::transaction(function () use ($request) {
+//            $purchase = DB::table(app(Purchase::class)->getTable(). ' as pcs')
+//                ->whereNotNull('pcs.deleted_at')
+//                ->whereBetween('pcs.deleted_at', ['2022/10/11 18:09:00', '2022/10/11 18:11:00'])
+//                ->get()->toArray();
+//
+//            if (0 < count($purchase)) {
+//                foreach ($purchase as $key_ib => $val_ib) {
+//                    Purchase::withTrashed()->where('id', '=', $val_ib->id)->update(['deleted_at' => null]);
+//                }
+//            }
+//            $purchaseItem = DB::table(app(PurchaseItem::class)->getTable(). ' as item')
+//                ->whereNotNull('item.deleted_at')
+//                ->whereBetween('item.deleted_at', ['2022/10/11 18:09:00', '2022/10/11 18:11:00'])
+//                ->get()->toArray()
+//            ;
+//            if (0 < count($purchaseItem)) {
+//                foreach ($purchaseItem as $key_ib => $val_ib) {
+//                    PurchaseItem::withTrashed()->where('id', '=', $val_ib->id)->update(['deleted_at' => null]);
+//                }
+//            }
+//
+//            $inboundList = DB::table(app(PurchaseInbound::class)->getTable(). ' as inbound')
+//                ->whereNotNull('inbound.deleted_at')
+//                ->whereBetween('inbound.deleted_at', ['2022/10/11 18:09:00', '2022/10/11 18:11:00'])
+////                ->whereBetween('inbound.deleted_at', ['2022/10/07 09:05:00', '2022/10/07 09:15:00'])
+//                ->where('inbound.event', '=', Event::purchase()->value)
+////                ->offset(1200)
+////                ->limit(1)
+//                ->get()->toArray()
+//            ;
+//
+//                if (0 < count($inboundList)) {
+////                    dd('111', count($inboundList), $inboundList);
+//                    foreach ($inboundList as $key_ib => $val_ib) {
+////                        dd('111', $val_ib);
+////                        PurchaseInbound::withTrashed()->where('id', '=', $val_ib->id)->update(['deleted_at' => null]);
+////                        $updateLog = PurchaseInbound::addLogAndUpdateStock(LogEventFeature::purchase_recovery()->value, $val_ib->id
+////                            , $val_ib->event, $val_ib->event_id, $val_ib->event_item_id
+////                            , $val_ib->product_style_id
+////                            , $val_ib->prd_type, $val_ib->title, $val_ib->inbound_num, true, '恢復採購單', StockEvent::purchase_recovery()->value, '恢復採購單', $request->user()->id, $request->user()->name);
+////                        if ($updateLog['success'] == 0) {
+////                            DB::rollBack();
+////                            dd('error', $updateLog, $val_ib);
+////                            return $updateLog;
+////                        }
+//                    }
+//                }
+        });
+        dd('end', $result);
+    }
+
 }
