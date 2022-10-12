@@ -33,16 +33,20 @@
                     </thead>
 
                     <tbody>
+                        @if($request_order->request_o_items)
+                        @foreach (json_decode($request_order->request_o_items) as $data)
                         <tr>
-                            <td>{{ $request_order->sn }}</td>
-                            <td class="text-wrap">{{ $request_grade->code . ' ' . $request_grade->name . ' ' . $request_order->summary }}</td>
-                            <td class="text-end">${{ number_format($request_order->price, 2) }}</td>
-                            <td class="text-end">{{ number_format($request_order->qty) }}</td>
-                            <td class="text-end">1</td>
-                            <td>NTD</td>
-                            <td class="text-end">${{ number_format($request_order->total_price) }}</td>
+                            <td>{{ $request_order->request_o_sn }}</td>
+                            <td class="text-wrap">{{ $data->grade_code }} {{ $data->grade_name }} {{ $data->summary }}</td>
+                            <td class="text-end">${{ number_format($data->price, 2) }}</td>
+                            <td class="text-end">{{ number_format($data->qty) }}</td>
+                            <td class="text-end">{{ $data->rate ? $data->rate : 1 }}</td>
+                            <td>{{ $data->currency_name ? $data->currency_name : 'NTD' }}</td>
+                            <td class="text-end">${{ number_format($data->total_price) }}</td>
                             <td class="text-end"></td>
                         </tr>
+                        @endforeach
+                        @endif
 
                         @foreach($received_data as $value)
                         <tr>
