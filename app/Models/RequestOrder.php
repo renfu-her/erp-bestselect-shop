@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 use Illuminate\Support\Facades\DB;
 
-
 class RequestOrder extends Model
 {
     use HasFactory,SoftDeletes;
@@ -18,6 +17,7 @@ class RequestOrder extends Model
 
 
     public static function request_order_list(
+        $request_o_id = null,
         $client = null,
         $request_sn = null,
         $source_sn = null,
@@ -25,15 +25,63 @@ class RequestOrder extends Model
         $request_posting_date = null,
         $check_posting = 'all'
     ){
+        $sq = '
+            SELECT
+                acc_all_grades.id,
+                CASE
+                    WHEN acc_first_grade.code IS NOT NULL THEN acc_first_grade.code
+                    WHEN acc_second_grade.code IS NOT NULL THEN acc_second_grade.code
+                    WHEN acc_third_grade.code IS NOT NULL THEN acc_third_grade.code
+                    WHEN acc_fourth_grade.code IS NOT NULL THEN acc_fourth_grade.code
+                    ELSE ""
+                END AS code,
+                CASE
+                    WHEN acc_first_grade.name IS NOT NULL THEN acc_first_grade.name
+                    WHEN acc_second_grade.name IS NOT NULL THEN acc_second_grade.name
+                    WHEN acc_third_grade.name IS NOT NULL THEN acc_third_grade.name
+                    WHEN acc_fourth_grade.name IS NOT NULL THEN acc_fourth_grade.name
+                    ELSE ""
+                END AS name
+            FROM acc_all_grades
+            LEFT JOIN acc_first_grade ON acc_all_grades.grade_id = acc_first_grade.id AND acc_all_grades.grade_type = "App\\\Models\\\FirstGrade"
+            LEFT JOIN acc_second_grade ON acc_all_grades.grade_id = acc_second_grade.id AND acc_all_grades.grade_type = "App\\\Models\\\SecondGrade"
+            LEFT JOIN acc_third_grade ON acc_all_grades.grade_id = acc_third_grade.id AND acc_all_grades.grade_type = "App\\\Models\\\ThirdGrade"
+            LEFT JOIN acc_fourth_grade ON acc_all_grades.grade_id = acc_fourth_grade.id AND acc_all_grades.grade_type = "App\\\Models\\\FourthGrade"
+        ';
+
         $query = DB::table('acc_request_orders AS request_o')
+            ->leftJoin(DB::raw('(
+                SELECT
+                    request_o_item.request_order_id,
+                    CONCAT(\'[\', GROUP_CONCAT(\'{
+                            "id":"\', request_o_item.id, \'",
+                            "price":"\', request_o_item.price, \'",
+                            "qty":"\', request_o_item.qty, \'",
+                            "total_price":"\', request_o_item.total_price, \'",
+                            "tw_dollar":"\', COALESCE(request_o_item.tw_dollar, ""), \'",
+                            "rate":"\', COALESCE(request_o_item.rate, ""), \'",
+                            "currency_id":"\', COALESCE(acc_currency.id, ""), \'",
+                            "currency_name":"\', COALESCE(acc_currency.name, ""), \'",
+                            "grade_id":"\', request_o_item.grade_id, \'",
+                            "grade_code":"\', COALESCE(grade.code, ""), \'",
+                            "grade_name":"\', COALESCE(grade.name, ""), \'",
+                            "summary":"\', COALESCE(request_o_item.summary, ""), \'",
+                            "memo":"\', COALESCE(request_o_item.memo, ""), \'",
+                            "ro_note":"\', COALESCE(request_o_item.ro_note, ""), \'",
+                            "taxation":"\', request_o_item.taxation,\'"
+                        }\' ORDER BY request_o_item.id), \']\') AS items
+                FROM acc_request_order_items AS request_o_item
+                LEFT JOIN (' . $sq . ') AS grade ON grade.id = request_o_item.grade_id
+                LEFT JOIN acc_currency ON acc_currency.id = request_o_item.currency_id
+                GROUP BY request_o_item.request_order_id
+                ) AS request_items_table'), function ($join){
+                    $join->on('request_items_table.request_order_id', '=', 'request_o.id');
+            })
             ->leftJoin('ord_received_orders AS ro', function ($join) {
                 $join->on('request_o.received_order_id', '=', 'ro.id');
                 $join->where([
                     'ro.deleted_at'=>null,
                 ]);
-            })
-            ->leftJoinSub(GeneralLedger::getAllGrade(), 'grade', function($join) {
-                $join->on('grade.primary_id', 'request_o.request_grade_id');
             })
             ->leftJoin('usr_users AS creator', function($join){
                 $join->on('request_o.creator_id', '=', 'creator.id');
@@ -52,19 +100,28 @@ class RequestOrder extends Model
 
             ->whereNull('request_o.deleted_at')
 
+            ->where(function ($q) use ($request_o_id) {
+                if($request_o_id){
+                    if(gettype($request_o_id) == 'array') {
+                        $q->whereIn('request_o.id', $request_o_id);
+                    } else {
+                        $q->where('request_o.id', $request_o_id);
+                    }
+                }
+            })
+
             ->select(
                 'request_o.id AS request_o_id',
                 'request_o.sn AS request_o_sn',
                 'request_o.price AS request_o_price',
-                'request_o.qty AS request_o_qty',
-                'request_o.total_price AS request_o_total_price',
-                'request_o.summary AS request_o_summary',
-                'request_o.memo AS request_o_memo',
-                'request_o.taxation AS request_o_taxation',
                 'request_o.client_id AS request_o_client_id',
                 'request_o.client_name AS request_o_client_name',
                 'request_o.client_phone AS request_o_client_phone',
                 'request_o.client_address AS request_o_client_address',
+                'request_o.posting_date AS request_o_posting_date',
+                'request_o.created_at AS request_o_created_at',
+
+                'request_items_table.items AS request_o_items',
 
                 'ro.id AS ro_id',
                 'ro.sn AS ro_sn',
@@ -78,9 +135,8 @@ class RequestOrder extends Model
                 'ro.drawee_phone AS ro_target_phone',
                 'ro.drawee_address AS ro_target_address',
 
-                'grade.code AS grade_code',
-                'grade.name AS grade_name',
                 'creator.name AS creator_name',
+                'creator.department AS creator_department',
                 'accountant.name AS accountant_name'
             );
 
@@ -146,16 +202,7 @@ class RequestOrder extends Model
     {
         $result = self::create([
             'sn'=> 'KSG' . str_pad((self::get()->count()) + 1, 9, '0', STR_PAD_LEFT),
-            'price' =>$request['price'],
-            'qty' =>$request['qty'],
-            'total_price' =>$request['price'] * $request['qty'],
-            'tw_dollar' => null,
-            'rate' =>$request['rate'],
-            'currency_id' =>$request['currency_id'],
-            'request_grade_id' =>$request['request_grade_id'],
-            'summary' =>$request['summary'],
-            'memo' =>$request['memo'],
-            'taxation' =>1,
+            'price' =>null,
             'client_id' =>$request['client_id'],
             'client_name' =>$request['client_name'],
             'client_phone' =>$request['client_phone'],
@@ -188,17 +235,5 @@ class RequestOrder extends Model
                 'updated_at'=>date('Y-m-d H:i:s'),
             ]);
         }
-    }
-
-
-    public static function update_request_order($request = [])
-    {
-        self::where('id', $request['id'])->update([
-            'request_grade_id'=>$request['request_grade_id'],
-            'summary'=>$request['summary'],
-            'memo'=>$request['memo'],
-            'taxation'=>$request['taxation'],
-            'updated_at'=>date('Y-m-d H:i:s'),
-        ]);
     }
 }

@@ -56,11 +56,11 @@
                 <table width="710" style="font-size:small;text-align:left;border:0;margin: 0 auto;">
                     <tbody>
                         <tr>
-                            <td width="50%">客戶：<span style="font-size:medium;">{{ $request_order->client_name }}</span>　　台鑒</td>
-                            <td width="50%">地址：{{ $request_order->client_address }}</td>
+                            <td width="50%">客戶：<span style="font-size:medium;">{{ $request_order->request_o_client_name }}</span>　　台鑒</td>
+                            <td width="50%">地址：{{ $request_order->request_o_client_address }}</td>
                         </tr>
                         <tr>
-                            <td>電話：{{ $request_order->client_phone }}</td>
+                            <td>電話：{{ $request_order->request_o_client_phone }}</td>
                             <td>傳真：</td>
                         </tr>
                     </tbody>
@@ -69,12 +69,12 @@
                 <table width="710" style="font-size:small;text-align:left;border:0;margin: 0 auto;">
                     <tbody>
                         <tr>
-                            <td width="50%">請款單號：{{ $request_order->sn }}</td>
-                            <td width="50%">日期：{{ date('Y/m/d', strtotime($request_order->created_at)) }}</td>
+                            <td width="50%">請款單號：{{ $request_order->request_o_sn }}</td>
+                            <td width="50%">日期：{{ date('Y/m/d', strtotime($request_order->request_o_created_at)) }}</td>
                         </tr>
                         <tr>
                             <td>{{-- 訂單流水號： --}}</td>
-                            <td>入帳日期：{{ $request_order->posting_date ? date('Y/m/d', strtotime($request_order->posting_date)) : '' }}</td>
+                            <td>入帳日期：{{ $request_order->request_o_posting_date ? date('Y/m/d', strtotime($request_order->request_o_posting_date)) : '' }}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -91,13 +91,17 @@
                         </tr>
                     </thead>
                     <tbody style="text-align: left;">
+                        @if($request_order->request_o_items)
+                        @foreach(json_decode($request_order->request_o_items) as $data)
                         <tr>
-                            <td>{{ $request_grade->code . ' ' . $request_grade->name . ' ' . $request_order->summary }}</td>
-                            <td style="text-align: right;">{{ $request_order->qty }}</td>
-                            <td style="text-align: right;">{{ number_format($request_order->price, 2) }}</td>
-                            <td style="text-align: right;">{{ number_format($request_order->total_price) }}</td>
-                            <td>{{ $request_order->taxation == 1 ? '應稅' : '免稅' }} @php echo $request_order->memo ?? '' @endphp</td>
+                            <td>{{ $data->grade_code . ' ' . $data->grade_name . ' ' . $data->summary }}</td>
+                            <td style="text-align: right;">{{ $data->qty }}</td>
+                            <td style="text-align: right;">{{ number_format($data->price, 2) }}</td>
+                            <td style="text-align: right;">{{ number_format($data->total_price) }}</td>
+                            <td>{{ $data->taxation == 1 ? '應稅' : '免稅' }} @php echo $data->memo ?? '' @endphp</td>
                         </tr>
+                        @endforeach
+                        @endif
                     </tbody>
                 </table>
                 <hr width="710" style="margin: .5rem auto;">
@@ -107,7 +111,7 @@
                         <tr height="24">
                             <td width="20%">合　　計：</td>
                             <td width="36%" style="text-align: right;">（{{ $zh_price }}）</td>
-                            <td width="10%" style="text-align: right;">{{ number_format($request_order->total_price) }}</td>
+                            <td width="10%" style="text-align: right;">{{ number_format($request_order->request_o_price) }}</td>
                             <td width="34%"></td>
                         </tr>
                     </thead>
@@ -145,10 +149,10 @@
                     <tbody>
                         <tr>
                             <td width="20%">財務主管：</td>
-                            <td width="20%">會計：{{ $accountant ? $accountant->name : '' }}</td>
+                            <td width="20%">會計：{{ $request_order->accountant_name }}</td>
                             <td width="20%">部門主管：</td>
                             <td width="20%">承辦人：</td>
-                            <td width="20%">業務員：{{ $sales ? $sales->name : '' }}</td>
+                            <td width="20%">業務員：{{ $request_order->creator_name }}</td>
                         </tr>
                     </tbody>
                 </table>

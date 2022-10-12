@@ -121,6 +121,7 @@
                                     <thead class="small table-light">
                                     <tr class="border-top-0" style="border-bottom-color:var(--bs-secondary);">
                                         <td scope="col">入庫單號</td>
+                                        <td scope="col" class="text-center">差異</td>
                                         <td scope="col">名稱</td>
                                         <td scope="col">SKU</td>
                                         <td scope="col">倉庫</td>
@@ -135,6 +136,7 @@
                                     @foreach($data->inbound_data as $key_ib => $val_ib)
                                         <tr>
                                             <td>{{ $val_ib->sn }}</td>
+                                            <td class="text-center">@if(false == empty($val_ib->diff_sku))☆ @endif</td>
                                             <td>{{ $val_ib->title }}</td>
                                             <td>{{ $val_ib->sku }}</td>
                                             <td>{{ $val_ib->depot_name }}</td>

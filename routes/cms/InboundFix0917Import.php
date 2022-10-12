@@ -11,4 +11,6 @@ Route::group(['prefix' => 'inbound_fix0917_import','as'=>'inbound_fix0917_import
     Route::get('import_has_delivery', [InboundFix0917ImportCtrl::class, 'import_has_delivery_page'])->name('import_has_delivery')->middleware('permission:cms.inbound_fix0917_import.index');
     Route::get('del_purchase\{purchaseID}', [InboundFix0917ImportCtrl::class, 'del_purchase'])->name('del_purchase')->middleware('permission:cms.inbound_fix0917_import.edit');
     Route::post('del_multi_purchase', [InboundFix0917ImportCtrl::class, 'del_multi_purchase'])->name('del_multi_purchase')->middleware('permission:cms.inbound_fix0917_import.edit');
+
+    Route::get('recovery_purchase_1011', [InboundFix0917ImportCtrl::class, 'recovery_purchase_1011'])->name('recovery_purchase_1011')->middleware('permission:cms.inbound_fix0917_import.edit');
 });

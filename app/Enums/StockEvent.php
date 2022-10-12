@@ -17,6 +17,7 @@ use BenSampo\Enum\Enum;
  * @method static static send_back_cancle()
  * @method static static combo_to_element()
  * @method static static purchase_del()
+ * @method static static purchase_recovery()
  */
 final class StockEvent extends Enum
 {
@@ -32,6 +33,7 @@ final class StockEvent extends Enum
     const send_back_cancle = 'send_back_cancle';
     const combo_to_element = 'combo_to_element';
     const purchase_del = 'purchase_del';
+    const purchase_recovery = 'purchase_recovery';
 
     public static function getDescription($value): string
     {
@@ -72,6 +74,9 @@ final class StockEvent extends Enum
                 break;
             case self::purchase_del:
                 $result = '刪除採購單';
+                break;
+            case self::purchase_recovery:
+                $result = '恢復採購單';
                 break;
             default:
                 $result = parent::getDescription($value);
