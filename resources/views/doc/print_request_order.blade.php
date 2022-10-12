@@ -118,31 +118,34 @@
                 </table>
                 <hr width="710" style="margin: .5rem auto;">
 
-                <div class="mb-3">
-                    <dl class="row">
-                        <div class="col">□支票</div>
-                        <div class="col">□匯款</div>
-                        <div class="col">□信用卡</div>
-                        <div class="col">□現金</div>
-                    </dl>
-                    <dl class="row">
-                        <div class="col-auto">
-                            匯款帳號：合作金庫(006) 長春分行 0844-871-001158
-                        </div>
-                        <div class="col-auto">戶名：喜鴻國際企業股份有限公司</div>
-                    </dl>
-                    <dl class="row">
-                        <div class="col small">
-                            <dd class="mb-0">備註：</dd>
-                            <dd>
-                                <ol>
+                <table width="710" cellpadding="1"
+                    style="font-size:small;margin:0 auto;border-collapse:collapse;text-align: left;">
+                    <tbody>
+                        <tr>
+                            <td><span style="font-size: 1.5rem;line-height: 10px;">□</span>支票</td>
+                            <td><span style="font-size: 1.5rem;line-height: 10px;">□</span>匯款</td>
+                            <td><span style="font-size: 1.5rem;line-height: 10px;">□</span>信用卡</td>
+                            <td><span style="font-size: 1.5rem;line-height: 10px;">□</span>現金</td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" style="padding-top: .6rem">
+                                匯款帳號：合作金庫(006) 長春分行 0844-871-001158
+                            </td>
+                            <td colspan="2" style="padding-top: .6rem">
+                                戶名：喜鴻國際企業股份有限公司
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="4" style="padding-top: .6rem">
+                                <div>備註：</div>
+                                <ol style="margin: 0">
                                     <li>匯款戶名、支票抬頭請開：喜鴻國際企業股份有限公司</li>
                                     <li>客戶應如期給付團費，如有違反或票據到期未兌現，願負法律責任，並放棄訴抗辯權。</li>
                                 </ol>
-                            </dd>
-                        </div>
-                    </dl>
-                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
 
                 <hr width="710" style="margin: .5rem auto;">
                 <table width="710" style="font-size:small;text-align:left;border:0;margin: 0 auto;">
