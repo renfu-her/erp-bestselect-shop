@@ -7,11 +7,11 @@
         </li>
         <li class="nav-item">
             <a class="nav-link @if(Route('cms.inbound_fix0917_import.import_no_delivery', [], true) == $formAction) active @endif"
-               href="{{ Route('cms.inbound_fix0917_import.import_no_delivery', [], true) }}">0917前採購單尚未出貨</a>
+               href="{{ Route('cms.inbound_fix0917_import.import_no_delivery', [], true) }}">0917前差異商品款式尚未出貨</a>
         </li>
         <li class="nav-item">
             <a class="nav-link @if(Route('cms.inbound_fix0917_import.import_has_delivery', [], true) == $formAction) active @endif"
-               href="{{ Route('cms.inbound_fix0917_import.import_has_delivery', [], true) }}">0917前採購單已出貨</a>
+               href="{{ Route('cms.inbound_fix0917_import.import_has_delivery', [], true) }}">0917前差異商品款式已出貨</a>
         </li>
     </ul>
     <hr class="narbarBottomLine mb-3">
@@ -39,6 +39,9 @@
         </div>
     </form>
 
+    @if($errors->any())
+        <div class="alert alert-danger mt-3">{!! implode('', $errors->all('<div>:message</div>')) !!}</div>
+    @endif
     <div class="card shadow p-4 mb-4">
         <div class="row justify-content-end mb-4">
             @if(true == $showDelBtn)
@@ -46,7 +49,7 @@
                 <button disabled
                     data-bs-toggle="modal" data-bs-target="#confirm-delete"
                     class="btn btn-danger -multi-del">
-                    多選刪除
+                    多選刪除差異的商品款式
                 </button>
             </div>
             <div class="col align-self-center">
@@ -91,7 +94,7 @@
                             <td>
                                 @can('cms.depot.delete')
                                     <a href="javascript:void(0)"
-                                       data-href="{{ Route('cms.inbound_fix0917_import.del_purchase', ['purchaseID' => $data->id], true) }}"
+                                       data-href="{{ Route('cms.inbound_fix0917_import.del_purchase_diff_item', ['purchaseID' => $data->id], true) }}"
                                        data-bs-toggle="modal" data-bs-target="#confirm-delete"
                                        class="icon -del icon-btn fs-5 text-danger rounded-circle border-0">
                                         <i class="bi bi-trash"></i>
@@ -162,7 +165,7 @@
                 <button disabled
                     data-bs-toggle="modal" data-bs-target="#confirm-delete"
                     class="btn btn-danger -multi-del">
-                    多選刪除
+                    多選刪除差異的商品款式
                 </button>
             </div>
             <div class="col-auto align-self-center">
@@ -170,7 +173,7 @@
             </div>
             <div class="col-auto align-self-center mark">
                 <i class="bi bi-exclamation-diamond-fill me-2 text-warning"></i>
-                換頁刪除選擇不保留，請先執行多選刪除
+                換頁刪除選擇不保留，請先執行多選刪除的商品款式
             </div>
         </div>
         @endif
@@ -192,7 +195,7 @@
         <x-slot name="body">刪除後將無法復原！確認要刪除？</x-slot>
         <x-slot name="foot">
             <a class="btn btn-danger btn-ok" href="#">確認並刪除</a>
-            <form id="multiForm" action="{{ Route('cms.inbound_fix0917_import.del_multi_purchase') }}" method="post" hidden>
+            <form id="multiForm" action="{{ Route('cms.inbound_fix0917_import.del_multi_purchase_diff_item') }}" method="post" hidden>
                 @csrf
             </form>
         </x-slot>

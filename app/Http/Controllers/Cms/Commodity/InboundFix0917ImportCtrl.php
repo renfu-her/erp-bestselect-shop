@@ -71,17 +71,33 @@ class InboundFix0917ImportCtrl extends Controller
     }
 
     //找到採購單ID是在'2022/09/18'之前建立的
-    private function getErr0918Pcs($param) {
+    private function getErr0918Pcs($is_delivery, $param) {
         $pcsErrStock0917 = PcsErrStock0917::all();
         if (0 >= count($pcsErrStock0917)) {
             dd('DB無資料 請先上傳檔案 找舊系統沒有庫存，新系統卻是有庫存的商品');
         }
         //找出擁有這些商品的採購單ID
-        $query_pcs_items = DB::table(app(PurchaseItem::class)->getTable(). ' as item')
-            ->leftJoin(app(PcsErrStock0917::class)->getTable(). ' as err_0917', 'err_0917.sku', '=', 'item.sku')
-            ->select('item.purchase_id', 'err_0917.*')
-            ->whereNotNull('err_0917.id')
-            ->groupBy('item.purchase_id');
+        $query_pcs_items = self::getErr0918DiffPcsInbound()
+            ->select('item.purchase_id')
+            ->where(function ($query) use($is_delivery) {
+                if ($is_delivery) {
+                    //找有出貨的
+                    $query->where('inbound.sale_num', '>', 0)
+                        ->orWhere('inbound.csn_num', '>', 0)
+                        ->orWhere('inbound.consume_num', '>', 0)
+                        ->orWhere('inbound.back_num', '>', 0)
+                        ->orWhere('inbound.scrap_num', '>', 0);
+                } else {
+                    //找還沒出貨的
+                    $query->where('inbound.sale_num', '=', 0)
+                        ->where('inbound.csn_num', '=', 0)
+                        ->where('inbound.consume_num', '=', 0)
+                        ->where('inbound.back_num', '=', 0)
+                        ->where('inbound.scrap_num', '=', 0);
+                }
+            });
+        $query_pcs_items = $query_pcs_items->groupBy('item.purchase_id');
+
         $pcs_id = array_map(
             function ($ar) {
                 return $ar->purchase_id;
@@ -94,36 +110,34 @@ class InboundFix0917ImportCtrl extends Controller
             ->whereIn('pcs.id', $pcs_id)
             ->where('pcs.created_at', '<', '2022/09/18')
             ->whereNull('pcs.deleted_at');
-        if (isset($param['purchase_sn'])) {
-            $query_pcs->where('pcs.sn', '=', $param['purchase_sn']);
-        }
         $pcs_id_before_0918 = array_map(
             function ($ar) {
                 return $ar->purchase_id;
             }
             , $query_pcs->get()->toArray()
         );
-        $query_inbound_total = DB::table(app(PurchaseInbound::class)->getTable(). ' as inbound')
+
+        return $pcs_id_before_0918;
+    }
+
+    private function getErr0918DiffPcsInbound() {
+        $query_pcs_ib = DB::table(app(PurchaseItem::class)->getTable(). ' as item')
+            ->leftJoin(app(PurchaseInbound::class)->getTable(). ' as inbound', function($join){
+                $join->on('inbound.event_id', '=', 'item.purchase_id');
+                $join->on('inbound.event_item_id', '=', 'item.id');
+                $join->where('inbound.event', '=',Event::purchase()->value);
+            })
+            ->leftJoin(app(PcsErrStock0917::class)->getTable(). ' as err_0917', 'err_0917.sku', '=', 'inbound.sku')
+            ->whereNotNull('err_0917.id')
+            ->whereNull('item.deleted_at')
             ->whereNull('inbound.deleted_at')
-            ->whereIn('inbound.event_id', $pcs_id_before_0918)
-            ->where('inbound.event', '=', Event::purchase()->value)
-            ->select('inbound.event_id as purchase_id'
-                , DB::raw('SUM(inbound.sale_num) as sale_num')
-                , DB::raw('SUM(inbound.csn_num) as csn_num')
-                , DB::raw('SUM(inbound.consume_num) as consume_num')
-                , DB::raw('SUM(inbound.back_num) as back_num')
-                , DB::raw('SUM(inbound.scrap_num) as scrap_num')
-            )
-            ->groupBy('inbound.event_id')
+            ->where('inbound.created_at', '<', '2022/09/18')
         ;
-        if (isset($param['inbound_sn'])) {
-            $query_inbound_total->where('inbound.sn', '=', $param['inbound_sn']);
-        }
-        return $query_inbound_total;
+        return $query_pcs_ib;
     }
 
     //找採購單 相關入庫單
-    private function getErr0918InboundGroupByPcsID($purchaseIDs) {
+    private function getErr0918InboundGroupByPcsID($purchaseIDs, $param) {
         $concat_string_inbound = concatStr([
             'id' => 'inbound.id',
             'sn' => 'inbound.sn',
@@ -158,7 +172,35 @@ class InboundFix0917ImportCtrl extends Controller
             ->whereNull('inbound.deleted_at')
             ->groupBy('pcs.id')
         ;
+
+        if (isset($param['purchase_sn'])) {
+            $query_pcs->where('pcs.sn', '=', $param['purchase_sn']);
+        }
+        if (isset($param['inbound_sn'])) {
+            $query_pcs->where('inbound.sn', '=', $param['inbound_sn']);
+        }
         return $query_pcs;
+    }
+
+    //找到差異的商品款式
+    private function getErr0918DiffPcsItemWithPcsID($purchase_id) {
+        //找到差異的商品款式
+        $query_pcs_items = self::getErr0918DiffPcsInbound()
+            ->where('item.purchase_id', '=', $purchase_id)
+            ->select(
+                'item.purchase_id'
+                , 'item.id as item_id'
+            )
+            ->groupBy('item.id')
+            ->get()->toArray();
+
+        $pcs_item_id = array_map(
+            function ($ar) {
+                return $ar->item_id;
+            }, $query_pcs_items
+        );
+        $pcs_item_id = array_unique($pcs_item_id);
+        return $pcs_item_id;
     }
 
     //若舊系統沒有庫存，而匯入的採購單有採購單且未出貨則將該筆採購單和入庫單刪掉
@@ -169,19 +211,9 @@ class InboundFix0917ImportCtrl extends Controller
         $cond['purchase_sn'] = Arr::get($query, 'purchase_sn', null);
         $cond['inbound_sn'] = Arr::get($query, 'inbound_sn', null);
         $cond['data_per_page'] = getPageCount(Arr::get($query, 'data_per_page', 100)) > 0 ? getPageCount(Arr::get($query, 'data_per_page', 100)) : 100;;
-        $pcs_id_before_0918 = $this->getErr0918Pcs($cond);
-        //找尚未出貨的採購單ID
-        $query_inbound_non_sale = DB::query()->fromSub($pcs_id_before_0918, 'tb')
-            ->where('tb.sale_num', '=', 0)
-            ->where('tb.csn_num', '=', 0)
-            ->where('tb.consume_num', '=', 0)
-            ->where('tb.back_num', '=', 0)
-            ->where('tb.scrap_num', '=', 0)
-            ->get()->toArray();
-        ;
-        $pcs_ids = array_map(
-            function ($ar) { return $ar->purchase_id; }, $query_inbound_non_sale
-        );
+        $pcs_id_before_0918 = $this->getErr0918Pcs(false, $cond);
+
+        $pcs_ids = $pcs_id_before_0918;
         $datalist = $this->getErr0918InboundGroupByPcsID($pcs_ids, $cond)
             ->paginate($cond['data_per_page'])->appends($query);
         if (0 < count($datalist)) {
@@ -208,21 +240,9 @@ class InboundFix0917ImportCtrl extends Controller
         $cond['inbound_sn'] = Arr::get($query, 'inbound_sn', null);
         $cond['data_per_page'] = getPageCount(Arr::get($query, 'data_per_page', 100)) > 0 ? getPageCount(Arr::get($query, 'data_per_page', 100)) : 100;;
 
-        $pcs_id_before_0918 = $this->getErr0918Pcs($cond);
-        //找已出貨的採購單ID
-        $query_inbound_already_sale = DB::query()->fromSub($pcs_id_before_0918, 'tb')
-            ->where(function ($query) {
-                $query->where('tb.sale_num', '>', 0)
-                    ->orWhere('tb.csn_num', '>', 0)
-                    ->orWhere('tb.consume_num', '>', 0)
-                    ->orWhere('tb.back_num', '>', 0)
-                    ->orWhere('tb.scrap_num', '>', 0);
-            })
-            ->get()->toArray();
+        $pcs_id_before_0918 = $this->getErr0918Pcs(true, $cond);
 
-        $pcs_ids = array_map(
-            function ($ar) { return $ar->purchase_id; }, $query_inbound_already_sale
-        );
+        $pcs_ids = $pcs_id_before_0918;
         $datalist = $this->getErr0918InboundGroupByPcsID($pcs_ids, $cond)
             ->paginate($cond['data_per_page'])->appends($query);
         if (0 < count($datalist)) {
@@ -240,10 +260,27 @@ class InboundFix0917ImportCtrl extends Controller
         ]);
     }
 
-    public function del_purchase(Request $request, $purchase_id)
+    public function del_purchase_diff_item(Request $request, $purchase_id)
     {
+//        dd('del_purchase_diff_item');
         $errors = [];
-        $result = Purchase::delAndRelatedData($purchase_id, $request->user()->id, $request->user()->name);
+        $result = DB::transaction(function () use ($request, $purchase_id, $errors) {
+            $pcs_item_ids = self::getErr0918DiffPcsItemWithPcsID($purchase_id);
+            if (isset($pcs_item_ids) && 0 < count($pcs_item_ids)) {
+                foreach ($pcs_item_ids as $key => $val) {
+                    $delItemAndIB = PurchaseItem::deleteItemAndInbound($val, $request->user()->id, $request->user()->name);
+                    if ($delItemAndIB['success'] == 0) {
+                        $errors[] = $delItemAndIB['error_msg'];
+                    }
+                }
+                if (0 < count($errors)) {
+                    DB::rollBack();
+                    return ['success' => 0, 'error_msg' => implode(" ",$errors)];
+                }
+            }
+            return ['success' => 1, 'error_msg' => ""];
+        });
+
         if ($result['success'] == 0) {
             $errors[] = $result['error_msg'];
             wToast($result['error_msg'], ['type'=>'danger']);
@@ -253,26 +290,34 @@ class InboundFix0917ImportCtrl extends Controller
         return redirect()->back()->withInput()->withErrors($errors);
     }
 
-    public function del_multi_purchase(Request $request)
+    public function del_multi_purchase_diff_item(Request $request)
     {
+//        dd('del_multi_purchase_diff_item');
         $errors = [];
-        $result = DB::transaction(function () use ($request) {
+        $result = DB::transaction(function () use ($request, $errors) {
             if (isset($request['del_item_id']) && null != $request['del_item_id']) {
                 $del_item_id_arr = explode(",", $request['del_item_id']);
                 if (isset($del_item_id_arr) && 0 < count($del_item_id_arr)) {
-                        $errors = [];
-                        foreach ($del_item_id_arr as $key_del => $val_del) {
-                            $result = Purchase::delAndRelatedData($val_del, $request->user()->id, $request->user()->name);
-                            if ($result['success'] == 0) {
-                                $errors[] = $result['error_msg'];
+                    foreach ($del_item_id_arr as $key_del => $val_del_id) {
+                        $pcs_item_ids = self::getErr0918DiffPcsItemWithPcsID($val_del_id);
+                        if (isset($pcs_item_ids) && 0 < count($pcs_item_ids)) {
+                            foreach ($pcs_item_ids as $key => $val) {
+                                $delItemAndIB = PurchaseItem::deleteItemAndInbound($val, $request->user()->id, $request->user()->name);
+                                if ($delItemAndIB['success'] == 0) {
+                                    $errors[] = $delItemAndIB['error_msg'];
+                                }
                             }
                         }
-                        if (0 < count($errors)) {
-                            DB::rollBack();
-                            return ['success' => 0, 'error_msg' => implode(" ",$errors)];
-                        } else {
-                            return ['success' => 1, 'error_msg' => ""];
-                        }
+                    }
+                    if (0 < count($errors)) {
+                        DB::rollBack();
+                        return ['success' => 0, 'error_msg' => implode(" ",$errors)];
+                    } else {
+                        return ['success' => 1, 'error_msg' => ""];
+                    }
+                } else {
+                    $errors[] = '未輸入欲刪除的ID';
+                    return ['success' => 0, 'error_msg' => implode(" ",$errors)];
                 }
             }
         });

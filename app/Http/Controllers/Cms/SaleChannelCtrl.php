@@ -44,6 +44,7 @@ class SaleChannelCtrl extends Controller
             'use_coupon' => $v['use_coupon'],
             'is_realtime' => $v['is_realtime'],
             'discount' => $v['discount'],
+            'has_bonus' => $v['has_bonus'],
             'dividend_limit' => $v['dividend_limit'],
             'dividend_rate' => $v['dividend_rate'],
             'event_dividend_rate' => $v['event_dividend_rate'],
@@ -68,6 +69,7 @@ class SaleChannelCtrl extends Controller
             'sales_type' => 'required|numeric',
             'use_coupon' => 'required|numeric',
             'discount' => 'required|numeric',
+            'has_bonus' => 'required|numeric',
             'dividend_limit' => 'required|numeric',
             'dividend_rate' => 'required|numeric',
             'event_dividend_rate' => 'required|numeric',
@@ -87,6 +89,7 @@ class SaleChannelCtrl extends Controller
             'use_coupon',
             'is_realtime',
             'discount',
+            'has_bonus',
             'dividend_limit',
             'dividend_rate',
             'event_dividend_rate',
@@ -114,7 +117,7 @@ class SaleChannelCtrl extends Controller
         $query = $request->query();
         $this->validInputValue($request);
         $v = $this->getInputValue($request);
-       
+
         $v['basis_on_estimated_cost'] = $request->input('basis_on_estimated_cost') ? '1' : '0';
 
 
@@ -149,7 +152,7 @@ class SaleChannelCtrl extends Controller
         ]);
 
         $d = $request->all();
-        
+
         DividendSetting::updateSetting($d['limit_day'], $d['auto_active_day']);
 
         wToast('修改完成');
