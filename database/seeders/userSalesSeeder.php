@@ -7,10 +7,10 @@ use App\Models\UserSalechannel;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
-class testSeeder extends Seeder
+class userSalesSeeder extends Seeder
 {
     /**
-     * Run the database seeds.
+     * 更新通路權限
      *
      * @return void
      */
@@ -34,6 +34,23 @@ class testSeeder extends Seeder
             ->get()
             ->first()
             ->id;
+
+        //資料庫有bug,有重複資料，先移除掉重複資料
+        $duplicateData = DB::table('usr_user_salechannel')
+            ->where('salechannel_id', $salesId)
+            ->orWhere('salechannel_id', $erpSalesId)
+            ->orWhere('salechannel_id', $noBonusSalesId)
+            ->groupBy(['user_id', 'salechannel_id'])
+            ->havingRaw('COUNT(*) > 1')
+            ->get();
+        foreach ($duplicateData ?? [] as $dupplicateDatum) {
+            DB::table('usr_user_salechannel')
+                ->where('user_id', $dupplicateDatum->user_id)
+                ->where('salechannel_id', $salesId)
+                ->orWhere('salechannel_id', $erpSalesId)
+                ->orWhere('salechannel_id', $noBonusSalesId)
+                ->delete();
+        }
 
         $allUsers = DB::table('usr_users')->select('id')->get();
         foreach ($allUsers as $allUser) {
@@ -73,11 +90,5 @@ class testSeeder extends Seeder
                 ]);
             }
         }
-
-        $users = User::get();
-        foreach ($users as $user) {
-            $user->assignRole('Super Admin');
-        }
-
     }
 }

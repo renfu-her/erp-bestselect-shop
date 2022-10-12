@@ -71,6 +71,7 @@
                     <th scope="col" style="width:10%">#</th>
                     <th scope="col">廠商名稱</th>
 {{--                    <th scope="col">廠商簡稱</th>--}}
+                    <th scope="col">廠商ID</th>
                     <th scope="col">統編</th>
 {{--                    <th scope="col">負責人</th>--}}
 {{--                    <th scope="col">匯款銀行</th>--}}
@@ -96,6 +97,7 @@
                         <th scope="row">{{ $key + 1 }}</th>
                         <td>{{ $data->name }}</td>
 {{--                        <td>{{ $data->nickname }}</td>--}}
+                        <td>{{ $data->id }}</td>
                         <td>{{ $data->vat_no }}</td>
 {{--                        <td>{{ $data->chargeman }}</td>--}}
 {{--                        <td>{{ $data->bank_cname }}</td>--}}
