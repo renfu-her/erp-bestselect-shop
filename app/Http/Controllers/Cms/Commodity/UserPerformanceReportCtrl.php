@@ -27,19 +27,16 @@ class UserPerformanceReportCtrl extends Controller
         $cond['sDate'] = Arr::get($query, 'sDate', date('Y-m-01'));
         $cond['eDate'] = Arr::get($query, 'eDate', date('Y-m-t'));
         $cond['department'] = Arr::get($query, 'department', []);
-        $sYear = 2022;
-
-        $year = [];
-
-        for ($i = 0; $i < Date("Y") - $sYear + 1; $i++) {
-            $year[] = $sYear + $i;
-        }
 
         $dataList = RptOrganizeReportMonthly::dataList($cond['sDate'], $cond['eDate'], ['level' => 2,
             'department' => $cond['department']])
             ->get();
 
-        $type = ['year' => "整年度", "season" => "季", "month" => "月份"];
+        $sYear = 2022;
+        $year = [];
+        for ($i = 0; $i < Date("Y") - $sYear + 1; $i++) {
+            $year[] = $sYear + $i;
+        }
 
         // $pageTitle = date("Y",strtotime($cond['sdate'])) . "年 ";
         $pageTitle = $cond['sDate'] . "~" . $cond['eDate'] . " 報表";
@@ -62,10 +59,10 @@ class UserPerformanceReportCtrl extends Controller
 
         return view('cms.commodity.user_performance_report.list', [
             'department' => UserOrganize::where('level', 2)->get(),
-            'type' => $type,
+            // 'type' => $type,
             'year' => $year,
             'cond' => $cond,
-            'season' => $this->season,
+            //  'season' => $this->season,
             'dataList' => $dataList,
             'pageTitle' => $pageTitle,
             'query' => $query,

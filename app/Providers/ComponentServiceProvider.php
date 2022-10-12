@@ -16,6 +16,8 @@ use App\View\Components\Calendar as B_Calendar;
 use App\View\Components\Modal as B_Modal;
 use App\View\Components\Toast as B_Toast;
 use App\View\Components\QtyAdjuster as B_QtyAdjuster;
+use App\View\Components\ReportSearch;
+
 
 use App\View\Components\Navbar\ProductNavi;
 use App\View\Components\Navbar\CustomerNavi;
@@ -60,5 +62,8 @@ class ComponentServiceProvider extends ServiceProvider
         Blade::component('b-home-navi', HomepageNavi::class);
         Blade::component('b-consign-navi', ConsignNavi::class);
         Blade::component('b-csnorder-navi', CsnOrderNavi::class);
+        Blade::component('b-report-search', ReportSearch::class);
+
+        
     }
 }
