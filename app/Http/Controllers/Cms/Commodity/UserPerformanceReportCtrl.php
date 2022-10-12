@@ -42,7 +42,8 @@ class UserPerformanceReportCtrl extends Controller
         $pageTitle = $cond['sDate'] . "~" . $cond['eDate'] . " 報表";
         $cond['year'] = date("Y", strtotime($cond['sDate']));
         $cond['month'] = date("m", strtotime($cond['sDate']));
-
+        $query['sDate'] = $cond['sDate'];
+        $query['eDate'] = $cond['eDate'];
         /*
         switch ($cond['type']) {
         case 'year':
