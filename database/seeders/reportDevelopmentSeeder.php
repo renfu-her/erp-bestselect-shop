@@ -18,7 +18,7 @@ class reportDevelopmentSeeder extends Seeder
         //
 
         RptUserReportMonthly::grossProfit();
-        RptUserReportMonthly::report('2022-09-01');
-        RptOrganizeReportMonthly::report('2022-09-01');
+        RptUserReportMonthly::report('2022-09-01','month');
+        RptOrganizeReportMonthly::report('2022-09-01','month');
     }
 }
