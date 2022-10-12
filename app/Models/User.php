@@ -2,11 +2,13 @@
 
 namespace App\Models;
 
+use App\Enums\Globals\AppEnvClass;
 use App\Http\MenuTreeTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
@@ -173,7 +175,33 @@ class User extends Authenticatable
             $saleChannel = SaleChannel::where('code', '02')->get()->first();
 
             if ($saleChannel) {
-                UserSalechannel::create(['user_id' => $user_id, 'salechannel_id' => $saleChannel->id]);
+                //開放所有員工ERP都可以選此通路
+                if (
+                    DB::table('usr_user_salechannel')->where([
+                        'user_id' => $user_id,
+                        'salechannel_id' => $saleChannel->id,
+                        ])->doesntExist()
+                ) {
+                    UserSalechannel::create([
+                        'user_id' => $user_id,
+                        'salechannel_id' => $saleChannel->id,
+                    ]);
+                }
+
+                if (App::environment(AppEnvClass::Release)) {
+                    $NoBonusSaleChannel = SaleChannel::where('title', '經銷價販售(無獎金)')->get()->first();
+                    if (
+                        DB::table('usr_user_salechannel')->where([
+                                'user_id' => $user_id,
+                                'salechannel_id' => $NoBonusSaleChannel->id,
+                            ])->doesntExist()
+                    ) {
+                        UserSalechannel::create([
+                            'user_id'        => $user_id,
+                            'salechannel_id' => $NoBonusSaleChannel->id
+                        ]);
+                    }
+                }
             }
 
             DB::commit();

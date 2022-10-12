@@ -7,10 +7,10 @@ use App\Models\UserSalechannel;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
-class testSeeder extends Seeder
+class userSalesSeeder extends Seeder
 {
     /**
-     * Run the database seeds.
+     * 更新通路權限
      *
      * @return void
      */
@@ -73,11 +73,5 @@ class testSeeder extends Seeder
                 ]);
             }
         }
-
-        $users = User::get();
-        foreach ($users as $user) {
-            $user->assignRole('Super Admin');
-        }
-
     }
 }
