@@ -2096,7 +2096,6 @@ class OrderCtrl extends Controller
             'buyer_ubn' => 'required_if:category,==,B2B',
             'buyer_name' => 'required|string|max:60',
             'buyer_email' => 'nullable|required_if:carrier_type,==,2|email:rfc,dns',
-            'buyer_address' => 'required_if:invoice_method,==,print',
             'invoice_method' => 'required|in:print,give,e_inv',
             'love_code' => 'required_if:invoice_method,==,give',
             'carrier_type' => 'required_if:invoice_method,==,e_inv|in:0,1,2',

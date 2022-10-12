@@ -183,7 +183,7 @@ class TransferVoucherCtrl extends Controller
             'id' => 'required|exists:acc_transfer_voucher,id',
         ]);
 
-        $voucher = TransferVoucher::voucher_list($id)->first();
+        $voucher = TransferVoucher::voucher_list($id, null, null, null, null, null, true)->first();
         if(! $voucher){
             return abort(404);
         }

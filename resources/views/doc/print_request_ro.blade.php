@@ -91,13 +91,17 @@
                         </tr>
                     </thead>
                     <tbody style="text-align: left;">
+                        @if($request_order->request_o_items)
+                        @foreach(json_decode($request_order->request_o_items) as $data)
                         <tr>
-                            <td>{{ $request_grade->code . ' ' . $request_grade->name . ' ' . $request_order->summary }}</td>
-                            <td style="text-align: right;">{{ $request_order->qty }}</td>
-                            <td style="text-align: right;">{{ number_format($request_order->price, 2) }}</td>
-                            <td style="text-align: right;">{{ number_format($request_order->total_price) }}</td>
-                            <td>{{ $request_order->taxation == 1 ? '應稅' : '免稅' }} @php echo $request_order->memo ?? '' @endphp</td>
+                            <td>{{ $data->grade_code }} {{ $data->grade_name }} {{ $data->summary }}</td>
+                            <td style="text-align: right;">{{ $data->qty }}</td>
+                            <td style="text-align: right;">{{ number_format($data->price, 2) }}</td>
+                            <td style="text-align: right;">{{ number_format($data->total_price) }}</td>
+                            <td>{{ $data->taxation == 1 ? '應稅' : '免稅' }} @php echo $data->memo ?? '' @endphp</td>
                         </tr>
+                        @endforeach
+                        @endif
                     </tbody>
                 </table>
                 <hr width="710" style="margin: .5rem auto;">
