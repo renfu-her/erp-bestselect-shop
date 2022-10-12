@@ -32,7 +32,8 @@
                     </fieldset>
                     <div class="col-12 col-sm-6 mb-3 -year">
                         <label class="form-label">年度</label>
-                        <select class="form-select -select" name="year" aria-label="年度">
+                        <select class="form-select" name="year" aria-label="年度">
+                            <option value="">年度</option>
                             @foreach ($year as $value)
                                 <option value="{{ $value }}" @if ($value == $cond['year']) selected @endif>
                                     {{ $value }}</option>
@@ -41,7 +42,7 @@
                     </div>
                     <div class="col-12 col-sm-6 mb-3 -season" @if ($cond['type'] !== 'season') hidden @endif>
                         <label class="form-label">季</label>
-                        <select class="form-select -select" name="season" aria-label="季">
+                        <select class="form-select" name="season" aria-label="季">
                             @foreach ($season as $key => $value)
                                 <option value="{{ $key }}" @if ($key == $cond['season']) selected @endif>
                                     第{{ $value }}季</option>
@@ -50,7 +51,7 @@
                     </div>
                     <div class="col-12 col-sm-6 mb-3 -month"@if ($cond['type'] !== 'month') hidden @endif>
                         <label class="form-label">月份</label>
-                        <select class="form-select -select" name="month" aria-label="月份">
+                        <select class="form-select" name="month" aria-label="月份">
                             @for ($i = 1; $i < 13; $i++)
                                 <option value="{{ $i }}" @if ($i == $cond['month']) selected @endif>
                                     {{ $i }}月</option>
@@ -58,43 +59,67 @@
                         </select>
                     </div>
                 </div>
+                <div class="row">
+                    <div class="col-12 mb-3">
+                        <label class="form-label">起訖日期</label>
+                        <div class="input-group has-validation">
+                            <input type="date" class="form-control @error('sDate') is-invalid @enderror"
+                                   name="sDate" value="" aria-label="起始日期" />
+                            <input type="date" class="form-control @error('eDate') is-invalid @enderror"
+                                   name="eDate" value="" aria-label="結束日期" />
+                            <div class="invalid-feedback">
+                                @error('sDate')
+                                {{ $message }}
+                                @enderror
+                                @error('eDate')
+                                {{ $message }}
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="col">
                     <button type="submit" class="btn btn-primary px-4">搜尋</button>
                 </div>
             </div>
         </form>
+
         @can('cms.user-performance-report.renew')
-            <form action="{{ route('cms.user-performance-report.renew') }}" method="POST">
+            <form id="form2" action="{{ route('cms.user-performance-report.renew') }}" method="POST">
                 @csrf
                 <div class="card shadow p-4 mb-4">
-                    <h6>重新統計</h6>
                     <div class="row">
-                        <div class="col-12 col-sm-6 mb-3">
-                            <label class="form-label">年度</label>
-                            <select class="form-select -select" name="year" aria-label="年度">
+                        <div class="col pe-0">
+                            <select class="form-select" name="year" aria-label="年度">
+                                <option value="" disabled>選擇年度</option>
                                 @foreach ($year as $value)
                                     <option value="{{ $value }}" @if ($value == $cond['year']) selected @endif>
                                         {{ $value }}</option>
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col-12 col-sm-6 mb-3">
-                            <label class="form-label">月份</label>
-                            <select class="form-select -select" name="month" aria-label="月份">
+                        <div class="col pe-0">
+                            <select class="form-select" name="month" aria-label="月份">
+                                <option value="" disabled>選擇月份</option>
                                 @for ($i = 1; $i < 13; $i++)
                                     <option value="{{ $i }}" @if ($i == $cond['month']) selected @endif>
                                         {{ $i }}月</option>
                                 @endfor
                             </select>
                         </div>
-                    </div>
-                    <div class="col">
-                        <button type="submit" class="btn btn-primary px-4">送出</button>
+                        <div class="col-auto">
+                            <button type="submit" class="btn btn-primary">
+                                立即統計
+                                <div class="spinner-border spinner-border-sm" hidden role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </button>
+                        </div>
                     </div>
                 </div>
-
             </form>
         @endcan
+
     @else
         <h2 class="mb-4">{{ $pageTitle }}</h2>
     @endif
@@ -253,6 +278,12 @@
     @endpush
     @push('sub-scripts')
         <script>
+            // 立即統計
+            $('#form2').submit(function (e) { 
+                $('#form2 .spinner-border').prop('hidden', false);
+            });
+
+            // 搜尋條件
             $('input[name="type"][type="radio"]').on('change', function(e) {
                 const val = $(this).val();
                 switch (val) {
@@ -271,7 +302,46 @@
                     default:
                         break;
                 }
+                setDate(val);
             });
+            $('#search select[name="year"], #search select[name="season"], #search select[name="month"]')
+            .on('change', function(e) {
+                const type = this.name;
+                setDate(type);
+            });
+
+            // set 起訖日
+            setDate($('input[name="type"][type="radio"]:checked').val());
+            function setDate(type) {
+                const sDate = $('input[name="sDate"]');
+                const eDate = $('input[name="eDate"]');
+                let sdate = moment();
+                let edate = moment();
+
+                const Year = $('#search select[name="year"]').val();
+                switch (type) {
+                    case 'year':    // 年度
+                        sdate = moment().year(Year).startOf('year');
+                        edate = moment().year(Year).endOf('year');
+                        break;
+                    case 'season':  // 季
+                        const Season = $('#search select[name="season"]').val();
+                        sdate = moment().quarter(Season).startOf('quarter');
+                        edate = moment().quarter(Season).endOf('quarter');
+                        break;
+                    case 'month':   // 月份
+                        const Month = $('#search select[name="month"]').val();
+                        sdate = moment().month(Month - 1).startOf('month');
+                        edate = moment().month(Month - 1).endOf('month');
+                        break;
+                
+                    default:
+                        break;
+                }
+
+                sDate.val(sdate.format('YYYY-MM-DD'));
+                eDate.val(edate.format('YYYY-MM-DD'));
+            }
         </script>
     @endpush
 @endOnce
