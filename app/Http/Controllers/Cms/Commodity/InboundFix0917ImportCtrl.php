@@ -79,7 +79,8 @@ class InboundFix0917ImportCtrl extends Controller
         //找出擁有這些商品的採購單ID
         $query_pcs_items = DB::table(app(PurchaseItem::class)->getTable(). ' as item')
             ->leftJoin(app(PcsErrStock0917::class)->getTable(). ' as err_0917', 'err_0917.sku', '=', 'item.sku')
-            ->select('item.purchase_id')
+            ->select('item.purchase_id', 'err_0917.*')
+            ->whereNotNull('err_0917.id')
             ->groupBy('item.purchase_id');
         $pcs_id = array_map(
             function ($ar) {
@@ -137,12 +138,15 @@ class InboundFix0917ImportCtrl extends Controller
             'consume_num' => 'inbound.consume_num',
             'back_num' => 'inbound.back_num',
             'scrap_num' => 'inbound.scrap_num',
+            'diff_sku' => DB::raw('ifnull(err_0917.sku, "")'),
         ]);
         $query_pcs = DB::table(app(Purchase::class)->getTable(). ' as pcs')
             ->leftJoin(app(PurchaseInbound::class)->getTable(). ' as inbound', function ($join) {
                 $join->on('inbound.event_id', '=', 'pcs.id');
                 $join->where('inbound.event', '=', Event::purchase()->value);
             })
+            //標記差異的SKU
+            ->leftJoin(app(PcsErrStock0917::class)->getTable(). ' as err_0917', 'err_0917.sku', '=', 'inbound.sku')
             ->select('pcs.id'
                 , 'pcs.sn'
                 , 'pcs.created_at'
