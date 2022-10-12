@@ -221,7 +221,7 @@
                                 <div class="fw-bold">{{ $data->delivery_sn }}</div>
                                 <div class="text-nowrap">{{ $data->event_sn }}</div>
                             </td>
-                            <td>{{ number_format($data->total_price) }}</td>
+                            <td>${{ number_format($data->total_price) }}</td>
                             <td>{{ $data->depot_name ?? '-' }}</td>
                             <td class="wrap">
                                 <div class="text-nowrap lh-sm @if ($data->order_status === '取消') text-danger @endif">
@@ -248,11 +248,12 @@
                             <td>{{ $data->sed_name }}</td>
                             <td>{{ $data->rec_name }}</td>
                             <td>{{ $data->rec_address }}</td>
-                            <td>
+                            <td class="small py-0 lh-base">
+                                <ul class="list-group list-group-flush">
                                 @foreach($data->productTitles as $productTitle)
-                                    {{ $productTitle->product_title }}
-                                    <br>
+                                    <li class="list-group-item bg-transparent pe-1">{{ $productTitle->product_title }}</li>
                                 @endforeach
+                                </ul>
                             </td>
                         </tr>
                     @endforeach
