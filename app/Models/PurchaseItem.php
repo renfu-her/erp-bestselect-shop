@@ -224,6 +224,7 @@ class PurchaseItem extends Model
                 , 'event_item_id'
                 , 'product_style_id')
             ->selectRaw('sum(inbound_num) as inbound_num')
+            ->selectRaw('DATE_FORMAT((min(expiry_date)),"%Y-%m-%d") as expiry_date')
             ->selectRaw('GROUP_CONCAT(DISTINCT inbound.inbound_user_name) as inbound_user_names') //入庫人員
             ->whereNull('deleted_at');
 
@@ -277,6 +278,7 @@ class PurchaseItem extends Model
                 ,'items.num as num'
                 ,'items.arrived_num as arrived_num'
                 ,'items.memo as memo'
+                ,'inbound.expiry_date'
                 ,'inbound.inbound_user_names'
                 ,'purchase.purchase_user_id as purchase_user_id'
                 ,'purchase.supplier_id as supplier_id'
@@ -340,11 +342,15 @@ class PurchaseItem extends Model
         if (isset($audit_status)) {
             $result->where('purchase.audit_status', $audit_status);
         }
+        if ($expire_day) {
+            $result->whereNotNull('inbound.expiry_date');
+        }
 
         $result2 = DB::table(DB::raw("({$result->toSql()}) as tb"))
             ->select('*')
             ->orderByDesc('id')
-            ->orderBy('items_id');
+            ->orderBy('items_id')
+        ;
 
         $result->mergeBindings($subColumn);
         $result->mergeBindings($subColumn2);
@@ -415,6 +421,7 @@ class PurchaseItem extends Model
             ->select('event_id'
                 , 'product_style_id')
             ->selectRaw('sum(inbound_num) as inbound_num')
+            ->selectRaw('DATE_FORMAT((min(expiry_date)),"%Y-%m-%d") as expiry_date')
             ->selectRaw('GROUP_CONCAT(DISTINCT inbound.inbound_user_id) as inbound_user_ids') //入庫人員
             ->selectRaw('GROUP_CONCAT(DISTINCT inbound.inbound_user_name) as inbound_user_names') //入庫人員
             ->where('event', Event::purchase()->value)
@@ -460,6 +467,7 @@ class PurchaseItem extends Model
                 , 'items.price as price'
                 , 'items.num as num'
                 , 'items.arrived_num as arrived_num'
+                , 'inbound.expiry_date as expiry_date'
                 , 'inbound.inbound_num as inbound_num'
                 , 'inbound.inbound_user_ids as inbound_user_ids'
                 , 'inbound.inbound_user_names as inbound_user_names'
@@ -488,6 +496,7 @@ class PurchaseItem extends Model
                 ,'itemtb_new.price as price'
                 ,'itemtb_new.num as num'
                 ,'itemtb_new.arrived_num as arrived_num'
+                ,'itemtb_new.expiry_date'
                 ,'itemtb_new.inbound_user_ids as inbound_user_ids'
                 ,'itemtb_new.inbound_user_names as inbound_user_names'
                 ,'purchase.purchase_user_id as purchase_user_id'
@@ -541,6 +550,9 @@ class PurchaseItem extends Model
         }
         if (isset($audit_status)) {
             $result->where('purchase.audit_status', $audit_status);
+        }
+        if ($expire_day) {
+            $result->whereNotNull('itemtb_new.expiry_date');
         }
 
         $result2 = DB::table(DB::raw("({$result->toSql()}) as tb"))
