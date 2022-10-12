@@ -23,7 +23,7 @@
                                 <div class="form-check form-check-inline">
                                     <label class="form-check-label">
                                         <input class="form-check-input" name="type" type="radio"
-                                            value="{{ $key }}" @if ($key === $cond['type']) checked @endif>
+                                            value="{{ $key }}">
                                         {{ $value }}
                                     </label>
                                 </div>
@@ -33,23 +33,22 @@
                     <div class="col-12 col-sm-6 mb-3 -year">
                         <label class="form-label">年度</label>
                         <select class="form-select" name="year" aria-label="年度">
-                            <option value="">年度</option>
                             @foreach ($year as $value)
                                 <option value="{{ $value }}" @if ($value == $cond['year']) selected @endif>
                                     {{ $value }}</option>
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-12 col-sm-6 mb-3 -season" @if ($cond['type'] !== 'season') hidden @endif>
+                    <div class="col-12 col-sm-6 mb-3 -season" hidden>
                         <label class="form-label">季</label>
                         <select class="form-select" name="season" aria-label="季">
                             @foreach ($season as $key => $value)
-                                <option value="{{ $key }}" @if ($key == $cond['season']) selected @endif>
+                                <option value="{{ $key }}" >
                                     第{{ $value }}季</option>
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-12 col-sm-6 mb-3 -month"@if ($cond['type'] !== 'month') hidden @endif>
+                    <div class="col-12 col-sm-6 mb-3 -month" hidden>
                         <label class="form-label">月份</label>
                         <select class="form-select" name="month" aria-label="月份">
                             @for ($i = 1; $i < 13; $i++)
@@ -64,9 +63,9 @@
                         <label class="form-label">起訖日期</label>
                         <div class="input-group has-validation">
                             <input type="date" class="form-control @error('sDate') is-invalid @enderror"
-                                   name="sDate" value="" aria-label="起始日期" />
+                                   name="sDate" value="{{ $cond['sDate'] }}" aria-label="起始日期" />
                             <input type="date" class="form-control @error('eDate') is-invalid @enderror"
-                                   name="eDate" value="" aria-label="結束日期" />
+                                   name="eDate" value="{{ $cond['eDate'] }}" aria-label="結束日期" />
                             <div class="invalid-feedback">
                                 @error('sDate')
                                 {{ $message }}
@@ -311,7 +310,7 @@
             });
 
             // set 起訖日
-            setDate($('input[name="type"][type="radio"]:checked').val());
+           // setDate($('input[name="type"][type="radio"]:checked').val());
             function setDate(type) {
                 const sDate = $('input[name="sDate"]');
                 const eDate = $('input[name="eDate"]');
