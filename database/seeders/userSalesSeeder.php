@@ -35,6 +35,23 @@ class userSalesSeeder extends Seeder
             ->first()
             ->id;
 
+        //資料庫有bug,有重複資料，先移除掉重複資料
+        $duplicateData = DB::table('usr_user_salechannel')
+            ->where('salechannel_id', $salesId)
+            ->orWhere('salechannel_id', $erpSalesId)
+            ->orWhere('salechannel_id', $noBonusSalesId)
+            ->groupBy(['user_id', 'salechannel_id'])
+            ->havingRaw('COUNT(*) > 1')
+            ->get();
+        foreach ($duplicateData ?? [] as $dupplicateDatum) {
+            DB::table('usr_user_salechannel')
+                ->where('user_id', $dupplicateDatum->user_id)
+                ->where('salechannel_id', $salesId)
+                ->orWhere('salechannel_id', $erpSalesId)
+                ->orWhere('salechannel_id', $noBonusSalesId)
+                ->delete();
+        }
+
         $allUsers = DB::table('usr_users')->select('id')->get();
         foreach ($allUsers as $allUser) {
             if (
