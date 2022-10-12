@@ -8,7 +8,7 @@ Route::group(['prefix' => 'delivery','as'=>'delivery.'], function () {
     Route::get('create/{event}/{eventId}', [DeliveryCtrl::class, 'create'])->name('create')->middleware('permission:cms.delivery.edit');
     Route::post('store/{deliveryId}', [DeliveryCtrl::class, 'store'])->name('store')->middleware('permission:cms.delivery.edit');
     Route::get('store_cancle/{deliveryId}', [DeliveryCtrl::class, 'store_cancle'])->name('store_cancle')->middleware('permission:cms.delivery.edit');
-    Route::get('delete/{event}/{eventId}/{receiveDepotId}', [DeliveryCtrl::class, 'destroyItem'])->name('delete')->middleware('permission:cms.delivery.delete');
+    Route::get('delete/{event}/{eventId}/{receiveDepotId}', [DeliveryCtrl::class, 'destroyItem'])->name('delete')->middleware('permission:cms.delivery.edit');
 
     //退貨
     Route::get('back/{event}/{eventId}', [DeliveryCtrl::class, 'back'])->name('back')->middleware('permission:cms.delivery.edit');
