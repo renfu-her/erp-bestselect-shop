@@ -645,11 +645,13 @@ class RequestOrderCtrl extends Controller
             DB::beginTransaction();
 
             try {
-                $received_order->update([
-                    'accountant_id'=>auth('user')->user()->id,
-                    'receipt_date'=>request('receipt_date'),
-                    'invoice_number'=>request('invoice_number'),
-                ]);
+                $update = [];
+                $update['accountant_id'] = auth('user')->user()->id;
+                $update['receipt_date'] = request('receipt_date');
+                if(request('invoice_number')){
+                    $update['invoice_number'] = request('invoice_number');
+                }
+                $received_order->update($update);
 
                 if(is_array(request('received_method'))){
                     $unique_m = array_unique(request('received_method'));
