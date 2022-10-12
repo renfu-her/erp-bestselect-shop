@@ -332,7 +332,7 @@
                                             </button>
                                         </td>
                                         <td style="display:none">{{ $received_order->sn }}</td>
-                                        <td><input type="text" name="o_title[]" class="form-control form-control-sm -l" value="{{ mb_substr($value->product_title, 0, 30) }}" aria-label="產品名稱" minlength="1" maxlength="30" required>
+                                        <td><input type="text" name="o_title[]" class="form-control form-control-sm -l" value="{{ mb_substr(preg_replace('/(\v|\s)+/', ' ', $value->product_title), 0, 30) }}" aria-label="產品名稱" minlength="1" maxlength="30" required>
                                         <td>
                                             <div class="input-group input-group-sm flex-nowrap">
                                                 <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
@@ -408,7 +408,7 @@
 
                                         <td style="display:none">{{ $received_order->sn }}</td>
 
-                                        <td><input type="text" name="o_title[]" class="form-control form-control-sm -l" value="{{ mb_substr($value->title, 0, 30) }}" aria-label="產品名稱" minlength="1" maxlength="30" required>
+                                        <td><input type="text" name="o_title[]" class="form-control form-control-sm -l" value="{{ mb_substr(preg_replace('/(\v|\s)+/', ' ', $value->title), 0, 30) }}" aria-label="產品名稱" minlength="1" maxlength="30" required>
                                         <td>
                                             <div class="input-group input-group-sm flex-nowrap">
                                                 <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>

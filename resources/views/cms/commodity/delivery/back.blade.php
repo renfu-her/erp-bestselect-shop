@@ -18,21 +18,21 @@
     </div>
     @enderror
 
-    <form method="post" action="{{ $formAction }}">
+    <form id="form1" method="post" action="{{ $formAction }}">
         @method('POST')
         @csrf
         <div class="card shadow p-4 mb-4">
             <h6>訂單退貨單內容</h6>
-            <div class="col-12 mb-3">
+            <div class="col-12">
                 <label class="form-label">退貨單備註</label>
                 <input class="form-control" type="text" value="{{$delivery->back_memo ?? ''}}" name="dlv_memo" placeholder="退貨單備註">
             </div>
-            <div class="table-responsive tableOverBox">
+            <div class="table-responsive tableOverBox mb-3">
                 <table id="Pord_list" class="table table-striped tableList">
-                    <thead>
+                    <thead class="small">
                         <tr>
                             <th style="width:3rem;">#</th>
-                            <th>退貨</th>
+                            <th class="text-center">退貨</th>
                             <th>商品名稱</th>
                             <th>SKU</th>
                             <th>價格</th>
@@ -53,18 +53,23 @@
                                         <input type="hidden" name="sku[]" value="{{ $item->sku ?? '' }}" />
                                         <input type="hidden" name="origin_qty[]" value="{{ $item->origin_qty ?? '' }}" />
                                     </th>
-                                    <td>
-                                        <input type="hidden" name="show[]" value="{{$item->show?? 0}}"><input type="checkbox" onclick="this.previousSibling.value=1-this.previousSibling.value" @if(1 == ($item->show?? 0)) checked @endif>
+                                    <td class="text-center">
+                                        <input type="hidden" name="show[]" value="{{$item->show ?? 0}}">
+                                        <input type="checkbox"  class="form-check-input -show"
+                                            @if(1 == ($item->show ?? 0)) checked @endif>
                                     </td>
                                     <td>
-                                        <input type="text" value="{{ $item->product_title ?? '' }}" name="product_title[]" class="form-control form-control-sm -l" required>
+                                        <input type="text" value="{{ $item->product_title ?? '' }}" name="product_title[]" 
+                                            class="form-control form-control-sm -l" required>
                                     </td>
                                     <td>{{ $item->sku }}</td>
                                     <td>
-                                        <input type="number" value="{{ $item->price ?? '' }}" name="price[]" class="form-control form-control-sm -l" min="0" step="1" required>
+                                        <input type="number" value="{{ $item->price ?? '' }}" name="price[]" 
+                                            class="form-control form-control-sm -sm" min="0" step="1" required>
                                     </td>
                                     <td>
-                                        <input type="number" value="{{ $item->bonus ?? '' }}" name="bonus[]" class="form-control form-control-sm -l" min="0" step="1" required>
+                                        <input type="number" value="{{ $item->bonus ?? '' }}" name="bonus[]" 
+                                            class="form-control form-control-sm -sm" min="0" step="1" required>
                                     </td>
                                     <td class="text-center">{{ $item->origin_qty ? number_format($item->origin_qty) : '' }}</td>
                                     @if(null == $delivery->back_inbound_date)
@@ -80,7 +85,7 @@
                                         </td>
                                     @endif
                                     <td>
-                                        <input type="text" value="{{ $item->memo ?? '' }}" name="memo[]" class="form-control form-control-sm -l">
+                                        <input type="text" value="{{ $item->memo ?? '' }}" name="memo[]" class="form-control form-control-sm -xl">
                                     </td>
                                 </tr>
                             @endforeach
@@ -89,81 +94,81 @@
                 </table>
             </div>
 
-                <h6>其他項目</h6>
+            <h6 class="mb-1">其他項目</h6>
 
-                <div class="table-responsive tableOverBox">
-                    <table class="table table-sm table-hover tableList mb-1">
-                        <thead class="small">
+            <div class="table-responsive tableOverBox">
+                <table class="table table-sm table-hover tableList mb-1">
+                    <thead class="small">
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">會計科目</th>
+                        <th scope="col">項目</th>
+                        <th scope="col">金額（單價）</th>
+                        <th scope="col">數量</th>
+                        <th scope="col">備註</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    @php
+                        $items = $dlv_other_items;
+                    @endphp
+
+                    @for ($i = 0; $i < 5; $i++)
                         <tr>
-                            <th scope="col">#</th>
-                            <th scope="col">會計科目</th>
-                            <th scope="col">項目</th>
-                            <th scope="col">金額（單價）</th>
-                            <th scope="col">數量</th>
-                            <th scope="col">備註</th>
+                            <td>{{ $i + 1 }}<input type="hidden" name="back_item_id[{{ $i }}]" value="{{ $items[$i]->id ?? '' }}"></td>
+
+                            <td>
+                                <select class="select-check form-select form-select-sm -select2 -single @error('bgrade_id.' . $i) is-invalid @enderror" name="bgrade_id[{{ $i }}]" data-placeholder="請選擇會計科目">
+                                    <option value="" selected disabled>請選擇會計科目</option>
+                                    @foreach($total_grades as $g_value)
+                                        <option value="{{ $g_value['primary_id'] }}" {{ $g_value['primary_id'] == old('bgrade_id.' . $i, $items[$i]->grade_id ?? '') ? 'selected' : '' }}
+                                        @if($g_value['grade_num'] === 1)
+                                        class="grade_1"
+                                                @elseif($g_value['grade_num'] === 2)
+                                                class="grade_2"
+                                                @elseif($g_value['grade_num'] === 3)
+                                                class="grade_3"
+                                                @elseif($g_value['grade_num'] === 4)
+                                                class="grade_4"
+                                            @endif
+                                        >{{ $g_value['code'] . ' ' . $g_value['name'] }}</option>
+                                    @endforeach
+                                </select>
+                            </td>
+
+                            <td>
+                                <input type="text" name="btitle[{{ $i }}]"
+                                        value="{{ old('btitle.' . $i, $items[$i]->product_title ?? '') }}"
+                                        class="d-target form-control form-control-sm @error('btitle.' . $i) is-invalid @enderror"
+                                        aria-label="項目" placeholder="請輸入項目" disabled>
+                            </td>
+
+                            <td>
+                                <input type="number" name="bprice[{{ $i }}]"
+                                        value="{{ old('bprice.' . $i, $items[$i]->price ?? '') }}" min="0"
+                                        class="d-target r-target form-control form-control-sm @error('bprice.' . $i) is-invalid @enderror"
+                                        aria-label="金額" placeholder="請輸入金額" disabled>
+                            </td>
+
+                            <td>
+                                <input type="number" name="bqty[{{ $i }}]"
+                                        value="{{ old('bqty.' . $i, $items[$i]->qty ?? '') }}" min="0"
+                                        class="d-target r-target form-control form-control-sm @error('bqty.' . $i) is-invalid @enderror"
+                                        aria-label="數量" placeholder="請輸入數量" disabled>
+                            </td>
+
+                            <td>
+                                <input type="text" name="bmemo[{{ $i }}]"
+                                        value="{{ old('bmemo.' . $i, $items[$i]->memo ?? '') }}"
+                                        class="d-target form-control form-control-sm @error('bmemo.' . $i) is-invalid @enderror"
+                                        aria-label="備註" placeholder="請輸入備註" disabled>
+                            </td>
                         </tr>
-                        </thead>
-
-                        <tbody>
-                        @php
-                            $items = $dlv_other_items;
-                        @endphp
-
-                        @for ($i = 0; $i < 5; $i++)
-                            <tr>
-                                <td>{{ $i + 1 }}<input type="hidden" name="back_item_id[{{ $i }}]" value="{{ $items[$i]->id ?? '' }}"></td>
-
-                                <td>
-                                    <select class="select-check form-select form-select-sm -select2 -single @error('bgrade_id.' . $i) is-invalid @enderror" name="bgrade_id[{{ $i }}]" data-placeholder="請選擇會計科目">
-                                        <option value="" selected disabled>請選擇會計科目</option>
-                                        @foreach($total_grades as $g_value)
-                                            <option value="{{ $g_value['primary_id'] }}" {{ $g_value['primary_id'] == old('bgrade_id.' . $i, $items[$i]->grade_id ?? '') ? 'selected' : '' }}
-                                            @if($g_value['grade_num'] === 1)
-                                            class="grade_1"
-                                                    @elseif($g_value['grade_num'] === 2)
-                                                    class="grade_2"
-                                                    @elseif($g_value['grade_num'] === 3)
-                                                    class="grade_3"
-                                                    @elseif($g_value['grade_num'] === 4)
-                                                    class="grade_4"
-                                                @endif
-                                            >{{ $g_value['code'] . ' ' . $g_value['name'] }}</option>
-                                        @endforeach
-                                    </select>
-                                </td>
-
-                                <td>
-                                    <input type="text" name="btitle[{{ $i }}]"
-                                           value="{{ old('btitle.' . $i, $items[$i]->product_title ?? '') }}"
-                                           class="d-target form-control form-control-sm @error('btitle.' . $i) is-invalid @enderror"
-                                           aria-label="項目" placeholder="請輸入項目" disabled>
-                                </td>
-
-                                <td>
-                                    <input type="number" name="bprice[{{ $i }}]"
-                                           value="{{ old('bprice.' . $i, $items[$i]->price ?? '') }}" min="0"
-                                           class="d-target r-target form-control form-control-sm @error('bprice.' . $i) is-invalid @enderror"
-                                           aria-label="金額" placeholder="請輸入金額" disabled>
-                                </td>
-
-                                <td>
-                                    <input type="number" name="bqty[{{ $i }}]"
-                                           value="{{ old('bqty.' . $i, $items[$i]->qty ?? '') }}" min="0"
-                                           class="d-target r-target form-control form-control-sm @error('bqty.' . $i) is-invalid @enderror"
-                                           aria-label="數量" placeholder="請輸入數量" disabled>
-                                </td>
-
-                                <td>
-                                    <input type="text" name="bmemo[{{ $i }}]"
-                                           value="{{ old('bmemo.' . $i, $items[$i]->memo ?? '') }}"
-                                           class="d-target form-control form-control-sm @error('bmemo.' . $i) is-invalid @enderror"
-                                           aria-label="備註" placeholder="請輸入備註" disabled>
-                                </td>
-                            </tr>
-                        @endfor
-                        </tbody>
-                    </table>
-                </div>
+                    @endfor
+                    </tbody>
+                </table>
+            </div>
             @error('error_msg')
                 <div class="alert alert-danger" role="alert">
                     {{ $message }}
@@ -219,6 +224,32 @@
                 } else {
                     $(ele).parents('tr').find('.d-target').prop('disabled', true);
                     $(ele).parents('tr').find('.r-target').prop('required', false);
+                }
+            });
+
+            // 退貨 checkbox
+            $('input.-show').each(function (index, element) {
+                // element == this
+                const $back_qty = $(element).closest('tr').find('[name="back_qty[]"]');
+                const checked = $(element).prop('checked');
+                $back_qty.data('max', $back_qty.attr('max'));
+                if (checked) {
+                    $back_qty.attr({min: 1, max: $back_qty.data('max')});
+                } else {
+                    $back_qty.attr({min: 0, max: 0});
+                }
+            });
+            $('input.-show').on('change', function () {
+                const $this = $(this);
+                const checked = $this.prop('checked');
+                if (checked) {
+                    $this.prev('[name="show[]"]').val(1);
+                    const $back_qty = $this.closest('tr').find('[name="back_qty[]"]');
+                    $back_qty.attr({min: 1, max: $back_qty.data('max')}).val(1);
+                } else {
+                    $this.prev('[name="show[]"]').val(0);
+                    $this.closest('tr').find('[name="back_qty[]"]')
+                    .attr({min: 0, max: 0}).val(0);
                 }
             });
         </script>
