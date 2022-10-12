@@ -13,7 +13,13 @@ class Supplier extends Model
     protected $table = 'prd_suppliers';
     protected $guarded = [];
 
-    public static function getSupplierList($searchVal = null)
+    /**
+     * @param $searchVal
+     * @param $duplicate  string dupVatNo:找出重複公司編號   dupSupplierName:找出重複廠商名稱
+     * 取得廠商資訊
+     * @return \Illuminate\Database\Query\Builder
+     */
+    public static function getSupplierList($searchVal = null, $duplicate = null)
     {
         $result = DB::table('prd_suppliers as ps')
             ->whereNull('ps.deleted_at')
@@ -33,6 +39,37 @@ class Supplier extends Model
                     ->orWhere('ps.vat_no', '=', "{$searchVal}");
             });
         }
+
+        if ($duplicate) {
+            $duplicateList = [];
+            $supplier = DB::table('prd_suppliers')
+                        ->whereNull('prd_suppliers.deleted_at');
+            if ($duplicate === 'dupVatNo') {
+                $data = $supplier->select('vat_no')
+                    ->groupBy('prd_suppliers.vat_no')
+                    ->havingRaw('COUNT(*) > 1')
+                    ->get();
+                foreach ($data as $datum) {
+                    if ($datum->vat_no !== 'NIL') {
+                        $duplicateList[] = $datum->vat_no;
+                    }
+                }
+                $result->whereIn('vat_no', $duplicateList)
+                        ->orderBy('vat_no');
+
+            } elseif ($duplicate === 'dupSupplierName') {
+                $data = $supplier->select('name')
+                    ->groupBy('prd_suppliers.name')
+                    ->havingRaw('COUNT(*) > 1')
+                    ->get();
+                foreach ($data as $datum) {
+                    $duplicateList[] = $datum->name;
+                }
+                $result->whereIn('name', $duplicateList)
+                        ->orderBy('name');
+            }
+        }
+
 //        dd($result->get());
         return $result;
     }

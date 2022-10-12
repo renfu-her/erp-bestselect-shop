@@ -155,7 +155,7 @@ class OrderInvoice extends Model
             */
 
             foreach($parm['o_title'] as $key => $value){
-                $item_name_arr[] = trim(mb_substr(str_replace('|', '｜', $parm['o_title'][$key]), 0, 30));
+                $item_name_arr[] = trim(mb_substr(str_replace('|', '｜', preg_replace('/(\v|\s)+/', ' ', $parm['o_title'][$key])), 0, 30));
                 $item_count_arr[] = $parm['o_qty'][$key];
                 $item_unit_arr[] = '-';
                 $item_price_arr[] = $parm['o_price'][$key];

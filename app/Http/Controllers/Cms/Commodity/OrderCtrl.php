@@ -1055,11 +1055,13 @@ class OrderCtrl extends Controller
             DB::beginTransaction();
 
             try {
-                $received_order->update([
-                    'accountant_id' => auth('user')->user()->id,
-                    'receipt_date' => request('receipt_date'),
-                    'invoice_number' => request('invoice_number'),
-                ]);
+                $update = [];
+                $update['accountant_id'] = auth('user')->user()->id;
+                $update['receipt_date'] = request('receipt_date');
+                if(request('invoice_number')){
+                    $update['invoice_number'] = request('invoice_number');
+                }
+                $received_order->update($update);
 
                 if (is_array(request('received_method'))) {
                     $unique_m = array_unique(request('received_method'));
@@ -1408,10 +1410,14 @@ class OrderCtrl extends Controller
             DB::beginTransaction();
 
             try {
-                $received_order->update([
-                    'logistics_grade_id' => request('logistics_grade_id'),
-                    'product_grade_id' => request('product_grade_id'),
-                ]);
+                $update = [];
+                if(request('logistics_grade_id')){
+                    $update['logistics_grade_id'] = request('logistics_grade_id');
+                }
+                if(request('product_grade_id')){
+                    $update['product_grade_id'] = request('product_grade_id');
+                }
+                $received_order->update($update);
 
                 if (request('received') && is_array(request('received'))) {
                     $received = request('received');
