@@ -6,10 +6,10 @@
             <a class="nav-link active" aria-current="page" href="{{ Route('cms.inbound_fix0917_import.index', [], true) }}">上傳檔案</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="{{ Route('cms.inbound_fix0917_import.import_no_delivery', [], true) }}">0917前採購單尚未出貨</a>
+            <a class="nav-link" href="{{ Route('cms.inbound_fix0917_import.import_no_delivery', [], true) }}">0917前差異商品款式尚未出貨</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="{{ Route('cms.inbound_fix0917_import.import_has_delivery', [], true) }}">0917前採購單已出貨</a>
+            <a class="nav-link" href="{{ Route('cms.inbound_fix0917_import.import_has_delivery', [], true) }}">0917前差異商品款式已出貨</a>
         </li>
     </ul>
     <hr class="narbarBottomLine mb-3">

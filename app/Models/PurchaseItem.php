@@ -6,7 +6,7 @@ use App\Enums\Consignment\AuditStatus;
 use App\Enums\Delivery\Event;
 use App\Enums\Purchase\InboundStatus;
 use App\Enums\Purchase\LogEventFeature;
-use App\Helpers\IttmsUtils;
+use App\Enums\StockEvent;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -137,6 +137,48 @@ class PurchaseItem extends Model
             }
         } else {
             return ['success' => 0, 'error_msg' => "刪除數量為0"];
+        }
+    }
+
+    //刪除商品款式和對應入庫單
+    public static function deleteItemAndInbound($item_id, $operator_user_id, $operator_user_name) {
+        $pcs_item = PurchaseItem::where('id', '=', $item_id)->get()->first();
+        if (false == isset($pcs_item)) {
+            return ['success' => 0, 'error_msg' => '查無採購單該商品款式'];
+        }
+        $payingOrderList = PayingOrder::getPayingOrdersWithPurchaseID($pcs_item->purchase_id)->get();
+        if (null != $payingOrderList && 0 < count($payingOrderList)) {
+            return ['success' => 0, 'error_msg' => '已有付款單無法刪除'];
+        } else {
+            return DB::transaction(function () use ($pcs_item, $operator_user_id, $operator_user_name
+            ) {
+                $inboundList = PurchaseInbound::getInboundList(['event' => Event::purchase()->value, 'event_id' => $pcs_item->purchase_id, 'event_item_id' => $pcs_item->id])
+                    ->get()->toArray();
+                $inbound_ids = [];
+                if (0 < count($inboundList)) {
+                    foreach ($inboundList as $key_ib => $val_ib) {
+                        if (0 < $val_ib->shipped_num) {
+                            DB::rollBack();
+                            return ['success' => 0, 'error_msg' => "已出貨無法刪除"];
+                        } else {
+                            $inbound_ids[] = $val_ib->inbound_id;
+                            $can_tally = Depot::can_tally($val_ib->depot_id);
+                            $updateLog = PurchaseInbound::addLogAndUpdateStock(LogEventFeature::purchase_del()->value, $val_ib->inbound_id
+                                , $val_ib->event, $val_ib->event_id, $val_ib->event_item_id
+                                , $val_ib->product_style_id
+                                , $val_ib->inbound_prd_type, $val_ib->product_title, $val_ib->inbound_num * -1, $can_tally, '刪除採購單', StockEvent::purchase_del()->value, '刪除採購單', $operator_user_id, $operator_user_name);
+                            if ($updateLog['success'] == 0) {
+                                DB::rollBack();
+                                return $updateLog;
+                            }
+                        }
+                    }
+                }
+
+                PurchaseItem::where('id', '=', $pcs_item->id)->delete();
+                PurchaseInbound::whereIn('id', $inbound_ids)->where('event', '=', Event::purchase()->value)->delete();
+                return ['success' => 1, 'error_msg' => ""];
+            });
         }
     }
 
