@@ -28,7 +28,7 @@
                         <input type="hidden" name="salechannel_id">
                         <select id="salechannel" class="form-select">
                             @foreach ($salechannels as $salechannel)
-                                <option value="{{ $salechannel->id }}">
+                                <option value="{{ $salechannel->id }}" @if ($salechannel->id == '2') selected @endif>
                                     {{ $salechannel->title }}</option>
                             @endforeach
                         </select>
@@ -134,7 +134,7 @@
                         <label class="form-label">推薦人</label>
                         <div class="d-flex -recommender">
                             <div class="input-group">
-                                <input type="text" class="form-control -recommender"  value="{{ old('mcode', $mcode ?? '') }}" 
+                                <input type="text" class="form-control -recommender"  value="{{ old('mcode', $mcode ?? '') }}"
                                     placeholder="請輸入推薦人編號" aria-label="推薦人編號">
                                 <button class="btn btn-outline-danger -del" type="button" data-bs-toggle="tooltip" title="清空">
                                     <i class="bi bi-trash3"></i>
@@ -831,6 +831,7 @@
                 };
                 $('#salechannel').empty();
 
+                const ERP_SALE_ID = 2;
                 if (!Data.customer_id) {
                     toast.show('請先選擇訂購客戶。', {
                         type: 'warning',
@@ -846,9 +847,21 @@
                                 $('#addProductBtn').prop('disabled', false);
                                 (res.data)
                                 .forEach(sale => {
-                                    $('#salechannel').append(
-                                        `<option value="${sale.id}">${sale.title}</option>`
-                                    );
+                                    //重新排序，把id：2， title："喜鴻購物2.0ERP"，排到第一順位
+                                    if(sale.id === ERP_SALE_ID) {
+                                        $('#salechannel').prepend(
+                                            `<option value="${sale.id}">${sale.title}</option>`
+                                        );
+                                    }
+                                });
+                                (res.data)
+                                .forEach(sale => {
+                                    //重新排序，把id：2， title："喜鴻購物2.0ERP"，排到第一順位
+                                    if(sale.id !== ERP_SALE_ID) {
+                                        $('#salechannel').append(
+                                            `<option value="${sale.id}">${sale.title}</option>`
+                                        );
+                                    }
                                 });
 
                                 // mcode
