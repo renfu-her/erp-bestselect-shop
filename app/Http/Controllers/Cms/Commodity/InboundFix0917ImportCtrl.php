@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Cms\Commodity;
 
 use App\Enums\Delivery\Event;
+use App\Enums\Purchase\LogEventFeature;
+use App\Enums\StockEvent;
 use App\Exports\Stock\OldNewStockDiffExport;
 use App\Exports\Stock\OldNewStockDiffOnlyExport;
 use App\Http\Controllers\Controller;
@@ -334,7 +336,7 @@ class InboundFix0917ImportCtrl extends Controller
     //修正2022/10/11 18:09:00執行的採購單軟刪除
     public function recovery_purchase_1011(Request $request)
     {
-        dd('recovery_purchase_1011');
+//        dd('recovery_purchase_1011');
         $errors = [];
         $result = DB::transaction(function () use ($request) {
 //            $purchase = DB::table(app(Purchase::class)->getTable(). ' as pcs')
@@ -352,11 +354,6 @@ class InboundFix0917ImportCtrl extends Controller
 //                ->whereBetween('item.deleted_at', ['2022/10/11 18:09:00', '2022/10/11 18:11:00'])
 //                ->get()->toArray()
 //            ;
-//            if (0 < count($purchaseItem)) {
-//                foreach ($purchaseItem as $key_ib => $val_ib) {
-//                    PurchaseItem::withTrashed()->where('id', '=', $val_ib->id)->update(['deleted_at' => null]);
-//                }
-//            }
 //
 //            $inboundList = DB::table(app(PurchaseInbound::class)->getTable(). ' as inbound')
 //                ->whereNotNull('inbound.deleted_at')
@@ -368,22 +365,32 @@ class InboundFix0917ImportCtrl extends Controller
 //                ->get()->toArray()
 //            ;
 //
-//                if (0 < count($inboundList)) {
-////                    dd('111', count($inboundList), $inboundList);
-//                    foreach ($inboundList as $key_ib => $val_ib) {
-////                        dd('111', $val_ib);
-////                        PurchaseInbound::withTrashed()->where('id', '=', $val_ib->id)->update(['deleted_at' => null]);
-////                        $updateLog = PurchaseInbound::addLogAndUpdateStock(LogEventFeature::purchase_recovery()->value, $val_ib->id
-////                            , $val_ib->event, $val_ib->event_id, $val_ib->event_item_id
-////                            , $val_ib->product_style_id
-////                            , $val_ib->prd_type, $val_ib->title, $val_ib->inbound_num, true, '恢復採購單', StockEvent::purchase_recovery()->value, '恢復採購單', $request->user()->id, $request->user()->name);
-////                        if ($updateLog['success'] == 0) {
-////                            DB::rollBack();
-////                            dd('error', $updateLog, $val_ib);
-////                            return $updateLog;
-////                        }
+//            //2022/10/13 執行 因為秀慧需要寄倉
+//            $purchaseItem = PurchaseItem::withTrashed()->whereIn('id', [513, 1179, 1204])->get();
+//            dd('purchaseItem', $purchaseItem);
+//            if (0 < count($purchaseItem)) {
+//                foreach ($purchaseItem as $key_ib => $val_ib) {
+//                    PurchaseItem::withTrashed()->where('id', '=', $val_ib->id)->update(['deleted_at' => null]);
+//                }
+//            }
+//            //2022/10/13 執行 因為秀慧需要寄倉
+//            $inboundList = PurchaseInbound::withTrashed()->whereIn('id', [513, 1179, 1204])->get();
+//            if (0 < count($inboundList)) {
+////                dd('111', count($inboundList), $inboundList);
+//                foreach ($inboundList as $key_ib => $val_ib) {
+////                    dd('111', $val_ib, $val_ib->id);
+//                    PurchaseInbound::withTrashed()->where('id', '=', $val_ib->id)->update(['deleted_at' => null]);
+//                    $updateLog = PurchaseInbound::addLogAndUpdateStock(LogEventFeature::purchase_recovery()->value, $val_ib->id
+//                        , $val_ib->event, $val_ib->event_id, $val_ib->event_item_id
+//                        , $val_ib->product_style_id
+//                        , $val_ib->prd_type, $val_ib->title, $val_ib->inbound_num, true, '恢復舊庫存零的商品', StockEvent::purchase_recovery()->value, '恢復舊庫存零的商品', $request->user()->id, $request->user()->name);
+//                    if ($updateLog['success'] == 0) {
+//                        DB::rollBack();
+//                        dd('error', $updateLog, $val_ib);
+//                        return $updateLog;
 //                    }
 //                }
+//            }
         });
         dd('end', $result);
     }
