@@ -20,6 +20,10 @@
                 <thead>
                 <tr>
                     <th scope="col">時間</th>
+                    <td scope="col" class="wrap">
+                        <div class="fw-bold">採購單號</div>
+                        <div>入庫單</div>
+                    </td>
                     <th scope="col">倉庫</th>
                     <th scope="col">商品名稱</th>
                     <th scope="col">事件</th>
@@ -33,6 +37,10 @@
                  @foreach ($purchaseLog as $key =>$data)
                      <tr>
                          <td>{{$data->created_at}}</td>
+                         <td class="wrap">
+                             <div class="fw-bold">{{ $data->event_sn }}</div>
+                             <div>{{ $data->inbound_sn ?? '-' }}</div>
+                         </td>
                          <td>{{$data->depot_name}}</td>
                          <td>{{$data->title}}</td>
                          <td>{{$data->event}}</td>

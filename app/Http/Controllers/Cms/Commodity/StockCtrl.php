@@ -6,11 +6,15 @@ use App\Enums\Delivery\Event;
 use App\Exports\Stock\ProductWithExitInboundCheckExport;
 use App\Exports\Stock\ProductWithExitInboundDetailExport;
 use App\Http\Controllers\Controller;
+use App\Models\Consignment;
+use App\Models\CsnOrder;
 use App\Models\Depot;
 use App\Models\Product;
 use App\Models\ProductStyle;
+use App\Models\Purchase;
 use App\Models\PurchaseInbound;
 use App\Models\PurchaseLog;
+use App\Models\SubOrders;
 use App\Models\Supplier;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -71,22 +75,29 @@ class StockCtrl extends Controller
         if (!$productStyle) {
             return abort(404);
         }
-        $logEvent = [
-            Event::purchase()->value
-            , Event::order()->value
-            , Event::ord_pickup()->value
-            , Event::consignment()->value
-            , Event::csn_order()->value
-        ];
-        $logPurchase = PurchaseLog::getStockData($logEvent, $depot_id, $id, null);
-        $logPurchase = $logPurchase->paginate($data_per_page)->appends($query);
+
+        $depot_id = $depot_id;
+        $style_id = $id;
+        $logFeature = null;
+        $cond = [];
+        $log_purchase = PurchaseLog::getStockDataAndEventSn(app(Purchase::class)->getTable(), [Event::purchase()->value], $depot_id, $style_id, $logFeature, $cond);
+        $log_order = PurchaseLog::getStockDataAndEventSn(app(SubOrders::class)->getTable(), [Event::order()->value, Event::ord_pickup()->value], $depot_id, $style_id, $logFeature, $cond);
+        $log_consignment = PurchaseLog::getStockDataAndEventSn(app(Consignment::class)->getTable(), [Event::consignment()->value], $depot_id, $style_id, $logFeature, $cond);
+        $log_csn_order = PurchaseLog::getStockDataAndEventSn(app(CsnOrder::class)->getTable(), [Event::csn_order()->value], $depot_id, $style_id, $logFeature, $cond);
+
+        $log_purchase->union($log_order);
+        $log_purchase->union($log_consignment);
+        $log_purchase->union($log_csn_order);
+
+        $log_purchase = $log_purchase->orderByDesc('id');
+        $log_purchase = $log_purchase->paginate($data_per_page)->appends($query);
         $title = $product->title. '-'. $productStyle->title;
 
         return view('cms.commodity.consignment_stock.stock_detail_log', [
             'id' => $id,
             'data_per_page' => $data_per_page,
             'productStyle' => $productStyle,
-            'purchaseLog' => $logPurchase,
+            'purchaseLog' => $log_purchase,
             'returnAction' => Route('cms.stock.index', [], true),
             'title' => $title,
             'breadcrumb_data' => $title . ' ' . $productStyle->sku,

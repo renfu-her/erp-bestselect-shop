@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Cms\Commodity;
 
 use App\Enums\Delivery\Event;
 use App\Http\Controllers\Controller;
+use App\Models\Consignment;
 use App\Models\CsnOrder;
 use App\Models\Depot;
 use App\Models\DepotProduct;
@@ -45,19 +46,20 @@ class ConsignmentStockCtrl extends Controller
         if (!$productStyle) {
             return abort(404);
         }
-        $logEvent = [
-            Event::consignment()->value
-            , Event::csn_order()->value
-        ];
-        $logPurchase = PurchaseLog::getStockData($logEvent, $depot_id, $id, null);
-        $logPurchase = $logPurchase->paginate($data_per_page)->appends($query);
+        $depot_id = $depot_id;
+        $style_id = $id;
+        $logFeature = null;
+        $cond = [];
+        $log_purchase = PurchaseLog::getStockDataAndEventSn(app(Consignment::class)->getTable(), [Event::consignment()->value, Event::csn_order()->value], $depot_id, $style_id, $logFeature, $cond);
+        $log_purchase = $log_purchase->orderByDesc('id');
+        $log_purchase = $log_purchase->paginate($data_per_page)->appends($query);
         $title = $product->title. '-'. $productStyle->title;
 
         return view('cms.commodity.consignment_stock.stock_detail_log', [
             'id' => $id,
             'data_per_page' => $data_per_page,
             'productStyle' => $productStyle,
-            'purchaseLog' => $logPurchase,
+            'purchaseLog' => $log_purchase,
             'returnAction' => Route('cms.consignment-stock.index', [], true),
             'title' => $title,
             'breadcrumb_data' => $title . ' ' . $productStyle->sku,
