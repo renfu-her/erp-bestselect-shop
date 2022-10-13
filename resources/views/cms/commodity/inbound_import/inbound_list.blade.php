@@ -198,7 +198,16 @@
                                 <div>{{ $data->inbound_sn ?? '-' }}</div>
                             </td>
                             <td class="wrap">
-                                <div class="lh-1 text-nowrap text-secondary">{{ $data->style_sku }}</div>
+                                <div class="lh-1 text-nowrap text-secondary">
+                                    @if(isset($data->depot_id) && isset($data->product_style_id))
+                                        <a href="{{ Route('cms.stock.stock_detail_log', ['depot_id' => $data->depot_id ?? -1, 'id' => $data->product_style_id], true) }}"
+                                           class="rounded-circle border-1" target="_blank">
+                                            {{ $data->style_sku }}
+                                        </a>
+                                    @else
+                                        {{ $data->style_sku }}
+                                    @endif
+                                </div>
                                 <div class="lh-lg">{{ $data->product_title }}</div>
                             </td>
                             <td class="text-end">{{ number_format($data->qty) }}</td>
