@@ -294,6 +294,7 @@ class InboundImportCtrl extends Controller
         } else {
             $condUser = $cond['prd_user_id'];
         }
+        $cond['has_remain_qty'] = Arr::get($query, 'has_remain_qty', 0);
 
         $param = ['event' => null, 'purchase_sn' => $cond['purchase_sn'], 'inbound_sn' => $cond['inbound_sn'], 'keyword' => $cond['title']
             , 'inventory_status' => $cond['inventory_status']
@@ -302,6 +303,7 @@ class InboundImportCtrl extends Controller
             , 'expire_day' => $cond['expire_day']
             , 'prd_user_id' => $condUser
             , 'inbound_sdate' => $cond['inbound_sdate'], 'inbound_edate' => $cond['inbound_edate']
+            , 'has_remain_qty' => $cond['has_remain_qty'] ?? 0
         ];
         $inboundList_purchase = PurchaseInbound::getInboundListWithEventSn(app(Purchase::class)->getTable(), [Event::purchase()->value], $param);
         $inboundList_order = PurchaseInbound::getInboundListWithEventSn(app(SubOrders::class)->getTable(), [Event::order()->value, Event::ord_pickup()->value], $param);

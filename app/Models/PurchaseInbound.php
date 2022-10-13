@@ -589,6 +589,9 @@ class PurchaseInbound extends Model
             $e_date = date('Y-m-d', strtotime($param['inbound_edate'] . ' +1 day'));
             $result->whereBetween('inbound.created_at', [$s_date, $e_date]);
         }
+        if (1 == $param['has_remain_qty']) {
+            $result->where(DB::raw('(inbound.inbound_num - inbound.sale_num - inbound.csn_num - inbound.consume_num - inbound.back_num - inbound.scrap_num)'), '>', 0);
+        }
         return $result;
     }
 
