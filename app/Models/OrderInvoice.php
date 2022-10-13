@@ -155,7 +155,7 @@ class OrderInvoice extends Model
             */
 
             foreach($parm['o_title'] as $key => $value){
-                $item_name_arr[] = trim(mb_substr(str_replace('|', '｜', preg_replace('/(\v|\s)+/', ' ', $parm['o_title'][$key])), 0, 30));
+                $item_name_arr[] = trim(mb_substr(str_replace('|', '｜', preg_replace('/(\t|\r|\n|\r\n)+/', ' ', $parm['o_title'][$key])), 0, 30));
                 $item_count_arr[] = $parm['o_qty'][$key];
                 $item_unit_arr[] = '-';
                 $item_price_arr[] = $parm['o_price'][$key];
@@ -176,7 +176,7 @@ class OrderInvoice extends Model
         $invoice_id = null;
         $user_id = auth('user')->user() ? auth('user')->user()->id : null;
         $customer_id = $source ? $source->customer_id : null;
-        $merchant_order_no = $source ? $source->sn : null;
+        $merchant_order_no = isset($parm['merchant_order_no']) ? $parm['merchant_order_no'] : $source->sn ;
 
         $status = isset($parm['status']) ? $parm['status'] : 9;
         $create_status_time = isset($parm['create_status_time']) ? $parm['create_status_time'] : null;

@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
+use App\Mail\CustomerOrderRemit;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 /* 訂單匯款資料*/
 class OrderRemit extends Model
@@ -39,6 +41,11 @@ class OrderRemit extends Model
                 'remit_date'=> $remit_date,
                 'bank_code'=> $bank_code,
             ]);
+
+            $email = 'eve1717@hotmail.com.tw';
+            $order = Order::where('id', '=', $order_id)->first();
+            $data = [ 'sn' => $order->sn ?? ''];
+            Mail::to($email)->queue(new CustomerOrderRemit($data));
 
             return ['success' => '1', 'id' => $id->id];
         });
