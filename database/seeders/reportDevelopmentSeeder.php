@@ -18,7 +18,7 @@ class reportDevelopmentSeeder extends Seeder
         //   RptProductManagerSaleDaily::report();
         //
 
-         RptProductReportDaily::report('2022-10-01');
+         RptProductReportDaily::report('2022-09-01');
       //  RptProductManagerReport::managerList('season', 2022, ['season' => 3]);
 
         /*

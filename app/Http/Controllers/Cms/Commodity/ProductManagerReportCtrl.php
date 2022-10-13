@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Cms\Commodity;
 
 use App\Http\Controllers\Controller;
 use App\Models\RptProductManagerReport;
+use App\Models\RptProductReportDaily;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 
@@ -52,7 +54,33 @@ class ProductManagerReportCtrl extends Controller
     }
     public function product(Request $request, $user_id)
     {
-        dd($user_id);
+        $query = $request->query();
+
+        $dataList = RptProductManagerReport::productList($query['sDate'], $query['eDate'], ['user_id' => $user_id])->get();
+
+        $userName = User::where('id', $user_id)->get()->first()->name;
+        $pageTitle = $userName . " " . $query['sDate'] . "~" . $query['eDate'] . " 報表";
+        // dd($dataList);
+        return view('cms.commodity.product_manager_report.product', [
+            'dataList' => $dataList,
+            'pageTitle' => $pageTitle,
+            'query' => $query,
+            'prevPage' => route('cms.product-manager-report.index'),
+        ]);
+    }
+
+    public function renew(Request $request)
+    {
+
+        $request->validate(['year' => 'required', 'month' => 'required']);
+        $d = $request->all();
+        $date = $d['year'] . "-" . $d['month'] . "-01";
+        
+        RptProductReportDaily::report($date,'month');
+
+        wToast('資料更新完成');
+
+        return redirect(route('cms.product-manager-report.index'));
     }
 
 }

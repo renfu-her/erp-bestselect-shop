@@ -76,7 +76,7 @@ return
                 "route_name" => "cms.user-performance-report.index",
             ],
             [
-                "title" => "商品負責人報表",
+                "title" => "採購營收報表",
                 "controller_name" => "ProductManagerReportCtrl",
                 "route_name" => "cms.product-manager-report.index",
             ],

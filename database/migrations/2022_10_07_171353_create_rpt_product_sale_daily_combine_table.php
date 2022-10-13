@@ -28,6 +28,8 @@ class CreateRptProductSaleDailyCombineTable extends Migration
             $table->integer('off_gross_profit')->comment('毛利');
             $table->integer('total_price')->comment('金額');
             $table->integer('total_gross_profit')->comment('毛利');
+            $table->integer('total_qty')->comment('總數');
+
 
         });
     }

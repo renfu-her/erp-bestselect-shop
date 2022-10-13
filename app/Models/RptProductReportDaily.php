@@ -13,7 +13,7 @@ class RptProductReportDaily extends Model
     protected $guarded = [];
     public $timestamps = false;
 
-    public static function report($date = null, $type = "month")
+    public static function report($date = null, $type = "date")
     {
         switch ($type) {
             case 'date':
@@ -125,6 +125,7 @@ class RptProductReportDaily extends Model
                         'off_qty' => 0,
                         'total_price' => 0,
                         'total_gross_profit' => 0,
+                        'total_qty' => 0,
                     ];
 
                     if ($item->sales_type == 0) {
@@ -142,6 +143,7 @@ class RptProductReportDaily extends Model
 
                     $data[$item->style_id]['total_price'] += $item->price;
                     $data[$item->style_id]['total_gross_profit'] += $item->gross_profit;
+                    $data[$item->style_id]['total_qty'] += $item->qty;
 
                 }
             }

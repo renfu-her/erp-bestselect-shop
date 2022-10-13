@@ -18,11 +18,11 @@ class RptProductManagerReport extends Model
 
     }
 
-    public static function managerList($sdate, $edate, $options = [])
+    private static function baseSql($select = [])
     {
-        $sub = DB::table('rpt_product_sale_daily_combine as sd')
+        return DB::table('rpt_product_sale_daily_combine as sd')
             ->join('prd_products as product', 'sd.product_id', '=', 'product.id')
-            ->select('product.user_id')
+            ->select($select)
             ->selectRaw('SUM(sd.on_qty) as on_qty')
             ->selectRaw('SUM(sd.on_price) as on_price')
             ->selectRaw('SUM(sd.on_estimated_cost) as on_estimated_cost')
@@ -32,20 +32,27 @@ class RptProductManagerReport extends Model
             ->selectRaw('SUM(sd.off_estimated_cost) as off_estimated_cost')
             ->selectRaw('SUM(sd.off_gross_profit) as off_gross_profit')
             ->selectRaw('SUM(sd.total_price) as total_price')
-            ->selectRaw('SUM(sd.total_gross_profit) as total_gross_profit')
+            ->selectRaw('SUM(sd.total_qty) as total_qty')
+            ->selectRaw('SUM(sd.total_gross_profit) as total_gross_profit');
+    }
+
+    public static function managerList($sdate, $edate, $options = [])
+    {
+        $sub = self::baseSql(['product.user_id'])
             ->groupBy('product.user_id')
             ->whereBetween('sd.date', [$sdate, $edate]);
 
         $re = DB::table('usr_product_manager_user as mu')
             ->leftJoinSub($sub, 'report', 'mu.user_id', '=', 'report.user_id')
-            ->leftJoin('usr_users as user','user.id','=','mu.user_id')
-            ->select(['user.name','user.id as user_id'])
+            ->leftJoin('usr_users as user', 'user.id', '=', 'mu.user_id')
+            ->select(['user.name', 'user.id as user_id'])
             ->selectRaw('IFNULL(report.on_price, 0) as on_price')
             ->selectRaw('IFNULL(report.on_gross_profit, 0) as on_gross_profit')
             ->selectRaw('IFNULL(report.off_price, 0) as off_price')
             ->selectRaw('IFNULL(report.off_gross_profit, 0) as off_gross_profit')
             ->selectRaw('IFNULL(report.total_gross_profit, 0) as total_gross_profit')
-            ->selectRaw('IFNULL(report.total_price, 0) as total_price');
+            ->selectRaw('IFNULL(report.total_price, 0) as total_price')
+            ->whereNotNull('user.id');
 
         if (isset($options['user_id']) && count($options['user_id']) > 0) {
             $re->whereIn('user.id', $options['user_id']);
@@ -54,10 +61,39 @@ class RptProductManagerReport extends Model
         return $re;
     }
 
-    public static function productList($sdate, $edate, $options = []){
+    public static function productList($sdate, $edate, $options = [])
+    {
+        $sub = self::baseSql(['sd.product_id', 'sd.style_id'])
+            ->groupBy('sd.product_id')
+            ->groupBy('sd.style_id')
+            ->whereBetween('sd.date', [$sdate, $edate]);
+           
 
+        if (isset($options['user_id'])) {
+            $sub->where('product.user_id', $options['user_id']);
+        }
+        /*
+        $re = DB::table('prd_products as product')
+        ->select(['product.title as product_title', 'style.title as style_title', 'report.*'])
+        ->leftJoin('prd_product_styles as style', 'product.id', '=', 'style.product_id')
+        ->leftJoinSub($sub,'report','style.id','=','report.style_id');
+        */
+        
+
+        $re = DB::table(DB::raw("({$sub->toSql()}) as report"))
+            ->mergeBindings($sub)
+            ->select(['product.title as product_title', 'style.title as style_title', 'report.*'])
+            ->leftJoin('prd_products as product', 'product.id', '=', 'report.product_id')
+            ->leftJoin('prd_product_styles as style', 'style.id', '=', 'report.style_id');
+  
+        if (isset($options['user_id'])) {
+            $re->where('product.user_id', $options['user_id']);
+        }
+
+        return $re;
+    
+        
     }
-
 
     /*
 public static function report($date = '2022-09-20', $type = "date")
