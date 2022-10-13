@@ -465,17 +465,27 @@ class PurchaseInbound extends Model
 
     public static function getInboundListWithEventSn($event_table, $event, $param, $showDelete = true)
     {
+        $inbound_event = '';
+        foreach (Event::asArray() as $key => $val) {
+            $inbound_event = $inbound_event. ' when inbound.event = "'. $val. '" then "'. Event::getDescription($val). '"';
+        }
+
         $result = DB::table('pcs_purchase_inbound as inbound')
             ->leftJoin(app(PcsInboundInventory::class)->getTable(). ' as inventory', 'inventory.inbound_id', '=', 'inbound.id')
             ->leftJoin($event_table. ' as event', function ($join) use($event) {
                 $join->on('event.id', '=', 'inbound.event_id')
                     ->whereIn('inbound.event', $event);
             })
+            ->leftJoin(app(ProductStyle::class)->getTable(). ' as style', 'style.id', '=', 'inbound.product_style_id')
+            ->leftJoin(app(Product::class)->getTable(). ' as prd', 'prd.id', '=', 'style.product_id')
+            ->leftJoin(app(User::class)->getTable(). ' as user', 'user.id', '=', 'prd.user_id')
             ->select('inbound.event_id as event_id' //採購ID
                 , 'event.sn as event_sn'
                 , 'inbound.event as event'
+                , DB::raw('(case '. $inbound_event. ' else inbound.event end) as inbound_event_name')
                 , 'inbound.event_item_id as event_item_id'
                 , 'inbound.title as product_title' //商品名稱
+                , 'inbound.product_style_id as product_style_id' //款式ID
                 , 'inbound.sku as style_sku' //款式SKU
                 , 'inbound.id as inbound_id' //入庫ID
                 , 'inbound.sn as inbound_sn' //入庫sn
@@ -497,6 +507,8 @@ class PurchaseInbound extends Model
                 , 'inventory.created_at as inventory_created_at'
                 , 'inventory.updated_at as inventory_updated_at'
                 , DB::raw('(inbound.inbound_num - inbound.sale_num - inbound.csn_num - inbound.consume_num - inbound.back_num - inbound.scrap_num) as qty') //可出庫剩餘數量
+                , 'user.id as prd_user_id'
+                , 'user.name as prd_user_name'
             )
             ->selectRaw('DATE_FORMAT(inbound.expiry_date,"%Y-%m-%d") as expiry_date') //有效期限
             ->selectRaw('DATE_FORMAT(inbound.inbound_date,"%Y-%m-%d") as inbound_date') //入庫日期
@@ -548,6 +560,26 @@ class PurchaseInbound extends Model
                 $result->where('inventory.status', '=', $param['inventory_status']);
             }
 
+        }
+        if (isset($param['inbound_depot_id']) && 0 < count($param['inbound_depot_id'])) {
+            $result->whereIn('inbound.depot_id', $param['inbound_depot_id']);
+        }
+        if (isset($param['prd_user_id'])) {
+            if (is_array($param['prd_user_id'])) {
+                $result->whereIn('user.id', $param['prd_user_id']);
+            } else if (is_string($param['prd_user_id']) || is_numeric($param['prd_user_id'])) {
+                $result->where('user.id', $param['prd_user_id']);
+            }
+        }
+        if (isset($param['expire_day']) && false == empty($param['expire_day'])) {
+            if (0 < $param['expire_day']) {
+                //大於0 找近N天
+                $result->whereBetween('inbound.expiry_date', [DB::raw('NOW()'), DB::raw('date_add(now(), interval '. $param['expire_day']. ' day)')]);
+            } else if (0 > $param['expire_day']) {
+                //小於0 找過期
+                $result->where('inbound.expiry_date', '<=', $param['expire_day']);
+            }
+            $result->whereNotNull('inbound.expiry_date');
         }
         if (isset($param['inbound_user_id'])) {
             $result->where('inbound.inbound_user_id', '=', $param['inbound_user_id']);

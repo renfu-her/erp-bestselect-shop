@@ -58,12 +58,45 @@
                     </div>
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
+                    <label class="form-label">倉庫</label>
+                    <select class="form-select -select2 -multiple" multiple name="inbound_depot_id[]" aria-label="倉庫"
+                            data-placeholder="多選">
+                        @foreach ($depotList as $key => $data)
+                            <option value="{{ $data->id }}" @if (in_array($data->id, $searchParam['inbound_depot_id'] ?? [])) selected @endif>
+                                {{ $data->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">入庫人員</label>
                     <select class="form-select -select2 -multiple" multiple name="inbound_user_id[]" aria-label="入庫人員" data-placeholder="多選">
                         @foreach ($userList as $key => $data)
                             <option value="{{ $data->id }}"
                                     @if (in_array($data->id, $searchParam['inbound_user_id'] ?? []))) selected @endif>{{ $data->name }}</option>
                         @endforeach
+                    </select>
+                </div>
+                <div class="col-12 col-sm-6 mb-3">
+                    <label class="form-label">負責人</label>
+                    <select class="form-select -select2 -multiple" multiple name="prd_user_id[]" aria-label="負責人"
+                            data-placeholder="多選">
+                        @foreach ($userList as $user)
+                            <option value="{{ $user->id }}" @if (in_array($user->id, $searchParam['prd_user_id'])) selected @endif>
+                                {{ $user->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-12 col-sm-6 mb-3">
+                    <label class="form-label">效期</label>
+                    <select class="form-select" name="expire_day" aria-label="效期">
+                        <option value="" @if ('' == $searchParam['expire_day'] ?? '') selected @endif>不限</option>
+                        <option value="90" @if (90 == $searchParam['expire_day'] ?? '') selected @endif>近90天</option>
+                        <option value="60" @if (60 == $searchParam['expire_day'] ?? '') selected @endif>近60天</option>
+                        <option value="45" @if (45 == $searchParam['expire_day'] ?? '') selected @endif>近45天</option>
+                        <option value="30" @if (30 == $searchParam['expire_day'] ?? '') selected @endif>近30天</option>
+                        <option value="15" @if (15 == $searchParam['expire_day'] ?? '') selected @endif>近15天</option>
+                        <option value="7" @if (7 == $searchParam['expire_day'] ?? '') selected @endif>近7天</option>
+                        <option value="-1" @if (-1 == $searchParam['expire_day'] ?? '') selected @endif>已過期</option>
                     </select>
                 </div>
                 <div class="col-12 mb-3">
@@ -131,6 +164,8 @@
                         <th scope="col">倉庫</th>
                         <th scope="col">入庫人員</th>
                         <th scope="col">新增日期</th>
+                        <th scope="col">商品負責人</th>
+                        <th scope="col">事件</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -163,7 +198,16 @@
                                 <div>{{ $data->inbound_sn ?? '-' }}</div>
                             </td>
                             <td class="wrap">
-                                <div class="lh-1 text-nowrap text-secondary">{{ $data->style_sku }}</div>
+                                <div class="lh-1 text-nowrap text-secondary">
+                                    @if(isset($data->depot_id) && isset($data->product_style_id))
+                                        <a href="{{ Route('cms.stock.stock_detail_log', ['depot_id' => $data->depot_id ?? -1, 'id' => $data->product_style_id], true) }}"
+                                           class="rounded-circle border-1" target="_blank">
+                                            {{ $data->style_sku }}
+                                        </a>
+                                    @else
+                                        {{ $data->style_sku }}
+                                    @endif
+                                </div>
                                 <div class="lh-lg">{{ $data->product_title }}</div>
                             </td>
                             <td class="text-end">{{ number_format($data->qty) }}</td>
@@ -172,6 +216,8 @@
                             <td>{{ $data->depot_name }}</td>
                             <td>{{ $data->inbound_user_name }}</td>
                             <td>{{ $data->created_at }}</td>
+                            <td>{{ $data->prd_user_name }}</td>
+                            <td>{{ $data->inbound_event_name }}</td>
 {{--                            <td class="wrap" style="min-width:80px;">{{ $data->depot_name }}</td>--}}
                         </tr>
                     @endforeach
