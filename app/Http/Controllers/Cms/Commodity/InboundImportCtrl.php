@@ -6,15 +6,11 @@ use App\Enums\Consignment\AuditStatus;
 use App\Enums\Delivery\Event;
 use App\Enums\Globals\Status;
 use App\Enums\Purchase\LogEventFeature;
-use App\Exports\Stock\OldNewStockDiffExport;
-use App\Helpers\IttmsUtils;
 use App\Http\Controllers\Controller;
-use App\Imports\PurchaseInbound\CompareOldNonStock;
 use App\Imports\PurchaseInbound\InboundImport;
 use App\Models\Consignment;
 use App\Models\CsnOrder;
 use App\Models\Depot;
-use App\Models\PcsErrStock0917;
 use App\Models\PcsInboundInventory;
 use App\Models\ProductStyle;
 use App\Models\Purchase;
@@ -287,12 +283,24 @@ class InboundImportCtrl extends Controller
 
         $cond['data_per_page'] = getPageCount(Arr::get($query, 'data_per_page', 100));
         $cond['inventory_status'] = Arr::get($query, 'inventory_status', 'all');
+        $cond['inbound_depot_id'] = Arr::get($query, 'inbound_depot_id', []);
         $cond['inbound_user_id'] = Arr::get($query, 'inbound_user_id', null);
         $cond['inbound_sdate'] = Arr::get($query, 'inbound_sdate', null);
         $cond['inbound_edate'] = Arr::get($query, 'inbound_edate', null);
+        $cond['expire_day'] = Arr::get($query, 'expire_day', '');
+        $cond['prd_user_id'] = Arr::get($query, 'prd_user_id', []);
+        if (count($cond['prd_user_id']) == 0) {
+            $condUser = true;
+        } else {
+            $condUser = $cond['prd_user_id'];
+        }
 
         $param = ['event' => null, 'purchase_sn' => $cond['purchase_sn'], 'inbound_sn' => $cond['inbound_sn'], 'keyword' => $cond['title']
-            , 'inventory_status' => $cond['inventory_status'], 'inbound_user_id' => $cond['inbound_user_id']
+            , 'inventory_status' => $cond['inventory_status']
+            , 'inbound_depot_id' => $cond['inbound_depot_id']
+            , 'inbound_user_id' => $cond['inbound_user_id']
+            , 'expire_day' => $cond['expire_day']
+            , 'prd_user_id' => $condUser
             , 'inbound_sdate' => $cond['inbound_sdate'], 'inbound_edate' => $cond['inbound_edate']
         ];
         $inboundList_purchase = PurchaseInbound::getInboundListWithEventSn(app(Purchase::class)->getTable(), [Event::purchase()->value], $param);
@@ -308,6 +316,7 @@ class InboundImportCtrl extends Controller
         return view('cms.commodity.inbound_import.inbound_list', [
             'dataList' => $inboundList_purchase
             , 'userList' => User::all()
+            , 'depotList' => Depot::all()
             , 'searchParam' => $cond
             , 'data_per_page' => $cond['data_per_page']
         ]);
