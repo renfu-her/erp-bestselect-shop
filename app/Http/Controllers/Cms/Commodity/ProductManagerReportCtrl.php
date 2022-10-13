@@ -5,53 +5,54 @@ namespace App\Http\Controllers\Cms\Commodity;
 use App\Http\Controllers\Controller;
 use App\Models\RptProductManagerReport;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 
 class ProductManagerReportCtrl extends Controller
 {
-    public $season = [1 => 'ㄧ', 2 => '二', 3 => '三', 4 => '四'];
 
     public function index(Request $request)
     {
-        $query = $request->query();
-        $cond = app('App\Http\Controllers\Cms\Commodity\UserPerformanceReportCtrl')->cond($query);
 
-        
+        $query = $request->query();
+
+        $cond['sDate'] = Arr::get($query, 'sDate', date('Y-m-01'));
+        $cond['eDate'] = Arr::get($query, 'eDate', date('Y-m-t'));
+        $cond['user_id'] = Arr::get($query, 'user_id', []);
+
         $sYear = 2022;
 
         $year = [];
+
+        $cond['sDate'] = $cond['sDate'] ? $cond['sDate'] : date('Y-m-01');
+        $cond['eDate'] = $cond['eDate'] ? $cond['eDate'] : date('Y-m-t');
 
         for ($i = 0; $i < Date("Y") - $sYear + 1; $i++) {
             $year[] = $sYear + $i;
         }
 
-        $type = ['year' => "整年度", "season" => "季", "month" => "月份"];
+        $pageTitle = $cond['sDate'] . "~" . $cond['eDate'] . " 報表";
+        $cond['year'] = date("Y", strtotime($cond['sDate']));
+        $cond['month'] = date("m", strtotime($cond['sDate']));
+        $query['sDate'] = $cond['sDate'];
+        $query['eDate'] = $cond['eDate'];
 
-        $pageTitle = $cond['year'] . "年 ";
-        switch ($cond['type']) {
-            case 'year':
-                $pageTitle .= " 年度報表";
-                break;
-            case 'season':
-                $pageTitle .= "第" . $this->season[$cond['season']] . "季 報表";
-                break;
-            case 'month':
-                $pageTitle .= $cond['month'] . "月 報表";
-                break;
-        }
-
-        $dataList = RptProductManagerReport::managerList($cond['type'], $cond['year'], $cond)->get();
+        $dataList = RptProductManagerReport::managerList($query['sDate'], $query['eDate'], $cond)->get();
 
         return view('cms.commodity.product_manager_report.list', [
-            'type' => $type,
+            'users' => RptProductManagerReport::managers()->get(),
             'year' => $year,
             'cond' => $cond,
-            'season' => $this->season,
+            //   'season' => $this->season,
             'dataList' => $dataList,
             'pageTitle' => $pageTitle,
             'query' => $query,
             'search' => true,
         ]);
 
+    }
+    public function product(Request $request, $user_id)
+    {
+        dd($user_id);
     }
 
 }

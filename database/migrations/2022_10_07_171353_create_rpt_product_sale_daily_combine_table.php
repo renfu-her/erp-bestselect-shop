@@ -14,7 +14,7 @@ class CreateRptProductSaleDailyCombineTable extends Migration
     public function up()
     {
         Schema::create('rpt_product_sale_daily_combine', function (Blueprint $table) {
-            $table->id();
+            
             $table->date('date')->comment('日期');
             $table->integer('product_id')->comment('產品id');
             $table->integer('style_id')->comment('款式id');

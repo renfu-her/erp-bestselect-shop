@@ -13,7 +13,6 @@ class RptProductReportDaily extends Model
     protected $guarded = [];
     public $timestamps = false;
 
-
     public static function report($date = null, $type = "month")
     {
         switch ($type) {
@@ -47,6 +46,7 @@ class RptProductReportDaily extends Model
 
         self::getRawData($sdate, $edate, $currentDate);
         self::CombineSaleChannel($sdate, $edate, $currentDate);
+        self::getManager();
     }
 
     public static function getRawData($sdate, $edate, $currentDate)
@@ -151,4 +151,19 @@ class RptProductReportDaily extends Model
         }
 
     }
+
+    //  usr_product_manager_user
+    public static function getManager()
+    {
+        $sub = DB::table('prd_products as product')
+            ->select('product.user_id')
+            ->groupBy('product.user_id')->get()->toArray();
+
+        DB::table('usr_product_manager_user')->truncate();
+
+        DB::table('usr_product_manager_user')->insert(array_map(function ($n) {
+            return ['user_id' => $n->user_id];
+        }, $sub));
+    }
+
 }

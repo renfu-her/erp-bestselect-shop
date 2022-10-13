@@ -7,59 +7,57 @@
             </a>
         @endif
     </div>
-    <h2 class="mb-4">商品銷售報表</h2>
     @if (isset($search))
-        <form id="search" action="" method="GET">
-            <div class="card shadow p-4 mb-4">
-                <h6>搜尋條件</h6>
-                <div class="row">
-                    <fieldset class="col-12 col-sm-6 mb-3">
-                        <legend class="col-form-label p-0 mb-2">期間</legend>
-                        <div class="px-1 pt-1">
-                            @foreach ($type as $key => $value)
-                                <div class="form-check form-check-inline">
-                                    <label class="form-check-label">
-                                        <input class="form-check-input" name="type" type="radio"
-                                            value="{{ $key }}" @if ($key === $cond['type']) checked @endif>
-                                        {{ $value }}
-                                    </label>
-                                </div>
-                            @endforeach
-                        </div>
-                    </fieldset>
-                    <div class="col-12 col-sm-6 mb-3 -year">
-                        <label class="form-label">年度</label>
-                        <select class="form-select -select" name="year" aria-label="年度">
-                            @foreach ($year as $value)
-                                <option value="{{ $value }}" @if ($value == $cond['year']) selected @endif>
-                                    {{ $value }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-12 col-sm-6 mb-3 -season" @if ($cond['type'] !== 'season') hidden @endif>
-                        <label class="form-label">季</label>
-                        <select class="form-select -select" name="season" aria-label="季">
-                            @foreach ($season as $key => $value)
-                                <option value="{{ $key }}" @if ($key == $cond['season']) selected @endif>
-                                    第{{ $value }}季</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-12 col-sm-6 mb-3 -month"@if ($cond['type'] !== 'month') hidden @endif>
-                        <label class="form-label">月份</label>
-                        <select class="form-select -select" name="month" aria-label="月份">
-                            @for ($i = 1; $i < 13; $i++)
-                                <option value="{{ $i }}" @if ($i == $cond['month']) selected @endif>
-                                    {{ $i }}月</option>
-                            @endfor
-                        </select>
-                    </div>
-                </div>
-                <div class="col">
-                    <button type="submit" class="btn btn-primary px-4">搜尋</button>
-                </div>
+        <h2 class="mb-4">商品銷售報表</h2>
+        <x-b-report-search>
+            <div class="col-12 col-sm-6 mb-3">
+                <label class="form-label">人員</label>
+                <select class="form-select -select2 -multiple" multiple name="user_id[]" aria-label="人員" data-placeholder="多選">
+                    @foreach ($users as $value)
+                        <option value="{{ $value->id }}" @if (in_array($value->id, $cond['user_id'])) selected @endif>
+                            {{ $value->name }}</option>
+                    @endforeach
+                </select>
             </div>
-        </form>
+        </x-b-report-search>
+
+        @can('cms.user-performance-report.renew')
+            <form id="form2" action="{{ route('cms.user-performance-report.renew') }}" method="POST">
+                @csrf
+                <div class="card shadow p-4 mb-4">
+                    <div class="row">
+                        <div class="col pe-0">
+                            <select class="form-select" name="year" aria-label="年度">
+                                <option value="" disabled>選擇年度</option>
+                                @foreach ($year as $value)
+                                    <option value="{{ $value }}" @if ($value == $cond['year']) selected @endif>
+                                        {{ $value }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col pe-0">
+                            <select class="form-select" name="month" aria-label="月份">
+                                <option value="" disabled>選擇月份</option>
+                                @for ($i = 1; $i < 13; $i++)
+                                    <option value="{{ $i }}" @if ($i == $cond['month']) selected @endif>
+                                        {{ $i }}月</option>
+                                @endfor
+                            </select>
+                        </div>
+                        <div class="col-auto">
+                            <button type="submit" class="btn btn-primary">
+                                立即統計
+                                <div class="spinner-border spinner-border-sm" hidden role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        @endcan
+    @else
+        <h2 class="mb-4">{{ $pageTitle }}</h2>
     @endif
 
     <div class="card shadow p-4 mb-4">
@@ -103,10 +101,12 @@
                             $total_gross_profit += $data->total_gross_profit;
                             $total_price += $data->total_price;
                             // $users += $data->users;
+                          
                         @endphp
                         <tr>
                             <th scope="row">{{ $key + 1 }}</th>
-                            <td> <a href="{{ route('cms.user-performance-report.index', $query) }}">
+                            <td> <a
+                                    href="{{ route('cms.product-manager-report.product', array_merge(['user_id' => $data->user_id],$query)) }}">
                                     {{ $data->name }}</a>
                             </td>
                             <td class="text-center">{{ $data->on_price }}</td>
@@ -142,26 +142,6 @@
         </style>
     @endpush
     @push('sub-scripts')
-        <script>
-            $('input[name="type"][type="radio"]').on('change', function(e) {
-                const val = $(this).val();
-                switch (val) {
-                    case 'year': // 年度
-                        $('div.-season, div.-month').prop('hidden', true);
-                        break;
-                    case 'season': // 季
-                        $('div.-month').prop('hidden', true);
-                        $('div.-season').prop('hidden', false);
-                        break;
-                    case 'month': // 月份
-                        $('div.-season').prop('hidden', true);
-                        $('div.-month').prop('hidden', false);
-                        break;
-
-                    default:
-                        break;
-                }
-            });
-        </script>
+        <script></script>
     @endpush
 @endOnce
