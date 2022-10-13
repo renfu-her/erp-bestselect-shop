@@ -20,7 +20,7 @@ class CreateOrderInvoiceTable extends Migration
             $table->integer('invoice_id')->nullable();
             $table->integer('user_id')->nullable()->comment('經手人帳號id');
             $table->integer('customer_id')->nullable()->comment('消費者帳號id');
-            $table->string('merchant_order_no')->nullable()->comment('自訂訂單編號');
+            $table->string('merchant_order_no')->nullable()->comment('自定訂單編號');
             $table->string('status', 1)->nullable()->comment('開立發票方式');
             $table->dateTime('create_status_time')->nullable()->comment('預計開立日期');
             $table->string('category', 10)->nullable()->comment('發票種類');
