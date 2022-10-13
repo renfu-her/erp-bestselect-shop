@@ -121,6 +121,18 @@
                         </div>
                     </div>
                 </div>
+                <fieldset class="col-12 mb-3">
+                    <legend class="col-form-label p-0 mb-2">剩餘數量</legend>
+                    <div class="px-1 pt-1">
+                        <div class="form-check form-check-inline">
+                            <label class="form-check-label">
+                                <input class="form-check-input" value="1" name="has_remain_qty"
+                                       @if (1 == $searchParam['has_remain_qty'] ?? 0) checked @endif type="checkbox">
+                                尚有剩餘數量
+                            </label>
+                        </div>
+                    </div>
+                </fieldset>
             </div>
 
             <div class="col">
