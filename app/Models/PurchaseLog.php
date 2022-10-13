@@ -276,7 +276,7 @@ class PurchaseLog extends Model
     }
 
     //庫存明細
-    public static function getStockDataWithEventSn($event_table, $event, $depot_id, $style_id, $logFeature = null) {
+    public static function getStockDataAndEventSn($event_table, $event, $depot_id, $style_id, $logFeature = null) {
         $logPurchase = self::getStockData($event, $depot_id, $style_id, $logFeature)
             ->leftJoin($event_table. ' as event', function ($join) use($event) {
                 $join->on('event.id', '=', 'log.event_parent_id')
@@ -287,6 +287,21 @@ class PurchaseLog extends Model
 
         return $logPurchase;
     }
+
+    public static function getStockDataForImportInbound($depot_id, $style_id, $logFeature = null) {
+        $log_purchase = PurchaseLog::getStockDataAndEventSn(app(Purchase::class)->getTable(), [Event::purchase()->value], $depot_id, $style_id, $logFeature);
+        $log_order = PurchaseLog::getStockDataAndEventSn(app(SubOrders::class)->getTable(), [Event::order()->value, Event::ord_pickup()->value], $depot_id, $style_id, $logFeature);
+        $log_consignment = PurchaseLog::getStockDataAndEventSn(app(Consignment::class)->getTable(), [Event::consignment()->value], $depot_id, $style_id, $logFeature);
+        $log_csn_order = PurchaseLog::getStockDataAndEventSn(app(CsnOrder::class)->getTable(), [Event::csn_order()->value], $depot_id, $style_id, $logFeature);
+
+        $log_purchase->union($log_order);
+        $log_purchase->union($log_consignment);
+        $log_purchase->union($log_csn_order);
+
+        return $log_purchase;
+    }
+
+
 
     //找到LOG最後退貨入庫寫入的資料
     public static function getSendBackData($delivery_id, $event_id) {
