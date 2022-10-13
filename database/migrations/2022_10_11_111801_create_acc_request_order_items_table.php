@@ -22,8 +22,7 @@ class CreateAccRequestOrderItemsTable extends Migration
             $table->dropColumn('request_grade_id');
             $table->dropColumn('summary');
             $table->dropColumn('memo');
-            $table->tinyInteger('taxation');
-
+            $table->dropColumn('taxation');
         });
 
         Schema::create('acc_request_order_items', function (Blueprint $table) {
