@@ -10,6 +10,18 @@
         @csrf
         <div class="card shadow p-4 mb-4">
             <div class="row">
+                <div class="col-12 col-sm-6 mb-3">
+                    <label class="form-label">自定訂單編號 <span class="text-danger">*</span></label>
+                    <input type="text" name="merchant_order_no" class="form-control @error('merchant_order_no') is-invalid @enderror" placeholder="請輸入自定訂單編號" aria-label="自定訂單編號" value="{{ old('merchant_order_no', $order->sn) }}" required>
+                    <div class="invalid-feedback">
+                        @error('merchant_order_no')
+                        {{ $message }}
+                        @enderror
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
                 <fieldset class="col-12 col-sm-6 mb-3">
                     <legend class="col-form-label p-0 mb-2">開立狀態</legend>
                     <div class="px-1 pt-1">
@@ -332,7 +344,7 @@
                                             </button>
                                         </td>
                                         <td style="display:none">{{ $received_order->sn }}</td>
-                                        <td><input type="text" name="o_title[]" class="form-control form-control-sm -l" value="{{ mb_substr(preg_replace('/(\v|\s)+/', ' ', $value->product_title), 0, 30) }}" aria-label="產品名稱" minlength="1" maxlength="30" required>
+                                        <td><input type="text" name="o_title[]" class="form-control form-control-sm -l" value="{{ mb_substr(preg_replace('/(\t|\r|\n|\r\n)+/', ' ', $value->product_title), 0, 30) }}" aria-label="產品名稱" minlength="1" maxlength="30" required>
                                         <td>
                                             <div class="input-group input-group-sm flex-nowrap">
                                                 <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
@@ -408,7 +420,7 @@
 
                                         <td style="display:none">{{ $received_order->sn }}</td>
 
-                                        <td><input type="text" name="o_title[]" class="form-control form-control-sm -l" value="{{ mb_substr(preg_replace('/(\v|\s)+/', ' ', $value->title), 0, 30) }}" aria-label="產品名稱" minlength="1" maxlength="30" required>
+                                        <td><input type="text" name="o_title[]" class="form-control form-control-sm -l" value="{{ mb_substr(preg_replace('/(\t|\r|\n|\r\n)+/', ' ', $value->title), 0, 30) }}" aria-label="產品名稱" minlength="1" maxlength="30" required>
                                         <td>
                                             <div class="input-group input-group-sm flex-nowrap">
                                                 <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>

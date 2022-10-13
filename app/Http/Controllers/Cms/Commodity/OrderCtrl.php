@@ -2095,6 +2095,7 @@ class OrderCtrl extends Controller
 
         $request->validate([
             'id' => 'required|exists:ord_orders,id',
+            'merchant_order_no' => 'required|string',
             'status' => 'required|in:1,9',
             'merge_source' => 'nullable|array',
             'merge_source.*' => 'exists:ord_orders,id',
@@ -2254,6 +2255,35 @@ class OrderCtrl extends Controller
             'handler' => $handler,
             // 'order' => $order,
             // 'sub_order' => $sub_order,
+        ]);
+    }
+
+    public function edit_invoice(Request $request, $id)
+    {
+        $request->merge([
+            'id' => $id,
+        ]);
+        $request->validate([
+            'id' => 'required|exists:ord_order_invoice,id',
+        ]);
+
+        $invoice = OrderInvoice::find($id);
+
+        $valid_arr = OrderInvoice::where([
+            'source_type' => $invoice->source_type,
+            'merge_source_id' => null,
+            'invoice_id' => null,
+            'status' => 9,
+        ])->pluck('source_id')->toArray();
+        $merge_source = Order::where('id', '!=', $invoice->source_id)->whereIn('id', $valid_arr)->get();
+        $merge_source_selected = OrderInvoice::where('merge_source_id', $id)->pluck('source_id')->toArray();
+
+        return view('cms.commodity.order.invoice_edit', [
+            'breadcrumb_data' => ['id' => $id, 'sn' => $invoice->merchant_order_no],
+            'form_action' => Route('cms.order.edit-invoice', ['id' => $id]),
+            'invoice' => $invoice,
+            'merge_source' => $merge_source,
+            'merge_source_selected' => $merge_source_selected,
         ]);
     }
 

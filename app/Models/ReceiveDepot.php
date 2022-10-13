@@ -424,6 +424,12 @@ class ReceiveDepot extends Model
         if (null != $delivery &&null != $rcvDepotGet && 0 < count($rcvDepotGet)) {
             $result = DB::transaction(function () use ($delivery, $rcvDepot, $rcvDepotGet, $event, $event_id, $delivery_id, $user_id, $user_name
             ) {
+                // 判斷是否有入庫 有則回傳錯誤
+                $inbound_already = PurchaseInbound::where('event', '=', $event)->where('event_id', '=' , $event_id)->get();
+                if (isset($inbound_already) && 0 < count($inbound_already)) {
+                    return ['success' => 0, 'error_msg' => "無法復原! 此次出貨已有入庫"];
+                }
+
                 if (Event::order()->value == $delivery->event) {
                     if ('pickup' == $delivery->ship_category) {
                         $event = 'ord_pickup';
