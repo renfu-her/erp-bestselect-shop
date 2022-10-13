@@ -152,7 +152,7 @@ class CustomerDividend extends Model
             return ['success' => '0',
                 'event' => 'dividend',
                 'error_msg' => '無鴻利餘額',
-                'error_stauts' => 'dividend'];
+                'error_status' => 'dividend'];
         }
 
         $dividend = $dividend->dividend;
@@ -162,7 +162,7 @@ class CustomerDividend extends Model
             return ['success' => '0',
                 'event' => 'dividend',
                 'error_msg' => '鴻利餘額不足',
-                'error_stauts' => 'dividend'];
+                'error_status' => 'dividend'];
         }
 
         $d = self::where('customer_id', $customer_id)

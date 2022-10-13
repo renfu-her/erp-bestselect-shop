@@ -62,13 +62,6 @@ class ReceivedOrder extends Model
             ->leftJoinSub(GeneralLedger::getAllGrade(), 'p_grade', function($join) {
                 $join->on('p_grade.primary_id', 'ro.product_grade_id');
             })
-            ->leftJoin('usr_users AS undertaker', function($join){
-                $join->on('ro.usr_users_id', '=', 'undertaker.id');
-                $join->where([
-                    'undertaker.deleted_at'=>null,
-                    'ro.deleted_at'=>null,
-                ]);
-            })
             ->leftJoin(DB::raw('(
                 SELECT acc_received.received_order_id,
                 MAX(acc_received.created_at) AS received_date,
@@ -109,7 +102,17 @@ class ReceivedOrder extends Model
                     'ro.deleted_at'=>null,
                 ]);
             })
-            ->leftJoin('usr_customers AS customer', 'customer.email', '=', 'order.email')
+            // ->leftJoin('usr_customers AS customer', 'customer.email', '=', 'order.email')
+            ->leftJoin('usr_customers as customer', function ($join) {
+                $join->on('customer.sn', '=', 'order.mcode')
+                    ->whereNotNull('order.mcode');
+            })
+            ->leftJoin('usr_users AS undertaker', function($join){
+                $join->on('undertaker.customer_id', '=', 'customer.id');
+                $join->where([
+                    'undertaker.deleted_at'=>null,
+                ]);
+            })
             ->leftJoin(DB::raw('(
                 SELECT order_id,
                 CONCAT(\'[\', GROUP_CONCAT(\'{
@@ -140,7 +143,7 @@ class ReceivedOrder extends Model
                         "discount_grade_id":"\', COALESCE(discount_grade_id, ""), \'",
                         "grade_code":"\', COALESCE(grade.code, ""), \'",
                         "grade_name":"\', COALESCE(grade.name, ""), \'",
-                        "title":"\', COALESCE(title, ""), \'",
+                        "title":"\', COALESCE(REGEXP_REPLACE(title, \'(\\t|\\r|\\n|\\r\\n)+\', " "), ""), \'",
                         "sn":"\', COALESCE(sn, ""), \'",
                         "category_title":"\', category_title, \'",
                         "category_code":"\', category_code, \'",
@@ -220,22 +223,21 @@ class ReceivedOrder extends Model
             })
             ->leftJoin(DB::raw('(
                 SELECT
-                    acc_request_orders.id,
+                    request_o_item.request_order_id,
                     CONCAT(\'[\', GROUP_CONCAT(\'{
-                        "product_title":"\', "", \'",
-                        "all_grades_id":"\', acc_request_orders.request_grade_id, \'",
+                        "product_title":"\', COALESCE(request_o_item.summary, ""), \'",
+                        "all_grades_id":"\', request_o_item.grade_id, \'",
                         "grade_code":"\', COALESCE(grade.code, ""), \'",
                         "grade_name":"\', COALESCE(grade.name, ""), \'",
-                        "price":"\', acc_request_orders.price, \'",
-                        "qty":"\', acc_request_orders.qty, \'",
-                        "origin_price":"\', acc_request_orders.total_price, \'"
-                    }\' ORDER BY acc_request_orders.id), \']\') AS items
-                FROM acc_request_orders
-                LEFT JOIN (' . $sq . ') AS grade ON grade.id = acc_request_orders.request_grade_id
-                WHERE acc_request_orders.deleted_at IS NULL
-                GROUP BY acc_request_orders.id
-                ) AS request_table'), function ($join){
-                    $join->on('request_o.id', '=', 'request_table.id');
+                        "price":"\', request_o_item.price, \'",
+                        "qty":"\', request_o_item.qty, \'",
+                        "origin_price":"\', request_o_item.total_price, \'"
+                    }\' ORDER BY request_o_item.id), \']\') AS items
+                FROM acc_request_order_items AS request_o_item
+                LEFT JOIN (' . $sq . ') AS grade ON grade.id = request_o_item.grade_id
+                GROUP BY request_o_item.request_order_id
+                ) AS request_items_table'), function ($join){
+                    $join->on('request_items_table.request_order_id', '=', 'request_o.id');
             })
 
             ->whereNull('ro.deleted_at')
@@ -289,7 +291,7 @@ class ReceivedOrder extends Model
                     WHEN ro.source_type = "' . app(Order::class)->getTable() . '" THEN order_item_table.items
                     WHEN ro.source_type = "' . app(CsnOrder::class)->getTable() . '" THEN csn_order_item_table.items
                     WHEN ro.source_type = "' . app(self::class)->getTable() . '" THEN received_account_table.items
-                    WHEN ro.source_type = "' . app(RequestOrder::class)->getTable() . '" THEN request_table.items
+                    WHEN ro.source_type = "' . app(RequestOrder::class)->getTable() . '" THEN request_items_table.items
                     ELSE NULL
                 END AS order_items
             ');

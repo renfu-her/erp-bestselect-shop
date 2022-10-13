@@ -1,84 +1,67 @@
 @extends('layouts.main')
 @section('sub-content')
-    <div class="col-auto">
-        @if (isset($prevPage))
-            <a href="{{ $prevPage }}" class="btn btn-outline-primary px-4" role="button">
-                返回上一頁
-            </a>
-        @endif
-    </div>
-    <h2 class="mb-4">業績報表</h2>
     @if (isset($search))
-        <form id="search" action="" method="GET">
-            <div class="card shadow p-4 mb-4">
-                <h6>搜尋條件</h6>
-                <div class="row">
-                    <div class="col-12 col-sm-6 mb-3">
-                        <label class="form-label">部門</label>
-                        <select class="form-select -select2 -multiple" multiple name="department[]" aria-label="部門"
-                            data-placeholder="多選">
-                            @foreach ($department as $value)
-                                <option value="{{ $value->id }}" @if (in_array($value->id, $cond['department'])) selected @endif>
-                                    {{ $value->title }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <fieldset class="col-12 col-sm-6 mb-3">
-                        <legend class="col-form-label p-0 mb-2">期間</legend>
-                        <div class="px-1 pt-1">
-                            @foreach ($type as $key => $value)
-                                <div class="form-check form-check-inline">
-                                    <label class="form-check-label">
-                                        <input class="form-check-input" name="type" type="radio"
-                                            value="{{ $key }}" @if ($key === $cond['type']) checked @endif>
-                                        {{ $value }}
-                                    </label>
-                                </div>
-                            @endforeach
-                        </div>
-                    </fieldset>
-                    <div class="col-12 col-sm-6 mb-3 -year">
-                        <label class="form-label">年度</label>
-                        <select class="form-select -select" name="year" aria-label="年度">
-                            @foreach ($year as $value)
-                                <option value="{{ $value }}" @if ($value == $cond['year']) selected @endif>
-                                    {{ $value }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-12 col-sm-6 mb-3 -season" @if ($cond['type'] !== 'season') hidden @endif>
-                        <label class="form-label">季</label>
-                        <select class="form-select -select" name="season" aria-label="季">
-                            @foreach ($season as $key => $value)
-                                <option value="{{ $key }}" @if ($key == $cond['season']) selected @endif>
-                                    第{{ $value }}季</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-12 col-sm-6 mb-3 -month"@if ($cond['type'] !== 'month') hidden @endif>
-                        <label class="form-label">月份</label>
-                        <select class="form-select -select" name="month" aria-label="月份">
-                            @for ($i = 1; $i < 13; $i++)
-                                <option value="{{ $i }}" @if ($i == $cond['month']) selected @endif>
-                                    {{ $i }}月</option>
-                            @endfor
-                        </select>
-                    </div>
-                </div>
-                <div class="col">
-                    <button type="submit" class="btn btn-primary px-4">搜尋</button>
-                </div>
+        <h2 class="mb-4">業績報表</h2>
+        <x-b-report-search>
+            <div class="col-12 col-sm-6 mb-3">
+                <label class="form-label">部門</label>
+                <select class="form-select -select2 -multiple" multiple name="department[]" aria-label="部門"
+                    data-placeholder="多選">
+                    @foreach ($department as $value)
+                        <option value="{{ $value->id }}" @if (in_array($value->id, $cond['department'])) selected @endif>
+                            {{ $value->title }}</option>
+                    @endforeach
+                </select>
             </div>
-        </form>
+        </x-b-report-search>
+
+        @can('cms.user-performance-report.renew')
+            <form id="form2" action="{{ route('cms.user-performance-report.renew') }}" method="POST">
+                @csrf
+                <div class="card shadow p-4 mb-4">
+                    <div class="row">
+                        <div class="col pe-0">
+                            <select class="form-select" name="year" aria-label="年度">
+                                <option value="" disabled>選擇年度</option>
+                                @foreach ($year as $value)
+                                    <option value="{{ $value }}" @if ($value == $cond['year']) selected @endif>
+                                        {{ $value }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col pe-0">
+                            <select class="form-select" name="month" aria-label="月份">
+                                <option value="" disabled>選擇月份</option>
+                                @for ($i = 1; $i < 13; $i++)
+                                    <option value="{{ $i }}" @if ($i == $cond['month']) selected @endif>
+                                        {{ $i }}月</option>
+                                @endfor
+                            </select>
+                        </div>
+                        <div class="col-auto">
+                            <button type="submit" class="btn btn-primary">
+                                立即統計
+                                <div class="spinner-border spinner-border-sm" hidden role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        @endcan
+
+    @else
+        <h2 class="mb-4">{{ $pageTitle }}</h2>
     @endif
 
     <div class="card shadow p-4 mb-4">
-        <h4>
-            {{ $pageTitle }}
-        </h4>
+        @if (isset($search))
+            <h4>{{ $pageTitle }}</h4>
+        @endif
 
         <div class="table-responsive tableOverBox">
-            <table class="table table-striped tableList">
+            <table class="table table-striped tableList mb-0">
                 <thead class="small">
                     <tr>
                         <th scope="col" style="width:40px">#</th>
@@ -89,13 +72,13 @@
                                 姓名
                             @endif
                         </th>
-                        <th scope="col" class="text-center">線上營業額</th>
-                        <th scope="col" class="text-center">線上毛利</th>
-                        <th scope="col" class="text-center">線下營業額</th>
-                        <th scope="col" class="text-center">線下毛利</th>
-                        <th scope="col" class="text-center">總營業額</th>
-                        <th scope="col" class="text-center">總毛利</th>
-                        <!-- <th scope="col" class="text-center">人數</th>-->
+                        <th scope="col" class="text-end table-success">線上營業額</th>
+                        <th scope="col" class="text-end table-success">線上毛利</th>
+                        <th scope="col" class="text-end table-warning">線下營業額</th>
+                        <th scope="col" class="text-end table-warning">線下毛利</th>
+                        <th scope="col" class="text-end">總營業額</th>
+                        <th scope="col" class="text-end">總毛利</th>
+                        <!-- <th scope="col" class="text-end">人數</th>-->
                     </tr>
                 </thead>
                 <tbody>
@@ -142,12 +125,30 @@
                                 @endswitch
 
                             </td>
-                            <td class="text-center">{{ $data->on_price }}</td>
-                            <td class="text-center">{{ $data->on_gross_profit }}</td>
-                            <td class="text-center">{{ $data->off_price }}</td>
-                            <td class="text-center">{{ $data->off_gross_profit }}</td>
-                            <td class="text-center">{{ $data->total_price }}</td>
-                            <td class="text-center">{{ $data->total_gross_profit }}</td>
+                            <td @class([
+                                'text-end table-success',
+                                'text-danger fw-bold negative' => $data->on_price < 0,
+                            ])>${{ number_format(abs($data->on_price)) }}</td>
+                            <td @class([
+                                'text-end table-success',
+                                'text-danger fw-bold negative' => $data->on_gross_profit < 0,
+                            ])>${{ number_format(abs($data->on_gross_profit)) }}</td>
+                            <td @class([
+                                'text-end table-warning',
+                                'text-danger fw-bold negative' => $data->off_price < 0,
+                            ])>${{ number_format(abs($data->off_price)) }}</td>
+                            <td @class([
+                                'text-end table-warning',
+                                'text-danger fw-bold negative' => $data->off_gross_profit < 0,
+                            ])>${{ number_format(abs($data->off_gross_profit)) }}</td>
+                            <td @class([
+                                'text-end',
+                                'text-danger fw-bold negative' => $data->total_price < 0,
+                            ])>${{ number_format(abs($data->total_price)) }}</td>
+                            <td @class([
+                                'text-end',
+                                'text-danger fw-bold negative' => $data->total_gross_profit < 0,
+                            ])>${{ number_format(abs($data->total_gross_profit)) }}</td>
 
 
                         </tr>
@@ -156,16 +157,42 @@
                 <tfoot>
                     <tr>
                         <th colspan="2">合計</th>
-                        <th class="text-center">{{ $on_price }}</th>
-                        <th class="text-center">{{ $on_gross_profit }}</th>
-                        <th class="text-center">{{ $off_price }}</th>
-                        <th class="text-center">{{ $off_gross_profit }}</th>
-                        <th class="text-center">{{ $total_price }}</th>
-                        <th class="text-center">{{ $total_gross_profit }}</th>
+                        <th @class([
+                            'text-end table-success',
+                            'text-danger fw-bold negative' => $on_price < 0,
+                        ])>${{ number_format(abs($on_price)) }}</th>
+                        <th @class([
+                            'text-end table-success',
+                            'text-danger fw-bold negative' => $on_gross_profit < 0,
+                        ])>${{ number_format(abs($on_gross_profit)) }}</th>
+                        <th @class([
+                            'text-end table-warning',
+                            'text-danger fw-bold negative' => $off_price < 0,
+                        ])>${{ number_format(abs($off_price)) }}</th>
+                        <th @class([
+                            'text-end table-warning',
+                            'text-danger fw-bold negative' => $off_gross_profit < 0,
+                        ])>${{ number_format(abs($off_gross_profit)) }}</th>
+                        <th @class([
+                            'text-end',
+                            'text-danger fw-bold negative' => $total_price < 0,
+                        ])>${{ number_format(abs($total_price)) }}</th>
+                        <th @class([
+                            'text-end',
+                            'text-danger fw-bold negative' => $total_gross_profit < 0,
+                        ])>${{ number_format(abs($total_gross_profit)) }}</th>
                     </tr>
                 </tfoot>
             </table>
         </div>
+    </div>
+
+    <div class="col-auto">
+        @if (isset($prevPage))
+            <a href="{{ $prevPage }}" class="btn btn-outline-primary px-4" role="button">
+                返回上一頁
+            </a>
+        @endif
     </div>
 @endsection
 @once
@@ -174,29 +201,20 @@
             h4 {
                 color: #415583;
             }
+
+            .negative::before {
+                content: '-';
+            }
         </style>
     @endpush
     @push('sub-scripts')
         <script>
-            $('input[name="type"][type="radio"]').on('change', function(e) {
-                const val = $(this).val();
-                switch (val) {
-                    case 'year': // 年度
-                        $('div.-season, div.-month').prop('hidden', true);
-                        break;
-                    case 'season': // 季
-                        $('div.-month').prop('hidden', true);
-                        $('div.-season').prop('hidden', false);
-                        break;
-                    case 'month': // 月份
-                        $('div.-season').prop('hidden', true);
-                        $('div.-month').prop('hidden', false);
-                        break;
-
-                    default:
-                        break;
-                }
+         
+            // 立即統計
+            $('#form2').submit(function (e) { 
+                $('#form2 .spinner-border').prop('hidden', false);
             });
+          
         </script>
     @endpush
 @endOnce

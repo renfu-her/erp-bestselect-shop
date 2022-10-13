@@ -17,10 +17,16 @@ class SupplierCtrl extends Controller
         //
         $query = $request->query();
         $title = Arr::get($query, 'title', '');
+
+        $dupParam = Arr::get($query, 'dupParam', '0');
+        $dupData = ['0' => null,
+                    '1' => 'dupVatNo',
+                    '2' => 'dupSupplierName'];
+
         $data_per_page = Arr::get($query, 'data_per_page', 10);
         $data_per_page = is_numeric($data_per_page) ? $data_per_page : 10;
 
-        $dataList =  Supplier::getSupplierList($title)
+        $dataList =  Supplier::getSupplierList($title, $dupData[$dupParam])
             ->paginate($data_per_page)->appends($query);
 
         return view('cms.settings.supplier.list', [

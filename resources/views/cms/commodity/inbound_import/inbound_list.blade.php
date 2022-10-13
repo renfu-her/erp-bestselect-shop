@@ -57,6 +57,37 @@
                         @endforeach
                     </div>
                 </div>
+                <div class="col-12 col-sm-6 mb-3">
+                    <label class="form-label">入庫人員</label>
+                    <select class="form-select -select2 -multiple" multiple name="inbound_user_id[]" aria-label="入庫人員" data-placeholder="多選">
+                        @foreach ($userList as $key => $data)
+                            <option value="{{ $data->id }}"
+                                    @if (in_array($data->id, $searchParam['inbound_user_id'] ?? []))) selected @endif>{{ $data->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-12 mb-3">
+                    <label class="form-label">新增起訖日期</label>
+                    <div class="input-group has-validation">
+                        <input type="date" class="form-control -startDate @error('inbound_sdate') is-invalid @enderror"
+                               name="inbound_sdate" value="{{ $searchParam['inbound_sdate'] }}" aria-label="新增起始日期" />
+                        <input type="date" class="form-control -endDate @error('inbound_edate') is-invalid @enderror"
+                               name="inbound_edate" value="{{ $searchParam['inbound_edate'] }}" aria-label="新增結束日期" />
+                        <button class="btn px-2" data-daysBefore="yesterday" type="button">昨天</button>
+                        <button class="btn px-2" data-daysBefore="day" type="button">今天</button>
+                        <button class="btn px-2" data-daysBefore="tomorrow" type="button">明天</button>
+                        <button class="btn px-2" data-daysBefore="6" type="button">近7日</button>
+                        <button class="btn" data-daysBefore="month" type="button">本月</button>
+                        <div class="invalid-feedback">
+                            @error('inbound_sdate')
+                            {{ $message }}
+                            @enderror
+                            @error('inbound_edate')
+                            {{ $message }}
+                            @enderror
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="col">
@@ -98,6 +129,8 @@
                         <th scope="col" class="text-end">單價</th>
                         <th scope="col">效期</th>
                         <th scope="col">倉庫</th>
+                        <th scope="col">入庫人員</th>
+                        <th scope="col">新增日期</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -136,7 +169,10 @@
                             <td class="text-end">{{ number_format($data->qty) }}</td>
                             <td class="text-end">{{ ($data->unit_cost) }}</td>
                             <td>{{ $data->expiry_date ? date('Y/m/d', strtotime($data->expiry_date)) : '' }}</td>
-                            <td class="wrap" style="min-width:80px;">{{ $data->depot_name }}</td>
+                            <td>{{ $data->depot_name }}</td>
+                            <td>{{ $data->inbound_user_name }}</td>
+                            <td>{{ $data->created_at }}</td>
+{{--                            <td class="wrap" style="min-width:80px;">{{ $data->depot_name }}</td>--}}
                         </tr>
                     @endforeach
                 </tbody>

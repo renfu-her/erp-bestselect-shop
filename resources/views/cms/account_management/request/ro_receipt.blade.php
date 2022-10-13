@@ -100,13 +100,17 @@
                         </tr>
                     </thead>
                     <tbody>
+                        @if($request_order->request_o_items)
+                        @foreach(json_decode($request_order->request_o_items) as $data)
                         <tr>
-                            <td>{{ $request_grade->code . ' ' . $request_grade->name . ' ' . $request_order->summary }}</td>
-                            <td class="text-end">{{ $request_order->qty }}</td>
-                            <td class="text-end">{{ number_format($request_order->price, 2) }}</td>
-                            <td class="text-end">{{ number_format($request_order->total_price) }}</td>
-                            <td>{{ $request_order->taxation == 1 ? '應稅' : '免稅' }} @php echo $request_order->memo ?? '' @endphp</td>
+                            <td>{{ $data->grade_code }} {{ $data->grade_name }} {{ $data->summary }}</td>
+                            <td class="text-end">{{ $data->qty }}</td>
+                            <td class="text-end">{{ number_format($data->price, 2) }}</td>
+                            <td class="text-end">{{ number_format($data->total_price) }}</td>
+                            <td>{{ $data->taxation == 1 ? '應稅' : '免稅' }} @php echo $data->memo ?? '' @endphp</td>
                         </tr>
+                        @endforeach
+                        @endif
                     </tbody>
                     <tfoot class="table-light">
                         <tr>
@@ -165,10 +169,16 @@
     </div>
 
     <div class="col-auto">
+        @can('cms.request.index')
         <a href="{{ route('cms.request.show', ['id' => $received_order->source_id]) }}" 
             class="btn btn-outline-primary px-4" role="button">返回 請款單</a>
-        <a href="{{ Route('cms.request.index') }}" class="btn btn-outline-primary px-4" 
-            role="button">返回 請款單列表</a>
+        @endcan
+
+        @can('cms.collection_received.index')
+        <a href="{{ session('collection_received_url') ?? route('cms.collection_received.index') }}" class="btn btn-outline-primary px-4" role="button">
+            返回 收款作業
+        </a>
+        @endcan
     </div>
 
     <!-- Modal -->

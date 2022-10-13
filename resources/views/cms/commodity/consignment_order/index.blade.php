@@ -64,6 +64,8 @@
                         <th scope="col">小計</th>
                         <th scope="col">出貨日期</th>
                         <th scope="col">物態</th>
+
+                        <th scope="col" class="text-center">刪除</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -91,6 +93,17 @@
                                 <td>{{ $data->total_price }}</td>
                                 <td>{{ $data->audit_date }}</td>
                                 <td>{{ $data->logistic_status }}</td>
+                                <td class="text-center">
+                                    @can('cms.consignment-order.delete')
+                                        @if(null == $data->dlv_audit_date)
+                                            <a href="javascript:void(0)" data-href="{{ Route('cms.consignment-order.delete', ['id' => $data->id], true) }}"
+                                               data-bs-toggle="modal" data-bs-target="#confirm-delete"
+                                               class="icon -del icon-btn fs-5 text-danger rounded-circle border-0">
+                                                <i class="bi bi-trash"></i>
+                                            </a>
+                                        @endif
+                                    @endcan
+                                </td>
 
                             </tr>
                         @endforeach
@@ -111,6 +124,14 @@
         </div>
     </form>
 
+    <!-- Modal -->
+    <x-b-modal id="confirm-delete">
+        <x-slot name="title">刪除確認</x-slot>
+        <x-slot name="body">刪除後將無法復原！確認要刪除？</x-slot>
+        <x-slot name="foot">
+            <a class="btn btn-danger btn-ok" href="#">確認並刪除</a>
+        </x-slot>
+    </x-b-modal>
 @endsection
 
 @once
@@ -120,6 +141,9 @@
             $('#dataPerPageElem').on('change', function(e) {
                 $('input[name=data_per_page]').val($(this).val());
                 $('#search').submit();
+            });
+            $('#confirm-delete').on('show.bs.modal', function(e) {
+                $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
             });
             // 清空
             $('#clear_iStatus').on('click', function(e) {

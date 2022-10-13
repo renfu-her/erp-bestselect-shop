@@ -103,6 +103,7 @@ class ConsignmentItem extends Model
                     $join->where('rcv_depot.delivery_id', '=', 'delivery.id');
                 })
                 ->whereNotNull('rcv_depot.id')
+                ->whereNull('rcv_depot.deleted_at')
                 ->whereIn('csn_items.id', $del_item_id_arr)->get();
 
             if (0 < count($query)) {
@@ -156,7 +157,9 @@ class ConsignmentItem extends Model
         return $consignment_item;
     }
 
-    //取得寄倉商品和原本對應的採購入庫單
+    /**
+     * 取得寄倉商品和原本對應的採購入庫單
+     */
     public static function getOriginInboundDataList($consignment_id = null) {
         //取得原對應採購單
         $subQuery = DB::table('pcs_purchase_inbound as inbound1')
@@ -172,7 +175,8 @@ class ConsignmentItem extends Model
             ->groupBy('inbound1.event_item_id')
             ->groupBy('inbound1.product_style_id')
 //            ->where('inbound1.event_id', '=', $consignment_id)
-            ->where('inbound1.event', '=', Event::consignment()->value);
+            ->where('inbound1.event', '=', Event::consignment()->value)
+            ->whereNull('inbound1.deleted_at');
         if ($consignment_id) {
             $subQuery->where('inbound1.event_id', $consignment_id);
         }
@@ -194,6 +198,7 @@ class ConsignmentItem extends Model
                 , DB::raw('GROUP_CONCAT(DISTINCT origin.inbound_sn) as origin_inbound_sn')
             )
 //            ->where('delivery.event_id', $consignment_id)
+            ->whereNull('rcv_depot.deleted_at')
             ->where('delivery.event', Event::consignment()->value)
             ->groupBy('rcv_depot.event_item_id')
             ->groupBy('origin.event')
@@ -290,6 +295,19 @@ class ConsignmentItem extends Model
             $result->whereIn('inbound_type', $arr_status);
         }
         $result->orderByDesc('consignment.consignment_id');
+        return $result;
+    }
+
+    public static function getItemsByConsignmentIdAndDlvId($consignmentId, $dlv_id) {
+        $consignmentItemData = ConsignmentItem::getOriginInboundDataList($consignmentId);
+        $consignmentData  = Consignment::getDeliveryData($consignmentId);
+        $result = DB::query()->fromSub($consignmentData, 'consignment')
+            ->leftJoinSub($consignmentItemData, 'items', function($join) {
+                $join->on('items.consignment_id', '=', 'consignment.consignment_id');
+            })
+            ->where('dlv_id', '=', $dlv_id)
+        ->get();
+
         return $result;
     }
 }

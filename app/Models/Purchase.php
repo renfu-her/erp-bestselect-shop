@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\Consignment\AuditStatus;
 use App\Enums\Delivery\Event;
 use App\Enums\Purchase\LogEventFeature;
+use App\Enums\StockEvent;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -243,27 +244,57 @@ class Purchase extends Model
 
     //刪除
     public static function del($id, $operator_user_id, $operator_user_name) {
-        //判斷若有入庫、付款單 則不可刪除
+        //判斷若有審核、付款單 則不可刪除
         $returnMsg = [];
         $purchase = Purchase::where('id', '=', $id)->get()->first();
         if (AuditStatus::approved()->value == $purchase->audit_status) {
             return ['success' => 0, 'error_msg' => '已審核無法刪除'];
         }
-        $inbounds = PurchaseInbound::purchaseInboundList($id)->get()->toArray();
+        return self::delAndRelatedData($id, $operator_user_id, $operator_user_name);
+    }
+
+    //刪除採購單 並刪除 入庫單
+    public static function delAndRelatedData($id, $operator_user_id, $operator_user_name) {
+        $purchase = Purchase::where('id', '=', $id)->get()->first();
+        if (false == isset($purchase)) {
+            return ['success' => 0, 'error_msg' => '查無採購單'];
+        }
+        $dlv_inbounds = PurchaseInbound::deliveryPcsInboundList($id)->get()->toArray();
         $payingOrderList = PayingOrder::getPayingOrdersWithPurchaseID($id)->get();
-        if (null != $inbounds && 0 < count($inbounds)) {
-            return ['success' => 0, 'error_msg' => '已入庫無法刪除'];
+        if (null != $dlv_inbounds && 0 < count($dlv_inbounds)) {
+            return ['success' => 0, 'error_msg' => '已出貨無法刪除'];
         } else if (null != $payingOrderList && 0 < count($payingOrderList)) {
             return ['success' => 0, 'error_msg' => '已有付款單無法刪除'];
         } else {
             return DB::transaction(function () use ($id, $operator_user_id, $operator_user_name
             ) {
-                $rePcsLSC = PurchaseLog::stockChange($id, null, Event::purchase()->value, $id, LogEventFeature::del()->value, null, null, null, null, null, $operator_user_id, $operator_user_name);
+                $rePcsLSC = PurchaseLog::stockChange($id, null, Event::purchase()->value, $id, LogEventFeature::del()->value, null, null, '刪除採購單', null, null, $operator_user_id, $operator_user_name);
                 if ($rePcsLSC['success'] == 0) {
                     DB::rollBack();
                     return $rePcsLSC;
                 }
+                //找出每筆入庫單
+                // 退回入庫數量
+                // 判斷若為理貨倉 需紀錄可售數量
+                $inboundList = PurchaseInbound::getInboundList(['event' => Event::purchase()->value, 'event_id' => $id])
+                    ->get()->toArray();
+                if (0 < count($inboundList)) {
+                    foreach ($inboundList as $key_ib => $val_ib) {
+                        $can_tally = Depot::can_tally($val_ib->depot_id);
+                        $updateLog = PurchaseInbound::addLogAndUpdateStock(LogEventFeature::purchase_del()->value, $val_ib->inbound_id
+                            , $val_ib->event, $val_ib->event_id, $val_ib->event_item_id
+                            , $val_ib->product_style_id
+                            , $val_ib->inbound_prd_type, $val_ib->product_title, $val_ib->inbound_num * -1, $can_tally, '刪除採購單', StockEvent::purchase_del()->value, '刪除採購單', $operator_user_id, $operator_user_name);
+                        if ($updateLog['success'] == 0) {
+                            DB::rollBack();
+                            return $updateLog;
+                        }
+                    }
+                }
+
                 Purchase::where('id', '=', $id)->delete();
+                PurchaseItem::where('purchase_id', '=', $id)->delete();
+                PurchaseInbound::where('event_id', '=', $id)->where('event', '=', Event::purchase()->value)->delete();
                 return ['success' => 1, 'error_msg' => ""];
             });
         }
@@ -350,7 +381,7 @@ class Purchase extends Model
         $query = DB::table('pcs_purchase as purchase')
             ->leftJoin(DB::raw('(
                 SELECT
-                    purchase_id,
+                    pcs_purchase_items.purchase_id,
                     SUM(pcs_purchase_items.price) AS total_price,
                     CONCAT(\'[\', GROUP_CONCAT(\'{
                         "id":"\', pcs_purchase_items.id, \'",
@@ -366,8 +397,9 @@ class Purchase extends Model
                     }\' ORDER BY pcs_purchase_items.id), \']\') AS items
                 FROM pcs_purchase_items
                 LEFT JOIN prd_product_styles ON prd_product_styles.id = pcs_purchase_items.product_style_id
-                LEFT JOIN prd_products AS product ON product.id = prd_product_styles.product_id WHERE product.deleted_at IS NULL
-                GROUP BY purchase_id
+                LEFT JOIN prd_products AS product ON product.id = prd_product_styles.product_id
+                WHERE (product.deleted_at IS NULL AND pcs_purchase_items.deleted_at IS NULL)
+                GROUP BY pcs_purchase_items.purchase_id
                 ) AS purchase_table'), function ($join){
                     $join->on('purchase_table.purchase_id', '=', 'purchase.id');
             })

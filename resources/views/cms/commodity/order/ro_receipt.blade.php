@@ -185,10 +185,17 @@
     </div>
 
     <div class="col-auto">
+        {{--
         <a href="{{ Route('cms.order.detail', ['id' => $received_order->source_id]) }}" 
             class="btn btn-outline-primary px-4" role="button">
             返回明細
         </a>
+        --}}
+        @can('cms.collection_received.index')
+        <a href="{{ session('collection_received_url') ?? route('cms.collection_received.index') }}" class="btn btn-outline-primary px-4" role="button">
+            返回 收款作業
+        </a>
+        @endcan
     </div>
 
     <!-- Modal -->

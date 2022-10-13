@@ -291,7 +291,7 @@ class PayingOrder extends Model
                 LEFT JOIN prd_product_styles AS p_style ON p_style.id = pcs_purchase_items.product_style_id
                 LEFT JOIN prd_products AS product ON product.id = p_style.product_id
                 LEFT JOIN usr_users AS p_owner ON p_owner.id = product.user_id
-                WHERE product.deleted_at IS NULL
+                WHERE (product.deleted_at IS NULL AND pcs_purchase_items.deleted_at IS NULL)
                 GROUP BY purchase_id
                 ) AS purchase_item_table'), function ($join){
                     $join->on('purchase_item_table.purchase_id', '=', 'purchase.id');
@@ -451,7 +451,7 @@ class PayingOrder extends Model
                 SELECT
                     dlv_back.delivery_id,
                     CONCAT(\'[\', GROUP_CONCAT(\'{
-                        "product_owner":"\', p_owner.name, \'",
+                        "product_owner":"\', COALESCE(p_owner.name, ""), \'",
                         "title":"\', dlv_back.product_title, \'",
                         "sku":"\', dlv_back.sku, \'",
                         "all_grades_id":"\', COALESCE(grade.id, ""), \'",
@@ -463,11 +463,11 @@ class PayingOrder extends Model
                         "memo":"\', "", \'"
                     }\' ORDER BY dlv_back.id), \']\') AS items
                 FROM dlv_back
-                LEFT JOIN (' . $sq . ') AS grade ON grade.name = "銷貨收入"
+                LEFT JOIN (' . $sq . ') AS grade ON grade.id = dlv_back.grade_id
                 LEFT JOIN prd_product_styles ON prd_product_styles.id = dlv_back.product_style_id
                 LEFT JOIN prd_products AS product ON product.id = prd_product_styles.product_id
                 LEFT JOIN usr_users AS p_owner ON p_owner.id = product.user_id
-                WHERE product.deleted_at IS NULL
+                WHERE (product.deleted_at IS NULL AND dlv_back.qty > 0 AND dlv_back.show = 1)
                 GROUP BY dlv_back.delivery_id
                 ) AS delivery_back'), function ($join){
                     $join->on('delivery_back.delivery_id', '=', 'sub_order_return.id');

@@ -6,11 +6,15 @@ use App\Enums\Consignment\AuditStatus;
 use App\Enums\Delivery\Event;
 use App\Enums\Globals\Status;
 use App\Enums\Purchase\LogEventFeature;
+use App\Exports\Stock\OldNewStockDiffExport;
+use App\Helpers\IttmsUtils;
 use App\Http\Controllers\Controller;
+use App\Imports\PurchaseInbound\CompareOldNonStock;
 use App\Imports\PurchaseInbound\InboundImport;
 use App\Models\Consignment;
 use App\Models\CsnOrder;
 use App\Models\Depot;
+use App\Models\PcsErrStock0917;
 use App\Models\PcsInboundInventory;
 use App\Models\ProductStyle;
 use App\Models\Purchase;
@@ -19,6 +23,7 @@ use App\Models\PurchaseInbound;
 use App\Models\PurchaseItem;
 use App\Models\PurchaseLog;
 use App\Models\SubOrders;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -282,8 +287,14 @@ class InboundImportCtrl extends Controller
 
         $cond['data_per_page'] = getPageCount(Arr::get($query, 'data_per_page', 100));
         $cond['inventory_status'] = Arr::get($query, 'inventory_status', 'all');
+        $cond['inbound_user_id'] = Arr::get($query, 'inbound_user_id', null);
+        $cond['inbound_sdate'] = Arr::get($query, 'inbound_sdate', null);
+        $cond['inbound_edate'] = Arr::get($query, 'inbound_edate', null);
 
-        $param = ['event' => null, 'purchase_sn' => $cond['purchase_sn'], 'inbound_sn' => $cond['inbound_sn'], 'keyword' => $cond['title'], 'inventory_status' => $cond['inventory_status']];
+        $param = ['event' => null, 'purchase_sn' => $cond['purchase_sn'], 'inbound_sn' => $cond['inbound_sn'], 'keyword' => $cond['title']
+            , 'inventory_status' => $cond['inventory_status'], 'inbound_user_id' => $cond['inbound_user_id']
+            , 'inbound_sdate' => $cond['inbound_sdate'], 'inbound_edate' => $cond['inbound_edate']
+        ];
         $inboundList_purchase = PurchaseInbound::getInboundListWithEventSn(app(Purchase::class)->getTable(), [Event::purchase()->value], $param);
         $inboundList_order = PurchaseInbound::getInboundListWithEventSn(app(SubOrders::class)->getTable(), [Event::order()->value, Event::ord_pickup()->value], $param);
         $inboundList_consignment = PurchaseInbound::getInboundListWithEventSn(app(Consignment::class)->getTable(), [Event::consignment()->value], $param);
@@ -295,16 +306,18 @@ class InboundImportCtrl extends Controller
             ->paginate($cond['data_per_page'])->appends($query);
 
         return view('cms.commodity.inbound_import.inbound_list', [
-            'dataList' => $inboundList_purchase,
-            'searchParam' => $cond,
-            'data_per_page' => $cond['data_per_page']
+            'dataList' => $inboundList_purchase
+            , 'userList' => User::all()
+            , 'searchParam' => $cond
+            , 'data_per_page' => $cond['data_per_page']
         ]);
     }
 
     public function inbound_edit(Request $request, $inbound_id)
     {
         $inbound = DB::table(app(PurchaseInbound::class)->getTable(). ' as inbound')
-            ->where('inbound.id', '=', $inbound_id);
+            ->where('inbound.id', '=', $inbound_id)
+            ->whereNull('inbound.deleted_at');
         $inboundGet = $inbound->first();
 
         $event_table = null;
@@ -422,5 +435,4 @@ class InboundImportCtrl extends Controller
             'purchaseLog' => $logPurchase,
         ]);
     }
-
 }

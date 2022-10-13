@@ -491,7 +491,7 @@ class OrderCtrl extends Controller
             'success'=> 0
         ]);
         return [
-            'stauts' => 'E05',
+            'status' => 'E05',
             'message' => $re,
         ];
     }
@@ -528,7 +528,7 @@ class OrderCtrl extends Controller
                 $n->items = json_decode($n->items);
                 foreach ($n->items as $key => $value) {
                     if ($value->img_url) {
-                        $n->items[$key]->img_url = getImageUrl($n->items[$key]->img_url);
+                        $n->items[$key]->img_url = getImageUrl($n->items[$key]->img_url, true);
                     } else {
                         $n->items[$key]->img_url = '';
                     }
@@ -611,7 +611,7 @@ class OrderCtrl extends Controller
             $n->items = json_decode($n->items);
             foreach ($n->items as $key => $value) {
                 if ($value->img_url) {
-                    $n->items[$key]->img_url = getImageUrl($n->items[$key]->img_url);
+                    $n->items[$key]->img_url = getImageUrl($n->items[$key]->img_url, true);
                 } else {
                     $n->items[$key]->img_url = '';
                 }

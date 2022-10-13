@@ -88,6 +88,19 @@ return [
         ],
     ],
     [
+        "unit" => "採購單庫存比較0917匯入",
+        "permissions" => [
+            [
+                "cms.inbound_fix0917_import.index",
+                "瀏覽",
+            ],
+            [
+                "cms.inbound_fix0917_import.edit",
+                "編輯",
+            ],
+        ],
+    ],
+    [
         "unit" => "倉庫管理",
         "permissions" => [
             [
@@ -1074,6 +1087,10 @@ return [
             [
                 "cms.user-performance-report.index",
                 "瀏覽",
+            ],
+            [
+                "cms.user-performance-report.renew",
+                "重新統計",
             ],
         ],
     ],

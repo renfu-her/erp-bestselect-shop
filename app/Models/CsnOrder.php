@@ -121,9 +121,12 @@ class CsnOrder extends Model
     //刪除
     public static function del($id, $operator_user_id, $operator_user_name) {
         //判斷若有審核、否決 則不可刪除
+        //但寄倉訂購改為沒有審核狀態 所以改為判斷 若有出貨則不可刪除
         $consignment = CsnOrder::where('id', $id)->get()->first();
         if (null != $consignment->audit_date) {
             return ['success' => 0, 'error_msg' => '已審核無法刪除'];
+        } else if (null != $consignment->dlv_audit_date) {
+            return ['success' => 0, 'error_msg' => '已出貨無法刪除'];
         } else {
             return DB::transaction(function () use ($id, $operator_user_id, $operator_user_name
             ) {
@@ -133,6 +136,7 @@ class CsnOrder extends Model
                     return $rePcsLSC;
                 }
                 self::where('id', '=', $id)->delete();
+                CsnOrderItem::where('csnord_id', '=', $id)->delete();
                 return ['success' => 1, 'error_msg' => ""];
             });
         }

@@ -125,18 +125,35 @@
                 </thead>
                 <tbody>
                     @foreach ($dataList as $key => $data)
-                        <tr>
-                            <td>{{ $key + 1 }}</td>
-                            <td><a href="{{ route('cms.request.show', ['id' => $data->request_o_id]) }}">{{ $data->request_o_sn }}</a></td>
-                            <td><a href="{{ route('cms.request.ro-receipt', ['id' => $data->request_o_id]) }}">{{ $data->ro_sn }}</a></td>
-                            <td>{{ $data->request_o_client_name }}</td>
-                            <td>{{ $data->grade_code . ' ' . $data->grade_name }}</td>
-                            <td>{{ $data->request_o_summary }}</td>
-                            <td class="text-end">${{ number_format($data->request_o_total_price) }}</td>
-                            <td>{{ $data->creator_name }}</td>
-                            <td></td>
-                        </tr>
-                    @endforeach
+                    @php
+                        $data->accounting = null;
+                        $data->summary = null;
+
+                        if($data->request_o_items){
+                            $request_o_items = json_decode($data->request_o_items);
+                            $str = '';
+                            foreach ($request_o_items as $i_value){
+                                $str .= $i_value->grade_code . ' ' . $i_value->grade_name . '<br>';
+                            }
+
+                            $data->accounting = rtrim($str, '<br>');
+                            $data->summary = rtrim(implode('<br>', collect($request_o_items)->pluck('summary')->toArray()), '<br>');
+                        }
+                    @endphp
+                    <tr>
+                        <td>{{ $key + 1 }}</td>
+                        <td><a href="{{ route('cms.request.show', ['id' => $data->request_o_id]) }}">{{ $data->request_o_sn }}</a></td>
+                        <td><a href="{{ route('cms.request.ro-receipt', ['id' => $data->request_o_id]) }}">{{ $data->ro_sn }}</a></td>
+                        <td>{{ $data->request_o_client_name }}</td>
+
+                        <td>{!! $data->accounting !!}</td>
+                        <td>{!! $data->summary !!}</td>
+
+                        <td class="text-end">${{ number_format($data->request_o_price) }}</td>
+                        <td>{{ $data->creator_name }}</td>
+                        <td>{{ $data->creator_department }}</td>
+                    </tr>
+                @endforeach
                 </tbody>
             </table>
         </div>

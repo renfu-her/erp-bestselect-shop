@@ -4,18 +4,19 @@ namespace App\Models;
 
 use App\Enums\Delivery\Event;
 use App\Enums\Delivery\LogisticStatus;
+use App\Enums\DlvBack\DlvBackType;
 use App\Enums\Purchase\LogEventFeature;
-use App\Enums\StockEvent;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 
 class ReceiveDepot extends Model
 {
-    use HasFactory;
+    use HasFactory,SoftDeletes;
 
     protected $table = 'dlv_receive_depot';
-    public $timestamps = false;
+    public $timestamps = true;
     protected $guarded = [];
 
     public static function setData($id = null, $delivery_id, $event_item_id = null, $combo_id = null, $prd_type = null, $freebies, $inbound_id, $inbound_sn, $depot_id, $depot_name, $product_style_id, $sku, $product_title, $unit_cost, $qty, $expiry_date)
@@ -182,12 +183,12 @@ class ReceiveDepot extends Model
                             $join->on('sub_orders.id', '=', 'items.sub_order_id');
                             $join->on('sub_orders.order_id', 'items.order_id');
                         })
-                        ->where('delivery.id', $delivery_id)
-                        ->where('delivery.event', Event::order()->value)
+                        ->where('delivery.id', $delivery->id)
+                        ->where('delivery.event', $delivery->event)
                         ->where('rcv_depot.prd_type', 'ce')
                         ->where('sub_orders.ship_category', $delivery->ship_category)
                         ->whereNull('delivery.deleted_at')
-                        ->whereNull('delivery.deleted_at')
+                        ->whereNull('rcv_depot.deleted_at')
                         ->select(
                             'rcv_depot.delivery_id'
                             , 'rcv_depot.event_item_id'
@@ -213,12 +214,13 @@ class ReceiveDepot extends Model
                         ->leftJoin('dlv_receive_depot as rcv_depot', 'rcv_depot.delivery_id', '=', 'delivery.id')
                         ->leftJoin('csn_consignment_items as items', 'items.id', '=', 'rcv_depot.event_item_id')
                         ->leftJoin('csn_consignment as consignment', 'consignment.id', '=', 'items.consignment_id')
-                        ->where('delivery.id', $delivery_id)
-                        ->where('delivery.event', Event::consignment()->value)
+                        ->where('delivery.id', $delivery->id)
+                        ->where('delivery.event', $delivery->event)
                         ->where('rcv_depot.prd_type', 'ce')
                         ->whereNull('delivery.deleted_at')
-                        ->whereNull('delivery.deleted_at')
+                        ->whereNull('rcv_depot.deleted_at')
                         ->whereNull('items.deleted_at')
+                        ->whereNull('consignment.deleted_at')
                         ->select(
                             'rcv_depot.delivery_id'
                             , 'rcv_depot.event_item_id'
@@ -240,8 +242,7 @@ class ReceiveDepot extends Model
                         ->groupBy('consignment.send_depot_id')
                         ->groupBy('consignment.send_depot_name')
                         ->get();
-                }
-                else if (Event::csn_order()->value == $delivery->event) {
+                } else if (Event::csn_order()->value == $delivery->event) {
                     array_push($logisticStatus, LogisticStatus::D9000());
                 }
                 $user = new \stdClass();
@@ -256,7 +257,6 @@ class ReceiveDepot extends Model
                 if (null != $queryComboElement && 0 < count($queryComboElement)) {
                     //新增並回寫ID
                     foreach($queryComboElement as $key => $element) {
-
                         //計算個別成本
                         $queryRcvDepotCost_byone = DB::table('dlv_receive_depot as rcv_depot')
                             ->select('rcv_depot.event_item_id'
@@ -266,6 +266,7 @@ class ReceiveDepot extends Model
                                 , DB::raw('(rcv_depot.qty) as qty')
                                 , DB::raw('(rcv_depot.unit_cost * rcv_depot.qty) as cost')
                             )
+                            ->whereNull('rcv_depot.deleted_at')
                             ->where('rcv_depot.delivery_id', '=', $delivery_id)
                             ->where('rcv_depot.event_item_id', '=', $element->event_item_id)
                             ->where('rcv_depot.prd_type', '=', 'ce');
@@ -411,9 +412,91 @@ class ReceiveDepot extends Model
         return $result;
     }
 
+    //將成立的收貨資料變更為尚未成立
+    public static function cancleShippingData($event, $event_id, $delivery_id, $user_id, $user_name) {
+        $delivery = Delivery::where('id', $delivery_id)->get()->first();
+        $rcvDepotGet = null;
+        if (null != $delivery_id) {
+            //找出不是組合包的商品款式
+            $rcvDepot = ReceiveDepot::where('delivery_id', $delivery_id)->where('prd_type', '<>' , 'c');
+            $rcvDepotGet = $rcvDepot->get();
+        }
+        if (null != $delivery &&null != $rcvDepotGet && 0 < count($rcvDepotGet)) {
+            $result = DB::transaction(function () use ($delivery, $rcvDepot, $rcvDepotGet, $event, $event_id, $delivery_id, $user_id, $user_name
+            ) {
+                if (Event::order()->value == $delivery->event) {
+                    if ('pickup' == $delivery->ship_category) {
+                        $event = 'ord_pickup';
+                    }
+                }
+                //找出相關組合包
+                $rcvDepotComboGet = ReceiveDepot::where('delivery_id', $delivery_id)->where('prd_type', '=' , 'c')->get();
+                if (null != $rcvDepotComboGet && 0 < count($rcvDepotComboGet)) {
+                    //先取出個別數量紀錄 再刪除組合包
+                    foreach($rcvDepotComboGet as $key_cb => $val_cb) {
+                        $reStockChange =PurchaseLog::stockChange($event_id, $val_cb->product_style_id, $event, $delivery->event_id,
+                            LogEventFeature::combo_del()->value, null, $val_cb->qty, null, $val_cb->product_title, 'c', $user_id, $user_name);
+                        if ($reStockChange['success'] == 0) {
+                            DB::rollBack();
+                            return $reStockChange;
+                        }
+                        ReceiveDepot::where('id', $val_cb->id)->where('prd_type', '=' , 'c')->forceDelete();
+                    }
+                }
+
+                //扣除入庫單庫存
+                foreach ($rcvDepotGet as $item) {
+                    $reShipIb = PurchaseInbound::shippingInbound($event, $event_id, $item->id, LogEventFeature::delivery_cancle()->value, $item->inbound_id, $item->qty * -1, $user_id, $user_name);
+                    if ($reShipIb['success'] == 0) {
+                        DB::rollBack();
+                        return $reShipIb;
+                    }
+                }
+
+                //取消出貨 所以將成本單價恢復成null
+                if (Event::order()->value == $delivery->event) {
+                    //判斷若為訂單 則將成本回寫到 ord_items.unit_cost
+                    OrderItem::where('sub_order_id', '=', $delivery->event_id)->update([
+                        'unit_cost' => null,]);
+                }
+                else if (Event::consignment()->value == $delivery->event) {
+                    //判斷若為寄倉單 則將成本回寫到 csn_consignment_items.unit_cost
+                    ConsignmentItem::where('consignment_id', '=', $delivery->event_id)->update([
+                        'unit_cost' => null,]);
+                }
+                else if (Event::csn_order()->value == $delivery->event) {
+                    //判斷若為寄倉訂購單 則將成本回寫到 csn_order_items.unit_cost
+                    CsnOrderItem::where('csnord_id', '=', $delivery->event_id)->update([
+                        'unit_cost' => null,]);
+                }
+
+                Delivery::where('id', '=', $delivery_id)->update([
+                    'audit_date' => null,
+                    'audit_user_id' => null,
+                    'audit_user_name' => null,]);
+
+                $rcvDepot->update([ 'audit_date' => null ]);
+
+                //20220714 Hans:將出貨日填到子訂單
+                if (Event::order()->value == $delivery->event) {
+                    SubOrders::where('id', '=', $delivery->event_id)->update([ 'dlv_audit_date' => null ]);
+                } else if (Event::consignment()->value == $delivery->event) {
+                    Consignment::where('id', '=', $delivery->event_id)->update([ 'dlv_audit_date' => null ]);
+                } else if (Event::csn_order()->value == $delivery->event) {
+                    CsnOrder::where('id', '=', $delivery->event_id)->update([ 'dlv_audit_date' => null ]);
+                }
+
+                return ['success' => 1, 'error_msg' => ""];
+            });
+        } else {
+            return ['success' => 0, 'error_msg' => "無此出貨單"];
+        }
+        return $result;
+    }
+
     public static function deleteById($id)
     {
-        ReceiveDepot::where('id', $id)->delete();
+        ReceiveDepot::where('id', $id)->forceDelete();
     }
 
     //更新寄倉到貨數量
@@ -430,6 +513,7 @@ class ReceiveDepot extends Model
 
     public static function getDataList($param) {
         $query = DB::table('dlv_receive_depot as rcv_depot')
+            ->whereNull('rcv_depot.deleted_at')
             ->select('rcv_depot.id as id'
                 , 'rcv_depot.delivery_id as delivery_id'
                 , 'rcv_depot.event_item_id as event_item_id'
@@ -462,7 +546,8 @@ class ReceiveDepot extends Model
             ->where('delivery.event', $event)
             ->where('delivery.event_id', $event_id)
             ->whereNotNull('delivery.audit_date') //判斷有做過出貨審核才給入
-            ->whereNotNull('rcv_depot.id');
+            ->whereNotNull('rcv_depot.id')
+            ->whereNull('rcv_depot.deleted_at');
         //判斷寄倉 則會有組合包 需去除組合元素
         $result->where('rcv_depot.prd_type', '<>', 'ce');
         return $result;
@@ -495,7 +580,8 @@ class ReceiveDepot extends Model
                 , 'rcv_depot.expiry_date as expiry_date'
                 , 'rcv_depot.audit_date as audit_date'
             )
-            ->whereNull('rcv_depot.deleted_at');
+            ->whereNull('rcv_depot.deleted_at')
+            ->whereNull('rcv_depot_papa.deleted_at');
 
         if (null != $event) {
             $result->where('delivery.event', $event);
@@ -817,9 +903,11 @@ class ReceiveDepot extends Model
             ->where('rcv_depot.delivery_id', $delivery_id)
             ->where('rcv_depot.prd_type', '=', 'p')
             ->whereNull('rcv_depot.combo_id')
+            ->whereNull('rcv_depot.deleted_at')
             ->leftJoin(app(DlvBack::class)->getTable(). ' as back', function ($join) use($delivery_id) {
                 $join->on('back.product_style_id', '=', 'rcv_depot.product_style_id')
-                    ->where('back.delivery_id', '=', $delivery_id);
+                    ->where('back.delivery_id', '=', $delivery_id)
+                    ->where('back.type', DlvBackType::product()->value);
             })
             ->select(
                 'rcv_depot.event_item_id'
@@ -836,12 +924,14 @@ class ReceiveDepot extends Model
             ->where('rcv_depot.delivery_id', $delivery_id)
             ->where('rcv_depot.prd_type', '=', 'c')
             ->whereNull('rcv_depot.combo_id')
+            ->whereNull('rcv_depot.deleted_at')
             ->leftJoin(app(ProductStyleCombo::class)->getTable(). ' as style_combo', function ($join) {
                 $join->on('style_combo.product_style_id', '=', 'rcv_depot.product_style_id');
             })
             ->leftJoin(app(DlvBack::class)->getTable(). ' as back', function ($join) use($delivery_id) {
                 $join->on('back.product_style_id', '=', 'rcv_depot.product_style_id')
-                    ->where('back.delivery_id', '=', $delivery_id);
+                    ->where('back.delivery_id', '=', $delivery_id)
+                    ->where('back.type', DlvBackType::product()->value);
             })
             ->select(
                 'rcv_depot.event_item_id'

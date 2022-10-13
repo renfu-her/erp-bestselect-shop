@@ -476,8 +476,8 @@ class OrderCtrl extends Controller
         $dividendList = Order::orderDividendList($id)->get();
 
 
+        $po_check = true;
         if(count($subOrder) > 0){
-            $po_check = true;
             foreach($subOrder as $so_value){
                 $delivery = Delivery::where('event', Event::order()->value)->where('event_id', $so_value->id)->first();
                 $po_check = PayingOrder::source_confirmation(app(Delivery::class)->getTable(), $delivery->id);
@@ -607,7 +607,7 @@ class OrderCtrl extends Controller
         }
         $purchaseItemList = ReceiveDepot::getShouldEnterNumDataList(Event::order()->value, $subOrderId);
 
-        $inboundList = PurchaseInbound::getInboundList(['event' => Event::ord_pickup()->value, 'purchase_id' => $subOrderId])
+        $inboundList = PurchaseInbound::getInboundList(['event' => Event::ord_pickup()->value, 'event_id' => $subOrderId])
             ->orderByDesc('inbound.created_at')
             ->get()->toArray();
         $inboundOverviewList = PurchaseInbound::getOverviewInboundList(Event::ord_pickup()->value, $subOrderId)->get()->toArray();
@@ -655,6 +655,12 @@ class OrderCtrl extends Controller
 
             $result = DB::transaction(function () use ($inboundItemReq, $id, $depot_id, $depot, $request, $style_arr
             ) {
+                $suborder = SubOrders::where('id', '=', $id)->first();
+                $order = Order::where('id', '=', $suborder->order_id)->first();
+                if (OrderStatus::Canceled()->value == $order->status_code) {
+                    DB::rollBack();
+                    return ['success' => 0, 'error_msg' => "訂單已刪除 不可入庫"];
+                }
                 foreach ($style_arr as $key => $val) {
                     $re = PurchaseInbound::createInbound(
                         Event::ord_pickup()->value,
@@ -1049,11 +1055,13 @@ class OrderCtrl extends Controller
             DB::beginTransaction();
 
             try {
-                $received_order->update([
-                    'accountant_id' => auth('user')->user()->id,
-                    'receipt_date' => request('receipt_date'),
-                    'invoice_number' => request('invoice_number'),
-                ]);
+                $update = [];
+                $update['accountant_id'] = auth('user')->user()->id;
+                $update['receipt_date'] = request('receipt_date');
+                if(request('invoice_number')){
+                    $update['invoice_number'] = request('invoice_number');
+                }
+                $received_order->update($update);
 
                 if (is_array(request('received_method'))) {
                     $unique_m = array_unique(request('received_method'));
@@ -1402,10 +1410,14 @@ class OrderCtrl extends Controller
             DB::beginTransaction();
 
             try {
-                $received_order->update([
-                    'logistics_grade_id' => request('logistics_grade_id'),
-                    'product_grade_id' => request('product_grade_id'),
-                ]);
+                $update = [];
+                if(request('logistics_grade_id')){
+                    $update['logistics_grade_id'] = request('logistics_grade_id');
+                }
+                if(request('product_grade_id')){
+                    $update['product_grade_id'] = request('product_grade_id');
+                }
+                $received_order->update($update);
 
                 if (request('received') && is_array(request('received'))) {
                     $received = request('received');
@@ -2090,7 +2102,6 @@ class OrderCtrl extends Controller
             'buyer_ubn' => 'required_if:category,==,B2B',
             'buyer_name' => 'required|string|max:60',
             'buyer_email' => 'nullable|required_if:carrier_type,==,2|email:rfc,dns',
-            'buyer_address' => 'required_if:invoice_method,==,print',
             'invoice_method' => 'required|in:print,give,e_inv',
             'love_code' => 'required_if:invoice_method,==,give',
             'carrier_type' => 'required_if:invoice_method,==,e_inv|in:0,1,2',

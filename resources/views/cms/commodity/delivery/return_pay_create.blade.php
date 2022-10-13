@@ -39,7 +39,7 @@
                                 <div class="fw-bold">{{ $delivery->po_sn }}</div>
                                 <div class="text-nowrap">{{ $delivery->sub_order_sn }}</div>
                             </td>
-                            <td class="text-wrap">{{ $product_grade_name }}</td>
+                            <td class="text-wrap">{{ $db_value->grade_code . ' ' . $db_value->grade_name }}</td>
                             <td class="text-wrap">{{ $db_value->product_title }}{{'（' . $delivery->sub_order_ship_event . ' - ' . $delivery->sub_order_ship_category_name . '）'}}{{'（' . $db_value->price . ' * ' . $db_value->qty . '）'}}</td>
                             <td class="text-end">${{ number_format($db_value->price, 2) }}</td>
                             <td class="text-end">{{$db_value->qty}}</td>

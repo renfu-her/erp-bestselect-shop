@@ -21,9 +21,9 @@ class reportDevelopmentSeeder extends Seeder
         RptProductManagerReport::managerList('season', 2022, ['season' => 3]);
 
         /*
-    RptUserReportMonthly::grossProfit();
-    RptUserReportMonthly::report('2022-09-01');
-    RptOrganizeReportMonthly::report('2022-09-01');
-     */
+        RptUserReportMonthly::grossProfit();
+        RptUserReportMonthly::report('2022-09-01','month');
+        RptOrganizeReportMonthly::report('2022-09-01','month');
+        */
     }
 }

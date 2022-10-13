@@ -59,7 +59,7 @@ class PurchaseInbound extends Model
 
             $id = self::create($insert_data)->id;
             $updateLog = PurchaseInbound::addLogAndUpdateStock(LogEventFeature::inbound_add()->value, $id, $event, $event_id, $event_item_id, $product_style_id
-                , $prd_type, $title, $inbound_num, $can_tally, $memo, $inbound_user_id, $inbound_user_name);
+                , $prd_type, $title, $inbound_num, $can_tally, $memo, StockEvent::inbound()->value, null, $inbound_user_id, $inbound_user_name);
             if ($updateLog['success'] == 0) {
                 DB::rollBack();
                 return $updateLog;
@@ -93,7 +93,7 @@ class PurchaseInbound extends Model
                 ]);
 
                 $updateLog = PurchaseInbound::addLogAndUpdateStock(LogEventFeature::inbound_update()->value, $inboundGet->id, $inboundGet->event, $inboundGet->event_id, $inboundGet->event_item_id, $inboundGet->product_style_id
-                    , $inboundGet->prd_type, $inboundGet->title, $add_qty, $can_tally, $memo, $update_user_id, $update_user_name);
+                    , $inboundGet->prd_type, $inboundGet->title, $add_qty, $can_tally, $memo, StockEvent::inbound()->value, null, $update_user_id, $update_user_name);
                 if ($updateLog['success'] == 0) {
                     DB::rollBack();
                     return $updateLog;
@@ -103,8 +103,8 @@ class PurchaseInbound extends Model
         });
     }
 
-    private static function addLogAndUpdateStock($eventFeature, $inbound_id, $event, $event_id, $event_item_id, $product_style_id, $prd_type, $title, $add_qty, $can_tally, $memo, $update_user_id, $update_user_name) {
-        return DB::transaction(function () use ($eventFeature, $inbound_id, $event, $event_id, $event_item_id, $product_style_id, $prd_type, $title, $add_qty, $can_tally, $memo, $update_user_id, $update_user_name) {
+    public static function addLogAndUpdateStock($eventFeature, $inbound_id, $event, $event_id, $event_item_id, $product_style_id, $prd_type, $title, $add_qty, $can_tally, $memo, $stock_event, $stock_memo, $update_user_id, $update_user_name) {
+        return DB::transaction(function () use ($eventFeature, $inbound_id, $event, $event_id, $event_item_id, $product_style_id, $prd_type, $title, $add_qty, $can_tally, $memo, $stock_event, $stock_memo, $update_user_id, $update_user_name) {
             $is_pcs_inbound = false;
             //入庫 新增入庫數量
             $rePcsItemUAN = ['success' => 0, 'error_msg' => "未執行入庫"];
@@ -131,7 +131,7 @@ class PurchaseInbound extends Model
             //只有採購才須記錄到ProductStock
             if ($event == Event::purchase()->value) {
                 //寫入ProductStock
-                $rePSSC = ProductStock::stockChange($product_style_id, $add_qty, StockEvent::inbound()->value, $inbound_id, null, $is_pcs_inbound, $can_tally);
+                $rePSSC = ProductStock::stockChange($product_style_id, $add_qty, $stock_event, $inbound_id, $stock_memo, $is_pcs_inbound, $can_tally);
                 if ($rePSSC['success'] == 0) {
                     DB::rollBack();
                     return $rePSSC;
@@ -164,6 +164,7 @@ class PurchaseInbound extends Model
                     , 'items.product_style_id as product_style_id'
                     , DB::raw('(items.price / items.num) as unit_cost')
                 )
+                ->whereNull('items.deleted_at')
                 ->where('items.purchase_id', $event_id)
                 ->whereIn('items.id', $event_item_id)
                 ->get()->toArray();
@@ -185,6 +186,8 @@ class PurchaseInbound extends Model
                     , 'rcv_depot.product_style_id as product_style_id'
                     , 'rcv_depot.unit_cost as unit_cost'
                 )
+                ->whereNull('rcv_depot.deleted_at')
+                ->whereNull('delivery.deleted_at')
                 ->where('delivery.event_id', $event_id)
                 ->whereIn('rcv_depot.id', $event_item_id)
                 ->get()->toArray();
@@ -262,6 +265,7 @@ class PurchaseInbound extends Model
                         ->select('main_tb.id as id', 'main_tb.close_date as close_date')
                         ->where('main_tb.id', '=', $inboundDataGet->event_id)
                         ->where('inbound.event', '=', $event)
+                        ->whereNull('inbound.deleted_at')
                         ->get()->first();
                     if (null != $purchaseData && null != $purchaseData->close_date) {
                         return ['success' => 0, 'error_msg' => '已結案 不可刪除'];
@@ -325,28 +329,38 @@ class PurchaseInbound extends Model
             $user_id,
             $user_name
         ) {
+            //找出被刪除的入庫單 有使用到則回傳錯誤
+            $inboundDelData = DB::table('pcs_purchase_inbound as inbound')
+                ->where('inbound.id', '=', $id) //取得是否為理貨倉
+                ->whereNotNull('inbound.deleted_at') //需額外找出被刪除的入庫單 有使用到則回傳錯誤
+                ->get()->first();
+            if (null != $inboundDelData) {
+                return ['success' => 0, 'error_msg' => '該入庫單已遭刪除 '. $inboundDelData->sn];
+            }
+
             $inboundData = DB::table('pcs_purchase_inbound as inbound')
                 ->leftJoin('depot', 'depot.id', 'inbound.depot_id')
-                ->where('inbound.id', '=', $id)
-                ->whereNull('inbound.deleted_at');
+                ->where('inbound.id', '=', $id) //取得是否為理貨倉
+                ->whereNull('inbound.deleted_at')
+                ->select(
+                    'inbound.*'
+                    , 'depot.can_tally'
+                );
             $inboundDataGet = $inboundData->get()->first();
             if (null != $inboundDataGet) {
-                if (($inboundDataGet->inbound_num - $inboundDataGet->sale_num - $inboundDataGet->csn_num - $inboundDataGet->consume_num - $sale_num
-                         - $inboundDataGet->back_num - $inboundDataGet->scrap_num) < 0) {
+                if (($inboundDataGet->inbound_num - $inboundDataGet->sale_num - $inboundDataGet->csn_num - $inboundDataGet->consume_num
+                        - $inboundDataGet->back_num - $inboundDataGet->scrap_num
+                        - $sale_num) < 0) {
                     return ['success' => 0, 'error_msg' => '入庫單出貨數量超出範圍'];
                 } else {
                     $update_arr = [];
 
-                    if (Event::order()->value == $event || Event::ord_pickup()->value == $event) {
-                        if (LogEventFeature::delivery()->value == $feature) {
+                    if (LogEventFeature::delivery()->value == $feature || LogEventFeature::delivery_cancle()->value == $feature) {
+                        if (Event::order()->value == $event || Event::ord_pickup()->value == $event) {
                             $update_arr['sale_num'] = DB::raw("sale_num + $sale_num");
-                        }
-                    } else if (Event::consignment()->value == $event) {
-                        if (LogEventFeature::delivery()->value == $feature) {
+                        } else if (Event::consignment()->value == $event) {
                             $update_arr['csn_num'] = DB::raw("csn_num + $sale_num");
-                        }
-                    } else if (Event::csn_order()->value == $event) {
-                        if (LogEventFeature::delivery()->value == $feature) {
+                        } else if (Event::csn_order()->value == $event) {
                             $update_arr['sale_num'] = DB::raw("sale_num + $sale_num");
                         }
                     }
@@ -392,10 +406,11 @@ class PurchaseInbound extends Model
     }
 
     //歷史入庫
-    public static function getInboundList($param, $showDelete = true)
+    public static function getInboundList($param)
     {
         $result = DB::table('pcs_purchase_inbound as inbound')
-            ->select('inbound.event_id as event_id' //採購ID
+            ->select('inbound.event as event' //事件
+                , 'inbound.event_id as event_id' //採購ID
                 , 'inbound.event_item_id as event_item_id'
                 , 'inbound.title as product_title' //商品名稱
                 , 'inbound.product_style_id as product_style_id' //款式id
@@ -403,27 +418,29 @@ class PurchaseInbound extends Model
                 , 'inbound.id as inbound_id' //入庫ID
                 , 'inbound.sn as inbound_sn' //入庫sn
                 , 'inbound.inbound_num as inbound_num' //入庫實進數量
+                , DB::raw('(inbound.sale_num + inbound.csn_num + inbound.consume_num + inbound.back_num + inbound.scrap_num) as shipped_num')
                 , 'inbound.depot_id as depot_id'  //入庫倉庫ID
                 , 'inbound.depot_name as depot_name'  //入庫倉庫名稱
                 , 'inbound.inbound_user_id as inbound_user_id'  //入庫人員ID
                 , 'inbound.inbound_user_name as inbound_user_name' //入庫人員名稱
                 , 'inbound.close_date as inbound_close_date'
+                , 'inbound.prd_type as inbound_prd_type'
                 , 'inbound.memo as inbound_memo' //入庫備註
             )
             ->selectRaw('DATE_FORMAT(inbound.expiry_date,"%Y-%m-%d") as expiry_date') //有效期限
             ->selectRaw('DATE_FORMAT(inbound.inbound_date,"%Y-%m-%d") as inbound_date') //入庫日期
             ->selectRaw('DATE_FORMAT(inbound.deleted_at,"%Y-%m-%d") as deleted_at') //刪除日期
-            ->whereNotNull('inbound.id');
+            ->whereNotNull('inbound.id')
+            ->whereNull('inbound.deleted_at');
 
-        //判斷不顯示刪除歷史
-        if (false == $showDelete) {
-            $result->whereNull('inbound.deleted_at');
-        }
         if (isset($param['event'])) {
             $result->where('inbound.event', '=', $param['event']);
         }
-        if (isset($param['purchase_id'])) {
-            $result->where('inbound.event_id', '=', $param['purchase_id']);
+        if (isset($param['event_id'])) {
+            $result->where('inbound.event_id', '=', $param['event_id']);
+        }
+        if (isset($param['event_item_id'])) {
+            $result->where('inbound.event_item_id', '=', $param['event_item_id']);
         }
         if (isset($param['keyword'])) {
             $keyword = $param['keyword'];
@@ -484,8 +501,9 @@ class PurchaseInbound extends Model
             ->selectRaw('DATE_FORMAT(inbound.expiry_date,"%Y-%m-%d") as expiry_date') //有效期限
             ->selectRaw('DATE_FORMAT(inbound.inbound_date,"%Y-%m-%d") as inbound_date') //入庫日期
             ->selectRaw('DATE_FORMAT(inbound.deleted_at,"%Y-%m-%d") as deleted_at') //刪除日期
-            ->selectRaw('DATE_FORMAT(inbound.created_at,"%Y-%m-%d") as created_at') //新增日期
+            ->selectRaw('DATE_FORMAT(inbound.created_at,"%Y-%m-%d %H:%i:%s") as created_at') //新增日期
             ->selectRaw('DATE_FORMAT(inbound.updated_at,"%Y-%m-%d") as updated_at') //修改日期
+            ->whereNull('inbound.deleted_at')
             ->whereNotNull('inbound.id')
             ->whereNotNull('event.sn');
 
@@ -531,10 +549,20 @@ class PurchaseInbound extends Model
             }
 
         }
+        if (isset($param['inbound_user_id'])) {
+            $result->where('inbound.inbound_user_id', '=', $param['inbound_user_id']);
+        }
+        if (isset($param['inbound_sdate']) && isset($param['inbound_edate'])) {
+            $s_date = date('Y-m-d', strtotime($param['inbound_sdate']));
+            $e_date = date('Y-m-d', strtotime($param['inbound_edate'] . ' +1 day'));
+            $result->whereBetween('inbound.created_at', [$s_date, $e_date]);
+        }
         return $result;
     }
 
-    //採購單入庫總覽
+    /**
+     * 採購單入庫總覽
+     */
     public static function getOverviewInboundList($event, $event_id = null)
     {
         $tempInboundSql = DB::table('pcs_purchase_inbound as inbound')
@@ -543,12 +571,11 @@ class PurchaseInbound extends Model
                 , 'inbound.product_style_id as product_style_id'
                 , 'inbound.prd_type as prd_type')
             ->selectRaw('sum(inbound.inbound_num) as inbound_num')
-            ->selectRaw('GROUP_CONCAT(DISTINCT inbound.inbound_user_name) as inbound_user_name'); //入庫人員
-
+            ->selectRaw('GROUP_CONCAT(DISTINCT inbound.inbound_user_name) as inbound_user_name') //入庫人員
+            ->whereNull('inbound.deleted_at');
         if ($event_id) {
             $tempInboundSql->where('inbound.event_id', '=', (int)$event_id);
         }
-        $tempInboundSql->whereNull('inbound.deleted_at');
         if (isset($event)) {
             $tempInboundSql->where('inbound.event', '=', $event);
         }
@@ -711,15 +738,22 @@ class PurchaseInbound extends Model
         return $result;
     }
 
-    //判斷是否已有購買紀錄
-    public static function purchaseInboundList($purchase_id) {
+    //判斷是否已有出貨紀錄
+    public static function deliveryPcsInboundList($purchase_id) {
         $result = DB::table('pcs_purchase as purchase')
             ->leftJoin('pcs_purchase_inbound as inbound', function($join) {
                 $join->on('inbound.event_id', '=', 'purchase.id');
                 $join->where('inbound.event', '=', Event::purchase()->value);
             })
             ->whereNull('purchase.deleted_at')
-            ->whereNotNull('inbound.inbound_num')
+            ->whereNull('inbound.deleted_at')
+            ->where(function ($query) {
+                $query->where('inbound.sale_num', '>', 0)
+                    ->orWhere('inbound.csn_num', '>', 0)
+                    ->orWhere('inbound.consume_num', '>', 0)
+                    ->orWhere('inbound.back_num', '>', 0)
+                    ->orWhere('inbound.scrap_num', '>', 0);
+            })
             ->where('purchase.id', '=', $purchase_id);
         return $result;
     }
@@ -1064,6 +1098,7 @@ class PurchaseInbound extends Model
     public static function getCsnExistInboundProductStyleList($event) {
         $queryInbound = DB::table('pcs_purchase_inbound as inbound')
             ->where('inbound.event', $event)
+            ->whereNull('inbound.deleted_at')
             ->select(
                 'inbound.product_style_id as product_style_id'
                 , 'inbound.depot_id as depot_id'  //入庫倉庫ID

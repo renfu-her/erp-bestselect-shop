@@ -6,7 +6,7 @@ use App\Enums\Consignment\AuditStatus;
 use App\Enums\Delivery\Event;
 use App\Enums\Purchase\InboundStatus;
 use App\Enums\Purchase\LogEventFeature;
-use App\Helpers\IttmsUtils;
+use App\Enums\StockEvent;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\DB;
 
 class PurchaseItem extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
     protected $table = 'pcs_purchase_items';
     protected $guarded = [];
 
@@ -140,6 +140,48 @@ class PurchaseItem extends Model
         }
     }
 
+    //刪除商品款式和對應入庫單
+    public static function deleteItemAndInbound($item_id, $operator_user_id, $operator_user_name) {
+        $pcs_item = PurchaseItem::where('id', '=', $item_id)->get()->first();
+        if (false == isset($pcs_item)) {
+            return ['success' => 0, 'error_msg' => '查無採購單該商品款式'];
+        }
+        $payingOrderList = PayingOrder::getPayingOrdersWithPurchaseID($pcs_item->purchase_id)->get();
+        if (null != $payingOrderList && 0 < count($payingOrderList)) {
+            return ['success' => 0, 'error_msg' => '已有付款單無法刪除'];
+        } else {
+            return DB::transaction(function () use ($pcs_item, $operator_user_id, $operator_user_name
+            ) {
+                $inboundList = PurchaseInbound::getInboundList(['event' => Event::purchase()->value, 'event_id' => $pcs_item->purchase_id, 'event_item_id' => $pcs_item->id])
+                    ->get()->toArray();
+                $inbound_ids = [];
+                if (0 < count($inboundList)) {
+                    foreach ($inboundList as $key_ib => $val_ib) {
+                        if (0 < $val_ib->shipped_num) {
+                            DB::rollBack();
+                            return ['success' => 0, 'error_msg' => "已出貨無法刪除"];
+                        } else {
+                            $inbound_ids[] = $val_ib->inbound_id;
+                            $can_tally = Depot::can_tally($val_ib->depot_id);
+                            $updateLog = PurchaseInbound::addLogAndUpdateStock(LogEventFeature::purchase_del()->value, $val_ib->inbound_id
+                                , $val_ib->event, $val_ib->event_id, $val_ib->event_item_id
+                                , $val_ib->product_style_id
+                                , $val_ib->inbound_prd_type, $val_ib->product_title, $val_ib->inbound_num * -1, $can_tally, '刪除採購單', StockEvent::purchase_del()->value, '刪除採購單', $operator_user_id, $operator_user_name);
+                            if ($updateLog['success'] == 0) {
+                                DB::rollBack();
+                                return $updateLog;
+                            }
+                        }
+                    }
+                }
+
+                PurchaseItem::where('id', '=', $pcs_item->id)->delete();
+                PurchaseInbound::whereIn('id', $inbound_ids)->where('event', '=', Event::purchase()->value)->delete();
+                return ['success' => 1, 'error_msg' => ""];
+            });
+        }
+    }
+
     //更新到貨數量
     public static function updateArrivedNum($id, $addnum, $can_tally = false) {
         return DB::transaction(function () use ($id, $addnum, $can_tally
@@ -224,6 +266,7 @@ class PurchaseItem extends Model
                 , 'event_item_id'
                 , 'product_style_id')
             ->selectRaw('sum(inbound_num) as inbound_num')
+            ->selectRaw('DATE_FORMAT((min(expiry_date)),"%Y-%m-%d") as expiry_date')
             ->selectRaw('GROUP_CONCAT(DISTINCT inbound.inbound_user_name) as inbound_user_names') //入庫人員
             ->whereNull('deleted_at');
 
@@ -277,6 +320,7 @@ class PurchaseItem extends Model
                 ,'items.num as num'
                 ,'items.arrived_num as arrived_num'
                 ,'items.memo as memo'
+                ,'inbound.expiry_date'
                 ,'inbound.inbound_user_names'
                 ,'purchase.purchase_user_id as purchase_user_id'
                 ,'purchase.supplier_id as supplier_id'
@@ -340,11 +384,15 @@ class PurchaseItem extends Model
         if (isset($audit_status)) {
             $result->where('purchase.audit_status', $audit_status);
         }
+        if ($expire_day) {
+            $result->whereNotNull('inbound.expiry_date');
+        }
 
         $result2 = DB::table(DB::raw("({$result->toSql()}) as tb"))
             ->select('*')
             ->orderByDesc('id')
-            ->orderBy('items_id');
+            ->orderBy('items_id')
+        ;
 
         $result->mergeBindings($subColumn);
         $result->mergeBindings($subColumn2);
@@ -415,6 +463,7 @@ class PurchaseItem extends Model
             ->select('event_id'
                 , 'product_style_id')
             ->selectRaw('sum(inbound_num) as inbound_num')
+            ->selectRaw('DATE_FORMAT((min(expiry_date)),"%Y-%m-%d") as expiry_date')
             ->selectRaw('GROUP_CONCAT(DISTINCT inbound.inbound_user_id) as inbound_user_ids') //入庫人員
             ->selectRaw('GROUP_CONCAT(DISTINCT inbound.inbound_user_name) as inbound_user_names') //入庫人員
             ->where('event', Event::purchase()->value)
@@ -460,6 +509,7 @@ class PurchaseItem extends Model
                 , 'items.price as price'
                 , 'items.num as num'
                 , 'items.arrived_num as arrived_num'
+                , 'inbound.expiry_date as expiry_date'
                 , 'inbound.inbound_num as inbound_num'
                 , 'inbound.inbound_user_ids as inbound_user_ids'
                 , 'inbound.inbound_user_names as inbound_user_names'
@@ -488,6 +538,7 @@ class PurchaseItem extends Model
                 ,'itemtb_new.price as price'
                 ,'itemtb_new.num as num'
                 ,'itemtb_new.arrived_num as arrived_num'
+                ,'itemtb_new.expiry_date'
                 ,'itemtb_new.inbound_user_ids as inbound_user_ids'
                 ,'itemtb_new.inbound_user_names as inbound_user_names'
                 ,'purchase.purchase_user_id as purchase_user_id'
@@ -542,6 +593,9 @@ class PurchaseItem extends Model
         if (isset($audit_status)) {
             $result->where('purchase.audit_status', $audit_status);
         }
+        if ($expire_day) {
+            $result->whereNotNull('itemtb_new.expiry_date');
+        }
 
         $result2 = DB::table(DB::raw("({$result->toSql()}) as tb"))
             ->select('*')
@@ -592,6 +646,7 @@ class PurchaseItem extends Model
     {
         $result = DB::table('pcs_purchase_items as pcs_items')
             ->where('pcs_items.purchase_id', '=', $purchaseId)
+            ->whereNull('pcs_items.deleted_at')
             ->leftJoin('prd_product_styles as prd_styles', 'pcs_items.product_style_id', '=', 'prd_styles.id')
             ->leftJoin('prd_products', 'prd_styles.product_id', '=', 'prd_products.id')
             ->leftJoin('usr_users', 'prd_products.user_id', '=', 'usr_users.id')
@@ -605,8 +660,7 @@ class PurchaseItem extends Model
                 'pcs_items.product_style_id as style_ids',
                 'usr_users.name',
             )
-            ->get()
-            ->unique('style_ids');
+            ->get();
 
         return $result;
     }

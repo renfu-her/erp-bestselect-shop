@@ -127,9 +127,11 @@
     </div>
 
     <div class="col-auto">
-        <a href="{{ Route('cms.stitute.index') }}" class="btn btn-outline-primary px-4" role="button">
-            返回列表
+        @can('cms.stitute.index')
+        <a href="{{ session('stitute_url') ?? route('cms.stitute.index') }}" class="btn btn-outline-primary px-4" role="button">
+            返回 代墊單作業
         </a>
+        @endcan
     </div>
 
     <!-- Modal -->

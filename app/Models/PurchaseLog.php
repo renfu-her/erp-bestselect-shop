@@ -140,6 +140,7 @@ class PurchaseLog extends Model
                 , DB::raw('(case when "ce" = rcv_depot.prd_type then CONCAT(log.product_title, "(組合包內容)")
                     else log.product_title end) as title')
             )
+            ->whereNull('rcv_depot.deleted_at')
             ->where('log.event_parent_id', '=', $event_id)
             ->where('log.event', '=', $event)
             ->whereIn('log.feature', $logEventFeatureKey_delivery);
@@ -218,6 +219,8 @@ class PurchaseLog extends Model
             ->leftJoin('pcs_purchase_inbound as inbound', function($join) use($logEvent_event, $logEventFeatureKey_delivery) {
                 $join->on('inbound.id', '=', 'log.inbound_id');
             })
+            ->whereNull('rcv_depot.deleted_at')
+            ->whereNull('inbound.deleted_at')
             ->whereIn('log.event', $logEvent_event)
             ->whereNotNull('log.product_style_id')
             ->whereNotNull('log.inbound_id')
@@ -293,6 +296,8 @@ class PurchaseLog extends Model
             ->leftJoin('pcs_purchase_inbound as inbound', function($join) use($event, $logEventFeatureKey_delivery) {
                 $join->on('inbound.id', '=', 'log.inbound_id');
             })
+            ->whereNull('rcv_depot.deleted_at')
+            ->whereNull('inbound.deleted_at')
             ->whereIn('log.event', $event)
             ->whereNotNull('log.product_style_id')
             ->whereNotNull('log.inbound_id')
@@ -363,6 +368,7 @@ class PurchaseLog extends Model
             ->groupBy('pcs_log.event_id')
             ->where('pcs_log.event_parent_id', '=', $event_id)
             ->where('pcs_log.feature', '=', DB::raw('"'. LogEventFeature::send_back()->value.'"'))
+            ->whereNull('rcv_depot.deleted_at')
             ->get()->toArray();
 
         $log_ids = [];

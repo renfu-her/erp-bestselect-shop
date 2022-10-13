@@ -11,10 +11,12 @@ use BenSampo\Enum\Enum;
  */
 final class LogEventFeature extends Enum
 {
+    //採購單
     const add = 'add';
     const del = 'del';
     const close = 'close';
     const change_data = 'change_data';
+    const recovery = 'recovery';
 
     //款式
     const style_add = 'style_add';
@@ -30,6 +32,7 @@ final class LogEventFeature extends Enum
     const combo = 'combo'; //組成組合包
     const decompose = 'decompose'; //組合包分解
     const scrapped = 'scrapped'; //報廢
+    const combo_del = 'combo_del'; //刪除組合包
 
     const delivery = 'delivery';
     const delivery_cancle = 'delivery_cancle';
@@ -45,6 +48,8 @@ final class LogEventFeature extends Enum
     const pay_change_pay_type = 'pay_change_pay_type';
     const pay_change_shipping_fee = 'pay_change_shipping_fee';
 
+    const purchase_del = 'purchase_del';
+    const purchase_recovery = 'purchase_recovery';
 
     public static function getDescription($value): string
     {
@@ -61,6 +66,9 @@ final class LogEventFeature extends Enum
                 break;
             case self::change_data:
                 $result = '修改內容';
+                break;
+            case self::recovery:
+                $result = '恢復採購單';
                 break;
 
             case self::style_add:
@@ -94,6 +102,9 @@ final class LogEventFeature extends Enum
                 break;
             case self::scrapped:
                 $result = '報廢';
+                break;
+            case self::combo_del:
+                $result = '刪除組合包';
                 break;
 
             case self::delivery:
@@ -130,6 +141,12 @@ final class LogEventFeature extends Enum
                 break;
             case self::pay_change_shipping_fee:
                 $result = '變更運費';
+                break;
+            case self::purchase_del:
+                $result = '刪除採購單';
+                break;
+            case self::purchase_recovery:
+                $result = '恢復採購單';
                 break;
 
 

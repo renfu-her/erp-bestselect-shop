@@ -83,10 +83,10 @@
                             <tr>
                                 <td class="text-center">{{ $serial }}</td>
                                 <td>
-                                    <select class="form-select form-select-sm -select2 -single" name="product[{{ $value->id }}][request_grade_id]" data-placeholder="請選擇會計科目" required>
+                                    <select class="form-select form-select-sm -select2 -single" name="product[{{ $value->id }}][grade_id]" data-placeholder="請選擇會計科目" required>
                                         <option value="" selected disabled>請選擇</option>
                                         @foreach($total_grades as $g_value)
-                                            <option value="{{ $g_value['primary_id'] }}"{{ $g_value['primary_id'] == $value->request_grade_id ? 'selected' : '' }}
+                                            <option value="{{ $g_value['primary_id'] }}"{{ $g_value['primary_id'] == $value->grade_id ? 'selected' : '' }}
                                                 @if($g_value['grade_num'] === 1)
                                                     class="grade_1"
                                                 @elseif($g_value['grade_num'] === 2)
@@ -105,7 +105,7 @@
                                     {{-- $value->ro_received_grade_code . ' ' . $value->ro_received_grade_name --}}
                                     <input class="form-control form-control-sm -l" name="product[{{ $value->id }}][summary]" type="text" value="{{ $value->summary }}">
                                 </td>
-                                <td class="text-end">1</td>
+                                <td class="text-end">{{ $value->qty }}</td>
                                 <td class="text-end">{{ number_format($value->total_price, 2) }}</td>
                                 <td>
                                     <div class="form-check form-check-inline lh-base">

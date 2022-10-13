@@ -56,11 +56,11 @@
                 <table width="710" style="font-size:small;text-align:left;border:0;margin: 0 auto;">
                     <tbody>
                         <tr>
-                            <td width="50%">客戶：<span style="font-size:medium;">{{ $request_order->client_name }}</span>　　台鑒</td>
-                            <td width="50%">地址：{{ $request_order->client_address }}</td>
+                            <td width="50%">客戶：<span style="font-size:medium;">{{ $request_order->request_o_client_name }}</span>　　台鑒</td>
+                            <td width="50%">地址：{{ $request_order->request_o_client_address }}</td>
                         </tr>
                         <tr>
-                            <td>電話：{{ $request_order->client_phone }}</td>
+                            <td>電話：{{ $request_order->request_o_client_phone }}</td>
                             <td>傳真：</td>
                         </tr>
                     </tbody>
@@ -69,12 +69,12 @@
                 <table width="710" style="font-size:small;text-align:left;border:0;margin: 0 auto;">
                     <tbody>
                         <tr>
-                            <td width="50%">請款單號：{{ $request_order->sn }}</td>
-                            <td width="50%">日期：{{ date('Y/m/d', strtotime($request_order->created_at)) }}</td>
+                            <td width="50%">請款單號：{{ $request_order->request_o_sn }}</td>
+                            <td width="50%">日期：{{ date('Y/m/d', strtotime($request_order->request_o_created_at)) }}</td>
                         </tr>
                         <tr>
                             <td>{{-- 訂單流水號： --}}</td>
-                            <td>入帳日期：{{ $request_order->posting_date ? date('Y/m/d', strtotime($request_order->posting_date)) : '' }}</td>
+                            <td>入帳日期：{{ $request_order->request_o_posting_date ? date('Y/m/d', strtotime($request_order->request_o_posting_date)) : '' }}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -91,13 +91,17 @@
                         </tr>
                     </thead>
                     <tbody style="text-align: left;">
+                        @if($request_order->request_o_items)
+                        @foreach(json_decode($request_order->request_o_items) as $data)
                         <tr>
-                            <td>{{ $request_grade->code . ' ' . $request_grade->name . ' ' . $request_order->summary }}</td>
-                            <td style="text-align: right;">{{ $request_order->qty }}</td>
-                            <td style="text-align: right;">{{ number_format($request_order->price, 2) }}</td>
-                            <td style="text-align: right;">{{ number_format($request_order->total_price) }}</td>
-                            <td>{{ $request_order->taxation == 1 ? '應稅' : '免稅' }} @php echo $request_order->memo ?? '' @endphp</td>
+                            <td>{{ $data->grade_code . ' ' . $data->grade_name . ' ' . $data->summary }}</td>
+                            <td style="text-align: right;">{{ $data->qty }}</td>
+                            <td style="text-align: right;">{{ number_format($data->price, 2) }}</td>
+                            <td style="text-align: right;">{{ number_format($data->total_price) }}</td>
+                            <td>{{ $data->taxation == 1 ? '應稅' : '免稅' }} @php echo $data->memo ?? '' @endphp</td>
                         </tr>
+                        @endforeach
+                        @endif
                     </tbody>
                 </table>
                 <hr width="710" style="margin: .5rem auto;">
@@ -107,48 +111,51 @@
                         <tr height="24">
                             <td width="20%">合　　計：</td>
                             <td width="36%" style="text-align: right;">（{{ $zh_price }}）</td>
-                            <td width="10%" style="text-align: right;">{{ number_format($request_order->total_price) }}</td>
+                            <td width="10%" style="text-align: right;">{{ number_format($request_order->request_o_price) }}</td>
                             <td width="34%"></td>
                         </tr>
                     </thead>
                 </table>
                 <hr width="710" style="margin: .5rem auto;">
 
-                <div class="mb-3">
-                    <dl class="row">
-                        <div class="col">□支票</div>
-                        <div class="col">□匯款</div>
-                        <div class="col">□信用卡</div>
-                        <div class="col">□現金</div>
-                    </dl>
-                    <dl class="row">
-                        <div class="col-auto">
-                            匯款帳號：合作金庫(006) 長春分行 0844-871-001158
-                        </div>
-                        <div class="col-auto">戶名：喜鴻國際企業股份有限公司</div>
-                    </dl>
-                    <dl class="row">
-                        <div class="col small">
-                            <dd class="mb-0">備註：</dd>
-                            <dd>
-                                <ol>
+                <table width="710" cellpadding="1"
+                    style="font-size:small;margin:0 auto;border-collapse:collapse;text-align: left;">
+                    <tbody>
+                        <tr>
+                            <td><span style="font-size: 1.5rem;line-height: 10px;">□</span>支票</td>
+                            <td><span style="font-size: 1.5rem;line-height: 10px;">□</span>匯款</td>
+                            <td><span style="font-size: 1.5rem;line-height: 10px;">□</span>信用卡</td>
+                            <td><span style="font-size: 1.5rem;line-height: 10px;">□</span>現金</td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" style="padding-top: .6rem">
+                                匯款帳號：合作金庫(006) 長春分行 0844-871-001158
+                            </td>
+                            <td colspan="2" style="padding-top: .6rem">
+                                戶名：喜鴻國際企業股份有限公司
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="4" style="padding-top: .6rem">
+                                <div>備註：</div>
+                                <ol style="margin: 0">
                                     <li>匯款戶名、支票抬頭請開：喜鴻國際企業股份有限公司</li>
                                     <li>客戶應如期給付團費，如有違反或票據到期未兌現，願負法律責任，並放棄訴抗辯權。</li>
                                 </ol>
-                            </dd>
-                        </div>
-                    </dl>
-                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
 
                 <hr width="710" style="margin: .5rem auto;">
                 <table width="710" style="font-size:small;text-align:left;border:0;margin: 0 auto;">
                     <tbody>
                         <tr>
                             <td width="20%">財務主管：</td>
-                            <td width="20%">會計：{{ $accountant ? $accountant->name : '' }}</td>
+                            <td width="20%">會計：{{ $request_order->accountant_name }}</td>
                             <td width="20%">部門主管：</td>
                             <td width="20%">承辦人：</td>
-                            <td width="20%">業務員：{{ $sales ? $sales->name : '' }}</td>
+                            <td width="20%">業務員：{{ $request_order->creator_name }}</td>
                         </tr>
                     </tbody>
                 </table>

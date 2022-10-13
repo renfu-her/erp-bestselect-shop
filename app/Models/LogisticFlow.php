@@ -73,6 +73,7 @@ class LogisticFlow extends Model
         $logisticFlowToDel->delete();
         //取得最後一筆
         $logisticFlowLast = LogisticFlow::where('delivery_id', $delivery_id)->orderByDesc('id')->get()->first();
+        $logisticFlowLast = self::getListByDeliveryId()->get()->first();
         $status = null;
         $status_code = null;
         if (null != $logisticFlowLast) {
@@ -92,8 +93,7 @@ class LogisticFlow extends Model
      */
     public static function getListByDeliveryId($delivery_id) {
         $query = LogisticFlow::where('delivery_id', $delivery_id)
-            ->orderByDesc('dlv_logistic_flow.created_at')
-            ->orderByDesc('dlv_logistic_flow.id');
+            ->orderByDesc('id');
         return $query;
     }
 }

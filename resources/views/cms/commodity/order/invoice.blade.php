@@ -96,10 +96,20 @@
                         @enderror
                     </div>
                 </div>
-
+                {{--
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label l_buyer_address">買受人地址 <span class="text-danger">*</span></label>
                     <input type="text" name="buyer_address" class="form-control @error('buyer_address') is-invalid @enderror" placeholder="請輸入買受人地址" aria-label="買受人地址" value="{{ old('buyer_address', $order->ord_address) }}" required>
+                    <div class="invalid-feedback">
+                        @error('buyer_address')
+                        {{ $message }}
+                        @enderror
+                    </div>
+                </div>
+                --}}
+                <div class="col-12 col-sm-6 mb-3">
+                    <label class="form-label l_buyer_address">買受人地址</label>
+                    <input type="text" name="buyer_address" class="form-control @error('buyer_address') is-invalid @enderror" placeholder="請輸入買受人地址" aria-label="買受人地址" value="{{ old('buyer_address') }}">
                     <div class="invalid-feedback">
                         @error('buyer_address')
                         {{ $message }}
@@ -322,7 +332,7 @@
                                             </button>
                                         </td>
                                         <td style="display:none">{{ $received_order->sn }}</td>
-                                        <td><input type="text" name="o_title[]" class="form-control form-control-sm -l" value="{{ mb_substr($value->product_title, 0, 30) }}" aria-label="產品名稱" minlength="1" maxlength="30" required>
+                                        <td><input type="text" name="o_title[]" class="form-control form-control-sm -l" value="{{ mb_substr(preg_replace('/(\v|\s)+/', ' ', $value->product_title), 0, 30) }}" aria-label="產品名稱" minlength="1" maxlength="30" required>
                                         <td>
                                             <div class="input-group input-group-sm flex-nowrap">
                                                 <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
@@ -398,7 +408,7 @@
 
                                         <td style="display:none">{{ $received_order->sn }}</td>
 
-                                        <td><input type="text" name="o_title[]" class="form-control form-control-sm -l" value="{{ mb_substr($value->title, 0, 30) }}" aria-label="產品名稱" minlength="1" maxlength="30" required>
+                                        <td><input type="text" name="o_title[]" class="form-control form-control-sm -l" value="{{ mb_substr(preg_replace('/(\v|\s)+/', ' ', $value->title), 0, 30) }}" aria-label="產品名稱" minlength="1" maxlength="30" required>
                                         <td>
                                             <div class="input-group input-group-sm flex-nowrap">
                                                 <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
@@ -597,10 +607,10 @@
                         $('.l_buyer_email').html('買受人E-mail');
 
                         //地址
-                        $('input[type=text][name=buyer_address]').prop({
-                            required:true
-                        });
-                        $('.l_buyer_address').html('買受人地址 <span class="text-danger">*</span>');
+                        // $('input[type=text][name=buyer_address]').prop({
+                        //     required:true
+                        // });
+                        // $('.l_buyer_address').html('買受人地址 <span class="text-danger">*</span>');
 
                         //捐贈
                         $('.c_invoice_method').addClass('d-none');
@@ -632,10 +642,10 @@
                         $('.l_buyer_email').html('買受人E-mail');
 
                         //地址
-                        $('input[type=text][name=buyer_address]').prop({
-                            required:false
-                        });
-                        $('.l_buyer_address').html('買受人地址');
+                        // $('input[type=text][name=buyer_address]').prop({
+                        //     required:false
+                        // });
+                        // $('.l_buyer_address').html('買受人地址');
 
                         //捐贈
                         $('.c_invoice_method').removeClass('d-none');
@@ -661,10 +671,10 @@
 
                     } else if(this.value == 'e_inv'){
                         //地址
-                        $('input[type=text][name=buyer_address]').prop({
-                            required:false
-                        });
-                        $('.l_buyer_address').html('買受人地址');
+                        // $('input[type=text][name=buyer_address]').prop({
+                        //     required:false
+                        // });
+                        // $('.l_buyer_address').html('買受人地址');
 
                         //Email
                         $('input[type=email][name=buyer_email]').prop({

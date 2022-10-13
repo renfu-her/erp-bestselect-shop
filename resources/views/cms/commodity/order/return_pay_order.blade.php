@@ -188,6 +188,14 @@
         </div>
     </div>
 
+    <div class="col-auto">
+        @can('cms.collection_payment.index')
+        <a href="{{ session('collection_payment_url') ?? route('cms.collection_payment.index') }}" class="btn btn-outline-primary px-4" role="button">
+            返回 付款作業
+        </a>
+        @endcan
+    </div>
+
     <!-- Modal -->
     <x-b-modal id="confirm-delete">
         <x-slot name="title">刪除確認</x-slot>

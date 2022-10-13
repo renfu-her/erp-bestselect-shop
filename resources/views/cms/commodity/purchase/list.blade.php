@@ -273,6 +273,7 @@
                                                 <td scope="col">數量</td>
                                                 <td scope="col">入庫數量</td>
                                                 <td scope="col">異常數量</td>
+                                                <td scope="col">效期</td>
                                                 <td scope="col">採購人員</td>
                                                 <td scope="col">入庫人員</td>
                                                 <td scope="col">廠商</td>
@@ -286,6 +287,7 @@
                                                 <td>{{ number_format($data->num) }}</td>
                                                 <td>{{ number_format($data->arrived_num) }}</td>
                                                 <td>{{ $data->error_num }}</td>
+                                                <td>{{ $data->expiry_date }}</td>
                                                 <td>{{ $data->purchase_user_name }}</td>
                                                 <td>{{ $data->inbound_user_names ?? '' }}</td>
                                                 <td class="text-break">{{ $data->supplier_name }}</td>
