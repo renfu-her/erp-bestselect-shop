@@ -2,6 +2,9 @@
 @section('sub-content')
     <h2 class="mb-4">{{$title}} {{ $productStyle->sku }}</h2>
 
+    <form id="search" action="" method="GET">
+        <input type="hidden" name="data_per_page" value="{{ $data_per_page }}" />
+    </form>
     <div class="card shadow p-4 mb-4">
         <div class="row justify-content-end mb-4">
             <div class="col-auto">
@@ -20,6 +23,10 @@
                 <thead>
                 <tr>
                     <th scope="col">時間</th>
+                    <td scope="col" class="wrap">
+                        <div class="fw-bold">採購單號</div>
+                        <div>入庫單</div>
+                    </td>
                     <th scope="col">倉庫</th>
                     <th scope="col">商品名稱</th>
                     <th scope="col">事件</th>
@@ -33,6 +40,10 @@
                  @foreach ($purchaseLog as $key =>$data)
                      <tr>
                          <td>{{$data->created_at}}</td>
+                         <td class="wrap">
+                             <div class="fw-bold">{{ $data->event_sn }}</div>
+                             <div>{{ $data->inbound_sn ?? '-' }}</div>
+                         </td>
                          <td>{{$data->depot_name}}</td>
                          <td>{{$data->title}}</td>
                          <td>{{$data->event}}</td>
@@ -65,6 +76,11 @@
 @once
     @push('sub-scripts')
         <script>
+            // 顯示筆數
+            $('#dataPerPageElem').on('change', function(e) {
+                $('input[name=data_per_page]').val($(this).val());
+                $('#search').submit();
+            });
         </script>
     @endpush
 @endonce

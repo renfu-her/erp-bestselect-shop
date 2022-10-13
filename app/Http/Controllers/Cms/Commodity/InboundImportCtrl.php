@@ -423,14 +423,25 @@ class InboundImportCtrl extends Controller
         $data_per_page = Arr::get($query, 'data_per_page', 100);
         $data_per_page = is_numeric($data_per_page) ? $data_per_page : 100;
 
+        $depot_id = null;
+        $style_id = null;
         $logFeature = [LogEventFeature::inbound_update()->value];
-        $logPurchase = PurchaseLog::getStockDataForImportInbound(null, null, $logFeature);
-        $logPurchase = $logPurchase->orderByDesc('id');
-        $logPurchase = $logPurchase->paginate($data_per_page)->appends($query);
+        $cond = [];
+        $log_purchase = PurchaseLog::getStockDataAndEventSn(app(Purchase::class)->getTable(), [Event::purchase()->value], $depot_id, $style_id, $logFeature, $cond);
+        $log_order = PurchaseLog::getStockDataAndEventSn(app(SubOrders::class)->getTable(), [Event::order()->value, Event::ord_pickup()->value], $depot_id, $style_id, $logFeature, $cond);
+        $log_consignment = PurchaseLog::getStockDataAndEventSn(app(Consignment::class)->getTable(), [Event::consignment()->value], $depot_id, $style_id, $logFeature, $cond);
+        $log_csn_order = PurchaseLog::getStockDataAndEventSn(app(CsnOrder::class)->getTable(), [Event::csn_order()->value], $depot_id, $style_id, $logFeature, $cond);
+
+        $log_purchase->union($log_order);
+        $log_purchase->union($log_consignment);
+        $log_purchase->union($log_csn_order);
+
+        $log_purchase = $log_purchase->orderByDesc('id');
+        $log_purchase = $log_purchase->paginate($data_per_page)->appends($query);
 
         return view('cms.commodity.inbound_import.inbound_log', [
             'data_per_page' => $data_per_page,
-            'purchaseLog' => $logPurchase,
+            'purchaseLog' => $log_purchase,
         ]);
     }
 }
