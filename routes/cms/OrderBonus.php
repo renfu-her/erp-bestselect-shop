@@ -10,7 +10,7 @@ Route::group(['prefix' => 'order-bonus', 'as' => 'order-bonus.'], function () {
     Route::get('', [OrderBonusCtrl::class, 'index'])->name('index')->middleware('permission:cms.order-bonus.index');
     Route::get('create', [OrderBonusCtrl::class, 'create'])->name('create')->middleware('permission:cms.order-bonus.create');
     Route::post('create', [OrderBonusCtrl::class, 'store']);
-   
+
     //   Route::get('edit/{id}', [OrderBonusCtrl::class, 'edit'])->name('edit')->middleware('permission:cms.order-bonus.edit');
     //  Route::post('edit/{id}', [OrderBonusCtrl::class, 'update']);
     Route::get('delete/{id}', [OrderBonusCtrl::class, 'destroy'])->name('delete')->middleware('permission:cms.order-bonus.delete');
@@ -18,5 +18,5 @@ Route::group(['prefix' => 'order-bonus', 'as' => 'order-bonus.'], function () {
     Route::get('detail/{id}/person/{customer_id}', [OrderBonusCtrl::class, 'personDetail'])->name('person-detail')->middleware('permission:cms.order-bonus.detail');
 
     Route::post('export-csv/{id}', [OrderBonusCtrl::class, 'exportCsv'])->name('export-csv')->middleware('permission:cms.order-bonus.export-csv');
-
+    Route::post('export-personal-profit-to-csv', [OrderBonusCtrl::class, 'exportPersonalProfitToCsv'])->name('export-personal-profit-to-csv')->middleware('permission:cms.order-bonus.export-csv');
 });
