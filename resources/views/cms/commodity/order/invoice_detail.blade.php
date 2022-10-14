@@ -96,11 +96,16 @@
 
     <div class="col-auto">
         @can('cms.order_invoice_manager.index')
-        @if($invoice->status == 1 && is_null($invoice->r_status))
+        {{-- @if($invoice->status == 1 && is_null($invoice->r_status)) --}}
+        @if($invoice->status == 1 && $invoice->r_status != 'SUCCESS')
         <a href="javascript:void(0)" role="button" class="btn btn-primary px-4" data-bs-toggle="modal" 
             data-bs-target="#confirm-invoice" data-href="{{ Route('cms.order.send-invoice', ['id' => $invoice->id]) }}">
             開立發票
         </a>
+        @endif
+
+        @if($invoice->status == 1 && $invoice->r_status != 'SUCCESS')
+        <a href="{{ Route('cms.order.edit-invoice', ['id' => $invoice->id]) }}" class="btn btn-primary px-4" role="button">編輯發票</a>
         @endif
         @endcan
 

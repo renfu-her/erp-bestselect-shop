@@ -37,6 +37,7 @@ Route::group(['prefix' => 'order', 'as' => 'order.'], function () {
     Route::post('invoice/{id}', [OrderCtrl::class, 'store_invoice'])->name('store-invoice');
     Route::post('ajax-detail', [OrderCtrl::class, '_order_detail'])->name('ajax-detail');
     Route::get('invoice/{id}/show', [OrderCtrl::class, 'show_invoice'])->name('show-invoice');
+    Route::match(['get', 'post'], 'invoice/{id}/edit', [OrderCtrl::class, 'edit_invoice'])->name('edit-invoice');
     Route::get('invoice/{id}/send', [OrderCtrl::class, 'send_invoice'])->name('send-invoice');
     // 獎金毛利
     Route::get('bonus-gross/{id}', [OrderCtrl::class, 'bonus_gross'])->name('bonus-gross')->middleware('permission:cms.order.bonus-gross');
