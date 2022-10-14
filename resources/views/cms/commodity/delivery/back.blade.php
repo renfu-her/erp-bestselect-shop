@@ -123,13 +123,13 @@
                                     <option value="" selected disabled>請選擇會計科目</option>
                                     @foreach($total_grades as $g_value)
                                         <option value="{{ $g_value['primary_id'] }}" {{ $g_value['primary_id'] == old('bgrade_id.' . $i, $items[$i]->grade_id ?? '') ? 'selected' : '' }}
-                                        @if($g_value['grade_num'] === 1)
-                                        class="grade_1"
-                                                @elseif($g_value['grade_num'] === 2)
+                                            @if($g_value['grade_num'] === 1)
+                                                class="grade_1"
+                                            @elseif($g_value['grade_num'] === 2)
                                                 class="grade_2"
-                                                @elseif($g_value['grade_num'] === 3)
+                                            @elseif($g_value['grade_num'] === 3)
                                                 class="grade_3"
-                                                @elseif($g_value['grade_num'] === 4)
+                                            @elseif($g_value['grade_num'] === 4)
                                                 class="grade_4"
                                             @endif
                                         >{{ $g_value['code'] . ' ' . $g_value['name'] }}</option>
@@ -146,7 +146,7 @@
 
                             <td>
                                 <input type="number" name="bprice[{{ $i }}]"
-                                        value="{{ old('bprice.' . $i, $items[$i]->price ?? '') }}" min="0"
+                                        value="{{ old('bprice.' . $i, $items[$i]->price ?? '') }}"
                                         class="d-target r-target form-control form-control-sm @error('bprice.' . $i) is-invalid @enderror"
                                         aria-label="金額" placeholder="請輸入金額" disabled>
                             </td>
