@@ -4,21 +4,34 @@
 
 
     <div class="card shadow p-4 mb-4">
-        <form action="{{ route('cms.order-bonus.export-csv', ['id' => $month_report->id]) }}" method="POST">
-            @csrf
-            <div class="form-check form-check-inline">
-                <input class="form-check-input" type="radio" name="bank_type" id="bank_type1" value="a" checked>
-                <label class="form-check-label" for="bank_type1">合作金庫</label>
-            </div>
-            <div class="form-check form-check-inline">
-                <input class="form-check-input" type="radio" name="bank_type" id="bank_type2" value="b">
-                <label class="form-check-label" for="bank_type2">非合作金庫</label>
+        <div class="row">
+            <div class="col-lg-3">
+                <form action="{{ route('cms.order-bonus.export-csv', ['id' => $month_report->id]) }}" method="POST">
+                    @csrf
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="bank_type" id="bank_type1" value="a" checked>
+                        <label class="form-check-label" for="bank_type1">合作金庫</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="bank_type" id="bank_type2" value="b">
+                        <label class="form-check-label" for="bank_type2">非合作金庫</label>
+                    </div>
+
+                    <button class="btn btn-primary" type="submit"
+                        @cannot('cms.order-bonus.export-csv') disabled @endcannot>輸出csv</button>
+                </form>
             </div>
 
-            <button class="btn btn-primary" type="submit"
-                @cannot('cms.order-bonus.export-csv') disabled @endcannot>輸出csv</button>
+            <div class="col-lg-6">
+                <form action="{{ route('cms.order-bonus.export-personal-profit-to-csv') }}" method="POST">
+                    @csrf
+                    <input type="hidden" name="id" value="{{ $month_report->id }}">
+                    <button class="btn btn-primary" type="submit"
+                            @cannot('cms.order-bonus.export-csv') disabled @endcannot>詳細訂單分潤輸出csv</button>
+                </form>
+            </div>
+        </div>
 
-        </form>
         <div class="table-responsive tableOverBox">
             <table class="table table-striped tableList">
                 <thead>
