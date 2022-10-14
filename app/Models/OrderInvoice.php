@@ -81,11 +81,11 @@ class OrderInvoice extends Model
         if($source_type == app(Order::class)->getTable()){
             $source = Order::orderDetail($source_id)->selectRaw('customer.id AS customer_id')->first();
 
-            $source_id_arr[] = $source_id;
+            // $source_id_arr[] = $source_id;
 
             if(isset($parm['merge_source']) && is_array($parm['merge_source'])){
                 $merge_source = implode(',', $parm['merge_source']);
-                $source_id_arr = array_unique(array_merge($source_id_arr, $parm['merge_source']));
+                // $source_id_arr = array_unique(array_merge($source_id_arr, $parm['merge_source']));
             }
 
             /*
@@ -319,58 +319,58 @@ class OrderInvoice extends Model
 
         try {
             $inv_result = self::create([
-                'source_type'=>$source_type,
-                'source_id'=>$source_id,
-                'merge_source_id'=>$merge_source,
-                'invoice_id'=>$invoice_id,
-                'user_id'=>$user_id,
-                'customer_id'=>$customer_id,
-                'merchant_order_no'=>$merchant_order_no,
-                'status'=>$status,
-                'create_status_time'=>$create_status_time,
-                'category'=>$category,
-                'buyer_name'=>$buyer_name,
-                'buyer_ubn'=>$buyer_ubn,
-                'buyer_address'=>$buyer_address,
-                'buyer_email'=>$buyer_email,
-                'carrier_type'=>$carrier_type,
-                'carrier_num'=>$carrier_num,
-                'love_code'=>$love_code,
-                'print_flag'=>$print_flag,
-                'kiosk_print_flag'=>$kiosk_print_flag,
-                'tax_type'=>$tax_type,
-                'tax_rate'=>$tax_rate,
-                'customs_clearance'=>$customs_clearance,
-                'amt'=>$amt,
-                'amt_sales'=>$amt_sales,
-                'amt_zero'=>$amt_zero,
-                'amt_free'=>$amt_free,
-                'tax_amt'=>$tax_amt,
-                'total_amt'=>$total_amt,
-                'item_name'=>$item_name,
-                'item_count'=>$item_count,
-                'item_unit'=>$item_unit,
-                'item_price'=>$item_price,
-                'item_amt'=>$item_amt,
-                'item_tax_type'=>$item_tax_type,
-                'comment'=>$comment,
+                'source_type' => $source_type,
+                'source_id' => $source_id,
+                'merge_source_id' => $merge_source,
+                'invoice_id' => $invoice_id,
+                'user_id' => $user_id,
+                'customer_id' => $customer_id,
+                'merchant_order_no' => $merchant_order_no,
+                'status' => $status,
+                'create_status_time' => $create_status_time,
+                'category' => $category,
+                'buyer_name' => $buyer_name,
+                'buyer_ubn' => $buyer_ubn,
+                'buyer_address' => $buyer_address,
+                'buyer_email' => $buyer_email,
+                'carrier_type' => $carrier_type,
+                'carrier_num' => $carrier_num,
+                'love_code' => $love_code,
+                'print_flag' => $print_flag,
+                'kiosk_print_flag' => $kiosk_print_flag,
+                'tax_type' => $tax_type,
+                'tax_rate' => $tax_rate,
+                'customs_clearance' => $customs_clearance,
+                'amt' => $amt,
+                'amt_sales' => $amt_sales,
+                'amt_zero' => $amt_zero,
+                'amt_free' => $amt_free,
+                'tax_amt' => $tax_amt,
+                'total_amt' => $total_amt,
+                'item_name' => $item_name,
+                'item_count' => $item_count,
+                'item_unit' => $item_unit,
+                'item_price' => $item_price,
+                'item_amt' => $item_amt,
+                'item_tax_type' => $item_tax_type,
+                'comment' => $comment,
 
-                'r_status'=>null,
-                'r_msg'=>null,
-                'r_json'=>null,
-                'merchant_id'=>$merchant_id,
-                'invoice_trans_no'=>$invoice_trans_no,
-                'invoice_number'=>$invoice_number,
-                'random_number'=>$random_number,
-                'check_code'=>$check_code,
-                'bar_code'=>$bar_code,
-                'qr_code_l'=>$qr_code_l,
-                'qr_code_r'=>$qr_code_r,
+                'r_status' => null,
+                'r_msg' => null,
+                'r_json' => null,
+                'merchant_id' => $merchant_id,
+                'invoice_trans_no' => $invoice_trans_no,
+                'invoice_number' => $invoice_number,
+                'random_number' => $random_number,
+                'check_code' => $check_code,
+                'bar_code' => $bar_code,
+                'qr_code_l' => $qr_code_l,
+                'qr_code_r' => $qr_code_r,
             ]);
 
             if($merge_source && $inv_result){
                 self::where('source_type', $source_type)->whereIn('source_id', $parm['merge_source'])->update([
-                    'invoice_id'=>$inv_result->id,
+                    'invoice_id' => $inv_result->id,
                 ]);
             }
 
@@ -386,6 +386,219 @@ class OrderInvoice extends Model
             $inv_result = null;
             // $e->getMessage();
             wToast(__('發票資料新增失敗', ['type'=>'danger']));
+            DB::rollback();
+        }
+
+        return $inv_result;
+    }
+
+
+    public static function update_invoice($parm = [])
+    {
+        $invoice = self::find($parm['id']);
+
+        $merge_source = null;
+
+        $item_name_arr = [];
+        $item_count_arr = [];
+        $item_unit_arr = [];
+        $item_price_arr = [];
+        $item_amt_arr = [];
+        $item_tax_type_arr = [];
+        $amt_sales = 0;
+        $amt_free = 0;
+        $amt = 0;
+
+        if(isset($parm['merge_source']) && is_array($parm['merge_source'])){
+            $merge_source = implode(',', $parm['merge_source']);
+        }
+
+        foreach($parm['o_title'] as $key => $value){
+            $item_name_arr[] = trim(mb_substr(str_replace('|', '｜', preg_replace('/(\t|\r|\n|\r\n)+/', ' ', $parm['o_title'][$key])), 0, 30));
+            $item_count_arr[] = $parm['o_qty'][$key];
+            $item_unit_arr[] = '-';
+            $item_price_arr[] = $parm['o_price'][$key];
+            $item_amt_arr[] = $parm['o_total_price'][$key];
+            $item_tax_type_arr[] = $parm['o_taxation'][$key] == 1 ? 1 : 3;
+
+            if($parm['o_taxation'][$key] == 1){
+                $amt_sales += round($parm['o_total_price'][$key]/1.05);
+                $amt += round($parm['o_total_price'][$key]/1.05);
+            } else if($parm['o_taxation'][$key] == 0){
+                $amt_free += round($parm['o_total_price'][$key]/1);
+                $amt += round($parm['o_total_price'][$key]/1);
+            }
+        }
+
+        $user_id = auth('user')->user() ? auth('user')->user()->id : null;
+        $merchant_order_no = isset($parm['merchant_order_no']) ? $parm['merchant_order_no'] : $invoice->merchant_order_no ;
+
+        $status = isset($parm['status']) ? $parm['status'] : 9;
+        $create_status_time = isset($parm['create_status_time']) ? $parm['create_status_time'] : null;
+        $category = isset($parm['category']) ? $parm['category'] : 'B2C';
+        $buyer_name = isset($parm['buyer_name']) ? trim($parm['buyer_name']) : null;
+        $buyer_ubn = isset($parm['buyer_ubn']) ? trim($parm['buyer_ubn']) : null;
+        $buyer_address = isset($parm['buyer_address']) ? trim($parm['buyer_address']) : null;
+        $buyer_email = isset($parm['buyer_email']) ? $parm['buyer_email'] : null;
+        $carrier_type = isset($parm['carrier_type']) ? $parm['carrier_type'] : null;
+        $carrier_num = isset($parm['carrier_num']) ? trim($parm['carrier_num']) : null;
+        $love_code = isset($parm['love_code']) ? $parm['love_code'] : null;
+
+        $print_flag = $carrier_type != null || $love_code ? 'N' : 'Y';
+        $kiosk_print_flag = $carrier_type == 2 && isset($parm['kiosk_print_flag']) && $parm['kiosk_print_flag'] == 1 ? $parm['kiosk_print_flag'] : null;
+        if(count(array_unique($item_tax_type_arr)) == 1) {
+            if(array_unique($item_tax_type_arr)[0] == 1) {
+                $tax_type = 1;
+            } else if(array_unique($item_tax_type_arr)[0] == 3) {
+                $tax_type = 3;
+            } else {
+                $tax_type = 9;
+            }
+
+        } else {
+            $tax_type = 9;
+        }
+
+        $tax_rate = in_array($tax_type, [1, 9]) ? 5 : 0;
+        $customs_clearance = isset($parm['customs_clearance']) ? $parm['customs_clearance'] : null;
+
+        // $amt_sales = $amt_sales;
+        $amt_zero = 0;
+        // $amt_free = $amt_free;
+        $amt = $tax_type == 9 ? ($amt_sales + $amt_zero + $amt_free) : $amt;
+        $tax_amt = array_sum($item_amt_arr) - $amt;
+        $total_amt = array_sum($item_amt_arr);
+
+        $item_name = implode('|', $item_name_arr);
+        $item_count = implode('|', $item_count_arr);
+        $item_unit = implode('|', $item_unit_arr);
+        $item_price = implode('|', $item_price_arr);
+        $item_amt = implode('|', $item_amt_arr);
+        $item_tax_type = implode('|', $item_tax_type_arr);
+        $comment = isset($parm['comment']) ? $parm['comment'] : null;
+
+        // if($status == 3){
+        //     $create_status_time = date('Y-m-d', strtotime("+ 7 day"));
+        // }
+
+        if($category === 'B2B'){
+            if($tax_type == 9){
+                wToast(__('三聯式發票稅別不可為混合課稅'));
+                return $inv_result = null;
+            }
+
+            $buyer_name = mb_substr($buyer_name, 0, 60);
+            $carrier_type = null;
+            $carrier_num = null;
+            $love_code = null;
+            $print_flag = 'Y';
+
+        } else if($category === 'B2C'){
+            $buyer_name = mb_substr($buyer_name, 0, 30);
+            $buyer_ubn = null;
+
+            if($print_flag == 'N'){
+                if($carrier_type != null && $carrier_type == 0){
+                    if(preg_match('/^\/[A-Z0-9+-.]{7}$/', $carrier_num) == 0 || strlen($carrier_num) != 8){
+                        wToast(__('手機條碼載具格式錯誤'));
+                        return $inv_result = null;
+                    }
+
+                } else if($carrier_type == 1){
+                    if(preg_match('/^[A-Z]{2}[0-9]{14}$/', $carrier_num) == 0 || strlen($carrier_num) != 16){
+                        wToast(__('自然人憑證條碼載具格式錯誤'));
+                        return $inv_result = null;
+                    }
+
+                } else if($carrier_type == 2){
+                    $pattern = "/^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,})$/i";
+                    if (preg_match($pattern, $buyer_email) == 0) {
+                        wToast(__('會員電子發票載具格式錯誤'));
+                        return $inv_result = null;
+                    }
+
+                    $carrier_num = $buyer_email;
+                }
+
+            } else {
+                $carrier_type = null;
+                $carrier_num = null;
+                $love_code = null;
+            }
+
+            // if($carrier_type != ''){
+            //     $love_code = '';
+            //     $print_flag = 'Y';
+
+            // } else {
+            //     if($love_code != '' && preg_match('/^[0-9]{3,7}$/', $love_code) !== 1){
+            //         echo 'love code not match';
+
+            //         wToast(__('捐贈碼格式錯誤'));
+            //         return $inv_result = null;
+            //     }
+            // }
+
+            // if($carrier_type != '2'){
+            //     $kiosk_print_flag = '';
+            // }
+        }
+
+        DB::beginTransaction();
+
+        try {
+            $inv_result = tap($invoice)->update([
+                'merge_source_id' => $merge_source,
+                'user_id' => $user_id,
+                'merchant_order_no' => $merchant_order_no,
+                'status' => $status,
+                'create_status_time' => $create_status_time,
+                'category' => $category,
+                'buyer_name' => $buyer_name,
+                'buyer_ubn' => $buyer_ubn,
+                'buyer_address' => $buyer_address,
+                'buyer_email' => $buyer_email,
+                'carrier_type' => $carrier_type,
+                'carrier_num' => $carrier_num,
+                'love_code' => $love_code,
+                'print_flag' => $print_flag,
+                'kiosk_print_flag' => $kiosk_print_flag,
+                'tax_type' => $tax_type,
+                'tax_rate' => $tax_rate,
+                'customs_clearance' => $customs_clearance,
+                'amt' => $amt,
+                'amt_sales' => $amt_sales,
+                'amt_zero' => $amt_zero,
+                'amt_free' => $amt_free,
+                'tax_amt' => $tax_amt,
+                'total_amt' => $total_amt,
+                'item_name' => $item_name,
+                'item_count' => $item_count,
+                'item_unit' => $item_unit,
+                'item_price' => $item_price,
+                'item_amt' => $item_amt,
+                'item_tax_type' => $item_tax_type,
+                'comment' => $comment,
+            ]);
+
+            self::where('invoice_id', $inv_result->id)->update([
+                'invoice_id' => null,
+            ]);
+
+            if($merge_source && $inv_result){
+                self::where('source_type', $inv_result->source_type)->whereIn('source_id', $parm['merge_source'])->update([
+                    'invoice_id' => $inv_result->id,
+                ]);
+            }
+
+            wToast(__('發票資料更新成功'));
+
+            DB::commit();
+
+        } catch (\Exception $e) {
+            $inv_result = null;
+            // $e->getMessage();
+            wToast(__('發票資料更新失敗', ['type'=>'danger']));
             DB::rollback();
         }
 

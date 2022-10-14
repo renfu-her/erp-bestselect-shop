@@ -1,7 +1,7 @@
 @extends('layouts.main')
 
 @section('sub-content')
-    <h2 class="mb-4">開立電子發票</h2>
+    <h2 class="mb-4">編輯電子發票</h2>
 
     @if($errors->any())
         <div class="alert alert-danger mt-3">{!! implode('', $errors->all('<div>:message</div>')) !!}</div>
@@ -12,7 +12,7 @@
             <div class="row">
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">自定訂單編號 <span class="text-danger">*</span></label>
-                    <input type="text" name="merchant_order_no" class="form-control @error('merchant_order_no') is-invalid @enderror" placeholder="請輸入自定訂單編號" aria-label="自定訂單編號" value="{{ old('merchant_order_no', $order->sn) }}" required>
+                    <input type="text" name="merchant_order_no" class="form-control @error('merchant_order_no') is-invalid @enderror" placeholder="請輸入自定訂單編號" aria-label="自定訂單編號" value="{{ old('merchant_order_no', $invoice->merchant_order_no) }}" required>
                     <div class="invalid-feedback">
                         @error('merchant_order_no')
                         {{ $message }}
@@ -26,11 +26,11 @@
                     <legend class="col-form-label p-0 mb-2">開立狀態</legend>
                     <div class="px-1 pt-1">
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" name="status" value="1" type="radio" id="now" required {{ ! old('status') || old('status') == 1 ? 'checked' : '' }}>
+                            <input class="form-check-input" name="status" value="1" type="radio" id="now" required {{ old('status', $invoice->status) == 1 ? 'checked' : '' }}>
                             <label class="form-check-label" for="now">立即開立</label>
                         </div>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" name="status" value="9" type="radio" id="postpone" required {{ old('status') && old('status') == 9 ? 'checked' : '' }}>
+                            <input class="form-check-input" name="status" value="9" type="radio" id="postpone" required {{ old('status', $invoice->status) == 9 ? 'checked' : '' }}>
                             <label class="form-check-label" for="postpone">暫不開立</label>
                         </div>
                     </div>
@@ -41,11 +41,11 @@
                     </div>
                 </fieldset>
 
-                <div class="col-12 col-sm-6 mb-3 c_status">
+                <div class="col-12 col-sm-6 mb-3 c_status{{ $invoice->status == 1 ? '' : ' d-none' }}">
                     <label class="form-label" for="merge_source">合併發票</label>
                     <select name="merge_source[]" id="merge_source" multiple hidden class="-select2 -multiple form-select @error('merge_source') is-invalid @enderror" data-placeholder="請選擇合併發票">
                         @foreach ($merge_source as $value)
-                            <option value="{{ $value->id }}" @if (in_array($value->id, old('merge_source', []))) selected @endif>{{ $value->sn }}</option>
+                            <option value="{{ $value->id }}" @if (in_array($value->id, old('merge_source', $merge_source_selected))) selected @endif>{{ $value->sn }}</option>
                         @endforeach
                     </select>
                     @error('merge_source')
@@ -59,11 +59,11 @@
                     <legend class="col-form-label p-0 mb-2">發票種類 <span class="text-danger">*</span></legend>
                     <div class="px-1 pt-1">
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" name="category" value="B2C" type="radio" id="2c" required {{ ! old('category') || old('category') == 'B2C' ? 'checked' : '' }}>
+                            <input class="form-check-input" name="category" value="B2C" type="radio" id="2c" required {{ old('category', $invoice->category) == 'B2C' ? 'checked' : '' }}>
                             <label class="form-check-label" for="2c">個人</label>
                         </div>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" name="category" value="B2B" type="radio" id="2b" required {{ old('category') && old('category') == 'B2B' ? 'checked' : '' }}>
+                            <input class="form-check-input" name="category" value="B2B" type="radio" id="2b" required {{ old('category', $invoice->category) == 'B2B' ? 'checked' : '' }}>
                             <label class="form-check-label" for="2b">公司．企業</label>
                         </div>
                     </div>
@@ -74,9 +74,9 @@
                     </div>
                 </fieldset>
 
-                <div class="col-12 col-sm-6 mb-3 c_category d-none">
-                    <label class="form-label l_buyer_ubn">公司統編</label>
-                    <input type="text" name="buyer_ubn" class="form-control @error('buyer_ubn') is-invalid @enderror" placeholder="請輸入公司統編" aria-label="公司統編" value="{{ old('buyer_ubn') }}" disabled>
+                <div class="col-12 col-sm-6 mb-3 c_category{{ $invoice->category == 'B2B' ? '' : ' d-none' }}">
+                    <label class="form-label l_buyer_ubn">公司統編{!! $invoice->category == 'B2B' ? ' <span class="text-danger">*</span>' : '' !!}</label>
+                    <input type="text" name="buyer_ubn" class="form-control @error('buyer_ubn') is-invalid @enderror" placeholder="請輸入公司統編" aria-label="公司統編" value="{{ old('buyer_ubn', $invoice->buyer_ubn) }}"{{ $invoice->category == 'B2B' ? ' required' : ' disabled' }}>
                     <div class="invalid-feedback">
                         @error('buyer_ubn')
                         {{ $message }}
@@ -88,7 +88,7 @@
             <div class="row">
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">買受人名稱 <span class="text-danger">*</span></label>
-                    <input type="text" name="buyer_name" class="form-control @error('buyer_name') is-invalid @enderror" placeholder="請輸入買受人名稱" aria-label="買受人名稱" value="{{ old('buyer_name', $order->ord_name) }}" required>
+                    <input type="text" name="buyer_name" class="form-control @error('buyer_name') is-invalid @enderror" placeholder="請輸入買受人名稱" aria-label="買受人名稱" value="{{ old('buyer_name', $invoice->buyer_name) }}" required>
                     <div class="invalid-feedback">
                         @error('buyer_name')
                         {{ $message }}
@@ -99,9 +99,9 @@
 
             <div class="row">
                 <div class="col-12 col-sm-6 mb-3">
-                    <label class="form-label l_buyer_email">買受人E-mail <span class="text-danger">*</span></label>
+                    <label class="form-label l_buyer_email">買受人E-mail{!! $invoice->print_flag == 'N' ? ' <span class="text-danger">*</span>' : '' !!}</label>
                     <input type="email" name="buyer_email" class="form-control @error('buyer_email') is-invalid @enderror" placeholder="請輸入買受人E-mail" aria-label="買受人E-mail"
-                           value="{{ old('buyer_email', (\App\Enums\Order\CarrierType::getDescription(\App\Enums\Order\CarrierType::member) == $order->carrier_type)? $order->carrier_num: $order->email) }}" required>
+                           value="{{ old('buyer_email', $invoice->buyer_email) }}" {{ $invoice->print_flag == 'N' ? 'required' : '' }}>
                     <div class="invalid-feedback">
                         @error('buyer_email')
                         {{ $message }}
@@ -121,7 +121,7 @@
                 --}}
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label l_buyer_address">買受人地址</label>
-                    <input type="text" name="buyer_address" class="form-control @error('buyer_address') is-invalid @enderror" placeholder="請輸入買受人地址" aria-label="買受人地址" value="{{ old('buyer_address') }}">
+                    <input type="text" name="buyer_address" class="form-control @error('buyer_address') is-invalid @enderror" placeholder="請輸入買受人地址" aria-label="買受人地址" value="{{ old('buyer_address', $invoice->buyer_address) }}">
                     <div class="invalid-feedback">
                         @error('buyer_address')
                         {{ $message }}
@@ -135,7 +135,7 @@
                     <legend class="col-form-label p-0 mb-2">發票方式 <span class="text-danger">*</span></legend>
                     <div class="px-1 pt-1">
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" name="invoice_method" value="print" type="radio" id="print" required {{ old('invoice_method') && old('invoice_method') == 'print' ? 'checked' : '' }}>
+                            <input class="form-check-input" name="invoice_method" value="print" type="radio" id="print" required {{ (old('invoice_method') == 'print' || $invoice->print_flag == 'Y') ? 'checked' : '' }}>
                             <label class="form-check-label" for="print">無載具(列印電子發票證明聯)</label>
                         </div>
                         {{--
@@ -145,7 +145,7 @@
                         </div>
                         --}}
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" name="invoice_method" value="e_inv" type="radio" id="e_inv" required {{ ! old('invoice_method') || old('invoice_method') == 'e_inv' ? 'checked' : '' }}>
+                            <input class="form-check-input" name="invoice_method" value="e_inv" type="radio" id="e_inv" required {{ (old('invoice_method') == 'e_inv' || $invoice->print_flag == 'N') ? 'checked' : '' }}{{ $invoice->category == 'B2B' ? 'disabled' : '' }}>
                             <label class="form-check-label" for="e_inv">電子發票</label>
                         </div>
                     </div>
@@ -171,20 +171,20 @@
                 </div>
             </div>
 
-            <div class="row carrier">
+            <div class="row carrier{{ $invoice->print_flag == 'N' ? '' : ' d-none' }}">
                 <fieldset class="col-12 col-sm-6 mb-3">
                     <legend class="col-form-label p-0 mb-2">載具類型 <span class="text-danger">*</span></legend>
                     <div class="px-1 pt-1">
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" name="carrier_type" value="0" type="radio" id="carrier_mobile" {{ old('carrier_type') && old('carrier_type') == 0 ? 'checked' : '' }}>
+                            <input class="form-check-input" name="carrier_type" value="0" type="radio" id="carrier_mobile" {{ (old('carrier_type', $invoice->carrier_type) == 0) && old('carrier_type', $invoice->carrier_type) != null ? 'checked' : '' }}>
                             <label class="form-check-label" for="carrier_mobile">手機條碼載具</label>
                         </div>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" name="carrier_type" value="1" type="radio" id="carrier_certificate" {{ old('carrier_type') && old('carrier_type') == 1 ? 'checked' : '' }}>
+                            <input class="form-check-input" name="carrier_type" value="1" type="radio" id="carrier_certificate" {{ old('carrier_type', $invoice->carrier_type) == 1 ? 'checked' : '' }}>
                             <label class="form-check-label" for="carrier_certificate">自然人憑證條碼載具</label>
                         </div>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" name="carrier_type" value="2" type="radio" id="carrier_member" {{ ! old('carrier_type') || old('carrier_type') == 2 ? 'checked' : '' }}>
+                            <input class="form-check-input" name="carrier_type" value="2" type="radio" id="carrier_member" {{ old('carrier_type', $invoice->carrier_type) == 2 ? 'checked' : '' }}>
                             <label class="form-check-label" for="carrier_member">會員載具</label>
                         </div>
                     </div>
@@ -195,9 +195,9 @@
                     </div>
                 </fieldset>
 
-                <div class="col-12 col-sm-6 mb-3 c_carrier_type d-none">
+                <div class="col-12 col-sm-6 mb-3 c_carrier_type{{ in_array($invoice->carrier_type, [null, 2]) ? ' d-none' : '' }}">
                     <label class="form-label l_carrier_num">載具號碼</label>
-                    <input type="text" name="carrier_num" class="form-control @error('carrier_num') is-invalid @enderror" placeholder="請輸入載具號碼" aria-label="載具號碼" value="{{ old('carrier_num') }}" disabled>
+                    <input type="text" name="carrier_num" class="form-control @error('carrier_num') is-invalid @enderror" placeholder="請輸入載具號碼" aria-label="載具號碼" value="{{ old('carrier_num', $invoice->carrier_num) }}" {{ $invoice->carrier_type != 2 ? '' : 'disabled' }}>
                     <div class="invalid-feedback">
                         @error('carrier_num')
                         {{ $message }}
@@ -300,7 +300,7 @@
                                         <i class="bi bi-trash"></i>
                                     </button>
                                 </td>
-                                <td style="display:none">{{ $received_order->sn }}</td>
+                                <td style="display:none"></td>
                                 <td>
                                     <input type="text" name="o_title[]" class="form-control form-control-sm -l" value="" aria-label="產品名稱" minlength="1" maxlength="30" required>
                                 </td>
@@ -334,120 +334,49 @@
                                     </select>
                                 </td>
                             </tr>
+                            @php
+                                $name_arr = explode('|', $invoice->item_name);
+                                $count_arr = explode('|', $invoice->item_count);
+                                $price_arr = explode('|', $invoice->item_price);
+                                $amt_arr = explode('|', $invoice->item_amt);
+                                $tax_type_arr = explode('|', $invoice->item_tax_type);
+                            @endphp
 
-                            @foreach($sub_order as $s_value)
-                                @foreach($s_value->items as $value)
-                                    <tr class="-cloneElem">
-                                        <td class="text-center">
-                                            <button type="button" class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        </td>
-                                        <td style="display:none">{{ $received_order->sn }}</td>
-                                        <td><input type="text" name="o_title[]" class="form-control form-control-sm -l" value="{{ mb_substr(preg_replace('/(\t|\r|\n|\r\n)+/', ' ', $value->product_title), 0, 30) }}" aria-label="產品名稱" minlength="1" maxlength="30" required>
-                                        <td>
-                                            <div class="input-group input-group-sm flex-nowrap">
-                                                <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                                                <input type="number" name="o_price[]" class="form-control form-control-sm -l" value="{{ $value->price }}" aria-label="價格(單價)" required>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="input-group input-group-sm flex-nowrap">
-                                                <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                                                <input type="number" name="o_total_price[]" class="form-control form-control-sm -l" value="{{ $value->total_price }}" aria-label="價格(總價)" required>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <input type="number" name="o_qty[]" class="form-control form-control-sm -l" value="{{ $value->qty }}" aria-label="數量" min="1" required>
-                                        </td>
-                                        <td>
-                                            <select name="o_taxation[]" class="form-select form-select-sm" required>
-                                                @php
-                                                    foreach($tax as $t_key => $t_value){
-                                                        echo '<option value="' . $t_key . '"' . ($t_key === $value->product_taxation ? ' selected' : '') . '>' . $t_value . '</option>';
-                                                    }
-                                                @endphp
-                                            </select>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            @endforeach
-
-                            @if($order->dlv_fee > 0)
+                            @foreach($name_arr as $key => $value)
                                 <tr class="-cloneElem">
                                     <td class="text-center">
                                         <button type="button" class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
                                             <i class="bi bi-trash"></i>
                                         </button>
                                     </td>
-                                    <td style="display:none">{{ $received_order->sn }}</td>
-                                    <td><input type="text" name="o_title[]" class="form-control form-control-sm -l" value="物流費用" aria-label="產品名稱" minlength="1" maxlength="30" required>
+                                    <td style="display:none"></td>
+                                    <td><input type="text" name="o_title[]" class="form-control form-control-sm -l" value="{{ mb_substr(preg_replace('/(\t|\r|\n|\r\n)+/', ' ', $value), 0, 30) }}" aria-label="產品名稱" minlength="1" maxlength="30" required>
                                     <td>
                                         <div class="input-group input-group-sm flex-nowrap">
                                             <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                                            <input type="number" name="o_price[]" class="form-control form-control-sm -l" value="{{ $order->dlv_fee }}" aria-label="價格(單價)" required>
+                                            <input type="number" name="o_price[]" class="form-control form-control-sm -l" value="{{ $price_arr[$key] }}" aria-label="價格(單價)" required>
                                         </div>
                                     </td>
                                     <td>
                                         <div class="input-group input-group-sm flex-nowrap">
                                             <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                                            <input type="number" name="o_total_price[]" class="form-control form-control-sm -l" value="{{ $order->dlv_fee }}" aria-label="價格(總價)" required>
+                                            <input type="number" name="o_total_price[]" class="form-control form-control-sm -l" value="{{ $amt_arr[$key] }}" aria-label="價格(總價)" required>
                                         </div>
                                     </td>
                                     <td>
-                                        <input type="number" name="o_qty[]" class="form-control form-control-sm -l" value="1" aria-label="數量" min="1" required>
+                                        <input type="number" name="o_qty[]" class="form-control form-control-sm -l" value="{{ $count_arr[$key] }}" aria-label="數量" min="1" required>
                                     </td>
                                     <td>
                                         <select name="o_taxation[]" class="form-select form-select-sm" required>
                                             @php
                                                 foreach($tax as $t_key => $t_value){
-                                                    echo '<option value="' . $t_key . '"' . ($t_key === $order->dlv_taxation ? ' selected' : '') . '>' . $t_value . '</option>';
+                                                    echo '<option value="' . $t_key . '"' . ($t_key === $tax_type_arr[$key] ? ' selected' : '') . '>' . $t_value . '</option>';
                                                 }
                                             @endphp
                                         </select>
                                     </td>
                                 </tr>
-                            @endif
-
-                            @if(count($order_discount) > 0)
-                                @foreach($order_discount as $value)
-                                    <tr class="-cloneElem">
-                                        <td class="text-center">
-                                            <button type="button" class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        </td>
-
-                                        <td style="display:none">{{ $received_order->sn }}</td>
-
-                                        <td><input type="text" name="o_title[]" class="form-control form-control-sm -l" value="{{ mb_substr(preg_replace('/(\t|\r|\n|\r\n)+/', ' ', $value->title), 0, 30) }}" aria-label="產品名稱" minlength="1" maxlength="30" required>
-                                        <td>
-                                            <div class="input-group input-group-sm flex-nowrap">
-                                                <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                                                <input type="number" name="o_price[]" class="form-control form-control-sm -l" value="{{ -($value->discount_value) }}" aria-label="價格(單價)" required>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="input-group input-group-sm flex-nowrap">
-                                                <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                                                <input type="number" name="o_total_price[]" class="form-control form-control-sm -l" value="{{ -($value->discount_value) }}" aria-label="價格(總價)" required>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <input type="number" name="o_qty[]" class="form-control form-control-sm -l" value="1" aria-label="數量" min="1" required>
-                                        </td>
-                                        <td>
-                                            <select name="o_taxation[]" class="form-select form-select-sm" required>
-                                                @php
-                                                    foreach($tax as $t_key => $t_value){
-                                                        echo '<option value="' . $t_key . '"' . ($t_key === $value->discount_taxation ? ' selected' : '') . '>' . $t_value . '</option>';
-                                                    }
-                                                @endphp
-                                            </select>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            @endif
+                            @endforeach
                         </tbody>
                     </table>
                 </div>
@@ -461,7 +390,7 @@
         </div>
 
         <div class="col-auto">
-            <a href="{{ Route('cms.order.detail', ['id' => $order->id]) }}" class="btn btn-outline-primary px-4" role="button">
+            <a href="{{ Route('cms.order.detail', ['id' => $invoice->source_id]) }}" class="btn btn-outline-primary px-4" role="button">
                 返回明細
             </a>
             <button type="submit" class="btn btn-primary px-4">確認</button>

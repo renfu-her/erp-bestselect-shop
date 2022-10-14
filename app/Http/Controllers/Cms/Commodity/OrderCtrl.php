@@ -2130,21 +2130,23 @@ class OrderCtrl extends Controller
         $result = OrderInvoice::create_invoice(app(Order::class)->getTable(), $id, $data);
 
         if ($result) {
-            $parm = [
-                'order_id' => $id,
-                'gui_number' => $result->buyer_ubn,
-                'invoice_category' => '電子發票',
-                'invoice_number' => $result->invoice_number,
-            ];
-            Order::update_invoice_info($parm);
+            if($result->source_type == app(Order::class)->getTable()){
+                $parm = [
+                    'order_id' => $id,
+                    'gui_number' => $result->buyer_ubn,
+                    'invoice_category' => '電子發票',
+                    'invoice_number' => $result->invoice_number,
+                ];
+                Order::update_invoice_info($parm);
 
-            // wToast(__('發票開立成功'));
-            // if($result->r_msg){
-            //     wToast(__($result->r_msg));
-            // }
-            return redirect()->route('cms.order.show-invoice', [
-                'id' => $id,
-            ]);
+                // wToast(__('發票開立成功'));
+                // if($result->r_msg){
+                //     wToast(__($result->r_msg));
+                // }
+                return redirect()->route('cms.order.show-invoice', [
+                    'id' => $id,
+                ]);
+            }
 
         } else {
             // wToast(__('發票開立失敗', ['type'=>'danger']));
@@ -2189,9 +2191,12 @@ class OrderCtrl extends Controller
                         'received_sn' => $n_r_order->sn,
                         'name' => $i_value->product_title,
                         'count' => $i_value->qty,
-                        'price' => number_format($i_value->price),
-                        'amt' => number_format($i_value->total_price),
-                        'tax' => $i_value->product_taxation == 1 ? '應稅' : '免稅',
+                        // 'price' => number_format($i_value->price),
+                        // 'amt' => number_format($i_value->total_price),
+                        // 'tax' => $i_value->product_taxation == 1 ? '應稅' : '免稅',
+                        'price' => $i_value->price,
+                        'amt' => $i_value->total_price,
+                        'tax' => $i_value->product_taxation,
                     ];
                 }
             }
@@ -2200,9 +2205,9 @@ class OrderCtrl extends Controller
                     'received_sn' => $n_r_order->sn,
                     'name' => '物流費用',
                     'count' => 1,
-                    'price' => number_format($n_order->dlv_fee),
-                    'amt' => number_format($n_order->dlv_fee),
-                    'tax' => $n_order->dlv_taxation == 1 ? '應稅' : '免稅',
+                    'price' => $n_order->dlv_fee,
+                    'amt' => $n_order->dlv_fee,
+                    'tax' => $n_order->dlv_taxation,
                 ];
             }
             foreach ($n_order_discount as $d_value) {
@@ -2210,9 +2215,9 @@ class OrderCtrl extends Controller
                     'received_sn' => $n_r_order->sn,
                     'name' => $d_value->title,
                     'count' => 1,
-                    'price' => -number_format($d_value->discount_value),
-                    'amt' => -number_format($d_value->discount_value),
-                    'tax' => $d_value->discount_taxation == 1 ? '應稅' : '免稅',
+                    'price' => -$d_value->discount_value,
+                    'amt' => -$d_value->discount_value,
+                    'tax' => $d_value->discount_taxation,
                 ];
             }
         }
@@ -2241,7 +2246,7 @@ class OrderCtrl extends Controller
 
         $handler = User::find($invoice->user_id);
 
-        // $order = Order::orderDetail($id)->first();
+        $order = Order::orderDetail($id)->first();
         // $sub_order = Order::subOrderDetail($id)->get();
         // foreach ($sub_order as $key => $value) {
         //     $sub_order[$key]->items = json_decode($value->items);
@@ -2249,7 +2254,7 @@ class OrderCtrl extends Controller
         // }
 
         return view('cms.commodity.order.invoice_detail', [
-            'breadcrumb_data' => ['id' => $id, 'sn' => $invoice->merchant_order_no],
+            'breadcrumb_data' => ['id' => $id, 'sn' => $order->sn],
 
             'invoice' => $invoice,
             'handler' => $handler,
@@ -2263,23 +2268,91 @@ class OrderCtrl extends Controller
         $request->merge([
             'id' => $id,
         ]);
+
         $request->validate([
             'id' => 'required|exists:ord_order_invoice,id',
         ]);
 
+        if($request->isMethod('post')){
+            $request->validate([
+                'merchant_order_no' => 'required|string',
+                'status' => 'required|in:1,9',
+                'merge_source' => 'nullable|array',
+                'merge_source.*' => 'exists:ord_orders,id',
+                'category' => 'required|in:B2B,B2C',
+                'buyer_ubn' => 'required_if:category,==,B2B',
+                'buyer_name' => 'required|string|max:60',
+                'buyer_email' => 'nullable|required_if:carrier_type,==,2|email:rfc,dns',
+                'invoice_method' => 'required|in:print,give,e_inv',
+                'love_code' => 'required_if:invoice_method,==,give',
+                'carrier_type' => 'required_if:invoice_method,==,e_inv|in:0,1,2',
+                'carrier_num' => 'required_if:carrier_type,==,0|required_if:carrier_type,==,1',
+                'create_status_time' => 'nullable|date|date_format:Y-m-d',
+
+                'o_title' => 'required|array|min:1',
+                'o_title.*' => 'required|string|between:1,30',
+                'o_price' => 'required|array|min:1',
+                'o_price.*' => 'required',
+                'o_total_price' => 'required|array|min:1',
+                'o_total_price.*' => 'required',
+                'o_qty' => 'required|array|min:1',
+                'o_qty.*' => 'required|numeric|gt:0',
+                'o_taxation' => 'required|array|min:1',
+                'o_taxation.*' => 'required|in:0,1',
+            ]);
+
+            if(array_sum(request('o_total_price')) < 1){
+                wToast(__('發票金額不可小於1', ['type'=>'danger']));
+                return redirect()->back();
+            }
+
+            $data = $request->except('_token');
+            $result = OrderInvoice::update_invoice($data);
+
+            if ($result) {
+                if($result->source_type == app(Order::class)->getTable()){
+                    $parm = [
+                        'order_id' => $result->source_id,
+                        'gui_number' => $result->buyer_ubn,
+                        'invoice_category' => '電子發票',
+                        'invoice_number' => $result->invoice_number,
+                    ];
+                    Order::update_invoice_info($parm);
+
+                    return redirect()->route('cms.order.show-invoice', [
+                        'id' => $result->source_id,
+                    ]);
+                }
+
+            } else {
+                return redirect()->back();
+            }
+        }
+
         $invoice = OrderInvoice::find($id);
+        $breadcrumb = (object)[
+                'id' => null,
+                'sn' => null,
+            ];
+        if($invoice->source_type == app(Order::class)->getTable()){
+            $order = Order::find($invoice->source_id);
+            $breadcrumb->id = $order->id;
+            $breadcrumb->sn = $order->sn;
+        }
 
         $valid_arr = OrderInvoice::where([
-            'source_type' => $invoice->source_type,
-            'merge_source_id' => null,
-            'invoice_id' => null,
-            'status' => 9,
-        ])->pluck('source_id')->toArray();
+                'source_type' => $invoice->source_type,
+                'merge_source_id' => null,
+                'status' => 9,
+            ])->where(function ($query) use ($id) {
+                $query->where('invoice_id', '=', null)
+                    ->orWhere('invoice_id', '=', $id);
+            })->pluck('source_id')->toArray();
         $merge_source = Order::where('id', '!=', $invoice->source_id)->whereIn('id', $valid_arr)->get();
-        $merge_source_selected = OrderInvoice::where('merge_source_id', $id)->pluck('source_id')->toArray();
+        $merge_source_selected = OrderInvoice::where('invoice_id', $id)->pluck('source_id')->toArray();
 
         return view('cms.commodity.order.invoice_edit', [
-            'breadcrumb_data' => ['id' => $id, 'sn' => $invoice->merchant_order_no],
+            'breadcrumb_data' => ['id' => $breadcrumb->id, 'sn' => $breadcrumb->sn],
             'form_action' => Route('cms.order.edit-invoice', ['id' => $id]),
             'invoice' => $invoice,
             'merge_source' => $merge_source,
@@ -2310,6 +2383,8 @@ class OrderCtrl extends Controller
         wToast(__($inv_result->r_msg));
         return redirect()->back();
     }
+
+
     // 獎金毛利
     public function bonus_gross(Request $request, $id)
     {

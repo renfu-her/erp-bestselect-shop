@@ -304,6 +304,12 @@ Breadcrumbs::for('cms.order.show-invoice', function (BreadcrumbTrail $trail, $va
     $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.order.detail', ['id' => $value['id']]));
     $trail->push('電子發票');
 });
+// 編輯電子發票
+Breadcrumbs::for('cms.order.edit-invoice', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.order.index');
+    $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.order.detail', ['id' => $value['id']]));
+    $trail->push('編輯電子發票');
+});
 
 // 匯款紀錄
 Breadcrumbs::for('cms.remittance_record.index', function (BreadcrumbTrail $trail) {
