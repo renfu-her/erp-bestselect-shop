@@ -127,7 +127,7 @@ class OrderBonusCtrl extends Controller
     public function detail($id)
     {
         $month_report = OrderMonthProfitReport::where('id', $id)->get()->first();
-        
+
         if (!$month_report) {
             return abort(404);
         }
@@ -166,6 +166,78 @@ class OrderBonusCtrl extends Controller
             'breadcrumb_data' => ['month' => $month_report, 'title' => $customer_reports->mcode . " " . $customer_reports->name],
         ]);
 
+    }
+
+    /**
+     * @param  Request  $request
+     * 明細CSV
+        列出所有每個人的訂單明細
+        姓名/mcode/子訂單/品名規格/金額/數量/小計/獎金
+     *
+     */
+    public function exportPersonalProfitToCsv(Request $request)
+    {
+        $request->validate([
+            'id' => [
+                'required',
+                'exists:ord_month_profit_report,id',
+            ],
+        ]);
+
+        $req = $request->all();
+        $month_report = OrderMonthProfitReport::where('id', $req['id'])->get()->first();
+        if (!$month_report) {
+            return abort(404);
+        }
+
+        $allProfit = OrderProfit::dataList(null, null, $month_report->report_at)
+            ->leftJoin('usr_customers', 'profit.customer_id', '=', 'usr_customers.id')
+            ->addSelect([
+                'usr_customers.name',
+                'usr_customers.sn AS mcode',
+            ])
+            ->orderBy('mcode')
+            ->orderBy('sub_order_id')
+            ->get();
+
+        $header = [
+            '姓名',
+            'mcode',
+            '子訂單',
+            '品名規格',
+            '金額',
+            '數量',
+            '小計',
+            '獎金',
+        ];
+
+        return response()->streamDownload(function () use (
+            $header,
+            $allProfit,
+            $month_report
+        ) {
+            $file = fopen('php://output', 'w');
+
+            fwrite($file, "\xEF\xBB\xBF");
+
+            fputcsv($file, $header);
+
+            foreach ($allProfit as $key => $data) {
+                fputcsv($file, [
+                    $data->name,
+                    $data->mcode,
+                    $data->sub_order_sn,
+                    $data->product_title,
+                    $data->price,
+                    $data->qty,
+                    $data->origin_price,
+                    $data->bonus,
+                ]);
+            }
+
+            fclose($file);
+        },
+            $month_report->title . '.csv');
     }
 
     public function exportCsv(Request $request, $id)
@@ -246,7 +318,7 @@ class OrderBonusCtrl extends Controller
         // return response()->stream($callback, 200, $headers);
         return response()->streamDownload(function () use ($title, $datas, $bank_type, $baseData,$month_report) {
             $file = fopen('php://output', 'w');
-           
+
             fwrite($file, "\xEF\xBB\xBF");
 
             fputcsv($file, $title);
