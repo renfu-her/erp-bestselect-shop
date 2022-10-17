@@ -147,7 +147,7 @@
             </div>
             <div class="col-auto">
                 <div class="btn-group">
-                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" 
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button"
                         data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
                         顯示欄位
                     </button>
@@ -249,6 +249,22 @@
                 </tbody>
             </table>
         </div>
+        <table class="table tableList">
+            <thead class="small align-middle">
+            <tr>
+                <th scope="col" style="width:40px"></th>
+                <th scope="col" style="width:40px"></th>
+                <th scope="col"></th>
+                <th scope="col" style="font-size: larger">
+                    合計金額：$
+                    {{ number_format($somOfPrice ?? '') }}
+                    （共
+                    {{ $dataList->total() }}
+                    筆）
+                </th>
+            </tr>
+            </thead>
+        </table>
     </div>
     <div class="row flex-column-reverse flex-sm-row">
         <div class="col d-flex justify-content-end align-items-center mb-3 mb-sm-0">
@@ -290,8 +306,8 @@
                 DefHide = JSON.parse(localStorage.getItem('table-hide-field')) || {};
             } catch (error) {}
             const Key = location.pathname;
-            
-            setPrintTrCheckbox($('table.tableList'), $('#selectField'), 
+
+            setPrintTrCheckbox($('table.tableList'), $('#selectField'),
                 { type: 'dropdown', defaultHide: DefHide[Key] || [] }
             );
             // 紀錄選項
