@@ -237,6 +237,28 @@
                         </tr>
                     @endforeach
                 </tbody>
+
+                <tfoot class="table-warning">
+                    <tr>
+                        <th></th>
+                        <th>合計：{{ count($data_list) }} 張</th>
+                        <th class="text-end">合計：${{ number_format($data_list->sum('tw_price')) }}</th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                </tfoot>
             </table>
         </div>
     </div>
