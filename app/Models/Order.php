@@ -164,10 +164,15 @@ class Order extends Model
 
         }
 
+        $sumPrice = $order;
+        $sumOfPrice = $sumPrice->get()->unique('sub_order_id')->sum('total_price');
         $order->orderByDesc('order.id');
 
-        return $order;
-        //   dd($order->get()->toArray());
+        return [
+            'dataList' => $order,
+            'somOfPrice' => $sumOfPrice,
+        ];
+//           dd($order->get()->toArray());
     }
 
     public static function orderDetail($order_id, $email = null)
@@ -486,7 +491,7 @@ class Order extends Model
         $order_id = self::create($updateData)->id;
         $order['order_id'] = $order_id;
         Discount::createOrderDiscount('main', $order_id, $customer, $order['discounts']);
-        
+
         foreach ($address as $key => $user) {
 
             $city = Addr::where('id', $user['city_id'])->get()->first();
