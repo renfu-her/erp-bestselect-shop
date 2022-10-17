@@ -93,7 +93,7 @@ class TransferVoucherCtrl extends Controller
                 'rate' => 'nullable|array',
                 'rate.*' => 'numeric|between:0,9999999.99',
                 'currency_price' => 'nullable|array',
-                'currency_price.*' => 'numeric|between:0,9999999.99',
+                'currency_price.*' => 'numeric|between:0,99999999999.99',
                 'department' => 'nullable|array',
                 'department.*' => 'exists:usr_users,department',
             ]);
@@ -228,7 +228,7 @@ class TransferVoucherCtrl extends Controller
                 'rate' => 'nullable|array',
                 'rate.*' => 'numeric|between:0,9999999.99',
                 'currency_price' => 'nullable|array',
-                'currency_price.*' => 'numeric|between:0,9999999.99',
+                'currency_price.*' => 'numeric|between:0,99999999999.99',
                 'department' => 'nullable|array',
                 'department.*' => 'exists:usr_users,department',
             ]);
