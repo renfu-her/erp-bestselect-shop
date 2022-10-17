@@ -486,20 +486,23 @@ class Order extends Model
         $order_id = self::create($updateData)->id;
         $order['order_id'] = $order_id;
         Discount::createOrderDiscount('main', $order_id, $customer, $order['discounts']);
-
+        
         foreach ($address as $key => $user) {
 
-            $addr = Addr::addrFormating($user['address']);
-            if (!$addr->city_id) {
-                DB::rollBack();
-                return ['success' => '0', 'error_msg' => 'address format error', 'event' => 'address', 'event_id' => $user['type']];
-            }
-            $address[$key]['city_id'] = $addr->city_id;
-            $address[$key]['city_title'] = $addr->city_title;
-            $address[$key]['region_id'] = $addr->region_id;
-            $address[$key]['region_title'] = $addr->region_title;
-            $address[$key]['zipcode'] = $addr->zipcode;
-            $address[$key]['addr'] = $addr->addr;
+            $city = Addr::where('id', $user['city_id'])->get()->first();
+            $region = Addr::where('id', $user['region_id'])->get()->first();
+            $city_title = $city ? $city->title : '';
+            $region_title = $region ? $region->title : '';
+            $zipcode = $region ? $region->zipcode : '';
+            $_address = $zipcode . " " . $city_title . $region_title . $user['address'];
+         //   dd($user['city_id']);
+            $address[$key]['city_id'] = $user['city_id'];
+            $address[$key]['city_title'] = $city_title;
+            $address[$key]['region_id'] = $user['region_id'];
+            $address[$key]['region_title'] = $region_title;
+            $address[$key]['zipcode'] = $zipcode;
+            $address[$key]['addr'] = $user['address'];
+            $address[$key]['address'] = $_address;
             $address[$key]['order_id'] = $order_id;
         }
         try {
