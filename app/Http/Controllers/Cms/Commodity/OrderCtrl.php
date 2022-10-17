@@ -327,6 +327,7 @@ class OrderCtrl extends Controller
         }
 
         $address = [];
+       
         foreach (UserAddrType::asArray() as $value) {
             switch ($value) {
                 case 'receiver':
@@ -340,7 +341,12 @@ class OrderCtrl extends Controller
                     break;
             }
 
-            $address[] = ['name' => $d[$prefix . '_name'], 'phone' => $d[$prefix . '_phone'], 'address' => $d[$prefix . '_address'], 'type' => $value];
+            $address[] = ['name' => $d[$prefix . '_name'],
+                'phone' => $d[$prefix . '_phone'],
+                'address' => $d[$prefix . '_addr'],
+                'city_id' => $d[$prefix . '_city_id'],
+                'region_id' => $d[$prefix . '_region_id'],
+                'type' => $value];
 
         }
 
@@ -475,13 +481,15 @@ class OrderCtrl extends Controller
         // 使用紅利詳細
         $dividendList = Order::orderDividendList($id)->get();
 
-
         $po_check = true;
-        if(count($subOrder) > 0){
-            foreach($subOrder as $so_value){
+        if (count($subOrder) > 0) {
+            foreach ($subOrder as $so_value) {
                 $delivery = Delivery::where('event', Event::order()->value)->where('event_id', $so_value->id)->first();
                 $po_check = PayingOrder::source_confirmation(app(Delivery::class)->getTable(), $delivery->id);
-                if(!$po_check) break;
+                if (!$po_check) {
+                    break;
+                }
+
             }
         }
 
@@ -1058,7 +1066,7 @@ class OrderCtrl extends Controller
                 $update = [];
                 $update['accountant_id'] = auth('user')->user()->id;
                 $update['receipt_date'] = request('receipt_date');
-                if(request('invoice_number')){
+                if (request('invoice_number')) {
                     $update['invoice_number'] = request('invoice_number');
                 }
                 $received_order->update($update);
@@ -1411,10 +1419,10 @@ class OrderCtrl extends Controller
 
             try {
                 $update = [];
-                if(request('logistics_grade_id')){
+                if (request('logistics_grade_id')) {
                     $update['logistics_grade_id'] = request('logistics_grade_id');
                 }
-                if(request('product_grade_id')){
+                if (request('product_grade_id')) {
                     $update['product_grade_id'] = request('product_grade_id');
                 }
                 $received_order->update($update);
@@ -2030,7 +2038,6 @@ class OrderCtrl extends Controller
         }
     }
 
-
     public function create_invoice(Request $request, $id)
     {
         $request->merge([
@@ -2121,8 +2128,8 @@ class OrderCtrl extends Controller
             'o_taxation.*' => 'required|in:0,1',
         ]);
 
-        if(array_sum(request('o_total_price')) < 1){
-            wToast(__('發票金額不可小於1', ['type'=>'danger']));
+        if (array_sum(request('o_total_price')) < 1) {
+            wToast(__('發票金額不可小於1', ['type' => 'danger']));
             return redirect()->back();
         }
 
@@ -2130,7 +2137,7 @@ class OrderCtrl extends Controller
         $result = OrderInvoice::create_invoice(app(Order::class)->getTable(), $id, $data);
 
         if ($result) {
-            if($result->source_type == app(Order::class)->getTable()){
+            if ($result->source_type == app(Order::class)->getTable()) {
                 $parm = [
                     'order_id' => $id,
                     'gui_number' => $result->buyer_ubn,
@@ -2273,7 +2280,7 @@ class OrderCtrl extends Controller
             'id' => 'required|exists:ord_order_invoice,id',
         ]);
 
-        if($request->isMethod('post')){
+        if ($request->isMethod('post')) {
             $request->validate([
                 'merchant_order_no' => 'required|string',
                 'status' => 'required|in:1,9',
@@ -2301,8 +2308,8 @@ class OrderCtrl extends Controller
                 'o_taxation.*' => 'required|in:0,1',
             ]);
 
-            if(array_sum(request('o_total_price')) < 1){
-                wToast(__('發票金額不可小於1', ['type'=>'danger']));
+            if (array_sum(request('o_total_price')) < 1) {
+                wToast(__('發票金額不可小於1', ['type' => 'danger']));
                 return redirect()->back();
             }
 
@@ -2310,7 +2317,7 @@ class OrderCtrl extends Controller
             $result = OrderInvoice::update_invoice($data);
 
             if ($result) {
-                if($result->source_type == app(Order::class)->getTable()){
+                if ($result->source_type == app(Order::class)->getTable()) {
                     $parm = [
                         'order_id' => $result->source_id,
                         'gui_number' => $result->buyer_ubn,
@@ -2330,24 +2337,24 @@ class OrderCtrl extends Controller
         }
 
         $invoice = OrderInvoice::find($id);
-        $breadcrumb = (object)[
-                'id' => null,
-                'sn' => null,
-            ];
-        if($invoice->source_type == app(Order::class)->getTable()){
+        $breadcrumb = (object) [
+            'id' => null,
+            'sn' => null,
+        ];
+        if ($invoice->source_type == app(Order::class)->getTable()) {
             $order = Order::find($invoice->source_id);
             $breadcrumb->id = $order->id;
             $breadcrumb->sn = $order->sn;
         }
 
         $valid_arr = OrderInvoice::where([
-                'source_type' => $invoice->source_type,
-                'merge_source_id' => null,
-                'status' => 9,
-            ])->where(function ($query) use ($id) {
-                $query->where('invoice_id', '=', null)
-                    ->orWhere('invoice_id', '=', $id);
-            })->pluck('source_id')->toArray();
+            'source_type' => $invoice->source_type,
+            'merge_source_id' => null,
+            'status' => 9,
+        ])->where(function ($query) use ($id) {
+            $query->where('invoice_id', '=', null)
+                ->orWhere('invoice_id', '=', $id);
+        })->pluck('source_id')->toArray();
         $merge_source = Order::where('id', '!=', $invoice->source_id)->whereIn('id', $valid_arr)->get();
         $merge_source_selected = OrderInvoice::where('invoice_id', $id)->pluck('source_id')->toArray();
 
@@ -2384,7 +2391,6 @@ class OrderCtrl extends Controller
         return redirect()->back();
     }
 
-
     // 獎金毛利
     public function bonus_gross(Request $request, $id)
     {
@@ -2398,7 +2404,7 @@ class OrderCtrl extends Controller
         // dd(OrderItem::itemList($id,['profit'=>1])->get()->toArray());
 
         $dataList = OrderItem::itemList($id, ['profit' => 1])->get();
-       // dd($dataList);
+        // dd($dataList);
         $bonus = [0, 0];
         foreach ($dataList as $value) {
             $bonus[0] = $bonus[0] += $value->bonus;
@@ -2618,7 +2624,7 @@ class OrderCtrl extends Controller
 
                 switch ($d['ship_category'][$key]) {
                     case "deliver":
-                        $ship_group = DB::table(app(ShipmentGroup::class)->getTable(). ' as sg')
+                        $ship_group = DB::table(app(ShipmentGroup::class)->getTable() . ' as sg')
                             ->where('sg.id', $d['ship_event_id'][$key])
                             ->leftJoin('shi_temps', 'shi_temps.id', '=', 'sg.temps_fk')
                             ->get()->first();
