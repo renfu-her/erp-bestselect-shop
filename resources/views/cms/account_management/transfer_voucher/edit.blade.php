@@ -152,6 +152,7 @@
 @once
     @push('sub-styles')
     <style>
+        /*
         .grade_1 {
             padding-left: 1ch;
         }
@@ -167,6 +168,7 @@
         .grade_4 {
             padding-left: 8ch;
         }
+        */
     </style>
     @endpush
 
