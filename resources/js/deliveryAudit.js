@@ -249,7 +249,7 @@ $(function () {
             // element == this
             chk &= $(element).find('input[name="qty_actual[]"').val() === $(element).find('td[data-td="o_qty"]').text().trim();
         });
-        $('#submitDiv button[type="submit"]').prop('disabled', !chk || readonly);
+        $('#submitDiv button.-submit').prop('disabled', !chk || readonly);
     }
 
     // 清空入庫 Modal

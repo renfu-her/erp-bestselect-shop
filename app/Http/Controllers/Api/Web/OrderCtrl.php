@@ -425,17 +425,23 @@ class OrderCtrl extends Controller
         $address = [];
         $address[] = ['name' => $payLoad['orderer']['name'],
             'phone' => $payLoad['orderer']['phone'],
-            'address' => Addr::fullAddr($payLoad['orderer']['region_id'], $payLoad['orderer']['addr']),
+            'address' => $payLoad['orderer']['addr'],
+            'city_id'=>$payLoad['orderer']['city_id'],
+            'region_id'=>$payLoad['orderer']['region_id'],
             'type' => UserAddrType::orderer()->value];
 
         $address[] = ['name' => $payLoad['orderer']['name'],
             'phone' => $payLoad['orderer']['phone'],
-            'address' => Addr::fullAddr($payLoad['orderer']['region_id'], $payLoad['orderer']['addr']),
+            'address' => $payLoad['orderer']['addr'],
+            'city_id'=> $payLoad['orderer']['city_id'],
+            'region_id'=> $payLoad['orderer']['region_id'],
             'type' => UserAddrType::sender()->value];
 
         $address[] = ['name' => $payLoad['recipient']['name'],
             'phone' => $payLoad['recipient']['phone'],
-            'address' => Addr::fullAddr($payLoad['recipient']['region_id'], $payLoad['recipient']['addr']),
+            'address' => $payLoad['recipient']['addr'],
+            'city_id'=> $payLoad['recipient']['city_id'],
+            'region_id'=> $payLoad['recipient']['region_id'],
             'type' => UserAddrType::receiver()->value];
 
         $couponObj = null;

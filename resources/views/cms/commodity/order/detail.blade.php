@@ -512,13 +512,12 @@
                 </div>
 
                 @if (true == isset($subOrder->consume_items) && 0 < count($subOrder->consume_items))
-                    <div class="card-header px-4 text-secondary border-top">物流耗材清單</div>
                     <div class="card-body px-4 py-0">
                         <div class="table-responsive tableOverBox">
                             <table class="table tableList table-sm mb-0">
                                 <thead class="table-light text-secondary">
                                     <tr>
-                                        <th scope="col">耗材名稱</th>
+                                        <th scope="col">物流耗材名稱</th>
                                         <th scope="col">SKU</th>
                                         <th scope="col">數量</th>
                                     </tr>
