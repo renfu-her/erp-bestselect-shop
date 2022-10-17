@@ -442,6 +442,31 @@ Breadcrumbs::for('cms.user-performance-report.index', function (BreadcrumbTrail 
     $trail->push('業績報表', route('cms.user-performance-report.index'));
 });
 
+Breadcrumbs::for('cms.user-performance-report.department', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.user-performance-report.index');
+    $trail->push('部門');
+});
+
+Breadcrumbs::for('cms.user-performance-report.group', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.user-performance-report.department');
+    $trail->push('組');
+});
+
+Breadcrumbs::for('cms.user-performance-report.user', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.user-performance-report.group');
+    $trail->push('人員');
+});
+
+// 採購營收報表
+Breadcrumbs::for('cms.product-manager-report.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('採購營收報表', route('cms.product-manager-report.index'));
+});
+
+Breadcrumbs::for('cms.product-manager-report.product', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.product-manager-report.index');
+    $trail->push('商品報表');
+});
 
 // *** 共用頁 *** //
 Breadcrumbs::for('cms.logistic.changeLogisticStatus', function (BreadcrumbTrail $trail, $value) {

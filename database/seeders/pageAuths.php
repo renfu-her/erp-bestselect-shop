@@ -1094,4 +1094,31 @@ return [
             ],
         ],
     ],
+    [
+        "unit" => "業績報表",
+        "permissions" => [
+            [
+                "cms.user-performance-report.index",
+                "瀏覽",
+            ],
+            [
+                "cms.user-performance-report.renew",
+                "重新統計",
+            ],
+        ],
+    ],
+    [
+        "unit" => "採購營收報表",
+        "permissions" => [
+            [
+                "cms.product-manager-report.index",
+                "瀏覽",
+            ],
+            [
+                "cms.product-manager-report.renew",
+                "重新統計",
+            ],
+        ],
+    ],
+
 ];
