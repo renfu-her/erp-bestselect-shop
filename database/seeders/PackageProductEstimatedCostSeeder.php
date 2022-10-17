@@ -2,9 +2,10 @@
 
 namespace Database\Seeders;
 
+use App\Models\ProductStyleCombo;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use App\Models\ProductStyleCombo;
+
 class PackageProductEstimatedCostSeeder extends Seeder
 {
     /**
@@ -19,19 +20,21 @@ class PackageProductEstimatedCostSeeder extends Seeder
             ->leftJoin('prd_product_styles as style', 'product.id', '=', 'style.product_id')
             ->select('style.id as style_id')
             ->where('product.type', 'c')
-         //   ->whereIn('style.id', [3844, 3859])
-          //  ->limit(10)
+        //   ->whereIn('style.id', [3844, 3859])
+        //  ->limit(10)
             ->get();
-      
-        $aa = [];
+
+        $aa = 0;
         foreach ($styles as $value) {
 
-            ProductStyleCombo::estimatedCost($value->style_id);
-            
+            $re = ProductStyleCombo::estimatedCost($value->style_id);
+            if ($re) {
+                $aa++;
+            }
 
         }
 
-       
+        echo $aa."筆 done";
 
     }
 }

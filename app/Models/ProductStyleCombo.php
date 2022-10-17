@@ -42,10 +42,16 @@ class ProductStyleCombo extends Model
             ->selectRaw('SUM(style.estimated_cost * combo.qty) as total')
             ->where('combo.product_style_id', $style_id)
             ->groupBy('combo.product_style_id')->get()->first();
+
+        if(!$re){
+            return false;
+        }
         
         DB::table('prd_product_styles')->where('id', $style_id)->update([
             'estimated_cost' => $re->total,
         ]);
+
+        return true;
 
     }
 
