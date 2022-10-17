@@ -20,14 +20,19 @@
                 </select>
             </div>
         </x-b-report-search>
+    @else
+        <h2 class="mb-4">{{ $pageTitle }}</h2>
+    @endif
 
-        @can('cms.product-manager-report.renew')
-            <form id="form2" action="{{ route('cms.product-manager-report.renew') }}" method="POST">
-                @csrf
-                <div class="card shadow p-4 mb-4">
-                    <div class="row">
-                        <div class="col pe-0">
-                            <select class="form-select" name="year" aria-label="年度">
+    <div class="card shadow p-4 mb-4">
+        @if (isset($search))
+            @can('cms.product-manager-report.renew')
+                <form id="form2" action="{{ route('cms.product-manager-report.renew') }}" method="POST">
+                    @csrf
+                    <div class="d-flex justify-content-end align-items-center mb-3">
+                        <span class="text-muted me-1">重新計算</span>
+                        <div class="col-auto me-1">
+                            <select class="form-select form-select-sm" name="year" aria-label="年度">
                                 <option value="" disabled>選擇年度</option>
                                 @foreach ($year as $value)
                                     <option value="{{ $value }}" @if ($value == $cond['year']) selected @endif>
@@ -35,8 +40,8 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col pe-0">
-                            <select class="form-select" name="month" aria-label="月份">
+                        <div class="col-auto me-1">
+                            <select class="form-select form-select-sm" name="month" aria-label="月份">
                                 <option value="" disabled>選擇月份</option>
                                 @for ($i = 1; $i < 13; $i++)
                                     <option value="{{ $i }}" @if ($i == $cond['month']) selected @endif>
@@ -45,7 +50,7 @@
                             </select>
                         </div>
                         <div class="col-auto">
-                            <button type="submit" class="btn btn-primary">
+                            <button type="submit" class="btn btn-primary btn-sm">
                                 立即統計
                                 <div class="spinner-border spinner-border-sm" hidden role="status">
                                     <span class="visually-hidden">Loading...</span>
@@ -53,30 +58,21 @@
                             </button>
                         </div>
                     </div>
-                </div>
-            </form>
-        @endcan
-    @else
-        <h2 class="mb-4">{{ $pageTitle }}</h2>
-    @endif
-
-    <div class="card shadow p-4 mb-4">
-        <h4>
-            {{ $pageTitle }}
-        </h4>
+                </form>
+            @endcan
+            <h4>{{ $pageTitle }}</h4>
+        @endif
 
         <div class="table-responsive tableOverBox">
             <table class="table table-striped tableList">
-                <thead class="small">
+                <thead class="small align-middle">
                     <tr>
                         <th scope="col" style="width:40px">#</th>
-                        <th scope="col">
-                            姓名
-                        </th>
-                        <th scope="col" class="text-center">線上營業額</th>
-                        <th scope="col" class="text-center">線上毛利</th>
-                        <th scope="col" class="text-center">線下營業額</th>
-                        <th scope="col" class="text-center">線下毛利</th>
+                        <th scope="col">姓名</th>
+                        <th scope="col" class="text-center lh-1 table-success">線上<br class="d-block d-xl-none">營業額</th>
+                        <th scope="col" class="text-center lh-1 table-success">線上<br class="d-block d-xl-none">毛利</th>
+                        <th scope="col" class="text-center lh-1 table-warning">線下<br class="d-block d-xl-none">營業額</th>
+                        <th scope="col" class="text-center lh-1 table-warning">線下<br class="d-block d-xl-none">毛利</th>
                         <th scope="col" class="text-center">總營業額</th>
                         <th scope="col" class="text-center">總毛利</th>
                         <!-- <th scope="col" class="text-center">人數</th>-->
@@ -109,24 +105,60 @@
                                     href="{{ route('cms.product-manager-report.product', array_merge(['user_id' => $data->user_id],$query)) }}">
                                     {{ $data->name }}</a>
                             </td>
-                            <td class="text-center">{{ $data->on_price }}</td>
-                            <td class="text-center">{{ $data->on_gross_profit }}</td>
-                            <td class="text-center">{{ $data->off_price }}</td>
-                            <td class="text-center">{{ $data->off_gross_profit }}</td>
-                            <td class="text-center">{{ $data->total_price }}</td>
-                            <td class="text-center">{{ $data->total_gross_profit }}</td>
+                            <td @class([
+                                'text-end table-success',
+                                'text-danger fw-bold negative' => $data->on_price < 0,
+                            ])>${{ number_format(abs($data->on_price)) }}</td>
+                            <td @class([
+                                'text-end table-success',
+                                'text-danger fw-bold negative' => $data->on_gross_profit < 0,
+                            ])>${{ number_format(abs($data->on_gross_profit)) }}</td>
+                            <td @class([
+                                'text-end table-warning',
+                                'text-danger fw-bold negative' => $data->off_price < 0,
+                            ])>${{ number_format(abs($data->off_price)) }}</td>
+                            <td @class([
+                                'text-end table-warning',
+                                'text-danger fw-bold negative' => $data->off_gross_profit < 0,
+                            ])>${{ number_format(abs($data->off_gross_profit)) }}</td>
+                            <td @class([
+                                'text-end',
+                                'text-danger fw-bold negative' => $data->total_price < 0,
+                            ])>${{ number_format(abs($data->total_price)) }}</td>
+                            <td @class([
+                                'text-end',
+                                'text-danger fw-bold negative' => $data->total_gross_profit < 0,
+                            ])>${{ number_format(abs($data->total_gross_profit)) }}</td>
                         </tr>
                     @endforeach
                 </tbody>
                 <tfoot>
                     <tr>
                         <th colspan="2">合計</th>
-                        <th class="text-center">{{ $on_price }}</th>
-                        <th class="text-center">{{ $on_gross_profit }}</th>
-                        <th class="text-center">{{ $off_price }}</th>
-                        <th class="text-center">{{ $off_gross_profit }}</th>
-                        <th class="text-center">{{ $total_price }}</th>
-                        <th class="text-center">{{ $total_gross_profit }}</th>
+                        <th @class([
+                            'text-end table-success',
+                            'text-danger fw-bold negative' => $on_price < 0,
+                        ])>${{ number_format(abs($on_price)) }}</th>
+                        <th @class([
+                            'text-end table-success',
+                            'text-danger fw-bold negative' => $on_gross_profit < 0,
+                        ])>${{ number_format(abs($on_gross_profit)) }}</th>
+                        <th @class([
+                            'text-end table-warning',
+                            'text-danger fw-bold negative' => $off_price < 0,
+                        ])>${{ number_format(abs($off_price)) }}</th>
+                        <th @class([
+                            'text-end table-warning',
+                            'text-danger fw-bold negative' => $off_gross_profit < 0,
+                        ])>${{ number_format(abs($off_gross_profit)) }}</th>
+                        <th @class([
+                            'text-end',
+                            'text-danger fw-bold negative' => $total_price < 0,
+                        ])>${{ number_format(abs($total_price)) }}</th>
+                        <th @class([
+                            'text-end',
+                            'text-danger fw-bold negative' => $total_gross_profit < 0,
+                        ])>${{ number_format(abs($total_gross_profit)) }}</th>
                     </tr>
                 </tfoot>
             </table>

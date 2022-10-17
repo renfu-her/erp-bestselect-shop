@@ -32,7 +32,7 @@ class ProductManagerReportCtrl extends Controller
             $year[] = $sYear + $i;
         }
 
-        $pageTitle = $cond['sDate'] . "~" . $cond['eDate'] . " 報表";
+        $pageTitle = date('Y/m/d', strtotime($cond['sDate'])) . " ~ " . date('Y/m/d', strtotime($cond['eDate'])) . " 報表";
         $cond['year'] = date("Y", strtotime($cond['sDate']));
         $cond['month'] = date("m", strtotime($cond['sDate']));
         $query['sDate'] = $cond['sDate'];
@@ -59,7 +59,9 @@ class ProductManagerReportCtrl extends Controller
         $dataList = RptProductManagerReport::productList($query['sDate'], $query['eDate'], ['user_id' => $user_id])->get();
 
         $userName = User::where('id', $user_id)->get()->first()->name;
-        $pageTitle = $userName . " " . $query['sDate'] . "~" . $query['eDate'] . " 報表";
+        $pageTitle = $userName . " " . 
+            date('Y/m/d', strtotime($query['sDate'])) . " ~ " . 
+            date('Y/m/d', strtotime($query['eDate'])) . " 報表";
         // dd($dataList);
         return view('cms.commodity.product_manager_report.product', [
             'dataList' => $dataList,
