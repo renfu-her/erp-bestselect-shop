@@ -294,38 +294,39 @@ class InboundFix0917ImportCtrl extends Controller
 
     public function del_multi_purchase_diff_item(Request $request)
     {
-//        dd('del_multi_purchase_diff_item');
         $errors = [];
-        $result = DB::transaction(function () use ($request, $errors) {
-            if (isset($request['del_item_id']) && null != $request['del_item_id']) {
-                $del_item_id_arr = explode(",", $request['del_item_id']);
-                if (isset($del_item_id_arr) && 0 < count($del_item_id_arr)) {
-                    foreach ($del_item_id_arr as $key_del => $val_del_id) {
-                        $pcs_item_ids = self::getErr0918DiffPcsItemWithPcsID($val_del_id);
-                        if (isset($pcs_item_ids) && 0 < count($pcs_item_ids)) {
-                            foreach ($pcs_item_ids as $key => $val) {
-                                $delItemAndIB = PurchaseItem::deleteItemAndInbound($val, $request->user()->id, $request->user()->name);
-                                if ($delItemAndIB['success'] == 0) {
-                                    $errors[] = $delItemAndIB['error_msg'];
-                                }
+        $result = [];
+        if (isset($request['del_item_id']) && null != $request['del_item_id']) {
+            $del_pcs_id_arr = explode(",", $request['del_item_id']);
+            if (isset($del_pcs_id_arr) && 0 < count($del_pcs_id_arr)) {
+                DB::beginTransaction();
+                $errors = [];
+                foreach ($del_pcs_id_arr as $key_del => $val_del_id) {
+                    $pcs_ids = self::getErr0918DiffPcsItemWithPcsID($val_del_id);
+                    if (isset($pcs_ids) && 0 < count($pcs_ids)) {
+                        foreach ($pcs_ids as $key => $val) {
+                            $delItemAndIB = PurchaseItem::deleteItemAndInbound($val, $request->user()->id, $request->user()->name);
+                            if ($delItemAndIB['success'] == 0) {
+                                $errors[] = $delItemAndIB['error_msg'];
+                                break;
                             }
                         }
                     }
-                    if (0 < count($errors)) {
-                        DB::rollBack();
-                        return ['success' => 0, 'error_msg' => implode(" ",$errors)];
-                    } else {
-                        return ['success' => 1, 'error_msg' => ""];
-                    }
-                } else {
-                    $errors[] = '未輸入欲刪除的ID';
-                    return ['success' => 0, 'error_msg' => implode(" ",$errors)];
                 }
+                if (0 < count($errors)) {
+                    DB::rollBack();
+                    $result = ['success' => 0, 'error_msg' => implode(" ",$errors)];
+                } else {
+                    $result = ['success' => 1, 'error_msg' => ""];
+                }
+                DB::commit();
+            } else {
+                $errors[] = '未輸入欲刪除的ID';
+                $result = ['success' => 0, 'error_msg' => implode(" ",$errors)];
             }
-        });
+        }
 
         if ($result['success'] == 0) {
-            $errors[] = $result['error_msg'];
             wToast($result['error_msg'], ['type'=>'danger']);
         } else {
             wToast(__('Delete finished.'));

@@ -585,7 +585,7 @@ class DayEnd extends Model
                 } else {
                     $day_end_item = DayEndItem::create([
                         'day_end_id' => $day_end_id,
-                        'sn' => date('ymd', strtotime($closing_date)) . str_pad( count(DayEndItem::where('day_end_id', '=', $day_end_id)->get() ) + 1, 4, '0', STR_PAD_LEFT),
+                        'sn' => date('ymd', strtotime($closing_date)) . str_pad( count(DayEndItem::where('sn', 'like', date('ymd', strtotime($closing_date)) . '%')->get() ) + 1, 4, '0', STR_PAD_LEFT),
                         'source_type' => $real_value->getTable(),
                         'source_id' => $real_value->id,
                         'source_sn' => $real_value->sn,
