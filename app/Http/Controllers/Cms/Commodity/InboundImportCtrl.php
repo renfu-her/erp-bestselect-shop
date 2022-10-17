@@ -444,4 +444,198 @@ class InboundImportCtrl extends Controller
             'purchaseLog' => $log_purchase,
         ]);
     }
+
+    public function import_pcs_miss_sku(Request $request)
+    {
+        $depotList = Depot::all()->toArray();
+        return view('cms.commodity.inbound_import.import_pcs_miss_sku', [
+            'depotList' => $depotList,
+        ]);
+    }
+
+    //個別補採購入庫
+    //用 InboundImportCtrl->upload_excel 上傳檔案function 來改
+    public function upload_xls_pcs_miss_sku(Excel $excel, Request $request)
+    {
+        ini_set('memory_limit', '-1');
+        $request->validate([
+            'depot_id' => 'required|numeric',
+            'file' => 'required|max:10000|mimes:xlsx,xls',
+        ]);
+        $errors = [];
+        $errMsg = null;
+
+        $query = $request->query();
+        $depot_id = $request->input('depot_id');
+        $path = $request->file('file')->store('excel');
+
+        $depot = Depot::where('id', '=', $depot_id)->get()->first();
+        if (false == isset($depot)) {
+            $errMsg = '無此倉庫';
+        }
+
+        $inboundImport = new InboundImport;
+        $excel->import($inboundImport, storage_path('app/' . $path));
+        $purchase = $inboundImport->purchase;
+        if (0 < count($purchase)) {
+            foreach ($purchase as $key_pcs => $key_val) {
+                $purchase[$key_pcs]['supplier_name'] = array_unique($purchase[$key_pcs]['supplier_name'], SORT_STRING);
+            }
+        }
+        $data = $purchase;
+        if (isset($data) && 0 < count($data) && false == isset($errMsg)) {
+            //判斷是否有重複採購單號
+            $purchase_sn = [];
+            foreach ($data as $key_pcs => $val_pcs) {
+                $purchase_sn[] = $val_pcs['purchase_sn'];
+                if (1 < count($val_pcs['supplier_name'])) {
+                    $errMsg = '採購單號:'. $val_pcs['purchase_sn']. ' '. '有多個廠商 請改為一個廠商';
+                }
+            }
+            if (count($purchase_sn) != count(array_unique($purchase_sn))) {
+                $errMsg = '請將相同採購單號的商品放在一起';
+            }
+            if(isset($errMsg)) {
+                throw ValidationException::withMessages(['error_msg' => $errMsg]);
+            }
+
+            $curr_date = date('Y-m-d H:i:s');
+            foreach ($data as $key_pcs => $val_pcs) {
+                $curr_pcs = null;
+                $errMsg = null;
+                // 判斷是否有相同採購單
+                //  有 則新增
+                //  無 則跳過
+                $purchase = Purchase::where('sn', '=', $val_pcs['purchase_sn'])->first();
+                if (isset($purchase)) {
+                    $curr_pcs = $val_pcs;
+                } else {
+                    $errMsg = '無此採購單號 '. $val_pcs['purchase_sn'];
+                }
+                //判斷是否有採購單 沒有則回傳上面錯誤訊息
+                if (isset($purchase)) {
+                    // 判斷全部SKU是否都存在
+                    $checkSKU = PurchaseImportLog::checkSKU($val_pcs);
+                    if ($checkSKU['success'] != '1') {
+                        $errMsg = $checkSKU['error_msg'];
+                    } else {
+                        $val_pcs = $checkSKU['val_pcs'];
+                    }
+
+                    //判斷採購人員是否存在
+                    $checkUser = PurchaseImportLog::checkUser($val_pcs);
+                    $user = null;
+                    if ($checkUser['success'] != '1') {
+                        $errMsg = $checkUser['error_msg'];
+                    } else {
+                        $user = $checkUser['data'];
+                        $val_pcs = $checkUser['val_pcs'];
+                    }
+
+                    // 判斷是否有此廠商
+                    $checkSupplier = PurchaseImportLog::checkSupplier($val_pcs);
+                    $supplier = null;
+                    if ($checkSupplier['success'] != '1') {
+                        $errMsg = $checkSupplier['error_msg'];
+                    } else {
+                        $supplier = $checkSupplier['data'];
+                        $val_pcs = $checkSupplier['val_pcs'];
+                    }
+
+                    //判斷採購單是否已有此商品
+                    foreach ($val_pcs['data'] as $key_style => $val_style) {
+                        $pcs_item = PurchaseItem::where('purchase_id', '=', $purchase->id)->where('sku', '=', $val_style['sku'])->first();
+                        if (isset($pcs_item)) {
+                            $errMsg = '採購單已有此商品. '. $val_style['sku'];
+                            break;
+                        }
+                    }
+                }
+                //判斷
+                if (isset($errMsg)) {
+                    $set_pcs_log_data = $curr_pcs;
+                    //查無採購單 將目前採購單寫入
+                    if (false == isset($curr_pcs)) {
+                        $set_pcs_log_data = $val_pcs;
+                    }
+                    PurchaseImportLog::createData($set_pcs_log_data, null, null, $errMsg, $request->user());
+                    continue;
+                }
+
+                $msg = DB::transaction(function () use (
+                    $request
+                    , $curr_date
+                    , $depot
+                    , $val_pcs
+                    , $user
+                    , $supplier
+                    , $purchase
+                ) {
+                    //建立採購商品
+                    foreach ($val_pcs['data'] as $key_style => $val_style) {
+                        $purchaseItem = PurchaseItem::createPurchase(
+                            [
+                                'purchase_id' => $purchase->id,
+                                'product_style_id' => $val_style['product_style_id'],
+                                'title' => $val_style['product_title'],
+                                'sku' => $val_style['sku'],
+                                'price' => $val_style['remaining_qty'] * $val_style['unit_cost'],
+                                'num' => $val_style['remaining_qty'],
+                                'temp_id' => null,
+                                'memo' => '個別補採購入庫',
+                            ],
+                            $request->user()->id,
+                            $request->user()->name
+                        );
+                        if ($purchaseItem['success'] != '1') {
+                            DB::rollBack();
+                            return ['success' => 0, 'error_msg' => $purchaseItem['error_msg']];
+                        }
+                        //寫入採購倉品ID 以利入庫用
+                        $val_pcs['data'][$key_style]['pcs_item_id'] = $purchaseItem['id'];
+
+                    }
+                    //建立入庫單
+                    foreach ($val_pcs['data'] as $key_style => $val_style) {
+                        $purchaseInbound = PurchaseInbound::createInbound(
+                            Event::purchase()->value,
+                            $purchase['id'],
+                            $val_style['pcs_item_id'],
+                            $val_style['product_style_id'],
+                            $val_style['product_title'],
+                            $val_style['sku'],
+                            $val_style['unit_cost'],
+                            $val_style['expiry_date'],
+                            $val_style['inbound_date'],
+                            $val_style['remaining_qty'],
+                            $depot->id,
+                            $depot->name,
+                            $request->user()->id,
+                            $request->user()->name,
+                            '個別補採購入庫'
+                        );
+                        if ($purchaseInbound['success'] != '1') {
+                            DB::rollBack();
+                            return ['success' => 0, 'error_msg' => $purchaseInbound['error_msg']];
+                        } else {
+                            $inbound_sn = $purchaseInbound['sn'];
+                            //紀錄新增LOG
+                            PurchaseImportLog::createData($val_pcs, $val_style, $inbound_sn, null, $request->user());
+                        }
+                    }
+                    return ['success' => 1, 'error_msg' => ""];
+                });
+
+                //判斷新增採購庫存時中斷 則紀錄LOG
+                if ($msg['success'] != '1') {
+                    $errMsg = $msg['error_msg'];
+                    PurchaseImportLog::createData($curr_pcs, null, null, $errMsg, $request->user());
+                    continue;
+                }
+            }
+        }
+        wToast('匯入成功！請前往匯入紀錄查看結果');
+        return redirect()->back();
+    }
+
 }
