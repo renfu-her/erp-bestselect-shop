@@ -276,6 +276,7 @@
             --th-wrap: 75px;
         }
     }
+    /*
     .grade_1 {
         padding-left: 1ch;
     }
@@ -291,6 +292,7 @@
     .grade_4 {
         padding-left: 8ch;
     }
+    */
 </style>
 @endpush
 @push('sub-scripts')
