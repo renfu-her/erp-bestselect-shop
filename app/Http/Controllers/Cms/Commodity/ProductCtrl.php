@@ -875,7 +875,7 @@ class ProductCtrl extends Controller
      */
     public function editComboProd($id, $sid)
     {
-
+        
         $style = ProductStyle::where('id', $sid)->get()->first();
         $product = self::product_data($id);
         return view('cms.commodity.product.combo-edit', [
@@ -896,7 +896,7 @@ class ProductCtrl extends Controller
      */
     public function updateComboProd(Request $request, $id, $sid)
     {
-
+        
         if (ProductStyle::where('id', $sid)->whereNotNull('sku')->get()->first()) {
             return redirect()->back();
         }
@@ -933,6 +933,8 @@ class ProductCtrl extends Controller
             ProductStyleCombo::whereIn('id', explode(',', $d['del_item_id']))->delete();
         }
 
+        ProductStyleCombo::estimatedCost($sid);
+
         wToast('儲存完畢');
         return redirect(Route('cms.product.edit-combo', ['id' => $id]));
 
@@ -944,7 +946,7 @@ class ProductCtrl extends Controller
      * @return \Illuminate\Http\Response
      */
     public function createComboProd($id)
-    {
+    {   
         $product = self::product_data($id);
         return view('cms.commodity.product.combo-edit', [
             'product' => $product,
@@ -979,6 +981,8 @@ class ProductCtrl extends Controller
                 }
             }
         }
+
+        ProductStyleCombo::estimatedCost($sid);
 
         return redirect(Route('cms.product.edit-combo', ['id' => $id]));
 

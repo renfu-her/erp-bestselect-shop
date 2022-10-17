@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-
+use App\Models\ProductStyleCombo;
 class PackageProductEstimatedCostSeeder extends Seeder
 {
     /**
@@ -25,21 +25,9 @@ class PackageProductEstimatedCostSeeder extends Seeder
       
         $aa = [];
         foreach ($styles as $value) {
-            $re = DB::table('prd_style_combos as combo')
-                ->leftJoin('prd_product_styles as style', 'combo.product_style_child_id', '=', 'style.id')
-                ->select(['combo.product_style_id as style_id',
-                'style.estimated_cost',
-                'combo.qty'
-                ])
-                ->selectRaw('SUM(style.estimated_cost * combo.qty) as total')
-                ->where('combo.product_style_id', $value->style_id)
-                ->groupBy('combo.product_style_id')->get()->first();
 
-          
+            ProductStyleCombo::estimatedCost($value->style_id);
             
-            DB::table('prd_product_styles')->where('id',$value->style_id)->update([
-                'estimated_cost'=>$re->total
-            ]);
 
         }
 
