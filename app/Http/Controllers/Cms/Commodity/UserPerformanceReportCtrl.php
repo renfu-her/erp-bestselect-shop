@@ -28,6 +28,10 @@ class UserPerformanceReportCtrl extends Controller
         $cond['eDate'] = Arr::get($query, 'eDate', date('Y-m-t'));
         $cond['department'] = Arr::get($query, 'department', []);
 
+
+        $cond['sDate'] = $cond['sDate'] ? $cond['sDate'] : date('Y-m-01');
+        $cond['eDate'] = $cond['eDate'] ? $cond['eDate'] : date('Y-m-t');
+
         $dataList = RptOrganizeReportMonthly::dataList($cond['sDate'], $cond['eDate'], ['level' => 2,
             'department' => $cond['department']])
             ->get();

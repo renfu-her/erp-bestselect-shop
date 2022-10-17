@@ -1,5 +1,6 @@
 @extends('layouts.main')
 @section('sub-content')
+
     @if (isset($search))
         <h2 class="mb-4">業績報表</h2>
         <x-b-report-search>
@@ -50,7 +51,6 @@
                 </div>
             </form>
         @endcan
-
     @else
         <h2 class="mb-4">{{ $pageTitle }}</h2>
     @endif
@@ -209,12 +209,10 @@
     @endpush
     @push('sub-scripts')
         <script>
-         
             // 立即統計
-            $('#form2').submit(function (e) { 
+            $('#form2').submit(function(e) {
                 $('#form2 .spinner-border').prop('hidden', false);
             });
-          
         </script>
     @endpush
 @endOnce
