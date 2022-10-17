@@ -75,7 +75,7 @@
                                 <th scope="row">{{ $key + 1 }}</th>
                                 <td>{{ $data->sn }}</td>
                                 <td class="text-center">
-                                    @can('admin.consignment-order.edit')
+                                    @can('cms.consignment-order.edit')
                                         <a href="{{ Route('cms.consignment-order.edit', ['id' => $data->id], true) }}"
                                            data-bs-toggle="tooltip" title="編輯"
                                            class="icon icon-btn fs-5 text-primary rounded-circle border-0">
