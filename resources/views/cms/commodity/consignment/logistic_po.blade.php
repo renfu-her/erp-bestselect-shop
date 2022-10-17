@@ -166,6 +166,10 @@
             <a href="{{ session('collection_payment_url') ?? route('cms.collection_payment.index') }}" class="btn btn-outline-primary px-4" role="button">
                 返回 付款作業
             </a>
+
+            <a href="{{ session('collection_payment_claim_url') ?? route('cms.collection_payment.claim') }}" class="btn btn-outline-primary px-4" role="button">
+                返回 合併付款作業
+            </a>
             @endcan
         </div>
     </form>
