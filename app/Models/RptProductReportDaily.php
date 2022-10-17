@@ -103,8 +103,9 @@ class RptProductReportDaily extends Model
             ->select(['sd.date'])
             ->selectRaw("$tt as ddd")
             ->whereBetween('sd.date', [$sdate, $edate])
-            ->groupBy('sd.date')->limit(3)->get();
+            ->groupBy('sd.date')->get();
 
+          
         foreach ($re as $value) {
             $items = json_decode($value->ddd);
             $data = [];

@@ -43,7 +43,8 @@ class UserPerformanceReportCtrl extends Controller
         }
 
         // $pageTitle = date("Y",strtotime($cond['sdate'])) . "年 ";
-        $pageTitle = $cond['sDate'] . "~" . $cond['eDate'] . " 報表";
+        $pageTitle = date('Y/m/d', strtotime($cond['sDate'])) . " ~ " . 
+            date('Y/m/d', strtotime($cond['eDate'])) . " 報表";
         $cond['year'] = date("Y", strtotime($cond['sDate']));
         $cond['month'] = date("m", strtotime($cond['sDate']));
         $query['sDate'] = $cond['sDate'];
@@ -106,30 +107,30 @@ class UserPerformanceReportCtrl extends Controller
 
     }
      */
-/*
-public function pageTitle($cond, $organize_id = null)
-{
-$pageTitle = $cond['year'] . "年 ";
-switch ($cond['type']) {
-case 'year':
-$pageTitle .= " 年度報表";
-break;
-case 'season':
-$pageTitle .= "第" . $this->season[$cond['season']] . "季 報表";
-break;
-case 'month':
-$pageTitle .= $cond['month'] . "月 報表";
-break;
-}
+    /*
+        public function pageTitle($cond, $organize_id = null)
+        {
+        $pageTitle = $cond['year'] . "年 ";
+        switch ($cond['type']) {
+        case 'year':
+        $pageTitle .= " 年度報表";
+        break;
+        case 'season':
+        $pageTitle .= "第" . $this->season[$cond['season']] . "季 報表";
+        break;
+        case 'month':
+        $pageTitle .= $cond['month'] . "月 報表";
+        break;
+        }
 
-if ($organize_id) {
-$otitle = UserOrganize::where('id', $organize_id)->get()->first()->title;
-$pageTitle = $otitle . " " . $pageTitle;
-}
-return $pageTitle;
+        if ($organize_id) {
+        $otitle = UserOrganize::where('id', $organize_id)->get()->first()->title;
+        $pageTitle = $otitle . " " . $pageTitle;
+        }
+        return $pageTitle;
 
-}
- */
+        }
+    */
 
     public function department(Request $request, $organize_id)
     {
@@ -139,7 +140,9 @@ return $pageTitle;
             'parent' => $organize_id])
             ->get();
 
-        $pageTitle = $query['sDate'] . "~" . $query['eDate'] . " " . UserOrganize::where('id', $organize_id)->get()->first()->title;
+        $pageTitle = date('Y/m/d', strtotime($query['sDate'])) . " ~ " . 
+            date('Y/m/d', strtotime($query['eDate'])) . " " . 
+            UserOrganize::where('id', $organize_id)->get()->first()->title;
 
         return view('cms.commodity.user_performance_report.list', [
             'dataList' => $dataList,
@@ -161,7 +164,9 @@ return $pageTitle;
             ->get();
 
         $organize_parent_id = UserOrganize::where('id', $organize_id)->get()->first()->parent;
-        $pageTitle = $query['sDate'] . "~" . $query['eDate'] . " " . UserOrganize::where('id', $organize_id)->get()->first()->title;
+        $pageTitle = date('Y/m/d', strtotime($query['sDate'])) . " ~ " . 
+            date('Y/m/d', strtotime($query['eDate'])) . " " . 
+            UserOrganize::where('id', $organize_id)->get()->first()->title;
 
         return view('cms.commodity.user_performance_report.list', [
             'dataList' => $dataList,
@@ -186,7 +191,9 @@ return $pageTitle;
 
         $organize_id = UserOrganize::where('level', 3)->where('title', $user->group)->get()->first()->id;
 
-        $pageTitle = $user->name . " " . $query['sDate'] . "~" . $query['eDate'] . " " . UserOrganize::where('id', $organize_id)->get()->first()->title;
+        $pageTitle = $user->name . " " . date('Y/m/d', strtotime($query['sDate'])) . " ~ " . 
+            date('Y/m/d', strtotime($query['eDate'])) . " " . 
+            UserOrganize::where('id', $organize_id)->get()->first()->title;
 
         return view('cms.commodity.user_performance_report.order_list', [
             'dataList' => $dataList,

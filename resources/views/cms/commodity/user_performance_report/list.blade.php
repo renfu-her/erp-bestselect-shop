@@ -16,13 +16,19 @@
             </div>
         </x-b-report-search>
 
-        @can('cms.user-performance-report.renew')
-            <form id="form2" action="{{ route('cms.user-performance-report.renew') }}" method="POST">
-                @csrf
-                <div class="card shadow p-4 mb-4">
-                    <div class="row">
-                        <div class="col pe-0">
-                            <select class="form-select" name="year" aria-label="年度">
+    @else
+        <h2 class="mb-4">{{ $pageTitle }}</h2>
+    @endif
+
+    <div class="card shadow p-4 mb-4">
+        @if (isset($search))
+            @can('cms.user-performance-report.renew')
+                <form id="form2" action="{{ route('cms.user-performance-report.renew') }}" method="POST">
+                    @csrf
+                    <div class="d-flex justify-content-end align-items-center mb-3">
+                        <span class="text-muted me-1">重新計算</span>
+                        <div class="col-auto me-1">
+                            <select class="form-select form-select-sm" name="year" aria-label="年度">
                                 <option value="" disabled>選擇年度</option>
                                 @foreach ($year as $value)
                                     <option value="{{ $value }}" @if ($value == $cond['year']) selected @endif>
@@ -30,8 +36,8 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col pe-0">
-                            <select class="form-select" name="month" aria-label="月份">
+                        <div class="col-auto me-1">
+                            <select class="form-select form-select-sm" name="month" aria-label="月份">
                                 <option value="" disabled>選擇月份</option>
                                 @for ($i = 1; $i < 13; $i++)
                                     <option value="{{ $i }}" @if ($i == $cond['month']) selected @endif>
@@ -40,7 +46,7 @@
                             </select>
                         </div>
                         <div class="col-auto">
-                            <button type="submit" class="btn btn-primary">
+                            <button type="submit" class="btn btn-primary btn-sm">
                                 立即統計
                                 <div class="spinner-border spinner-border-sm" hidden role="status">
                                     <span class="visually-hidden">Loading...</span>
@@ -48,21 +54,15 @@
                             </button>
                         </div>
                     </div>
-                </div>
-            </form>
-        @endcan
-    @else
-        <h2 class="mb-4">{{ $pageTitle }}</h2>
-    @endif
+                </form>
+            @endcan
 
-    <div class="card shadow p-4 mb-4">
-        @if (isset($search))
             <h4>{{ $pageTitle }}</h4>
         @endif
 
         <div class="table-responsive tableOverBox">
-            <table class="table table-striped tableList mb-0">
-                <thead class="small">
+            <table class="table table-striped tableList">
+                <thead class="small align-middle">
                     <tr>
                         <th scope="col" style="width:40px">#</th>
                         <th scope="col">
@@ -72,12 +72,12 @@
                                 姓名
                             @endif
                         </th>
-                        <th scope="col" class="text-end table-success">線上營業額</th>
-                        <th scope="col" class="text-end table-success">線上毛利</th>
-                        <th scope="col" class="text-end table-warning">線下營業額</th>
-                        <th scope="col" class="text-end table-warning">線下毛利</th>
-                        <th scope="col" class="text-end">總營業額</th>
-                        <th scope="col" class="text-end">總毛利</th>
+                        <th scope="col" class="text-center lh-1 table-success">線上<br class="d-block d-xl-none">營業額</th>
+                        <th scope="col" class="text-center lh-1 table-success">線上<br class="d-block d-xl-none">毛利</th>
+                        <th scope="col" class="text-center lh-1 table-warning">線下<br class="d-block d-xl-none">營業額</th>
+                        <th scope="col" class="text-center lh-1 table-warning">線下<br class="d-block d-xl-none">毛利</th>
+                        <th scope="col" class="text-center">總營業額</th>
+                        <th scope="col" class="text-center">總毛利</th>
                         <!-- <th scope="col" class="text-end">人數</th>-->
                     </tr>
                 </thead>
