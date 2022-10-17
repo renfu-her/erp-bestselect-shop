@@ -284,7 +284,7 @@ class PayingOrder extends Model
                         "price":"\', pcs_purchase_items.price, \'",
                         "num":"\', pcs_purchase_items.num, \'",
                         "summary":"\', COALESCE(pcs_purchase_items.memo, ""), \'",
-                        "memo":"\', "", \'"
+                        "memo":"\', COALESCE(pcs_purchase_items.memo, ""), \'"
                     }\' ORDER BY pcs_purchase_items.id), \']\') AS items
                 FROM pcs_purchase_items
                 LEFT JOIN (' . $sq . ') AS grade ON grade.name = "商品存貨"
@@ -399,7 +399,7 @@ class PayingOrder extends Model
                         "price":"\', ord_items.price * ord_items.qty, \'",
                         "num":"\', ord_items.qty, \'",
                         "summary":"\', COALESCE(ord_items.note, ""), \'",
-                        "memo":"\', "", \'"
+                        "memo":"\', COALESCE(ord_items.note, ""), \'"
                     }\' ORDER BY ord_items.id), \']\') AS items
                 FROM ord_items
                 LEFT JOIN (' . $sq . ') AS grade ON grade.name = "銷貨收入"
@@ -460,7 +460,7 @@ class PayingOrder extends Model
                         "price":"\', dlv_back.price * dlv_back.qty, \'",
                         "num":"\', dlv_back.qty, \'",
                         "summary":"\', COALESCE(dlv_back.memo, ""), \'",
-                        "memo":"\', "", \'"
+                        "memo":"\', COALESCE(dlv_back.memo, ""), \'"
                     }\' ORDER BY dlv_back.id), \']\') AS items
                 FROM dlv_back
                 LEFT JOIN (' . $sq . ') AS grade ON grade.id = dlv_back.grade_id
