@@ -134,21 +134,27 @@
                                                     <th scope="col" class="text-end">Right</th>
                                                 </tr>
                                             </thead>
-                                            <tbody>
+                                            <tbody class="-serial-number">
                                                 <tr class="table-success">
-                                                    <th scope="row">1</th>
+                                                    <th scope="row">
+                                                        <span class="-serial-title -after"></span>
+                                                    </th>
                                                     <td>Default</td>
                                                     <td class="text-center">常溫</td>
                                                     <td class="text-end">$99,999</td>
                                                 </tr>
                                                 <tr>
-                                                    <th scope="row">2</th>
+                                                    <th scope="row">
+                                                        <span class="-serial-title -after"></span>
+                                                    </th>
                                                     <td>Default</td>
                                                     <td class="text-center table-warning">常溫</td>
                                                     <td class="text-end">$99,999</td>
                                                 </tr>
                                                 <tr>
-                                                    <th scope="row">3</th>
+                                                    <th scope="row">
+                                                        <span class="-serial-title -after"></span>
+                                                    </th>
                                                     <td>Default</td>
                                                     <td class="text-center">常溫</td>
                                                     <td class="text-end">$99,999</td>
