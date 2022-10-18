@@ -326,7 +326,8 @@ class DeliveryCtrl extends Controller
             if ('create' == $method) {
                 Delivery::changeBackStatus($delivery_id, BackStatus::add_back());
                 if (Event::order()->value == $delivery->event) {
-                    OrderFlow::changeOrderStatus($delivery->event_id, OrderStatus::BackProcessing());
+                    $subOrder = SubOrders::where('id', '=', $delivery->event_id)->first();
+                    OrderFlow::changeOrderStatus($subOrder->order_id, OrderStatus::BackProcessing());
                 } else if (Event::consignment()->value == $delivery->event) {
                     DB::rollBack();
                     return ['success' => 0, 'error_msg' => '寄倉暫無退貨功能'];
