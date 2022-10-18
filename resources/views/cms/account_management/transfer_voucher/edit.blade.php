@@ -312,7 +312,11 @@
                 
                 // 新增項目
                 $('.-newClone').off('click').on('click', function() {
-                    Clone_bindCloneBtn($clone, function() {});
+                    Clone_bindCloneBtn($clone, function($c) {
+                        const len = $('input[name^="debit_credit_code"]').length / 2;
+                        console.log(len);
+                        $c.find('input[name="debit_credit_code[]"]').attr('name', `debit_credit_code[${len}]`);
+                    });
                     bindSelectEvent();
                 });
                 
@@ -326,7 +330,7 @@
                         const $tr = $(element).closest('tr');
                         $tr.find('select[name="grade_id[]"]').attr('name', `grade_id[${i}]`);
                         $tr.find('input[name="summary[]"]').attr('name', `summary[${i}]`);
-                        $tr.find('input[name="debit_credit_code[]"]').attr('name', `debit_credit_code[${i}]`);
+                        $tr.find('input[name^="debit_credit_code"]').attr('name', `debit_credit_code[${i}]`);
                         $tr.find('input[name="currency_price[]"]').attr('name', `currency_price[${i}]`);
                         $tr.find('select[name="currency_id[]"]').attr('name', `currency_id[${i}]`);
                         $tr.find('input[name="rate[]"]').attr('name', `rate[${i}]`);
