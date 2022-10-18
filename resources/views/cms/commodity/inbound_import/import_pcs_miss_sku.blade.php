@@ -3,7 +3,7 @@
 
     <ul class="nav pm_navbar">
         <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="{{ Route('cms.inbound_import.index', [], true) }}">上傳檔案</a>
+            <a class="nav-link" aria-current="page" href="{{ Route('cms.inbound_import.index', [], true) }}">上傳檔案</a>
         </li>
         <li class="nav-item">
             <a class="nav-link" href="{{ Route('cms.inbound_import.import_log', [], true) }}">匯入紀錄</a>
@@ -15,20 +15,24 @@
             <a class="nav-link" href="{{ Route('cms.inbound_import.inbound_log', [], true) }}">入庫單調整紀錄</a>
         </li>
         @can('cms.inbound_fix0917_import.edit')
-        <li class="nav-item">
-            <a class="nav-link" href="{{ Route('cms.inbound_import.import_pcs_miss_sku', [], true) }}">個別補採購入庫</a>
-        </li>
+            <li class="nav-item">
+                <a class="nav-link active" href="{{ Route('cms.inbound_import.import_pcs_miss_sku', [], true) }}">個別補採購入庫</a>
+            </li>
         @endcan
     </ul>
     <hr class="narbarBottomLine mb-3">
 
     <div class="card shadow p-4 mb-4">
-        <p>重新匯入相同採購單號時，不會再次產生採購單和入庫單，請自行手動調整。
-            <span class="text-danger">上傳時將造成伺服器停滯，待轉檔完畢後可至匯入紀錄查看結果。</span>
-        </p>
+        <p> 1. 匯入時，只會依原有採購單進行匯入，若無此採購單或該單已有同樣商品款式，則不會匯入</p>
+        <p> 2. 匯入前請先將同一採購單商品排好</p>
+        <p> 3. 若無採購單則會回傳錯誤</p>
+        <p> 4. 若檢查到其中一筆有問題，則該批採購單商品都不會匯入，只會回傳錯誤</p>
+
+        <span class="text-danger">上傳時將造成伺服器停滯，待轉檔完畢後可至匯入紀錄查看結果。</span>
+
 
         <form method="POST" id="upload-excel" enctype="multipart/form-data"
-              action="{{ Route('cms.inbound_import.upload_excel') }}">
+              action="{{ Route('cms.inbound_import.upload_xls_pcs_miss_sku') }}">
             @csrf
             <div class="row mb-3">
                 <div class="col-12 mb-3">

@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Cms;
 
 use App\Enums\Customer\AccountStatus;
 use App\Enums\Customer\Newsletter;
-use App\Enums\Delivery\Event;
 use App\Http\Controllers\Controller;
 use App\Models\Addr;
 use App\Models\Customer;
@@ -12,8 +11,6 @@ use App\Models\CustomerAddress;
 use App\Models\CustomerCoupon;
 use App\Models\CustomerDividend;
 use App\Models\CustomerLogin;
-use App\Models\Delivery;
-use App\Models\LogisticFlow;
 use App\Models\Order;
 use App\Models\OrderProfit;
 use App\Models\User;
@@ -277,18 +274,19 @@ class CustomerCtrl extends Controller
     {
         $email = Customer::where('id', '=', $id)->select('email')->get()->first()->email;
         $dataList = Order::orderList(
-                            null,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null,
-                            $email
-                        )
-                        ->addSelect([
-                            'ord_address.phone as ord_phone',
-                        ])
-                        ->paginate(50);
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            $email
+        );
+
+        $dataList = $dataList['dataList']->addSelect([
+            'ord_address.phone as ord_phone',
+        ])
+            ->paginate(50);
 
         return view('cms.admin.customer.order', [
             'dataList' => $dataList,

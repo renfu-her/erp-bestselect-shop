@@ -39,7 +39,7 @@ class CreateTransferVoucherTable extends Migration
             $table->string('debit_credit_code')->comment('借貸');
             $table->unsignedBigInteger('currency_id')->nullable()->comment('acc_currency id');
             $table->decimal('rate')->nullable()->default(1)->comment('匯率');
-            $table->decimal('currency_price')->nullable()->comment('幣別金額');
+            $table->decimal('currency_price', 15, 4)->nullable()->comment('幣別金額');
             $table->decimal('final_price', 15, 4)->nullable()->comment('金額');
             $table->string('department')->nullable()->comment('部門');
             $table->timestamps();
