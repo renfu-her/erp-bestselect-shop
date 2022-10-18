@@ -414,24 +414,6 @@ abstract class AccountReceivedPapaCtrl extends Controller
                 }
 
                 $this->doReviewWhenReceived($id, $received_order);
-	            //修改子訂單物流配送狀態為檢貨中
-	            $sub_orders = SubOrders::where('order_id', '=', $id)->get();
-	            if (isset($sub_orders) && 0 < count($sub_orders)) {
-	                $sub_order_ids = [];
-	                foreach ($sub_orders as $sub_order) {
-	                    array_push($sub_order_ids, $sub_order->id);
-	                }
-	                $delivery = Delivery::whereIn('event_id', $sub_order_ids)->where('event', '=', Event::order()->value)->get();
-	                if (isset($delivery) && 0 < count($delivery)) {
-	                    foreach ($delivery as $dlv) {
-	                        $reLFCDS = LogisticFlow::createDeliveryStatus($request->user(), $dlv->id, [LogisticStatus::A2000()]);
-                            if ($reLFCDS['success'] == 0) {
-                                DB::rollBack();
-                                return $reLFCDS;
-                            }
-	                    }
-	                }
-	            }
 
                 DayEnd::match_day_end_status(request('receipt_date'), $received_order->sn);
 
