@@ -30,7 +30,7 @@ class CreateAccDayEndOrdersTable extends Migration
 
         Schema::create('acc_day_end_items', function (Blueprint $table) {
             $table->id();
-            $table->string('day_end_id')->nullable()->comment('日結id');
+            $table->unsignedBigInteger('day_end_id')->comment('日結id');
             $table->string('sn')->nullable()->comment('傳票編號');
             $table->string('source_type', 100)->nullable()->comment('來源單據類別');//
             $table->integer('source_id')->comment('資料表來源id');

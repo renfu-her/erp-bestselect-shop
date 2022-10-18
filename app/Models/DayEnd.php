@@ -214,9 +214,9 @@ class DayEnd extends Model
                                 'source_summary' => $source_summary,
                                 'debit_price' => null,
                                 'credit_price' => $o_value->origin_price,
-                                'grade_id' => $t_data->ro_product_grade_id,
-                                'grade_code' => $t_data->ro_product_grade_code,
-                                'grade_name' => $t_data->ro_product_grade_name,
+                                'grade_id' => $o_value->all_grades_id ?? $t_data->ro_product_grade_id,
+                                'grade_code' => $o_value->grade_code ?? $t_data->ro_product_grade_code,
+                                'grade_name' => $o_value->grade_name ?? $t_data->ro_product_grade_name,
                             ];
                             DayEndLog::create_day_end_log($data);
                         }

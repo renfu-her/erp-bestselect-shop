@@ -17,7 +17,7 @@ class CreateAccDayEndGradeLog extends Migration
 
         Schema::create('acc_day_end_grade_log', function (Blueprint $table) {
             $table->id();
-            $table->string('day_end_id')->nullable()->comment('日結id');
+            $table->unsignedBigInteger('day_end_id')->comment('日結id');
             $table->dateTime('closing_date')->nullable()->comment('日結日期');
             $table->string('source_type', 100)->nullable()->comment('來源單據類別');
             $table->integer('source_id')->comment('來源單據id');
