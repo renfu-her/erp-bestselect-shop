@@ -2,12 +2,17 @@
 
 namespace App\Http\Controllers\Cms\AccountManagement;
 
-use App\Enums\Order\PaymentStatus;
+use App\Enums\Delivery\Event;
+use App\Enums\Delivery\LogisticStatus;
 use App\Models\CsnOrder;
 use App\Models\CsnOrderFlow;
 use App\Models\CsnOrderItem;
+use App\Models\Delivery;
 use App\Models\Depot;
 use App\Enums\Order\OrderStatus;
+use App\Models\LogisticFlow;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class AccountReceivedCsnOrderCtrl extends AccountReceivedPapaCtrl
 {
@@ -99,6 +104,18 @@ class AccountReceivedCsnOrderCtrl extends AccountReceivedPapaCtrl
         CsnOrderFlow::changeOrderStatus($id, OrderStatus::Received());
         // 配發啟用日期
 //            CsnOrder::assign_dividend_active_date($id);
+
+        //修改寄倉訂購單 物流配送狀態為檢貨中
+        $delivery = Delivery::where('event_id', $id)->where('event', '=', Event::csn_order()->value)->get();
+        if (isset($delivery) && 0 < count($delivery)) {
+            foreach ($delivery as $dlv) {
+                $reLFCDS = LogisticFlow::createDeliveryStatus(Auth::user(), $dlv->id, [LogisticStatus::A2000()]);
+                if ($reLFCDS['success'] == 0) {
+                    DB::rollBack();
+                    return $reLFCDS;
+                }
+            }
+        }
     }
 
     public function doReviewWhenReceiptCancle($id, $received_order)
