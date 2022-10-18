@@ -25,7 +25,7 @@ class CreateAccountReceivedTable extends Migration
 
             $table->unsignedBigInteger('all_grades_id')->comment('收款會計科目');
 
-            $table->decimal('tw_price')->comment('金額(新台幣)');
+            $table->decimal('tw_price', 15, 4)->comment('金額(新台幣)');
             $table->dateTime('review_date')->nullable()->comment('入款審核日期');
 
             $table->unsignedBigInteger('accountant_id_fk')->comment('會計師, user_id foreign key');
