@@ -46,7 +46,7 @@ class LogisticFlow extends Model
             }
             LogisticFlow::insert($insert_arr);
 
-            $logistic_status_last = reset($logistic_status);
+            $logistic_status_last = end($logistic_status);
 
             $updateData = [
                 'logistic_status' => $logistic_status_last->value,

@@ -102,7 +102,7 @@ class OrderCtrl extends Controller
             $cond['shipment_status'] = [];
         }
 
-        $dataList = Order::orderList($cond['keyword'],
+        $result = Order::orderList($cond['keyword'],
             $cond['order_status'],
             $cond['sale_channel_id'],
             $order_date,
@@ -110,9 +110,8 @@ class OrderCtrl extends Controller
             $cond['profit_user'],
             null,
             $cond['item_title'],
-            $cond['purchase_sn'])
-            ->paginate($page)
-            ->appends($query);
+            $cond['purchase_sn']);
+        $dataList = $result['dataList']->paginate($page)->appends($query);
 
         $uniqueSubOrderIdArray = [];
         $uniqueDataList = [];
@@ -137,6 +136,7 @@ class OrderCtrl extends Controller
         return view('cms.commodity.order.list', [
             'dataList' => $dataList,
             'uniqueDataList' => $uniqueDataList,
+            'somOfPrice' => $result['somOfPrice'],
             'cond' => $cond,
             'orderStatus' => $orderStatus,
             'shipmentStatus' => LogisticStatus::asArray(),
@@ -327,7 +327,7 @@ class OrderCtrl extends Controller
         }
 
         $address = [];
-       
+
         foreach (UserAddrType::asArray() as $value) {
             switch ($value) {
                 case 'receiver':
