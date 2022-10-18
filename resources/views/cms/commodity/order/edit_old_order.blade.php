@@ -272,26 +272,26 @@
             </div>
             {{-- 發票方式: 電子發票 - 載具類型 --}}
             <fieldset class="col-12 mb-1 inv_method_carrier">
-                <legend class="col-form-label p-0 mb-2">載具類型 <span class="text-danger">*</span></legend>
+                <legend class="col-form-label p-0 mb-2">載具類型 {{  old('carrier_type') }}<span class="text-danger">*</span></legend>
                 <div class="px-1 pt-1">
                     <div class="form-check form-check-inline">
                         <label class="form-check-label">
                             <input class="form-check-input" name="carrier_type" value="2" type="radio"
-                                {{ old('carrier_type', $order->carrier_type) == 2 ? 'checked' : '' }}>
+                                {{ old('carrier_type', $order->order_carrier_type) == 2 ? 'checked' : '' }}>
                             會員電子發票
                         </label>
                     </div>
                     <div class="form-check form-check-inline">
                         <label class="form-check-label">
                             <input class="form-check-input" name="carrier_type" value="0" type="radio"
-                                {{ old('carrier_type', $order->carrier_type) == 0 ? 'checked' : '' }}>
+                                {{ old('carrier_type', $order->order_carrier_type) == 0 ? 'checked' : '' }}>
                             手機條碼載具
                         </label>
                     </div>
                     <div class="form-check form-check-inline">
                         <label class="form-check-label">
                             <input class="form-check-input" name="carrier_type" value="1" type="radio"
-                                {{ old('carrier_type', $order->carrier_type) == 1 ? 'checked' : '' }}>
+                                {{ old('carrier_type', $order->order_carrier_type) == 1 ? 'checked' : '' }}>
                             自然人憑證條碼載具
                         </label>
                     </div>
@@ -323,11 +323,15 @@
                     disabled>
                 <div class="invalid-feedback">
                     @error('carrier_num')
-                        {{ $message }}
+                        <div class="danger">{{ $message }}</div>
                     @enderror
                 </div>
             </div>
+            @error('invoice')
+                <div class="alert alert-danger">{{ $message }}</div>
+            @enderror
         </div>
+
 
         <div class="col-auto">
             <button type="submit" class="btn btn-primary px-4">送出</button>
@@ -589,7 +593,7 @@
                                 console.log($_carrier_type);
 
                                 if ($_carrier_type == 0) {
-                                     $('.carrier_0').removeClass('d-none');
+                                    $('.carrier_0').removeClass('d-none');
                                     $('.carrier_0 input').prop({
                                         disabled: false,
                                         required: true
@@ -597,7 +601,7 @@
 
                                     $('.carrier_2').addClass('d-none');
 
-                                } 
+                                }
 
                                 break;
                         }

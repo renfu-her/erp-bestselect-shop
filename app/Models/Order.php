@@ -207,7 +207,7 @@ class Order extends Model
                 'order.created_at',
                 'order.category',
                 'order.invoice_category',
-                'order.carrier_type',
+                'order.carrier_type as order_carrier_type',
                 'order.carrier_num',
                 'order.inv_title',
                 'order.buyer_ubn',
