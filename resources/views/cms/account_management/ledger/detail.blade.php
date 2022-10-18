@@ -6,12 +6,12 @@
         <div class="border rounded p-3 mb-3 text-center">
             <h5>喜鴻國際企業股份有限公司</h5>
             <h5>{{ $pre_data->grade_code . ' ' . $pre_data->grade_name }} 分類帳</h5>
-            <p class="m-0 lh-1">起迄期間：{{ request('sdate') ? date('Y-m-d', strtotime(request('sdate'))) : '' }}～{{ request('edate') ? date('Y-m-d', strtotime(request('edate'))) : '' }}　列印日期：{{ date('Y-m-d', strtotime(date('Y-m-d'))) }}</p>
+            <p class="m-0 lh-1">起迄期間：{{ request('sdate') ? date('Y/m/d', strtotime(request('sdate'))) : '' }}～{{ request('edate') ? date('Y/m/d', strtotime(request('edate'))) : '' }}　列印日期：{{ date('Y/m/d', strtotime(date('Y-m-d'))) }}</p>
         </div>
 
-        <div class="table-responsive tableOverBox">
-            <table class="table table-striped tableList mb-1">
-                <thead class="table-primary">
+        <div class="table-responsive">
+            <table class="table table-striped text-break">
+                <thead class="table-primary text-nowrap small">
                     <tr>
                         <th scope="col">#</th>
                         <th scope="col">傳票日期</th>
@@ -24,19 +24,19 @@
                     </tr>
                 </thead>
 
-                <tbody>
+                <tbody class="">
                     @php
                         $d_count = 0;
                         $pre_net_price = $pre_data->net_price;
                     @endphp
-                    <tr>
-                        <th>{{ $d_count + 1 }}</th>
+                    <tr class="table-warning">
+                        <th class="text-nowrap">{{ $d_count + 1 }}</th>
                         <td></td>
                         <td></td>
                         <td></td>
                         <td>上期累計金額</td>
-                        <td class="text-end">{{ number_format($pre_data->debit_price) }}</td>
-                        <td class="text-end">{{ number_format($pre_data->credit_price) }}</td>
+                        <td class="text-end text-nowrap">{{ number_format($pre_data->debit_price) }}</td>
+                        <td class="text-end text-nowrap">{{ number_format($pre_data->credit_price) }}</td>
                         <td class="text-end"></td>
                     </tr>
                     @php
@@ -44,90 +44,88 @@
                     @endphp
                     @foreach($data_list as $value)
                         <tr>
-                            <th>{{ $d_count + 1 }}</th>
+                            <th class="text-nowrap">{{ $d_count + 1 }}</th>
                             <td>{{ date('Y-m-d', strtotime($value->closing_date)) }}</td>
-                            <td>{{ $value->sn }}</td>
-                            <td><a href="{{ $value->link }}">{{ $value->source_sn }}</a></td>
-                            <td>{{ $value->source_summary }}</td>
-                            <td class="text-end">{{ number_format($value->debit_price) }}</td>
-                            <td class="text-end">{{ number_format($value->credit_price) }}</td>
-                            <td class="text-end">{{ number_format($pre_net_price + $value->net_price) }}</td>
+                            <td class="small">{{ $value->sn }}</td>
+                            <td class="small"><a href="{{ $value->link }}">{{ $value->source_sn }}</a></td>
+                            <td class="small">{{ $value->source_summary }}</td>
+                            <td class="text-end text-nowrap">{{ number_format($value->debit_price) }}</td>
+                            <td class="text-end text-nowrap">{{ number_format($value->credit_price) }}</td>
+                            <td class="text-end text-nowrap">{{ number_format($pre_net_price + $value->net_price) }}</td>
                         </tr>
                         @php
                             $d_count++;
                             $pre_net_price += $value->net_price;
                         @endphp
                     @endforeach
-                </tbody>
-
-                <tfoot>
-                    <tr>
-                        <th>{{ $d_count + 1 }}</th>
+                    
+                    <tr class="table-warning" style="border-top: 2px solid;">
+                        <th class="text-nowrap">{{ $d_count + 1 }}</th>
                         <td></td>
                         <td></td>
                         <td></td>
                         <td>上期累計金額</td>
-                        <td class="text-end">{{ number_format($pre_data->debit_price) }}</td>
-                        <td class="text-end">{{ number_format($pre_data->credit_price) }}</td>
+                        <td class="text-end text-nowrap">{{ number_format($pre_data->debit_price) }}</td>
+                        <td class="text-end text-nowrap">{{ number_format($pre_data->credit_price) }}</td>
                         <td class="text-end"></td>
                     </tr>
                     @php
                         $d_count++;
                     @endphp
 
-                    <tr>
-                        <th>{{ $d_count + 1 }}</th>
+                    <tr class="table-warning">
+                        <th class="text-nowrap">{{ $d_count + 1 }}</th>
                         <td></td>
                         <td></td>
                         <td></td>
                         <td>差額</td>
-                        <td class="text-end">{{ $pre_data->net_price > 0 ? number_format($pre_data->net_price) : '' }}</td>
-                        <td class="text-end">{{ $pre_data->net_price < 0 ? number_format(abs($pre_data->net_price)) : '' }}</td>
+                        <td class="text-end text-nowrap">{{ $pre_data->net_price > 0 ? number_format($pre_data->net_price) : '' }}</td>
+                        <td class="text-end text-nowrap">{{ $pre_data->net_price < 0 ? number_format(abs($pre_data->net_price)) : '' }}</td>
                         <td class="text-end"></td>
                     </tr>
                     @php
                         $d_count++;
                     @endphp
 
-                    <tr>
-                        <th>{{ $d_count + 1 }}</th>
+                    <tr class="table-success">
+                        <th class="text-nowrap">{{ $d_count + 1 }}</th>
                         <td></td>
                         <td></td>
                         <td></td>
                         <td>本期金額</td>
-                        <td class="text-end">{{ number_format($data_list->sum('debit_price')) }}</td>
-                        <td class="text-end">{{ number_format($data_list->sum('credit_price')) }}</td>
+                        <td class="text-end text-nowrap">{{ number_format($data_list->sum('debit_price')) }}</td>
+                        <td class="text-end text-nowraptext-nowrap">{{ number_format($data_list->sum('credit_price')) }}</td>
                         <td class="text-end"></td>
                     </tr>
                     @php
                         $d_count++;
                     @endphp
 
-                    <tr>
-                        <th>{{ $d_count + 1 }}</th>
+                    <tr class="table-success">
+                        <th class="text-nowrap">{{ $d_count + 1 }}</th>
                         <td></td>
                         <td></td>
                         <td></td>
                         <td>本期累計金額</td>
-                        <td class="text-end">{{ number_format($pre_data->debit_price + $data_list->sum('debit_price')) }}</td>
-                        <td class="text-end">{{ number_format($pre_data->credit_price + $data_list->sum('credit_price')) }}</td>
+                        <td class="text-end text-nowrap">{{ number_format($pre_data->debit_price + $data_list->sum('debit_price')) }}</td>
+                        <td class="text-end text-nowrap">{{ number_format($pre_data->credit_price + $data_list->sum('credit_price')) }}</td>
                         <td class="text-end"></td>
                     </tr>
                     @php
                         $d_count++;
                     @endphp
 
-                    <tr>
-                        <th>{{ $d_count + 1 }}</th>
+                    <tr class="table-success">
+                        <th class="text-nowrap">{{ $d_count + 1 }}</th>
                         <td></td>
                         <td></td>
                         <td></td>
                         <td>差額</td>
-                        <td class="text-end">{{ $pre_data->net_price + $data_list->sum('net_price') > 0 ? number_format($pre_data->net_price + $data_list->sum('net_price')) : '' }}</td>
-                        <td class="text-end">{{ $pre_data->net_price + $data_list->sum('net_price') < 0 ? number_format(abs($pre_data->net_price + $data_list->sum('net_price'))) : '' }}</td>
+                        <td class="text-end text-nowrap">{{ $pre_data->net_price + $data_list->sum('net_price') > 0 ? number_format($pre_data->net_price + $data_list->sum('net_price')) : '' }}</td>
+                        <td class="text-end text-nowrap">{{ $pre_data->net_price + $data_list->sum('net_price') < 0 ? number_format(abs($pre_data->net_price + $data_list->sum('net_price'))) : '' }}</td>
                         <td class="text-end"></td>
                     </tr>
-                </tfoot>
+                </tbody>
             </table>
         </div>
     </div>
@@ -143,7 +141,7 @@
 @once
     @push('sub-styles')
         <style>
-
+            
         </style>
     @endpush
 
