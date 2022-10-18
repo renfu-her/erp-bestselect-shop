@@ -460,6 +460,13 @@
                     .margin {
                         margin: 1.5rem;
                     }
+                    .text-break {
+                        word-wrap: break-word;
+                        word-break: break-word;
+                    }
+                    .text-nowrap {
+                        white-space: nowrap;
+                    }
                     @page {
                         size: A4 portrait;
                     }
