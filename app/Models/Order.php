@@ -56,7 +56,7 @@ class Order extends Model
                 'shi_group.name as ship_group_name',
                 'ord_received_orders.sn as or_sn',
                 'so.projlgt_order_sn',
-                'so.package_sn',
+//                'so.package_sn',
                 'ord_items.product_title',
                 'ord_items.sub_order_id',
             ])

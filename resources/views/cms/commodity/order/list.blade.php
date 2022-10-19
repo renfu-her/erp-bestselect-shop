@@ -202,7 +202,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($uniqueDataList as $key => $data)
+                    @foreach ($dataList as $key => $data)
                         <tr>
                             <th scope="row" class="fs-6">{{ $key + 1 }}</th>
                             <td class="text-center fs-6">

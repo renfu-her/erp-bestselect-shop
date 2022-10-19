@@ -114,10 +114,13 @@ class OrderCtrl extends Controller
             $cond['purchase_sn'],
             $cond['received_method'],
         );
-        $dataList = $result['dataList']->paginate($page)->appends($query);
+        $dataList = $result['dataList']
+            ->groupBy('sub_order_id')
+            ->paginate($page)
+            ->appends($query);
 
         $uniqueSubOrderIdArray = [];
-        $uniqueDataList = [];
+//        $uniqueDataList = [];
         foreach ($dataList as $datum) {
             if (!in_array($datum->sub_order_id, $uniqueSubOrderIdArray)) {
                 $uniqueSubOrderIdArray[] = $datum->sub_order_id;
@@ -125,7 +128,7 @@ class OrderCtrl extends Controller
                     ->where('sub_order_id', $datum->sub_order_id)
                     ->select('product_title')
                     ->get();
-                $uniqueDataList[] = $datum;
+//                $uniqueDataList[] = $datum;
             }
         }
 
@@ -138,7 +141,7 @@ class OrderCtrl extends Controller
 
         return view('cms.commodity.order.list', [
             'dataList' => $dataList,
-            'uniqueDataList' => $uniqueDataList,
+//            'uniqueDataList' => $uniqueDataList,
             'somOfPrice' => $result['somOfPrice'],
             'cond' => $cond,
             'orderStatus' => $orderStatus,
