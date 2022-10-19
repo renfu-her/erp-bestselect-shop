@@ -84,6 +84,7 @@ class OrderCtrl extends Controller
         $cond['keyword'] = Arr::get($query, 'keyword', null);
         $cond['order_status'] = Arr::get($query, 'order_status', []);
         $cond['shipment_status'] = Arr::get($query, 'shipment_status', []);
+        $cond['received_method'] = Arr::get($query, 'received_method', []);
         $cond['sale_channel_id'] = Arr::get($query, 'sale_channel_id', []);
         $cond['order_sdate'] = Arr::get($query, 'order_sdate', null);
         $cond['order_edate'] = Arr::get($query, 'order_edate', null);
@@ -110,7 +111,9 @@ class OrderCtrl extends Controller
             $cond['profit_user'],
             null,
             $cond['item_title'],
-            $cond['purchase_sn']);
+            $cond['purchase_sn'],
+            $cond['received_method'],
+        );
         $dataList = $result['dataList']->paginate($page)->appends($query);
 
         $uniqueSubOrderIdArray = [];
@@ -140,6 +143,7 @@ class OrderCtrl extends Controller
             'cond' => $cond,
             'orderStatus' => $orderStatus,
             'shipmentStatus' => LogisticStatus::asArray(),
+            'receivedMethods' => ReceivedMethod::asSelectArray(),
             'saleChannels' => SaleChannel::select('id', 'title')->get()->toArray(),
             'data_per_page' => $page,
             'profitUsers' => $profitUsers]);
