@@ -507,14 +507,19 @@ class ReceiveDepot extends Model
 
     //更新寄倉到貨數量
     public static function updateCSNArrivedNum($id, $addnum) {
-        return DB::transaction(function () use ($id, $addnum
-        ) {
+        DB::beginTransaction();
+        try {
             $updateArr = [];
             $updateArr['csn_arrived_qty'] = DB::raw("csn_arrived_qty + $addnum");
             ReceiveDepot::where('id', $id)
                 ->update($updateArr);
+
+            DB::commit();
             return ['success' => 1, 'error_msg' => ""];
-        });
+        } catch (\Exception $e) {
+            DB::rollback();
+            return ['success' => 0, 'error_msg' => $e->getMessage()];
+        }
     }
 
     public static function getDataList($param) {

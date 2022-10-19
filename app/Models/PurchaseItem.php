@@ -183,8 +183,8 @@ class PurchaseItem extends Model
 
     //更新到貨數量
     public static function updateArrivedNum($id, $addnum, $can_tally = false) {
-        return DB::transaction(function () use ($id, $addnum, $can_tally
-        ) {
+        DB::beginTransaction();
+        try {
             $updateArr = [];
             $updateArr['arrived_num'] = DB::raw("arrived_num + $addnum");
             if (true == $can_tally) {
@@ -192,8 +192,13 @@ class PurchaseItem extends Model
             }
             PurchaseItem::where('id', $id)
                 ->update($updateArr);
+
+            DB::commit();
             return ['success' => 1, 'error_msg' => ""];
-        });
+        } catch (\Exception $e) {
+            DB::rollback();
+            return ['success' => 0, 'error_msg' => $e->getMessage()];
+        }
     }
 
     public static function getDataForInbound($purchase_id) {

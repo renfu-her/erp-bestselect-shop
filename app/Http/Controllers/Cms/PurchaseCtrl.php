@@ -537,9 +537,10 @@ class PurchaseCtrl extends Controller
                 } else if (AuditStatus::veto()->value == $purchase->audit_status) {
                     DB::rollBack();
                     return ['success' => 0, 'error_msg' => "否決後 不可入庫"];
-                } else if (AuditStatus::unreviewed()->value == $purchase->audit_status) {
-                    DB::rollBack();
-                    return ['success' => 0, 'error_msg' => "尚未核可 不可入庫"];
+//                //未核可也必須可以入庫
+//                } else if (AuditStatus::unreviewed()->value == $purchase->audit_status) {
+//                    DB::rollBack();
+//                    return ['success' => 0, 'error_msg' => "尚未核可 不可入庫"];
                 }
                 foreach ($style_arr as $key => $val) {
                     $re = PurchaseInbound::createInbound(

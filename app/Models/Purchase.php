@@ -266,8 +266,8 @@ class Purchase extends Model
         } else if (null != $payingOrderList && 0 < count($payingOrderList)) {
             return ['success' => 0, 'error_msg' => '已有付款單無法刪除'];
         } else {
-            return DB::transaction(function () use ($id, $operator_user_id, $operator_user_name
-            ) {
+            DB::beginTransaction();
+            try {
                 $rePcsLSC = PurchaseLog::stockChange($id, null, Event::purchase()->value, $id, LogEventFeature::del()->value, null, null, '刪除採購單', null, null, $operator_user_id, $operator_user_name);
                 if ($rePcsLSC['success'] == 0) {
                     DB::rollBack();
@@ -295,8 +295,13 @@ class Purchase extends Model
                 Purchase::where('id', '=', $id)->delete();
                 PurchaseItem::where('purchase_id', '=', $id)->delete();
                 PurchaseInbound::where('event_id', '=', $id)->where('event', '=', Event::purchase()->value)->delete();
+
+                DB::commit();
                 return ['success' => 1, 'error_msg' => ""];
-            });
+            } catch (\Exception $e) {
+                DB::rollback();
+                return ['success' => 0, 'error_msg' => $e->getMessage()];
+            }
         }
     }
 
