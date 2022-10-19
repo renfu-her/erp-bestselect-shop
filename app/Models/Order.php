@@ -205,6 +205,12 @@ class Order extends Model
                 'order.auto_dividend',
                 'order.total_price',
                 'order.created_at',
+                'order.category',
+                'order.invoice_category',
+                'order.carrier_type as order_carrier_type',
+                'order.carrier_num',
+                'order.inv_title',
+                'order.buyer_ubn',
                 DB::raw('(case when "' . CarrierType::mobile()->value . '" = order.carrier_type then "' . CarrierType::getDescription(CarrierType::mobile) . '"
                     when "' . CarrierType::certificate()->value . '" = order.carrier_type then "' . CarrierType::getDescription(CarrierType::certificate) . '"
                     when "' . CarrierType::member()->value . '" = order.carrier_type then "' . CarrierType::getDescription(CarrierType::member) . '"
@@ -628,7 +634,7 @@ class Order extends Model
 
     //付款資訊
     //參考OrderInvoice::create_invoice的付款資訊來改
-    private static function updateOrderUsrPayMethod($order_id, $payinfo)
+    public static function updateOrderUsrPayMethod($order_id, $payinfo)
     {
         $item_tax_type_arr = [];
         $n_order = Order::orderDetail($order_id)->first();

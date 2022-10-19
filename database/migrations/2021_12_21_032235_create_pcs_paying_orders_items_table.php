@@ -20,7 +20,7 @@ class CreatePcsPayingOrdersItemsTable extends Migration
             $table->tinyInteger('type')->comment('付款單類型 0:訂金 1:尾款');
 
             $table->string('sn')->comment('付款單號');
-            $table->decimal('price')->nullable()->comment('金額');
+            $table->decimal('price', 15, 4)->nullable()->comment('金額');
             $table->decimal('tw_dollar')->nullable()->default(null)->comment('新台幣,暫留欄位');
             $table->decimal('rate')->nullable()->default(null)->comment('採購當時的匯率,暫留欄位');
             $table->unsignedBigInteger('logistics_grade_id')->comment('對應到acc_all_grade的primary key');
