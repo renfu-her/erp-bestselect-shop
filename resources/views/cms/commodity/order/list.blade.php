@@ -167,18 +167,17 @@
             </div>
         </div>
 
-        <div class="table-responsive tableOverBox">
-            <table class="table table-striped tableList">
-                <thead class="small align-middle">
+        <div class="table-responsive tableOverBox mb-3">
+            <table class="table table-striped tableList small mb-0">
+                <thead class="align-middle">
                     <tr>
                         <th scope="col" style="width:40px">#</th>
                         <th scope="col" style="width:40px" class="text-center">明細</th>
                         <th scope="col">訂單編號</th>
                         <th scope="col">費用</th>
-                        <th scope="col" class="wrap lh-sm">
-                            <span class="text-nowrap">訂單狀態 /</span>
-                            <span class="text-nowrap">物流狀態</span>
-                        </th>
+                        <th scope="col">訂單狀態</th>
+                        <th scope="col">物流狀態</th>
+                        <th scope="col">付款方式</th>
                         <th scope="col">出貨單號</th>
                         <th scope="col">訂購日期</th>
                         <th scope="col">購買人</th>
@@ -193,8 +192,8 @@
                 <tbody>
                     @foreach ($uniqueDataList as $key => $data)
                         <tr>
-                            <th scope="row">{{ $key + 1 }}</th>
-                            <td class="text-center">
+                            <th scope="row" class="fs-6">{{ $key + 1 }}</th>
+                            <td class="text-center fs-6">
                                 @can('cms.order.detail')
                                     <a href="{{ Route('cms.order.detail', ['id' => $data->id]) }}" data-bs-toggle="tooltip"
                                         title="明細" class="icon icon-btn fs-5 text-primary rounded-circle border-0">
@@ -206,11 +205,11 @@
                             <td>
                                 ${{ number_format($data->total_price) }}
                             </td>
-                            <td class="wrap">
-                                <div class="text-nowrap lh-sm @if ($data->order_status === '取消') text-danger @endif">
-                                    {{ $data->order_status ?? '-' }} /</div>
-                                <div class="text-nowrap lh-base">{{ $data->logistic_status }}</div>
+                            <td @class(['fs-6', 'text-danger' => $data->order_status === '取消'])>
+                                {{ $data->order_status }}
                             </td>
+                            <td class="fs-6">{{ $data->logistic_status }}</td>
+                            <td></td>
                             <td>
                                 @if ($data->projlgt_order_sn)
                                     <a href="{{ env('LOGISTIC_URL') . 'guest/order-flow/' . $data->projlgt_order_sn }}"
@@ -222,11 +221,11 @@
                                 @endif
                             </td>
                             <td>{{ date('Y/m/d', strtotime($data->order_date)) }}</td>
-                            <td>{{ $data->name }}</td>
+                            <td class="wrap">{{ $data->name }}</td>
                             <td>{{ $data->sale_title }}</td>
                             <td>{{ $data->or_sn }}</td>
                             <td class="wrap">
-                                <div class="lh-1 small text-nowrap">
+                                <div class="lh-1 text-nowrap">
                                     <span @class([
                                         'badge -badge',
                                         '-primary' => $data->ship_category_name === '宅配',
@@ -237,7 +236,7 @@
                             </td>
                             <td>{{ $data->ship_group_name }}</td>
                             <td>{{ $data->package_sn }}</td>
-                            <td class="small py-0 lh-base">
+                            <td class="py-0 lh-base">
                                 <ul class="list-group list-group-flush">
                                 @foreach($data->productTitleGroup as $x => $productTitle)
                                     <li class="list-group-item bg-transparent pe-1">{{ $productTitle->product_title }}</li>
@@ -249,22 +248,10 @@
                 </tbody>
             </table>
         </div>
-        <table class="table tableList">
-            <thead class="small align-middle">
-            <tr>
-                <th scope="col" style="width:40px"></th>
-                <th scope="col" style="width:40px"></th>
-                <th scope="col"></th>
-                <th scope="col" style="font-size: larger">
-                    合計金額：$
-                    {{ number_format($somOfPrice ?? '') }}
-                    （共
-                    {{ $dataList->total() }}
-                    筆）
-                </th>
-            </tr>
-            </thead>
-        </table>
+        <div class="fs-5 fw-bold text-end">
+            合計金額：${{ number_format($somOfPrice ?? '') }}
+            （共 {{ $dataList->total() }} 筆）
+        </div>
     </div>
     <div class="row flex-column-reverse flex-sm-row">
         <div class="col d-flex justify-content-end align-items-center mb-3 mb-sm-0">

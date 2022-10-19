@@ -19,7 +19,7 @@ class CreatePcsReceivedOrdersTable extends Migration
             $table->integer('usr_users_id')->nullable()->comment('承辦人，產生收款單的人id，usr_users foreign key');
 
             $table->string('sn')->comment('收款單號');
-            $table->decimal('price')->nullable()->comment('金額');
+            $table->decimal('price', 15, 4)->nullable()->comment('金額');
             $table->decimal('tw_dollar')->nullable()->default(null)->comment('新台幣,暫留欄位');
             $table->decimal('rate')->nullable()->default(null)->comment('訂單當時的匯率,暫留欄位');
             $table->unsignedBigInteger('logistics_grade_id')->comment('物流會計科目id，對應到acc_all_grade的primary key');
