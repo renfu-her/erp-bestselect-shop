@@ -42,10 +42,13 @@ class OrderRemit extends Model
                 'bank_code'=> $bank_code,
             ]);
 
-            $email = 'eve1717@hotmail.com.tw';
-            $order = Order::where('id', '=', $order_id)->first();
-            $data = [ 'sn' => $order->sn ?? ''];
-            Mail::to($email)->queue(new CustomerOrderRemit($data));
+            //正式機才做發送給會計
+            if(env('APP_ENV') == 'rel'){
+                $email = 'eve1717@hotmail.com.tw';
+                $order = Order::where('id', '=', $order_id)->first();
+                $data = [ 'sn' => $order->sn ?? ''];
+                Mail::to($email)->queue(new CustomerOrderRemit($data));
+            }
 
             return ['success' => '1', 'id' => $id->id];
         });

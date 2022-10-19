@@ -2532,7 +2532,6 @@ class OrderCtrl extends Controller
 
         $shipEvent = [];
 
-        //  dd(Depot::get()->toArray());
         foreach ($shipmentCategory as $value) {
 
             switch ($value->code) {
@@ -2567,7 +2566,7 @@ class OrderCtrl extends Controller
 
     public function updateItem(Request $request, $id)
     {
-
+       // dd($_POST);
         $request->validate([
             'item_id' => 'required|array',
             'note' => 'required|array',
@@ -2675,6 +2674,12 @@ class OrderCtrl extends Controller
 
         Order::where('id', $id)->update($updateData);
 
+        // 發票
+        $re = Order::updateOrderUsrPayMethod($id, $request->only('category', 'invoice_method', 'carrier_type', 'carrier_email','inv_title','buyer_ubn','carrier_num'));
+        if ($re['success'] != '1') {
+            DB::rollBack();
+            return redirect()->back()->withErrors(['invoice' => $re['error_msg']]);
+        }
         DB::commit();
         wToast('修改完成');
 
