@@ -26,8 +26,8 @@ class PurchaseLog extends Model
         if (!LogEventFeature::hasKey($feature)) {
             return ['success' => 0, 'error_msg' => 'feature error '. $feature];
         }
-
-        return DB::transaction(function () use ($event_parent_id, $product_style_id, $event, $event_id, $feature, $inbound_id, $qty, $note, $product_title, $prd_type, $operator_user_id, $operator_user_name) {
+        DB::beginTransaction();
+        try {
             self::create([
                 'event_parent_id' => $event_parent_id,
                 'product_style_id' => $product_style_id,
@@ -42,9 +42,12 @@ class PurchaseLog extends Model
                 'user_id' => $operator_user_id,
                 'user_name' => $operator_user_name]);
 
-            return ['success' => 1];
-
-        });
+            DB::commit();
+            return ['success' => 1, 'error_msg' => ""];
+        } catch (\Exception $e) {
+            DB::rollback();
+            return ['success' => 0, 'error_msg' => $e->getMessage()];
+        }
     }
 
     //變更紀錄
