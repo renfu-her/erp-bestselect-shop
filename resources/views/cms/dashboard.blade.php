@@ -8,7 +8,7 @@
     <div class="d-flex flex-wrap">
         <div class="col-12 col-lg-9">
             {{-- 電商訂單 --}}
-            <h6 class="px-2"><i class="bi bi-cart-fill me-2"></i>電商訂單</h6>
+            <h6 class="px-2"><i class="bi bi-cart-fill me-2"></i>電商訂單（已入賬）</h6>
             <div class="d-flex flex-column flex-md-row mb-3 border bg-white inner-border">
                 <div class="col px-3 py-2 d-flex align-items-end">
                     <div>
