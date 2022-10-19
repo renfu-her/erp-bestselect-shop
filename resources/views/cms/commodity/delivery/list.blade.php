@@ -178,8 +178,8 @@
         </div>
 
         <div class="table-responsive tableOverBox">
-            <table class="table table-striped tableList">
-                <thead class="small align-middle">
+            <table class="table table-striped tableList small mb-0">
+                <thead class="align-middle">
                     <tr>
                         <th scope="col" style="width:40px">#</th>
                         <th scope="col" style="width:40px" class="text-center">編輯</th>
@@ -189,7 +189,8 @@
                         </td>
                         <th scope="col">訂單金額</th>
                         <th scope="col">寄件倉</th>
-                        <th scope="col" class="wrap lh-sm">訂單狀態 /<br>物流狀態</th>
+                        <th scope="col">訂單狀態</th>
+                        <th scope="col">物流狀態</th>
                         <th scope="col">物流分類</th>
                         <th scope="col">物流溫層</th>
                         <th scope="col">自取倉溫層</th>
@@ -202,8 +203,8 @@
                 <tbody>
                     @foreach ($uniqueSubOrderDataList as $key => $data)
                         <tr>
-                            <th scope="row">{{ $key + 1 }}</th>
-                            <td class="text-center">
+                            <th scope="row" class="fs-6">{{ $key + 1 }}</th>
+                            <td class="text-center fs-6">
                                 @can('cms.delivery.edit')
                                     <a href="
                                     @if ($data->event == App\Enums\Delivery\Event::order()->value) {{ Route('cms.order.detail', ['id' => $data->order_id, 'subOrderId' => $data->sub_order_id], true) }}
@@ -219,18 +220,16 @@
                             </td>
                             <td class="wrap">
                                 <div class="fw-bold">{{ $data->delivery_sn }}</div>
-                                <div class="text-nowrap">{{ $data->event_sn }}</div>
+                                <div>{{ $data->event_sn }}</div>
                             </td>
                             <td>${{ number_format($data->total_price) }}</td>
-                            <td>{{ $data->depot_name ?? '-' }}</td>
-                            <td class="wrap">
-                                <div class="text-nowrap lh-sm @if ($data->order_status === '取消') text-danger @endif">
-                                    {{ $data->order_status ?? '-' }} /
-                                </div>
-                                <div class="text-nowrap lh-base">{{ $data->logistic_status }}</div>
+                            <td class="wrap">{{ $data->depot_name ?? '-' }}</td>
+                            <td @class(['fs-6', 'text-danger' => $data->order_status === '取消'])>
+                                {{ $data->order_status }}
                             </td>
+                            <td class="fs-6">{{ $data->logistic_status }}</td>
                             <td class="wrap">
-                                <div class="lh-1 small text-nowrap">
+                                <div class="lh-1 text-nowrap">
                                     <span @class([
                                         'badge -badge',
                                         '-primary' => $data->ship_category_name === '宅配',
@@ -239,16 +238,12 @@
                                 </div>
                                 <div class="lh-base text-nowrap">{{ $data->method ?? '-' }}</div>
                             </td>
-                            <td>
-                                {{ $data->temp_name }}
-                            </td>
-                            <td>
-                                {{ $data->depot_temp_name }}
-                            </td>
-                            <td>{{ $data->sed_name }}</td>
-                            <td>{{ $data->rec_name }}</td>
+                            <td>{{ $data->temp_name }}</td>
+                            <td>{{ $data->depot_temp_name }}</td>
+                            <td class="wrap">{{ $data->sed_name }}</td>
+                            <td class="wrap">{{ $data->rec_name }}</td>
                             <td>{{ $data->rec_address }}</td>
-                            <td class="small py-0 lh-base">
+                            <td class="py-0 lh-base">
                                 <ul class="list-group list-group-flush">
                                 @foreach($data->productTitles as $productTitle)
                                     <li class="list-group-item bg-transparent pe-1">{{ $productTitle->product_title }}</li>
