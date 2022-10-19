@@ -537,6 +537,9 @@ class PurchaseCtrl extends Controller
                 } else if (AuditStatus::veto()->value == $purchase->audit_status) {
                     DB::rollBack();
                     return ['success' => 0, 'error_msg' => "否決後 不可入庫"];
+                } else if (AuditStatus::unreviewed()->value == $purchase->audit_status) {
+                    DB::rollBack();
+                    return ['success' => 0, 'error_msg' => "尚未核可 不可入庫"];
                 }
                 foreach ($style_arr as $key => $val) {
                     $re = PurchaseInbound::createInbound(
@@ -564,7 +567,7 @@ class PurchaseCtrl extends Controller
                 return ['success' => 1, 'error_msg' => ""];
             });
             if ($result['success'] == 0) {
-                wToast($result['error_msg']);
+                wToast($result['error_msg'], ['type'=>'danger']);
             } else {
                 wToast(__('Add finished.'));
             }
