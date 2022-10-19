@@ -36,12 +36,15 @@ class Order extends Model
         $profit_user = null,
         $email = null,
         $item_title = null,
-        $purchase_sn = null
+        $purchase_sn = null,
+        $received_method = null
     ) {
         $order = DB::table('ord_orders as order')
             ->select(['order.id as id',
                 'order.sn as main_order_sn',
                 'order.status as order_status',
+                'order.payment_method',
+                'order.payment_method_title',
                 'ord_address.name',
                 'sale.title as sale_title',
                 'so.ship_category_name',
@@ -112,6 +115,14 @@ class Order extends Model
                 $order->whereIn('order.status_code', $order_status);
             } else {
                 $order->where('order.status_code', $order_status);
+            }
+        }
+
+        if ($received_method) {
+            if (gettype($received_method) == 'array') {
+                $order->whereIn('order.payment_method', $received_method);
+            } else {
+                $order->where('order.payment_method', $received_method);
             }
         }
 

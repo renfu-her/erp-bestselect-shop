@@ -110,6 +110,18 @@
                         @endforeach
                     </select>
                 </div>
+
+                <div class="col-12 col-sm-6 mb-3">
+                    <label class="form-label">付款方式</label>
+                    <select name="received_method[]" multiple class="-select2 -multiple form-select"
+                            data-placeholder="請選擇付款方式">
+                        @foreach ($receivedMethods as $key => $receivedMethod)
+                            <option value="{{ $key }}" @if (in_array($key, $cond['received_method'])) selected @endif>
+                                {{ $receivedMethod }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">銷售通路</label>
                     <select name="sale_channel_id[]" multiple class="-select2 -multiple form-select"
@@ -209,7 +221,7 @@
                                 {{ $data->order_status }}
                             </td>
                             <td class="fs-6">{{ $data->logistic_status }}</td>
-                            <td></td>
+                            <td>{{ $data->payment_method_title }}</td>
                             <td>
                                 @if ($data->projlgt_order_sn)
                                     <a href="{{ env('LOGISTIC_URL') . 'guest/order-flow/' . $data->projlgt_order_sn }}"
