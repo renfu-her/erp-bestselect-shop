@@ -93,6 +93,17 @@ class PurchaseItem extends Model
                         $logEventFeature = LogEventFeature::style_change_qty()->value;
                     }
                     if ('' != $event && null != $logEventFeature) {
+                        //若有修改修改採購數量和總價 則需計算成本價寫回入庫單的unit_cost
+                        if ($dirtykey == 'price' || $dirtykey == 'num') {
+                            $unit_cost = ($purchaseItem->price / $purchaseItem->num);
+                            PurchaseInbound::where('event', '=', Event::purchase()->value)
+                                ->where('event_id', '=', $purchaseItem->purchase_id)
+                                ->where('event_item_id', '=', $itemId)
+                                ->update([
+                                    'unit_cost' => $unit_cost
+                                ]);
+                        }
+
                         $rePcsLSC = PurchaseLog::stockChange($purchaseItem->purchase_id, $purchaseItem->product_style_id
                             , Event::purchase()->value, $itemId
                             , $logEventFeature, null, $dirtyval, $event
