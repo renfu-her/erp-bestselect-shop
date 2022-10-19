@@ -62,6 +62,7 @@ class OrderCustomerProfitReport extends Model
             ->selectRaw('SUM(profit.bonus) as bonus')
             ->selectRaw('count(*) as qty')
             ->whereBetween('sub_order.dlv_audit_date', [$sdate, $edate])
+            ->where('bonus','>',0)
             ->groupBy('profit.customer_id')->get();
 
         foreach ($profits as $profit) {

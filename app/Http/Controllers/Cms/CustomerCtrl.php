@@ -331,12 +331,23 @@ class CustomerCtrl extends Controller
 
     public function bonus(Request $request, $id)
     {
+        $query = $request->query();
+        $cond['year'] = Arr::get($query, 'year', date('Y'));
+        $cond['month'] = Arr::get($query, 'month', date('m'));
 
-        //  dd(OrderProfit::dataList(null, $id)->get());
+        $sYear = 2022;
+        $year = [];
+        for ($i = 0; $i < Date("Y") - $sYear + 1; $i++) {
+            $year[] = $sYear + $i;
+        }
 
+        $date = $cond['year'] . "-" . $cond['month'] . "-1";
+        
         return view('cms.admin.customer.bonus', [
             'customer' => $id,
-            'dataList' => OrderProfit::dataList(null, $id)->get(),
+            'dataList' => OrderProfit::dataList(null, $id, $date)->get(),
+            'year' => $year,
+            'cond' => $cond,
         ]);
     }
 }
