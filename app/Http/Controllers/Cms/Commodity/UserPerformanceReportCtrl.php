@@ -209,7 +209,7 @@ class UserPerformanceReportCtrl extends Controller
         $request->validate(['year' => 'required', 'month' => 'required']);
         $d = $request->all();
         $date = $d['year'] . "-" . $d['month'];
-        //   RptUserReportMonthly::grossProfit();
+        RptUserReportMonthly::grossProfit();
         RptUserReportMonthly::report($date, 'month');
         RptOrganizeReportMonthly::report($date, 'month');
 
