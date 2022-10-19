@@ -249,7 +249,7 @@
             </table>
         </div>
         <div class="fs-5 fw-bold text-end">
-            合計金額：${{ number_format($somOfPrice ?? '') }}
+            合計金額（搜尋結果的費用總和）：${{ number_format($somOfPrice ?? '') }}
             （共 {{ $dataList->total() }} 筆）
         </div>
     </div>
