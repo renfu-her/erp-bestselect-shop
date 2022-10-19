@@ -75,10 +75,14 @@ class RptUserReportMonthly extends Model
             ->leftJoin('ord_received_orders as ro', 'order.id', '=', 'ro.source_id')
             ->select('order.id')
             ->whereNotNull('ro.receipt_date')
-            ->whereNotNull('order.mcode')
-            ->whereNull('order.gross_profit')
+            ->where(function ($query) {
+                $query->whereNull('order.gross_profit')
+                    ->orWhere('order.gross_profit', 0);
+            })
+          
             ->get()
             ->toArray();
+
 
         $atomic = RptReport::atomic()->whereIn('order.id', array_map(function ($n) {
             return $n->id;
@@ -119,7 +123,7 @@ class RptUserReportMonthly extends Model
                 break;
         }
 
-        self::where('month','like',"%$currentMonth%")->delete();
+        self::where('month', 'like', "%$currentMonth%")->delete();
 
         $atomic = RptReport::atomic();
 
@@ -146,7 +150,7 @@ class RptUserReportMonthly extends Model
             $user[$value->user_id][$value->sales_type] = $value;
         }
 
-     //   self::where('month', $currentMonth)->delete();
+        //   self::where('month', $currentMonth)->delete();
 
         self::insert(array_map(function ($n, $idx) use ($currentMonth) {
             $data = ['user_id' => $idx,
