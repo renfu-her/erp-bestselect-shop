@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use App\Models\CustomerIdentity;
 use App\Models\CustomerProfit;
+use App\Models\Role;
 use App\Models\User;
 use App\Models\UserSalechannel;
 use Illuminate\Http\Request;
@@ -174,13 +175,15 @@ class UserCtrl extends Controller
         }
 
         $d = $request->all();
+
         switch ($request->input('TYPE')) {
             case 'ADDNEW':
                 if (!User::where('account', $d['NUMBER'])->get()->first()) {
+                   
                     User::createUser($d['NAME'],
                         $d['NUMBER'],
                         null,
-                        $d['PASSWORD'], [], [], 'C000061',
+                        $d['PASSWORD'], [], [4], 'C000061',
                         $d['TITLE'], $d['COMPANY'], $d['DEPARTMENT'], $d['GROUP']);
 
                     return response()->json(['status' => '0']);
