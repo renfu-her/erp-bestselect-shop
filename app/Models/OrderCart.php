@@ -221,7 +221,7 @@ class OrderCart extends Model
                     break;
                 case DisCategory::coupon():
                     if ($customer) {
-                       
+
                         $currentCoupon = CustomerCoupon::getCouponByCustomerCouponId($coupon_obj[1])->get()->first();
 
                         if (!$currentCoupon) {
@@ -306,8 +306,12 @@ class OrderCart extends Model
 
                     foreach ($value as $cash) {
                         if ($cash->min_consume == 0 || $cash->min_consume < $order['origin_price']) {
+                            $cc = floor($order['origin_price'] / $cash->min_consume);
+
                             $cash->title = $cash->title . " (下次使用)";
-                            $coupons[] = $cash;
+                            for ($i = 0; $i < $cc; $i++) {
+                                $coupons[] = $cash;
+                            }
                         }
                     }
                     break;
@@ -526,11 +530,9 @@ class OrderCart extends Model
             $rate = $salechannel->dividend_rate;
         }
 
-        
         foreach ($_tempProducts as $value) {
             $order['get_dividend'] += round($value['total_price'] * $rate / 100);
         }
-        
 
     }
 
