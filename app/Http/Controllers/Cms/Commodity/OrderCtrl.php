@@ -89,6 +89,8 @@ class OrderCtrl extends Controller
         $cond['sale_channel_id'] = Arr::get($query, 'sale_channel_id', []);
         $cond['order_sdate'] = Arr::get($query, 'order_sdate', null);
         $cond['order_edate'] = Arr::get($query, 'order_edate', null);
+        $cond['dlv_sdate'] = Arr::get($query, 'dlv_sdate', null);
+        $cond['dlv_edate'] = Arr::get($query, 'dlv_edate', null);
         $cond['profit_user'] = Arr::get($query, 'profit_user', null);
         $cond['item_title'] = Arr::get($query, 'item_title', null);
         $cond['purchase_sn'] = Arr::get($query, 'purchase_sn', null);
@@ -96,6 +98,10 @@ class OrderCtrl extends Controller
         $order_date = null;
         if ($cond['order_sdate'] && $cond['order_edate']) {
             $order_date = [$cond['order_sdate'], $cond['order_edate']];
+        }
+        $dlv_date = null;
+        if ($cond['dlv_sdate'] && $cond['dlv_edate']) {
+            $dlv_date = [$cond['dlv_sdate'], $cond['dlv_edate']];
         }
 
         if (gettype($cond['shipment_status']) == 'string') {
@@ -114,6 +120,7 @@ class OrderCtrl extends Controller
             $cond['item_title'],
             $cond['purchase_sn'],
             $cond['received_method'],
+            $dlv_date
         );
         $dataList = $result['dataList']
             ->groupBy('sub_order_id')
