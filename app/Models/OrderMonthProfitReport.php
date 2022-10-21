@@ -36,8 +36,8 @@ class OrderMonthProfitReport extends Model
     {
         DB::beginTransaction();
 
-        $sdate = date("Y-m-1", strtotime($date));
-        $edate = date("Y-m-t", strtotime($date));
+        $sdate = date("Y-m-1 00:00:00", strtotime($date));
+        $edate = date("Y-m-t 23:59:59", strtotime($date));
 
         $profits = DB::table('ord_order_profit as profit')
             ->join('ord_sub_orders as sub_order', 'profit.sub_order_id', '=', 'sub_order.id')
