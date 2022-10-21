@@ -144,7 +144,7 @@
                     <table class="table @if ($editable) table-hover @else table-striped @endif tableList mb-0">
                         <thead>
                             <tr>
-                                @if ($editable)
+                                @if ($consignmentData->audit_status == App\Enums\Consignment\AuditStatus::unreviewed()->value)
                                     <th scope="col" class="text-center">刪除</th>
                                 @endif
                                 <th scope="col">商品名稱</th>
@@ -210,8 +210,8 @@
                                             <input type="number" class="form-control form-control-sm @error('num.' . $psItemKey) is-invalid @enderror"
                                                 name="num[]" value="{{ old('num.'. $psItemKey, $psItemVal->num ?? '') }}" min="1" step="1" required/>
                                         @else
-                                            {{ number_format($psItemVal->num) }}
-                                            <input type="hidden" name="num[]" value="{{ $psItemVal->num }}">
+                                            {{ number_format(old('num.'. $psItemKey, $psItemVal->num ?? '')) }}
+                                            <input type="hidden" name="num[]" value="{{ old('num.'. $psItemKey, $psItemVal->num ?? '') }}">
                                         @endif
                                     </td>
                                     <td data-td="in_stock">{{ old('in_stock.'. $psItemKey, $psItemVal->in_stock ?? '') }}</td>
@@ -239,25 +239,25 @@
                         </tfoot>
                     </table>
                 </div>
-                @if ($consignmentData->audit_status == App\Enums\Consignment\AuditStatus::unreviewed()->value)
-                    <div class="d-grid mt-3">
+                <div class="d-grid mt-3">
+                    @if ($consignmentData->audit_status == App\Enums\Consignment\AuditStatus::unreviewed()->value)
                         @if(false == ($hasCreatedFinalPayment?? false))
                             <button id="addProductBtn" type="button"
                                     class="btn btn-outline-primary border-dashed" style="font-weight: 500;">
                                 <i class="bi bi-plus-circle bold"></i> 加入商品
                             </button>
                         @endif
-                        @error('product_style_id.*')
-                        <div class="alert alert-danger mt-3">商品SKU不可重複</div>
-                        @enderror
-                        @error('sku_repeat')
-                        <div class="alert alert-danger mt-3">{{ $message }}</div>
-                        @enderror
-                        @error('item_error')
-                        <div class="alert alert-danger mt-3">{{ $message }}</div>
-                        @enderror
-                    </div>
-                @endif
+                    @endif
+                    @error('product_style_id.*')
+                    <div class="alert alert-danger mt-3">商品SKU不可重複</div>
+                    @enderror
+                    @error('sku_repeat')
+                    <div class="alert alert-danger mt-3">{{ $message }}</div>
+                    @enderror
+                    @error('item_error')
+                    <div class="alert alert-danger mt-3">{{ $message }}</div>
+                    @enderror
+                </div>
             </div>
         </div>
 
