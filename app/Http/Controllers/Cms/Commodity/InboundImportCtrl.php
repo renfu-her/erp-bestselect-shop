@@ -6,6 +6,7 @@ use App\Enums\Consignment\AuditStatus;
 use App\Enums\Delivery\Event;
 use App\Enums\Globals\Status;
 use App\Enums\Purchase\LogEventFeature;
+use App\Helpers\IttmsDBB;
 use App\Http\Controllers\Controller;
 use App\Imports\PurchaseInbound\InboundImport;
 use App\Models\Consignment;
@@ -131,7 +132,7 @@ class InboundImportCtrl extends Controller
                     continue;
                 }
 
-                $msg = DB::transaction(function () use (
+                $msg = IttmsDBB::transaction(function () use (
                     $request
                     , $curr_date
                     , $depot
@@ -562,7 +563,7 @@ class InboundImportCtrl extends Controller
                     continue;
                 }
 
-                $msg = DB::transaction(function () use (
+                $msg = IttmsDBB::transaction(function () use (
                     $request
                     , $curr_date
                     , $depot

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\Purchase\LogEventFeature;
+use App\Helpers\IttmsDBB;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -48,7 +49,7 @@ class Consum extends Model
             $select_consignment = true;
         }
 
-        return DB::transaction(function () use ($logistic_id, $input_arr, $select_consignment
+        return IttmsDBB::transaction(function () use ($logistic_id, $input_arr, $select_consignment
         ) {
             if (null != $input_arr['qty'] && 0 < count($input_arr['qty'])) {
                 $addIds = [];
@@ -107,7 +108,7 @@ class Consum extends Model
         $result = null;
         if (null != $logistic && null != $dataGet && 0 <= count($dataGet)) {
             $delivery = Delivery::where('id', '=', $logistic->delivery_id)->get()->first();
-            $result = DB::transaction(function () use ($delivery, $data, $dataGet, $logistic_id, $user_id, $user_name
+            $result = IttmsDBB::transaction(function () use ($delivery, $data, $dataGet, $logistic_id, $user_id, $user_name
             ) {
                 $event = $delivery->event;
                 if ('pickup' == $delivery->ship_category) {
@@ -150,7 +151,7 @@ class Consum extends Model
         $result = null;
         if (null != $logistic && null != $dataGet && 0 <= count($dataGet)) {
             $delivery = Delivery::where('id', '=', $logistic->delivery_id)->get()->first();
-            $result = DB::transaction(function () use ($delivery, $data, $dataGet, $logistic_id, $user_id, $user_name
+            $result = IttmsDBB::transaction(function () use ($delivery, $data, $dataGet, $logistic_id, $user_id, $user_name
             ) {
                 $event = $delivery->event;
                 if ('pickup' == $delivery->ship_category) {

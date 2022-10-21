@@ -48,12 +48,13 @@ class CustomerIdentity extends Model
             ->where('identity', $identity);
         $CIdataGet = $CIdata->get()->first();
         if (null != $CIdataGet) {
-            return DB::transaction(function () use ($CIdata, $CIdataGet, $can_bind) {
+            $result = IttmsDBB::transaction(function () use ($CIdata, $CIdataGet, $can_bind) {
                 $CIdata->update([
                     'can_bind' => $can_bind,
                 ]);
-                return $CIdataGet->id;
+                return ['success' => 1, 'id' => $CIdataGet->id];
             });
+            return $result['id'] ?? null;
         }
     }
 

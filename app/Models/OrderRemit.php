@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Helpers\IttmsDBB;
 use App\Mail\CustomerOrderRemit;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -33,7 +34,7 @@ class OrderRemit extends Model
             return ['success' => '0', 'error_msg' => '已有資料'];
         }
 
-        return DB::transaction(function () use ($order_id, $name, $price, $remit_date, $bank_code) {
+        return IttmsDBB::transaction(function () use ($order_id, $name, $price, $remit_date, $bank_code) {
             $id = self::create([
                 'order_id'=> $order_id,
                 'name'=> $name,
@@ -61,7 +62,7 @@ class OrderRemit extends Model
             return ['success' => '0', 'error_msg' => '無此資料'];
         }
 
-        return DB::transaction(function () use ($remit, $order_id, $name, $price, $remit_date, $bank_code) {
+        return IttmsDBB::transaction(function () use ($remit, $order_id, $name, $price, $remit_date, $bank_code) {
             $remit->update([
                 'name'=> $name,
                 'price'=> $price,

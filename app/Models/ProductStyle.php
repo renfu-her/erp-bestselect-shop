@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Helpers\IttmsDBB;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -171,7 +172,7 @@ class ProductStyle extends Model
 
         $sku = $product->sku;
 
-        return DB::transaction(function () use ($product_id, $sku, $id) {
+        $result = IttmsDBB::transaction(function () use ($product_id, $sku, $id) {
             $sku = $sku . str_pad((self::where('product_id', '=', $product_id)
                     ->whereNotNull('sku')
                     ->withTrashed()
@@ -183,8 +184,10 @@ class ProductStyle extends Model
             //新增所有通路價格
 
             SaleChannel::addPriceForStyle($id);
-            return true;
+
+            return ['success' => 1, 'result' => true];
         });
+        return $result['result'] ?? null;
     }
 
     public static function createSkuByProductId($product_id)
@@ -274,7 +277,7 @@ class ProductStyle extends Model
     public static function stockProcess($style_id, $safety_stock, $overbought, $sale_ids = [], $qtys = [])
     {
 
-        return DB::transaction(function () use ($style_id, $safety_stock, $overbought, $sale_ids, $qtys) {
+        return IttmsDBB::transaction(function () use ($style_id, $safety_stock, $overbought, $sale_ids, $qtys) {
             // self::where('id', $style_id)->update(['safety_stock' => $safety_stock, $overbought => 'overbought']);
             if (isset($sale_ids) && is_array($sale_ids)) {
                 $data = [];

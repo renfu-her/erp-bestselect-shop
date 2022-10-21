@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\Customer\Bonus;
+use App\Helpers\IttmsDBB;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -23,7 +24,7 @@ class SaleChannel extends Model
     public static function changeStock($sale_id, $style_id, $qty)
     {
 
-        return DB::transaction(function () use ($sale_id, $style_id, $qty) {
+        return IttmsDBB::transaction(function () use ($sale_id, $style_id, $qty) {
             $tableName = 'prd_salechannel_style_stock';
 
             if (!DB::table($tableName)
@@ -45,6 +46,7 @@ class SaleChannel extends Model
                         'in_stock' => DB::raw("in_stock + $qty")]);
 
             }
+            return ['success' => 1];
         });
     }
     /**
@@ -100,7 +102,7 @@ class SaleChannel extends Model
     public static function changePrice($sale_id, $style_id, $dealer_price, $price, $origin_price, $bonus, $dividend)
     {
 
-        return DB::transaction(function () use ($sale_id, $style_id, $dealer_price, $price, $origin_price, $bonus, $dividend) {
+        return IttmsDBB::transaction(function () use ($sale_id, $style_id, $dealer_price, $price, $origin_price, $bonus, $dividend) {
             $tableName = 'prd_salechannel_style_price';
             $updateData = ['dealer_price' => $dealer_price,
                 'price' => $price,
@@ -126,6 +128,7 @@ class SaleChannel extends Model
                     ->update($updateData);
             }
 
+            return ['success' => 1];
         });
     }
 
@@ -215,7 +218,7 @@ class SaleChannel extends Model
 
     public static function addPriceForStyle($style_id)
     {
-        DB::transaction(function () use ($style_id) {
+        IttmsDBB::transaction(function () use ($style_id) {
             $masterSale = DB::table('prd_sale_channels as ch')
                 ->leftJoin('prd_salechannel_style_price as price', 'ch.id', '=', 'price.sale_channel_id')
                 ->where('ch.is_master', 1)
@@ -254,6 +257,7 @@ class SaleChannel extends Model
                         ]);
                 }
             }
+            return ['success' => 1];
         });
     }
     // 批次經銷

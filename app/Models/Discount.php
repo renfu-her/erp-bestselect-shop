@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\Discount\DisCategory;
 use App\Enums\Discount\DisMethod;
 use App\Enums\Discount\DisStatus;
+use App\Helpers\IttmsDBB;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -223,7 +224,7 @@ class Discount extends Model
     public static function createCoupon($title, $min_consume, DisMethod $method, $value, $is_grand_total = 0, $collection_ids = [], $life_cycle = 0)
     {
 
-        return DB::transaction(function () use ($title, $min_consume, $method, $value, $is_grand_total, $collection_ids, $life_cycle) {
+        $result = IttmsDBB::transaction(function () use ($title, $min_consume, $method, $value, $is_grand_total, $collection_ids, $life_cycle) {
             if (count($collection_ids) > 0) {
                 $is_global = 0;
             } else {
@@ -249,16 +250,17 @@ class Discount extends Model
             $id = self::create($data)->id;
 
             self::updateDiscountCollection($id, $collection_ids);
-            return $id;
+            return ['success' => 1, 'id' => $id];
 
         });
+        return $result['id'] ?? null;
 
     }
 
     public static function createCode($sn, $title, $min_consume, DisMethod $method, $value, $start_date = null, $end_date = null, $is_grand_total = 1, $collection_ids = [], $max_usage = 0)
     {
 
-        DB::transaction(function () use ($sn, $title, $min_consume, $method, $value, $is_grand_total, $collection_ids, $start_date, $end_date, $max_usage) {
+        IttmsDBB::transaction(function () use ($sn, $title, $min_consume, $method, $value, $is_grand_total, $collection_ids, $start_date, $end_date, $max_usage) {
             if (count($collection_ids) > 0) {
                 $is_global = 0;
             } else {
@@ -278,7 +280,7 @@ class Discount extends Model
             $id = self::create($data)->id;
 
             self::updateDiscountCollection($id, $collection_ids);
-            return $id;
+            return ['success' => 1, 'id' => $id];
 
         });
 
@@ -490,10 +492,10 @@ class Discount extends Model
             $method = $n->method_code;
 
             $discount_grade_id = null;
-            
-            
+
+
             $receivedDefault = ReceivedDefault::where('name', $n->category_code)->get()->first();
-           
+
             if ($receivedDefault) {
                 $discount_grade_id = $receivedDefault->default_grade_id;
             }
@@ -556,7 +558,7 @@ class Discount extends Model
 
         }, $datas));
 
-       
+
 
     }
 

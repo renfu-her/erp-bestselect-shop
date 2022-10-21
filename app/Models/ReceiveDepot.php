@@ -6,6 +6,7 @@ use App\Enums\Delivery\Event;
 use App\Enums\Delivery\LogisticStatus;
 use App\Enums\DlvBack\DlvBackType;
 use App\Enums\Purchase\LogEventFeature;
+use App\Helpers\IttmsDBB;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -47,7 +48,7 @@ class ReceiveDepot extends Model
                 'expiry_date' => $expiry_date,
             ])->id;
         } else {
-            $result = DB::transaction(function () use ($data, $dataGet, $combo_id, $prd_type, $freebies, $inbound_id, $inbound_sn, $depot_id, $depot_name, $product_style_id, $sku, $product_title, $unit_cost, $qty, $expiry_date
+            $result = IttmsDBB::transaction(function () use ($data, $dataGet, $combo_id, $prd_type, $freebies, $inbound_id, $inbound_sn, $depot_id, $depot_name, $product_style_id, $sku, $product_title, $unit_cost, $qty, $expiry_date
             ) {
                 $data->update([
                     //'freebies' => $freebies,
@@ -64,8 +65,9 @@ class ReceiveDepot extends Model
                     'qty' => $qty,
                     //'expiry_date' => $expiry_date,
                 ]);
-                return $dataGet->id;
+                return ['success' => 1, 'id' => $dataGet->id];
             });
+            $result = $result['id'] ?? null;
         }
         return ['success' => 1, 'error_msg' => "", 'id' => $result];
     }
@@ -80,7 +82,7 @@ class ReceiveDepot extends Model
     public static function setDatasWithDeliveryIdWithItemId($input_arr, $delivery_id, $itemId) {
         $delivery = Delivery::where('id', $delivery_id)->get()->first();
 
-        return DB::transaction(function () use ($delivery_id, $delivery, $itemId, $input_arr
+        return IttmsDBB::transaction(function () use ($delivery_id, $delivery, $itemId, $input_arr
         ) {
             if (null != $input_arr['qty'] && 0 < count($input_arr['qty'])) {
                 $addIds = [];
@@ -165,7 +167,7 @@ class ReceiveDepot extends Model
             $rcvDepotGet = $rcvDepot->get();
         }
         if (null != $delivery &&null != $rcvDepotGet && 0 < count($rcvDepotGet)) {
-            $result = DB::transaction(function () use ($delivery, $rcvDepot, $rcvDepotGet, $event, $event_id, $delivery_id, $user_id, $user_name
+            $result = IttmsDBB::transaction(function () use ($delivery, $rcvDepot, $rcvDepotGet, $event, $event_id, $delivery_id, $user_id, $user_name
             ) {
                 //判斷若為組合包商品 則需新建立一筆資料組合成組合包 並回寫新id
                 $queryComboElement = null;
@@ -422,7 +424,7 @@ class ReceiveDepot extends Model
             $rcvDepotGet = $rcvDepot->get();
         }
         if (null != $delivery &&null != $rcvDepotGet && 0 < count($rcvDepotGet)) {
-            $result = DB::transaction(function () use ($delivery, $rcvDepot, $rcvDepotGet, $event, $event_id, $delivery_id, $user_id, $user_name
+            $result = IttmsDBB::transaction(function () use ($delivery, $rcvDepot, $rcvDepotGet, $event, $event_id, $delivery_id, $user_id, $user_name
             ) {
                 // 判斷是否有入庫 有則回傳錯誤
                 $inbound_already = PurchaseInbound::where('event', '=', $event)->where('event_id', '=' , $event_id)->get();

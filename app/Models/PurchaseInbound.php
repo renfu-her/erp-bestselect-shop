@@ -7,6 +7,7 @@ use App\Enums\Delivery\Event;
 use App\Enums\Purchase\InboundStatus;
 use App\Enums\Purchase\LogEventFeature;
 use App\Enums\StockEvent;
+use App\Helpers\IttmsDBB;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -25,7 +26,7 @@ class PurchaseInbound extends Model
     {
         $can_tally = Depot::can_tally($depot_id);
 
-        return DB::transaction(function () use (
+        return IttmsDBB::transaction(function () use (
             $event, $event_id, $event_item_id, $product_style_id, $title, $sku, $unit_cost, $expiry_date, $inbound_date,
             $inbound_num, $depot_id, $depot_name, $inbound_user_id, $inbound_user_name, $memo, $can_tally, $prd_type, $parent_inbound_id, $origin_inbound_id
         ) {
@@ -83,7 +84,7 @@ class PurchaseInbound extends Model
         $inboundGet->inbound_num = $inboundGet->inbound_num + $add_qty;
         $inboundGet->expiry_date = date('Y-m-d H:i:s', strtotime($expiry_date));
 
-        return DB::transaction(function () use ($inboundGet, $can_tally, $inbound_id, $add_qty, $expiry_date, $memo, $update_user_id, $update_user_name) {
+        return IttmsDBB::transaction(function () use ($inboundGet, $can_tally, $inbound_id, $add_qty, $expiry_date, $memo, $update_user_id, $update_user_name) {
             if ($inboundGet->isDirty()) {
                 PurchaseInbound::where('id', '=', $inbound_id)->update([
                     'inbound_num' => DB::raw("inbound_num + $add_qty")
@@ -102,7 +103,7 @@ class PurchaseInbound extends Model
     }
 
     public static function addLogAndUpdateStock($eventFeature, $inbound_id, $event, $event_id, $event_item_id, $product_style_id, $prd_type, $title, $add_qty, $can_tally, $memo, $stock_event, $stock_memo, $update_user_id, $update_user_name) {
-        return DB::transaction(function () use ($eventFeature, $inbound_id, $event, $event_id, $event_item_id, $product_style_id, $prd_type, $title, $add_qty, $can_tally, $memo, $stock_event, $stock_memo, $update_user_id, $update_user_name) {
+        return IttmsDBB::transaction(function () use ($eventFeature, $inbound_id, $event, $event_id, $event_item_id, $product_style_id, $prd_type, $title, $add_qty, $can_tally, $memo, $stock_event, $stock_memo, $update_user_id, $update_user_name) {
             $is_pcs_inbound = false;
             //入庫 新增入庫數量
             $rePcsItemUAN = ['success' => 0, 'error_msg' => "未執行入庫"];
@@ -237,7 +238,7 @@ class PurchaseInbound extends Model
                 return ['success' => 0, 'error_msg' => '已有報廢紀錄 無法刪除'];
             }
         }
-        return DB::transaction(function () use (
+        return IttmsDBB::transaction(function () use (
             $id,
             $user_id,
             $inboundData,
@@ -317,7 +318,7 @@ class PurchaseInbound extends Model
     //售出 更新資料
     public static function shippingInbound($event, $event_parent_id, $event_id, $feature, $id, $sale_num = 0, $user_id, $user_name)
     {
-        return DB::transaction(function () use (
+        return IttmsDBB::transaction(function () use (
             $event,
             $event_parent_id,
             $event_id,
