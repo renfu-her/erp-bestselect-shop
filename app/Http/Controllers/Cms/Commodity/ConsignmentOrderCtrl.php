@@ -146,6 +146,7 @@ class ConsignmentOrderCtrl extends Controller
                 , $csn->sn
             );
             if ($reDelivery['success'] == 0) {
+                DB::rollBack();
                 return $reDelivery;
             }
             return ['success' => 1, 'error_msg' => "", 'consignmentID' => $consignmentID];
