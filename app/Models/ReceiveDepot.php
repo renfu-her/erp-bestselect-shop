@@ -432,6 +432,13 @@ class ReceiveDepot extends Model
                 }
 
                 if (Event::order()->value == $delivery->event) {
+                    // 訂單需另外判斷是否有退貨入庫，有則不可取消
+                    $receiveDepotData = ReceiveDepot::where('delivery_id', $delivery_id)->where('back_qty', '>' , 0)->get();
+                    if (isset($receiveDepotData) && 0 < count($receiveDepotData)) {
+                        DB::rollBack();
+                        return ['success' => 0, 'error_msg' => "無法復原! 已有退貨入庫"];
+                    }
+
                     if ('pickup' == $delivery->ship_category) {
                         $event = 'ord_pickup';
                     }
