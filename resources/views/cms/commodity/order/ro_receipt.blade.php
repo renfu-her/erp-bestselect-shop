@@ -28,7 +28,7 @@
                 class="btn btn-sm btn-warning" rel="noopener noreferrer">中一刀列印-請款單</a>
 
             @can('cms.collection_received.delete')
-            @if(!$received_order->receipt_date && !$data_status_check)
+            @if(!$received_order->receipt_date && !$data_status_check && !$refund_po_check)
                 <a href="javascript:void(0)" role="button" data-bs-toggle="modal" data-bs-target="#confirm-delete"
                     data-href="{{ Route('cms.collection_received.delete', ['id' => $received_order->id], true) }}" 
                     class="btn btn-sm btn-outline-danger">刪除收款單</a>

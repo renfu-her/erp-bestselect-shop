@@ -1260,10 +1260,10 @@ class CollectionPaymentCtrl extends Controller
         ]);
 
         $request->validate([
-            'id'=>'required|exists:ord_received_orders,id',
+            'id'=>'required|exists:ord_received_orders,id,deleted_at,NULL',
         ]);
 
-        $received_order = ReceivedOrder::find($id);
+        $received_order = ReceivedOrder::findOrFail($id);
         $received_data = ReceivedOrder::get_received_detail($id, 'refund');
 
         $source_id = $id;
