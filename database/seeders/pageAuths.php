@@ -353,6 +353,10 @@ return [
                 "cms.collection_payment.delete",
                 "刪除",
             ],
+            [
+                "cms.collection_payment.logistic-po-create",
+                "新增物流付款單",
+            ],
         ],
     ],
     [

@@ -628,7 +628,7 @@ class ConsignmentCtrl extends Controller
                 '',
                 '',
                 $supplier ? $supplier->id : null,
-                $supplier ? ($supplier->nickname ? $supplier->name . ' - ' . $supplier->nickname : $supplier->name) : null,
+                $supplier ? $supplier->name : null,
                 $supplier ? $supplier->contact_tel : null,
                 $supplier ? $supplier->contact_address : null
             );
