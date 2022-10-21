@@ -17,7 +17,7 @@ class OrderCustomerProfitReport extends Model
 
         $re = DB::table('ord_customer_profit_report as report')
             ->select(['report.*',
-                 'customer.id as customer_id',
+                'customer.id as customer_id',
                 'customer.name',
                 'customer.sn as mcode',
                 'bank.title as bank_title',
@@ -28,9 +28,9 @@ class OrderCustomerProfitReport extends Model
                 'c_profit.identity_sn',
             ])
             ->selectRaw('DATE_FORMAT(report.created_at,"%Y%m%d") as created_at')
-          //  ->selectRaw('CONCAT(bank.code,c_profit.bank_account) as full_bank_account')
+        //  ->selectRaw('CONCAT(bank.code,c_profit.bank_account) as full_bank_account')
             ->selectRaw('LEFT(CONCAT(bank.code,c_profit.bank_account),7) as new_bank_code')
-         //   ->selectRaw('SUBSTRING(CONCAT(bank.code,c_profit.bank_account),6) as new_bank_account')
+        //   ->selectRaw('SUBSTRING(CONCAT(bank.code,c_profit.bank_account),6) as new_bank_account')
             ->leftJoin('usr_customers as customer', 'report.customer_id', '=', 'customer.id')
             ->leftJoin('usr_customer_profit as c_profit', 'c_profit.customer_id', '=', 'customer.id')
             ->leftJoin('acc_banks as bank', 'c_profit.bank_id', '=', 'bank.id')
@@ -39,9 +39,9 @@ class OrderCustomerProfitReport extends Model
 
         if ($bank_type) {
             if ($bank_type == "a") {
-                $re->where('bank.code','006');
+                $re->where('bank.code', '006');
             } else {
-                $re->where('bank.code',"<>",'006');
+                $re->where('bank.code', "<>", '006');
             }
         }
 
@@ -52,17 +52,17 @@ class OrderCustomerProfitReport extends Model
     {
 
         DB::beginTransaction();
-        $sdate = date("Y-m-1", strtotime($date));
-        $edate = date("Y-m-t", strtotime($date));
-        //  dd($date);
+        $sdate = date("Y-m-1 00:00:00", strtotime($date));
+        $edate = date("Y-m-t 23:59:59", strtotime($date));
+
         $profits = DB::table('ord_order_profit as profit')
-            ->join('ord_sub_orders as sub_order', 'profit.sub_order_id', '=', 'sub_order.id')
-            ->join('ord_orders as order', 'profit.order_id', '=', 'order.id')
+            ->leftJoin('ord_sub_orders as sub_order', 'profit.sub_order_id', '=', 'sub_order.id')
+            ->leftJoin('ord_orders as order', 'profit.order_id', '=', 'order.id')
             ->select('profit.customer_id')
             ->selectRaw('SUM(profit.bonus) as bonus')
             ->selectRaw('count(*) as qty')
             ->whereBetween('sub_order.dlv_audit_date', [$sdate, $edate])
-            ->where('bonus','>',0)
+            ->where('bonus', '>', 0)
             ->groupBy('profit.customer_id')->get();
 
         foreach ($profits as $profit) {

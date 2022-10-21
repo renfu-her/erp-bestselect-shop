@@ -10,6 +10,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 use App\Enums\Payable\ChequeStatus;
+use App\Enums\Received\ReceivedMethod;
 use App\Enums\Supplier\Payment;
 
 use App\Models\AccountPayable;
@@ -34,6 +35,8 @@ use App\Models\PayableRemit;
 use App\Models\PayingOrder;
 use App\Models\Purchase;
 use App\Models\PurchaseItem;
+use App\Models\ReceivedOrder;
+use App\Models\ReceivedRefund;
 use App\Models\StituteOrder;
 use App\Models\StituteOrderItem;
 use App\Models\Supplier;
@@ -1244,8 +1247,271 @@ class CollectionPaymentCtrl extends Controller
             'payable_data' => $payable_data,
             'data_status_check' => $data_status_check,
             'zh_price' => $zh_price,
-            'undertaker'=>$undertaker,
-            'accountant'=>implode(',', $accountant),
+            'undertaker' => $undertaker,
+            'accountant' => implode(',', $accountant),
         ]);
+    }
+
+
+    public function refund_po_show(Request $request, $id)
+    {
+        $request->merge([
+            'id'=>$id,
+        ]);
+
+        $request->validate([
+            'id'=>'required|exists:ord_received_orders,id',
+        ]);
+
+        $received_order = ReceivedOrder::find($id);
+        $received_data = ReceivedOrder::get_received_detail($id, 'refund');
+
+        $source_id = $id;
+        $source_type = $received_order->getTable();
+
+        // create
+        $paying_order = PayingOrder::where([
+                'source_type' => $source_type,
+                'source_id' => $source_id,
+                'source_sub_id' => null,
+                'type' => 9
+            ])->first();
+
+        if(! $paying_order){
+            DB::beginTransaction();
+
+            try {
+                $product_grade = PayableDefault::where('name', '=', 'product')->first()->default_grade_id;
+                $logistics_grade = PayableDefault::where('name', '=', 'logistics')->first()->default_grade_id;
+                $price = abs($received_data->sum('tw_price'));
+
+                $result = PayingOrder::createPayingOrder(
+                    $source_type,
+                    $source_id,
+                    null,
+                    $request->user()->id,
+                    9,
+                    $product_grade,
+                    $logistics_grade,
+                    $price,
+                    '',
+                    '',
+                    $received_order->drawee_id,
+                    $received_order->drawee_name,
+                    $received_order->drawee_phone,
+                    $received_order->drawee_address
+                );
+                $paying_order = PayingOrder::find($result['id']);
+
+                // copy
+                $data = [];
+                foreach($received_data as $r_value){
+                    $grade = AllGrade::find($r_value->all_grades_id)->eachGrade;
+                    $data[] = [
+                        'title' => '退還銷貨收入',
+                        'grade_id' => $r_value->all_grades_id,
+                        'grade_code' => $grade->code,
+                        'grade_name' => $grade->name,
+                        'price' => abs($r_value->tw_price),
+                        'qty' => 1,
+                        'total_price' => abs($r_value->tw_price) * 1,
+                        'taxation' => 1,
+                        'summary' => null,
+                        'note' => null,
+                        'source_ro_id' => $received_order->id,
+                        'source_ro_sn' => $received_order->sn,
+                        'append_po_id' => $paying_order->id,
+                        'append_po_sn' => $paying_order->sn,
+                        'created_at' => date('Y-m-d H:i:s'),
+                        'updated_at' => date('Y-m-d H:i:s')
+                    ];
+
+                    // remove
+                    DB::table('acc_received')->where('id', $r_value->received_id)->delete();
+                }
+                if (count($data) > 0) {
+                    ReceivedRefund::insert($data);
+
+                    // adjust
+                    if($received_order->source_type == 'ord_orders'){
+                        $n_received_data = ReceivedOrder::get_received_detail($received_order->id);
+                        $r_method_arr = $n_received_data->pluck('received_method')->toArray();
+                        $r_method_title_arr = [];
+                        foreach($r_method_arr as $v){
+                            array_push($r_method_title_arr, ReceivedMethod::getDescription($v));
+                        }
+                        $r_method['value'] = implode(',', $r_method_arr);
+                        $r_method['description'] = implode(',', $r_method_title_arr);
+                        Order::change_order_payment_status($received_order->source_id, null, (object) $r_method);
+
+                        $received_order->update([
+                            'price' => $received_order->price + $price
+                        ]);
+                    }
+                }
+
+                DB::commit();
+
+            } catch (\Exception $e) {
+                DB::rollback();
+                wToast(__('新增退出付款單失敗', ['type'=>'danger']));
+                return redirect()->back();
+            }
+        }
+
+        $payable_data = PayingOrder::get_payable_detail($paying_order->id);
+        $data_status_check = PayingOrder::payable_data_status_check($payable_data);
+
+        $zh_price = num_to_str($paying_order->price);
+
+        $applied_company = DB::table('acc_company')->where('id', 1)->first();
+
+        $target_items = ReceivedRefund::refund_list(null, null, null, $paying_order->id)->get();
+
+        $parent_source[] = [
+            'sn' => $received_order->sn,
+            'url' => PayingOrder::paying_order_source_link($paying_order->source_type, $paying_order->source_id, null, 9),
+        ];
+        if($received_order->source_type == 'ord_orders'){
+            $order = Order::find($received_order->source_id);
+            $parent_source[] = [
+                'sn' => $order->sn,
+                'url' => route('cms.order.detail', ['id' => $order->id]),
+            ];
+        }
+
+        $undertaker = User::find($paying_order->usr_users_id);
+
+        $accountant = User::whereIn('id', $payable_data->pluck('accountant_id_fk')->toArray())->get();
+        $accountant = array_unique($accountant->pluck('name')->toArray());
+        asort($accountant);
+
+        $view = 'cms.account_management.collection_payment.refund_po_show';
+        if (request('action') == 'print') {
+            $view = 'doc.print_refund_po';
+        }
+
+        return view($view, [
+            'applied_company' => $applied_company,
+            'paying_order' => $paying_order,
+            'target_items' => $target_items,
+            'parent_source' => $parent_source,
+            'payable_data' => $payable_data,
+            'data_status_check' => $data_status_check,
+            'zh_price' => $zh_price,
+            'undertaker' => $undertaker,
+            'accountant' => implode(',', $accountant),
+        ]);
+    }
+
+
+    public function refund_po_edit(Request $request, $id)
+    {
+        $request->merge([
+            'id'=>$id,
+        ]);
+
+        $request->validate([
+            'id' => 'required|exists:pcs_paying_orders,id',
+        ]);
+
+        $paying_order = PayingOrder::findOrFail($id);
+        $payable_data = PayingOrder::get_payable_detail($id);
+        $target_items = ReceivedRefund::refund_list(null, null, null, $paying_order->id)->get();
+
+        $tw_price = $paying_order->price - $payable_data->sum('tw_price');
+
+        $total_grades = GeneralLedger::total_grade_list();
+
+        return view('cms.account_management.collection_payment.refund_po_edit', [
+            'form_action' => route('cms.collection_payment.refund-po-store', ['id' => $paying_order->id]),
+            'target_items' => $target_items,
+            'paying_order' => $paying_order,
+            'payable_data' => $payable_data,
+            'tw_price' => $tw_price,
+            'total_grades' => $total_grades,
+
+            'cashDefault' => PayableDefault::where('name', 'cash')->pluck('default_grade_id')->toArray(),
+            'chequeDefault' => PayableDefault::where('name', 'cheque')->pluck('default_grade_id')->toArray(),
+            'remitDefault' => PayableDefault::where('name', 'remittance')->pluck('default_grade_id')->toArray(),
+            'all_currency' => PayableDefault::getCurrencyOptionData()['selectedCurrencyResult']->toArray(),
+            'currencyDefault' => PayableDefault::where('name', 'foreign_currency')->pluck('default_grade_id')->toArray(),
+            'accountPayableDefault' => PayableDefault::where('name', 'accounts_payable')->pluck('default_grade_id')->toArray(),
+            'otherDefault' => PayableDefault::where('name', 'other')->pluck('default_grade_id')->toArray(),
+
+            'transactTypeList' => AccountPayable::getTransactTypeList(),
+            'chequeStatus' => ChequeStatus::get_key_value(),
+        ]);
+    }
+
+
+    public function refund_po_store(Request $request, $id)
+    {
+        $request->merge([
+            'id'=>$id,
+        ]);
+
+        $request->validate([
+            'id' => 'required|exists:pcs_paying_orders,id',
+            'acc_transact_type_fk' => 'required|regex:/^[1-6]$/',
+            'tw_price' => 'required|numeric',
+            'summary'=>'nullable|string',
+            'note'=>'nullable|string',
+        ]);
+
+        $paying_order = PayingOrder::findOrFail($id);
+
+        $request->merge([
+            'pay_order_id'=>$paying_order->id,
+        ]);
+
+        $data = $request->except('_token');
+
+        $payable_type = $data['acc_transact_type_fk'];
+        switch ($payable_type) {
+            case Payment::Cash:
+                PayableCash::storePayableCash($data);
+                break;
+            case Payment::Cheque:
+                $request->validate([
+                    'cheque.ticket_number'=>'required|unique:acc_payable_cheque,ticket_number|regex:/^[A-Z]{2}[0-9]{7}$/'
+                ]);
+                PayableCheque::storePayableCheque($data);
+                break;
+            case Payment::Remittance:
+                PayableRemit::storePayableRemit($data);
+                break;
+            case Payment::ForeignCurrency:
+                PayableForeignCurrency::storePayableCurrency($data);
+                break;
+            case Payment::AccountsPayable:
+                PayableAccount::storePayablePayableAccount($data);
+                break;
+            case Payment::Other:
+                PayableOther::storePayableOther($data);
+                break;
+        }
+
+        $payable_data = PayingOrder::get_payable_detail($id);
+        if (count($payable_data) > 0 && $paying_order->price == $payable_data->sum('tw_price')) {
+            $paying_order->update([
+                'balance_date' => date('Y-m-d H:i:s'),
+                'payment_date' => $data['payment_date'],
+            ]);
+
+            DayEnd::match_day_end_status($data['payment_date'], $paying_order->sn);
+        }
+
+        if (PayingOrder::find($paying_order->id) && PayingOrder::find($paying_order->id)->balance_date) {
+
+            return redirect()->route('cms.collection_payment.refund-po-show', [
+                'id' => $paying_order->source_id,
+            ]);
+
+        } else {
+            return redirect()->route('cms.collection_payment.refund-po-edit', [
+                'id' => $id,
+            ]);
+        }
     }
 }
