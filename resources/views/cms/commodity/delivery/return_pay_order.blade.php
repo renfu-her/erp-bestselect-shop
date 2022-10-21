@@ -9,7 +9,7 @@
                 class="btn btn-sm btn-success px-3" role="button">修改</a>
             @endcan
 
-            @if(! $delivery->po_balance_date)
+            @if(! $paying_order->payment_date)
                 <a href="{{ Route('cms.delivery.return-pay-create', ['id' => $delivery->delivery_id]) }}" 
                     class="btn btn-sm btn-primary px-3" role="button">付款</a>
             @endif

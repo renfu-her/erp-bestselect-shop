@@ -100,6 +100,15 @@
                                 <td>{{ $received_order->memo }} {{ $order->sn }} {{ $value->product_taxation == 1 ? '應稅' : '免稅' }} {{ $value->product_note ?? '' }} {{ $value->product_ro_note }}{{-- $order->note --}}</td>
                             </tr>
                         @endforeach
+                        @foreach($order_refund_data as $re_value)
+                            <tr>
+                                <td>{{ $re_value->refund_grade_code . ' ' . $re_value->refund_grade_name }} --- {{ $re_value->refund_title }} 退回付款單號 {{ $re_value->po_sn }}</td>
+                                <td style="text-align: right;">{{ number_format($re_value->refund_qty) }}</td>
+                                <td style="text-align: right;">{{ number_format($re_value->refund_price, 2) }}</td>
+                                <td style="text-align: right;">{{ number_format($re_value->refund_total_price) }}</td>
+                                <td>{{ $received_order->memo }} {{ $order->sn }} {{ $re_value->refund_taxation == 1 ? '應稅' : '免稅' }} {{ $re_value->refund_note ?? '' }}{{-- $order->note --}}</td>
+                            </tr>
+                        @endforeach
                         @if($order->dlv_fee > 0)
                             <tr>
                                 <td>{{ $logistics_grade_name }}</td>

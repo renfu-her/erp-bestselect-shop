@@ -136,6 +136,27 @@ class ReceivedOrder extends Model
                     $join->on('order_item_table.order_id', '=', 'order.id');
             })
             ->leftJoin(DB::raw('(
+                SELECT source_ro_id,
+                CONCAT(\'[\', GROUP_CONCAT(\'{
+                        "sub_order_id":"\', 0, \'",
+                        "product_style_id":"\', 3028, \'",
+                        "sku":"\', "", \'",
+                        "product_title":"\', title, \'",
+                        "all_grades_id":"\', grade_id, \'",
+                        "grade_code":"\', grade_code, \'",
+                        "grade_name":"\', grade_name, \'",
+                        "price":"\', ROUND(price), \'",
+                        "qty":"\', qty, \'",
+                        "origin_price":"\', ROUND(total_price), \'",
+                        "discount_value":"\', 0, \'",
+                        "discounted_price":"\', 0, \'"
+                    }\' ORDER BY acc_received_refund.id), \']\') AS items
+                FROM acc_received_refund
+                GROUP BY source_ro_id
+                ) AS order_sup_item_table'), function ($join){
+                    $join->on('order_sup_item_table.source_ro_id', '=', 'ro.id');
+            })
+            ->leftJoin(DB::raw('(
                 SELECT order_id,
                 CONCAT(\'[\', GROUP_CONCAT(\'{
                         "sub_order_id":"\', COALESCE(sub_order_id, ""), \'",
@@ -286,9 +307,10 @@ class ReceivedOrder extends Model
                     ELSE NULL
                 END AS source_sn
             ')
+
             ->selectRaw('
                 CASE
-                    WHEN ro.source_type = "' . app(Order::class)->getTable() . '" THEN order_item_table.items
+                    WHEN ro.source_type = "' . app(Order::class)->getTable() . '" THEN IF(order_sup_item_table.items IS NULL, order_item_table.items, CONCAT(SUBSTRING_INDEX(order_item_table.items, "]", 1), ",", SUBSTRING(order_sup_item_table.items, 2)))
                     WHEN ro.source_type = "' . app(CsnOrder::class)->getTable() . '" THEN csn_order_item_table.items
                     WHEN ro.source_type = "' . app(self::class)->getTable() . '" THEN received_account_table.items
                     WHEN ro.source_type = "' . app(RequestOrder::class)->getTable() . '" THEN request_items_table.items
@@ -517,8 +539,8 @@ class ReceivedOrder extends Model
         ]);
 
         $received_order = self::find($received_order_id);
-        $received_list = self::get_received_detail([$received_order_id]);
-        if ( count($received_list) > 0 && $received_order->price == $received_list->sum('tw_price')) {
+        $received_data = self::get_received_detail([$received_order_id]);
+        if ( count($received_data) > 0 && $received_order->price == $received_data->sum('tw_price')) {
             $received_order->update([
                 'balance_date'=>date('Y-m-d H:i:s'),
             ]);
@@ -527,7 +549,7 @@ class ReceivedOrder extends Model
                 OrderFlow::changeOrderStatus($received_order->source_id, OrderStatus::Paided());
                 // Order::change_order_payment_status($received_order->source_id, PaymentStatus::Received(), ReceivedMethod::fromValue($received_method));
 
-                $r_method_arr = $received_list->pluck('received_method')->toArray();
+                $r_method_arr = $received_data->pluck('received_method')->toArray();
                 $r_method_title_arr = [];
                 foreach($r_method_arr as $v){
                     array_push($r_method_title_arr, ReceivedMethod::getDescription($v));
@@ -540,7 +562,7 @@ class ReceivedOrder extends Model
                 CsnOrderFlow::changeOrderStatus($received_order->source_id, OrderStatus::Paided());
                 // Order::change_order_payment_status($received_order->source_id, PaymentStatus::Received(), ReceivedMethod::fromValue($received_method));
 
-                $r_method_arr = $received_list->pluck('received_method')->toArray();
+                $r_method_arr = $received_data->pluck('received_method')->toArray();
                 $r_method_title_arr = [];
                 foreach($r_method_arr as $v){
                     array_push($r_method_title_arr, ReceivedMethod::getDescription($v));

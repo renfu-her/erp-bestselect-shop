@@ -8,7 +8,7 @@
             <a href="{{ route('cms.collection_payment.edit', ['id' => $paying_order->id]) }}" class="btn btn-sm btn-success px-3" role="button">修改</a>
             @endcan
 
-            @if(! $paying_order->balance_date)
+            @if(! $paying_order->payment_date)
                 <a href="{{ Route('cms.consignment.logistic-po-create', ['id' => $consignmentData->consignment_id]) }}" 
                     class="btn btn-sm btn-primary px-3" role="button">付款</a>
             @endif
