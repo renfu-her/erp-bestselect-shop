@@ -335,6 +335,7 @@ class PurchaseInbound extends Model
                 ->whereNotNull('inbound.deleted_at') //需額外找出被刪除的入庫單 有使用到則回傳錯誤
                 ->get()->first();
             if (null != $inboundDelData) {
+                DB::rollBack();
                 return ['success' => 0, 'error_msg' => '該入庫單已遭刪除 '. $inboundDelData->sn];
             }
 
@@ -347,10 +348,14 @@ class PurchaseInbound extends Model
                     , 'depot.can_tally'
                 );
             $inboundDataGet = $inboundData->get()->first();
-            if (null != $inboundDataGet) {
+            if (null == $inboundDataGet) {
+                DB::rollBack();
+                return ['success' => 0, 'error_msg' => '無此入庫單id:'. $id];
+            } else {
                 if (($inboundDataGet->inbound_num - $inboundDataGet->sale_num - $inboundDataGet->csn_num - $inboundDataGet->consume_num
                         - $inboundDataGet->back_num - $inboundDataGet->scrap_num
                         - $sale_num) < 0) {
+                    DB::rollBack();
                     return ['success' => 0, 'error_msg' => '入庫單出貨數量超出範圍'];
                 } else {
                     $update_arr = [];
