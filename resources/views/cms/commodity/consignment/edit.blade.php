@@ -187,7 +187,7 @@
                         @elseif(0 < count(old('item_id', $consignmentItemData?? [])))
                             @foreach (old('item_id', $consignmentItemData ?? []) as $psItemKey => $psItemVal)
                                 <tr class="-cloneElem --selectedP">
-                                    @if ($editable)
+                                    @if ($consignmentData->audit_status == App\Enums\Consignment\AuditStatus::unreviewed()->value)
                                         <th class="text-center">
                                             <button type="button"
                                                     class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
@@ -206,7 +206,7 @@
 
                                     <td data-td="sku">{{ old('sku.'. $psItemKey, $psItemVal->sku ?? '') }}</td>
                                     <td>
-                                        @if ($editable)
+                                        @if ($consignmentData->audit_status == App\Enums\Consignment\AuditStatus::unreviewed()->value)
                                             <input type="number" class="form-control form-control-sm @error('num.' . $psItemKey) is-invalid @enderror"
                                                 name="num[]" value="{{ old('num.'. $psItemKey, $psItemVal->num ?? '') }}" min="1" step="1" required/>
                                         @else
@@ -239,7 +239,7 @@
                         </tfoot>
                     </table>
                 </div>
-                @if ($editable)
+                @if ($consignmentData->audit_status == App\Enums\Consignment\AuditStatus::unreviewed()->value)
                     <div class="d-grid mt-3">
                         @if(false == ($hasCreatedFinalPayment?? false))
                             <button id="addProductBtn" type="button"
@@ -383,7 +383,12 @@
 
                 <div class="col">
                     <mark class="fw-light small">
-                        <i class="bi bi-exclamation-diamond-fill mx-2 text-warning"></i>審核狀態改為<b> 核可 或 否決 </b>就不能再修改呦！
+                        <i class="bi bi-exclamation-diamond-fill mx-2 text-warning"></i>審核狀態改為<b> 否決 </b>就不能再修改呦！
+                        <br>若要加減商品和修改數量 需先改成尚未審核 才可修改
+                        <br>若要改成尚未審核 必須在未出貨的狀態
+                        <br>若已出貨審核送出 需先點選取消送出 並將欲出貨入庫單刪除 此時即可修改成尚未審核
+
+                        <br>●但商品已入庫 則無法切換審核狀態
                     </mark>
                 </div>
             </div>

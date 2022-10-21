@@ -34,10 +34,7 @@ class CsnOrder extends Model
             , $memo
             ) {
 
-            $sn = "CO" . date("ymd") . str_pad((self::whereDate('created_at', '=', date('Y-m-d'))
-                        ->withTrashed()
-                        ->get()
-                        ->count()) + 1, 4, '0', STR_PAD_LEFT);
+            $sn = Sn::createSn('csn_order', 'CO', 'ymd', 4);
 
             $id = self::create([
                 "sn" => $sn,

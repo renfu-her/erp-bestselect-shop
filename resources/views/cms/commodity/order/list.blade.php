@@ -59,20 +59,20 @@
                 <div class="col-12 col-xxl-6 mb-3">
                     <label class="form-label">出貨日期起訖</label>
                     <div class="input-group has-validation">
-                        <input type="date" class="form-control -startDate @error('_sdate') is-invalid @enderror"
-                            name="_sdate" value="" aria-label="出貨起始日期" />
-                        <input type="date" class="form-control -endDate @error('_edate') is-invalid @enderror"
-                            name="_edate" value="" aria-label="出貨結束日期" />
+                        <input type="date" class="form-control -startDate @error('dlv_sdate') is-invalid @enderror"
+                            name="dlv_sdate" value="" aria-label="出貨起始日期" />
+                        <input type="date" class="form-control -endDate @error('dlv_edate') is-invalid @enderror"
+                            name="dlv_edate" value="" aria-label="出貨結束日期" />
                         <button class="btn px-2" data-daysBefore="yesterday" type="button">昨天</button>
                         <button class="btn px-2" data-daysBefore="day" type="button">今天</button>
                         <button class="btn px-2" data-daysBefore="tomorrow" type="button">明天</button>
                         <button class="btn px-2" data-daysBefore="6" type="button">近7日</button>
                         <button class="btn" data-daysBefore="month" type="button">本月</button>
                         <div class="invalid-feedback">
-                            @error('_sdate')
+                            @error('dlv_sdate')
                                 {{ $message }}
                             @enderror
-                            @error('_edate')
+                            @error('dlv_edate')
                                 {{ $message }}
                             @enderror
                         </div>
@@ -197,6 +197,7 @@
                         <th scope="col">收款單號</th>
                         <th scope="col">客戶物流</th>
                         <th scope="col">實際物流</th>
+                        <th scope="col">出貨日期</th>
                         <th scope="col">包裹編號</th>
                         <th scope="col">產品名稱</th>
                     </tr>
@@ -247,6 +248,7 @@
                                 <div class="lh-base text-nowrap">{{ $data->ship_event }}</div>
                             </td>
                             <td>{{ $data->ship_group_name }}</td>
+                            <td>{{ $data->dlv_audit_date }}</td>
                             <td>{{ $data->package_sn }}</td>
                             <td class="py-0 lh-base">
                                 <ul class="list-group list-group-flush">

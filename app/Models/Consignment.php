@@ -35,10 +35,7 @@ class Consignment extends Model
 //            , $audit_date, $audit_user_id, $audit_user_name, $audit_status
             ) {
 
-            $sn = "CSN" . date("ymd") . str_pad((self::whereDate('created_at', '=', date('Y-m-d'))
-                        ->withTrashed()
-                        ->get()
-                        ->count()) + 1, 4, '0', STR_PAD_LEFT);
+            $sn = Sn::createSn('consignment', 'CSN', 'ymd', 4);
 
             $id = self::create([
                 "sn" => $sn,
