@@ -68,7 +68,7 @@ class TransferVoucher extends Model
                         "currency_price":"\', COALESCE(tv_item.currency_price, ""),\'",
                         "final_price":"\', COALESCE(tv_item.final_price, ""),\'",
                         "department":"\', COALESCE(tv_item.department, ""),\'"
-                    }\' ORDER BY ' . $sort_query . ' tv_item.id), \']\') AS items
+                    }\' ORDER BY ' . $sort_query . 'tv_item.id), \']\') AS items
                 FROM acc_transfer_voucher_items AS tv_item
                 LEFT JOIN (' . $sq . ') AS grade ON tv_item.grade_id = grade.id
                 LEFT JOIN acc_currency ON tv_item.currency_id = acc_currency.id
