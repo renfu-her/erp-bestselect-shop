@@ -19,4 +19,8 @@ Route::group(['prefix' => 'collection_payment', 'as' => 'collection_payment.'], 
     Route::get('po_edit/{id}', [CollectionPaymentCtrl::class, 'po_edit'])->name('po-edit');
     Route::post('po_store/{id}', [CollectionPaymentCtrl::class, 'po_store'])->name('po-store');
     Route::get('po_show/{id}', [CollectionPaymentCtrl::class, 'po_show'])->name('po-show');
+
+    Route::get('refund_po_show/{id}', [CollectionPaymentCtrl::class, 'refund_po_show'])->name('refund-po-show')->middleware('permission:cms.collection_payment.edit');
+    Route::get('refund_po_edit/{id}', [CollectionPaymentCtrl::class, 'refund_po_edit'])->name('refund-po-edit');
+    Route::post('refund_po_store/{id}', [CollectionPaymentCtrl::class, 'refund_po_store'])->name('refund-po-store');
 });

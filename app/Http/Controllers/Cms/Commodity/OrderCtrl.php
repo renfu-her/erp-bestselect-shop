@@ -51,6 +51,7 @@ use App\Models\PurchaseInbound;
 use App\Models\ReceivedDefault;
 use App\Models\ReceiveDepot;
 use App\Models\ReceivedOrder;
+use App\Models\ReceivedRefund;
 use App\Models\SaleChannel;
 use App\Models\ShipmentCategory;
 use App\Models\ShipmentGroup;
@@ -983,6 +984,8 @@ class OrderCtrl extends Controller
         }
 
         $order_list_data = OrderItem::item_order(request('id'))->get();
+        $order_refund_data = ReceivedRefund::refund_list(null, $received_order_data->first()->id)->addSelect( DB::raw('("' . route('cms.collection_payment.refund-po-show', ['id' => $received_order_data->first()->id]) . '") AS po_url') )->get();
+
         $product_qc = $order_list_data->pluck('product_user_name')->toArray();
         $product_qc = array_unique($product_qc);
         asort($product_qc);
@@ -1028,6 +1031,7 @@ class OrderCtrl extends Controller
             'order' => $order,
             'order_discount' => $order_discount,
             'order_list_data' => $order_list_data,
+            'order_refund_data' => $order_refund_data,
             'received_data' => $received_data,
             'data_status_check' => $data_status_check,
             'undertaker' => $undertaker,
@@ -1158,6 +1162,20 @@ class OrderCtrl extends Controller
                 $order = Order::findOrFail(request('id'));
 
                 $order_list_data = OrderItem::item_order(request('id'))->get();
+                $order_refund_data = ReceivedRefund::refund_list(null, $received_order_data->first()->id)
+                    ->selectRaw(
+                        'refund.title AS product_title,
+                        "" AS del_even,
+                        "" AS del_category_name,
+                        ROUND(refund.price) AS product_price,
+                        refund.qty AS product_qty,
+                        ROUND(refund.total_price) AS product_origin_price,
+                        refund.summary AS summary,
+                        refund.note AS note',
+                    )
+                    ->get();
+
+                $order_list_data = $order_list_data->concat($order_refund_data);
 
                 $debit = [];
                 $credit = [];
