@@ -13,12 +13,12 @@ class Sn extends Model
     protected $table = 'sn';
     protected $guarded = [];
 
-    public static function createSn($type, $prefix)
+    public static function createSn($type, $prefix, $format = "Ymd", $length = 4)
     {
         DB::beginTransaction();
-        $sn = $prefix . date("Ymd") . str_pad((self::whereDate('created_at', '=', date('Y-m-d'))->where('type', $type)
+        $sn = $prefix . date($format) . str_pad((self::whereDate('created_at', '=', date('Y-m-d'))->where('type', $type)
                 ->lockForUpdate()->get()
-                ->count()) + 1, 4, '0', STR_PAD_LEFT);
+                ->count()) + 1, $length, '0', STR_PAD_LEFT);
 
 
         self::create([

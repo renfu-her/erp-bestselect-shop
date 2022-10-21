@@ -29,10 +29,8 @@ class PurchaseInbound extends Model
             $event, $event_id, $event_item_id, $product_style_id, $title, $sku, $unit_cost, $expiry_date, $inbound_date,
             $inbound_num, $depot_id, $depot_name, $inbound_user_id, $inbound_user_name, $memo, $can_tally, $prd_type, $parent_inbound_id, $origin_inbound_id
         ) {
-            $sn = "IB" . date("ymd") . str_pad((self::whereDate('created_at', '=', date('Y-m-d'))
-                        ->withTrashed()
-                        ->get()
-                        ->count()) + 1, 5, '0', STR_PAD_LEFT);
+            $inbound_sn = Sn::createSn('inbound', 'IB', 'ymd', 5);
+            $sn = $inbound_sn;
 
             $prd_type = $prd_type ?? 'p';
             $insert_data = [
