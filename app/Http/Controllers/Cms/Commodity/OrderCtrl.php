@@ -992,6 +992,12 @@ class OrderCtrl extends Controller
 
         $order_list_data = OrderItem::item_order(request('id'))->get();
         $order_refund_data = ReceivedRefund::refund_list(null, $received_order_data->first()->id)->addSelect( DB::raw('("' . route('cms.collection_payment.refund-po-show', ['id' => $received_order_data->first()->id]) . '") AS po_url') )->get();
+        $refund_po_check = false;
+        if(count($order_refund_data) > 0){
+            if($order_refund_data->first()->po_id){
+                $refund_po_check = true;
+            }
+        }
 
         $product_qc = $order_list_data->pluck('product_user_name')->toArray();
         $product_qc = array_unique($product_qc);
@@ -1041,6 +1047,7 @@ class OrderCtrl extends Controller
             'order_refund_data' => $order_refund_data,
             'received_data' => $received_data,
             'data_status_check' => $data_status_check,
+            'refund_po_check' => $refund_po_check,
             'undertaker' => $undertaker,
             'product_qc' => implode(',', $product_qc),
             // 'accountant'=>implode(',', $accountant),
