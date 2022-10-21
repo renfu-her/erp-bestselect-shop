@@ -427,6 +427,7 @@ class ReceiveDepot extends Model
                 // 判斷是否有入庫 有則回傳錯誤
                 $inbound_already = PurchaseInbound::where('event', '=', $event)->where('event_id', '=' , $event_id)->get();
                 if (isset($inbound_already) && 0 < count($inbound_already)) {
+                    DB::rollBack();
                     return ['success' => 0, 'error_msg' => "無法復原! 此次出貨已有入庫"];
                 }
 
@@ -440,13 +441,25 @@ class ReceiveDepot extends Model
                 if (null != $rcvDepotComboGet && 0 < count($rcvDepotComboGet)) {
                     //先取出個別數量紀錄 再刪除組合包
                     foreach($rcvDepotComboGet as $key_cb => $val_cb) {
-                        $reStockChange =PurchaseLog::stockChange($event_id, $val_cb->product_style_id, $event, $delivery->event_id,
-                            LogEventFeature::combo_del()->value, null, $val_cb->qty, null, $val_cb->product_title, 'c', $user_id, $user_name);
-                        if ($reStockChange['success'] == 0) {
+                        if (Event::order()->value == $delivery->event || Event::consignment()->value == $delivery->event) {
+                            //訂單、寄倉 須分解成元素，並刪除組合包 因出貨時會組成組合包
+                            $reStockChange =PurchaseLog::stockChange($event_id, $val_cb->product_style_id, $event, $delivery->event_id,
+                                LogEventFeature::combo_del()->value, null, $val_cb->qty, null, $val_cb->product_title, 'c', $user_id, $user_name);
+                            if ($reStockChange['success'] == 0) {
+                                DB::rollBack();
+                                return $reStockChange;
+                            }
+                            ReceiveDepot::where('id', $val_cb->id)->where('prd_type', '=' , 'c')->forceDelete();
+                        } else if (Event::csn_order()->value == $delivery->event){
+                            $reShipIb = PurchaseInbound::shippingInbound($event, $event_id, $val_cb->id, LogEventFeature::delivery_cancle()->value, $val_cb->inbound_id, $val_cb->qty * -1, $user_id, $user_name);
+                            if ($reShipIb['success'] == 0) {
+                                DB::rollBack();
+                                return $reShipIb;
+                            }
+                        } else {
                             DB::rollBack();
-                            return $reStockChange;
+                            return ['success' => 0, 'error_msg' => "無法判斷事件 ". json_encode($val_cb)];
                         }
-                        ReceiveDepot::where('id', $val_cb->id)->where('prd_type', '=' , 'c')->forceDelete();
                     }
                 }
 
