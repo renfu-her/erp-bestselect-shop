@@ -46,10 +46,7 @@ class Purchase extends Model
 
             //判斷若無sn 則產生新的
             if(false == isset($sn)) {
-                $sn = "B" . date("ymd") . str_pad((self::whereDate('created_at', '=', date('Y-m-d'))
-                            ->withTrashed()
-                            ->get()
-                            ->count()) + 1, 4, '0', STR_PAD_LEFT);
+                $sn = Sn::createSn('purchase', 'B', 'ymd', 4);
             }
 
             $id = self::create([
