@@ -49,7 +49,7 @@ class TransferVoucher extends Model
             LEFT JOIN acc_fourth_grade ON acc_all_grades.grade_id = acc_fourth_grade.id AND acc_all_grades.grade_type = "App\\\Models\\\FourthGrade"
         ';
 
-        $sort_query = $sort ? 'debit_credit_code DESC, ' : '';
+        $sort_query = $sort ? 'tv_item.debit_credit_code DESC, ' : '';
 
         $query = DB::table('acc_transfer_voucher AS tv')
             ->leftJoin(DB::raw('(
@@ -68,13 +68,16 @@ class TransferVoucher extends Model
                         "currency_price":"\', COALESCE(tv_item.currency_price, ""),\'",
                         "final_price":"\', COALESCE(tv_item.final_price, ""),\'",
                         "department":"\', COALESCE(tv_item.department, ""),\'"
-                    }\' ORDER BY ' . $sort_query . ' tv_item.id), \']\') AS items
+                    }\' ORDER BY ' . $sort_query . 'tv_item.id), \']\') AS items
                 FROM acc_transfer_voucher_items AS tv_item
                 LEFT JOIN (' . $sq . ') AS grade ON tv_item.grade_id = grade.id
                 LEFT JOIN acc_currency ON tv_item.currency_id = acc_currency.id
                 GROUP BY tv_item.voucher_id
                 ) AS tv_items_table'), function ($join){
                     $join->on('tv_items_table.voucher_id', '=', 'tv.id');
+                    $join->where([
+                        'tv.deleted_at'=>null,
+                    ]);
             })
             ->leftJoin('acc_company AS company', function($join){
                 $join->on('tv.company_id', '=', 'company.id');
