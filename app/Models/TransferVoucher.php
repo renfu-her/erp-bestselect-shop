@@ -47,9 +47,10 @@ class TransferVoucher extends Model
             LEFT JOIN acc_second_grade ON acc_all_grades.grade_id = acc_second_grade.id AND acc_all_grades.grade_type = "App\\\Models\\\SecondGrade"
             LEFT JOIN acc_third_grade ON acc_all_grades.grade_id = acc_third_grade.id AND acc_all_grades.grade_type = "App\\\Models\\\ThirdGrade"
             LEFT JOIN acc_fourth_grade ON acc_all_grades.grade_id = acc_fourth_grade.id AND acc_all_grades.grade_type = "App\\\Models\\\FourthGrade"
+            GROUP BY acc_all_grades.id
         ';
 
-        $sort_query = $sort ? 'tv_item.debit_credit_code DESC, ' : '';
+        $sort_query = $sort ? 'debit_credit_code DESC, ' : '';
 
         $query = DB::table('acc_transfer_voucher AS tv')
             ->leftJoin(DB::raw('(
@@ -75,9 +76,6 @@ class TransferVoucher extends Model
                 GROUP BY tv_item.voucher_id
                 ) AS tv_items_table'), function ($join){
                     $join->on('tv_items_table.voucher_id', '=', 'tv.id');
-                    $join->where([
-                        'tv.deleted_at'=>null,
-                    ]);
             })
             ->leftJoin('acc_company AS company', function($join){
                 $join->on('tv.company_id', '=', 'company.id');
