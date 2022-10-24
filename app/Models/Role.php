@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Helpers\IttmsDBB;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role as ModelsRole;
@@ -60,7 +61,7 @@ class Role extends ModelsRole
 
     public static function createRole($name, $guard, $permission_id = [])
     {
-        return DB::transaction(function () use ($name, $guard, $permission_id) {
+        return IttmsDBB::transaction(function () use ($name, $guard, $permission_id) {
 
             $role_no = str_pad((DB::table('per_roles')
                     ->get()
@@ -73,6 +74,7 @@ class Role extends ModelsRole
             ]);
 
             $re->givePermissionTo($permission_id);
+            return ['success' => 1];
         });
     }
 

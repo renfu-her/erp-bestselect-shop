@@ -852,6 +852,14 @@ Breadcrumbs::for('cms.collection_payment.po-show', function (BreadcrumbTrail $tr
     $trail->push('合併付款', route('cms.collection_payment.claim'));
     $trail->push('付款單');
 });
+Breadcrumbs::for('cms.collection_payment.refund-po-edit', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.collection_payment.index', route('cms.collection_payment.index'));
+    $trail->push('新增退出付款單');
+});
+Breadcrumbs::for('cms.collection_payment.refund-po-show', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.collection_payment.index', route('cms.collection_payment.index'));
+    $trail->push('退出付款單');
+});
 
 // 代墊單作業
 Breadcrumbs::for('cms.stitute.index', function (BreadcrumbTrail $trail) {

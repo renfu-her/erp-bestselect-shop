@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Helpers\IttmsDBB;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -14,7 +15,7 @@ class SupplierPayment extends Model
     protected $guarded = [];
 
     public static function createData($supplier_id, $paytype, $array = []) {
-        return DB::transaction(function () use ($supplier_id, $paytype, $array
+        $result = IttmsDBB::transaction(function () use ($supplier_id, $paytype, $array
         ) {
             $insert_arr = [];
             $insert_arr['supplier_id'] = $supplier_id;
@@ -27,8 +28,9 @@ class SupplierPayment extends Model
             $insert_arr = self::createInsertKeyVal($insert_arr, $array, 'def_paytype');
             $insert_arr = self::createInsertKeyVal($insert_arr, $array, 'other');
             $id = self::create($insert_arr)->id;
-            return $id;
+            return ['success' => 1, 'id' => $id];
         });
+        return $result['id'] ?? null;
     }
 
     private static function createInsertKeyVal($insert_arr, $orignal_arr, $key) {
@@ -47,7 +49,7 @@ class SupplierPayment extends Model
                 ->get()->first();
         }
 
-        return DB::transaction(function () use ($supplier_id, $paytype, $array, $payment
+        $result = IttmsDBB::transaction(function () use ($supplier_id, $paytype, $array, $payment
         ) {
             $id = null;
             if (null == $payment) {
@@ -65,7 +67,8 @@ class SupplierPayment extends Model
                         'cheque_payable' => $array['cheque_payable'] ?? null
                 ]);
             }
-            return $id;
+            return ['success' => 1, 'id' => $id];
         });
+        return $result['id'] ?? null;
     }
 }

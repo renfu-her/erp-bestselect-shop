@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\Delivery\Event;
 use App\Enums\Purchase\LogEventFeature;
+use App\Helpers\IttmsDBB;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -26,7 +27,7 @@ class CsnOrderItem extends Model
             && isset($newData['price'])
             && isset($newData['num'])
         ) {
-            return DB::transaction(function () use ($newData, $operator_user_id, $operator_user_name
+            return IttmsDBB::transaction(function () use ($newData, $operator_user_id, $operator_user_name
             ) {
                 $id = self::create([
                     "csnord_id" => $newData['csnord_id'],
@@ -54,7 +55,7 @@ class CsnOrderItem extends Model
 
     public static function checkToUpdateItemData($itemId, array $purchaseItemReq, $key, $operator_user_id, $operator_user_name)
     {
-        return DB::transaction(function () use ($itemId, $purchaseItemReq, $key, $operator_user_id, $operator_user_name
+        return IttmsDBB::transaction(function () use ($itemId, $purchaseItemReq, $key, $operator_user_id, $operator_user_name
         ) {
             $purchaseItem = CsnOrderItem::where('id', '=', $itemId)
                 //->select('price', 'num')
@@ -97,7 +98,7 @@ class CsnOrderItem extends Model
 
     public static function deleteItems($purchase_id, array $del_item_id_arr, $operator_user_id, $operator_user_name) {
         if (0 < count($del_item_id_arr)) {
-            return DB::transaction(function () use ($purchase_id, $del_item_id_arr, $operator_user_id, $operator_user_name
+            return IttmsDBB::transaction(function () use ($purchase_id, $del_item_id_arr, $operator_user_id, $operator_user_name
             ) {
                 //寄倉商品改直接刪除 因需要審核後才會做入庫
                 $items = CsnOrderItem::whereIn('id', $del_item_id_arr)->get();

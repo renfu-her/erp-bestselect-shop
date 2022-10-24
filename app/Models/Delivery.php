@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\Delivery\BackStatus;
 use App\Enums\Delivery\Event;
 use App\Enums\Delivery\LogisticStatus;
+use App\Helpers\IttmsDBB;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -39,11 +40,7 @@ class Delivery extends Model
 
         $result = null;
         if (null == $dataGet) {
-
-            $sn = "DL" . date("ymd") . str_pad((self::whereDate('created_at', '=', date('Y-m-d'))
-                    ->withTrashed()
-                    ->get()
-                    ->count()) + 1, 5, '0', STR_PAD_LEFT);
+            $sn = Sn::createSn('delivery', 'DL', 'ymd', 5);
 
             $result = Delivery::create([
                 'sn' => $sn,
@@ -79,7 +76,7 @@ class Delivery extends Model
         }
         $result = null;
         if (null != $dataGet) {
-            $result = DB::transaction(function () use ($data, $dataGet, $temp_id, $temp_name, $ship_category, $ship_category_name
+            $result = IttmsDBB::transaction(function () use ($data, $dataGet, $temp_id, $temp_name, $ship_category, $ship_category_name
             ) {
                 $data->update([
                     'temp_id' => $temp_id,
@@ -107,7 +104,7 @@ class Delivery extends Model
         }
         $result = null;
         if (null != $dataGet) {
-            $result = DB::transaction(function () use ($data, $dataGet, $ship_depot_id, $ship_depot_name
+            $result = IttmsDBB::transaction(function () use ($data, $dataGet, $ship_depot_id, $ship_depot_name
             ) {
                 $data->update([
                     'ship_depot_id' => $ship_depot_id,
@@ -125,7 +122,7 @@ class Delivery extends Model
 
     public static function deleteByEventId($event, $event_id)
     {
-        return DB::transaction(function () use ($event, $event_id
+        return IttmsDBB::transaction(function () use ($event, $event_id
         ) {
             $delivery = Delivery::where('event', $event)->where('event_id', $event_id)->orderByDesc('id')->withTrashed();
             $delivery_get = $delivery->get()->first();

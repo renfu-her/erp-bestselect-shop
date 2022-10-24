@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Helpers\IttmsDBB;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -42,7 +43,7 @@ class PayingOrder extends Model
         $payee_phone = null,
         $payee_address = null
     ) {
-        return DB::transaction(function () use (
+        return IttmsDBB::transaction(function () use (
             $source_type,
             $source_id,
             $source_sub_id,
@@ -539,6 +540,39 @@ class PayingOrder extends Model
                     $join->on('multiple_po.id', '=', 'multiple_po_table.append_po_id');
             })
 
+            // ord_received_orders - refund
+            ->leftJoin('ord_received_orders AS ro', function ($join) {
+                $join->on('po.source_id', '=', 'ro.id');
+                $join->where([
+                    'po.source_type'=>app(ReceivedOrder::class)->getTable(),
+                    'po.source_sub_id'=>null,
+                    'po.type'=>9,
+                    'ro.deleted_at'=>null,
+                ]);
+            })
+            ->leftJoin(DB::raw('(
+                SELECT
+                    refund_item.source_ro_id,
+                    refund_item.append_po_id,
+                    CONCAT(\'[\', GROUP_CONCAT(\'{
+                            "product_owner":"\', "", \'",
+                            "title":"\', refund_item.title, \'",
+                            "sku":"\', "", \'",
+                            "all_grades_id":"\', refund_item.grade_id, \'",
+                            "grade_code":"\', COALESCE(refund_item.grade_code, ""), \'",
+                            "grade_name":"\', COALESCE(refund_item.grade_name, ""), \'",
+                            "price":"\', refund_item.total_price, \'",
+                            "num":"\', refund_item.qty, \'",
+                            "summary":"\', COALESCE(refund_item.summary, ""), \'",
+                            "memo":"\', COALESCE(refund_item.note, ""), \'"
+                        }\' ORDER BY refund_item.id), \']\') AS items
+                FROM acc_received_refund AS refund_item
+                GROUP BY refund_item.source_ro_id, refund_item.append_po_id
+                ) AS refund_items_table'), function ($join){
+                    $join->on('ro.id', '=', 'refund_items_table.source_ro_id');
+                    $join->on('po.id', '=', 'refund_items_table.append_po_id');
+            })
+
             ->whereColumn([
                 // ['po.price', '=', 'payable_table.payable_price'],
             ])
@@ -612,6 +646,7 @@ class PayingOrder extends Model
                     WHEN po.source_type = "' . app(Delivery::class)->getTable() . '" AND po.type = 9 THEN sub_order_return.event_sn
                     WHEN po.source_type = "' . app(self::class)->getTable() . '" AND po.type = 1 THEN _account_po.sn
                     WHEN po.source_type = "' . app(self::class)->getTable() . '" AND po.type = 2 THEN multiple_po.sn
+                    WHEN po.source_type = "' . app(ReceivedOrder::class)->getTable() . '" AND po.type = 9 THEN ro.sn
                     ELSE NULL
                 END AS source_sn
             ')
@@ -627,6 +662,7 @@ class PayingOrder extends Model
                     WHEN po.source_type = "' . app(Delivery::class)->getTable() . '" AND po.type = 9 THEN delivery_back.items
                     WHEN po.source_type = "' . app(self::class)->getTable() . '" AND po.type = 1 THEN payable_account_table.items
                     WHEN po.source_type = "' . app(self::class)->getTable() . '" AND po.type = 2 THEN multiple_po_table.items
+                    WHEN po.source_type = "' . app(ReceivedOrder::class)->getTable() . '" AND po.type = 9 THEN refund_items_table.items
                     ELSE NULL
                 END AS product_items
             ')
@@ -640,6 +676,7 @@ class PayingOrder extends Model
                     WHEN po.source_type = "' . app(Delivery::class)->getTable() . '" AND po.type = 9 THEN 0
                     WHEN po.source_type = "' . app(self::class)->getTable() . '" AND po.type = 1 THEN 0
                     WHEN po.source_type = "' . app(self::class)->getTable() . '" AND po.type = 2 THEN 0
+                    WHEN po.source_type = "' . app(ReceivedOrder::class)->getTable() . '" AND po.type = 9 THEN 0
                     ELSE 0
                 END AS logistics_price
             ')
@@ -653,6 +690,7 @@ class PayingOrder extends Model
                     WHEN po.source_type = "' . app(Delivery::class)->getTable() . '" AND po.type = 9 THEN NULL
                     WHEN po.source_type = "' . app(self::class)->getTable() . '" AND po.type = 1 THEN NULL
                     WHEN po.source_type = "' . app(self::class)->getTable() . '" AND po.type = 2 THEN NULL
+                    WHEN po.source_type = "' . app(ReceivedOrder::class)->getTable() . '" AND po.type = 9 THEN NULL
                     ELSE NULL
                 END AS logistics_summary
             ')
@@ -666,6 +704,7 @@ class PayingOrder extends Model
                     WHEN po.source_type = "' . app(Delivery::class)->getTable() . '" AND po.type = 9 THEN NULL
                     WHEN po.source_type = "' . app(self::class)->getTable() . '" AND po.type = 1 THEN NULL
                     WHEN po.source_type = "' . app(self::class)->getTable() . '" AND po.type = 2 THEN NULL
+                    WHEN po.source_type = "' . app(ReceivedOrder::class)->getTable() . '" AND po.type = 9 THEN NULL
                     ELSE NULL
                 END AS logistics_memo
             ')
@@ -679,6 +718,7 @@ class PayingOrder extends Model
                     WHEN po.source_type = "' . app(Delivery::class)->getTable() . '" AND po.type = 9 THEN 0
                     WHEN po.source_type = "' . app(self::class)->getTable() . '" AND po.type = 1 THEN 0
                     WHEN po.source_type = "' . app(self::class)->getTable() . '" AND po.type = 2 THEN 0
+                    WHEN po.source_type = "' . app(ReceivedOrder::class)->getTable() . '" AND po.type = 9 THEN 0
                     ELSE 0
                 END AS discount_value
             ')
@@ -692,6 +732,7 @@ class PayingOrder extends Model
                     WHEN po.source_type = "' . app(Delivery::class)->getTable() . '" AND po.type = 9 THEN NULL
                     WHEN po.source_type = "' . app(self::class)->getTable() . '" AND po.type = 1 THEN NULL
                     WHEN po.source_type = "' . app(self::class)->getTable() . '" AND po.type = 2 THEN NULL
+                    WHEN po.source_type = "' . app(ReceivedOrder::class)->getTable() . '" AND po.type = 9 THEN NULL
                     ELSE 0
                 END AS order_discount
             ');
@@ -723,7 +764,8 @@ class PayingOrder extends Model
                     ->orWhere('order_return.sn', 'like', "%{$source_sn}%")
                     ->orWhere('sub_order_return.event_sn', 'like', "%{$source_sn}%")
                     ->orWhere('_account_po.sn', 'like', "%{$source_sn}%")
-                    ->orWhere('multiple_po.sn', 'like', "%{$source_sn}%");
+                    ->orWhere('multiple_po.sn', 'like', "%{$source_sn}%")
+                    ->orWhere('ro.sn', 'like', "%{$source_sn}%");
             });
         }
 
@@ -1179,6 +1221,9 @@ class PayingOrder extends Model
 
         } else if($source_type == 'pcs_paying_orders' && $type == 2){
             $link = route('cms.collection_payment.po-show', ['id' => $source_id]);
+
+        } else if($source_type == 'ord_received_orders' && $type == 9){
+            $link = route('cms.collection_payment.refund-po-show', ['id' => $source_id]);
         }
 
         return $link;
@@ -1217,6 +1262,11 @@ class PayingOrder extends Model
 
         } else if($source_type == 'pcs_paying_orders' && $type == 2){
             $link = route('cms.collection_payment.index');
+
+        } else if($source_type == 'ord_received_orders' && $type == 9){
+            $ro = ReceivedOrder::find($source_id);
+            $link = ReceivedOrder::received_order_link($ro->source_type, $ro->source_id);
+            // $link = ReceivedOrder::received_order_source_link($ro->source_type, $ro->source_id);
         }
 
         return $link;

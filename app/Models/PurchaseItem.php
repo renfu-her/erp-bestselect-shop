@@ -7,6 +7,7 @@ use App\Enums\Delivery\Event;
 use App\Enums\Purchase\InboundStatus;
 use App\Enums\Purchase\LogEventFeature;
 use App\Enums\StockEvent;
+use App\Helpers\IttmsDBB;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -29,7 +30,7 @@ class PurchaseItem extends Model
             && isset($newData['price'])
             && isset($newData['num'])
         ) {
-            return DB::transaction(function () use ($newData, $operator_user_id, $operator_user_name
+            return IttmsDBB::transaction(function () use ($newData, $operator_user_id, $operator_user_name
             ) {
                 $id = self::create([
                     "purchase_id" => $newData['purchase_id'],
@@ -78,7 +79,7 @@ class PurchaseItem extends Model
 
     public static function checkToUpdatePurchaseItemData($itemId, array $purchaseItemReq, $key, $operator_user_id, $operator_user_name)
     {
-        return DB::transaction(function () use ($itemId, $purchaseItemReq, $key, $operator_user_id, $operator_user_name
+        return IttmsDBB::transaction(function () use ($itemId, $purchaseItemReq, $key, $operator_user_id, $operator_user_name
         ) {
             $purchaseItem = PurchaseItem::checkInputItemDirty($itemId, $purchaseItemReq, $key);
             if ($purchaseItem->isDirty()) {
@@ -93,6 +94,17 @@ class PurchaseItem extends Model
                         $logEventFeature = LogEventFeature::style_change_qty()->value;
                     }
                     if ('' != $event && null != $logEventFeature) {
+                        //若有修改修改採購數量和總價 則需計算成本價寫回入庫單的unit_cost
+                        if ($dirtykey == 'price' || $dirtykey == 'num') {
+                            $unit_cost = ($purchaseItem->price / $purchaseItem->num);
+                            PurchaseInbound::where('event', '=', Event::purchase()->value)
+                                ->where('event_id', '=', $purchaseItem->purchase_id)
+                                ->where('event_item_id', '=', $itemId)
+                                ->update([
+                                    'unit_cost' => $unit_cost
+                                ]);
+                        }
+
                         $rePcsLSC = PurchaseLog::stockChange($purchaseItem->purchase_id, $purchaseItem->product_style_id
                             , Event::purchase()->value, $itemId
                             , $logEventFeature, null, $dirtyval, $event
@@ -126,7 +138,7 @@ class PurchaseItem extends Model
             if (0 < $arrived_num) {
                 return ['success' => 0, 'error_msg' => "有入庫 不可刪除"];
             } else {
-                return DB::transaction(function () use ($items, $purchase_id, $del_item_id_arr, $operator_user_id, $operator_user_name
+                return IttmsDBB::transaction(function () use ($items, $purchase_id, $del_item_id_arr, $operator_user_id, $operator_user_name
                 ) {
                     PurchaseItem::whereIn('id', $del_item_id_arr)->delete();
                     foreach ($items as $item) {

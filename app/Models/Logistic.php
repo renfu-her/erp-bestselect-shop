@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\Delivery\Event;
+use App\Helpers\IttmsDBB;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -34,10 +35,7 @@ class Logistic extends Model
         $result = null;
         if (null == $dataGet) {
             $delivery = Delivery::where('id', $delivery_id)->withTrashed()->get()->first();
-            $sn = "LG" . date("ymd") . str_pad((self::whereDate('created_at', '=', date('Y-m-d'))
-                        ->withTrashed()
-                        ->get()
-                        ->count()) + 1, 5, '0', STR_PAD_LEFT);
+            $sn = Sn::createSn('logistic', 'LG', 'ymd', 5);
 
             $result = Logistic::create([
                 'sn' => $sn,
@@ -78,7 +76,7 @@ class Logistic extends Model
 
     public static function deleteById($id)
     {
-        return DB::transaction(function () use ($id
+        return IttmsDBB::transaction(function () use ($id
         ) {
             $logistic = Logistic::where('id', $id)->withTrashed();
             $logistic_get = $logistic->first();

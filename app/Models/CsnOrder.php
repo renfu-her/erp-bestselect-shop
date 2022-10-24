@@ -6,6 +6,7 @@ use App\Enums\Consignment\AuditStatus;
 use App\Enums\Delivery\Event;
 use App\Enums\Order\PaymentStatus;
 use App\Enums\Purchase\LogEventFeature;
+use App\Helpers\IttmsDBB;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -27,17 +28,14 @@ class CsnOrder extends Model
         , $memo = null
     )
     {
-        return DB::transaction(function () use (
+        return IttmsDBB::transaction(function () use (
             $depot_id, $depot_name
             , $create_user_id, $create_user_name
             , $scheduled_date
             , $memo
             ) {
 
-            $sn = "CO" . date("ymd") . str_pad((self::whereDate('created_at', '=', date('Y-m-d'))
-                        ->withTrashed()
-                        ->get()
-                        ->count()) + 1, 4, '0', STR_PAD_LEFT);
+            $sn = Sn::createSn('csn_order', 'CO', 'ymd', 4);
 
             $id = self::create([
                 "sn" => $sn,
@@ -88,7 +86,7 @@ class CsnOrder extends Model
         $purchase->memo = $purchaseReq['memo'] ?? $purchase->memo;
         $purchase->audit_status = $purchaseReq['audit_status'] ?? $purchase->audit_status;
 
-        return DB::transaction(function () use ($purchase, $id, $purchaseReq, $operator_user_id, $operator_user_name, $orign_audit_status
+        return IttmsDBB::transaction(function () use ($purchase, $id, $purchaseReq, $operator_user_id, $operator_user_name, $orign_audit_status
         ) {
             if ($purchase->isDirty()) {
                 foreach ($purchase->getDirty() as $key => $val) {
@@ -128,7 +126,7 @@ class CsnOrder extends Model
         } else if (null != $consignment->dlv_audit_date) {
             return ['success' => 0, 'error_msg' => '已出貨無法刪除'];
         } else {
-            return DB::transaction(function () use ($id, $operator_user_id, $operator_user_name
+            return IttmsDBB::transaction(function () use ($id, $operator_user_id, $operator_user_name
             ) {
                 $rePcsLSC = PurchaseLog::stockChange($id, null, Event::csn_order()->value, $id, LogEventFeature::del()->value, null,null, null,null, null, $operator_user_id, $operator_user_name);
                 if ($rePcsLSC['success'] == 0) {

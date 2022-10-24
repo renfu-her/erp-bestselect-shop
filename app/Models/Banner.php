@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\Globals\FrontendApiUrl;
 use App\Enums\Globals\LinkType;
+use App\Helpers\IttmsDBB;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
@@ -22,7 +23,7 @@ class Banner extends Model
     public static function storeNewBanner(Request $request)
     {
         $request = self::validInputValue($request);
-        return DB::transaction(function () use ($request
+        $result = IttmsDBB::transaction(function () use ($request
         ) {
             $id = Banner::create([
                 'title' => $request->input('title')
@@ -48,8 +49,9 @@ class Banner extends Model
                     , 'img_phone' => $imgData_Phone
                 ]);
 
-            return $id;
+            return ['success' => 1, 'id' => $id];
         });
+        return $result['id'] ?? null;
     }
 
     public static function validInputValue(Request $request) {
@@ -94,7 +96,7 @@ class Banner extends Model
         $request = self::validInputValue($request);
         $bannerData = Banner::where('id', '=', $id);
         $bannerDataGet = $bannerData->get()->first();
-        return DB::transaction(function () use ($request, $id, $bannerDataGet, $is_del_old_img
+        return IttmsDBB::transaction(function () use ($request, $id, $bannerDataGet, $is_del_old_img
         ) {
             if (null != $bannerDataGet) {
 
@@ -136,7 +138,7 @@ class Banner extends Model
                     ->update($updateData);
             }
 
-            return $id;
+            return ['success' => 1, 'id' => $id];
         });
     }
 

@@ -28,10 +28,16 @@
                 class="btn btn-sm btn-warning" rel="noopener noreferrer">中一刀列印-請款單</a>
 
             @can('cms.collection_received.delete')
-            @if(!$received_order->receipt_date && !$data_status_check)
+            @if(!$received_order->receipt_date && !$data_status_check && !$refund_po_check)
                 <a href="javascript:void(0)" role="button" data-bs-toggle="modal" data-bs-target="#confirm-delete"
                     data-href="{{ Route('cms.collection_received.delete', ['id' => $received_order->id], true) }}" 
                     class="btn btn-sm btn-outline-danger">刪除收款單</a>
+            @endif
+            @endcan
+
+            @can('cms.collection_payment.edit')
+            @if(!$received_order->receipt_date && !$data_status_check && in_array('refund', $received_data->pluck('received_method')->toArray()))
+            <a href="{{ Route('cms.collection_payment.refund-po-show', ['id' => $received_order->id]) }}" class="btn btn-sm btn-primary" role="button">新增退出付款單</a>
             @endif
             @endcan
         </div>
@@ -103,6 +109,16 @@
                                 <td class="text-end">{{ number_format($value->product_price, 2) }}</td>
                                 <td class="text-end">{{ number_format($value->product_origin_price) }}</td>
                                 <td>{{ $received_order->memo }} <a href="{{ Route('cms.order.detail', ['id' => $order->id], true) }}">{{ $order->sn }}</a> {{ $value->product_taxation == 1 ? '應稅' : '免稅' }} {{ $value->product_note ?? '' }} {{ $value->product_ro_note }}{{-- $order->note --}}</td>
+                            </tr>
+                        @endforeach
+
+                        @foreach($order_refund_data as $re_value)
+                            <tr>
+                                <td>{{ $re_value->refund_grade_code . ' ' . $re_value->refund_grade_name }} --- {{ $re_value->refund_title }} 退回付款單號 <a href="{{ $re_value->po_url }}">{{ $re_value->po_sn }}</a></td>
+                                <td class="text-end">{{ number_format($re_value->refund_qty) }}</td>
+                                <td class="text-end">{{ number_format($re_value->refund_price, 2) }}</td>
+                                <td class="text-end">{{ number_format($re_value->refund_total_price) }}</td>
+                                <td>{{ $received_order->memo }} <a href="{{ Route('cms.order.detail', ['id' => $order->id], true) }}">{{ $order->sn }}</a> {{ $re_value->refund_taxation == 1 ? '應稅' : '免稅' }} {{ $re_value->refund_note ?? '' }}{{-- $order->note --}}</td>
                             </tr>
                         @endforeach
 

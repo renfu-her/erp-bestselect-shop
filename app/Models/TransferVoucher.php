@@ -47,6 +47,7 @@ class TransferVoucher extends Model
             LEFT JOIN acc_second_grade ON acc_all_grades.grade_id = acc_second_grade.id AND acc_all_grades.grade_type = "App\\\Models\\\SecondGrade"
             LEFT JOIN acc_third_grade ON acc_all_grades.grade_id = acc_third_grade.id AND acc_all_grades.grade_type = "App\\\Models\\\ThirdGrade"
             LEFT JOIN acc_fourth_grade ON acc_all_grades.grade_id = acc_fourth_grade.id AND acc_all_grades.grade_type = "App\\\Models\\\FourthGrade"
+            GROUP BY acc_all_grades.id
         ';
 
         $sort_query = $sort ? 'debit_credit_code DESC, ' : '';
@@ -68,7 +69,7 @@ class TransferVoucher extends Model
                         "currency_price":"\', COALESCE(tv_item.currency_price, ""),\'",
                         "final_price":"\', COALESCE(tv_item.final_price, ""),\'",
                         "department":"\', COALESCE(tv_item.department, ""),\'"
-                    }\' ORDER BY ' . $sort_query . ' tv_item.id), \']\') AS items
+                    }\' ORDER BY ' . $sort_query . 'tv_item.id), \']\') AS items
                 FROM acc_transfer_voucher_items AS tv_item
                 LEFT JOIN (' . $sq . ') AS grade ON tv_item.grade_id = grade.id
                 LEFT JOIN acc_currency ON tv_item.currency_id = acc_currency.id

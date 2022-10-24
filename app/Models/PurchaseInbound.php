@@ -7,6 +7,7 @@ use App\Enums\Delivery\Event;
 use App\Enums\Purchase\InboundStatus;
 use App\Enums\Purchase\LogEventFeature;
 use App\Enums\StockEvent;
+use App\Helpers\IttmsDBB;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -25,14 +26,12 @@ class PurchaseInbound extends Model
     {
         $can_tally = Depot::can_tally($depot_id);
 
-        return DB::transaction(function () use (
+        return IttmsDBB::transaction(function () use (
             $event, $event_id, $event_item_id, $product_style_id, $title, $sku, $unit_cost, $expiry_date, $inbound_date,
             $inbound_num, $depot_id, $depot_name, $inbound_user_id, $inbound_user_name, $memo, $can_tally, $prd_type, $parent_inbound_id, $origin_inbound_id
         ) {
-            $sn = "IB" . date("ymd") . str_pad((self::whereDate('created_at', '=', date('Y-m-d'))
-                        ->withTrashed()
-                        ->get()
-                        ->count()) + 1, 5, '0', STR_PAD_LEFT);
+            $inbound_sn = Sn::createSn('inbound', 'IB', 'ymd', 5);
+            $sn = $inbound_sn;
 
             $prd_type = $prd_type ?? 'p';
             $insert_data = [
@@ -85,7 +84,7 @@ class PurchaseInbound extends Model
         $inboundGet->inbound_num = $inboundGet->inbound_num + $add_qty;
         $inboundGet->expiry_date = date('Y-m-d H:i:s', strtotime($expiry_date));
 
-        return DB::transaction(function () use ($inboundGet, $can_tally, $inbound_id, $add_qty, $expiry_date, $memo, $update_user_id, $update_user_name) {
+        return IttmsDBB::transaction(function () use ($inboundGet, $can_tally, $inbound_id, $add_qty, $expiry_date, $memo, $update_user_id, $update_user_name) {
             if ($inboundGet->isDirty()) {
                 PurchaseInbound::where('id', '=', $inbound_id)->update([
                     'inbound_num' => DB::raw("inbound_num + $add_qty")
@@ -104,7 +103,7 @@ class PurchaseInbound extends Model
     }
 
     public static function addLogAndUpdateStock($eventFeature, $inbound_id, $event, $event_id, $event_item_id, $product_style_id, $prd_type, $title, $add_qty, $can_tally, $memo, $stock_event, $stock_memo, $update_user_id, $update_user_name) {
-        return DB::transaction(function () use ($eventFeature, $inbound_id, $event, $event_id, $event_item_id, $product_style_id, $prd_type, $title, $add_qty, $can_tally, $memo, $stock_event, $stock_memo, $update_user_id, $update_user_name) {
+        return IttmsDBB::transaction(function () use ($eventFeature, $inbound_id, $event, $event_id, $event_item_id, $product_style_id, $prd_type, $title, $add_qty, $can_tally, $memo, $stock_event, $stock_memo, $update_user_id, $update_user_name) {
             $is_pcs_inbound = false;
             //入庫 新增入庫數量
             $rePcsItemUAN = ['success' => 0, 'error_msg' => "未執行入庫"];
@@ -239,7 +238,7 @@ class PurchaseInbound extends Model
                 return ['success' => 0, 'error_msg' => '已有報廢紀錄 無法刪除'];
             }
         }
-        return DB::transaction(function () use (
+        return IttmsDBB::transaction(function () use (
             $id,
             $user_id,
             $inboundData,
@@ -319,7 +318,7 @@ class PurchaseInbound extends Model
     //售出 更新資料
     public static function shippingInbound($event, $event_parent_id, $event_id, $feature, $id, $sale_num = 0, $user_id, $user_name)
     {
-        return DB::transaction(function () use (
+        return IttmsDBB::transaction(function () use (
             $event,
             $event_parent_id,
             $event_id,
@@ -335,6 +334,7 @@ class PurchaseInbound extends Model
                 ->whereNotNull('inbound.deleted_at') //需額外找出被刪除的入庫單 有使用到則回傳錯誤
                 ->get()->first();
             if (null != $inboundDelData) {
+                DB::rollBack();
                 return ['success' => 0, 'error_msg' => '該入庫單已遭刪除 '. $inboundDelData->sn];
             }
 
@@ -347,10 +347,14 @@ class PurchaseInbound extends Model
                     , 'depot.can_tally'
                 );
             $inboundDataGet = $inboundData->get()->first();
-            if (null != $inboundDataGet) {
+            if (null == $inboundDataGet) {
+                DB::rollBack();
+                return ['success' => 0, 'error_msg' => '無此入庫單id:'. $id];
+            } else {
                 if (($inboundDataGet->inbound_num - $inboundDataGet->sale_num - $inboundDataGet->csn_num - $inboundDataGet->consume_num
                         - $inboundDataGet->back_num - $inboundDataGet->scrap_num
                         - $sale_num) < 0) {
+                    DB::rollBack();
                     return ['success' => 0, 'error_msg' => '入庫單出貨數量超出範圍'];
                 } else {
                     $update_arr = [];

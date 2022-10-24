@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Cms\Commodity;
 
 use App\Enums\Delivery\Event;
+use App\Helpers\IttmsDBB;
 use App\Http\Controllers\Controller;
 use App\Models\Consum;
 use App\Models\CsnOrder;
@@ -103,7 +104,7 @@ class ConsignmentOrderCtrl extends Controller
 
         $consignmentID = null;
         $result = null;
-        $result = DB::transaction(function () use ($csnReq, $csnItemReq, $request, $depot
+        $result = IttmsDBB::transaction(function () use ($csnReq, $csnItemReq, $request, $depot
         ) {
             $reCsn = CsnOrder::createData($depot->id, $depot->name
                 , $request->user()->id, $request->user()->name
@@ -146,6 +147,7 @@ class ConsignmentOrderCtrl extends Controller
                 , $csn->sn
             );
             if ($reDelivery['success'] == 0) {
+                DB::rollBack();
                 return $reDelivery;
             }
             return ['success' => 1, 'error_msg' => "", 'consignmentID' => $consignmentID];
@@ -248,7 +250,7 @@ class ConsignmentOrderCtrl extends Controller
             }
         }
 
-        $msg = DB::transaction(function () use ($request, $id, $csnReq, $csnItemReq, $consignmentData
+        $msg = IttmsDBB::transaction(function () use ($request, $id, $csnReq, $csnItemReq, $consignmentData
         ) {
             $repcsCTPD = CsnOrder::checkToUpdateConsignmentData($id, $csnReq, $request->user()->id, $request->user()->name);
             if ($repcsCTPD['success'] == 0) {

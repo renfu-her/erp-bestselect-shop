@@ -10,6 +10,7 @@ use App\Enums\Purchase\LogEventFeature;
 use App\Enums\StockEvent;
 use App\Enums\Supplier\Payment;
 
+use App\Helpers\IttmsDBB;
 use App\Http\Controllers\Controller;
 use App\Models\AccountPayable;
 use App\Models\AllGrade;
@@ -153,7 +154,7 @@ class ConsignmentCtrl extends Controller
 
         $consignmentID = null;
         $result = null;
-        $result = DB::transaction(function () use ($csnReq, $csnItemReq, $request, $send_depot, $receive_depot
+        $result = IttmsDBB::transaction(function () use ($csnReq, $csnItemReq, $request, $send_depot, $receive_depot
         ) {
             $reCsn = Consignment::createData($send_depot->id, $send_depot->name, $receive_depot->id, $receive_depot->name
                 , $request->user()->id, $request->user()->name
@@ -196,6 +197,7 @@ class ConsignmentCtrl extends Controller
                 , $csn->sn
             );
             if ($reDelivery['success'] == 0) {
+                DB::rollBack();
                 return $reDelivery;
             }
             return ['success' => 1, 'error_msg' => "", 'consignmentID' => $consignmentID];
@@ -285,7 +287,7 @@ class ConsignmentCtrl extends Controller
             }
         }
 
-        $msg = DB::transaction(function () use ($request, $id, $csnReq, $csnItemReq, $consignmentData
+        $msg = IttmsDBB::transaction(function () use ($request, $id, $csnReq, $csnItemReq, $consignmentData
         ) {
             $repcsCTPD = Consignment::checkToUpdateConsignmentData($id, $csnReq, $request->user()->id, $request->user()->name);
             if ($repcsCTPD['success'] == 0) {
@@ -499,7 +501,7 @@ class ConsignmentCtrl extends Controller
             $depot = Depot::where('id', '=', $depot_id)->get()->first();
             $style_arr = PurchaseInbound::getCreateData(Event::consignment()->value, $id, $inboundItemReq['event_item_id'], $inboundItemReq['product_style_id']);
 
-            $result = DB::transaction(function () use ($inboundItemReq, $id, $depot_id, $depot, $request, $style_arr
+            $result = IttmsDBB::transaction(function () use ($inboundItemReq, $id, $depot_id, $depot, $request, $style_arr
             ) {
                 $consignment = Consignment::where('id', '=', $id)->first();
                 if (false == isset($consignment)) {
@@ -628,7 +630,7 @@ class ConsignmentCtrl extends Controller
                 '',
                 '',
                 $supplier ? $supplier->id : null,
-                $supplier ? ($supplier->nickname ? $supplier->name . ' - ' . $supplier->nickname : $supplier->name) : null,
+                $supplier ? $supplier->name : null,
                 $supplier ? $supplier->contact_tel : null,
                 $supplier ? $supplier->contact_address : null
             );

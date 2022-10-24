@@ -6,6 +6,7 @@ use App\Enums\Consignment\AuditStatus;
 use App\Enums\Delivery\Event;
 use App\Enums\Delivery\LogisticStatus;
 use App\Enums\Purchase\LogEventFeature;
+use App\Helpers\IttmsDBB;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -27,7 +28,7 @@ class Consignment extends Model
         , $memo = null
     )
     {
-        return DB::transaction(function () use (
+        return IttmsDBB::transaction(function () use (
             $send_depot_id, $send_depot_name, $receive_depot_id, $receive_depot_name
             , $create_user_id, $create_user_name
             , $scheduled_date
@@ -35,10 +36,7 @@ class Consignment extends Model
 //            , $audit_date, $audit_user_id, $audit_user_name, $audit_status
             ) {
 
-            $sn = "CSN" . date("ymd") . str_pad((self::whereDate('created_at', '=', date('Y-m-d'))
-                        ->withTrashed()
-                        ->get()
-                        ->count()) + 1, 4, '0', STR_PAD_LEFT);
+            $sn = Sn::createSn('consignment', 'CSN', 'ymd', 4);
 
             $id = self::create([
                 "sn" => $sn,
@@ -90,7 +88,7 @@ class Consignment extends Model
         $purchase->memo = $purchaseReq['order_memo'] ?? null;
         $purchase->audit_status = $purchaseReq['audit_status'] ?? null;
 
-        return DB::transaction(function () use ($purchase, $id, $purchaseReq, $operator_user_id, $operator_user_name, $orign_audit_status
+        return IttmsDBB::transaction(function () use ($purchase, $id, $purchaseReq, $operator_user_id, $operator_user_name, $orign_audit_status
         ) {
             if ($purchase->isDirty()) {
                 foreach ($purchase->getDirty() as $key => $val) {
@@ -159,7 +157,7 @@ class Consignment extends Model
         if (AuditStatus::approved()->value == $consignment->audit_status) {
             return ['success' => 0, 'error_msg' => '已審核無法刪除'];
         } else {
-            return DB::transaction(function () use ($id, $operator_user_id, $operator_user_name
+            return IttmsDBB::transaction(function () use ($id, $operator_user_id, $operator_user_name
             ) {
                 $rePcsLSC = PurchaseLog::stockChange($id, null, Event::consignment()->value, $id, LogEventFeature::del()->value, null,null, null,null, null, $operator_user_id, $operator_user_name);
                 if ($rePcsLSC['success'] == 0) {

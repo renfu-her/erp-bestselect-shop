@@ -6,6 +6,7 @@ use App\Enums\Delivery\Event;
 use App\Enums\Delivery\LogisticStatus;
 use App\Enums\DlvBack\DlvBackType;
 use App\Enums\Purchase\LogEventFeature;
+use App\Helpers\IttmsDBB;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -47,7 +48,7 @@ class ReceiveDepot extends Model
                 'expiry_date' => $expiry_date,
             ])->id;
         } else {
-            $result = DB::transaction(function () use ($data, $dataGet, $combo_id, $prd_type, $freebies, $inbound_id, $inbound_sn, $depot_id, $depot_name, $product_style_id, $sku, $product_title, $unit_cost, $qty, $expiry_date
+            $result = IttmsDBB::transaction(function () use ($data, $dataGet, $combo_id, $prd_type, $freebies, $inbound_id, $inbound_sn, $depot_id, $depot_name, $product_style_id, $sku, $product_title, $unit_cost, $qty, $expiry_date
             ) {
                 $data->update([
                     //'freebies' => $freebies,
@@ -64,8 +65,9 @@ class ReceiveDepot extends Model
                     'qty' => $qty,
                     //'expiry_date' => $expiry_date,
                 ]);
-                return $dataGet->id;
+                return ['success' => 1, 'id' => $dataGet->id];
             });
+            $result = $result['id'] ?? null;
         }
         return ['success' => 1, 'error_msg' => "", 'id' => $result];
     }
@@ -80,7 +82,7 @@ class ReceiveDepot extends Model
     public static function setDatasWithDeliveryIdWithItemId($input_arr, $delivery_id, $itemId) {
         $delivery = Delivery::where('id', $delivery_id)->get()->first();
 
-        return DB::transaction(function () use ($delivery_id, $delivery, $itemId, $input_arr
+        return IttmsDBB::transaction(function () use ($delivery_id, $delivery, $itemId, $input_arr
         ) {
             if (null != $input_arr['qty'] && 0 < count($input_arr['qty'])) {
                 $addIds = [];
@@ -165,7 +167,7 @@ class ReceiveDepot extends Model
             $rcvDepotGet = $rcvDepot->get();
         }
         if (null != $delivery &&null != $rcvDepotGet && 0 < count($rcvDepotGet)) {
-            $result = DB::transaction(function () use ($delivery, $rcvDepot, $rcvDepotGet, $event, $event_id, $delivery_id, $user_id, $user_name
+            $result = IttmsDBB::transaction(function () use ($delivery, $rcvDepot, $rcvDepotGet, $event, $event_id, $delivery_id, $user_id, $user_name
             ) {
                 //判斷若為組合包商品 則需新建立一筆資料組合成組合包 並回寫新id
                 $queryComboElement = null;
@@ -422,15 +424,23 @@ class ReceiveDepot extends Model
             $rcvDepotGet = $rcvDepot->get();
         }
         if (null != $delivery &&null != $rcvDepotGet && 0 < count($rcvDepotGet)) {
-            $result = DB::transaction(function () use ($delivery, $rcvDepot, $rcvDepotGet, $event, $event_id, $delivery_id, $user_id, $user_name
+            $result = IttmsDBB::transaction(function () use ($delivery, $rcvDepot, $rcvDepotGet, $event, $event_id, $delivery_id, $user_id, $user_name
             ) {
                 // 判斷是否有入庫 有則回傳錯誤
                 $inbound_already = PurchaseInbound::where('event', '=', $event)->where('event_id', '=' , $event_id)->get();
                 if (isset($inbound_already) && 0 < count($inbound_already)) {
+                    DB::rollBack();
                     return ['success' => 0, 'error_msg' => "無法復原! 此次出貨已有入庫"];
                 }
 
                 if (Event::order()->value == $delivery->event) {
+                    // 訂單需另外判斷是否有退貨入庫，有則不可取消
+                    $receiveDepotData = ReceiveDepot::where('delivery_id', $delivery_id)->where('back_qty', '>' , 0)->get();
+                    if (isset($receiveDepotData) && 0 < count($receiveDepotData)) {
+                        DB::rollBack();
+                        return ['success' => 0, 'error_msg' => "無法復原! 已有退貨入庫"];
+                    }
+
                     if ('pickup' == $delivery->ship_category) {
                         $event = 'ord_pickup';
                     }
@@ -440,13 +450,25 @@ class ReceiveDepot extends Model
                 if (null != $rcvDepotComboGet && 0 < count($rcvDepotComboGet)) {
                     //先取出個別數量紀錄 再刪除組合包
                     foreach($rcvDepotComboGet as $key_cb => $val_cb) {
-                        $reStockChange =PurchaseLog::stockChange($event_id, $val_cb->product_style_id, $event, $delivery->event_id,
-                            LogEventFeature::combo_del()->value, null, $val_cb->qty, null, $val_cb->product_title, 'c', $user_id, $user_name);
-                        if ($reStockChange['success'] == 0) {
+                        if (Event::order()->value == $delivery->event || Event::consignment()->value == $delivery->event) {
+                            //訂單、寄倉 須分解成元素，並刪除組合包 因出貨時會組成組合包
+                            $reStockChange =PurchaseLog::stockChange($event_id, $val_cb->product_style_id, $event, $delivery->event_id,
+                                LogEventFeature::combo_del()->value, null, $val_cb->qty, null, $val_cb->product_title, 'c', $user_id, $user_name);
+                            if ($reStockChange['success'] == 0) {
+                                DB::rollBack();
+                                return $reStockChange;
+                            }
+                            ReceiveDepot::where('id', $val_cb->id)->where('prd_type', '=' , 'c')->forceDelete();
+                        } else if (Event::csn_order()->value == $delivery->event){
+                            $reShipIb = PurchaseInbound::shippingInbound($event, $event_id, $val_cb->id, LogEventFeature::delivery_cancle()->value, $val_cb->inbound_id, $val_cb->qty * -1, $user_id, $user_name);
+                            if ($reShipIb['success'] == 0) {
+                                DB::rollBack();
+                                return $reShipIb;
+                            }
+                        } else {
                             DB::rollBack();
-                            return $reStockChange;
+                            return ['success' => 0, 'error_msg' => "無法判斷事件 ". json_encode($val_cb)];
                         }
-                        ReceiveDepot::where('id', $val_cb->id)->where('prd_type', '=' , 'c')->forceDelete();
                     }
                 }
 

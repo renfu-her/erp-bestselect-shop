@@ -37,7 +37,8 @@ class Order extends Model
         $email = null,
         $item_title = null,
         $purchase_sn = null,
-        $received_method = null
+        $received_method = null,
+        $dlv_date = null
     ) {
         $order = DB::table('ord_orders as order')
             ->select(['order.id as id',
@@ -56,6 +57,7 @@ class Order extends Model
                 'shi_group.name as ship_group_name',
                 'ord_received_orders.sn as or_sn',
                 'so.projlgt_order_sn',
+                'so.dlv_audit_date',
 //                'so.package_sn',
                 'ord_items.product_title',
                 'ord_items.sub_order_id',
@@ -131,6 +133,14 @@ class Order extends Model
                 $sDate = date('Y-m-d 00:00:00', strtotime($order_date[0]));
                 $eDate = date('Y-m-d 23:59:59', strtotime($order_date[1]));
                 $order->whereBetween('order.created_at', [$sDate, $eDate]);
+            }
+        }
+
+        if ($dlv_date) {
+            if (gettype($dlv_date) == 'array' && count($dlv_date) == 2) {
+                $sDate = date('Y-m-d 00:00:00', strtotime($dlv_date[0]));
+                $eDate = date('Y-m-d 23:59:59', strtotime($dlv_date[1]));
+                $order->whereBetween('so.dlv_audit_date', [$sDate, $eDate]);
             }
         }
 

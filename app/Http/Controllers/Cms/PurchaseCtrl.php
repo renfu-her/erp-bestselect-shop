@@ -6,6 +6,7 @@ use App\Enums\Consignment\AuditStatus;
 use App\Enums\Delivery\Event;
 use App\Enums\Supplier\Payment;
 use App\Enums\Payable\ChequeStatus;
+use App\Helpers\IttmsDBB;
 use App\Http\Controllers\Controller;
 
 use App\Models\AllGrade;
@@ -194,7 +195,7 @@ class PurchaseCtrl extends Controller
         }
 
         $result = null;
-        $result = DB::transaction(function () use ($purchaseItemReq, $rePcs, $request, $purchaseID
+        $result = IttmsDBB::transaction(function () use ($purchaseItemReq, $rePcs, $request, $purchaseID
         ) {
             if (isset($purchaseItemReq['product_style_id']) && isset($purchaseID)) {
                 foreach ($purchaseItemReq['product_style_id'] as $key => $val) {
@@ -382,7 +383,7 @@ class PurchaseCtrl extends Controller
         }
 //        dd('end');
 
-        $msg = DB::transaction(function () use ($request, $id, $purchaseReq, $purchaseItemReq, $taxReq, $purchasePayReq, $purchaseGet
+        $msg = IttmsDBB::transaction(function () use ($request, $id, $purchaseReq, $purchaseItemReq, $taxReq, $purchasePayReq, $purchaseGet
         ) {
             $repcsCTPD = Purchase::checkToUpdatePurchaseData($id, $purchaseReq, $request->user()->id, $request->user()->name, $taxReq, $purchasePayReq);
             if ($repcsCTPD['success'] == 0) {
@@ -528,7 +529,7 @@ class PurchaseCtrl extends Controller
             $depot = Depot::where('id', '=', $depot_id)->get()->first();
             $style_arr = PurchaseInbound::getCreateData(Event::purchase()->value, $id, $inboundItemReq['event_item_id'], $inboundItemReq['product_style_id']);
 
-            $result = DB::transaction(function () use ($inboundItemReq, $id, $depot_id, $depot, $request, $style_arr
+            $result = IttmsDBB::transaction(function () use ($inboundItemReq, $id, $depot_id, $depot, $request, $style_arr
             ) {
                 $purchase = Purchase::where('id', '=', $id)->first();
                 if (false == isset($purchase)) {

@@ -6,6 +6,7 @@ use App\Enums\Consignment\AuditStatus;
 use App\Enums\Delivery\Event;
 use App\Enums\Purchase\InboundStatus;
 use App\Enums\Purchase\LogEventFeature;
+use App\Helpers\IttmsDBB;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -28,7 +29,7 @@ class ConsignmentItem extends Model
             && isset($newData['price'])
             && isset($newData['sku'])
         ) {
-            return DB::transaction(function () use ($newData, $operator_user_id, $operator_user_name
+            return IttmsDBB::transaction(function () use ($newData, $operator_user_id, $operator_user_name
             ) {
                 $id = self::create([
                     "consignment_id" => $newData['consignment_id'],
@@ -55,7 +56,7 @@ class ConsignmentItem extends Model
     }
     public static function checkToUpdateItemData($itemId, array $purchaseItemReq, $key, $operator_user_id, $operator_user_name)
     {
-        return DB::transaction(function () use ($itemId, $purchaseItemReq, $key, $operator_user_id, $operator_user_name
+        return IttmsDBB::transaction(function () use ($itemId, $purchaseItemReq, $key, $operator_user_id, $operator_user_name
         ) {
             $purchaseItem = ConsignmentItem::where('id', '=', $itemId)
                 //->select('price', 'num')
@@ -109,7 +110,7 @@ class ConsignmentItem extends Model
             if (0 < count($query)) {
                 return ['success' => 0, 'error_msg' => "有入庫 不可刪除"];
             } else {
-                return DB::transaction(function () use ($purchase_id, $del_item_id_arr, $operator_user_id, $operator_user_name
+                return IttmsDBB::transaction(function () use ($purchase_id, $del_item_id_arr, $operator_user_id, $operator_user_name
                 ) {
                     //寄倉商品改直接刪除 因需要審核後才會做入庫
                     $items = ConsignmentItem::whereIn('id', $del_item_id_arr)->get();
@@ -128,7 +129,7 @@ class ConsignmentItem extends Model
 
     //更新到貨數量
     public static function updateArrivedNum($id, $addnum) {
-        return DB::transaction(function () use ($id, $addnum
+        return IttmsDBB::transaction(function () use ($id, $addnum
         ) {
             $updateArr = [];
             $updateArr['arrived_num'] = DB::raw("arrived_num + $addnum");

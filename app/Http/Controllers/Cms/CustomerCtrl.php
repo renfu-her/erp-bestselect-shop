@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Cms;
 
 use App\Enums\Customer\AccountStatus;
 use App\Enums\Customer\Newsletter;
+use App\Helpers\IttmsDBB;
 use App\Http\Controllers\Controller;
 use App\Models\Addr;
 use App\Models\Customer;
@@ -199,7 +200,7 @@ class CustomerCtrl extends Controller
         if (0 == $acount_status || 1 == $acount_status) {
             $updateArr['acount_status'] = $acount_status;
         }
-        DB::transaction(function () use ($id, $updateArr
+        IttmsDBB::transaction(function () use ($id, $updateArr
         ) {
             Customer::where('id', $id)->update($updateArr);
             return ['success' => 1, 'error_msg' => "", 'id' => $id];
@@ -342,7 +343,7 @@ class CustomerCtrl extends Controller
         }
 
         $date = $cond['year'] . "-" . $cond['month'] . "-1";
-        
+
         return view('cms.admin.customer.bonus', [
             'customer' => $id,
             'dataList' => OrderProfit::dataList(null, $id, $date)->get(),

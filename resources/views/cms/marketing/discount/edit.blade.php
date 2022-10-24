@@ -40,10 +40,10 @@
                     </div>
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
-                    <label class="form-label">活動開始時間 <span class="small text-secondary">（未填則表示現在）</span></label>
+                    <label class="form-label">活動開始時間<span class="small text-secondary">（未填則表示現在）</span></label>
                     <div class="input-group has-validation">
                         <input type="datetime-local" name="start_date"
-                            value="{{ old('start_date') ? date('Y-m-d\Th:i', strtotime($data->start_date)) : '' }}" editable
+                          value="{{ old('start_date',date('Y-m-d\Th:i', strtotime($data->start_date)) ?? '') }}" editable
                             class="form-control @error('start_date') is-invalid @enderror" aria-label="活動開始時間" />
                         <button class="btn btn-outline-secondary icon" type="button" data-clear data-bs-toggle="tooltip"
                             title="清空時間"><i class="bi bi-calendar-x"></i>
@@ -58,7 +58,7 @@
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">活動結束時間<span class="small text-secondary">（未填則表示不會結束）</span></label>
                     <div class="input-group has-validation">
-                        <input type="datetime-local" name="end_date" value="{{ old('end_date') ? date('Y-m-d\Th:i', strtotime($data->end_date)) : '' }}"
+                        <input type="datetime-local" name="end_date" value="{{ old('end_date',date('Y-m-d\Th:i', strtotime($data->end_date)) ?? '') }}"
                             class="form-control @error('end_date') is-invalid @enderror" aria-label="活動結束時間" editable />
                         <button class="btn btn-outline-secondary icon" type="button" data-clear data-bs-toggle="tooltip"
                             title="清空時間"><i class="bi bi-calendar-x"></i>
