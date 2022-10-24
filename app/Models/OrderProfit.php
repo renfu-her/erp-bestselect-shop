@@ -51,8 +51,8 @@ class OrderProfit extends Model
        
        
         if ($dlv_audit_date) {
-            $sdate = date("Y-m-1", strtotime($dlv_audit_date));
-            $edate = date("Y-m-t", strtotime($dlv_audit_date));
+            $sdate = date("Y-m-1 00:00:00", strtotime($dlv_audit_date));
+            $edate = date("Y-m-t 23:59:59", strtotime($dlv_audit_date));
 
             $re->leftJoin('ord_sub_orders as sub_order', 'profit.sub_order_id', '=', 'sub_order.id')
                 ->whereBetween('sub_order.dlv_audit_date', [$sdate, $edate])
