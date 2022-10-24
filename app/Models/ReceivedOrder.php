@@ -53,6 +53,7 @@ class ReceivedOrder extends Model
             LEFT JOIN acc_second_grade ON acc_all_grades.grade_id = acc_second_grade.id AND acc_all_grades.grade_type = "App\\\Models\\\SecondGrade"
             LEFT JOIN acc_third_grade ON acc_all_grades.grade_id = acc_third_grade.id AND acc_all_grades.grade_type = "App\\\Models\\\ThirdGrade"
             LEFT JOIN acc_fourth_grade ON acc_all_grades.grade_id = acc_fourth_grade.id AND acc_all_grades.grade_type = "App\\\Models\\\FourthGrade"
+            GROUP BY acc_all_grades.id
         ';
 
         $query = DB::table('ord_received_orders AS ro')
@@ -222,7 +223,7 @@ class ReceivedOrder extends Model
             ->leftJoin(DB::raw('(
                 SELECT _account.append_received_order_id,
                 CONCAT(\'[\', GROUP_CONCAT(\'{
-                        "product_title":"\', "", \'",
+                        "product_title":"\', COALESCE(grade.name, ""), \'",
                         "all_grades_id":"\', COALESCE(acc_received.all_grades_id, ""), \'",
                         "grade_code":"\', COALESCE(grade.code, ""), \'",
                         "grade_name":"\', COALESCE(grade.name, ""), \'",
