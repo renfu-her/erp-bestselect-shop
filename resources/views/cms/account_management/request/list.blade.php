@@ -192,6 +192,8 @@
             $('#confirm-delete').on('show.bs.modal', function(e) {
                 $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
             });
+
+            localStorage.setItem('request_url', location.pathname + location.search);
         </script>
     @endpush
 @endOnce

@@ -89,18 +89,6 @@ class StituteOrderCtrl extends Controller
             '1'=>'已入款',
         ];
 
-        if(count($request->query()) > 0){
-            session([
-                'stitute_url' => $request->fullUrl()
-            ]);
-
-        } else {
-            session([
-                'stitute_url' => null
-            ]);
-            session()->forget(['stitute_url']);
-        }
-
         return view('cms.account_management.stitute.list', [
             'data_per_page' => $page,
             'dataList' => $dataList,
