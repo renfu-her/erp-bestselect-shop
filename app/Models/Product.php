@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\Customer\Identity;
 use App\Enums\Globals\ApiStatusMessage;
+use App\Helpers\IttmsDBB;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -286,7 +287,7 @@ class Product extends Model
         $user_id, $category_id, $type = 'p',
         $feature = null, $url = null, $slogan = null, $active_sdate = null,
         $active_edate = null, $supplier = null, $has_tax = 0, $consume = 0, $public = 1, $online = 0, $offline = 0) {
-        return DB::transaction(function () use ($title,
+        return IttmsDBB::transaction(function () use ($title,
             $user_id,
             $category_id,
             $type,
@@ -345,10 +346,7 @@ class Product extends Model
                 Supplier::updateProductSupplier($id, $supplier);
             }
 
-            return [
-                'sku' => $sku,
-                'id' => $id,
-            ];
+            return ['success' => 1, 'sku' => $sku, 'id' => $id,];
 
         });
     }
@@ -405,10 +403,13 @@ class Product extends Model
             return '重複設定';
         }
 
-        return DB::transaction(function () use ($product_id, $spec_id) {
+        $result = IttmsDBB::transaction(function () use ($product_id, $spec_id) {
             $count = DB::table('prd_product_spec')->where('product_id', $product_id)->count();
-            return DB::table('prd_product_spec')->insert(['product_id' => $product_id, 'spec_id' => $spec_id, 'rank' => $count]);
+            $statement = DB::table('prd_product_spec')->insert(['product_id' => $product_id, 'spec_id' => $spec_id, 'rank' => $count]);
+
+            return ['success' => 1, 'result' => $statement];
         });
+        return $result['result'] ?? null;
 
     }
 

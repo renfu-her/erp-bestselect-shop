@@ -7,6 +7,7 @@ use App\Enums\Purchase\LogEventFeature;
 use App\Enums\StockEvent;
 use App\Exports\Stock\OldNewStockDiffExport;
 use App\Exports\Stock\OldNewStockDiffOnlyExport;
+use App\Helpers\IttmsDBB;
 use App\Http\Controllers\Controller;
 use App\Imports\PurchaseInbound\CompareOldNonStock;
 use App\Models\PcsErrStock0917;
@@ -266,7 +267,7 @@ class InboundFix0917ImportCtrl extends Controller
     {
 //        dd('del_purchase_diff_item');
         $errors = [];
-        $result = DB::transaction(function () use ($request, $purchase_id, $errors) {
+        $result = IttmsDBB::transaction(function () use ($request, $purchase_id, $errors) {
             $pcs_item_ids = self::getErr0918DiffPcsItemWithPcsID($purchase_id);
             if (isset($pcs_item_ids) && 0 < count($pcs_item_ids)) {
                 foreach ($pcs_item_ids as $key => $val) {
@@ -339,7 +340,7 @@ class InboundFix0917ImportCtrl extends Controller
     {
 //        dd('recovery_purchase_1011');
         $errors = [];
-        $result = DB::transaction(function () use ($request) {
+        $result = IttmsDBB::transaction(function () use ($request) {
 //            $purchase = DB::table(app(Purchase::class)->getTable(). ' as pcs')
 //                ->whereNotNull('pcs.deleted_at')
 //                ->whereBetween('pcs.deleted_at', ['2022/10/11 18:09:00', '2022/10/11 18:11:00'])

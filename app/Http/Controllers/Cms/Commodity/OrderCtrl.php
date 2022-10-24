@@ -13,6 +13,7 @@ use App\Enums\Payable\ChequeStatus as PayableChequeStatus;
 use App\Enums\Received\ChequeStatus;
 use App\Enums\Received\ReceivedMethod;
 use App\Enums\Supplier\Payment;
+use App\Helpers\IttmsDBB;
 use App\Http\Controllers\Controller;
 use App\Models\AccountPayable;
 use App\Models\Addr;
@@ -676,7 +677,7 @@ class OrderCtrl extends Controller
             $depot = Depot::where('id', '=', $depot_id)->get()->first();
             $style_arr = PurchaseInbound::getCreateData(Event::ord_pickup()->value, $id, $inboundItemReq['event_item_id'], $inboundItemReq['product_style_id']);
 
-            $result = DB::transaction(function () use ($inboundItemReq, $id, $depot_id, $depot, $request, $style_arr
+            $result = IttmsDBB::transaction(function () use ($inboundItemReq, $id, $depot_id, $depot, $request, $style_arr
             ) {
                 $suborder = SubOrders::where('id', '=', $id)->first();
                 $order = Order::where('id', '=', $suborder->order_id)->first();

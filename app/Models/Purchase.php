@@ -6,6 +6,7 @@ use App\Enums\Consignment\AuditStatus;
 use App\Enums\Delivery\Event;
 use App\Enums\Purchase\LogEventFeature;
 use App\Enums\StockEvent;
+use App\Helpers\IttmsDBB;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -27,7 +28,7 @@ class Purchase extends Model
         , $logistics_price = 0, $logistics_memo = null, $invoice_num = null, $invoice_date = null
     )
     {
-        return DB::transaction(function () use (
+        return IttmsDBB::transaction(function () use (
             $sn,
             $supplier_id,
             $supplier_name,
@@ -119,7 +120,7 @@ class Purchase extends Model
             $purchase = Purchase::verifyPcsApprovedCanEditData($purchase, $tax, $purchaseReq, $purchasePayReq);
         }
 
-        return DB::transaction(function () use ($purchase, $id, $purchaseReq, $operator_user_id, $operator_user_name, $tax, $purchasePayReq, $orign_audit_status
+        return IttmsDBB::transaction(function () use ($purchase, $id, $purchaseReq, $operator_user_id, $operator_user_name, $tax, $purchasePayReq, $orign_audit_status
         ) {
 //            dd($purchase->isDirty(), $purchase);
             if ($purchase->isDirty()) {

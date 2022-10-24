@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\Delivery\Event;
+use App\Helpers\IttmsDBB;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -75,7 +76,7 @@ class Logistic extends Model
 
     public static function deleteById($id)
     {
-        return DB::transaction(function () use ($id
+        return IttmsDBB::transaction(function () use ($id
         ) {
             $logistic = Logistic::where('id', $id)->withTrashed();
             $logistic_get = $logistic->first();

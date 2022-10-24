@@ -11,6 +11,7 @@ use App\Enums\Purchase\LogEventFeature;
 use App\Enums\Payable\ChequeStatus;
 use App\Enums\StockEvent;
 use App\Enums\Supplier\Payment;
+use App\Helpers\IttmsDBB;
 use App\Http\Controllers\Controller;
 use App\Models\AllGrade;
 use App\Models\AccountPayable;
@@ -311,7 +312,7 @@ class DeliveryCtrl extends Controller
 
         $errors = [];
         $delivery = Delivery::where('id', $delivery_id)->first();
-        $msg = DB::transaction(function () use ($request, $delivery, $delivery_id) {
+        $msg = IttmsDBB::transaction(function () use ($request, $delivery, $delivery_id) {
             $method = $request->input('method', null);
             $dlv_memo = $request->input('dlv_memo', null);
             $back_sn = str_replace("DL","BK",$delivery->sn); //將出貨單號改為銷貨退回單號
@@ -678,7 +679,7 @@ class DeliveryCtrl extends Controller
         $bdcisc = ReceiveDepot::checkBackDlvComboItemSameCount($delivery_id, $items_to_back);
 //        dd($request->all(), $bdcisc);
         if ($bdcisc['success'] == '1') {
-            $msg = DB::transaction(function () use ($delivery, $bdcisc, $request) {
+            $msg = IttmsDBB::transaction(function () use ($delivery, $bdcisc, $request) {
                 Delivery::where('id', '=', $delivery->id)->update([
                     'back_inbound_user_id' => $request->user()->id
                     , 'back_inbound_user_name' => $request->user()->name
@@ -873,7 +874,7 @@ class DeliveryCtrl extends Controller
             ->whereNull('rcv_depot.deleted_at')
             ->get();
         if (isset($rcv_depot) && 0 < count($rcv_depot)) {
-            $msg = DB::transaction(function () use ($delivery, $rcv_depot, $request) {
+            $msg = IttmsDBB::transaction(function () use ($delivery, $rcv_depot, $request) {
                 Delivery::where('id', '=', $delivery->id)->update([
                     'back_inbound_user_id' => null
                     , 'back_inbound_user_name' => null

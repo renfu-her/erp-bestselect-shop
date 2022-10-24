@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\Globals\FrontendApiUrl;
+use App\Helpers\IttmsDBB;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
@@ -17,7 +18,7 @@ class Template extends Model
     public static function storeNew(Request $request)
     {
         $request = self::validInputValue($request);
-        return DB::transaction(function () use ($request
+        $result = IttmsDBB::transaction(function () use ($request
         ) {
             $id = Template::create([
                 'title' => $request->input('title')
@@ -25,8 +26,9 @@ class Template extends Model
                 , 'style_type' => $request->input('style_type')
                 , 'is_public' => $request->input('is_public') ?? 1,
             ])->id;
-            return $id;
+            return ['success' => 1, 'id' => $id];
         });
+        return $result['id'] ?? null;
     }
 
     public static function validInputValue(Request $request)
@@ -44,7 +46,7 @@ class Template extends Model
         $request = self::validInputValue($request);
         $data = Template::where('id', '=', $id);
         $dataGet = $data->get()->first();
-        return DB::transaction(function () use ($request, $id, $dataGet
+        $result = IttmsDBB::transaction(function () use ($request, $id, $dataGet
         ) {
             if (null != $dataGet) {
                 $updateData = [
@@ -58,8 +60,9 @@ class Template extends Model
                     ->update($updateData);
             }
 
-            return $id;
+            return ['success' => 1, 'id' => $id];
         });
+        return $result['id'] ?? null;
     }
 
     public static function destroyById(int $id)

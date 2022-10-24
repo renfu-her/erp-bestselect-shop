@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Helpers\IttmsDBB;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -42,7 +43,7 @@ class PayingOrder extends Model
         $payee_phone = null,
         $payee_address = null
     ) {
-        return DB::transaction(function () use (
+        return IttmsDBB::transaction(function () use (
             $source_type,
             $source_id,
             $source_sub_id,
