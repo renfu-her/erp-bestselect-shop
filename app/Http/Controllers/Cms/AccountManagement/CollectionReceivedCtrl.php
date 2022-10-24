@@ -265,18 +265,6 @@ class CollectionReceivedCtrl extends Controller
         // $supplier = Supplier::whereNull('deleted_at')->pluck('name')->toArray();
         // $drawee_merged = array_unique(array_merge($user, $customer, $depot, $supplier));
 
-        if(count($request->query()) > 0){
-            session([
-                'collection_received_url' => $request->fullUrl()
-            ]);
-
-        } else {
-            session([
-                'collection_received_url' => null
-            ]);
-            session()->forget(['collection_received_url']);
-        }
-
         return view('cms.account_management.collection_received.list', [
             'data_per_page' => $page,
             'dataList' => $dataList,

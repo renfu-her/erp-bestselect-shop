@@ -170,7 +170,7 @@
 
     <div class="col-auto">
         @can('cms.request.index')
-        <a href="{{ session('request_url') ?? route('cms.request.index') }}" class="btn btn-outline-primary px-4" role="button">
+        <a href="javascript:void(0);" class="btn btn-outline-primary px-4 keep_request_url" role="button">
             返回 請款單作業
         </a>
         @endcan
@@ -193,6 +193,9 @@
             $('#confirm-delete').on('show.bs.modal', function(e) {
                 $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
             });
+
+            const keep_request_url = localStorage.getItem('request_url') ?? "{{ route('cms.request.index') }}";
+            $('.keep_request_url').attr('href', keep_request_url);
         </script>
     @endpush
 @endonce

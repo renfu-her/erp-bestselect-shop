@@ -257,6 +257,8 @@
                     $('#search').submit();
                 });
 
+                localStorage.setItem('collection_payment_claim_url', location.pathname + location.search);
+
 
                 $('#checkAll').change(function(){
                     $all = $(this)[0];

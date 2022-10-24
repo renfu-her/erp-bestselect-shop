@@ -171,7 +171,7 @@
             role="button">返回查詢列表</a>
         --}}
         @can('cms.collection_received.index')
-        <a href="{{ session('collection_received_url') ?? route('cms.collection_received.index') }}" class="btn btn-outline-primary px-4" role="button">
+        <a href="javascript:void(0);" class="btn btn-outline-primary px-4 keep_ro_url" role="button">
             返回 收款作業
         </a>
         @endcan
@@ -194,6 +194,9 @@
             $('#confirm-delete').on('show.bs.modal', function(e) {
                 $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
             });
+
+            const keep_ro_url = localStorage.getItem('collection_received_url') ?? "{{ route('cms.collection_received.index') }}";
+            $('.keep_ro_url').attr('href', keep_ro_url);
         </script>
     @endpush
 @endonce
