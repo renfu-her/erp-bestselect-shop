@@ -24,6 +24,7 @@
                         <option value="3">item 3</option>
                     </select>
                 </div> --}}
+                @if(!$canOnlyViewSelfOrder)
                 <div class="col-12 col-sm-6 col-xxl-3 mb-3">
                     <label class="form-label">分潤人姓名</label>
                     <select name="profit_user" class="form-select -select2 -single">
@@ -34,6 +35,7 @@
                         @endforeach
                     </select>
                 </div>
+                @endif
                 <div class="col-12 col-xxl-6 mb-3">
                     <label class="form-label">訂購日期起訖</label>
                     <div class="input-group has-validation">

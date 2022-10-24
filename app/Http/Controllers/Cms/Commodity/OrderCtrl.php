@@ -62,6 +62,7 @@ use App\Models\User;
 use App\Models\UserSalechannel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -123,8 +124,35 @@ class OrderCtrl extends Controller
             $cond['received_method'],
             $dlv_date
         );
-        $dataList = $result['dataList']
-            ->groupBy('sub_order_id')
+
+        $dataList = $result['dataList']->groupBy('sub_order_id');
+
+        //訂單管理，只能看到自己和分潤人是自己的訂單
+        $canOnlyViewSelfOrder = Order::canOnlyViewSelfOrder();
+        if ($canOnlyViewSelfOrder) {
+            if (DB::table('usr_users')
+                ->where('usr_users.id', Auth::user()->id)
+                ->whereNotNull('usr_users.customer_id')
+                ->join('usr_customers', 'usr_customers.id', '=', 'usr_users.customer_id')
+                ->exists()
+            ) {
+                $selfData = DB::table('usr_users')
+                    ->where('usr_users.id', Auth::user()->id)
+                    ->whereNotNull('usr_users.customer_id')
+                    ->join('usr_customers', 'usr_customers.id', '=', 'usr_users.customer_id')
+                    ->select([
+                        'usr_customers.id',
+                        'usr_customers.email',
+                    ])
+                    ->get()
+                    ->first();
+                //只能看到自己和分潤人是自己的訂單
+                $dataList->where('ord_profit.customer_id', $selfData->id)
+                    ->orWhere('order.email', $selfData->email);
+            }
+        }
+
+        $dataList = $dataList
             ->paginate($page)
             ->appends($query);
 
@@ -158,7 +186,9 @@ class OrderCtrl extends Controller
             'receivedMethods' => ReceivedMethod::asSelectArray(),
             'saleChannels' => SaleChannel::select('id', 'title')->get()->toArray(),
             'data_per_page' => $page,
-            'profitUsers' => $profitUsers]);
+            'canOnlyViewSelfOrder' => $canOnlyViewSelfOrder,
+            'profitUsers' => $profitUsers
+        ]);
     }
 
     /**
