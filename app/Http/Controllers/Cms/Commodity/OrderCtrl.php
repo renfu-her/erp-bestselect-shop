@@ -151,6 +151,8 @@ class OrderCtrl extends Controller
                     ->orWhere('order.email', $selfData->email);
             }
         }
+        $sumPrice = $dataList;
+        $sumOfPrice = $sumPrice->get()->unique('sub_order_id')->sum('total_price');
 
         $dataList = $dataList
             ->paginate($page)
@@ -179,7 +181,7 @@ class OrderCtrl extends Controller
         return view('cms.commodity.order.list', [
             'dataList' => $dataList,
 //            'uniqueDataList' => $uniqueDataList,
-            'somOfPrice' => $result['somOfPrice'],
+            'somOfPrice' => $sumOfPrice,
             'cond' => $cond,
             'orderStatus' => $orderStatus,
             'shipmentStatus' => LogisticStatus::asArray(),

@@ -186,13 +186,10 @@ class Order extends Model
 
         }
 
-        $sumPrice = $order;
-        $sumOfPrice = $sumPrice->get()->unique('sub_order_id')->sum('total_price');
         $order->orderByDesc('order.id');
 
         return [
             'dataList' => $order,
-            'somOfPrice' => $sumOfPrice,
         ];
 //           dd($order->get()->toArray());
     }
