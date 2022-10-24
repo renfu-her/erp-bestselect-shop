@@ -17,7 +17,7 @@ class reportDevelopmentSeeder extends Seeder
     public function run()
     {
 
-        RptDepartmentPerformanceReport::report();
+        RptDepartmentPerformanceReport::report('2022-09-01','month');
         //   RptProductManagerSaleDaily::report();
         //
 

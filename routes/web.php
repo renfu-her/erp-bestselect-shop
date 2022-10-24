@@ -98,9 +98,7 @@ Route::group(['prefix' => 'cms', 'as' => 'cms.', 'middleware' => 'auth:user'], f
 
     require base_path('routes/cms/UserPerformanceReport.php');
     require base_path('routes/cms/ProductManagerReport.php');
-
-    
-
+    require base_path('routes/cms/DepartmentPerformanceReport.php');
 
 });
 
