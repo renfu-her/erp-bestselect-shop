@@ -40,8 +40,8 @@ class OrderInvoiceManagerCtrl extends Controller
         $cond['data_per_page'] = getPageCount(Arr::get($query, 'data_per_page', 100)) > 0 ? getPageCount(Arr::get($query, 'data_per_page', 100)) : 100;;
 
         if (isset($cond['invoice_month'])) {
-            $cond['invoice_sdate'] = date("Y-m-1", strtotime($cond['invoice_month']));
-            $cond['invoice_edate'] = date("Y-m-t", strtotime($cond['invoice_month']));
+            $cond['invoice_sdate'] = date("Y-m-1 00:00:00", strtotime($cond['invoice_month']));
+            $cond['invoice_edate'] = date("Y-m-t 23:59:59", strtotime($cond['invoice_month']));
         }
         $data_list = OrderInvoice::getData($cond)->paginate($cond['data_per_page'])->appends($query);
 
@@ -57,8 +57,8 @@ class OrderInvoiceManagerCtrl extends Controller
         $cond = [];
         $cond['invoice_month'] = $request->input('invoice_month', null);
         if (isset($cond['invoice_month'])) {
-            $cond['invoice_sdate'] = date("Y-m-1", strtotime($cond['invoice_month']));
-            $cond['invoice_edate'] = date("Y-m-t", strtotime($cond['invoice_month']));
+            $cond['invoice_sdate'] = date("Y-m-1 00:00:00", strtotime($cond['invoice_month']));
+            $cond['invoice_edate'] = date("Y-m-t 23:59:59", strtotime($cond['invoice_month']));
         }
         return (new OrderInvoiceExport($cond))->download("report-" . date('YmdHis') . ".xlsx");
     }
