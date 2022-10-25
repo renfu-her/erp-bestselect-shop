@@ -186,7 +186,7 @@ class CollectionPaymentCtrl extends Controller
                         $name = $product_name . ' --- ' . $p_value->title . '（' . $avg_price . ' * ' . $p_value->num . '）';
                         $product_title = $p_value->title;
 
-                        if(in_array($value->po_source_type, ['acc_stitute_orders', 'dlv_delivery', 'pcs_paying_orders'])) {
+                        if(in_array($value->po_source_type, ['acc_stitute_orders', 'dlv_delivery', 'pcs_paying_orders', 'ord_received_orders'])) {
                             if($value->po_type == 1){
                                 $product_account = AllGrade::find($p_value->all_grades_id) ? AllGrade::find($p_value->all_grades_id)->eachGrade : null;
                                 $account_code = $product_account ? $product_account->code : '1000';
@@ -308,18 +308,6 @@ class CollectionPaymentCtrl extends Controller
             '0'=>'未付款',
             '1'=>'已付款',
         ];
-
-        if(count($request->query()) > 0){
-            session([
-                'collection_payment_url' => $request->fullUrl()
-            ]);
-
-        } else {
-            session([
-                'collection_payment_url' => null
-            ]);
-            session()->forget(['collection_payment_url']);
-        }
 
         return view('cms.account_management.collection_payment.list', [
             'data_per_page' => $page,
@@ -449,6 +437,15 @@ class CollectionPaymentCtrl extends Controller
                             OrderItem::update_order_item($value);
                         }
                     }
+
+                } else if($paying_order->source_type == 'ord_received_orders'){
+                    if (request('item') && is_array(request('item'))) {
+                        $refund_item = request('item');
+                        foreach ($refund_item as $key => $value) {
+                            $value['refund_item_id'] = $key;
+                            ReceivedRefund::update_refund_item($value);
+                        }
+                    }
                 }
 
                 DB::commit();
@@ -573,6 +570,22 @@ class CollectionPaymentCtrl extends Controller
                             'po_note' => $value->po_note,
                         ];
                     }
+                }
+
+            } else if($paying_order->source_type == 'ord_received_orders'){
+
+                $refund_items = ReceivedRefund::refund_list(null, null, null, $id)->get();
+
+                foreach($refund_items as $value){
+                    $item_data[] = (object)[
+                        'item_id' => $value->refund_id,
+                        'title' => $value->refund_title . ' ' . $value->refund_summary,
+                        'price' => $value->refund_price,
+                        'qty' => $value->refund_qty,
+                        'total_price' => $value->refund_total_price,
+                        'note' => $value->refund_note,
+                        'po_note' => $value->refund_po_note,
+                    ];
                 }
             }
 
@@ -919,7 +932,7 @@ class CollectionPaymentCtrl extends Controller
                         $name = $product_name . ' --- ' . $p_value->title . '（' . $avg_price . ' * ' . $p_value->num . '）';
                         $product_title = $p_value->title;
 
-                        if(in_array($value->po_source_type, ['acc_stitute_orders', 'dlv_delivery', 'pcs_paying_orders'])) {
+                        if(in_array($value->po_source_type, ['acc_stitute_orders', 'dlv_delivery', 'pcs_paying_orders', 'ord_received_orders'])) {
                             if($value->po_type == 1){
                                 $product_account = AllGrade::find($p_value->all_grades_id) ? AllGrade::find($p_value->all_grades_id)->eachGrade : null;
                                 $account_code = $product_account ? $product_account->code : '1000';
@@ -1042,18 +1055,6 @@ class CollectionPaymentCtrl extends Controller
             '0'=>'未付款',
             '1'=>'已付款',
         ];
-
-        if(count($request->query()) > 0){
-            session([
-                'collection_payment_claim_url' => $request->fullUrl()
-            ]);
-
-        } else {
-            session([
-                'collection_payment_claim_url' => null
-            ]);
-            session()->forget(['collection_payment_claim_url']);
-        }
 
         return view('cms.account_management.collection_payment.pre_merge_list', [
             'form_action' => route('cms.collection_payment.claim'),
@@ -1315,9 +1316,9 @@ class CollectionPaymentCtrl extends Controller
                         'price' => abs($r_value->tw_price),
                         'qty' => 1,
                         'total_price' => abs($r_value->tw_price) * 1,
-                        'taxation' => 1,
-                        'summary' => null,
-                        'note' => null,
+                        'taxation' => $r_value->taxation,
+                        'summary' => $r_value->summary,
+                        'note' => $r_value->note,
                         'source_ro_id' => $received_order->id,
                         'source_ro_sn' => $received_order->sn,
                         'append_po_id' => $paying_order->id,

@@ -27,6 +27,9 @@
 
             <a href="{{ url()->full() . '?action=print' }}" target="_blank" 
                 class="btn btn-sm btn-warning" rel="noopener noreferrer">中一刀列印畫面</a>
+
+            <a href="{{ route('cms.collection_payment.edit_note', ['id' => $paying_order->id]) }}"
+                class="btn btn-dark btn-sm" role="button">編輯付款項目備註</a>
         </div>
     </nav>
 
@@ -101,11 +104,11 @@
                     <tbody>
                         @foreach($target_items as $t_value)
                             <tr>
-                                <td>{{ $t_value->refund_grade_code }} {{ $t_value->refund_grade_name }} - {{ $t_value->refund_title }}</td>
+                                <td>{{ $t_value->refund_grade_code }} {{ $t_value->refund_grade_name }} - {{ $t_value->refund_title . ' ' . $t_value->refund_summary}}</td>
                                 <td class="text-end">{{ number_format($t_value->refund_qty) }}</td>
                                 <td class="text-end">${{ number_format($t_value->refund_price, 2) }}</td>
                                 <td class="text-end">${{ number_format($t_value->refund_total_price) }}</td>
-                                <td>@php echo $t_value->refund_note ?? '' @endphp</td>
+                                <td>{!! nl2br($t_value->refund_note) !!} {!! nl2br($t_value->refund_po_note) !!}</td>
                             </tr>
                         @endforeach
                     </tbody>
@@ -162,14 +165,14 @@
             </dl>
         </div>
     </div>
-    
+
     <div class="col-auto">
         @can('cms.collection_payment.index')
-        <a href="{{ session('collection_payment_url') ?? route('cms.collection_payment.index') }}" class="btn btn-outline-primary px-4" role="button">
+        <a href="javascript:void(0);" class="btn btn-outline-primary px-4 keep_po_url" role="button">
             返回 付款作業
         </a>
 
-        <a href="{{ session('collection_payment_claim_url') ?? route('cms.collection_payment.claim') }}" class="btn btn-outline-primary px-4" role="button">
+        <a href="javascript:void(0);" class="btn btn-outline-primary px-4 keep_poc_url" role="button">
             返回 合併付款作業
         </a>
         @endcan
@@ -192,6 +195,11 @@
             $('#confirm-delete').on('show.bs.modal', function(e) {
                 $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
             });
+
+            const keep_po_url = localStorage.getItem('collection_payment_url') ?? "{{ route('cms.collection_payment.index') }}";
+            const keep_poc_url = localStorage.getItem('collection_payment_claim_url') ?? "{{ route('cms.collection_payment.claim') }}";
+            $('.keep_po_url').attr('href', keep_po_url);
+            $('.keep_poc_url').attr('href', keep_poc_url);
         </script>
     @endpush
 @endonce

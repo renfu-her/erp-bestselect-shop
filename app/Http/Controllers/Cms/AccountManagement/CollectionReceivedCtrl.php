@@ -146,7 +146,8 @@ class CollectionReceivedCtrl extends Controller
                         $name = $product_name . ' --- ' . $o_value->product_title . '（' . $o_value->price . ' * ' . $o_value->qty . '）';
                         $product_title = $o_value->product_title;
 
-                        if(in_array($value->ro_source_type, ['ord_received_orders', 'acc_request_orders'])) {
+                        // if(in_array($value->ro_source_type, ['ord_received_orders', 'acc_request_orders'])) {
+                        if(in_array($value->ro_source_type, ['acc_request_orders'])) {
                             $product_account = AllGrade::find($o_value->all_grades_id) ? AllGrade::find($o_value->all_grades_id)->eachGrade : null;
                             $account_code = $product_account ? $product_account->code : '4000';
                             $account_name = $product_account ? $product_account->name : '無設定會計科目';
@@ -263,18 +264,6 @@ class CollectionReceivedCtrl extends Controller
         // $depot = Depot::whereNull('deleted_at')->pluck('name')->toArray();
         // $supplier = Supplier::whereNull('deleted_at')->pluck('name')->toArray();
         // $drawee_merged = array_unique(array_merge($user, $customer, $depot, $supplier));
-
-        if(count($request->query()) > 0){
-            session([
-                'collection_received_url' => $request->fullUrl()
-            ]);
-
-        } else {
-            session([
-                'collection_received_url' => null
-            ]);
-            session()->forget(['collection_received_url']);
-        }
 
         return view('cms.account_management.collection_received.list', [
             'data_per_page' => $page,

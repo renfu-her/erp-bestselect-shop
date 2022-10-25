@@ -249,6 +249,8 @@
                 $('input[name=data_per_page]').val($(this).val());
                 $('#search').submit();
             });
+
+            localStorage.setItem('collection_received_url', location.pathname + location.search);
         </script>
     @endpush
 @endonce

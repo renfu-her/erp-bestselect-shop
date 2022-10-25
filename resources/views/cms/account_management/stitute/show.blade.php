@@ -128,7 +128,7 @@
 
     <div class="col-auto">
         @can('cms.stitute.index')
-        <a href="{{ session('stitute_url') ?? route('cms.stitute.index') }}" class="btn btn-outline-primary px-4" role="button">
+        <a href="javascript:void(0);" class="btn btn-outline-primary px-4 keep_stitute_url" role="button">
             返回 代墊單作業
         </a>
         @endcan
@@ -151,6 +151,9 @@
             $('#confirm-delete').on('show.bs.modal', function(e) {
                 $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
             });
+
+            const keep_stitute_url = localStorage.getItem('stitute_url') ?? "{{ route('cms.stitute.index') }}";
+            $('.keep_stitute_url').attr('href', keep_stitute_url);
         </script>
     @endpush
 @endonce
