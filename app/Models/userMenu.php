@@ -80,6 +80,11 @@ return
                 "controller_name" => "ProductManagerReportCtrl",
                 "route_name" => "cms.product-manager-report.index",
             ],
+            [
+                "title" => "營業額目標",
+                "controller_name" => "VolumeOfBusinessPerformanceReportCtrl",
+                "route_name" => "cms.vob-performance-report.index",
+            ],
         ],
     ],
     [
