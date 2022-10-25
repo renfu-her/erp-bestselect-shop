@@ -149,6 +149,9 @@ class OrderCtrl extends Controller
                 //只能看到自己和分潤人是自己的訂單
                 $dataList->where('ord_profit.customer_id', $selfData->id)
                     ->orWhere('order.email', $selfData->email);
+            } else {
+                //會員沒綁定,回傳空值
+                $dataList->where('ord_profit.customer_id', 0);
             }
         }
         $sumPrice = $dataList;
