@@ -11,7 +11,7 @@ Route::group(['prefix' => 'order', 'as' => 'order.'], function () {
     Route::get('edit-item/{id}/', [OrderCtrl::class, 'editItem'])->name('edit-item')->middleware('permission:cms.order.edit-item');
     Route::post('edit-item/{id}/', [OrderCtrl::class, 'updateItem']);
     // 訂單明細
-    Route::get('detail/{id}/{subOrderId?}', [OrderCtrl::class, 'detail'])->name('detail')->middleware('permission:cms.order.detail');
+    Route::get('detail/{id}/{subOrderId?}', [OrderCtrl::class, 'detail'])->name('detail')->middleware('whole.order');
     Route::post('detail/{id}', [OrderCtrl::class, 'update']);
     Route::get('delete/{id}', [OrderCtrl::class, 'destroy'])->name('delete')->middleware('permission:cms.order.delete');
 
