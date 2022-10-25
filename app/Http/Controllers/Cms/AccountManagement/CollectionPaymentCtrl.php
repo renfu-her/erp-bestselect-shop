@@ -186,7 +186,7 @@ class CollectionPaymentCtrl extends Controller
                         $name = $product_name . ' --- ' . $p_value->title . '（' . $avg_price . ' * ' . $p_value->num . '）';
                         $product_title = $p_value->title;
 
-                        if(in_array($value->po_source_type, ['acc_stitute_orders', 'dlv_delivery', 'pcs_paying_orders'])) {
+                        if(in_array($value->po_source_type, ['acc_stitute_orders', 'dlv_delivery', 'pcs_paying_orders', 'ord_received_orders'])) {
                             if($value->po_type == 1){
                                 $product_account = AllGrade::find($p_value->all_grades_id) ? AllGrade::find($p_value->all_grades_id)->eachGrade : null;
                                 $account_code = $product_account ? $product_account->code : '1000';
@@ -907,7 +907,7 @@ class CollectionPaymentCtrl extends Controller
                         $name = $product_name . ' --- ' . $p_value->title . '（' . $avg_price . ' * ' . $p_value->num . '）';
                         $product_title = $p_value->title;
 
-                        if(in_array($value->po_source_type, ['acc_stitute_orders', 'dlv_delivery', 'pcs_paying_orders'])) {
+                        if(in_array($value->po_source_type, ['acc_stitute_orders', 'dlv_delivery', 'pcs_paying_orders', 'ord_received_orders'])) {
                             if($value->po_type == 1){
                                 $product_account = AllGrade::find($p_value->all_grades_id) ? AllGrade::find($p_value->all_grades_id)->eachGrade : null;
                                 $account_code = $product_account ? $product_account->code : '1000';
