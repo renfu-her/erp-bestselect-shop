@@ -6,8 +6,8 @@ use App\Enums\Discount\DisCategory;
 use App\Enums\Discount\DisMethod;
 use App\Enums\Discount\DisStatus;
 use App\Http\Controllers\Controller;
-use App\Models\Discount;
 use App\Models\Collection;
+use App\Models\Discount;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
@@ -147,7 +147,6 @@ class DiscountCtrl extends Controller
             return $n->collection_id;
         }, Discount::getDicountCollections($id)->get()->toArray());
 
-
         return view('cms.marketing.discount.edit', [
             'method' => 'edit',
             'breadcrumb_data' => '全館優惠',
@@ -178,9 +177,6 @@ class DiscountCtrl extends Controller
 
         $d = request()->all();
         $is_global = 1;
-
-      
-
 
         $start_date = $d['start_date'] ? $d['start_date'] : date('Y-m-d 00:00:00');
         $end_date = $d['end_date'] ? $d['end_date'] : date('Y-m-d 23:59:59', strtotime(date('Y-m-d') . " +3 years"));

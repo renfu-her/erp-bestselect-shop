@@ -39,11 +39,16 @@
                         @enderror
                     </div>
                 </div>
+                @php
+                $start_date = isset($data) ?date('Y-m-d\Th:i', strtotime($data->start_date)) : null;
+                $end_date = isset($data) ?date('Y-m-d\Th:i', strtotime($data->end_date)) : null;
+            @endphp
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">活動開始時間<span class="small text-secondary">（未填則表示現在）</span></label>
                     <div class="input-group has-validation">
+                      
                         <input type="datetime-local" name="start_date"
-                          value="{{ old('start_date',date('Y-m-d\Th:i', strtotime($data->start_date)) ?? '') }}" editable
+                            value="{{ old('start_date', $start_date ?? '') }}" editable
                             class="form-control @error('start_date') is-invalid @enderror" aria-label="活動開始時間" />
                         <button class="btn btn-outline-secondary icon" type="button" data-clear data-bs-toggle="tooltip"
                             title="清空時間"><i class="bi bi-calendar-x"></i>
@@ -58,7 +63,8 @@
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">活動結束時間<span class="small text-secondary">（未填則表示不會結束）</span></label>
                     <div class="input-group has-validation">
-                        <input type="datetime-local" name="end_date" value="{{ old('end_date',date('Y-m-d\Th:i', strtotime($data->end_date)) ?? '') }}"
+                        <input type="datetime-local" name="end_date"
+                            value="{{ old('end_date', $end_date ?? '') }}"
                             class="form-control @error('end_date') is-invalid @enderror" aria-label="活動結束時間" editable />
                         <button class="btn btn-outline-secondary icon" type="button" data-clear data-bs-toggle="tooltip"
                             title="清空時間"><i class="bi bi-calendar-x"></i>
@@ -70,7 +76,7 @@
                         </div>
                     </div>
                 </div>
-              
+
                 <fieldset class="col-12 mb-1">
                     <legend class="col-form-label p-0 mb-2">優惠方式 <span class="text-danger">*</span></legend>
                     <div class="px-1 pt-1">
@@ -95,7 +101,7 @@
                             <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
                             <input type="number" name="discount_value" placeholder="請輸入折扣金額" {{ $editBlock }}
                                 class="form-control @error('discount_value') is-invalid @enderror" min="0"
-                                value="{{ old('method_code', $data->method_code ?? '') === 'cash'? old('discount_value', $data->discount_value ?? ''): '' }}">
+                                value="{{ old('method_code', $data->method_code ?? '') === 'cash' ? old('discount_value', $data->discount_value ?? '') : '' }}">
                             <div class="invalid-feedback">
                                 @if (old('method_code', $data->method_code ?? '') === 'cash')
                                     @error('discount_value')
@@ -114,7 +120,8 @@
                                         {{ $editBlock }} @if (old('is_grand_total', $data->is_grand_total ?? '') == '1') checked @endif norequired>
                                     累計折扣
                                     <i class="bi bi-info-circle" data-bs-toggle="tooltip"
-                                        title="累積消費金額將可累積折扣，例：消費金額 100 元折 10 元，消費 200 元折 20 元，以此類推" data-bs-placement="right"></i>
+                                        title="累積消費金額將可累積折扣，例：消費金額 100 元折 10 元，消費 200 元折 20 元，以此類推"
+                                        data-bs-placement="right"></i>
                                 </label>
                             </div>
                         </div>
@@ -130,8 +137,9 @@
                         </label>
                         <div class="input-group has-validation">
                             <input type="number" name="discount_value" {{ $editBlock }}
-                                class="form-control @error('discount_value') is-invalid @enderror" min="1" max="100"
-                                value="{{ old('method_code', $data->method_code ?? '') === 'percent'? old('discount_value', $data->discount_value ?? ''): '' }}"
+                                class="form-control @error('discount_value') is-invalid @enderror" min="1"
+                                max="100"
+                                value="{{ old('method_code', $data->method_code ?? '') === 'percent' ? old('discount_value', $data->discount_value ?? '') : '' }}"
                                 placeholder="請輸入百分比 1 ~ 100">
                             <span class="input-group-text"><i class="bi bi-percent"></i></span>
                             <div class="invalid-feedback">
@@ -214,7 +222,8 @@
                 $(`div[data-method="${method}"]`).find('input, select').prop(AbleControl);
                 $(`div[data-method="${method}"]`).find('[norequired]').prop('required', false);
                 if (editBlock) {
-                    $(`div[data-method="${method}"]`).find('input:not([editable]), select:not([editable])').prop(DisabledControl);
+                    $(`div[data-method="${method}"]`).find('input:not([editable]), select:not([editable])').prop(
+                        DisabledControl);
                 }
             }
         </script>

@@ -98,11 +98,11 @@
                 <tbody style="text-align: left;">
                 @foreach($target_items as $t_value)
                     <tr>
-                        <td>{{ $t_value->refund_grade_code }} {{ $t_value->refund_grade_name }} - {{ $t_value->refund_title }}</td>
+                        <td>{{ $t_value->refund_grade_code }} {{ $t_value->refund_grade_name }} - {{ $t_value->refund_title . ' ' . $t_value->refund_summary}}</td>
                         <td style="text-align: right;">{{ number_format($t_value->refund_qty) }}</td>
                         <td style="text-align: right;">${{ number_format($t_value->refund_price, 2) }}</td>
                         <td style="text-align: right;">${{ number_format($t_value->refund_total_price) }}</td>
-                        <td>@php echo $t_value->refund_note ?? '' @endphp</td>
+                        <td>{!! nl2br($t_value->refund_note) !!} {!! nl2br($t_value->refund_po_note) !!}</td>
                     </tr>
                 @endforeach
                 </tbody>

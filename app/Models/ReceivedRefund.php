@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 class ReceivedRefund extends Model
@@ -43,6 +44,8 @@ class ReceivedRefund extends Model
                 'refund.taxation AS refund_taxation',
                 'refund.summary AS refund_summary',
                 'refund.note AS refund_note',
+                'refund.ro_note AS refund_ro_note',
+                'refund.po_note AS refund_po_note',
 
                 'ro.id AS ro_id',
                 'ro.source_type AS ro_source_type',
@@ -120,5 +123,22 @@ class ReceivedRefund extends Model
             }
 
         return $query->orderBy('refund.created_at', 'DESC');
+    }
+
+
+    public static function update_refund_item($parm)
+    {
+        $update = [];
+        if(Arr::exists($parm, 'note')){
+            $update['note'] = $parm['note'];
+        }
+        if(Arr::exists($parm, 'ro_note')){
+            $update['ro_note'] = $parm['ro_note'];
+        }
+        if(Arr::exists($parm, 'po_note')){
+            $update['po_note'] = $parm['po_note'];
+        }
+
+        self::where('id', $parm['refund_item_id'])->update($update);
     }
 }
