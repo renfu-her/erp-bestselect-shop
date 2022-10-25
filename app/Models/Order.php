@@ -1368,12 +1368,21 @@ class Order extends Model
             ->get()
             ->first()
             ->id;
-        $onlySelfPermissionId = DB::table('per_permissions')
+
+        if (DB::table('per_permissions')
             ->where('name', 'cms.order.only_self')
-            ->select('id')
-            ->get()
-            ->first()
-            ->id;
+            ->exists()
+        ) {
+            $onlySelfPermissionId = DB::table('per_permissions')
+                ->where('name', 'cms.order.only_self')
+                ->select('id')
+                ->get()
+                ->first()
+                ->id;
+        } else {
+            return true;
+        }
+
         $roleNames = User::find($user->id)->getRoleNames()->toArray();
 
         if (in_array('Super Admin', $roleNames)) {
