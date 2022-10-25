@@ -82,8 +82,8 @@ return
             ],
             [
                 "title" => "營業額目標",
-                "controller_name" => "DepartmentPerformanceReportCtrl",
-                "route_name" => "cms.department-performance-report.index",
+                "controller_name" => "VolumeOfBusinessPerformanceReportCtrl",
+                "route_name" => "cms.vob-performance-report.index",
             ],
         ],
     ],

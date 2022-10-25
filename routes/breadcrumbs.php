@@ -468,6 +468,13 @@ Breadcrumbs::for('cms.product-manager-report.product', function (BreadcrumbTrail
     $trail->push('商品報表');
 });
 
+// 營業額目標
+Breadcrumbs::for('cms.vob-performance-report.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('營業額目標');
+});
+
+
 // *** 共用頁 *** //
 Breadcrumbs::for('cms.logistic.changeLogisticStatus', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.' . $value['parent'] . '.index');
