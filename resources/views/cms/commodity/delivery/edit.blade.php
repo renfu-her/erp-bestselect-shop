@@ -111,7 +111,9 @@
             <div class="col-auto">
                 <button type="button" class="btn btn-primary px-4 -submit" @if (isset($delivery->audit_date)) disabled @endif
                     data-bs-toggle="modal" data-bs-target="#confirm-ok">送出</button>
-                @if (isset($delivery->audit_date) && \App\Enums\Delivery\Event::consignment()->value == $delivery->event)
+                @if (isset($delivery->audit_date) &&
+                    (\App\Enums\Delivery\Event::consignment()->value == $delivery->event
+                        || \App\Enums\Delivery\Event::csn_order()->value == $delivery->event))
                     <a href="{{ Route('cms.delivery.store_cancle', ['deliveryId' => $delivery->id ]) }}" class="btn btn-outline-dark px-4" role="button">取消送出審核</a>
                 @endif
                 @if($delivery->event == App\Enums\Delivery\Event::order()->value)

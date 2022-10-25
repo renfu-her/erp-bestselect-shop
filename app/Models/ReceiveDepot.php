@@ -420,9 +420,16 @@ class ReceiveDepot extends Model
         $rcvDepotGet = null;
         if (null != $delivery_id) {
             //找出不是組合包的商品款式
-            $rcvDepot = ReceiveDepot::where('delivery_id', $delivery_id)->where('prd_type', '<>' , 'c');
+            $rcvDepot = ReceiveDepot::where('delivery_id', $delivery_id);
+            if (Event::order()->value == $delivery->event
+                || Event::consignment()->value == $delivery->event
+            ) {
+                //訂單、寄倉出貨時的組合包都是另外組 所以必須去除c
+                $rcvDepot->where('prd_type', '<>' , 'c');
+            }
             $rcvDepotGet = $rcvDepot->get();
         }
+
         if (null != $delivery &&null != $rcvDepotGet && 0 < count($rcvDepotGet)) {
             $result = IttmsDBB::transaction(function () use ($delivery, $rcvDepot, $rcvDepotGet, $event, $event_id, $delivery_id, $user_id, $user_name
             ) {
@@ -445,29 +452,34 @@ class ReceiveDepot extends Model
                         $event = 'ord_pickup';
                     }
                 }
-                //找出相關組合包
-                $rcvDepotComboGet = ReceiveDepot::where('delivery_id', $delivery_id)->where('prd_type', '=' , 'c')->get();
-                if (null != $rcvDepotComboGet && 0 < count($rcvDepotComboGet)) {
-                    //先取出個別數量紀錄 再刪除組合包
-                    foreach($rcvDepotComboGet as $key_cb => $val_cb) {
-                        if (Event::order()->value == $delivery->event || Event::consignment()->value == $delivery->event) {
-                            //訂單、寄倉 須分解成元素，並刪除組合包 因出貨時會組成組合包
-                            $reStockChange =PurchaseLog::stockChange($event_id, $val_cb->product_style_id, $event, $delivery->event_id,
-                                LogEventFeature::combo_del()->value, null, $val_cb->qty, null, $val_cb->product_title, 'c', $user_id, $user_name);
-                            if ($reStockChange['success'] == 0) {
+                if (Event::order()->value == $delivery->event
+                    || Event::consignment()->value == $delivery->event
+                ) {
+                    //訂單、寄倉出貨時的組合包都是另外組 所以之前篩選時去掉，現在要加回做判斷
+                    //找出相關組合包
+                    $rcvDepotComboGet = ReceiveDepot::where('delivery_id', $delivery_id)->where('prd_type', '=' , 'c')->get();
+                    if (null != $rcvDepotComboGet && 0 < count($rcvDepotComboGet)) {
+                        //先取出個別數量紀錄 再刪除組合包
+                        foreach($rcvDepotComboGet as $key_cb => $val_cb) {
+                            if (Event::order()->value == $delivery->event || Event::consignment()->value == $delivery->event) {
+                                //訂單、寄倉 須分解成元素，並刪除組合包 因出貨時會組成組合包
+                                $reStockChange =PurchaseLog::stockChange($event_id, $val_cb->product_style_id, $event, $delivery->event_id,
+                                    LogEventFeature::combo_del()->value, null, $val_cb->qty, null, $val_cb->product_title, 'c', $user_id, $user_name);
+                                if ($reStockChange['success'] == 0) {
+                                    DB::rollBack();
+                                    return $reStockChange;
+                                }
+                                ReceiveDepot::where('id', $val_cb->id)->where('prd_type', '=' , 'c')->forceDelete();
+                            } else if (Event::csn_order()->value == $delivery->event){
+                                $reShipIb = PurchaseInbound::shippingInbound($event, $event_id, $val_cb->id, LogEventFeature::delivery_cancle()->value, $val_cb->inbound_id, $val_cb->qty * -1, $user_id, $user_name);
+                                if ($reShipIb['success'] == 0) {
+                                    DB::rollBack();
+                                    return $reShipIb;
+                                }
+                            } else {
                                 DB::rollBack();
-                                return $reStockChange;
+                                return ['success' => 0, 'error_msg' => "無法判斷事件 ". json_encode($val_cb)];
                             }
-                            ReceiveDepot::where('id', $val_cb->id)->where('prd_type', '=' , 'c')->forceDelete();
-                        } else if (Event::csn_order()->value == $delivery->event){
-                            $reShipIb = PurchaseInbound::shippingInbound($event, $event_id, $val_cb->id, LogEventFeature::delivery_cancle()->value, $val_cb->inbound_id, $val_cb->qty * -1, $user_id, $user_name);
-                            if ($reShipIb['success'] == 0) {
-                                DB::rollBack();
-                                return $reShipIb;
-                            }
-                        } else {
-                            DB::rollBack();
-                            return ['success' => 0, 'error_msg' => "無法判斷事件 ". json_encode($val_cb)];
                         }
                     }
                 }
