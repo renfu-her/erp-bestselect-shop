@@ -1124,5 +1124,18 @@ return [
             ],
         ],
     ],
+    [
+        "unit" => "營業額目標",
+        "permissions" => [
+            [
+                "cms.vob-performance-report.index",
+                "瀏覽",
+            ],
+            [
+                "cms.vob-performance-report.renew",
+                "重新統計",
+            ],
+        ],
+    ],
 
 ];
