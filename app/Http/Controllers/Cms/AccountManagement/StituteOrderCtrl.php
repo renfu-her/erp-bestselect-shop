@@ -164,12 +164,12 @@ class StituteOrderCtrl extends Controller
 
                 } catch (\Exception $e) {
                     DB::rollback();
-                    wToast(__('代墊單建立失敗', ['type'=>'danger']));
+                    wToast(__('代墊單建立失敗'), ['type'=>'danger']);
                     return redirect()->back();
                 }
             }
 
-            wToast(__('代墊單建立失敗', ['type'=>'danger']));
+            wToast(__('代墊單建立失敗'), ['type'=>'danger']);
             return redirect()->back();
         }
 
@@ -274,7 +274,7 @@ class StituteOrderCtrl extends Controller
 
             } catch (\Exception $e) {
                 DB::rollback();
-                wToast(__('代墊單更新失敗', ['type'=>'danger']));
+                wToast(__('代墊單更新失敗'), ['type'=>'danger']);
                 return redirect()->back();
             }
         }

@@ -158,12 +158,12 @@ class RequestOrderCtrl extends Controller
 
                 } catch (\Exception $e) {
                     DB::rollback();
-                    wToast(__('請款單建立失敗', ['type'=>'danger']));
+                    wToast(__('請款單建立失敗'), ['type'=>'danger']);
                     return redirect()->back();
                 }
             }
 
-            wToast(__('請款單建立失敗', ['type'=>'danger']));
+            wToast(__('請款單建立失敗'), ['type'=>'danger']);
             return redirect()->back();
         }
 
@@ -268,7 +268,7 @@ class RequestOrderCtrl extends Controller
 
             } catch (\Exception $e) {
                 DB::rollback();
-                wToast(__('請款單更新失敗', ['type'=>'danger']));
+                wToast(__('請款單更新失敗'), ['type'=>'danger']);
                 return redirect()->back();
             }
         }
@@ -540,7 +540,7 @@ class RequestOrderCtrl extends Controller
 
         } catch (\Exception $e) {
             DB::rollback();
-            wToast(__('收款單儲存失敗', ['type'=>'danger']));
+            wToast(__('收款單儲存失敗'), ['type'=>'danger']);
         }
 
         if (ReceivedOrder::find($received_order_id) && ReceivedOrder::find($received_order_id)->balance_date) {
@@ -664,7 +664,7 @@ class RequestOrderCtrl extends Controller
 
             } catch (\Exception $e) {
                 DB::rollback();
-                wToast(__('入帳日期更新失敗', ['type'=>'danger']));
+                wToast(__('入帳日期更新失敗'), ['type'=>'danger']);
 
                 return redirect()->back();
             }
@@ -895,7 +895,7 @@ class RequestOrderCtrl extends Controller
 
             } catch (\Exception $e) {
                 DB::rollback();
-                wToast(__('摘要/稅別更新失敗', ['type'=>'danger']));
+                wToast(__('摘要/稅別更新失敗'), ['type'=>'danger']);
             }
 
             return redirect()->route('cms.request.ro-receipt', ['id'=>request('id')]);

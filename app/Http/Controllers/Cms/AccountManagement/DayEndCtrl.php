@@ -84,13 +84,13 @@ class DayEndCtrl extends Controller
 
             } catch (\Exception $e) {
                 DB::rollback();
-                wToast(__('整批日結失敗', ['type'=>'danger']));
+                wToast(__('整批日結失敗'), ['type'=>'danger']);
             }
 
             return redirect()->back();
         }
 
-        wToast(__('整批日結失敗', ['type'=>'danger']));
+        wToast(__('整批日結失敗'), ['type'=>'danger']);
         return redirect()->back();
     }
 

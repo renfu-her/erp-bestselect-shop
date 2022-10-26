@@ -221,12 +221,12 @@ class NoteReceivableCtrl extends Controller
 
                 } catch (\Exception $e) {
                     DB::rollback();
-                    wToast(__('整批' . $status_name . '儲存失敗', ['type'=>'danger']));
+                    wToast(__('整批' . $status_name . '儲存失敗'), ['type'=>'danger']);
                     return redirect()->back();
                 }
             }
 
-            wToast(__('整批' . $status_name . '儲存失敗', ['type'=>'danger']));
+            wToast(__('整批' . $status_name . '儲存失敗'), ['type'=>'danger']);
             return redirect()->back();
         }
 

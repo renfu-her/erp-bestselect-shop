@@ -142,7 +142,7 @@ class AccountReceivedCtrl extends Controller
                 ]);
             }
 
-            wToast(__('應收帳款收款單建立失敗', ['type'=>'danger']));
+            wToast(__('應收帳款收款單建立失敗'), ['type'=>'danger']);
             return redirect()->back();
         }
 
@@ -342,7 +342,7 @@ class AccountReceivedCtrl extends Controller
 
         } catch (\Exception $e) {
             DB::rollback();
-            wToast(__('收款單儲存失敗', ['type'=>'danger']));
+            wToast(__('收款單儲存失敗'), ['type'=>'danger']);
         }
 
 
@@ -474,7 +474,7 @@ class AccountReceivedCtrl extends Controller
 
             } catch (\Exception $e) {
                 DB::rollback();
-                wToast(__('入帳日期更新失敗', ['type'=>'danger']));
+                wToast(__('入帳日期更新失敗'), ['type'=>'danger']);
 
                 return redirect()->back();
             }
@@ -712,7 +712,7 @@ class AccountReceivedCtrl extends Controller
 
             } catch (\Exception $e) {
                 DB::rollback();
-                wToast(__('摘要/稅別更新失敗', ['type'=>'danger']));
+                wToast(__('摘要/稅別更新失敗'), ['type'=>'danger']);
             }
 
             return redirect()->route('cms.account_received.ro-receipt', ['id'=>request('id')]);

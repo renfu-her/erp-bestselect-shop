@@ -190,12 +190,12 @@ class NotePayableCtrl extends Controller
 
                 } catch (\Exception $e) {
                     DB::rollback();
-                    wToast(__('整批' . $status_name . '儲存失敗', ['type'=>'danger']));
+                    wToast(__('整批' . $status_name . '儲存失敗'), ['type'=>'danger']);
                     return redirect()->back();
                 }
             }
 
-            wToast(__('整批' . $status_name . '儲存失敗', ['type'=>'danger']));
+            wToast(__('整批' . $status_name . '儲存失敗'), ['type'=>'danger']);
             return redirect()->back();
         }
 
@@ -280,7 +280,7 @@ class NotePayableCtrl extends Controller
             $min = request('min_number');
 
             if($max < $min){
-                wToast(__('票據起始號碼不可大於票據結束號碼', ['type'=>'danger']));
+                wToast(__('票據起始號碼不可大於票據結束號碼'), ['type'=>'danger']);
                 return redirect()->back();
             }
 

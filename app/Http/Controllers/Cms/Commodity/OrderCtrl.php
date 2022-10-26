@@ -2237,7 +2237,7 @@ class OrderCtrl extends Controller
             }
 
         } else {
-            // wToast(__('發票開立失敗', ['type'=>'danger']));
+            // wToast(__('發票開立失敗'), ['type'=>'danger']);
             return redirect()->back();
         }
     }
