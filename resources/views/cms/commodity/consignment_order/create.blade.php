@@ -196,7 +196,7 @@
                                 <input type="number" class="form-control form-control-sm" name="num[]" min="1" value="" required/>
                             </td>
                             <td>
-                                <input type="number" class="form-control form-control-sm" name="price[]" min="0" value="" required>
+                                <input type="number" class="form-control form-control-sm" name="price[]" min="0" step="0.01" value="" required>
                             </td>
                             <td data-td="total" class="text-end"></td>
                             <td>
@@ -232,7 +232,7 @@
                                     @endif
                                 </td>
                                 <td>
-                                    <input type="number" class="form-control form-control-sm @error('price.' . $psItemKey) is-invalid @enderror"
+                                    <input type="number" step="0.01" class="form-control form-control-sm @error('price.' . $psItemKey) is-invalid @enderror"
                                         name="price[]" value="{{ old('price.'. $psItemKey, $psItemVal->price?? '') }}">
                                 </td>
                                 <td data-td="total" class="text-end">$ 0</td>
