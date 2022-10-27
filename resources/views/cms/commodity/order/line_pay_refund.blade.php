@@ -65,25 +65,6 @@
                     result = balance - $(this).val();
                     $('.refund_result').text(result.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,"));
                 });
-
-                $('.form').submit((e) => {
-                    $('#err_msg').remove();
-
-                    if ($('.list-wrap-2 input[name^="o_title"]').length < 1) {
-                        $('div.list-wrap-2').append('<div id="err_msg" class="alert alert-danger mt-3">項目不可空白</div>');
-                        return false;
-                    }
-
-                    let sum = 0;
-                    $('input[name^="o_total_price"]').each(function(){
-                        sum += (+$(this).val());
-                    });
-
-                    if (sum <= 0) {
-                        $('div.list-wrap-2').append('<div id="err_msg" class="alert alert-danger mt-3">總價合計不可小於1</div>');
-                        return false;
-                    }
-                });
             });
         </script>
     @endpush
