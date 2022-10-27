@@ -463,7 +463,7 @@
                                         <a href="{{ Route('cms.order.logistic-po', ['id' => $subOrder->order_id, 'sid' => $subOrder->id]) }}">{{ $subOrder->logistic_po_sn }}</a>
                                     @else
                                         @can('cms.collection_payment.logistic-po-create')
-                                        <a href="{{ Route('cms.order.logistic-po-create', ['id' => $subOrder->order_id, 'sid' => $subOrder->id]) }}">新增付款單</a>
+                                        <a href="{{ Route('cms.order.logistic-po', ['id' => $subOrder->order_id, 'sid' => $subOrder->id]) }}">新增付款單</a>
                                         @endcan
                                     @endif
                                 @endif
