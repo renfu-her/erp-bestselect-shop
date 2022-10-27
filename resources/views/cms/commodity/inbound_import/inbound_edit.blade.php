@@ -1,58 +1,59 @@
 @extends('layouts.main')
 @section('sub-content')
-    <div class="pt-2 mb-3">
-        <a href="{{ $backUrl }}" class="btn btn-primary" role="button">
-            <i class="bi bi-arrow-left"></i> 返回上一頁
-        </a>
-    </div>
-    <div class="card">
-        <div class="card-header">
-            編輯入庫單
-        </div>
-        <form class="card-body" method="post" action="{{ $formAction }}">
-            @method('POST')
-            @csrf
-            <x-b-form-group name="purchase_sn" title="採購單號" required="false">
-                <div class="col-form-label">{{ $inboundData->event_sn ?? '' }}</div>
-            </x-b-form-group>
-            <x-b-form-group name="sku" title="SKU" required="false">
-                <div class="col-form-label">{{ $inboundData->sku ?? '' }}</div>
-            </x-b-form-group>
-            <x-b-form-group name="title" title="商品款式名稱" required="false">
-                <div class="col-form-label">{{ $inboundData->title ?? '' }}</div>
-            </x-b-form-group>
-            <x-b-form-group name="inbound_sn" title="入庫單" required="false">
-                <div class="col-form-label">{{ $inboundData->sn ?? '' }}</div>
-            </x-b-form-group>
-            <x-b-form-group name="remaining_qty" title="庫存剩餘數量" required="false">
-                <div class="col-form-label">{{ $inboundData->remaining_qty ?? '' }}</div>
-            </x-b-form-group>
-            <x-b-form-group name="remaining_qty" title="調整數量" required="false">
+<h2 class="mb-3">#{{ $inboundData->sn }} 入庫單庫存調整</h2>
+
+<form method="post" action="{{ $formAction }}" class="-banRedo">
+    <div class="card shadow p-4 mb-4">
+        @method('POST')
+        @csrf
+        <dl class="row">
+            <div class="col-6 mb-3">
+                <dt>採購單號</dt>
+                <dd>{{ $inboundData->event_sn ?? '' }}</dd>
+            </div>
+            <div class="col-6 mb-3">
+                <dt>SKU</dt>
+                <dd>{{ $inboundData->sku ?? '' }}</dd>
+            </div>
+            <div class="col-12 mb-3">
+                <dt>商品款式名稱</dt>
+                <dd>{{ $inboundData->title ?? '' }}</dd>
+            </div>
+            <div class="col-6 mb-3">
+                <dt>入庫單</dt>
+                <dd>{{ $inboundData->sn ?? '' }}</dd>
+            </div>
+            <div class="col-6 mb-3">
+                <dt>庫存剩餘數量</dt>
+                <dd>{{ $inboundData->remaining_qty ? number_format($inboundData->remaining_qty) : '' }}</dd>
+            </div>
+
+            <x-b-form-group name="remaining_qty" title="調整數量" required="false" class="col-12 col-sm-6">
                 <input type="number"
-                       class="form-control form-control-sm @error('update_num') is-invalid @enderror"
-                       name="update_num" value="0" min="{{ $inboundData->remaining_qty ? $inboundData->remaining_qty * -1 : 0 }}"
-                       required/>
+                        class="form-control @error('update_num') is-invalid @enderror"
+                        name="update_num" value="0" min="{{ $inboundData->remaining_qty ? $inboundData->remaining_qty * -1 : 0 }}"
+                        required/>
             </x-b-form-group>
-            <x-b-form-group name="remaining_qty" title="調整效期 (請依照2099-01-01 此格式輸入)" required="false">
-                <input type="text"
-                       class="form-control form-control-sm @error('expiry_date') is-invalid @enderror"
-                       name="expiry_date" value="{{ $inboundData->expiry_date ?? '' }}"
-                       required/>
+            <x-b-form-group name="remaining_qty" title="調整效期" required="false" class="col-12 col-sm-6">
+                <input type="date"
+                        class="form-control @error('expiry_date') is-invalid @enderror"
+                        name="expiry_date" value="{{ $inboundData->expiry_date ?? '' }}"
+                        required/>
             </x-b-form-group>
-            <x-b-form-group name="note" title="備註" required="false" class="col-12 col-sm-6 mb-3">
+            <x-b-form-group name="note" title="備註" required="false">
                 <input class="form-control @error('memo') is-invalid @enderror"
-                       name="memo"
-                       type="text"
-                       value=""/>
+                        name="memo"
+                        type="text"
+                        value=""/>
             </x-b-form-group>
-            <x-b-form-group name="note" title="審核狀態" required="false" class="col-12 col-sm-6 mb-3">
+            <x-b-form-group name="note" title="審核狀態" required="false">
                 <div class="px-1 pt-1">
                     @foreach (App\Enums\Consignment\AuditStatus::asArray() as $key => $val)
                         <div class="form-check form-check-inline @error('inventory_status')is-invalid @enderror">
                             <label class="form-check-label">
                                 <input class="form-check-input @error('inventory_status')is-invalid @enderror" name="inventory_status"
-                                       value="{{ $val }}" type="radio" required
-                                       @if (old('inventory_status', $inboundData->inventory_status ?? App\Enums\Consignment\AuditStatus::unreviewed()->value) == $val) checked @endif>
+                                        value="{{ $val }}" type="radio" required
+                                        @if (old('inventory_status', $inboundData->inventory_status ?? App\Enums\Consignment\AuditStatus::unreviewed()->value) == $val) checked @endif>
                                 {{ App\Enums\Consignment\AuditStatus::getDescription($val) }}
                             </label>
                         </div>
@@ -62,20 +63,28 @@
                     @enderror
                 </div>
             </x-b-form-group>
+        </dl>
 
-            <input type='hidden' name='id' value="{{ old('id', $inboundData->id) }}" />
-            <input type="hidden" name="backUrl" value="{{ $backUrl }}"/>
-            <div class="d-flex justify-content-end pt-2">
-                <button type="submit" class="btn btn-primary px-4">儲存</button>
-            </div>
-            @if($errors->any())
-                <div class="alert alert-danger mt-3">{!! implode('', $errors->all('<div>:message</div>')) !!}</div>
-            @endif
-        </form>
+        <input type='hidden' name='id' value="{{ old('id', $inboundData->id) }}" />
+        <input type="hidden" name="backUrl" value="{{ $backUrl }}"/>
+    
+        @if($errors->any())
+            <div class="alert alert-danger mt-3">{!! implode('', $errors->all('<div>:message</div>')) !!}</div>
+        @endif
     </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-primary px-4">儲存</button>
+        <a href="{{ $backUrl }}" class="btn btn-outline-primary" role="button">返回上一頁</a>
+    </div>
+</form>
 @endsection
 @once
-    @push('sub-scripts')
-
+    @push('sub-styles')
+    <style>
+        dt {
+            font-weight: normal;
+            margin-bottom: 0.5rem;
+        }
+    </style>
     @endpush
 @endonce

@@ -77,4 +77,15 @@
     // 月份最大值
     $('input[type="month"]').attr('max', moment().format('YYYY-MM'));
 
+    // 禁多重點擊
+    $('.-banRedo').off('submit.banRedo').on('submit.banRedo', function (e) {
+        let $Btn = $();
+        if ($('.-banReBtn').length > 0) {
+            $Btn = $('.-banReBtn');
+        } else if ($(this).find('button:submit').length > 0) {
+            $Btn = $(this).find('button:submit');
+        }
+        $Btn.prop('disabled', true).addClass('disabled');
+    });
+
 })();

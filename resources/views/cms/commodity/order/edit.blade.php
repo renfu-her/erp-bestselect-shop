@@ -2,7 +2,7 @@
 @section('sub-content')
     <h2 class="mb-4">新增訂單</h2>
 
-    <form id="form1" method="post" action="{{ route('cms.order.create', $query) }}">
+    <form id="form1" method="post" action="{{ route('cms.order.create', $query) }}" class="-banRedo">
         @method('POST')
         @csrf
         <nav class="nav nav-pills nav-fill">
@@ -940,7 +940,6 @@
             });
             // 儲存前設定name
             $('#form1').submit(function(e) {
-                $('#form1 button:submit').prop('disabled', true);
                 $('input:hidden[name="customer_id"]').val($('#customer').val());
                 $('input:hidden[name="salechannel_id"]').val($('#salechannel').val());
                 $('input:hidden[name$="_address"]').val(function() {

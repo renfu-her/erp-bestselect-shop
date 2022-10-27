@@ -122,7 +122,6 @@
                             <div>
                                 <div class="card shadow p-4 mb-4">
                                     <h6>Card</h6>
-
                                     <p>Table <code>.table-striped</code> 條紋行 / <code>.table-hover</code> 滑入行</p>
                                     <div class="table-responsive tableOverBox">
                                         <table class="table tableList table-hover table-striped mb-1">
@@ -170,6 +169,13 @@
                                             </tfoot>
                                         </table>
                                     </div>
+
+                                    <h6>Form</h6>
+                                    <p>form 加上 <code>.-banRedo</code> 可在 submit 事件中鎖定以下按鈕，以防止重複送出：</p>
+                                    <ul>
+                                        <li>含 <code>.-banReBtn</code> 的 tag</li>
+                                        <li>submit button</li>
+                                    </ul>
                                 </div>
                             </div>
                         </fieldset>
