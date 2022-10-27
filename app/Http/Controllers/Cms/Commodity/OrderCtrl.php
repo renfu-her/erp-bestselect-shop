@@ -36,6 +36,7 @@ use App\Models\OrderFlow;
 use App\Models\OrderInvoice;
 use App\Models\OrderItem;
 use App\Models\OrderPayCreditCard;
+use App\Models\OrderPayLinePay;
 use App\Models\OrderProfit;
 use App\Models\OrderProfitLog;
 use App\Models\OrderRemit;
@@ -519,6 +520,22 @@ class OrderCtrl extends Controller
             'lidm' => $sn,
         ])->orderBy('created_at', 'DESC')->first();
 
+        $pay_in_log = OrderPayLinePay::where([
+            'source_type' => $source_type,
+            'source_id' => $id,
+            'action' => 'confirm',
+        ])->where('authamt', '>', 0)->orderBy('id', 'DESC')->first();
+
+        $pay_out_log = OrderPayLinePay::where([
+            'source_type' => $source_type,
+            'source_id' => $id,
+            'action' => 'refund',
+        ])->where('authamt', '>', 0)->get();
+
+        $pay_in = $pay_in_log ? $pay_in_log->authamt : 0;
+        $pay_out = $pay_out_log->sum('authamt');
+        $line_pay_balance_price = $pay_in - $pay_out;
+
         $dividend = CustomerDividend::where('category', DividendCategory::Order())
             ->where('category_sn', $order->sn)
             ->where('type', 'get')->get()->first();
@@ -555,6 +572,7 @@ class OrderCtrl extends Controller
             'receivable' => $receivable,
             'received_order' => $received_order,
             'received_credit_card_log' => $received_credit_card_log,
+            'line_pay_balance_price' => $line_pay_balance_price,
             'dividend' => $dividend,
             'canCancel' => Order::checkCanCancel($id, 'backend'),
             'delivery' => $delivery,
@@ -2470,6 +2488,96 @@ class OrderCtrl extends Controller
 
         wToast(__($inv_result->r_msg));
         return redirect()->back();
+    }
+
+    public function line_pay_refund(Request $request, $source_type, $source_id)
+    {
+        $request->merge([
+            'id' => $source_id,
+        ]);
+
+        $pay_in_log = OrderPayLinePay::where([
+            'source_type' => $source_type,
+            'source_id' => $source_id,
+            'action' => 'confirm',
+        ])->where('authamt', '>', 0)->orderBy('id', 'DESC')->first();
+
+        $pay_out_log = OrderPayLinePay::where([
+            'source_type' => $source_type,
+            'source_id' => $source_id,
+            'action' => 'refund',
+        ])->where('authamt', '>', 0)->get();
+
+        $pay_in = $pay_in_log ? $pay_in_log->authamt : 0;
+        $pay_out = $pay_out_log->sum('authamt');
+        $balance = $pay_in - $pay_out;
+
+        if (!$pay_in_log || $balance <= 0) {
+            wToast(__('Line Pay 付款取消失敗'), ['type'=>'danger']);
+            return redirect()->route('cms.order.detail', [
+                'id' => $source_id,
+            ]);
+        }
+
+        if($source_type == app(Order::class)->getTable()){
+            $request->validate([
+                'id' => 'required|exists:ord_orders,id',
+            ]);
+
+            if ($request->isMethod('post')) {
+                $request->merge([
+                    'pay_out_price' => request('pay_out_price'),
+                ]);
+
+                $request->validate([
+                    'pay_out_price' => 'required|numeric|min:0|not_in:0',
+                ]);
+
+                $current_pay_out = request('pay_out_price');
+                if(($balance - $current_pay_out) < 0){
+                    wToast(__('Line Pay 付款取消失敗'), ['type'=>'danger']);
+                    return redirect()->route('cms.order.detail', [
+                        'id' => $source_id,
+                    ]);
+                }
+
+                $data = [
+                    // 'refundAmount' => null // set null = all price refund
+                    'refundAmount' => $current_pay_out
+                ];
+                $result = OrderPayLinePay::api_send('refund', $pay_in_log->transaction_id, $data);
+                $result->more_info = [
+                    'action'=>'refund',
+                    'transaction_id'=>$pay_in_log->transaction_id,
+                    'authamt'=>$current_pay_out,
+                ];
+                OrderPayLinePay::create_log($source_type, $source_id, $result);
+
+                if($result->returnCode == '0000'){
+                    wToast(__('Line Pay 付款取消成功'));
+                    return redirect()->route('cms.order.detail', [
+                        'id' => $source_id,
+                    ]);
+                }
+
+            } else {
+                $order = Order::orderDetail($source_id)->first();
+
+                return view('cms.commodity.order.line_pay_refund', [
+                    'breadcrumb_data' => ['id' => $source_id, 'sn' => $order->sn],
+                    'form_action' => route('cms.order.line-pay-refund', ['source_type' => 'ord_orders', 'source_id' => $order->id]),
+                    'order' => $order,
+                    'pay_in' => $pay_in,
+                    'pay_out' => $pay_out,
+                    'balance' => $balance,
+                ]);
+            }
+        }
+
+        wToast(__('Line Pay 付款取消失敗'), ['type'=>'danger']);
+        return redirect()->route('cms.order.detail', [
+            'id' => $source_id,
+        ]);
     }
 
     // 獎金毛利
