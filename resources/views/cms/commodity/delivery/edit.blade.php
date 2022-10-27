@@ -8,7 +8,7 @@
         <x-b-csnorder-navi :id="$delivery->event_id"></x-b-csnorder-navi>
     @endif
 
-    <form id="form1" method="post" action="{{ $formAction }}">
+    <form id="form1" method="post" action="{{ $formAction }}" class="-banRedo">
         @method('POST')
         @csrf
         <div class="card shadow p-4 mb-4">
@@ -194,7 +194,7 @@
         <x-slot name="title">送出確認</x-slot>
         <x-slot name="body">確認要送出？</x-slot>
         <x-slot name="foot">
-            <button type="button" class="btn btn-success btn-ok">確認並送出</a>
+            <button type="submit" class="btn btn-success btn-ok -banReBtn">確認並送出</a>
         </x-slot>
     </x-b-modal>
 @endsection

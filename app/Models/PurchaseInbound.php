@@ -840,14 +840,17 @@ class PurchaseInbound extends Model
             )
             ->selectRaw('sum(dlv_receive_depot.qty) as qty')
             ->selectRaw('sum(dlv_receive_depot.back_qty) as back_qty')
-            ->whereNotNull('qty')
+            ->whereNotNull('dlv_receive_depot.qty')
             ->whereNull('dlv_delivery.audit_date')
             ->whereNull('dlv_receive_depot.audit_date')
-            ->whereNull('dlv_receive_depot.deleted_at')
-            ->groupBy('dlv_receive_depot.inbound_id')
-            ->groupBy('dlv_receive_depot.product_style_id')
-            ->groupBy('dlv_receive_depot.product_title');
-        return $receive_depotQuerySub;
+            ->whereNull('dlv_receive_depot.deleted_at');
+
+        //先找出結果後再做groupBy 防止錯誤
+        $result = DB::query()->fromSub($receive_depotQuerySub, 'tb')
+            ->groupBy('tb.inbound_id')
+            ->groupBy('tb.product_style_id')
+            ->groupBy('tb.product_title');
+        return $result;
     }
 
     // 取得物流單內 耗材尚未出貨的數量
@@ -862,11 +865,14 @@ class PurchaseInbound extends Model
             ->selectRaw('sum(dlv_consum.back_qty) as back_qty')
             ->whereNotNull('dlv_consum.qty')
             ->whereNull('dlv_logistic.audit_date')
-            ->whereNull('dlv_logistic.deleted_at')
-            ->groupBy('dlv_consum.inbound_id')
-            ->groupBy('dlv_consum.product_style_id')
-            ->groupBy('dlv_consum.product_title');
-        return $logistic_consumQuerySub;
+            ->whereNull('dlv_logistic.deleted_at');
+
+        //先找出結果後再做groupBy 防止錯誤
+        $result = DB::query()->fromSub($logistic_consumQuerySub, 'tb')
+            ->groupBy('tb.inbound_id')
+            ->groupBy('tb.product_style_id')
+            ->groupBy('tb.product_title');
+        return $result;
     }
 
     /**

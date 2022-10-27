@@ -390,10 +390,10 @@
         </div>
 
         <div class="col-auto">
+            <button type="submit" class="btn btn-primary px-4">確認</button>
             <a href="{{ Route('cms.order.detail', ['id' => $invoice->source_id]) }}" class="btn btn-outline-primary px-4" role="button">
                 返回明細
             </a>
-            <button type="submit" class="btn btn-primary px-4">確認</button>
         </div>
     </form>
 @endsection

@@ -185,7 +185,7 @@
                         <tr>
                             <th scope="row">{{ $key + 1 }}</th>
                             <td class="wrap">
-                                <div>{{ $data->inventory_status_str }}</div>
+                                <div class="fw-bold">{{ $data->inventory_status_str }}</div>
                                 <div>{{ $data->inventory_create_user_name }}</div>
                             </td>
                             <td>
@@ -213,24 +213,23 @@
                                 <div class="lh-1 text-nowrap text-secondary">
                                     @if(isset($data->depot_id) && isset($data->product_style_id))
                                         <a href="{{ Route('cms.stock.stock_detail_log', ['depot_id' => $data->depot_id ?? -1, 'id' => $data->product_style_id], true) }}"
-                                           class="rounded-circle border-1" target="_blank">
+                                           class="lh-lg" target="_blank">
                                             {{ $data->style_sku }}
                                         </a>
                                     @else
                                         {{ $data->style_sku }}
                                     @endif
                                 </div>
-                                <div class="lh-lg">{{ $data->product_title }}</div>
+                                <div class="lh-base">{{ $data->product_title }}</div>
                             </td>
                             <td class="text-end">{{ number_format($data->qty) }}</td>
                             <td class="text-end">{{ ($data->unit_cost) }}</td>
                             <td>{{ $data->expiry_date ? date('Y/m/d', strtotime($data->expiry_date)) : '' }}</td>
-                            <td>{{ $data->depot_name }}</td>
+                            <td class="wrap lh-base">{{ $data->depot_name }}</td>
                             <td>{{ $data->inbound_user_name }}</td>
-                            <td>{{ $data->created_at }}</td>
+                            <td class="wrap">{{ date('Y/m/d H:i:s', strtotime($data->created_at)) }}</td>
                             <td>{{ $data->prd_user_name }}</td>
                             <td>{{ $data->inbound_event_name }}</td>
-{{--                            <td class="wrap" style="min-width:80px;">{{ $data->depot_name }}</td>--}}
                         </tr>
                     @endforeach
                 </tbody>

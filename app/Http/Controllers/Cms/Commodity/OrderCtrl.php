@@ -36,6 +36,7 @@ use App\Models\OrderFlow;
 use App\Models\OrderInvoice;
 use App\Models\OrderItem;
 use App\Models\OrderPayCreditCard;
+use App\Models\OrderPayLinePay;
 use App\Models\OrderProfit;
 use App\Models\OrderProfitLog;
 use App\Models\OrderRemit;
@@ -519,6 +520,22 @@ class OrderCtrl extends Controller
             'lidm' => $sn,
         ])->orderBy('created_at', 'DESC')->first();
 
+        $pay_in_log = OrderPayLinePay::where([
+            'source_type' => $source_type,
+            'source_id' => $id,
+            'action' => 'confirm',
+        ])->where('authamt', '>', 0)->orderBy('id', 'DESC')->first();
+
+        $pay_out_log = OrderPayLinePay::where([
+            'source_type' => $source_type,
+            'source_id' => $id,
+            'action' => 'refund',
+        ])->where('authamt', '>', 0)->get();
+
+        $pay_in = $pay_in_log ? $pay_in_log->authamt : 0;
+        $pay_out = $pay_out_log->sum('authamt');
+        $line_pay_balance_price = $pay_in - $pay_out;
+
         $dividend = CustomerDividend::where('category', DividendCategory::Order())
             ->where('category_sn', $order->sn)
             ->where('type', 'get')->get()->first();
@@ -555,6 +572,7 @@ class OrderCtrl extends Controller
             'receivable' => $receivable,
             'received_order' => $received_order,
             'received_credit_card_log' => $received_credit_card_log,
+            'line_pay_balance_price' => $line_pay_balance_price,
             'dividend' => $dividend,
             'canCancel' => Order::checkCanCancel($id, 'backend'),
             'delivery' => $delivery,
@@ -1580,6 +1598,108 @@ class OrderCtrl extends Controller
     }
 
 
+    public function logistic_po(Request $request, $id, $sid)
+    {
+        $request->merge([
+            'id' => $id,
+            'sid' => $sid,
+        ]);
+
+        $request->validate([
+            'id' => 'required|exists:ord_orders,id',
+            'sid' => 'required|exists:ord_sub_orders,id',
+        ]);
+
+        $source_type = app(Order::class)->getTable();
+        $type = 1;
+
+        $paying_order = PayingOrder::where([
+            'source_type' => $source_type,
+            'source_id' => $id,
+            'source_sub_id' => $sid,
+            'type' => $type,
+            'deleted_at' => null,
+        ])->first();
+
+        $order = Order::orderDetail($id)->get()->first();
+        $sub_order = Order::subOrderDetail($id, $sid, true)->get()->toArray()[0];
+        $supplier = Supplier::find($sub_order->supplier_id);
+        $delivery = Delivery::where('event', Event::order()->value)->where('event_id', $sid)->first();
+        $logistic = Logistic::where('delivery_id', $delivery->id)->whereNull('deleted_at')->first();
+
+        if (!$paying_order) {
+            $price = $sub_order->logistic_cost * $logistic->qty;
+            $product_grade = PayableDefault::where('name', '=', 'product')->first()->default_grade_id;
+            $logistics_grade = PayableDefault::where('name', '=', 'logistics')->first()->default_grade_id;
+
+            $result = PayingOrder::createPayingOrder(
+                $source_type,
+                $id,
+                $sid,
+                $request->user()->id,
+                $type,
+                $product_grade,
+                $logistics_grade,
+                $price ?? 0,
+                '',
+                '',
+                $supplier ? $supplier->id : null,
+                $supplier ? $supplier->name : null,
+                $supplier ? $supplier->contact_tel : null,
+                $supplier ? $supplier->contact_address : null
+            );
+
+            $paying_order = PayingOrder::findOrFail($result['id']);
+        }
+
+        $applied_company = DB::table('acc_company')->where('id', 1)->first();
+
+        $logistics_grade_name = AllGrade::find($paying_order->logistics_grade_id)->eachGrade->code . ' ' . AllGrade::find($paying_order->logistics_grade_id)->eachGrade->name;
+
+        if ($sub_order->projlgt_order_sn) {
+            $logistics_grade_name = $logistics_grade_name . ' ' . $sub_order->ship_group_name . ' #' . $sub_order->projlgt_order_sn;
+        } else {
+            $logistics_grade_name = $logistics_grade_name . ' ' . $sub_order->ship_group_name . ' #' . $sub_order->package_sn;
+        }
+
+        $payable_data = PayingOrder::get_payable_detail($paying_order->id);
+        $data_status_check = PayingOrder::payable_data_status_check($payable_data);
+
+        $accountant = User::whereIn('id', $payable_data->pluck('accountant_id_fk')->toArray())->get();
+        $accountant = array_unique($accountant->pluck('name')->toArray());
+        asort($accountant);
+
+        $undertaker = User::find($paying_order->usr_users_id);
+
+        $zh_price = num_to_str($paying_order->price);
+
+        if ($paying_order && $paying_order->append_po_id) {
+            $append_po = PayingOrder::find($paying_order->append_po_id);
+            $paying_order->append_po_link = PayingOrder::paying_order_link($append_po->source_type, $append_po->source_id, $append_po->source_sub_id, $append_po->type);
+        }
+
+        $view = 'cms.commodity.order.logistic_po';
+        if (request('action') == 'print') {
+            $view = 'doc.print_order_logistic_pay';
+        }
+
+        return view($view, [
+            'breadcrumb_data' => ['id' => $id, 'sn' => $order->sn],
+
+            'paying_order' => $paying_order,
+            'payable_data' => $payable_data,
+            'data_status_check' => $data_status_check,
+            'order' => $order,
+            'sub_order' => $sub_order,
+            'logistic' => $logistic,
+            'undertaker' => $undertaker,
+            'applied_company' => $applied_company,
+            'logistics_grade_name' => $logistics_grade_name,
+            'accountant' => implode(',', $accountant),
+            'zh_price' => $zh_price,
+        ]);
+    }
+
     public function logistic_po_create(Request $request, $id, $sid)
     {
         $request->merge([
@@ -1604,33 +1724,7 @@ class OrderCtrl extends Controller
         ])->first();
 
         if (!$paying_order) {
-            $sub_order = Order::subOrderDetail($id, $sid, true)->get()->toArray()[0];
-            $supplier = Supplier::find($sub_order->supplier_id);
-            $delivery = Delivery::where('event', Event::order()->value)->where('event_id', $sid)->first();
-            $logistic = Logistic::where('delivery_id', $delivery->id)->whereNull('deleted_at')->first();
-
-            $price = $sub_order->logistic_cost * $logistic->qty;
-            $product_grade = PayableDefault::where('name', '=', 'product')->first()->default_grade_id;
-            $logistics_grade = PayableDefault::where('name', '=', 'logistics')->first()->default_grade_id;
-
-            $result = PayingOrder::createPayingOrder(
-                $source_type,
-                $id,
-                $sid,
-                $request->user()->id,
-                $type,
-                $product_grade,
-                $logistics_grade,
-                $price ?? 0,
-                '',
-                '',
-                $supplier ? $supplier->id : null,
-                $supplier ? $supplier->name : null,
-                $supplier ? $supplier->contact_tel : null,
-                $supplier ? $supplier->contact_address : null
-            );
-
-            $paying_order = PayingOrder::findOrFail($result['id']);
+            return abort(404);
         }
 
         if ($request->isMethod('post')) {
@@ -1746,87 +1840,6 @@ class OrderCtrl extends Controller
                 'chequeStatus' => PayableChequeStatus::get_key_value(),
             ]);
         }
-    }
-
-    public function logistic_po(Request $request, $id, $sid)
-    {
-        $request->merge([
-            'id' => $id,
-            'sid' => $sid,
-        ]);
-
-        $request->validate([
-            'id' => 'required|exists:ord_orders,id',
-            'sid' => 'required|exists:ord_sub_orders,id',
-        ]);
-
-        $source_type = app(Order::class)->getTable();
-        $type = 1;
-
-        $paying_order = PayingOrder::where([
-            'source_type' => $source_type,
-            'source_id' => $id,
-            'source_sub_id' => $sid,
-            'type' => $type,
-            'deleted_at' => null,
-        ])->first();
-
-        if (!$paying_order) {
-            return abort(404);
-        }
-
-        $order = Order::orderDetail($id)->get()->first();
-        $sub_order = Order::subOrderDetail($id, $sid, true)->get()->toArray()[0];
-
-        $delivery = Delivery::where('event', Event::order()->value)->where('event_id', $sid)->first();
-        $logistic = Logistic::where('delivery_id', $delivery->id)->whereNull('deleted_at')->first();
-
-        $applied_company = DB::table('acc_company')->where('id', 1)->first();
-
-        $logistics_grade_name = AllGrade::find($paying_order->logistics_grade_id)->eachGrade->code . ' ' . AllGrade::find($paying_order->logistics_grade_id)->eachGrade->name;
-
-        if ($sub_order->projlgt_order_sn) {
-            $logistics_grade_name = $logistics_grade_name . ' ' . $sub_order->ship_group_name . ' #' . $sub_order->projlgt_order_sn;
-        } else {
-            $logistics_grade_name = $logistics_grade_name . ' ' . $sub_order->ship_group_name . ' #' . $sub_order->package_sn;
-        }
-
-        $payable_data = PayingOrder::get_payable_detail($paying_order->id);
-        $data_status_check = PayingOrder::payable_data_status_check($payable_data);
-
-        $accountant = User::whereIn('id', $payable_data->pluck('accountant_id_fk')->toArray())->get();
-        $accountant = array_unique($accountant->pluck('name')->toArray());
-        asort($accountant);
-
-        $undertaker = User::find($paying_order->usr_users_id);
-
-        $zh_price = num_to_str($paying_order->price);
-
-        if ($paying_order && $paying_order->append_po_id) {
-            $append_po = PayingOrder::find($paying_order->append_po_id);
-            $paying_order->append_po_link = PayingOrder::paying_order_link($append_po->source_type, $append_po->source_id, $append_po->source_sub_id, $append_po->type);
-        }
-
-        $view = 'cms.commodity.order.logistic_po';
-        if (request('action') == 'print') {
-            $view = 'doc.print_order_logistic_pay';
-        }
-
-        return view($view, [
-            'breadcrumb_data' => ['id' => $id, 'sn' => $order->sn],
-
-            'paying_order' => $paying_order,
-            'payable_data' => $payable_data,
-            'data_status_check' => $data_status_check,
-            'order' => $order,
-            'sub_order' => $sub_order,
-            'logistic' => $logistic,
-            'undertaker' => $undertaker,
-            'applied_company' => $applied_company,
-            'logistics_grade_name' => $logistics_grade_name,
-            'accountant' => implode(',', $accountant),
-            'zh_price' => $zh_price,
-        ]);
     }
 
     public function return_pay_order(Request $request, $id, $sid = null)
@@ -2470,6 +2483,96 @@ class OrderCtrl extends Controller
 
         wToast(__($inv_result->r_msg));
         return redirect()->back();
+    }
+
+    public function line_pay_refund(Request $request, $source_type, $source_id)
+    {
+        $request->merge([
+            'id' => $source_id,
+        ]);
+
+        $pay_in_log = OrderPayLinePay::where([
+            'source_type' => $source_type,
+            'source_id' => $source_id,
+            'action' => 'confirm',
+        ])->where('authamt', '>', 0)->orderBy('id', 'DESC')->first();
+
+        $pay_out_log = OrderPayLinePay::where([
+            'source_type' => $source_type,
+            'source_id' => $source_id,
+            'action' => 'refund',
+        ])->where('authamt', '>', 0)->get();
+
+        $pay_in = $pay_in_log ? $pay_in_log->authamt : 0;
+        $pay_out = $pay_out_log->sum('authamt');
+        $balance = $pay_in - $pay_out;
+
+        if (!$pay_in_log || $balance <= 0) {
+            wToast(__('Line Pay 付款取消失敗'), ['type'=>'danger']);
+            return redirect()->route('cms.order.detail', [
+                'id' => $source_id,
+            ]);
+        }
+
+        if($source_type == app(Order::class)->getTable()){
+            $request->validate([
+                'id' => 'required|exists:ord_orders,id',
+            ]);
+
+            if ($request->isMethod('post')) {
+                $request->merge([
+                    'pay_out_price' => request('pay_out_price'),
+                ]);
+
+                $request->validate([
+                    'pay_out_price' => 'required|numeric|min:0|not_in:0',
+                ]);
+
+                $current_pay_out = request('pay_out_price');
+                if(($balance - $current_pay_out) < 0){
+                    wToast(__('Line Pay 付款取消失敗'), ['type'=>'danger']);
+                    return redirect()->route('cms.order.detail', [
+                        'id' => $source_id,
+                    ]);
+                }
+
+                $data = [
+                    // 'refundAmount' => null // set null = all price refund
+                    'refundAmount' => $current_pay_out
+                ];
+                $result = OrderPayLinePay::api_send('refund', $pay_in_log->transaction_id, $data);
+                $result->more_info = [
+                    'action'=>'refund',
+                    'transaction_id'=>$pay_in_log->transaction_id,
+                    'authamt'=>$current_pay_out,
+                ];
+                OrderPayLinePay::create_log($source_type, $source_id, $result);
+
+                if($result->returnCode == '0000'){
+                    wToast(__('Line Pay 付款取消成功'));
+                    return redirect()->route('cms.order.detail', [
+                        'id' => $source_id,
+                    ]);
+                }
+
+            } else {
+                $order = Order::orderDetail($source_id)->first();
+
+                return view('cms.commodity.order.line_pay_refund', [
+                    'breadcrumb_data' => ['id' => $source_id, 'sn' => $order->sn],
+                    'form_action' => route('cms.order.line-pay-refund', ['source_type' => 'ord_orders', 'source_id' => $order->id]),
+                    'order' => $order,
+                    'pay_in' => $pay_in,
+                    'pay_out' => $pay_out,
+                    'balance' => $balance,
+                ]);
+            }
+        }
+
+        wToast(__('Line Pay 付款取消失敗'), ['type'=>'danger']);
+        return redirect()->route('cms.order.detail', [
+            'id' => $source_id,
+        ]);
     }
 
     // 獎金毛利

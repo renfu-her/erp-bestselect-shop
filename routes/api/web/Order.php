@@ -12,6 +12,9 @@ Route::group(['prefix' => 'order', 'as' => 'order.'], function () {
     Route::match(['get', 'post'], 'credit_card_checkout/{id}/{unique_id}', [OrderCtrl::class, 'credit_card_checkout'])->name('credit_card_checkout');
     Route::post('credit_card_checkout_api/{id}', [OrderCtrl::class, 'credit_card_checkout_api'])->name('credit_card_checkout_api');
 
+    Route::get('line_pay_payment/{source_type}/{source_id}/{unique_id}', [OrderCtrl::class, 'line_pay_payment'])->name('line-pay-payment');
+    Route::get('line_pay_confirm/{source_type}/{source_id}/{unique_id}', [OrderCtrl::class, 'line_pay_confirm'])->name('line-pay-confirm');
+
     Route::post('detail', [OrderCtrl::class, 'orderDetail']);
 
 });
