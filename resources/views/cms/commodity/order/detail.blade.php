@@ -18,10 +18,12 @@
                         <button type="button" class="btn btn-primary btn-sm my-1 ms-1" disabled>線上刷卡連結</button>
                     @endif
 
+                    @can('cms.collection_received.edit')
                     @if($line_pay_balance_price > 0)
                         <a href="{{ route('cms.order.line-pay-refund', ['source_type' => 'ord_orders', 'source_id' => $order->id]) }}"
                             class="btn btn-outline-danger btn-sm" role="button">Line Pay 付款取消</a>
                     @endif
+                    @endcan
                 @endif
             @else
                 <a href="{{ Route('api.web.order.payment_credit_card', ['id' => $order->id, 'unique_id' => $order->unique_id]) }}"
