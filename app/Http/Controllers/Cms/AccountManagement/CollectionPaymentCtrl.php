@@ -345,7 +345,7 @@ class CollectionPaymentCtrl extends Controller
                 return redirect()->to(PayingOrder::paying_order_link($paying_order->source_type, $paying_order->source_id, $paying_order->source_sub_id, $paying_order->type));
             }
 
-            wToast(__('付款單更新失敗', ['type'=>'danger']));
+            wToast(__('付款單更新失敗'), ['type'=>'danger']);
             return redirect()->back();
         }
 
@@ -823,7 +823,7 @@ class CollectionPaymentCtrl extends Controller
                 ]);
             }
 
-            wToast(__('付款單建立失敗', ['type'=>'danger']));
+            wToast(__('付款單建立失敗'), ['type'=>'danger']);
             return redirect()->back();
         }
 
@@ -1355,7 +1355,7 @@ class CollectionPaymentCtrl extends Controller
 
             } catch (\Exception $e) {
                 DB::rollback();
-                wToast(__('新增退出付款單失敗', ['type'=>'danger']));
+                wToast(__('新增退出付款單失敗'), ['type'=>'danger']);
                 return redirect()->back();
             }
         }

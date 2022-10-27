@@ -385,7 +385,7 @@ class OrderInvoice extends Model
         } catch (\Exception $e) {
             $inv_result = null;
             // $e->getMessage();
-            wToast(__('發票資料新增失敗', ['type'=>'danger']));
+            wToast(__('發票資料新增失敗'), ['type'=>'danger']);
             DB::rollback();
         }
 
@@ -598,7 +598,7 @@ class OrderInvoice extends Model
         } catch (\Exception $e) {
             $inv_result = null;
             // $e->getMessage();
-            wToast(__('發票資料更新失敗', ['type'=>'danger']));
+            wToast(__('發票資料更新失敗'), ['type'=>'danger']);
             DB::rollback();
         }
 

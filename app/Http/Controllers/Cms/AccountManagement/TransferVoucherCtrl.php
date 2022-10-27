@@ -154,7 +154,7 @@ class TransferVoucherCtrl extends Controller
 
             } catch (\Exception $e) {
                 DB::rollback();
-                wToast(__('轉帳傳票儲存失敗', ['type'=>'danger']));
+                wToast(__('轉帳傳票儲存失敗'), ['type'=>'danger']);
                 return redirect()->back();
             }
         }
@@ -296,7 +296,7 @@ class TransferVoucherCtrl extends Controller
 
             } catch (\Exception $e) {
                 DB::rollback();
-                wToast(__('轉帳傳票更新失敗', ['type'=>'danger']));
+                wToast(__('轉帳傳票更新失敗'), ['type'=>'danger']);
                 return redirect()->back();
             }
         }

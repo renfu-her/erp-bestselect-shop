@@ -108,6 +108,7 @@ class RptUserReportMonthly extends Model
 
     public static function report($date = null, $type = "date")
     {
+        // 算商品毛利淨利
         $date = $date ? $date : date("Y-m-d 00:00:00", strtotime(now() . " -1 days"));
 
         switch ($type) {

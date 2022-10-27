@@ -175,7 +175,7 @@ class AccountsPayableCtrl extends Controller
                 ]);
             }
 
-            wToast(__('應付帳款付款單建立失敗', ['type'=>'danger']));
+            wToast(__('應付帳款付款單建立失敗'), ['type'=>'danger']);
             return redirect()->back();
         }
 

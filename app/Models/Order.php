@@ -1356,25 +1356,20 @@ class Order extends Model
     }
 
     /**
-     * 是否只能查到「訂單管理」自己、分潤人是本人的訂單？
+     * 是否可查看所有訂單？
+     * 否：只能查到「訂單管理」自己、分潤人是本人的訂單
      * @return bool
      */
-    public static function canOnlyViewSelfOrder()
+    public static function canViewWholeOrder()
     {
         $user = Auth::user();
-        $orderIndexPermissionId = DB::table('per_permissions')
-            ->where('name', 'cms.order.index')
-            ->select('id')
-            ->get()
-            ->first()
-            ->id;
 
         if (DB::table('per_permissions')
-            ->where('name', 'cms.order.only_self')
+            ->where('name', 'cms.order.whole')
             ->exists()
         ) {
-            $onlySelfPermissionId = DB::table('per_permissions')
-                ->where('name', 'cms.order.only_self')
+            $wholeOrderPermissionId = DB::table('per_permissions')
+                ->where('name', 'cms.order.whole')
                 ->select('id')
                 ->get()
                 ->first()
@@ -1386,50 +1381,32 @@ class Order extends Model
         $roleNames = User::find($user->id)->getRoleNames()->toArray();
 
         if (in_array('Super Admin', $roleNames)) {
+            return true;
+        }
+
+        //直接權限(direct permission)
+        if (User::find($user->id)->hasPermissionTo('cms.order.whole')
+        ) {
+            return true;
+        } else {
+            //檢查：角色的權限(role permission)是否只可以瀏覽自己,這裡別用Spatie套件的function，會有問題
+            foreach ($roleNames as $roleName) {
+                $roleId = DB::table('per_roles')
+                                    ->where('name', $roleName)
+                                    ->get()
+                                    ->first()
+                                    ->id;
+                if (
+                    DB::table('per_role_has_permissions')
+                        ->where([
+                            'role_id'       => $roleId,
+                            'permission_id' => $wholeOrderPermissionId,
+                        ])->exists()
+                ) {
+                    return true;
+                }
+            }
             return false;
         }
-        $hasOrderIndexRolePermission = false;
-        foreach ($roleNames as $roleName) {
-            $roleId = DB::table('per_roles')->where('name', $roleName)->get()->first()->id;
-            if (
-                DB::table('per_role_has_permissions')
-                    ->where([
-                        'role_id' => $roleId,
-                        'permission_id' => $orderIndexPermissionId,
-                    ])->exists()
-            ) {
-                $hasOrderIndexRolePermission = true;
-                break;
-            }
-        }
-        $hasOrderIndexDirectPermission = User::find($user->id)->hasPermissionTo('cms.order.index');
-        $hasOrderIndexPermission = $hasOrderIndexDirectPermission || $hasOrderIndexRolePermission;
-        if ($hasOrderIndexPermission) {
-            //直接權限(direct permission)
-            if (User::find($user->id)->hasPermissionTo('cms.order.only_self')
-            ) {
-                return true;
-            } else {
-                //檢查：角色的權限(role permission)是否只可以瀏覽自己,這裡別用Spatie套件的function，會有問題
-                foreach ($roleNames as $roleName) {
-                    $roleId = DB::table('per_roles')
-                                        ->where('name', $roleName)
-                                        ->get()
-                                        ->first()
-                                        ->id;
-                    if (
-                        DB::table('per_role_has_permissions')
-                            ->where([
-                                'role_id'       => $roleId,
-                                'permission_id' => $onlySelfPermissionId,
-                            ])->exists()
-                    ) {
-                        return true;
-                    }
-                }
-                return false;
-            }
-        }
-        return false;
     }
 }

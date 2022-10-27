@@ -127,9 +127,9 @@ class OrderCtrl extends Controller
 
         $dataList = $result['dataList']->groupBy('sub_order_id');
 
+        $canViewWholeOrder = Order::canViewWholeOrder();
         //訂單管理，只能看到自己和分潤人是自己的訂單
-        $canOnlyViewSelfOrder = Order::canOnlyViewSelfOrder();
-        if ($canOnlyViewSelfOrder) {
+        if (!$canViewWholeOrder) {
             if (DB::table('usr_users')
                 ->where('usr_users.id', Auth::user()->id)
                 ->whereNotNull('usr_users.customer_id')
@@ -149,6 +149,9 @@ class OrderCtrl extends Controller
                 //只能看到自己和分潤人是自己的訂單
                 $dataList->where('ord_profit.customer_id', $selfData->id)
                     ->orWhere('order.email', $selfData->email);
+            } else {
+                //會員沒綁定,回傳空值
+                $dataList->where('ord_profit.customer_id', 0);
             }
         }
         $sumPrice = $dataList;
@@ -188,7 +191,7 @@ class OrderCtrl extends Controller
             'receivedMethods' => ReceivedMethod::asSelectArray(),
             'saleChannels' => SaleChannel::select('id', 'title')->get()->toArray(),
             'data_per_page' => $page,
-            'canOnlyViewSelfOrder' => $canOnlyViewSelfOrder,
+            'canViewWholeOrder' => $canViewWholeOrder,
             'profitUsers' => $profitUsers
         ]);
     }
@@ -2234,7 +2237,7 @@ class OrderCtrl extends Controller
             }
 
         } else {
-            // wToast(__('發票開立失敗', ['type'=>'danger']));
+            // wToast(__('發票開立失敗'), ['type'=>'danger']);
             return redirect()->back();
         }
     }

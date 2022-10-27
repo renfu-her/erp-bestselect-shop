@@ -301,7 +301,7 @@ class CollectionReceivedCtrl extends Controller
                 return redirect()->to(ReceivedOrder::received_order_link($received_order->source_type, $received_order->source_id));
             }
 
-            wToast(__('收款單更新失敗', ['type'=>'danger']));
+            wToast(__('收款單更新失敗'), ['type'=>'danger']);
             return redirect()->back();
         }
 
