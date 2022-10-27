@@ -146,6 +146,9 @@ class OrderPayLinePay extends Model
             if(array_key_exists('action', $response->more_info)){
                 $action = $response->more_info['action'];
             }
+            if(array_key_exists('transaction_id', $response->more_info)){
+                $transaction_id = $response->more_info['transaction_id'];
+            }
             if(array_key_exists('authamt', $response->more_info)){
                 $authamt = $response->more_info['authamt'];
             }
