@@ -10,15 +10,25 @@
             @endif
 
             @if ($received_order || !in_array($order->status, ['建立']))
-                @if (($receivable || in_array($order->status, ['已付款', '已入款', '結案'])) && $received_credit_card_log)
-                    <a href="{{ Route('api.web.order.credit_card_checkout', ['id' => $order->id, 'unique_id' => $order->unique_id]) }}"
-                        class="btn btn-primary btn-sm my-1 ms-1" role="button" target="_blank">線上刷卡連結</a>
-                @else
-                    <button type="button" class="btn btn-primary btn-sm my-1 ms-1" disabled>線上刷卡連結</button>
+                @if (($receivable || in_array($order->status, ['已付款', '已入款', '結案'])))
+                    @if($received_credit_card_log)
+                        <a href="{{ Route('api.web.order.credit_card_checkout', ['id' => $order->id, 'unique_id' => $order->unique_id]) }}"
+                            class="btn btn-primary btn-sm my-1 ms-1" role="button" target="_blank">線上刷卡連結</a>
+                    @else
+                        <button type="button" class="btn btn-primary btn-sm my-1 ms-1" disabled>線上刷卡連結</button>
+                    @endif
+
+                    @if($line_pay_balance_price > 0)
+                        <a href="{{ route('cms.order.line-pay-refund', ['source_type' => 'ord_orders', 'source_id' => $order->id]) }}"
+                            class="btn btn-outline-danger btn-sm" role="button">Line Pay 付款取消</a>
+                    @endif
                 @endif
             @else
                 <a href="{{ Route('api.web.order.payment_credit_card', ['id' => $order->id, 'unique_id' => $order->unique_id]) }}"
                     class="btn btn-primary btn-sm" role="button" target="_blank">線上刷卡連結</a>
+
+                <a href="{{ Route('api.web.order.line-pay-payment', ['source_type' => 'ord_orders', 'source_id' => $order->id, 'unique_id' => $order->unique_id]) }}"
+                    class="btn btn-primary btn-sm" role="button" target="_blank">Line Pay付款</a>
             @endif
             @can('cms.order.bonus-gross')
                 <a href="{{ Route('cms.order.bonus-gross', ['id' => $order->id]) }}" class="btn btn-warning btn-sm my-1 ms-1"

@@ -10,13 +10,14 @@ use App\Enums\Order\UserAddrType;
 // use App\Enums\;
 use App\Enums\Received\ReceivedMethod;
 use App\Http\Controllers\Controller;
-use App\Models\Addr;
 use App\Models\Customer;
 use App\Models\Delivery;
 use App\Models\Discount;
+use App\Models\GeneralLedger;
 use App\Models\LogisticFlow;
 use App\Models\Order;
 use App\Models\OrderPayCreditCard;
+use App\Models\OrderPayLinePay;
 use App\Models\OrderRemit;
 use App\Models\ReceivedDefault;
 use App\Models\ReceivedOrder;
@@ -337,6 +338,207 @@ class OrderCtrl extends Controller
         ]);
     }
 
+    public function line_pay_payment(Request $request, $source_type, $source_id, $unique_id)
+    {
+        $request->merge([
+            'id' => $source_id,
+            'unique_id' => $unique_id,
+        ]);
+
+        $sn = 'err';
+        if($source_type == app(Order::class)->getTable()){
+            $request->validate([
+                'id' => 'required|exists:ord_orders,id',
+                'unique_id' => 'required|exists:ord_orders,unique_id',
+            ]);
+
+            $order = Order::orderDetail($source_id)->where([
+                'order.unique_id' => $unique_id,
+                'order.status' => '建立',
+            ])->get()->first();
+            if(!$order){
+                return abort(404);
+            }
+
+            $subOrder = Order::subOrderDetail($source_id)->get()->toArray();
+
+            $company_name = DB::table('acc_company')->first()->company;
+            $sn = $order->sn;
+
+            $packages = [];
+            if (count($subOrder) > 0) {
+                foreach ($subOrder as $key => $value) {
+                    $subOrder[$key]->items = json_decode($value->items);
+                    $products = [];
+
+                    foreach($value->items as $i_value) {
+                        $products[] = [
+                            'name' => $i_value->product_title,
+                            'imageUrl' => getImageUrl($i_value->img_url, true),
+                            'quantity' => $i_value->qty,
+                            'price' => $i_value->price
+                        ];
+                    }
+
+                    if($value->discount_value > 0){
+                        $products[] = [
+                            'name' => '購物金折抵或其它活動折扣',
+                            'quantity' => 1,
+                            'price' => -$value->discount_value
+                        ];
+                    }
+
+                    $packages[] = [
+                        'id' => $value->sn,
+                        // 'amount' => $value->total_price,
+                        'amount' => $value->discounted_price,
+                        'name' => $company_name,
+                        'products' => $products
+                    ];
+                }
+            }
+            if($order->dlv_fee > 0){
+                $packages[] = [
+                    'id' => 'L' . date('Ymd') . uniqid('-'),
+                    'amount' => $order->dlv_fee,
+                    'name' => $company_name,
+                    'products' => [
+                        [
+                            'name' => '物流費用',
+                            'quantity' => 1,
+                            'price' => $order->dlv_fee
+                        ]
+                    ]
+                ];
+            }
+            // if($order->discount_value > 0){
+            //     $order_discount = DB::table('ord_discounts')->where([
+            //         'order_type'=>'main',
+            //         'order_id'=>$source_id,
+            //     ])->where('discount_value', '>', 0)->get()->toArray();
+
+            //     $products = [];
+
+            //     foreach($order_discount as $d_value){
+            //         $products[] = [
+            //             'name' => $d_value->title,
+            //             'quantity' => 1,
+            //             'price' => -$d_value->discount_value
+            //         ];
+            //     }
+
+            //     $packages[] = [
+            //         'id' => 'D' . date('Ymd') . uniqid('-'),
+            //         'amount' => -$order->discount_value,
+            //         'name' => $company_name,
+            //         'products' => $products
+            //     ];
+            // }
+            $data = [
+                'amount' => $order->total_price,
+                'currency' => 'TWD',
+                'orderId' => $order->sn,
+                'packages' => $packages,
+                'redirectUrls' => [
+                    'confirmUrl' => route('api.web.order.line-pay-confirm', ['source_type'=>app(Order::class)->getTable(), 'source_id'=>$order->id, 'unique_id'=>$order->unique_id]),
+                    'cancelUrl' => route('api.web.order.line-pay-confirm', ['source_type'=>app(Order::class)->getTable(), 'source_id'=>$order->id, 'unique_id'=>$order->unique_id]),
+                ]
+            ];
+
+            $result = OrderPayLinePay::api_send('request', null, $data);
+            $result->more_info = ['action'=>'request'];
+            OrderPayLinePay::create_log($source_type, $source_id, $result);
+
+            if($result->returnCode == '0000'){
+                return redirect($result->info->paymentUrl->web);
+            }
+        }
+
+        // echo '交易失敗';
+        return redirect(env('FRONTEND_URL') . 'payfin/' . $source_id . '/' . $sn . '/1');
+    }
+
+    public function line_pay_confirm(Request $request, $source_type, $source_id, $unique_id)
+    {
+        $request->merge([
+            'id' => $source_id,
+            'unique_id' => $unique_id,
+            'sn' => request('orderId'),
+            'transaction_id' => request('transactionId'),
+        ]);
+
+        $sn = request('orderId');
+
+        if($source_type == app(Order::class)->getTable()){
+            $request->validate([
+                'id' => 'required|exists:ord_orders,id',
+                'unique_id' => 'required|exists:ord_orders,unique_id',
+                'sn' => 'required|exists:ord_orders,sn',
+                'transaction_id' => 'required|exists:ord_payment_line_pay_log,transaction_id',
+            ]);
+
+            $order = Order::orderDetail($source_id)->where([
+                'order.unique_id' => $unique_id,
+                'order.status' => '建立',
+            ])->get()->first();
+            if(!$order){
+                return abort(404);
+            }
+
+            $data = [
+                'amount' => $order->total_price,
+                'currency' => 'TWD',
+            ];
+            $result = OrderPayLinePay::api_send('confirm', request('transactionId'), $data);
+
+            if($result->returnCode == '0000'){
+                $received_order = ReceivedOrder::where([
+                        'source_type' => $source_type,
+                        'source_id' => $source_id,
+                    ])->first();
+
+                if (!$received_order) {
+                    $received_order = ReceivedOrder::create_received_order($source_type, $source_id);
+                    $received_method = ReceivedMethod::AccountsReceivable; //'account_received'
+                    $grade = ReceivedDefault::leftJoinSub(GeneralLedger::getAllGrade(), 'grade', function($join) {
+                            $join->on('grade.primary_id', 'acc_received_default.default_grade_id');
+                        })->where('grade.code', '11050010')->selectRaw('grade.primary_id AS id, grade.code AS code, grade.name AS name')->first();
+
+                    $data = [];
+                    $data['acc_transact_type_fk'] = $received_method;
+                    $data[$received_method] = [
+                        'grade_id' => $grade->id,
+                        'grade_code' => $grade->code,
+                        'grade_name' => $grade->name,
+                        'action' => 'confirm',
+                        'checkout_mode' => 'online',
+                    ];
+                    $result_id = ReceivedOrder::store_received_method($data);
+
+                    $result->more_info = $data[$received_method];
+
+                    $parm = [];
+                    $parm['received_order_id'] = $received_order->id;
+                    $parm['received_method'] = $received_method;
+                    $parm['received_method_id'] = $result_id;
+                    $parm['grade_id'] = $grade->id;
+                    $parm['price'] = $order->total_price;
+                    ReceivedOrder::store_received($parm);
+                }
+
+                OrderPayLinePay::create_log($source_type, $source_id, $result);
+
+                return redirect(env('FRONTEND_URL') . 'payfin/' . $source_id . '/' . $sn . '/0');
+            }
+
+            OrderPayLinePay::create_log($source_type, $source_id, $result);
+        }
+
+        // echo '交易失敗';
+        return redirect(env('FRONTEND_URL') . 'payfin/' . $source_id . '/' . $sn . '/1');
+    }
+
+
     public function createOrder(Request $request)
     {
 
@@ -654,6 +856,9 @@ class OrderCtrl extends Controller
 
         $order->logistic_url = env('LOGISTIC_URL') . 'guest/order-flow/';
         // credit card end
+
+        // line pay
+        $order->line_pay_url = route('api.web.order.line-pay-payment', ['source_type' => app(Order::class)->getTable(), 'source_id' => $order->id, 'unique_id' => $order->unique_id]);
 
         $re = [];
         $re[ResponseParam::status()->key] = '0';
