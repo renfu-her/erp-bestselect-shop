@@ -28,8 +28,8 @@ Route::group(['prefix' => 'order', 'as' => 'order.'], function () {
     Route::match(['get', 'post'], 'ro_review/{id}', [OrderCtrl::class, 'ro_review'])->name('ro-review')->middleware('permission:cms.collection_received.edit');
     Route::match(['get', 'post'], 'ro_taxation/{id}', [OrderCtrl::class, 'ro_taxation'])->name('ro-taxation')->middleware('permission:cms.collection_received.edit');
 
-    Route::match(['get', 'post'], 'logistic_po_create/{id}/{sid}', [OrderCtrl::class, 'logistic_po_create'])->name('logistic-po-create')->middleware('permission:cms.collection_payment.logistic-po-create');
     Route::get('logistic_po/{id}/{sid}', [OrderCtrl::class, 'logistic_po'])->name('logistic-po');
+    Route::match(['get', 'post'], 'logistic_po_create/{id}/{sid}', [OrderCtrl::class, 'logistic_po_create'])->name('logistic-po-create');
     Route::get('return_pay/{id}/{sid?}', [OrderCtrl::class, 'return_pay_order'])->name('return-pay-order');
     Route::match(['get', 'post'], 'return_pay_create/{id}/{sid?}', [OrderCtrl::class, 'return_pay_create'])->name('return-pay-create');
 
