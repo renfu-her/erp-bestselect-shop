@@ -40,7 +40,7 @@ Route::group(['prefix' => 'order', 'as' => 'order.'], function () {
     Route::match(['get', 'post'], 'invoice/{id}/edit', [OrderCtrl::class, 'edit_invoice'])->name('edit-invoice');
     Route::get('invoice/{id}/send', [OrderCtrl::class, 'send_invoice'])->name('send-invoice');
 
-    Route::match(['get', 'post'], 'line_pay_refund/{source_type}/{source_id}', [OrderCtrl::class, 'line_pay_refund'])->name('line-pay-refund');
+    Route::match(['get', 'post'], 'line_pay_refund/{source_type}/{source_id}', [OrderCtrl::class, 'line_pay_refund'])->name('line-pay-refund')->middleware('permission:cms.collection_received.edit');
 
     // 獎金毛利
     Route::get('bonus-gross/{id}', [OrderCtrl::class, 'bonus_gross'])->name('bonus-gross')->middleware('permission:cms.order.bonus-gross');
