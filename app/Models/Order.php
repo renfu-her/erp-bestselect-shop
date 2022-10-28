@@ -508,7 +508,7 @@ class Order extends Model
      * @param array $coupon_obj [type,value]
      *
      */
-    public static function createOrder($email, $sale_channel_id, $address, $items, $mcode = null, $note = null, $coupon_obj = null, $payinfo = null, ReceivedMethod $payment = null, $dividend = [], $operator_user)
+    public static function createOrder($email, $sale_channel_id, $address, $items, $mcode = null, $note = null, $coupon_obj = null, $payinfo = null, $payment = null, $dividend = [], $operator_user)
     {
 
         $order_sn = Sn::createSn('order', 'O');

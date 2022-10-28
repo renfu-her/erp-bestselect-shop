@@ -58,6 +58,8 @@ class OrderCtrl extends Controller
                 'name' => ReceivedMethod::CreditCard()->description],
             ['id' => ReceivedMethod::Remittance()->value,
                 'name' => ReceivedMethod::Remittance()->description],
+            ['id' => 'line_pay',
+                'name' => 'Line Pay'],
         ];
 
         return response()->json($re);
@@ -441,7 +443,7 @@ class OrderCtrl extends Controller
                 'packages' => $packages,
                 'redirectUrls' => [
                     'confirmUrl' => route('api.web.order.line-pay-confirm', ['source_type'=>app(Order::class)->getTable(), 'source_id'=>$order->id, 'unique_id'=>$order->unique_id]),
-                    'cancelUrl' => route('api.web.order.line-pay-confirm', ['source_type'=>app(Order::class)->getTable(), 'source_id'=>$order->id, 'unique_id'=>$order->unique_id]),
+                    'cancelUrl' => env('FRONTEND_URL') . 'payfin/' . $source_id . '/' . $sn . '/1',
                 ]
             ];
 
@@ -573,7 +575,7 @@ class OrderCtrl extends Controller
             "recipient.phone" => "required",
             "recipient.region_id" => "required|numeric",
             "recipient.addr" => "required",
-            "payment" => Rule::in([ReceivedMethod::Cash()->value, ReceivedMethod::CreditCard()->value, ReceivedMethod::Remittance()->value]),
+            "payment" => Rule::in([ReceivedMethod::Cash()->value, ReceivedMethod::CreditCard()->value, ReceivedMethod::Remittance()->value, 'line_pay']),
             "products" => 'array|required',
             "products.*.qty" => "required|numeric",
             "products.*.product_id" => "required",
@@ -670,7 +672,16 @@ class OrderCtrl extends Controller
             $dividend = $payLoad['points'];
         }
 
-        $re = Order::createOrder($customer->email, 1, $address, $payLoad['products'], $payLoad['mcode'] ?? null, $payLoad['note'], $couponObj, $payinfo, ReceivedMethod::fromValue($payLoad['payment']), $dividend, $request->user());
+        if($payLoad['payment'] == 'line_pay'){
+            $payment = (object) [
+                'value' => 'line_pay',
+                'description' => 'Line Pay',
+            ];
+
+        } else {
+            $payment = ReceivedMethod::fromValue($payLoad['payment']);
+        }
+        $re = Order::createOrder($customer->email, 1, $address, $payLoad['products'], $payLoad['mcode'] ?? null, $payLoad['note'], $couponObj, $payinfo, $payment, $dividend, $request->user());
 
         if ($re['success'] == '1') {
             DB::commit();
