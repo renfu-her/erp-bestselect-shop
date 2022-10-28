@@ -1506,6 +1506,7 @@ class OrderCtrl extends Controller
                 'product_grade_id' => 'required|exists:acc_all_grades,id',
                 'product' => 'required|array',
                 'order_item' => 'required|array',
+                'order_refund' => 'nullable|array',
                 'logistics_grade_id' => 'nullable|exists:acc_all_grades,id',
                 'order_dlv' => 'nullable|array',
                 'discount' => 'nullable|array',
@@ -1547,6 +1548,14 @@ class OrderCtrl extends Controller
                     }
                 }
 
+                if (request('order_refund') && is_array(request('order_refund'))) {
+                    $refund_item = request('order_refund');
+                    foreach ($refund_item as $key => $value) {
+                        $value['refund_item_id'] = $key;
+                        ReceivedRefund::update_refund_item($value);
+                    }
+                }
+
                 if (request('order_dlv') && is_array(request('order_dlv'))) {
                     $order = request('order_dlv');
                     foreach ($order as $key => $value) {
@@ -1577,6 +1586,8 @@ class OrderCtrl extends Controller
 
             $order = Order::findOrFail(request('id'));
             $order_list_data = OrderItem::item_order(request('id'))->get();
+            $order_refund_data = ReceivedRefund::refund_list(null, $received_order_data->first()->id)->get();
+
             $order_discount = DB::table('ord_discounts')->where([
                 'order_type' => 'main',
                 'order_id' => request('id'),
@@ -1592,6 +1603,7 @@ class OrderCtrl extends Controller
                 'order' => $order,
                 'order_discount' => $order_discount,
                 'order_list_data' => $order_list_data,
+                'order_refund_data' => $order_refund_data,
                 'received_data' => $received_data,
                 'total_grades' => $total_grades,
 
