@@ -18,7 +18,6 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class CustomerCtrl extends Controller
@@ -274,20 +273,9 @@ class CustomerCtrl extends Controller
     public function order(Request $request, $id)
     {
         $email = Customer::where('id', '=', $id)->select('email')->get()->first()->email;
-        $dataList = Order::orderList(
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            $email
-        );
-
-        $dataList = $dataList['dataList']->addSelect([
+        $dataList = Order::orderListSimple($email)->addSelect([
             'ord_address.phone as ord_phone',
-        ])
-            ->paginate(50);
+        ])->paginate(50);
 
         return view('cms.admin.customer.order', [
             'dataList' => $dataList,
