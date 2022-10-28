@@ -769,10 +769,10 @@ class Order extends Model
         $print_flag = $carrier_type != null || $love_code ? 'N' : 'Y';
 
         if ($category === 'B2B') {
-            // if ($tax_type == 9) {
-            //     DB::rollBack();
-            //     return ['success' => '0', 'error_msg' => '三聯式發票稅別不可為混合課稅'];
-            // }
+            if ($tax_type == 9) {
+                DB::rollBack();
+                return ['success' => '0', 'error_msg' => '三聯式發票稅別不可為混合課稅'];
+            }
 
             $carrier_type = null;
             $carrier_num = null;
