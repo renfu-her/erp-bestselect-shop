@@ -42,7 +42,7 @@ class CouponEventCtrl extends Controller
      */
     public function create(Request $request)
     {
-        $coupons = Discount::where('method_code', 'coupon')->get();
+        $coupons = Discount::where('category_code', 'coupon')->get();
 
         return view('cms.marketing.coupon_event.edit', [
             'method' => 'create',
