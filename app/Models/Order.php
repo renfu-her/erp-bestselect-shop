@@ -193,6 +193,66 @@ class Order extends Model
         ];
 //           dd($order->get()->toArray());
     }
+    // 簡易版
+    public static function orderListSimple(
+        $email
+    ) {
+        $order = DB::table('ord_orders as order')
+            ->select(['order.id as id',
+                'order.sn as main_order_sn',
+                'order.status as order_status',
+                'order.payment_method',
+                'order.payment_method_title',
+                'ord_address.name',
+                'sale.title as sale_title',
+                'so.ship_category_name',
+                'so.ship_event',
+                'so.ship_sn',
+                'so.total_price',
+                'dlv_delivery.logistic_status as logistic_status',
+                'dlv_logistic.package_sn as package_sn',
+                'shi_group.name as ship_group_name',
+                'ord_received_orders.sn as or_sn',
+                'so.projlgt_order_sn',
+                'so.dlv_audit_date'
+            ])
+            ->selectRaw('DATE_FORMAT(order.created_at,"%Y-%m-%d") as order_date')
+            ->selectRaw('so.sn as order_sn')
+            ->leftJoin('ord_sub_orders as so', 'order.id', '=', 'so.order_id')
+            ->leftJoin('usr_customers as customer', 'order.email', '=', 'customer.email')
+            ->leftJoin('prd_sale_channels as sale', 'sale.id', '=', 'order.sale_channel_id')
+            ->leftJoin('ord_address', function ($join) {
+                $join->on('ord_address.order_id', '=', 'order.id')
+                    ->where('ord_address.type', '=', UserAddrType::orderer);
+            })
+            ->leftJoin('dlv_delivery', function ($join) {
+                $join->on('dlv_delivery.event_id', '=', 'so.id');
+                $join->where('dlv_delivery.event', '=', Event::order()->value);
+            })
+            ->leftJoin('dlv_logistic', function ($join) {
+                $join->on('dlv_logistic.delivery_id', '=', 'dlv_delivery.id');
+            })
+            ->leftJoin('shi_group', function ($join) {
+                $join->on('shi_group.id', '=', 'dlv_logistic.ship_group_id');
+                $join->whereNotNull('dlv_logistic.ship_group_id');
+            })
+            ->leftJoin('ord_received_orders', function ($join) {
+                $join->on('order.id', '=', 'ord_received_orders.source_id');
+                $join->where([
+                    'ord_received_orders.source_type' => app(Order::class)->getTable(),
+                    'ord_received_orders.deleted_at' => null,
+                ]);
+            });
+
+        if ($email) {
+            $order->where('order.email', $email);
+        }
+
+        $order->orderByDesc('order.id');
+
+        return $order;
+
+    }
 
     public static function orderDetail($order_id, $email = null)
     {
@@ -525,7 +585,7 @@ class Order extends Model
             $region_title = $region ? $region->title : '';
             $zipcode = $region ? $region->zipcode : '';
             $_address = $zipcode . " " . $city_title . $region_title . $user['address'];
-         //   dd($user['city_id']);
+            //   dd($user['city_id']);
             $address[$key]['city_id'] = $user['city_id'];
             $address[$key]['city_title'] = $city_title;
             $address[$key]['region_id'] = $user['region_id'];
@@ -1392,16 +1452,16 @@ class Order extends Model
             //檢查：角色的權限(role permission)是否只可以瀏覽自己,這裡別用Spatie套件的function，會有問題
             foreach ($roleNames as $roleName) {
                 $roleId = DB::table('per_roles')
-                                    ->where('name', $roleName)
-                                    ->get()
-                                    ->first()
-                                    ->id;
+                    ->where('name', $roleName)
+                    ->get()
+                    ->first()
+                    ->id;
                 if (
                     DB::table('per_role_has_permissions')
-                        ->where([
-                            'role_id'       => $roleId,
-                            'permission_id' => $wholeOrderPermissionId,
-                        ])->exists()
+                    ->where([
+                        'role_id' => $roleId,
+                        'permission_id' => $wholeOrderPermissionId,
+                    ])->exists()
                 ) {
                     return true;
                 }
