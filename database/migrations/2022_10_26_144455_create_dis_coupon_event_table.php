@@ -31,6 +31,7 @@ class CreateDisCouponEventTable extends Migration
 
         Schema::create('dis_coupon_event_log', function (Blueprint $table) {
             $table->id();
+            $table->integer('event_id')->comment('活動id');
             $table->integer('customer_id')->comment('消費者');
             $table->integer('discount_id')->comment('優惠券');
             $table->integer('qty')->comment('數量');
