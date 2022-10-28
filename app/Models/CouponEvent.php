@@ -14,11 +14,17 @@ class CouponEvent extends Model
     protected $guarded = [];
 
     public static function dataList($title)
-    {
+    {   
+        $sub = CouponEventLog::select(['event_id'])
+        ->selectRaw('SUM(qty) as total_qty')
+        ->groupBy('event_id');
+
+       
 
         $re = DB::table('dis_coupon_event as ce')
             ->leftJoin('dis_discounts as discount', 'discount.id', '=', 'ce.discount_id')
-            ->select(['ce.*', 'discount.title as discount_title'])
+            ->leftJoinSub($sub,'sub','ce.id','=','sub.event_id')
+            ->select(['ce.*', 'discount.title as discount_title','sub.total_qty'])
             ->whereNull('ce.deleted_at');
 
         if ($title) {
