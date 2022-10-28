@@ -182,6 +182,9 @@ class OrderCtrl extends Controller
 
         $profitUsers = CustomerProfit::dataList(null, null, 'success')->get();
 
+        $receivedMethods = ReceivedMethod::asSelectArray();
+        $receivedMethods['line_pay'] = 'Line Pay';
+
         return view('cms.commodity.order.list', [
             'dataList' => $dataList,
 //            'uniqueDataList' => $uniqueDataList,
@@ -189,7 +192,7 @@ class OrderCtrl extends Controller
             'cond' => $cond,
             'orderStatus' => $orderStatus,
             'shipmentStatus' => LogisticStatus::asArray(),
-            'receivedMethods' => ReceivedMethod::asSelectArray(),
+            'receivedMethods' => $receivedMethods,
             'saleChannels' => SaleChannel::select('id', 'title')->get()->toArray(),
             'data_per_page' => $page,
             'canViewWholeOrder' => $canViewWholeOrder,
