@@ -164,7 +164,7 @@
                                 </td>
                                 <td>{{ $r_value->refund_title }}</td>
                                 <td class="text-end">{{ $r_value->refund_qty }}</td>
-                                <td class="text-end">{{ number_format($r_value->refund_total_price, 2) }}</td>
+                                <td class="text-end">-{{ number_format($r_value->refund_total_price, 2) }}</td>
                                 <td>
                                     <div class="form-check form-check-inline lh-base">
                                         <label class="form-check-label" for="tax_{{ $serial }}_1">
