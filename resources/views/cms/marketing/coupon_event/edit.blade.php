@@ -31,7 +31,6 @@
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">單次領取張數 <span class="text-danger">*</span></label>
                     <div class="input-group flex-nowrap">
-                        <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
                         <input type="number" class="form-control @error('qty_per_once') is-invalid @enderror"
                             name="qty_per_once" min="1" value="{{ old('qty_per_once', $data->qty_per_once ?? 1) }}"
                             placeholder="單次領取張數" required>
@@ -41,9 +40,8 @@
                     </div>
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
-                    <label class="form-label">總張數<span class="text-danger">*</span></label>
+                    <label class="form-label">總張數<span class="text-danger">*</span><span class="small text-secondary">（0則表示無限制）</span></label>
                     <div class="input-group flex-nowrap">
-                        <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
                         <input type="number" class="form-control @error('qty_limit') is-invalid @enderror" name="qty_limit"
                             min="0" value="{{ old('qty_limit', $data->qty_limit ?? 0) }}" placeholder="總張數"
                             required>
@@ -116,7 +114,7 @@
         <div id="submitDiv">
             <div class="col-auto">
                 <button type="submit" class="btn btn-primary px-4">儲存</button>
-                <a href="{{ Route('cms.discount.index') }}" class="btn btn-outline-primary px-4" role="button">返回列表</a>
+                <a href="{{ Route('cms.coupon-event.index') }}" class="btn btn-outline-primary px-4" role="button">返回列表</a>
             </div>
         </div>
     </form>
