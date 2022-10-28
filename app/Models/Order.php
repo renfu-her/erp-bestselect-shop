@@ -742,7 +742,7 @@ class Order extends Model
         if (count(array_unique($item_tax_type_arr)) == 1) {
             if (array_unique($item_tax_type_arr)[0] == 1) {
                 $tax_type = 1;
-            } else if (array_unique($item_tax_type_arr)[0] == 3) {
+            } else if (array_unique($item_tax_type_arr)[0] == 0) {
                 $tax_type = 3;
             } else {
                 $tax_type = 9;
