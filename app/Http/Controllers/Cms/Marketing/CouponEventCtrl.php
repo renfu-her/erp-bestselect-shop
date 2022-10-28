@@ -75,7 +75,7 @@ class CouponEventCtrl extends Controller
         $reuse = isset($d['reuse']) ? 1 : 0;
 
         $start_date = !isset($d['start_date']) ? date("Y-m-d H:i:00") : $d['start_date'];
-        $end_date = !isset($d['end_date']) ? date("Y-m-d H:i:00", strtotime(now() . " +20 years")) : $d['end_date'];
+        $end_date = !isset($d['end_date']) ? date("Y-m-d H:i:00", strtotime(now() . " +3 years")) : $d['end_date'];
 
         CouponEvent::create([
             'title' => $d['title'],
@@ -150,7 +150,7 @@ class CouponEventCtrl extends Controller
         $reuse = isset($d['reuse']) ? 1 : 0;
 
         $start_date = !isset($d['start_date']) ? date("Y-m-d H:i:00") : $d['start_date'];
-        $end_date = !isset($d['end_date']) ? date("Y-m-d H:i:00", strtotime(now() . " +20 years")) : $d['end_date'];
+        $end_date = !isset($d['end_date']) ? date("Y-m-d H:i:00", strtotime(now() . " +3 years")) : $d['end_date'];
 
         CouponEvent::where('id', $id)->update([
             'title' => $d['title'],
