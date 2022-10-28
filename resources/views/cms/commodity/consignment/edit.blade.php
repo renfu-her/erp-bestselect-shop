@@ -23,6 +23,34 @@
                    href="{{ Route('cms.consignment.print_order_ship', ['id' => $id]) . '?type=A4' }}">
                     列印出貨單-A4
                 </a>
+
+                @if (isset($delivery) && isset($delivery->back_date))
+                    @if (false == isset($delivery->back_inbound_date) && false == ($has_already_pay_delivery_back ?? false))
+                        <button type="button"
+                                data-href="{{ Route('cms.delivery.back_delete', ['deliveryId' => $delivery->id], true) }}"
+                                data-bs-toggle="modal" data-bs-target="#confirm-delete-back"
+                                class="btn btn-sm btn-danger -in-header mb-1">
+                            刪除退貨
+                        </button>
+                    @endif
+
+                    <a class="btn btn-sm btn-success -in-header mb-1"
+                       href="{{ Route('cms.delivery.back_detail', ['event' => \App\Enums\Delivery\Event::consignment()->value, 'eventId' => $delivery->event_id], true) }}">銷貨退回明細</a>
+
+                    @can('cms.delivery.edit')
+                        @if (isset($delivery->back_inbound_date))
+                            <a class="btn btn-sm btn-danger -in-header mb-1"
+                               href="{{ Route('cms.delivery.back_inbound_delete', ['deliveryId' => $delivery->id], true) }}">刪除退貨入庫</a>
+                        @else
+                            <a class="btn btn-sm btn-success -in-header mb-1"
+                               href="{{ Route('cms.delivery.back_inbound', ['event' => \App\Enums\Delivery\Event::consignment()->value, 'eventId' => $delivery->event_id], true) }}">退貨入庫審核</a>
+                        @endif
+                    @endcan
+
+                @else
+                    <a class="btn btn-sm btn-outline-danger -in-header mb-1"
+                       href="{{ Route('cms.delivery.back', ['event' => \App\Enums\Delivery\Event::consignment()->value, 'eventId' => $delivery->event_id], true) }}">退貨</a>
+                @endif
             </div>
         </nav>
     @endif
@@ -461,10 +489,23 @@
             <button type="button" class="btn btn-primary btn-ok">加入寄倉清單</button>
         </x-slot>
     </x-b-modal>
+
+    <!-- Modal -->
+    <x-b-modal id="confirm-delete-back">
+        <x-slot name="title">刪除確認</x-slot>
+        <x-slot name="body">確認要刪除？</x-slot>
+        <x-slot name="foot">
+            <a class="btn btn-danger btn-ok" href="#">確認並刪除</a>
+        </x-slot>
+    </x-b-modal>
 @endsection
 @once
     @push('sub-scripts')
         <script>
+            $('#confirm-delete-back').on('show.bs.modal', function(e) {
+                $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
+            });
+
             let hasCreatedFinalPayment = @json($hasCreatedFinalPayment?? false);
             const lgt_cost = @json($consignmentData->lgt_cost);
 

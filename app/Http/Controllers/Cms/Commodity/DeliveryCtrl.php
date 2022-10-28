@@ -330,11 +330,7 @@ class DeliveryCtrl extends Controller
                     $subOrder = SubOrders::where('id', '=', $delivery->event_id)->first();
                     OrderFlow::changeOrderStatus($subOrder->order_id, OrderStatus::BackProcessing());
                 } else if (Event::consignment()->value == $delivery->event) {
-                    DB::rollBack();
-                    return ['success' => 0, 'error_msg' => '寄倉暫無退貨功能'];
                 } else if (Event::csn_order()->value == $delivery->event) {
-                    DB::rollBack();
-                    return ['success' => 0, 'error_msg' => '寄倉訂購暫無退貨功能'];
                     CsnOrderFlow::changeOrderStatus($delivery->event_id, OrderStatus::BackProcessing());
                 }
 
@@ -362,6 +358,7 @@ class DeliveryCtrl extends Controller
                 } else {
                     $data = [];
                     $default_grade_id = ReceivedDefault::where('name', '=', 'product')->first()->default_grade_id;
+                    $curr_date = date('Y-m-d H:i:s');
                     for($i = 0; $i < count($input_items['id']); $i++) {
                         $addItem = [
                             'delivery_id' => $delivery_id,
@@ -377,6 +374,8 @@ class DeliveryCtrl extends Controller
                             'show' => $input_items['show'][$i] ?? false,
                             'type' => DlvBackType::product()->value,
                             'grade_id' => $default_grade_id,
+                            'created_at' => $curr_date,
+                            'updated_at' => $curr_date,
                         ];
                         //判斷為訂單 則寫入目前訂單款式的bonus
                         if (Event::order()->value == $delivery->event) {
@@ -413,6 +412,7 @@ class DeliveryCtrl extends Controller
                             ]);
                         } else {
                             if (false == isset($input_other_items['bgrade_id'][$key])) {
+                                DB::rollBack();
                                 return ['success' => 0, 'error_msg' => '未填入會計科目'];
                             }
                             DlvBack::create([
@@ -480,7 +480,7 @@ class DeliveryCtrl extends Controller
             $ord_items = $dlv_back;
         } else if ('create' == $method){
             if(Event::order()->value == $event) {
-                $ord_items = DB::table(app(OrderItem::class)->getTable(). ' as ord_item')
+                $ord_items = DB::table(app(OrderItem::class)->getTable() . ' as ord_item')
                     ->where('ord_item.sub_order_id', '=', $eventId)
                     ->select('ord_item.id as event_item_id'
                         , 'ord_item.product_style_id'
@@ -489,6 +489,28 @@ class DeliveryCtrl extends Controller
                         , 'ord_item.price'
                         , 'ord_item.bonus'
                         , 'ord_item.qty as origin_qty'
+                    )->get();
+            } elseif(Event::consignment()->value == $event) {
+                $ord_items = DB::table(app(ConsignmentItem::class)->getTable() . ' as ord_item')
+                    ->where('ord_item.consignment_id', '=', $eventId)
+                    ->select('ord_item.id as event_item_id'
+                        , 'ord_item.product_style_id'
+                        , 'ord_item.title as product_title'
+                        , 'ord_item.sku'
+                        , 'ord_item.price'
+                        , DB::raw('@0:="0" as bonus')
+                        , 'ord_item.num as origin_qty'
+                    )->get();
+            } elseif(Event::csn_order()->value == $event) {
+                $ord_items = DB::table(app(CsnOrderItem::class)->getTable() . ' as ord_item')
+                    ->where('ord_item.csnord_id', '=', $eventId)
+                    ->select('ord_item.id as event_item_id'
+                        , 'ord_item.product_style_id'
+                        , 'ord_item.title as product_title'
+                        , 'ord_item.sku'
+                        , 'ord_item.price'
+                        , DB::raw('@0:="0" as bonus')
+                        , 'ord_item.num as origin_qty'
                     )->get();
             }
         }
@@ -522,32 +544,50 @@ class DeliveryCtrl extends Controller
         $orderInvoice = null;
         $logistic = null;
         $rsp_arr['has_payable_data_back'] = false; //退貨付款單已有付款紀錄
+        $source_type = null;
         if (Event::order()->value == $delivery->event) {
             $subOrder = SubOrders::where('id', '=', $delivery->event_id)->first();
             $order = Order::orderDetail($subOrder->order_id)->get()->first();
-            $orderInvoice = OrderInvoice::where('source_type', '=', app(Order::class)->getTable())
-                ->where('source_id', '=', $subOrder->order_id)->first();
-            $item_table = app(OrderItem::class)->getTable();
             $rsp_arr['order'] = $order;
-            $rsp_arr['orderInvoice'] = $orderInvoice;
-            //判斷該付款單是否有付款紀錄
-            $paying_order = PayingOrder::where('source_type', '=', app(Delivery::class)->getTable())
-                ->where('source_id', '=', $delivery->id)
-                ->whereNull('source_sub_id')
-                ->whereNull('deleted_at')
-                ->first();
-            if (isset($paying_order)) {
-                $payable_data = PayingOrder::get_payable_detail($paying_order->id);
-                if (0 < count($payable_data)) {
-                    $rsp_arr['has_payable_data_back'] = true;
-                }
-            }
+            $item_table = app(OrderItem::class)->getTable();
+            $source_type = app(Order::class)->getTable();
         } else if (Event::consignment()->value == $delivery->event) {
+            $order = DB::table(app(Consignment::class)->getTable(). ' as csn')
+                ->leftJoin(app(Depot::class)->getTable(). ' as depot', 'depot.id', '=', 'csn.receive_depot_id')
+                ->where('csn.id', $delivery->event_id)
+                ->whereNull('csn.deleted_at')
+                ->select('csn.sn as sn', 'depot.name as ord_name', 'depot.tel as ord_phone', 'depot.addr as ord_address')
+                ->first();
+            $rsp_arr['order'] = $order;
             $item_table = app(ConsignmentItem::class)->getTable();
-            return abort(404);
+            $source_type = app(Consignment::class)->getTable();
         } else if (Event::csn_order()->value == $delivery->event) {
+            $order = DB::table(app(CsnOrder::class)->getTable(). ' as csn')
+                ->leftJoin(app(Depot::class)->getTable(). ' as depot', 'depot.id', '=', 'csn.depot_id')
+                ->where('csn.id', $delivery->event_id)
+                ->whereNull('csn.deleted_at')
+                ->select('csn.sn as sn', 'depot.name as ord_name', 'depot.tel as ord_phone', 'depot.addr as ord_address')
+                ->first();
+            $rsp_arr['order'] = $order;
             $item_table = app(CsnOrderItem::class)->getTable();
-            return abort(404);
+            $source_type = app(CsnOrder::class)->getTable();
+        }
+        if (null != $source_type) {
+            $orderInvoice = OrderInvoice::where('source_type', '=', app(CsnOrder::class)->getTable())
+                ->where('source_id', '=', $delivery->event_id)->first();
+            $rsp_arr['orderInvoice'] = $orderInvoice;
+        }
+        //判斷該付款單是否有付款紀錄
+        $paying_order = PayingOrder::where('source_type', '=', app(Delivery::class)->getTable())
+            ->where('source_id', '=', $delivery->id)
+            ->whereNull('source_sub_id')
+            ->whereNull('deleted_at')
+            ->first();
+        if (isset($paying_order)) {
+            $payable_data = PayingOrder::get_payable_detail($paying_order->id);
+            if (0 < count($payable_data)) {
+                $rsp_arr['has_payable_data_back'] = true;
+            }
         }
 
         if (isset($item_table)) {
