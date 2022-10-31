@@ -355,7 +355,7 @@ class PurchaseInbound extends Model
                         - $inboundDataGet->back_num - $inboundDataGet->scrap_num
                         - $sale_num) < 0) {
                     DB::rollBack();
-                    return ['success' => 0, 'error_msg' => '入庫單出貨數量超出範圍'];
+                    return ['success' => 0, 'error_msg' => '入庫單出貨數量超出範圍 '. $inboundDataGet->sn];
                 } else {
                     $update_arr = [];
 
