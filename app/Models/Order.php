@@ -715,41 +715,41 @@ class Order extends Model
     //參考OrderInvoice::create_invoice的付款資訊來改
     public static function updateOrderUsrPayMethod($order_id, $payinfo)
     {
-        $item_tax_type_arr = [];
-        $n_order = Order::orderDetail($order_id)->first();
-        $n_sub_order = Order::subOrderDetail($order_id)->get();
-        foreach ($n_sub_order as $key => $value) {
-            $n_sub_order[$key]->items = json_decode($value->items);
-            $n_sub_order[$key]->consume_items = json_decode($value->consume_items);
-        }
-        $n_order_discount = DB::table('ord_discounts')->where([
-            'order_type' => 'main',
-            'order_id' => $order_id,
-        ])->where('discount_value', '>', 0)->get()->toArray();
+        // $item_tax_type_arr = [];
+        // $n_order = Order::orderDetail($order_id)->first();
+        // $n_sub_order = Order::subOrderDetail($order_id)->get();
+        // foreach ($n_sub_order as $key => $value) {
+        //     $n_sub_order[$key]->items = json_decode($value->items);
+        //     $n_sub_order[$key]->consume_items = json_decode($value->consume_items);
+        // }
+        // $n_order_discount = DB::table('ord_discounts')->where([
+        //     'order_type' => 'main',
+        //     'order_id' => $order_id,
+        // ])->where('discount_value', '>', 0)->get()->toArray();
 
-        foreach ($n_sub_order as $s_value) {
-            foreach ($s_value->items as $i_value) {
-                $item_tax_type_arr[] = $i_value->product_taxation == 1 ? 1 : 3;
-            }
-        }
-        if ($n_order->dlv_fee > 0) {
-            $item_tax_type_arr[] = $n_order->dlv_taxation == 1 ? 1 : 3;
-        }
-        foreach ($n_order_discount as $d_value) {
-            $item_tax_type_arr[] = $d_value->discount_taxation == 1 ? 1 : 3;
-        }
+        // foreach ($n_sub_order as $s_value) {
+        //     foreach ($s_value->items as $i_value) {
+        //         $item_tax_type_arr[] = $i_value->product_taxation == 1 ? 1 : 3;
+        //     }
+        // }
+        // if ($n_order->dlv_fee > 0) {
+        //     $item_tax_type_arr[] = $n_order->dlv_taxation == 1 ? 1 : 3;
+        // }
+        // foreach ($n_order_discount as $d_value) {
+        //     $item_tax_type_arr[] = $d_value->discount_taxation == 1 ? 1 : 3;
+        // }
 
-        if (count(array_unique($item_tax_type_arr)) == 1) {
-            if (array_unique($item_tax_type_arr)[0] == 1) {
-                $tax_type = 1;
-            } else if (array_unique($item_tax_type_arr)[0] == 3) {
-                $tax_type = 3;
-            } else {
-                $tax_type = 9;
-            }
-        } else {
-            $tax_type = 9;
-        }
+        // if (count(array_unique($item_tax_type_arr)) == 1) {
+        //     if (array_unique($item_tax_type_arr)[0] == 1) {
+        //         $tax_type = 1;
+        //     } else if (array_unique($item_tax_type_arr)[0] == 3) {
+        //         $tax_type = 3;
+        //     } else {
+        //         $tax_type = 9;
+        //     }
+        // } else {
+        //     $tax_type = 9;
+        // }
         $category = $payinfo['category'] ?? 'B2C';
         $invoice_method = $payinfo['invoice_method'] ?? null;
         $inv_title = $payinfo['inv_title'] ?? null;
