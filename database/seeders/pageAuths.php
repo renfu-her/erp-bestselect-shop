@@ -1137,5 +1137,26 @@ return [
             ],
         ],
     ],
+    [
+        "unit" => "通關優惠",
+        "permissions" => [
+            [
+                "cms.coupon-event.index",
+                "瀏覽",
+            ],
+            [
+                "cms.coupon-event.create",
+                "新增",
+            ],
+            [
+                "cms.coupon-event.edit",
+                "修改",
+            ],
+            [
+                "cms.coupon-event.delete",
+                "刪除",
+            ],
+        ],
+    ],
 
 ];
