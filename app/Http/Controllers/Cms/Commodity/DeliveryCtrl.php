@@ -794,7 +794,31 @@ class DeliveryCtrl extends Controller
                                 }
                             }
                         } else if (Event::consignment()->value == $delivery->event) {
-//                            //TODO 寄倉可能有入庫 若有入庫過 須先把那邊的入庫退貨
+//                          //TODO 寄倉可能有入庫 若有入庫過 須一併先把那邊的入庫退貨
+                            //找到該筆出貨資料的寄倉入庫單
+                            // 若有入庫過 需更新back_num
+                            $param = ['event' => Event::consignment()->value
+                                , 'event_item_id' => $rcv_depot_item->id
+                            ];
+                            $inboundList_consignment = PurchaseInbound::getInboundListWithEventSn(app(Consignment::class)->getTable(), [Event::consignment()->value], $param, false);
+
+                            if (isset($inboundList_consignment) && 0 < count($inboundList_consignment)) {
+                                if (1 < count($inboundList_consignment)) {
+                                    //理論上只有一條
+                                    DB::rollBack();
+                                    return ['success' => 0, 'error_msg' => '請檢查資料正確性 不應有多筆 '. json_encode($inboundList_consignment)];
+                                } else {
+                                    //判斷該寄倉入庫單可退回的數量 <= 總數量-售出數量-back_num
+                                    $inbound_data_consignment = $inboundList_consignment->first();
+                                    PurchaseInbound::where('id', $inbound_data_consignment->inbound_id)->update([
+                                        'back_num' => DB::raw("back_num + $rcv_depot_item->back_qty")
+                                    ]);
+                                }
+                            }
+
+                            DB::rollBack();
+                            dd($bdcisc['data'], $rcv_depot_item, $inboundList_consignment->get());
+
                             $update_arr['csn_num'] = DB::raw("csn_num - $rcv_depot_item->back_qty");
                         } else if (Event::csn_order()->value == $delivery->event) {
                             DB::rollBack();
@@ -803,6 +827,8 @@ class DeliveryCtrl extends Controller
                         }
                         PurchaseInbound::where('id', $rcv_depot_item->inbound_id)->update($update_arr);
 
+                        DB::rollBack();
+                        dd('寄倉退貨 end');
                         //寫入LOG
                         $rePcsLSC = PurchaseLog::stockChange($delivery->event_id, $rcv_depot_item->product_style_id, $delivery->event, $rcv_depot_item->id
                             , LogEventFeature::send_back()->value, $rcv_depot_item->inbound_id, $rcv_depot_item->back_qty, $rcv_depot_item->memo ?? null
