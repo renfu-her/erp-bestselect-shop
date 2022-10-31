@@ -169,7 +169,10 @@ class OrderCtrl extends Controller
                 $uniqueSubOrderIdArray[] = $datum->sub_order_id;
                 $datum->productTitleGroup = DB::table('ord_items')
                     ->where('sub_order_id', $datum->sub_order_id)
-                    ->select('product_title')
+                    ->select([
+                        'product_title',
+                        'qty',
+                    ])
                     ->get();
 //                $uniqueDataList[] = $datum;
             }
