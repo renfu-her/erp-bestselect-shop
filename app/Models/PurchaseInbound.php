@@ -494,6 +494,11 @@ class PurchaseInbound extends Model
                 , 'inbound.id as inbound_id' //入庫ID
                 , 'inbound.sn as inbound_sn' //入庫sn
                 , 'inbound.inbound_num as inbound_num' //入庫實進數量
+                , 'inbound.sale_num as sale_num'
+                , 'inbound.csn_num as csn_num'
+                , 'inbound.consume_num as consume_num'
+                , 'inbound.back_num as back_num'
+                , 'inbound.scrap_num as scrap_num'
                 , 'inbound.depot_id as depot_id'  //入庫倉庫ID
                 , 'inbound.depot_name as depot_name'  //入庫倉庫名稱
                 , 'inbound.unit_cost as unit_cost'  //單價
