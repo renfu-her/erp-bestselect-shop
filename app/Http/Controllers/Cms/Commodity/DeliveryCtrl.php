@@ -331,6 +331,8 @@ class DeliveryCtrl extends Controller
                     OrderFlow::changeOrderStatus($subOrder->order_id, OrderStatus::BackProcessing());
                 } else if (Event::consignment()->value == $delivery->event) {
                 } else if (Event::csn_order()->value == $delivery->event) {
+                    DB::rollBack();
+                    return ['success' => 0, 'error_msg' => '寄倉訂購暫無退貨功能'];
                     CsnOrderFlow::changeOrderStatus($delivery->event_id, OrderStatus::BackProcessing());
                 }
 
@@ -502,16 +504,7 @@ class DeliveryCtrl extends Controller
                         , 'ord_item.num as origin_qty'
                     )->get();
             } elseif(Event::csn_order()->value == $event) {
-                $ord_items = DB::table(app(CsnOrderItem::class)->getTable() . ' as ord_item')
-                    ->where('ord_item.csnord_id', '=', $eventId)
-                    ->select('ord_item.id as event_item_id'
-                        , 'ord_item.product_style_id'
-                        , 'ord_item.title as product_title'
-                        , 'ord_item.sku'
-                        , 'ord_item.price'
-                        , DB::raw('@0:="0" as bonus')
-                        , 'ord_item.num as origin_qty'
-                    )->get();
+                dd('寄倉訂購暫無退貨功能');
             }
         }
         $total_grades = GeneralLedger::total_grade_list();
@@ -562,18 +555,10 @@ class DeliveryCtrl extends Controller
             $item_table = app(ConsignmentItem::class)->getTable();
             $source_type = app(Consignment::class)->getTable();
         } else if (Event::csn_order()->value == $delivery->event) {
-            $order = DB::table(app(CsnOrder::class)->getTable(). ' as csn')
-                ->leftJoin(app(Depot::class)->getTable(). ' as depot', 'depot.id', '=', 'csn.depot_id')
-                ->where('csn.id', $delivery->event_id)
-                ->whereNull('csn.deleted_at')
-                ->select('csn.sn as sn', 'depot.name as ord_name', 'depot.tel as ord_phone', 'depot.addr as ord_address')
-                ->first();
-            $rsp_arr['order'] = $order;
-            $item_table = app(CsnOrderItem::class)->getTable();
-            $source_type = app(CsnOrder::class)->getTable();
+            dd('寄倉訂購暫無退貨功能');
         }
         if (null != $source_type) {
-            $orderInvoice = OrderInvoice::where('source_type', '=', app(CsnOrder::class)->getTable())
+            $orderInvoice = OrderInvoice::where('source_type', '=', $source_type)
                 ->where('source_id', '=', $delivery->event_id)->first();
             $rsp_arr['orderInvoice'] = $orderInvoice;
         }
