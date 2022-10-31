@@ -59,17 +59,17 @@
                                             @if(1 == ($item->show ?? 0)) checked @endif>
                                     </td>
                                     <td>
-                                        <input type="text" value="{{ $item->product_title ?? '' }}" name="product_title[]" 
+                                        <input type="text" value="{{ $item->product_title ?? '' }}" name="product_title[]"
                                             class="form-control form-control-sm -l" required>
                                     </td>
                                     <td>{{ $item->sku }}</td>
                                     <td>
-                                        <input type="number" value="{{ $item->price ?? '' }}" name="price[]" 
-                                            class="form-control form-control-sm -sm" min="0" step="1" required>
+                                        <input type="number" value="{{ $item->price ?? '' }}" name="price[]"
+                                            class="form-control form-control-sm -sm" min="0" step="0.01" required>
                                     </td>
                                     <td>
-                                        <input type="number" value="{{ $item->bonus ?? '' }}" name="bonus[]" 
-                                            class="form-control form-control-sm -sm" min="0" step="1" required>
+                                        <input type="number" value="{{ $item->bonus ?? '' }}" name="bonus[]"
+                                            class="form-control form-control-sm -sm" min="0" step="0.01" required>
                                     </td>
                                     <td class="text-center">{{ $item->origin_qty ? number_format($item->origin_qty) : '' }}</td>
                                     @if(null == $delivery->back_inbound_date)

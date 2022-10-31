@@ -157,9 +157,9 @@
                         <tr>
                             <th scope="row">{{ $key + 1 }}</th>
                             <td class="wrap lh-sm">{{ $item->product_title ?? '' }}</td>
-                            <td class="text-end">${{ number_format($item->price) }}</td>
+                            <td class="text-end">${{ number_format($item->price, 2) }}</td>
 {{--                            <td class="text-end">${{ number_format(450) }}</td>--}}
-                            <td class="text-end">${{ number_format($item->bonus) }}</td>
+                            <td class="text-end">${{ number_format($item->bonus, 2) }}</td>
                             <td class="text-center">{{ number_format($item->back_qty) }}</td>
                             <td class="text-end">${{ number_format($subtotal) }}</td>
                             <td>{{ $item->memo ?? '' }}</td>
