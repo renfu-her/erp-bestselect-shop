@@ -794,9 +794,7 @@ class DeliveryCtrl extends Controller
                                 }
                             }
                         } else if (Event::consignment()->value == $delivery->event) {
-                            DB::rollBack();
-                            return ['success' => 0, 'error_msg' => '寄倉暫無退貨入庫功能'];
-                            //TODO 寄倉可能有入庫 若有入庫過 須先把那邊的入庫退貨
+//                            //TODO 寄倉可能有入庫 若有入庫過 須先把那邊的入庫退貨
                             $update_arr['csn_num'] = DB::raw("csn_num - $rcv_depot_item->back_qty");
                         } else if (Event::csn_order()->value == $delivery->event) {
                             DB::rollBack();
@@ -947,24 +945,31 @@ class DeliveryCtrl extends Controller
                             }
                         }
                     } else if (Event::consignment()->value == $delivery->event) {
-                        DB::rollBack();
-                        return ['success' => 0, 'error_msg' => '寄倉暫無退貨入庫功能'];
                         $update_arr['csn_num'] = DB::raw("csn_num + $val_rcv->back_qty");
                     } else if (Event::csn_order()->value == $delivery->event) {
                         DB::rollBack();
                         return ['success' => 0, 'error_msg' => '寄倉訂購暫無退貨入庫功能'];
                         $update_arr['sale_num'] = DB::raw("sale_num + $val_rcv->back_qty");
                     }
-                    PurchaseInbound::where('id', $val_rcv->inbound_id)->update($update_arr);
 
-                    //寫入LOG
-                    $rePcsLSC = PurchaseLog::stockChange($delivery->event_id, $val_rcv->product_style_id, $delivery->event, $val_rcv->id
-                        , LogEventFeature::send_back_cancle()->value, $val_rcv->inbound_id, $val_rcv->back_qty * -1, $val_rcv->memo ?? null
-                        , $val_rcv->product_title, $val_rcv->prd_type
-                        , $request->user()->id, $request->user()->name);
-                    if ($rePcsLSC['success'] == 0) {
-                        DB::rollBack();
-                        return $rePcsLSC;
+                    $is_write_to_pcs_log = true;
+                    if ( (Event::consignment()->value == $delivery->event)) {
+                        if ('c' == $val_rcv->prd_type) {
+                            //寄倉 組合包退貨 不應紀錄LOG 因為之前出貨時就不會扣 而是從元素做組合而成
+                            $is_write_to_pcs_log = false;
+                        }
+                    }
+                    if (true == $is_write_to_pcs_log) {
+                        //寫入LOG
+                        PurchaseInbound::where('id', $val_rcv->inbound_id)->update($update_arr);
+                        $rePcsLSC = PurchaseLog::stockChange($delivery->event_id, $val_rcv->product_style_id, $delivery->event, $val_rcv->id
+                            , LogEventFeature::send_back_cancle()->value, $val_rcv->inbound_id, $val_rcv->back_qty * -1, $val_rcv->memo ?? null
+                            , $val_rcv->product_title, $val_rcv->prd_type
+                            , $request->user()->id, $request->user()->name);
+                        if ($rePcsLSC['success'] == 0) {
+                            DB::rollBack();
+                            return $rePcsLSC;
+                        }
                     }
 
                     //寄倉 須將通路庫存減回 (訂單在取消訂單已做)
