@@ -40,11 +40,11 @@
                     </div>
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
-                    <label class="form-label">總張數<span class="text-danger">*</span><span class="small text-secondary">（0則表示無限制）</span></label>
+                    <label class="form-label">總張數<span class="text-danger">*</span><span
+                            class="small text-secondary">（0則表示無限制）</span></label>
                     <div class="input-group flex-nowrap">
                         <input type="number" class="form-control @error('qty_limit') is-invalid @enderror" name="qty_limit"
-                            min="0" value="{{ old('qty_limit', $data->qty_limit ?? 0) }}" placeholder="總張數"
-                            required>
+                            min="0" value="{{ old('qty_limit', $data->qty_limit ?? 0) }}" placeholder="總張數" required>
                         @error('qty_limit')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -103,7 +103,8 @@
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">是否重複領取</label>
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="1" name="reuse">
+                        <input class="form-check-input" name="reuse" type="checkbox" value="1"
+                            @if (old('reuse', $data->reuse ?? '') == '1') checked @endif>
                     </div>
 
                 </div>
@@ -114,14 +115,14 @@
         <div id="submitDiv">
             <div class="col-auto">
                 <button type="submit" class="btn btn-primary px-4">儲存</button>
-                <a href="{{ Route('cms.coupon-event.index') }}" class="btn btn-outline-primary px-4" role="button">返回列表</a>
+                <a href="{{ Route('cms.coupon-event.index') }}" class="btn btn-outline-primary px-4"
+                    role="button">返回列表</a>
             </div>
         </div>
     </form>
 @endsection
 @once
     @push('sub-scripts')
-        <script>
-        </script>
+        <script></script>
     @endpush
 @endonce
