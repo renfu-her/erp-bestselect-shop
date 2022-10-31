@@ -850,7 +850,7 @@ class ReceiveDepot extends Model
                     }
                 }
                 if ($elements[$num_e]['to_back_qty'] < $elements[$num_e]['back_qty']) {
-                    return ['success' => 0, 'error_msg' => "欲退數量超過原數量 ".$elements[$num_e]['product_title']];
+                    return ['success' => 0, 'error_msg' => "欲退數量超過原數量 ".$elements[$num_e]['product_title']. " ". json_encode($elements)];
                 }
             }
         }
