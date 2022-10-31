@@ -102,6 +102,11 @@ return
                 "controller_name" => "DiscountCtrl",
                 "route_name" => "cms.discount.index",
             ],
+            [
+                "title" => "通關優惠劵",
+                "controller_name" => "CouponEventCtrl",
+                "route_name" => "cms.coupon-event.index",
+            ],
         ],
     ],
     [

@@ -558,6 +558,22 @@ Breadcrumbs::for('cms.promo.edit', function (BreadcrumbTrail $trail, $value) {
     $trail->push('[' . $value . '] 編輯');
 });
 
+// 通關優惠券
+Breadcrumbs::for('cms.coupon-event.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('通關優惠券', route('cms.coupon-event.index'));
+});
+
+Breadcrumbs::for('cms.coupon-event.edit', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.coupon-event.index');
+    $trail->push('編輯');
+});
+
+Breadcrumbs::for('cms.coupon-event.create', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.coupon-event.index');
+    $trail->push('新增');
+});
+
 // Google數位行銷
 Breadcrumbs::for('cms.google_marketing.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
