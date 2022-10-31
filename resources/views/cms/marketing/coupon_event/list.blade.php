@@ -51,7 +51,8 @@
                         <th scope="col">活動名稱</th>
                         <th scope="col">密語</th>
                         <th scope="col">優惠券</th>
-                        <th scope="col" class="wrap lh-1">已領券數</th>
+                        <th scope="col" class="wrap lh-1">已領張數</th>
+                        <th scope="col" class="wrap lh-1">總張數</th>
                         <th scope="col">開始時間</th>
                         <th scope="col">結束時間</th>
                         <th scope="col" class="text-center">刪除</th>
@@ -81,6 +82,7 @@
                             <td>{{ $data->sn }}</td>
                             <td>{{ $data->discount_title }}</td>
                             <td class="text-center">{{ $data->total_qty }}</td>
+                            <td class="text-center">{{ $data->qty_limit }}</td>
                             <td>{{ date('Y/m/d H:i:s', strtotime($data->start_date)) }}</td>
                             <td>{{ date('Y/m/d H:i:s', strtotime($data->end_date)) }}</td>
                             <td class="text-center">
