@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Cms\Commodity;
 
 use App\Enums\Globals\AppEnvClass;
+use App\Exports\Product\ProductInforExport;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Collection;
@@ -23,6 +24,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ProductCtrl extends Controller
 {
@@ -518,13 +520,13 @@ class ProductCtrl extends Controller
      */
     public function editStock($id, $sid)
     {
-        
+
         $product = Product::productList(null, $id, ['user' => true, 'supplier' => true])->get()->first();
         $style = ProductStyle::where('id', $sid)->get()->first();
         if (!$product || !$style) {
             return abort(404);
         }
-        
+
         $style->spec_titles = self::_getStyleTitle($style);
 
         $stocks = SaleChannel::styleStockList($sid)->get()->toArray();
@@ -875,7 +877,7 @@ class ProductCtrl extends Controller
      */
     public function editComboProd($id, $sid)
     {
-        
+
         $style = ProductStyle::where('id', $sid)->get()->first();
         $product = self::product_data($id);
         return view('cms.commodity.product.combo-edit', [
@@ -896,7 +898,7 @@ class ProductCtrl extends Controller
      */
     public function updateComboProd(Request $request, $id, $sid)
     {
-        
+
         if (ProductStyle::where('id', $sid)->whereNotNull('sku')->get()->first()) {
             return redirect()->back();
         }
@@ -946,7 +948,7 @@ class ProductCtrl extends Controller
      * @return \Illuminate\Http\Response
      */
     public function createComboProd($id)
-    {   
+    {
         $product = self::product_data($id);
         return view('cms.commodity.product.combo-edit', [
             'product' => $product,
@@ -1030,4 +1032,59 @@ class ProductCtrl extends Controller
 
     }
 
+    /**
+     *  EXCEL匯出:欄位
+    商品名稱 / 廠商名稱 / 物流名稱 /物流方式 / 公開狀態/ 負責人
+     * 物流方式為 喜鴻出貨或廠商出貨唷
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
+    public function export_excel()
+    {
+        $data = [];
+        $dataList = DB::table('prd_products')
+            ->leftJoin('prd_product_supplier', 'prd_product_supplier.product_id', '=', 'prd_products.id')
+            ->leftJoin('prd_suppliers', 'prd_product_supplier.supplier_id', '=', 'prd_suppliers.id')
+            ->leftJoin('usr_users', 'prd_products.user_id', '=', 'usr_users.id')
+            ->leftJoin('prd_product_shipment', 'prd_product_shipment.product_id', '=', 'prd_products.id')
+            ->leftJoin('shi_group', 'prd_product_shipment.group_id', '=', 'shi_group.id')
+            ->leftJoin('shi_method', 'shi_group.method_fk', '=', 'shi_method.id')
+            ->whereNotNull('shi_method.id')
+            ->select([
+                'prd_products.sku',
+                'prd_products.title',
+                'prd_suppliers.name AS supplier',
+                'shi_group.name AS shipment_name',
+                'shi_method.method',
+                'usr_users.name AS user_name',
+            ])
+            ->selectRaw('CASE prd_products.public WHEN 1 THEN "公開" WHEN 0 THEN "不公開" END AS public')
+            ->get();
+        foreach ($dataList as $item) {
+            $data[] = [
+                $item->sku,
+                $item->title,
+                $item->supplier,
+                $item->shipment_name,
+                $item->method,
+                $item->public,
+                $item->user_name,
+            ];
+        }
+
+        $column_name = [
+            'sku',
+            '商品名稱',
+            '廠商名稱',
+            '物流名稱',
+            '物流方式',
+            '公開狀態',
+            '負責人',
+        ];
+        $export= new ProductInforExport([
+            $column_name,
+            $data,
+        ]);
+
+        return Excel::download($export, 'product_infor.xlsx');
+    }
 }
