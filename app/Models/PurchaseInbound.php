@@ -301,10 +301,13 @@ class PurchaseInbound extends Model
                         DB::rollBack();
                         return $rePcsLSC;
                     }
-                    $rePSSC = ProductStock::stockChange($inboundDataGet->product_style_id, $qty, StockEvent::inbound_del()->value, $id, Auth::user()->name ?? null . LogEventFeature::inbound_del()->getDescription(LogEventFeature::inbound_del()->value), $is_pcs_inbound, $can_tally);
-                    if ($rePSSC['success'] == 0) {
-                        DB::rollBack();
-                        return $rePSSC;
+                    //入庫功能 只有採購需要記錄可售數量
+                    if ($event == Event::purchase()->value) {
+                        $rePSSC = ProductStock::stockChange($inboundDataGet->product_style_id, $qty, StockEvent::inbound_del()->value, $id, Auth::user()->name ?? null . LogEventFeature::inbound_del()->getDescription(LogEventFeature::inbound_del()->value), $is_pcs_inbound, $can_tally);
+                        if ($rePSSC['success'] == 0) {
+                            DB::rollBack();
+                            return $rePSSC;
+                        }
                     }
                     $inboundData->forceDelete();
                     return ['success' => 1, 'error_msg' => ""];
@@ -392,15 +395,17 @@ class PurchaseInbound extends Model
                         return $reStockChange;
                     }
 
-                    //若為理貨倉can_tally 需修改通路庫存
-                    if ('' != $stock_event && $inboundDataGet->can_tally) {
-                        $rePSSC = ProductStock::stockChange($inboundDataGet->product_style_id, $sale_num * -1
-                            , $stock_event, $id
-                            , $inboundDataGet->inbound_user_name . $stock_note
-                            , false, $inboundDataGet->can_tally);
-                        if ($rePSSC['success'] == 0) {
-                            DB::rollBack();
-                            return $rePSSC;
+                    if (Event::order()->value == $event || Event::ord_pickup()->value == $event) {
+                        //若為理貨倉can_tally 需修改通路庫存
+                        if ('' != $stock_event && $inboundDataGet->can_tally) {
+                            $rePSSC = ProductStock::stockChange($inboundDataGet->product_style_id, $sale_num * -1
+                                , $stock_event, $id
+                                , $inboundDataGet->inbound_user_name . $stock_note
+                                , false, $inboundDataGet->can_tally);
+                            if ($rePSSC['success'] == 0) {
+                                DB::rollBack();
+                                return $rePSSC;
+                            }
                         }
                     }
                 }

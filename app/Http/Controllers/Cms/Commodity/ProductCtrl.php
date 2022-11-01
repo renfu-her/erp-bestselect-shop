@@ -155,7 +155,7 @@ class ProductCtrl extends Controller
             isset($d['offline']) ? $d['offline'] : '0');
 
         if ($request->hasfile('files')) {
-            foreach ($request->file('files') as $file) {
+            foreach (array_reverse($request->file('files')) as $file) {
                 if (App::environment(AppEnvClass::Release)) {
                     $imgData[] = $file->store('product_imgs/' . $re['id'], 'ftp');
                 } else {
@@ -261,7 +261,7 @@ class ProductCtrl extends Controller
             isset($d['offline']) ? $d['offline'] : '0');
 
         if ($request->hasfile('files')) {
-            foreach ($request->file('files') as $file) {
+            foreach (array_reverse($request->file('files')) as $file) {
                 if (App::environment(AppEnvClass::Release)) {
                     $imgData[] = $file->store('product_imgs/' . $id, 'ftp');
                 } else {
