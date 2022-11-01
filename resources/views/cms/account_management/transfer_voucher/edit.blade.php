@@ -322,7 +322,8 @@
                 
                 // submit
                 $('#form1').submit(function (e) {
-                    let i = $('input[name^=tv_item_id][data-i]:last').data('i') || -1;
+                    const  $input = $('input[name^=tv_item_id][data-i]:last');
+                    let i = $input.length > 0 ? $input.data('i') : -1;
                     $('input[name="tv_item_id[]"]').each(function (index, element) {
                         i++;
                         // element == this

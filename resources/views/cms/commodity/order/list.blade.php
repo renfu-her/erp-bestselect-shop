@@ -202,6 +202,7 @@
                         <th scope="col">出貨日期</th>
                         <th scope="col">包裹編號</th>
                         <th scope="col">產品名稱</th>
+                        <th scope="col">數量</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -257,6 +258,13 @@
                                 @foreach($data->productTitleGroup as $x => $productTitle)
                                     <li class="list-group-item bg-transparent pe-1">{{ $productTitle->product_title }}</li>
                                 @endforeach
+                                </ul>
+                            </td>
+                            <td class="py-0 lh-base">
+                                <ul class="list-group list-group-flush">
+                                    @foreach($data->productTitleGroup as $x => $productTitle)
+                                        <li class="list-group-item bg-transparent pe-1">{{ $productTitle->qty }}</li>
+                                    @endforeach
                                 </ul>
                             </td>
                         </tr>

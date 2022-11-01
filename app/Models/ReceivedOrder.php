@@ -555,8 +555,13 @@ class ReceivedOrder extends Model
                 foreach($r_method_arr as $v){
                     array_push($r_method_title_arr, ReceivedMethod::getDescription($v));
                 }
-                $r_method['value'] = implode(',', $r_method_arr);
-                $r_method['description'] = implode(',', $r_method_title_arr);
+                if($grade_id == 267 && count($r_method_arr) == 1){
+                    $r_method['value'] = 'line_pay';
+                    $r_method['description'] = 'Line Pay';
+                } else {
+                    $r_method['value'] = implode(',', $r_method_arr);
+                    $r_method['description'] = implode(',', $r_method_title_arr);
+                }
                 Order::change_order_payment_status($received_order->source_id, PaymentStatus::Received(), (object) $r_method);
 
             } else if($received_order->source_type == app(CsnOrder::class)->getTable()){

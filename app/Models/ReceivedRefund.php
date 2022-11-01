@@ -129,6 +129,12 @@ class ReceivedRefund extends Model
     public static function update_refund_item($parm)
     {
         $update = [];
+        if(Arr::exists($parm, 'grade_id')){
+            $update['grade_id'] = $parm['grade_id'];
+        }
+        if(Arr::exists($parm, 'taxation')){
+            $update['taxation'] = $parm['taxation'];
+        }
         if(Arr::exists($parm, 'note')){
             $update['note'] = $parm['note'];
         }

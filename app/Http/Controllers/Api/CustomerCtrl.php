@@ -7,6 +7,7 @@ use App\Enums\Customer\Login;
 use App\Enums\Globals\ApiStatusMessage;
 use App\Enums\Globals\ResponseParam;
 use App\Http\Controllers\Controller;
+use App\Models\CouponEvent;
 use App\Models\Customer;
 use App\Models\CustomerAddress;
 use App\Models\CustomerDividend;
@@ -776,4 +777,34 @@ class CustomerCtrl extends Controller
         return response()->json($re);
 
     }
+
+    public function getEventCoupon(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'sn' => ['required'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                ResponseParam::status => ApiStatusMessage::Fail,
+                ResponseParam::msg => $validator->errors(),
+                ResponseParam::data => [],
+            ]);
+        }
+        $d = $request->all();
+        $re = CouponEvent::getCoupon($request->user()->id, $d['sn']);
+
+        if ($re['success'] != '1') {
+            return response()->json([
+                'status' => 'E01',
+                'msg' => $re['msg'],
+            ]);
+        }
+
+        return response()->json([
+            'status' => '0',
+        ]);
+
+    }
+
 }

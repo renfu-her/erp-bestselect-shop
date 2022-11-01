@@ -142,13 +142,18 @@
 
     <div class="card shadow p-4 mb-4">
         <div class="row justify-content-end mb-4">
-            @can('cms.product.create')
                 <div class="col">
-                    <a href="{{ Route('cms.product.create') }}" class="btn btn-primary">
-                        <i class="bi bi-plus-lg"></i> 新增商品
-                    </a>
+                    @can('cms.product.create')
+                        <a href="{{ Route('cms.product.create') }}" class="btn btn-primary">
+                            <i class="bi bi-plus-lg"></i> 新增商品
+                        </a>
+                    @endcan
+                    @can('cms.product.export_excel')
+                        <a href="{{ Route('cms.product.export_excel') }}" class="btn btn-outline-success">
+                            <i class="bi"></i> 匯出商品
+                        </a>
+                    @endcan
                 </div>
-            @endcan
             <div class="col-auto">
                 顯示
                 <select class="form-select d-inline-block w-auto" id="dataPerPageElem" aria-label="表格顯示筆數">

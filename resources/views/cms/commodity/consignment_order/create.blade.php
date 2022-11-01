@@ -135,9 +135,13 @@
                 <dl class="row">
                     <div class="col">
                         <dt>收款單號</dt>
-                        @if (isset($receivable) && $receivable)
-                            <a href="{{ route('cms.ar_csnorder.receipt', ['id' => $consignmentData->id]) }}"
-                               class="-text">{{ $received_order_data ? $received_order_data->sn : '' }}</a>
+                        @if ($receivable)
+                            @if($received_order_data->balance_date)
+                                <a href="{{ route('cms.ar_csnorder.receipt', ['id' => $consignmentData->id]) }}"
+                                    class="-text">{{ $received_order_data->sn }}</a>
+                            @else
+                                <a href="{{ route('cms.ar_csnorder.create', ['id' => $id]) }}">{{ $received_order_data->sn }}</a>
+                            @endif
                         @else
                             <span>尚未完成收款</span>
                         @endif

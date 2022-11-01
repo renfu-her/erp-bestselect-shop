@@ -23,11 +23,13 @@ class DashboardCtrl extends Controller
         $reportDaily = OrderReportDaily::where('date', Date('Y-m-d'))->get()->first();
 
         $reportMonth = OrderReportMonth::where('date', Date('Y-m-1'))->get()->first();
-        $reportPrevMonth = OrderReportMonth::where('date', Date('Y-m-1', strtotime("-1 months")))->get()->first();
+        // 這個月總天數
+        $days = date('t');
+        $reportPrevMonth = OrderReportMonth::where('date', Date('Y-m-1', strtotime("-$days days")))->get()->first();
 
         $customerMonth = CustomerReportMonth::dataList()->where('month.date', Date('Y-m-1'))->limit(20)->get()->toArray();
-        $customerPrevMonth = CustomerReportMonth::dataList()->where('month.date', Date('Y-m-1', strtotime("-1 months")))->limit(20)->get()->toArray();
-
+        $customerPrevMonth = CustomerReportMonth::dataList()->where('month.date', Date('Y-m-1', strtotime("-$days days")))->limit(20)->get()->toArray();
+     
         $reportUpdatedTime = CustomerReportMonth::orderBy('updated_at', "DESC")->get()->first();
         $reportUpdatedTime = $reportUpdatedTime ? date('Y/m/d H:i', strtotime($reportUpdatedTime->updated_at)) : '';
 

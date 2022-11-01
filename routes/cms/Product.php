@@ -52,4 +52,5 @@ Route::group(['prefix' => 'product', 'as' => 'product.'], function () {
     // 複製產品資訊
     Route::post('clone/{id}', [ProductCtrl::class, 'clone'])->name('clone')->middleware('permission:cms.product.clone');
 
+    Route::get('export_excel', [ProductCtrl::class, 'export_excel'])->name('export_excel')->middleware('permission:cms.product.export_excel');
 });
