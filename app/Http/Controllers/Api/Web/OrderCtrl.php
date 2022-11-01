@@ -452,7 +452,17 @@ class OrderCtrl extends Controller
             OrderPayLinePay::create_log($source_type, $source_id, $result);
 
             if($result->returnCode == '0000'){
-                return redirect($result->info->paymentUrl->web);
+                if($request->server('HTTP_USER_AGENT')){
+                    $check_mobile = preg_match('/(Mobile|Android|Tablet|GoBrowser|[0-9]x[0-9]*|uZardWeb\/|Mini|Doris\/|Skyfire\/|iPhone|Fennec\/|Maemo|Iris\/|CLDC\-|Mobi\/)/uis', $request->server('HTTP_USER_AGENT'));
+                    if($check_mobile){
+                        // mobile
+                        // return redirect($result->info->paymentUrl->app);
+                        return redirect($result->info->paymentUrl->web);
+                    } else {
+                        // desktop
+                        return redirect($result->info->paymentUrl->web);
+                    }
+                }
             }
         }
 
