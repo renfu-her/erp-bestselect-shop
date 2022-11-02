@@ -1328,3 +1328,14 @@ Breadcrumbs::for('cms.order-bonus.create', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.order-bonus.index');
     $trail->push('新增');
 });
+
+// 組織架構
+Breadcrumbs::for('cms.organize.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('組織架構', route('cms.organize.index'));
+});
+
+Breadcrumbs::for('cms.organize.edit', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.organize.index');
+    $trail->push('編輯');
+});

@@ -1158,5 +1158,19 @@ return [
             ],
         ],
     ],
+    [
+        "unit" => "組織架構",
+        "permissions" => [
+            [
+                "cms.organize.index",
+                "瀏覽",
+            ],
+            [
+                "cms.organize.edit",
+                "修改",
+            ],
+
+        ],
+    ],
 
 ];
