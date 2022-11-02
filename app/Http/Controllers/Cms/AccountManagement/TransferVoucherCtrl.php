@@ -236,7 +236,8 @@ class TransferVoucherCtrl extends Controller
             DB::beginTransaction();
 
             try {
-                // if delete, refer to stitute
+                $dArray = array_diff(TransferVoucherItem::where('voucher_id', $id)->pluck('id')->toArray(), array_intersect_key(request('tv_item_id'), request('grade_id')));
+                if($dArray) TransferVoucherItem::destroy($dArray);
 
                 foreach(request('grade_id') as $key => $value){
                     if(request('tv_item_id')[$key]){
