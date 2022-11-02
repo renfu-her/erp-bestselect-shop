@@ -4,10 +4,10 @@
     <div class="card mb-4">
         <form id="form">
             <div class="card-body">
-                <label class="col-form-label">
+                <h6>
                     發佈平台
-                </label>
-                <select name="select_platform" id="select_source" class="mb-4 form-select" required>
+                </h6>
+                <select name="select_platform" id="select_source" class="-select2 -single mb-4 form-select" required>
                     <option value="" selected disabled>選擇發佈平台</option>
                     <option value="Bestselect-Page">喜鴻購物-臉書粉絲團</option>
                     <option value="Facebook-Bestselection-Group">喜鴻購物-臉書社團</option>
@@ -23,7 +23,9 @@
                     <option value="Besttour-Youtube-CG">誠貫-喜鴻假期YouTube廣告</option>
                     <option value="FB-CG">誠貫-FB廣告</option>
                 </select>
-                <label class="col-form-label">原始網址</label>
+                <h6>
+                    原始網址
+                </h6>
                 <div>
                     <input name="input_url" type="text" id="ori_url" class="form-control" placeholder="">
                 </div>
@@ -31,23 +33,28 @@
                 <!-- 浮動控制項-->
                 <div class="mb-4">
                     <!-- 按鈕：確認 -->
-                    <input type="submit" name="B1" id="generate_url" value="產生短網址" class="Enter_ok enterBtn">
+                    <button type="submit" class="btn btn-primary">產生短網址</button>
                 </div>
             </div>
         </form>
     </div>
 
     <div class="card mb-4">
-        <p id="wait">短網址正在產生中。。 請等待。。</p>
-        <br><strong class="url_description">1.產生的短網址是:</strong>
-        <p id=short_url></p>
-        <div class="copyBtn" name="short_url">點我複製短網址</div>
-        <br>
-        <br>
-        <br>
-        <br><strong class="url_description">2.產生的長網址是:</strong>
-        <p id=long_url></p>
-        <div class="copyBtn" name="long_url">點我複製長網址</div>
+        <div class="card-body">
+            <p id="wait">短網址正在產生中。。 請等待。。</p>
+            <h6 class="url_description">
+                產生的短網址是:
+            </h6>
+            <p id=short_url></p>
+            <button type="button" name="short_url" class="btn btn-outline-success copyBtn">點我複製短網址</button>
+            <br>
+            <br>
+            <h6 class="url_description">
+                產生的長網址是:
+            </h6>
+            <p id=long_url></p>
+            <button type="button" name="long_url" class="btn btn-outline-success copyBtn">點我複製長網址</button>
+        </div>
     </div>
 @endsection
 @once
@@ -69,7 +76,7 @@
 
                 $.validator.addMethod("checkBestselectionUrl", function(value, element) {
                         return this.optional(element) || BESTSELECTION_REGEX.test(value);
-                        ;},
+                        },
                     "請輸入正確的網址");
 
                 $("#form").validate({
@@ -276,7 +283,7 @@
                     sel.removeAllRanges();
                     sel.addRange(range);
                     document.execCommand('copy');
-                    alert("網址：" + sel + " 複製完成");
+                    toast.show("網址：" + sel + " 複製完成", { title: '複製成功', type: 'primary' });
                     return false;
                 });
             });
