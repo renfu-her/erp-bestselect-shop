@@ -549,7 +549,7 @@ class OrderCtrl extends Controller
 
             } else {
                 $result->more_info = [
-                    'action' => 'confirm_fail',
+                    'action' => 'confirm',
                 ];
             }
 
