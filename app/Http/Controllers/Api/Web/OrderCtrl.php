@@ -536,11 +536,21 @@ class OrderCtrl extends Controller
                     $parm['grade_id'] = $grade->id;
                     $parm['price'] = $order->total_price;
                     ReceivedOrder::store_received($parm);
+
+                } else {
+                    $result->more_info = [
+                        'action' => 'confirm',
+                    ];
                 }
 
                 OrderPayLinePay::create_log($source_type, $source_id, $result);
 
                 return redirect(env('FRONTEND_URL') . 'payfin/' . $source_id . '/' . $sn . '/0');
+
+            } else {
+                $result->more_info = [
+                    'action' => 'confirm_fail',
+                ];
             }
 
             OrderPayLinePay::create_log($source_type, $source_id, $result);
