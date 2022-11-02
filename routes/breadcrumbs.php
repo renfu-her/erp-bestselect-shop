@@ -574,6 +574,12 @@ Breadcrumbs::for('cms.coupon-event.create', function (BreadcrumbTrail $trail) {
     $trail->push('新增');
 });
 
+//UTM網址產生器
+Breadcrumbs::for('cms.utm-url.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('UTM網址產生器', route('cms.utm-url.index'));
+});
+
 // Google數位行銷
 Breadcrumbs::for('cms.google_marketing.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');

@@ -107,6 +107,11 @@ return
                 "controller_name" => "CouponEventCtrl",
                 "route_name" => "cms.coupon-event.index",
             ],
+            [
+                "title" => "UTM網址產生器",
+                "controller_name" => "UtmUrlCtrl",
+                "route_name" => "cms.utm-url.index",
+            ],
         ],
     ],
     [
