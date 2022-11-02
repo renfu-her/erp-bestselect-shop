@@ -154,6 +154,11 @@ return
                 "controller_name" => "MailSetCtrl",
                 "route_name" => "cms.mail_set.index",
             ],
+            [
+                "title" => "組織架構",
+                "controller_name" => "OrganizeCtrl",
+                "route_name" => "cms.organize.index",
+            ],
         ],
     ],
     [
