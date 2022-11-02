@@ -94,4 +94,49 @@ class UserOrganize extends Model
 
     }
 
+    public static function auditList($user_id)
+    {   
+        $user = User::where('id', $user_id)->get()->first();
+        $ids = [];
+        $audid = [];
+        $no1 = user::where('account', '04001')->select('id', 'name', 'title')->get()->first();
+        $audid[] = $no1;
+        $ids[] = $no1->id;
+
+        if($user_id ==  $no1->id ){
+            return $audid;
+        }
+
+        $no2 = user::where('account', '00001')->select('id', 'name', 'title')->get()->first();
+        $audid[] = $no2;
+        $ids[] = $no2->id;
+
+        if($user_id ==  $no2->id ){
+            return $audid;
+        }
+
+        $group_admin = self::getDepartmentAdmin(3, $user->group);
+        if ($group_admin && $group_admin->user_id != $user->id) {
+            $audid[] = $group_admin;
+            $ids[] = $group_admin->user_id;
+        }
+
+        $department_admin = self::getDepartmentAdmin(2, $user->department);
+        if ($department_admin && $department_admin->user_id != $user->id && !in_array( $department_admin->user_id,$ids)) {
+            $audid[] = $department_admin;
+        }
+
+        return $audid;
+
+    }
+
+    public static function getDepartmentAdmin($level_type, $group_title)
+    {
+        return DB::table('usr_user_organize as org')
+            ->join('usr_users as user', 'org.user_id', '=', 'user.id')
+            ->select('org.user_id', 'user.name', 'user.title')
+            ->where('level', $level_type)
+            ->where('org.title', $group_title)->get()->first();
+    }
+
 }

@@ -1,6 +1,6 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h2 class="mb-4">組織管理</h2>
+    <h2 class="mb-4">組織架構</h2>
 
     <div class="card shadow p-4 mb-4">
         <div class="table-responsive tableOverBox">
