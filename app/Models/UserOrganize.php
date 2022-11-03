@@ -19,13 +19,17 @@ class UserOrganize extends Model
         $re = DB::table('usr_user_organize as a')
             ->leftJoin('usr_user_organize as b', 'a.id', '=', 'b.parent')
             ->leftJoin('usr_users as user_a', 'user_a.id', '=', 'a.user_id')
+            ->leftJoin('usr_users as user_a2', 'user_a2.id', '=', 'a.user_id2')
             ->leftJoin('usr_users as user_b', 'user_b.id', '=', 'b.user_id')
+            ->leftJoin('usr_users as user_b2', 'user_b2.id', '=', 'b.user_id2')
             ->select(['a.id as department_id',
                 'a.title as department_title',
                 'b.id as group_id',
                 'b.title as group_title',
                 'user_a.name as a_name',
-                'user_b.name as b_name'])
+                'user_a2.name as a_name2',
+                'user_b.name as b_name',
+                'user_b2.name as b_name2'])
             ->where('a.parent', '1')->get();
 
         $output = [];
@@ -36,6 +40,7 @@ class UserOrganize extends Model
                     'department_id' => $value->department_id,
                     'department_title' => $value->department_title,
                     'a_name' => $value->a_name,
+                    'a_name2' => $value->a_name2,
                     'group' => [],
                 ];
 
@@ -95,7 +100,7 @@ class UserOrganize extends Model
     }
 
     public static function auditList($user_id)
-    {   
+    {
         $user = User::where('id', $user_id)->get()->first();
         $ids = [];
         $audid = [];
@@ -103,7 +108,7 @@ class UserOrganize extends Model
         $audid[] = $no1;
         $ids[] = $no1->id;
 
-        if($user_id ==  $no1->id ){
+        if ($user_id == $no1->id) {
             return $audid;
         }
 
@@ -111,32 +116,70 @@ class UserOrganize extends Model
         $audid[] = $no2;
         $ids[] = $no2->id;
 
-        if($user_id ==  $no2->id ){
+        if ($user_id == $no2->id) {
             return $audid;
         }
+        $arr = [[2, $user->department], [3, $user->group]];
+        foreach ($arr as $v) {
+            $group_admin = self::getDepartmentAdmin($v[0], $v[1]);
+            if ($group_admin) {
+                foreach ($group_admin as $admin) {
+                    if (in_array($user_id, $ids)) {
+                        return $audid;
+                    }
+                    if ($admin->user_id == $user_id) {
+                        return $audid;
+                    }
 
-        $group_admin = self::getDepartmentAdmin(3, $user->group);
+                    if ($admin->user_id != $user->id && !in_array($admin->user_id, $ids)) {
+                        $audid[] = $admin;
+                        $ids[] = $admin->user_id;
+                    }
+                }
+            }
+        }
+
+        /*
         if ($group_admin && $group_admin->user_id != $user->id) {
-            $audid[] = $group_admin;
-            $ids[] = $group_admin->user_id;
+        $audid[] = $group_admin;
+        $ids[] = $group_admin->user_id;
         }
 
         $department_admin = self::getDepartmentAdmin(2, $user->department);
-        if ($department_admin && $department_admin->user_id != $user->id && !in_array( $department_admin->user_id,$ids)) {
-            $audid[] = $department_admin;
+        if ($department_admin && $department_admin->user_id != $user->id && !in_array($department_admin->user_id, $ids)) {
+        $audid[] = $department_admin;
         }
-
+         */
         return $audid;
 
     }
 
     public static function getDepartmentAdmin($level_type, $group_title)
     {
-        return DB::table('usr_user_organize as org')
-            ->join('usr_users as user', 'org.user_id', '=', 'user.id')
-            ->select('org.user_id', 'user.name', 'user.title')
+        $re = DB::table('usr_user_organize as org')
+            ->leftJoin('usr_users as user', 'org.user_id', '=', 'user.id')
+            ->leftJoin('usr_users as user2', 'org.user_id2', '=', 'user2.id')
+
+            ->select(['org.user_id as user_id1',
+                'user.name as name1',
+                'user.title as title1',
+                'org.user_id2',
+                'user2.name as name2',
+                'user2.title as title2'])
             ->where('level', $level_type)
             ->where('org.title', $group_title)->get()->first();
+
+        $output = [];
+        for ($i = 1; $i < 3; $i++) {
+            if ($re->{"name" . $i}) {
+                $output[] = (object) ['user_id' => $re->{"user_id" . $i},
+                    'title' => $re->{"title" . $i},
+                    'name' => $re->{"name" . $i}];
+            }
+        }
+
+        return $output;
+
     }
 
 }
