@@ -348,7 +348,7 @@ class OrderCtrl extends Controller
         ]);
 
         $sn = 'none';
-        $err_msg = '';
+        $query_arr = [];
 
         if($source_type == app(Order::class)->getTable()){
             $request->validate([
@@ -368,6 +368,7 @@ class OrderCtrl extends Controller
 
             $company_name = DB::table('acc_company')->first()->company;
             $sn = $order->sn;
+            $query_arr[] = 'em=' . base64_encode(trim($order->email));
 
             $packages = [];
             if (count($subOrder) > 0) {
@@ -438,6 +439,7 @@ class OrderCtrl extends Controller
             //         'products' => $products
             //     ];
             // }
+            $query_str = count($query_arr) > 0 ? '?' . implode('&', $query_arr) : '';
             $data = [
                 'amount' => $order->total_price,
                 'currency' => 'TWD',
@@ -445,7 +447,7 @@ class OrderCtrl extends Controller
                 'packages' => $packages,
                 'redirectUrls' => [
                     'confirmUrl' => route('api.web.order.line-pay-confirm', ['source_type'=>app(Order::class)->getTable(), 'source_id'=>$order->id, 'unique_id'=>$order->unique_id]),
-                    'cancelUrl' => env('FRONTEND_URL') . 'payfin/' . $source_id . '/' . $sn . '/1',
+                    'cancelUrl' => env('FRONTEND_URL') . 'payfin/' . $source_id . '/' . $sn . '/1' . $query_str,
                 ]
             ];
 
@@ -467,12 +469,13 @@ class OrderCtrl extends Controller
                 }
 
             } else {
-                $err_msg = '?err_msg=' . __($result->returnMessage);
+                $query_arr[] = 'err_msg=' . __($result->returnMessage);
             }
         }
 
         // echo '交易失敗';
-        return redirect(env('FRONTEND_URL') . 'payfin/' . $source_id . '/' . $sn . '/1' . $err_msg);
+        $query_str = count($query_arr) > 0 ? '?' . implode('&', $query_arr) : '';
+        return redirect(env('FRONTEND_URL') . 'payfin/' . $source_id . '/' . $sn . '/1' . $query_str);
     }
 
     public function line_pay_confirm(Request $request, $source_type, $source_id, $unique_id)
@@ -485,7 +488,7 @@ class OrderCtrl extends Controller
         ]);
 
         $sn = request('orderId');
-        $err_msg = '';
+        $query_arr = [];
 
         if($source_type == app(Order::class)->getTable()){
             $request->validate([
@@ -502,6 +505,8 @@ class OrderCtrl extends Controller
             if(!$order){
                 return abort(404);
             }
+
+            $query_arr[] = 'em=' . base64_encode(trim($order->email));
 
             $data = [
                 'amount' => $order->total_price,
@@ -551,21 +556,23 @@ class OrderCtrl extends Controller
 
                 OrderPayLinePay::create_log($source_type, $source_id, $result);
 
-                return redirect(env('FRONTEND_URL') . 'payfin/' . $source_id . '/' . $sn . '/0');
+                $query_str = count($query_arr) > 0 ? '?' . implode('&', $query_arr) : '';
+                return redirect(env('FRONTEND_URL') . 'payfin/' . $source_id . '/' . $sn . '/0' . $query_str);
 
             } else {
                 $result->more_info = [
                     'action' => 'confirm',
                 ];
 
-                $err_msg = '?err_msg=' . __($result->returnMessage);
+                $query_arr[] = 'err_msg=' . __($result->returnMessage);
             }
 
             OrderPayLinePay::create_log($source_type, $source_id, $result);
         }
 
         // echo '交易失敗';
-        return redirect(env('FRONTEND_URL') . 'payfin/' . $source_id . '/' . $sn . '/1' . $err_msg);
+        $query_str = count($query_arr) > 0 ? '?' . implode('&', $query_arr) : '';
+        return redirect(env('FRONTEND_URL') . 'payfin/' . $source_id . '/' . $sn . '/1' . $query_str);
     }
 
 
@@ -919,7 +926,12 @@ class OrderCtrl extends Controller
         include app_path() . '/Helpers/auth_mpi_mac.php';
 
         $EncRes = request('URLResEnc') ? request('URLResEnc') : null;
-        $err_msg = '';
+        $query_arr = [];
+
+        $order = Order::orderDetail($id)->first();
+        if($order){
+            $query_arr[] = 'em=' . base64_encode(trim($order->email));
+        }
 
         if ($EncRes) {
             $debug = '0';
@@ -941,8 +953,6 @@ class OrderCtrl extends Controller
                         'source_type' => $source_type,
                         'source_id' => $id,
                     ]);
-
-                    $order = Order::orderDetail($id)->first();
 
                     if (!$received_order_collection->first()) {
                         $received_order = ReceivedOrder::create_received_order($source_type, $id);
@@ -982,11 +992,12 @@ class OrderCtrl extends Controller
 
                     OrderPayCreditCard::create_log($source_type, $id, (object) $EncArray);
 
-                    return redirect(env('FRONTEND_URL') . 'payfin/' . $id . '/' . $lidm . '/' . $status);
+                    $query_str = count($query_arr) > 0 ? '?' . implode('&', $query_arr) : '';
+                    return redirect(env('FRONTEND_URL') . 'payfin/' . $id . '/' . $lidm . '/' . $status . $query_str);
 
                 } else {
                     if(isset($EncArray['errdesc']) && !is_null($EncArray['errdesc'])){
-                        $err_msg = '?err_msg=' . __(mb_convert_encoding(trim($EncArray['errdesc'], "\x00..\x08"), 'UTF-8', ['BIG5', 'UTF-8']));
+                        $query_arr[] = 'err_msg=' . __(mb_convert_encoding(trim($EncArray['errdesc'], "\x00..\x08"), 'UTF-8', ['BIG5', 'UTF-8']));
                     }
                 }
 
@@ -995,7 +1006,8 @@ class OrderCtrl extends Controller
         }
 
         // echo '交易失敗';
-        return redirect(env('FRONTEND_URL') . 'payfin/' . $id . '/' . $lidm . '/1' . $err_msg);
+        $query_str = count($query_arr) > 0 ? '?' . implode('&', $query_arr) : '';
+        return redirect(env('FRONTEND_URL') . 'payfin/' . $id . '/' . $lidm . '/1' . $query_str);
     }
 
     //消費者 建立訂單匯款資料
