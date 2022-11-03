@@ -8,20 +8,21 @@
                     發佈平台
                 </h6>
                 <select name="select_platform" id="select_source" class="-select2 -single mb-4 form-select" required>
-                    <option value="" selected disabled>選擇發佈平台</option>
-                    <option value="Bestselect-Page">喜鴻購物-臉書粉絲團</option>
-                    <option value="Facebook-Bestselection-Group">喜鴻購物-臉書社團</option>
-                    <option value="Bestselection-Line-Text">喜鴻購物-Line文字</option>
-                    <option value="Bestselection-Line-Photo">喜鴻購物-Line圖片</option>
-                    <option value="Manual">喜鴻購物-車上購物手冊</option>
-                    <option value="QrCode">喜鴻購物-QR Code封條</option>
-                    <option value="Bestselect-Internal-Link">喜鴻購物-內部連結</option>
-                    <option value="Besttour-Banner">喜鴻假期-官網Banner</option>
-                    <option value="Besttour-Page">喜鴻假期-臉書粉絲團</option>
-                    <option value="Besttour-Youtube">喜鴻假期-YouTube</option>
-                    <option value="Birdsflyaway-Youtube">鳥事少一點-YouTube</option>
-                    <option value="Besttour-Youtube-CG">誠貫-喜鴻假期YouTube廣告</option>
-                    <option value="FB-CG">誠貫-FB廣告</option>
+                    <option value="Bestselect-Internal-Link">一般分享（會刪除分潤、廣告等參數）</option>
+                    @can('cms.utm-url.whole')
+                        <option value="Bestselect-Page">喜鴻購物-臉書粉絲團</option>
+                        <option value="Facebook-Bestselection-Group">喜鴻購物-臉書社團</option>
+                        <option value="Bestselection-Line-Text">喜鴻購物-Line文字</option>
+                        <option value="Bestselection-Line-Photo">喜鴻購物-Line圖片</option>
+                        <option value="Manual">喜鴻購物-車上購物手冊</option>
+                        <option value="QrCode">喜鴻購物-QR Code封條</option>
+                        <option value="Besttour-Banner">喜鴻假期-官網Banner</option>
+                        <option value="Besttour-Page">喜鴻假期-臉書粉絲團</option>
+                        <option value="Besttour-Youtube">喜鴻假期-YouTube</option>
+                        <option value="Birdsflyaway-Youtube">鳥事少一點-YouTube</option>
+                        <option value="Besttour-Youtube-CG">誠貫-喜鴻假期YouTube廣告</option>
+                        <option value="FB-CG">誠貫-FB廣告</option>
+                    @endcan
                 </select>
                 <h6>
                     原始網址
@@ -190,11 +191,11 @@
                     var utmUrl = "";
 
                     switch(platform){
-                        case "QrCode":
-                            utmPath = toUtmPath(url, "offline", "qrcode", "qrcode-" + dat, today, "photo");
-                            break;
                         case "Bestselect-Internal-Link":
                             utmPath = deletePara(url);
+                            break;
+                        case "QrCode":
+                            utmPath = toUtmPath(url, "offline", "qrcode", "qrcode-" + dat, today, "photo");
                             break;
                         case "Bestselection-Line-Text":
                             utmPath = toUtmPath(url, "line", "human", "bestselect_line-" + dat, today, "text");
@@ -250,17 +251,15 @@
                 }
 
                 function deletePara(url) {
-                    let delUtmUrl = new URL(url);
-
-                    delUtmUrl.searchParams.delete('utm_source');
-                    delUtmUrl.searchParams.delete('utm_medium');
-                    delUtmUrl.searchParams.delete('utm_campaign');
-                    delUtmUrl.searchParams.delete('utm_term');
-                    delUtmUrl.searchParams.delete('utm_content');
-                    delUtmUrl.searchParams.delete('mcode');
-                    delUtmUrl.searchParams.delete('fc');
-
-                    return delUtmUrl;
+                    let newUrl = new URL(url);
+                    let urlParams = new URLSearchParams(newUrl.search);
+                    let params = Object.fromEntries(urlParams.entries());
+                    let paramArray = Object.keys(params);
+                    paramArray.forEach((key) => {
+                        newUrl.searchParams.delete(key);
+                    })
+                    newUrl.searchParams.set('openExternalBrowser', '1');
+                    return newUrl;
                 }
 
                 function generate_random_string(string_length){
