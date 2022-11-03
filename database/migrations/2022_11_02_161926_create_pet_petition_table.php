@@ -15,10 +15,11 @@ class CreatePetPetitionTable extends Migration
     {
         Schema::create('pet_petition', function (Blueprint $table) {
             $table->id();
+            $table->string('sn')->unique()->comment('流水號');
             $table->integer('user_id')->comment('員工id');
             $table->string('title')->comment('主旨');
             $table->text('content')->comment('內容');
-            $table->tinyInteger('completed')->default(0)->comment('是否完成');
+            $table->string('status')->nullable()->comment('狀態');
             $table->timestamps();
         });
 
@@ -36,7 +37,7 @@ class CreatePetPetitionTable extends Migration
             $table->string('source_type')->comment('類型');
             $table->integer('source_id')->comment('id');
             $table->integer('user_id')->comment('使用者id');
-            $table->dateTime('checked_at');
+            $table->dateTime('checked_at')->nullable();
 
         });
     }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Cms\AdminManagement;
 
 use App\Http\Controllers\Controller;
+use App\Models\Petition;
 use Illuminate\Http\Request;
 
 class PetitionCtrl extends Controller
@@ -15,6 +16,13 @@ class PetitionCtrl extends Controller
     public function index()
     {
         //
+
+        $dataList = Petition::paginate(100);
+
+        return view('cms.admin_management.petition.list', [
+            'dataList' => $dataList,
+            'data_per_page' => 100,
+        ]);
     }
 
     /**
@@ -25,6 +33,11 @@ class PetitionCtrl extends Controller
     public function create()
     {
         //
+
+        return view('cms.admin_management.petition.edit', [
+            'method' => 'create',
+            'formAction' => route('cms.petition.create'),
+        ]);
     }
 
     /**
