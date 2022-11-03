@@ -15,19 +15,29 @@
             <div class="card-body">
 
                 <div class="row">
-                    <x-b-form-group name="" title="部門名稱" required="true">
+                    <x-b-form-group name="" title="部門名稱">
                         <input class="form-control" type="text" disabled value="{{ $data->title }}">
                     </x-b-form-group>
-                    <x-b-form-group name="customer_id" title="姓名" required="true">
+                    <x-b-form-group name="user_id" title="主管" required="true">
 
                         <select name="user_id" class="form-select -select2 -single" data-placeholder="請單選">
                             @foreach ($users as $user)
-                                <option value="{{ $user->id }}" @if(old('user_id',$data->user_id ?? '')==$user->id) selected @endif>{{ $user->name }}</option>
+                                <option value="{{ $user->id }}" @if (old('user_id', $data->user_id ?? '') == $user->id) selected @endif>
+                                    {{ $user->name }}</option>
                             @endforeach
                         </select>
 
                     </x-b-form-group>
+                    <x-b-form-group name="user_id2" title="副主管">
 
+                        <select name="user_id2" class="form-select -select2 -single" data-placeholder="請單選">
+                            @foreach ($users as $user)
+                                <option value="{{ $user->id }}" @if (old('user_id2', $data->user_id2 ?? '') == $user->id) selected @endif>
+                                    {{ $user->name }}</option>
+                            @endforeach
+                        </select>
+
+                    </x-b-form-group>
                 </div>
             </div>
         </div>
