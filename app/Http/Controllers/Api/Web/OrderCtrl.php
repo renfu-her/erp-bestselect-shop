@@ -347,7 +347,9 @@ class OrderCtrl extends Controller
             'unique_id' => $unique_id,
         ]);
 
-        $sn = 'err';
+        $sn = 'none';
+        $err_msg = '';
+
         if($source_type == app(Order::class)->getTable()){
             $request->validate([
                 'id' => 'required|exists:ord_orders,id',
@@ -463,11 +465,14 @@ class OrderCtrl extends Controller
                         return redirect($result->info->paymentUrl->web);
                     }
                 }
+
+            } else {
+                $err_msg = '?err_msg=' . __($result->returnMessage);
             }
         }
 
         // echo '交易失敗';
-        return redirect(env('FRONTEND_URL') . 'payfin/' . $source_id . '/' . $sn . '/1');
+        return redirect(env('FRONTEND_URL') . 'payfin/' . $source_id . '/' . $sn . '/1' . $err_msg);
     }
 
     public function line_pay_confirm(Request $request, $source_type, $source_id, $unique_id)
@@ -480,6 +485,7 @@ class OrderCtrl extends Controller
         ]);
 
         $sn = request('orderId');
+        $err_msg = '';
 
         if($source_type == app(Order::class)->getTable()){
             $request->validate([
@@ -551,13 +557,15 @@ class OrderCtrl extends Controller
                 $result->more_info = [
                     'action' => 'confirm',
                 ];
+
+                $err_msg = '?err_msg=' . __($result->returnMessage);
             }
 
             OrderPayLinePay::create_log($source_type, $source_id, $result);
         }
 
         // echo '交易失敗';
-        return redirect(env('FRONTEND_URL') . 'payfin/' . $source_id . '/' . $sn . '/1');
+        return redirect(env('FRONTEND_URL') . 'payfin/' . $source_id . '/' . $sn . '/1' . $err_msg);
     }
 
 
