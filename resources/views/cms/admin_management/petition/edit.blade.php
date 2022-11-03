@@ -7,28 +7,38 @@
             編輯
         @endif 申議書
     </h2>
-    <form id="form1" class="card-body" method="post" action="{{ $formAction }}">
+    <form id="form1" method="post" action="{{ $formAction }}">
         @method('POST')
         @csrf
 
         <div class="card shadow p-4 mb-4">
             <div class="row">
-                <x-b-form-group name="title" title="主旨" required="true" class="mb-2">
+                <x-b-form-group name="title" title="主旨" required="true" class="mb-3">
                     <input type="text" class="form-control @error('title') is-invalid @enderror" id="title"
-                        name="title" value="{{ old('title', $data->title ?? '') }}" required aria-label="主旨" />
+                        name="title" value="{{ old('title', $data->title ?? '') }}" required aria-label="主旨" placeholder="請填入主旨" />
                 </x-b-form-group>
-            </div>
-            <div class="row">
-                <x-b-form-group name="content" title="內容" required="true" class="mb-2">
+
+                <x-b-form-group name="content" title="內容" required="true" class="mb-3">
                     <textarea type="text" class="form-control @error('content') is-invalid @enderror" id="content" name="content"
-                        required aria-label="內容">{{ old('content', $data->content ?? '') }}</textarea>
+                        required aria-label="內容" placeholder="請填入內容">{{ old('content', $data->content ?? '') }}</textarea>
                 </x-b-form-group>
-            </div>
-            <div class="row">
-                <x-b-form-group name="orders" title="主旨" required="false" class="mb-2">
-                    <input type="text" class="form-control @error('orders') is-invalid @enderror" id="orders"
-                        name="orders" value="{{ old('orders', $data->orders ?? '') }}" required aria-label="主旨" />
-                </x-b-form-group>
+
+                <div>
+                    <label class="form-label">相關單號
+                        <button type="button" class="btn btn-sm btn-outline-primary border-dashed ms-2 -newOrder"
+                            style="font-weight: 500;">
+                            <i class="bi bi-plus-circle"></i> 新增單號
+                        </button>
+                    </label>
+                    <div class="row -appendClone">
+                        <div class="input-group col-12 col-md-6 mb-2 -cloneElem">
+                            <input class="form-control" type="text" name="order[]" placeholder="請填入相關單號" aria-label="相關單號">
+                            <button class="btn btn-outline-secondary -del" type="button" data-bs-toggle="tooltip" title="刪除">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -52,53 +62,26 @@
 @endsection
 @once
     @push('sub-scripts')
-        <script src="{{ Asset('plug-in/tinymce/tinymce.min.js') }}"></script>
-        <script src="{{ Asset('plug-in/tinymce/myTinymce.js') }}"></script>
         <script>
-            //如果預設時間有修改，請改下面常數
-            //選一般預設7天 重要預設15天 極重要預設30天
-            const ONE_STAR = 7;
-            const TWO_STAR = 15;
-            const THREE_STAR = 30;
-
-            const ONE_STAR_DATE = moment().add(ONE_STAR, 'days').format('YYYY-MM-DD');
-            const TWO_STAR_DATE = moment().add(TWO_STAR, 'days').format('YYYY-MM-DD');
-            const THREE_STAR_DATE = moment().add(THREE_STAR, 'days').format('YYYY-MM-DD');
-
-            //只有在「新增」時， 選一般預設7天 重要預設15天 極重要預設30天
-            @if ($method === 'create')
-                //預設初始值
-                $('#datePicker').val(ONE_STAR_DATE);
-                $('input[name="weight"]').off('change').on('change', function() {
-                    const weight = parseInt($(this).val());
-                    switch (weight) {
-                        case 1:
-                            $('#datePicker').val(ONE_STAR_DATE);
-                            break;
-                        case 2:
-                            $('#datePicker').val(TWO_STAR_DATE);
-                            break;
-                        case 3:
-                            $('#datePicker').val(THREE_STAR_DATE);
-                            break;
-                        default:
-                            $('#datePicker').val(ONE_STAR_DATE);
-                    }
-                });
-            @endif
-
-            // 一般 文字編輯器
-            let content = @json($data->content ?? '');
-            content = content ? content : '';
-            tinymce.init({
-                selector: '#editor',
-                ...TINY_OPTION
-            }).then((editors) => {
-                editors[0].setContent(content);
+            const $clone = $(`.-cloneElem:first-child`).clone();
+            const beforeDelFn = ({$this}) => {
+                const tooltip = bootstrap.Tooltip.getInstance($this);
+                if (tooltip) {
+                    tooltip.dispose();  // 清除提示工具
+                }
+            };
+            Clone_bindDelElem($('.-appendClone .-del'), {
+                beforeDelFn: beforeDelFn
             });
-
-            $('#form1').submit(function(e) {
-                $('textarea#editor').val(tinymce.get('editor').getContent());
+            // 新增單號
+            $('.-newOrder').off('click').on('click', function() {
+                Clone_bindCloneBtn($clone, function ($elem) {
+                    $elem.find('input').val('');
+                    $elem.find('input, button').prop('disabled', false);
+                    new bootstrap.Tooltip($elem.find('[data-bs-toggle="tooltip"]'));
+                }, {
+                    beforeDelFn: beforeDelFn
+                });
             });
         </script>
     @endpush

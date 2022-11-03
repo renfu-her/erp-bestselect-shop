@@ -212,6 +212,20 @@ Breadcrumbs::for('cms.bulletin_board.show', function (BreadcrumbTrail $trail) {
     $trail->push('公吿');
 });
 
+// 申議書
+Breadcrumbs::for('cms.petition.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('申議書列表');
+});
+Breadcrumbs::for('cms.petition.create', function (BreadcrumbTrail $trail) {
+    $trail->push('申議書列表', Route('cms.petition.index'));
+    $trail->push('新增申議書');
+});
+Breadcrumbs::for('cms.petition.edit', function (BreadcrumbTrail $trail) {
+    $trail->push('申議書列表', Route('cms.petition.index'));
+    $trail->push('編輯申議書');
+});
+
 // 組合包組裝
 Breadcrumbs::for('cms.combo-purchase.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
