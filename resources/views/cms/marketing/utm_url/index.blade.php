@@ -1,6 +1,6 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h2 class="mb-4">UTM網址產生器</h2>
+    <h2 class="mb-4">縮短網址產生器</h2>
     <div class="card mb-4">
         <form id="form">
             <div class="card-body">
