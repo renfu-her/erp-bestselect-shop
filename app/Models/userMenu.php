@@ -324,6 +324,11 @@ return
                 "controller_name" => "BulletinBoardCtrl",
                 "route_name" => "cms.bulletin_board.index",
             ],
+            [
+                "title" => "申議書",
+                "controller_name" => "PetitionCtrl",
+                "route_name" => "cms.petition.index",
+            ],
         ],
     ],
     [
