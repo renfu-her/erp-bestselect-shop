@@ -985,8 +985,8 @@ class OrderCtrl extends Controller
                     return redirect(env('FRONTEND_URL') . 'payfin/' . $id . '/' . $lidm . '/' . $status);
 
                 } else {
-                    if(isset($EncArray['errdesc'])){
-                        $err_msg = '?err_msg=' . __($EncArray['errdesc']);
+                    if(isset($EncArray['errdesc']) && !is_null($EncArray['errdesc'])){
+                        $err_msg = '?err_msg=' . __(mb_convert_encoding(trim($EncArray['errdesc'], "\x00..\x08"), 'UTF-8', ['BIG5', 'UTF-8']));
                     }
                 }
 
