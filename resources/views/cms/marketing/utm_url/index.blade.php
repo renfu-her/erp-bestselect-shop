@@ -66,9 +66,8 @@
         <script>
             const BESTSELECTION_REGEX = /(^https:\/\/.*\.bestselection\.com\.tw)/;
 
-            const TEST = false;
-            const BITLY_TOKEN = TEST ? "a55bd2eca919950d842173e393eccd2e1e8300f8" : "7d23e99d11d91b52bd3915bf809fe9bfd7e306bf";
-            const PICSEE_TOKEN = TEST ? "20f07f91f3303b2f66ab6f61698d977d69b83d64" : "32e5b4c2031799dc40841114844a3aa35343a923";
+            const BITLY_TOKEN = "a55bd2eca919950d842173e393eccd2e1e8300f8";
+            const PICSEE_TOKEN = {!! '"' . $PicSeeToken . '"' !!}
             $(document).ready(function(){
                 $(".copyBtn").hide();
                 $('#wait').hide();
