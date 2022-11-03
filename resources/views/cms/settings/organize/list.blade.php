@@ -11,6 +11,7 @@
                         <th scope="col">部門</th>
                         <th scope="col">組別</th>
                         <th scope="col">主管</th>
+                        <th scope="col">副主管</th>
                         <th scope="col" class="text-center">編輯</th>
 
                     </tr>
@@ -21,6 +22,7 @@
                             <td>{{ $data->department_title }}</td>
                             <td></td>
                             <td>{{ $data->a_name }}</td>
+                            <td>{{ $data->a_name2 }}</td>
                             <td>
                                 @can('cms.sale_channel.edit')
                                     <a href="{{ Route('cms.organize.edit', ['id' => $data->department_id]) }}"
@@ -36,6 +38,7 @@
                                 <td></td>
                                 <td>{{ $group->group_title }}</td>
                                 <td>{{ $group->b_name }}</td>
+                                <td>{{ $group->b_name2 }}</td>
                                 <td>
                                     @can('cms.sale_channel.edit')
                                         <a href="{{ Route('cms.organize.edit', ['id' => $group->group_id], true) }}"

@@ -16,7 +16,7 @@ class OrganizeCtrl extends Controller
      */
     public function index(Request $request)
     {
-      
+        
         return view('cms.settings.organize.list', [
             'dataList' => UserOrganize::dataList(),
         ]);
@@ -86,12 +86,12 @@ class OrganizeCtrl extends Controller
      */
     public function update(Request $request, $id)
     {
+        $update = [];
         $user_id = $request->input('user_id');
-        if ($user_id) {
-            $update = ['user_id' => $user_id];
-        } else {
-            $update = ['user_id' => null];
-        }
+        $update['user_id'] = $user_id ? $user_id : null;
+
+        $user_id2 = $request->input('user_id2');
+        $update['user_id2'] = $user_id2 ? $user_id2 : null;
 
         UserOrganize::where('id', $id)->update($update);
 
