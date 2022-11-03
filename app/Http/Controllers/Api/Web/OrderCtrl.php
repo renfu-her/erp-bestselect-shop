@@ -919,6 +919,8 @@ class OrderCtrl extends Controller
         include app_path() . '/Helpers/auth_mpi_mac.php';
 
         $EncRes = request('URLResEnc') ? request('URLResEnc') : null;
+        $err_msg = '';
+
         if ($EncRes) {
             $debug = '0';
             $EncArray = gendecrypt($EncRes, $auth_key, $debug);
@@ -981,6 +983,11 @@ class OrderCtrl extends Controller
                     OrderPayCreditCard::create_log($source_type, $id, (object) $EncArray);
 
                     return redirect(env('FRONTEND_URL') . 'payfin/' . $id . '/' . $lidm . '/' . $status);
+
+                } else {
+                    if(isset($EncArray['errdesc'])){
+                        $err_msg = '?err_msg=' . __($EncArray['errdesc']);
+                    }
                 }
 
                 OrderPayCreditCard::create_log($source_type, $id, (object) $EncArray);
@@ -988,7 +995,7 @@ class OrderCtrl extends Controller
         }
 
         // echo '交易失敗';
-        return redirect(env('FRONTEND_URL') . 'payfin/' . $id . '/' . $lidm . '/1');
+        return redirect(env('FRONTEND_URL') . 'payfin/' . $id . '/' . $lidm . '/1' . $err_msg);
     }
 
     //消費者 建立訂單匯款資料
