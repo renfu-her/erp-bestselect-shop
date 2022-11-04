@@ -16,8 +16,15 @@ class PetitionCtrl extends Controller
     public function index()
     {
         //
+       // Petition::waitAuditlist(2);
 
-        $dataList = Petition::paginate(100);
+        $dataList = Petition::dataList()->paginate(100);
+
+        foreach ($dataList as $data) {
+            $data->users = $data->users ? json_decode($data->users) : [];
+            
+        }
+
 
         return view('cms.admin_management.petition.list', [
             'dataList' => $dataList,
@@ -30,10 +37,10 @@ class PetitionCtrl extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(Request $request)
     {
         //
-
+        Petition::createPetition($request->user()->id, 'a', 'b');
         return view('cms.admin_management.petition.edit', [
             'method' => 'create',
             'formAction' => route('cms.petition.create'),
