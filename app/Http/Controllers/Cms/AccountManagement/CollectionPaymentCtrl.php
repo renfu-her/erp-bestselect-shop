@@ -240,7 +240,7 @@ class CollectionPaymentCtrl extends Controller
 
                         'account_name'=>$account_name,
                         'method_name'=>null,
-                        'summary'=>null,
+                        'summary'=>$value->logistics_summary,
                         'note'=>null,
                         'product_title'=>null,
                         'del_even'=>null,
@@ -986,7 +986,7 @@ class CollectionPaymentCtrl extends Controller
 
                         'account_name'=>$account_name,
                         'method_name'=>null,
-                        'summary'=>null,
+                        'summary'=>$value->logistics_summary,
                         'note'=>null,
                         'product_title'=>null,
                         'del_even'=>null,
