@@ -96,9 +96,11 @@ class PetitionCtrl extends Controller
         $data->users = json_decode($data->users);
       
         $orders = array_map(function ($n) {
-            return $n->source_sn;
+            return getErpOrderUrl($n);
         }, Petition::getPetitionOrders($id)->get()->toArray());
 
+       // dd($orders);
+        
         return view('cms.admin_management.petition.show', [
             'method' => 'edit',
             'data' => $data,
