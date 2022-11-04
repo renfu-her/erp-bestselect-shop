@@ -87,3 +87,25 @@ if (!function_exists('getImageUrl')) {
         }
     }
 }
+if (!function_exists('getErpOrderUrl')) {
+    // 取得各類訂單頁面
+    function getErpOrderUrl($order)
+    {
+        switch ($order->source_type) {
+            case "O":
+                $order->url = route('cms.order.detail', ['id' => $order->source_id]);
+                break;
+            case "PSG":
+
+                break;
+            case "ISG":
+
+                break;
+            case "B":
+
+                break;
+        }
+
+        return $order;
+    }
+}
