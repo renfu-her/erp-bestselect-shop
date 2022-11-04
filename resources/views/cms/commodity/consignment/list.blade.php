@@ -10,7 +10,7 @@
                 <div class="col-12 col-md-6 mb-3">
                     <label class="form-label">寄倉單號</label>
                     <input class="form-control" name="consignment_sn" type="text" placeholder="寄倉單號" value="{{$consignment_sn}}"
-                           aria-label="採購單號">
+                           aria-label="寄倉單號">
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">出貨倉庫</label>
