@@ -10,5 +10,6 @@ Route::group(['prefix' => 'petition', 'as' => 'petition.'], function () {
     Route::get('edit/{id}', [PetitionCtrl::class, 'edit'])->name('edit')->middleware('permission:cms.petition.edit');
     Route::post('edit/{id}', [PetitionCtrl::class, 'update']);
     Route::get('delete/{id}', [PetitionCtrl::class, 'destroy'])->name('delete')->middleware('permission:cms.petition.delete');
-   
+    Route::get('show/{id}', [PetitionCtrl::class, 'show'])->name('show');
+
 });

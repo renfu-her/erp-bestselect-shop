@@ -15,7 +15,8 @@
             <div class="row">
                 <x-b-form-group name="title" title="主旨" required="true" class="mb-3">
                     <input type="text" class="form-control @error('title') is-invalid @enderror" id="title"
-                        name="title" value="{{ old('title', $data->title ?? '') }}" required aria-label="主旨" placeholder="請填入主旨" />
+                        name="title" value="{{ old('title', $data->title ?? '') }}" required aria-label="主旨"
+                        placeholder="請填入主旨" />
                 </x-b-form-group>
 
                 <x-b-form-group name="content" title="內容" required="true" class="mb-3">
@@ -32,12 +33,26 @@
                     </label>
                     <div class="row -appendClone">
                         <div class="input-group col-12 col-md-6 mb-2 -cloneElem">
-                            <input class="form-control" type="text" name="order[]" placeholder="請填入相關單號" aria-label="相關單號">
-                            <button class="btn btn-outline-secondary -del" type="button" data-bs-toggle="tooltip" title="刪除">
+                            <input class="form-control" type="text" name="order[]" placeholder="請填入相關單號"
+                                aria-label="相關單號">
+                            <button class="btn btn-outline-secondary -del" type="button" data-bs-toggle="tooltip"
+                                title="刪除">
                                 <i class="bi bi-x-lg"></i>
                             </button>
                         </div>
                     </div>
+                    @foreach (old('order', $order ?? []) as $key => $value)
+                        <div class="row">
+                            <div class="input-group col-12 col-md-6 mb-2 -cloneElem">
+                                <input class="form-control @error('order.' . $key) is-invalid @enderror" type="text"
+                                    name="order[]" value="{{ $value }}" placeholder="請填入相關單號" aria-label="相關單號">
+                                <button class="btn btn-outline-secondary -del" type="button" data-bs-toggle="tooltip"
+                                    title="刪除">
+                                    <i class="bi bi-x-lg"></i>
+                                </button>
+                            </div>
+                        </div>
+                    @endforeach
                 </div>
             </div>
         </div>
@@ -64,10 +79,12 @@
     @push('sub-scripts')
         <script>
             const $clone = $(`.-cloneElem:first-child`).clone();
-            const beforeDelFn = ({$this}) => {
+            const beforeDelFn = ({
+                $this
+            }) => {
                 const tooltip = bootstrap.Tooltip.getInstance($this);
                 if (tooltip) {
-                    tooltip.dispose();  // 清除提示工具
+                    tooltip.dispose(); // 清除提示工具
                 }
             };
             Clone_bindDelElem($('.-appendClone .-del'), {
@@ -75,7 +92,7 @@
             });
             // 新增單號
             $('.-newOrder').off('click').on('click', function() {
-                Clone_bindCloneBtn($clone, function ($elem) {
+                Clone_bindCloneBtn($clone, function($elem) {
                     $elem.find('input').val('');
                     $elem.find('input, button').prop('disabled', false);
                     new bootstrap.Tooltip($elem.find('[data-bs-toggle="tooltip"]'));

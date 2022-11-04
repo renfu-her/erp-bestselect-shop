@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Cms\AdminManagement;
 use App\Http\Controllers\Controller;
 use App\Models\Petition;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class PetitionCtrl extends Controller
 {
@@ -16,15 +17,14 @@ class PetitionCtrl extends Controller
     public function index()
     {
         //
-       // Petition::waitAuditlist(2);
+        // Petition::waitAuditlist(2);
 
         $dataList = Petition::dataList()->paginate(100);
 
         foreach ($dataList as $data) {
             $data->users = $data->users ? json_decode($data->users) : [];
-            
-        }
 
+        }
 
         return view('cms.admin_management.petition.list', [
             'dataList' => $dataList,
@@ -40,7 +40,6 @@ class PetitionCtrl extends Controller
     public function create(Request $request)
     {
         //
-        Petition::createPetition($request->user()->id, 'a', 'b');
         return view('cms.admin_management.petition.edit', [
             'method' => 'create',
             'formAction' => route('cms.petition.create'),
@@ -56,6 +55,29 @@ class PetitionCtrl extends Controller
     public function store(Request $request)
     {
         //
+        $request->validate(['title' => 'required',
+            'content' => 'required',
+            'order' => ['nullable', 'array']]);
+
+        $d = $request->all();
+
+        $d['order'] = array_values(array_filter($d['order']));
+
+        $re = Petition::createPetition($request->user()->id, $d['title'], $d['content'], $d['order']);
+
+        if ($re['success'] != '1') {
+            $errors = [];
+            if ($re['type'] == 'order_sn') {
+                foreach ($re['data'] as $value) {
+                    $errors['order.' . $value] = '查無單號';
+                }
+            }
+            return redirect()->back()->withInput($d)->withErrors($errors);
+        }
+
+        wToast('新增完成');
+        return redirect(route('cms.petition.index'));
+
     }
 
     /**
@@ -66,7 +88,23 @@ class PetitionCtrl extends Controller
      */
     public function show($id)
     {
-        //
+        $data = Petition::dataList()->where('petition.id', $id)->get()->first();
+        if (!$data) {
+            return abort(404);
+        }
+
+        $data->users = json_decode($data->users);
+      
+        $orders = array_map(function ($n) {
+            return $n->source_sn;
+        }, Petition::getPetitionOrders($id)->get()->toArray());
+
+        return view('cms.admin_management.petition.show', [
+            'method' => 'edit',
+            'data' => $data,
+            'order' => $orders,
+            'formAction' => route('cms.petition.edit', ['id' => $id]),
+        ]);
     }
 
     /**
@@ -77,7 +115,21 @@ class PetitionCtrl extends Controller
      */
     public function edit($id)
     {
-        //
+
+        $data = Petition::dataList()->where('petition.id', $id)->get()->first();
+        if (!$data) {
+            return abort(404);
+        }
+        $orders = array_map(function ($n) {
+            return $n->source_sn;
+        }, Petition::getPetitionOrders($id)->get()->toArray());
+
+        return view('cms.admin_management.petition.edit', [
+            'method' => 'edit',
+            'data' => $data,
+            'order' => $orders,
+            'formAction' => route('cms.petition.edit', ['id' => $id]),
+        ]);
     }
 
     /**
@@ -90,6 +142,33 @@ class PetitionCtrl extends Controller
     public function update(Request $request, $id)
     {
         //
+        $request->validate(['title' => 'required',
+            'content' => 'required',
+            'order' => ['nullable', 'array']]);
+
+        $d = $request->all();
+        DB::beginTransaction();
+        Petition::where('id', $id)->update([
+            'title' => $d['title'],
+            'content' => $d['content'],
+        ]);
+        $d['order'] = array_values(array_filter($d['order']));
+
+        $re = Petition::updatePetitionOrder($d['order'], $id);
+
+        if ($re['success'] != '1') {
+            $errors = [];
+            if ($re['type'] == 'order_sn') {
+                foreach ($re['data'] as $value) {
+                    $errors['order.' . $value] = '查無單號';
+                }
+            }
+            DB::rollBack();
+            return redirect()->back()->withInput($d)->withErrors($errors);
+        }
+        DB::commit();
+        wToast('更新完成');
+        return redirect(route('cms.petition.index'));
     }
 
     /**
@@ -100,6 +179,10 @@ class PetitionCtrl extends Controller
      */
     public function destroy($id)
     {
-        //
+
+        Petition::where('id', $id)->delete();
+
+        wToast('刪除完成');
+        return redirect(route('cms.petition.index'));
     }
 }

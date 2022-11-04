@@ -27,6 +27,7 @@
                     <tr>
                         <th scope="col" style="width:10%">#</th>
                         <th scope="col" class="text-center">編輯</th>
+                        <th scope="col">序號</th>
                         <th scope="col">申請人</th>
                         <th scope="col">主旨</th>
                         <th scope="col">內容</th>
@@ -51,10 +52,13 @@
                                 @endif
                             </td>
                             <td>
+                                {{ $data->sn }}
+                            </td>
+                            <td>
                                 {{ $data->user_name }}
                             </td>
                             <td>
-                                <a href="{{ Route('cms.petition.edit', ['id' => $data->id], true) }}">
+                                <a href="{{ Route('cms.petition.show', ['id' => $data->id], true) }}">
                                     {{ $data->title ?? '' }}
                                 </a>
                             </td>

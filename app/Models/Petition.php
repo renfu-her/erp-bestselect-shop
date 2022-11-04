@@ -4,11 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 
 class Petition extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
     protected $table = 'pet_petition';
     protected $guarded = [];
 
@@ -33,7 +34,8 @@ class Petition extends Model
         $re = DB::table('pet_petition as petition')
             ->leftJoinSub($sub, 'audit', 'audit.source_id', '=', 'petition.id')
             ->leftJoin('usr_users as user', 'petition.user_id', '=', 'user.id')
-            ->select(['petition.*', 'audit.*', 'user.name as user_name']);
+            ->select(['petition.*', 'audit.*', 'user.name as user_name'])
+            ->whereNull('petition.deleted_at');
 
         return $re;
 
@@ -59,21 +61,26 @@ class Petition extends Model
 
         return $sub2;
         /*
-        dd($sub2->get());
-      
-        $re = DB::table('pet_petition as pet')
-            ->select('pet.*')
-            ->joinSub($sub2, 'audit2', 'audit2.source_id', '=', 'pet.id');
+    dd($sub2->get());
 
-        dd($re->get());
-        */
+    $re = DB::table('pet_petition as pet')
+    ->select('pet.*')
+    ->joinSub($sub2, 'audit2', 'audit2.source_id', '=', 'pet.id');
+
+    dd($re->get());
+     */
+    }
+
+    public static function getPetitionOrders($petition_id)
+    {
+        return DB::table('pet_petition_order')->where('petition_id', $petition_id);
     }
 
     public static function createPetition($user_id, $title, $content, $orders = [])
     {
         DB::beginTransaction();
 
-        $sn = 'PET' . str_pad((self::lockForUpdate()->get()
+        $sn = 'PET' . str_pad((self::withTrashed()->lockForUpdate()->get()
                 ->count()) + 1, 9, '0', STR_PAD_LEFT);
 
         $id = self::create([
@@ -96,7 +103,110 @@ class Petition extends Model
             ];
         }, $org, array_keys($org)));
 
+        // 關聯訂單
+        $re = self::updatePetitionOrder($orders, $id);
+
+        if ($re['success'] != '1') {
+            DB::rollBack();
+            return $re;
+        }
+
         DB::commit();
+        return ['success' => '1'];
+    }
+
+    public static function updatePetitionOrder($orders, $id)
+    {
+        DB::beginTransaction();
+
+        DB::table('pet_petition_order')->where('petition_id', $id)->delete();
+        if ($orders) {
+            $re = self::checkOrderSn($orders, $id);
+            if ($re['success'] != '1') {
+                DB::rollBack();
+                return $re;
+            }
+
+            DB::table('pet_petition_order')->insert($re['data']);
+        }
+
+        DB::commit();
+        return ['success' => '1'];
+
+    }
+
+    public static function checkOrderSn($orders, $pid = null)
+    {
+        $err_order = []; //key
+        $order_sn = [];
+
+        foreach ($orders as $key => $order) {
+            $order = strtoupper($order);
+            $insert_data = null;
+            preg_match('/^([A-Za-z])*/u', $order, $matches);
+
+            if ($matches) {
+                switch ($matches[0]) {
+                    case "O":
+                        $o = Order::where('sn', $order)->get()->first();
+                        if ($o) {
+                            $insert_data = ['source_id' => $o->id,
+                                'source_sn' => $o->sn,
+                                'source_type' => 'O'];
+                        } else {
+                            $err_order[] = $key;
+                        }
+                        break;
+                    case "PSG":
+                        $o = StituteOrder::where('sn', $order)->get()->first();
+                        if ($o) {
+                            $insert_data = ['source_id' => $o->id,
+                                'source_sn' => $o->sn,
+                                'source_type' => 'PSG'];
+                        } else {
+                            $err_order[] = $key;
+                        }
+                        break;
+                    case "ISG":
+                        $o = PayingOrder::where('sn', $order)->get()->first();
+                        if ($o) {
+                            $insert_data = ['source_id' => $o->id,
+                                'source_sn' => $o->sn,
+                                'source_type' => 'ISG'];
+                        } else {
+                            $err_order[] = $key;
+                        }
+                        break;
+                    case "B":
+                        $o = Purchase::where('sn', $order)->get()->first();
+                        if ($o) {
+                            $insert_data = ['source_id' => $o->id,
+                                'source_sn' => $o->sn,
+                                'source_type' => 'B'];
+                        } else {
+                            $err_order[] = $key;
+                        }
+                        break;
+                }
+
+                if ($insert_data) {
+                    if ($pid) {
+                        $insert_data['petition_id'] = $pid;
+                    }
+                    $order_sn[] = $insert_data;
+                } else {
+                    $err_order[] = $key;
+                }
+            } else {
+                $err_order[] = $key;
+            }
+        }
+
+        if ($err_order) {
+            return ['success' => '0', 'type' => 'order_sn', 'data' => $err_order];
+        }
+
+        return ['success' => '1', 'data' => $order_sn];
 
     }
 }
