@@ -137,7 +137,7 @@
                                 </td>
                                 <td class="table-warning wrap">
                                     @if($d_value->d_type == 'logistics')
-                                        {{$d_value->account_name}} {{ $data->source_sn }}
+                                        {{ $d_value->summary ?? $d_value->account_name }} {{ $data->source_sn }}
                                     @elseif($d_value->d_type == 'discount')
                                         {{$d_value->discount_title}} - {{$data->source_sn}}
                                     @else
