@@ -225,6 +225,10 @@ Breadcrumbs::for('cms.petition.edit', function (BreadcrumbTrail $trail) {
     $trail->push('申議書列表', Route('cms.petition.index'));
     $trail->push('編輯申議書');
 });
+Breadcrumbs::for('cms.petition.show', function (BreadcrumbTrail $trail, $value) {
+    $trail->push('申議書列表', Route('cms.petition.index'));
+    $trail->push('申議書【' . $value . '】');
+});
 
 // 組合包組裝
 Breadcrumbs::for('cms.combo-purchase.index', function (BreadcrumbTrail $trail) {

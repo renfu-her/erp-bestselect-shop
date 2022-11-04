@@ -25,15 +25,13 @@
             <table class="table table-striped tableList">
                 <thead>
                     <tr>
-                        <th scope="col" style="width:10%">#</th>
-                        <th scope="col" class="text-center">編輯</th>
+                        <th scope="col" style="width:40px">#</th>
+                        <th scope="col" style="width:40px" class="text-center">編輯</th>
                         <th scope="col">序號</th>
                         <th scope="col">申請人</th>
-                        <th scope="col">主旨</th>
+                        <th scope="col" style="min-width: 100px">主旨</th>
                         <th scope="col">內容</th>
-                        <th scope="col">簽核狀態</th>
                         <th scope="col">新增日期</th>
-
 
                         <th scope="col" class="text-center">刪除</th>
                     </tr>
@@ -51,30 +49,23 @@
                                     </a>
                                 @endif
                             </td>
-                            <td>
+                            <td class="small">
                                 {{ $data->sn }}
                             </td>
                             <td>
                                 {{ $data->user_name }}
                             </td>
-                            <td>
+                            <td class="wrap">
                                 <a href="{{ Route('cms.petition.show', ['id' => $data->id], true) }}">
                                     {{ $data->title ?? '' }}
                                 </a>
                             </td>
-                            <td>{{ $data->content }}</td>
-                            <td>
-                                @foreach ($data->users as $key => $user)
-                                    <div> {{ $user->user_title }} {{ $user->user_name }}
-                                        <span>{{ $user->checked_at }}</span>
-                                    </div>
-                                @endforeach
-
+                            <td class="wrap small">
+                                <div class="multiline-ellipsis">{!! nl2br($data->content) !!}</div>
                             </td>
-                            <td>
+                            <td class="small">
                                 {{ date('Y/m/d', strtotime($data->created_at ?? '')) }}
                             </td>
-
 
                             <td class="text-center">
                                 <a href="javascript:void(0)"
@@ -84,7 +75,31 @@
                                     <i class="bi bi-trash"></i>
                                 </a>
                             </td>
-
+                        </tr>
+                        <tr>
+                            <th></th>
+                            <td colspan="7" class="pt-0 ps-0">
+                                <table class="table table-sm border border-top-0 m-0">
+                                    <tbody>
+                                        <tr>
+                                            <th rowspan="{{ count($data->users) + 1 }}"
+                                                style="writing-mode: vertical-lr; width:40px;"
+                                                class="text-center border-end"
+                                                >簽核狀態</th>
+                                            <th class="border-secondary">主管</th>
+                                            <th class="border-secondary">職稱</th>
+                                            <th class="border-secondary">簽核時間</th>
+                                        </tr>
+                                        @foreach ($data->users as $key => $user)
+                                            <tr>
+                                                <td>{{ $user->user_name }}</td>
+                                                <td>{{ $user->user_title }}</td>
+                                                <td>{{ $user->checked_at ? date('Y/m/d H:i:s', strtotime($user->checked_at)) : '' }}</td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </td>
                         </tr>
                     @endforeach
                 </tbody>
@@ -110,6 +125,16 @@
 @endsection
 
 @once
+    @push('sub-styles')
+        <style>
+            .multiline-ellipsis {
+                display: -webkit-box;
+                -webkit-box-orient: vertical;
+                -webkit-line-clamp: 4;
+                overflow: hidden;
+            }
+        </style>
+    @endpush
     @push('sub-scripts')
         <script>
             $('#confirm-delete').on('show.bs.modal', function(e) {

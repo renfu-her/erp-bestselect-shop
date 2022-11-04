@@ -1,41 +1,40 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h2 class="mb-4">
+    <h2 class="mb-4">申議書</h2>
 
-    </h2>
     <form id="form1" method="post">
         @method('POST')
         @csrf
 
         <div class="card shadow p-4 mb-4">
-            <div class="row">
-                <div>{{ $data->user_name }}</div>
-                <x-b-form-group name="title" title="主旨" required="true" class="mb-3">
-                    <input type="text" class="form-control @error('title') is-invalid @enderror" id="title"
-                        name="title" value="{{ old('title', $data->title ?? '') }}" required aria-label="主旨"
-                        placeholder="請填入主旨" />
-                </x-b-form-group>
+            <table class="table table-bordered border-secondary">
+                <tbody>
+                    <tr>
+                        <th width="100">主旨</th>
+                        <td>{{ $data->title }}</td>
+                    </tr>
+                    <tr>
+                        <th>申請人</th>
+                        <td>{{ $data->user_name }}</td>
+                    </tr>
+                    <tr>
+                        <th>內容</th>
+                        <td>{!! nl2br($data->content) !!}</td>
+                    </tr>
+                    <tr>
+                        <th>相關單號</th>
+                        <td>
+                            @foreach ($order as $key => $value)
+                                <div class="mb-1"><a href="">{{ $value }}</a></div>
+                            @endforeach
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
 
-                <x-b-form-group name="content" title="內容" required="true" class="mb-3">
-                    <textarea type="text" class="form-control @error('content') is-invalid @enderror" id="content" name="content"
-                        required aria-label="內容" placeholder="請填入內容">{{ old('content', $data->content ?? '') }}</textarea>
-                </x-b-form-group>
-
-                <div>
-                    <label class="form-label">相關單號
-
-                    </label>
-
-                    @foreach ($order as $key => $value)
-                        <a href="">{{ $value }}</a>
-                    @endforeach
-                </div>
-            </div>
-        </div>
-
-        <div class="card shadow p-4 mb-4">
-            <table>
-                <thead>
+            <table class="table caption-top">
+                <caption>簽核狀態</caption>
+                <thead class="border-top-0">
                     <tr>
                         <th>主管</th>
                         <th>職稱</th>
@@ -47,11 +46,16 @@
                         <tr>
                             <td>{{ $value->user_name }}</td>
                             <td>{{ $value->user_title }}</td>
-                            <td>{{ $value->checked_at }}</td>
+                            <td>{{ $value->checked_at ? date('Y/m/d H:i:s', strtotime($value->checked_at)) : '' }}</td>
                         </tr>
                     @endforeach
                 </tbody>
             </table>
+        </div>
+        
+        <div class="col-auto">
+            <a href="{{ Route('cms.petition.index', [], true) }}" class="btn btn-outline-primary px-4"
+                role="button">返回列表</a>
         </div>
     </form>
 @endsection

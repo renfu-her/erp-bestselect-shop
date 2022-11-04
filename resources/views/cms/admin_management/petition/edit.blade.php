@@ -21,7 +21,7 @@
 
                 <x-b-form-group name="content" title="內容" required="true" class="mb-3">
                     <textarea type="text" class="form-control @error('content') is-invalid @enderror" id="content" name="content"
-                        required aria-label="內容" placeholder="請填入內容">{{ old('content', $data->content ?? '') }}</textarea>
+                        required aria-label="內容" placeholder="請填入內容" rows="5">{{ old('content', $data->content ?? '') }}</textarea>
                 </x-b-form-group>
 
                 <div>

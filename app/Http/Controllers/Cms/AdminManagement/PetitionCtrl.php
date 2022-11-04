@@ -104,6 +104,7 @@ class PetitionCtrl extends Controller
             'data' => $data,
             'order' => $orders,
             'formAction' => route('cms.petition.edit', ['id' => $id]),
+            'breadcrumb_data' => $data->title
         ]);
     }
 
