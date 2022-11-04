@@ -175,6 +175,9 @@ class ConsignmentOrderCtrl extends Controller
     {
         $query = $request->query();
         $consignmentData  = CsnOrder::getData($id)->get()->first();
+        if (!$consignmentData) {
+            return abort(404);
+        }
 
         $consignmentItemData = CsnOrderItem::getData($id)->get();
         $delivery = DB::table('dlv_delivery')
