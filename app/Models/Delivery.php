@@ -120,11 +120,12 @@ class Delivery extends Model
         }
     }
 
+    //刪除出貨單和出貨商品
     public static function deleteByEventId($event, $event_id)
     {
         return IttmsDBB::transaction(function () use ($event, $event_id
         ) {
-            $delivery = Delivery::where('event', $event)->where('event_id', $event_id)->orderByDesc('id')->withTrashed();
+            $delivery = Delivery::where('event', $event)->where('event_id', $event_id)->orderByDesc('id');
             $delivery_get = $delivery->get()->first();
             if (null == $delivery_get) {
                 return ['success' => 0, 'error_msg' => "無此出貨單"];
@@ -132,7 +133,11 @@ class Delivery extends Model
                 //若已送出審核 則代表已扣除相應入庫單數量 則不給刪除
                 return ['success' => 0, 'error_msg' => "已送出審核，無法刪除"];
             } else {
-                $delivery->delete();
+                if (null == $delivery_get->deleted_at)
+                {
+                    ReceiveDepot::where('delivery_id', '=', $delivery_get->id)->delete();
+                    $delivery->delete();
+                }
                 return ['success' => 1, 'error_msg' => ""];
             }
         });
