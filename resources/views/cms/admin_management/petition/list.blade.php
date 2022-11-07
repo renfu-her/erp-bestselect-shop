@@ -1,12 +1,30 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h2 class="mb-4">申議書</h2>
+    <h2 class="mb-4">
+        @if (isset($type))
+            審核
+        @endif 申議書
+    </h2>
 
     <div class="card shadow p-4 mb-4">
         <div class="row mb-4">
             <div class="col">
-                <a href="{{ Route('cms.petition.create', null, true) }}" class="btn btn-primary">
-                    <i class="bi bi-plus-lg"></i> 新增申議書
+                @if (!isset($type))
+                    <a href="{{ Route('cms.petition.create', null, true) }}" class="btn btn-primary">
+                        <i class="bi bi-plus-lg"></i> 新增申議書
+                    </a>
+                @endif
+                @php
+                    $bTitle = '審核申議書';
+                    $bTarget = 'audit-list';
+                    if (isset($type)) {
+                        $bTitle = '申議書列表';
+                        $bTarget = 'index';
+                    }
+                    
+                @endphp
+                <a href="{{ Route('cms.petition.' . $bTarget, null) }}" class="btn btn-primary">
+                    {{ $bTitle }}
                 </a>
             </div>
             <div class="col-auto">
@@ -26,29 +44,37 @@
                 <thead>
                     <tr>
                         <th scope="col" style="width:40px">#</th>
-                        <th scope="col" style="width:40px" class="text-center">編輯</th>
+                        @if (!isset($type))
+                            <th scope="col" style="width:40px" class="text-center">編輯</th>
+                        @endif
                         <th scope="col">序號</th>
                         <th scope="col">申請人</th>
                         <th scope="col" style="min-width: 100px">主旨</th>
                         <th scope="col">內容</th>
                         <th scope="col">新增日期</th>
-
-                        <th scope="col" class="text-center">刪除</th>
+                        @if (!isset($type))
+                            <th scope="col" class="text-center">刪除</th>
+                        @endif
                     </tr>
                 </thead>
                 <tbody>
+                    @php
+                        $target = isset($type) ? 'audit-confirm' : 'show';
+                    @endphp
                     @foreach ($dataList ?? [] as $key => $data)
                         <tr>
                             <th scope="row">{{ $key + 1 }}</th>
-                            <td class="text-center">
-                                @if (\Illuminate\Support\Facades\Auth::user()->id === $data->user_id)
-                                    <a href="{{ Route('cms.petition.edit', ['id' => $data->id], true) }}"
-                                        data-bs-toggle="tooltip" title="編輯"
-                                        class="icon icon-btn fs-5 text-primary rounded-circle border-0">
-                                        <i class="bi bi-pencil-square"></i>
-                                    </a>
-                                @endif
-                            </td>
+                            @if (!isset($type))
+                                <td class="text-center">
+                                    @if (\Illuminate\Support\Facades\Auth::user()->id === $data->user_id)
+                                        <a href="{{ Route('cms.petition.edit', ['id' => $data->id], true) }}"
+                                            data-bs-toggle="tooltip" title="編輯"
+                                            class="icon icon-btn fs-5 text-primary rounded-circle border-0">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </a>
+                                    @endif
+                                </td>
+                            @endif
                             <td class="small">
                                 {{ $data->sn }}
                             </td>
@@ -56,7 +82,7 @@
                                 {{ $data->user_name }}
                             </td>
                             <td class="wrap">
-                                <a href="{{ Route('cms.petition.show', ['id' => $data->id], true) }}">
+                                <a href="{{ Route('cms.petition.' . $target, ['id' => $data->id], true) }}">
                                     {{ $data->title ?? '' }}
                                 </a>
                             </td>
@@ -66,15 +92,16 @@
                             <td class="small">
                                 {{ date('Y/m/d', strtotime($data->created_at ?? '')) }}
                             </td>
-
-                            <td class="text-center">
-                                <a href="javascript:void(0)"
-                                    data-href="{{ Route('cms.petition.delete', ['id' => $data->id], true) }}"
-                                    data-bs-toggle="modal" data-bs-target="#confirm-delete"
-                                    class="icon -del icon-btn fs-5 text-danger rounded-circle border-0">
-                                    <i class="bi bi-trash"></i>
-                                </a>
-                            </td>
+                            @if (!isset($type))
+                                <td class="text-center">
+                                    <a href="javascript:void(0)"
+                                        data-href="{{ Route('cms.petition.delete', ['id' => $data->id], true) }}"
+                                        data-bs-toggle="modal" data-bs-target="#confirm-delete"
+                                        class="icon -del icon-btn fs-5 text-danger rounded-circle border-0">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </td>
+                            @endif
                         </tr>
                         <tr>
                             <th></th>
@@ -84,8 +111,7 @@
                                         <tr>
                                             <th rowspan="{{ count($data->users) + 1 }}"
                                                 style="writing-mode: vertical-lr; width:40px;"
-                                                class="text-center border-end"
-                                                >簽核狀態</th>
+                                                class="text-center border-end">簽核狀態</th>
                                             <th class="border-secondary">主管</th>
                                             <th class="border-secondary">職稱</th>
                                             <th class="border-secondary">簽核時間</th>
@@ -94,7 +120,8 @@
                                             <tr>
                                                 <td>{{ $user->user_name }}</td>
                                                 <td>{{ $user->user_title }}</td>
-                                                <td>{{ $user->checked_at ? date('Y/m/d H:i:s', strtotime($user->checked_at)) : '' }}</td>
+                                                <td>{{ $user->checked_at ? date('Y/m/d H:i:s', strtotime($user->checked_at)) : '' }}
+                                                </td>
                                             </tr>
                                         @endforeach
                                     </tbody>

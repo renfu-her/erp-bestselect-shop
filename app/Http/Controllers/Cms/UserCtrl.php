@@ -28,11 +28,11 @@ class UserCtrl extends Controller
         $query = $request->query();
         $user = User::getUserBySearch($query);
         $roleData = Role::whereNull('deleted_at')
-                    ->select([
-                        'id',
-                        'title',
-                    ])
-                    ->get();
+            ->select([
+                'id',
+                'title',
+            ])
+            ->get();
         $roleDataArray = collect($roleData)->keyBy('id');
 
         return view('cms.admin.user.list', [
@@ -196,13 +196,13 @@ class UserCtrl extends Controller
             $userData['password'] = Hash::make($password);
         }
         $lgt_user = $request->input('lgt_user');
-
-        $logisticUserApiToken = User::getLogisticApiToken($request->user()->id)->user_token;
-        $modifyLogisticUser = UserProjLogistics::modifyLogisticUser($logisticUserApiToken, $id, ['user' => $lgt_user]);
-        if ($modifyLogisticUser['success'] == 0) {
-            throw ValidationException::withMessages(['lgt_user' => $modifyLogisticUser['error_msg']]);
+        if (env('APP_ENV') == 'rel') {
+            $logisticUserApiToken = User::getLogisticApiToken($request->user()->id)->user_token;
+            $modifyLogisticUser = UserProjLogistics::modifyLogisticUser($logisticUserApiToken, $id, ['user' => $lgt_user]);
+            if ($modifyLogisticUser['success'] == 0) {
+                throw ValidationException::withMessages(['lgt_user' => $modifyLogisticUser['error_msg']]);
+            }
         }
-
         User::where('id', $id)->update($userData);
 
         Permission::updateDirectPermissions($id, 'user', $perData);
@@ -242,7 +242,7 @@ class UserCtrl extends Controller
             'id' => $id,
             'formAction' => Route('cms.user.salechannel', ['id' => $id]),
             'channels' => SaleChannel::get()->toArray(),
-            'current_channel'=>$current_channel
+            'current_channel' => $current_channel,
         ]);
 
     }

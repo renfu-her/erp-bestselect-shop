@@ -13,7 +13,7 @@ class Petition extends Model
     protected $table = 'pet_petition';
     protected $guarded = [];
 
-    public static function dataList()
+    public static function dataList($option = [])
     {
 
         $concatString = concatStr([
@@ -36,6 +36,11 @@ class Petition extends Model
             ->leftJoin('usr_users as user', 'petition.user_id', '=', 'user.id')
             ->select(['petition.*', 'audit.*', 'user.name as user_name'])
             ->whereNull('petition.deleted_at');
+
+        //  dd($re->get());
+        if (isset($option['audit'])) {
+            $re->joinSub(self::waitAuditlist($option['audit']), 'pet', 'pet.source_id', '=', 'petition.id');
+        }
 
         return $re;
 
@@ -208,5 +213,11 @@ class Petition extends Model
 
         return ['success' => '1', 'data' => $order_sn];
 
+    }
+    public static function confirm($pid, $user_id)
+    {   
+       
+        DB::table('pet_audit')->where('source_id', $pid)
+            ->where('user_id', $user_id)->update(['checked_at'=> now()]);
     }
 }

@@ -1,8 +1,10 @@
 @extends('layouts.main')
 @section('sub-content')
     <h2 class="mb-4">申議書</h2>
-
-    <form id="form1" method="post">
+    @php
+        $action = isset($type) ? Route('cms.petition.audit-confirm', ['id' => $data->id]) : '';
+    @endphp
+    <form id="form1" method="post" action="{{ $action }}">
         @method('POST')
         @csrf
 
@@ -25,8 +27,9 @@
                         <th>相關單號</th>
                         <td>
                             @foreach ($order as $key => $value)
-                                <div class="mb-1"><a href="">{{ $value }}</a></div>
+                                <div class="mb-1"><a href="{{ $value->url }}">{{ $value->source_sn }}</a></div>
                             @endforeach
+
                         </td>
                     </tr>
                 </tbody>
@@ -52,10 +55,23 @@
                 </tbody>
             </table>
         </div>
-        
+
         <div class="col-auto">
-            <a href="{{ Route('cms.petition.index', [], true) }}" class="btn btn-outline-primary px-4"
-                role="button">返回列表</a>
+            @php
+                $target = 'index';
+                $bTitle = '';
+                if (isset($type)) {
+                    $target = 'audit-list';
+                    $bTitle = '審核';
+                }
+                
+            @endphp
+            <a href="{{ Route('cms.petition.' . $target, [], true) }}" class="btn btn-outline-primary px-4"
+                role="button">返回{{ $bTitle }}列表</a>
+
+            @if (isset($type))
+                <button class="btn btn-outline-primary px-4">審核</button>
+            @endif
         </div>
     </form>
 @endsection

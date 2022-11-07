@@ -230,6 +230,16 @@ Breadcrumbs::for('cms.petition.show', function (BreadcrumbTrail $trail, $value) 
     $trail->push('申議書【' . $value . '】');
 });
 
+Breadcrumbs::for('cms.petition.audit-list', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.petition.index');
+    $trail->push('待審核申議書列表');
+});
+
+Breadcrumbs::for('cms.petition.audit-confirm', function (BreadcrumbTrail $trail, $value) {
+    $trail->push('申議書列表', Route('cms.petition.audit-list'));
+    $trail->push('申議書【' . $value . '】');
+});
+
 // 組合包組裝
 Breadcrumbs::for('cms.combo-purchase.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');

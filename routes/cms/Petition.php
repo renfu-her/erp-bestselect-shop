@@ -12,4 +12,8 @@ Route::group(['prefix' => 'petition', 'as' => 'petition.'], function () {
     Route::get('delete/{id}', [PetitionCtrl::class, 'destroy'])->name('delete')->middleware('permission:cms.petition.delete');
     Route::get('show/{id}', [PetitionCtrl::class, 'show'])->name('show');
 
+    Route::get('audit-list', [PetitionCtrl::class, 'auditList'])->name('audit-list');
+    Route::get('audit-confirm/{id}', [PetitionCtrl::class, 'auditEdit'])->name('audit-confirm');
+    Route::post('audit-confirm/{id}', [PetitionCtrl::class, 'auditConfirm']);
+
 });

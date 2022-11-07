@@ -104,6 +104,8 @@ if (!function_exists('getErpOrderUrl')) {
             case "B":
 
                 break;
+            default:
+                $order->url = '#';
         }
 
         return $order;

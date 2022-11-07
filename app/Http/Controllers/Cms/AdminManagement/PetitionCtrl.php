@@ -94,19 +94,19 @@ class PetitionCtrl extends Controller
         }
 
         $data->users = json_decode($data->users);
-      
+
         $orders = array_map(function ($n) {
             return getErpOrderUrl($n);
         }, Petition::getPetitionOrders($id)->get()->toArray());
 
-       // dd($orders);
-        
+        // dd($orders);
+
         return view('cms.admin_management.petition.show', [
             'method' => 'edit',
             'data' => $data,
             'order' => $orders,
             'formAction' => route('cms.petition.edit', ['id' => $id]),
-            'breadcrumb_data' => $data->title
+            'breadcrumb_data' => $data->title,
         ]);
     }
 
@@ -188,4 +188,59 @@ class PetitionCtrl extends Controller
         wToast('刪除完成');
         return redirect(route('cms.petition.index'));
     }
+
+    // 簽核列表
+    public function auditList(Request $request)
+    {
+        //
+        // Petition::waitAuditlist(2);
+
+        $dataList = Petition::dataList(['audit' => $request->user()->id])->paginate(100);
+
+        foreach ($dataList as $data) {
+            $data->users = $data->users ? json_decode($data->users) : [];
+
+        }
+
+        return view('cms.admin_management.petition.list', [
+            'dataList' => $dataList,
+            'type' => 'audit',
+            'data_per_page' => 100,
+        ]);
+    }
+
+    public function auditEdit(Request $request, $id)
+    {
+        $data = Petition::dataList()->where('petition.id', $id)->get()->first();
+        if (!$data) {
+            return abort(404);
+        }
+
+        $data->users = json_decode($data->users);
+
+        $orders = array_map(function ($n) {
+            return getErpOrderUrl($n);
+        }, Petition::getPetitionOrders($id)->get()->toArray());
+
+        // dd($orders);
+
+        return view('cms.admin_management.petition.show', [
+            'method' => 'edit',
+            'data' => $data,
+            'order' => $orders,
+            'type' => 'audit',
+            'formAction' => route('cms.petition.edit', ['id' => $id]),
+            'breadcrumb_data' => $data->title,
+        ]);
+    }
+
+    public function auditConfirm(Request $request, $id)
+    {
+
+        Petition::confirm($id, $request->user()->id);
+        wToast('審核完成');
+        return redirect(route('cms.petition.audit-list'));
+
+    }
+
 }
