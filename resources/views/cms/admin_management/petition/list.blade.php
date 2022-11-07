@@ -5,7 +5,35 @@
             審核
         @endif 申議書
     </h2>
-
+    <form id="search" method="GET">
+        <div class="card shadow p-4 mb-4">
+            <h6>搜尋條件</h6>
+            <div class="row">
+                <div class="col-12 col-sm-6 mb-3">
+                    <label class="form-label">申請人</label>
+                    <select class="form-select -select2"  name="user" aria-label="負責人">
+                        <option></option>
+                        @foreach ($users as $user)
+                            <option value="{{ $user->id }}">
+                                {{ $user->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-12 col-sm-6 mb-3">
+                    <label class="form-label">主旨</label>
+                    <input class="form-control" type="text" name="title" value="" placeholder="輸入主旨">
+                </div>
+               
+                <div class="col-12 col-sm-6 mb-3">
+                    <label class="form-label">序號</label>
+                    <input class="form-control" type="text" name="sn" value="" placeholder="輸入序號">
+                </div>
+            </div>
+            <div class="col">
+                <button type="submit" class="btn btn-primary px-4">搜尋</button>
+            </div>
+        </div>
+    </form>
     <div class="card shadow p-4 mb-4">
         <div class="row mb-4">
             <div class="col">
@@ -60,13 +88,17 @@
                 <tbody>
                     @php
                         $target = isset($type) ? 'audit-confirm' : 'show';
+                        $permision = auth()
+                            ->user()
+                            ->can('cms.petition.admin');
+                        $user_id = auth()->user()->id;
                     @endphp
                     @foreach ($dataList ?? [] as $key => $data)
                         <tr>
                             <th scope="row">{{ $key + 1 }}</th>
                             @if (!isset($type))
                                 <td class="text-center">
-                                    @if (\Illuminate\Support\Facades\Auth::user()->id === $data->user_id)
+                                    @if (($user_id == $data->user_id && $data->checked_at == null) || $permision)
                                         <a href="{{ Route('cms.petition.edit', ['id' => $data->id], true) }}"
                                             data-bs-toggle="tooltip" title="編輯"
                                             class="icon icon-btn fs-5 text-primary rounded-circle border-0">
@@ -94,12 +126,16 @@
                             </td>
                             @if (!isset($type))
                                 <td class="text-center">
-                                    <a href="javascript:void(0)"
-                                        data-href="{{ Route('cms.petition.delete', ['id' => $data->id], true) }}"
-                                        data-bs-toggle="modal" data-bs-target="#confirm-delete"
-                                        class="icon -del icon-btn fs-5 text-danger rounded-circle border-0">
-                                        <i class="bi bi-trash"></i>
-                                    </a>
+                                    @if ($user_id == $data->user_id || $permision)
+                                        @if ($data->checked_at == null)
+                                            <a href="javascript:void(0)"
+                                                data-href="{{ Route('cms.petition.delete', ['id' => $data->id], true) }}"
+                                                data-bs-toggle="modal" data-bs-target="#confirm-delete"
+                                                class="icon -del icon-btn fs-5 text-danger rounded-circle border-0">
+                                                <i class="bi bi-trash"></i>
+                                            </a>
+                                        @endif
+                                    @endif
                                 </td>
                             @endif
                         </tr>

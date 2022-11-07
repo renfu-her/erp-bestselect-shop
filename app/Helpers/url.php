@@ -96,13 +96,13 @@ if (!function_exists('getErpOrderUrl')) {
                 $order->url = route('cms.order.detail', ['id' => $order->source_id]);
                 break;
             case "PSG":
-
+                $order->url = route('cms.stitute.show', ['id' => $order->source_id]);
                 break;
             case "ISG":
-
+                $order->url = route('cms.stitute.po-show', ['id' => $order->source_id]);
                 break;
             case "B":
-
+                $order->url = route('cms.purchase.edit', ['id' => $order->source_id]);
                 break;
             default:
                 $order->url = '#';

@@ -31,15 +31,32 @@ class Petition extends Model
             ->groupBy('audit.source_id')
             ->where('audit.source_type', 'petition');
 
+        $canDelSub = DB::table('pet_audit')
+            ->select('source_id', 'checked_at')
+            ->groupBy('source_id')->whereNotNull('checked_at');
+
         $re = DB::table('pet_petition as petition')
             ->leftJoinSub($sub, 'audit', 'audit.source_id', '=', 'petition.id')
+            ->leftJoinSub($canDelSub, 'audit2', 'audit2.source_id', '=', 'petition.id')
             ->leftJoin('usr_users as user', 'petition.user_id', '=', 'user.id')
-            ->select(['petition.*', 'audit.*', 'user.name as user_name'])
+            ->select(['petition.*', 'audit.*', 'user.name as user_name', 'audit2.checked_at'])
             ->whereNull('petition.deleted_at');
 
         //  dd($re->get());
         if (isset($option['audit'])) {
             $re->joinSub(self::waitAuditlist($option['audit']), 'pet', 'pet.source_id', '=', 'petition.id');
+        }
+
+        if (isset($option['user_id']) && $option['user_id']) {
+            $re->where('petition.user_id', $option['user_id']);
+        }
+
+        if (isset($option['sn']) && $option['sn']) {
+            $re->where('petition.sn', 'like', "%" . $option['sn'] . "%");
+        }
+
+        if (isset($option['title']) && $option['title']) {
+            $re->where('petition.title', 'like', "%" . $option['title'] . "%");
         }
 
         return $re;
@@ -215,9 +232,9 @@ class Petition extends Model
 
     }
     public static function confirm($pid, $user_id)
-    {   
-       
+    {
+
         DB::table('pet_audit')->where('source_id', $pid)
-            ->where('user_id', $user_id)->update(['checked_at'=> now()]);
+            ->where('user_id', $user_id)->update(['checked_at' => now()]);
     }
 }

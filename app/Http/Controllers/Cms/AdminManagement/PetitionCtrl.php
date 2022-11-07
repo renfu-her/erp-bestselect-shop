@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Cms\AdminManagement;
 
 use App\Http\Controllers\Controller;
 use App\Models\Petition;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 class PetitionCtrl extends Controller
@@ -14,20 +16,34 @@ class PetitionCtrl extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
-        // Petition::waitAuditlist(2);
+        $query = $request->all();
 
-        $dataList = Petition::dataList()->paginate(100);
+        $options = [
+            'title' => Arr::get($query, 'title'),
+            'sn' => Arr::get($query, 'sn'),
+        ];
+
+        if ($request->user()->can('cms.petition.admin')) {
+            $options['user_id'] = Arr::get($query, 'user');
+            $users = User::get();
+        } else {
+            $options['user_id'] = $request->user()->id;
+            $users = User::where('id', $options['user_id'])->get();
+        }
+
+        $dataList = Petition::dataList($options)->orderBy('petition.created_at','DESC')->paginate(100);
 
         foreach ($dataList as $data) {
             $data->users = $data->users ? json_decode($data->users) : [];
-
         }
+
+        //  dd($request->user()->can('cms.petition.admin'));
 
         return view('cms.admin_management.petition.list', [
             'dataList' => $dataList,
+            'users' => $users,
             'data_per_page' => 100,
         ]);
     }
@@ -192,10 +208,16 @@ class PetitionCtrl extends Controller
     // 簽核列表
     public function auditList(Request $request)
     {
-        //
-        // Petition::waitAuditlist(2);
+        $query = $request->all();
 
-        $dataList = Petition::dataList(['audit' => $request->user()->id])->paginate(100);
+        $options = [
+            'title' => Arr::get($query, 'title'),
+            'sn' => Arr::get($query, 'sn'),
+            'audit' => $request->user()->id,
+            'user_id' => Arr::get($query, 'user'),
+        ];
+
+        $dataList = Petition::dataList($options)->orderBy('petition.created_at','DESC')->paginate(100);
 
         foreach ($dataList as $data) {
             $data->users = $data->users ? json_decode($data->users) : [];
@@ -205,6 +227,7 @@ class PetitionCtrl extends Controller
         return view('cms.admin_management.petition.list', [
             'dataList' => $dataList,
             'type' => 'audit',
+            'users' => User::get(),
             'data_per_page' => 100,
         ]);
     }
