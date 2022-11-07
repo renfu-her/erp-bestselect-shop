@@ -27,6 +27,7 @@ class ConsignmentOrderCtrl extends Controller
         $data_per_page = is_numeric($data_per_page) ? $data_per_page : 100;
 
         $depot_id = Arr::get($query, 'depot_id', 1);
+        $csnorder_sn = Arr::get($query, 'csnorder_sn', '');
 
         $queryCsnOrd = DB::table('csn_orders as csnord')
             ->leftJoin('csn_order_items as items', 'items.csnord_id', '=', 'csnord.id')
@@ -61,6 +62,9 @@ class ConsignmentOrderCtrl extends Controller
         if ($depot_id) {
             $queryCsnOrd->where('csnord.depot_id', $depot_id);
         }
+        if ($csnorder_sn) {
+            $queryCsnOrd->where('csnord.sn', 'LIKE', "%{$csnorder_sn}%");
+        }
         $dataList = $queryCsnOrd->paginate($data_per_page)->appends($query);
 
         return view('cms.commodity.consignment_order.index', [
@@ -68,6 +72,7 @@ class ConsignmentOrderCtrl extends Controller
             , 'data_per_page' => $data_per_page
             , 'depotList' => Depot::all()
             , 'depot_id' => $depot_id
+            , 'csnorder_sn' => $csnorder_sn
         ]);
     }
 
@@ -170,6 +175,9 @@ class ConsignmentOrderCtrl extends Controller
     {
         $query = $request->query();
         $consignmentData  = CsnOrder::getData($id)->get()->first();
+        if (!$consignmentData) {
+            return abort(404);
+        }
 
         $consignmentItemData = CsnOrderItem::getData($id)->get();
         $delivery = DB::table('dlv_delivery')

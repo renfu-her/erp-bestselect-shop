@@ -203,6 +203,7 @@ class Delivery extends Model
             ->groupBy('dlv_receive_depot.depot_name');
 
         $query = DB::table('dlv_delivery as delivery')
+            ->whereNull('delivery.deleted_at')
             ->leftJoin('shi_group', function ($join) {
                 $join->on('shi_group.id', '=', 'delivery.ship_group_id');
                 $join->where('delivery.ship_category', '=', 'deliver');
@@ -216,6 +217,19 @@ class Delivery extends Model
                     ->where('delivery.event', '=', 'order');
             })
             ->leftJoin('ord_items', 'query_order.sub_order_id', '=', 'ord_items.sub_order_id')
+
+            ->leftJoin('csn_orders as csnord', function ($join) {
+                $join->on('csnord.id', '=', 'delivery.event_id')
+                    ->where('delivery.event', '=', Event::csn_order()->value);
+            })
+            ->whereNull('csnord.deleted_at')
+
+            ->leftJoin('csn_consignment as csn', function ($join) {
+                $join->on('csn.id', '=', 'delivery.event_id')
+                    ->where('delivery.event', '=', Event::consignment()->value);
+            })
+            ->whereNull('csn.deleted_at')
+
             ->leftJoinSub($query_receive_depot, 'query_receive_depot', function ($join) {
                 $join->on('query_receive_depot.dlv_id', '=', 'delivery.id');
                 $join->where('query_receive_depot.depot_id', '<>', 0);
