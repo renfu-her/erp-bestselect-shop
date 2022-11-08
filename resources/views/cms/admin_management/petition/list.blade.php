@@ -51,7 +51,7 @@
                     }
                     
                 @endphp
-                <a href="{{ Route('cms.petition.' . $bTarget, null) }}" class="btn btn-primary">
+                <a href="{{ Route('cms.petition.' . $bTarget, null) }}" class="btn btn-success">
                     {{ $bTitle }}
                 </a>
             </div>
