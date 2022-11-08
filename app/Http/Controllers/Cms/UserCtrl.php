@@ -28,11 +28,11 @@ class UserCtrl extends Controller
         $query = $request->query();
         $user = User::getUserBySearch($query);
         $roleData = Role::whereNull('deleted_at')
-                    ->select([
-                        'id',
-                        'title',
-                    ])
-                    ->get();
+            ->select([
+                'id',
+                'title',
+            ])
+            ->get();
         $roleDataArray = collect($roleData)->keyBy('id');
 
         return view('cms.admin.user.list', [
@@ -210,7 +210,6 @@ class UserCtrl extends Controller
                 throw ValidationException::withMessages(['lgt_user' => $modifyLogisticUser['error_msg']]);
             }
         }
-
         User::where('id', $id)->update($userData);
 
         Permission::updateDirectPermissions($id, 'user', $perData);
@@ -250,7 +249,7 @@ class UserCtrl extends Controller
             'id' => $id,
             'formAction' => Route('cms.user.salechannel', ['id' => $id]),
             'channels' => SaleChannel::get()->toArray(),
-            'current_channel'=>$current_channel
+            'current_channel' => $current_channel,
         ]);
 
     }

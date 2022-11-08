@@ -1172,5 +1172,19 @@ return [
 
         ],
     ],
+    [
+        "unit" => "申議書",
+        "permissions" => [
+            [
+                "cms.petition.index",
+                "瀏覽",
+            ],
+            [
+                "cms.petition.admin",
+                "管理權限",
+            ],
+
+        ],
+    ],
 
 ];

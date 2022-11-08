@@ -212,6 +212,34 @@ Breadcrumbs::for('cms.bulletin_board.show', function (BreadcrumbTrail $trail) {
     $trail->push('公吿');
 });
 
+// 申議書
+Breadcrumbs::for('cms.petition.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('申議書列表');
+});
+Breadcrumbs::for('cms.petition.create', function (BreadcrumbTrail $trail) {
+    $trail->push('申議書列表', Route('cms.petition.index'));
+    $trail->push('新增申議書');
+});
+Breadcrumbs::for('cms.petition.edit', function (BreadcrumbTrail $trail) {
+    $trail->push('申議書列表', Route('cms.petition.index'));
+    $trail->push('編輯申議書');
+});
+Breadcrumbs::for('cms.petition.show', function (BreadcrumbTrail $trail, $value) {
+    $trail->push('申議書列表', Route('cms.petition.index'));
+    $trail->push('申議書【' . $value . '】');
+});
+
+Breadcrumbs::for('cms.petition.audit-list', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.petition.index');
+    $trail->push('待審核申議書列表');
+});
+
+Breadcrumbs::for('cms.petition.audit-confirm', function (BreadcrumbTrail $trail, $value) {
+    $trail->push('申議書列表', Route('cms.petition.audit-list'));
+    $trail->push('申議書【' . $value . '】');
+});
+
 // 組合包組裝
 Breadcrumbs::for('cms.combo-purchase.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');

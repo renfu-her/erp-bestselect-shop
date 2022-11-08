@@ -104,7 +104,7 @@ class UserOrganize extends Model
         $user = User::where('id', $user_id)->get()->first();
         $ids = [];
         $audid = [];
-        $no1 = user::where('account', '04001')->select('id', 'name', 'title')->get()->first();
+        $no1 = user::where('account', '04001')->select('id as user_id', 'name', 'title')->get()->first();
         $audid[] = $no1;
         $ids[] = $no1->id;
 
@@ -112,7 +112,7 @@ class UserOrganize extends Model
             return $audid;
         }
 
-        $no2 = user::where('account', '00001')->select('id', 'name', 'title')->get()->first();
+        $no2 = user::where('account', '00001')->select('id as user_id', 'name', 'title')->get()->first();
         $audid[] = $no2;
         $ids[] = $no2->id;
 
