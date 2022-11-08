@@ -43,8 +43,8 @@ return
             ],
             [
                 "title" => "出貨商品查詢",
-                "controller_name" => "DeliveryCtrl",
-                "route_name" => "cms.delivery.product_list",
+                "controller_name" => "DeliveryProductCtrl",
+                "route_name" => "cms.delivery_product.index",
             ],
         ],
     ],

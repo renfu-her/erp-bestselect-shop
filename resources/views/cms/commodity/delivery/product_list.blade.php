@@ -2,7 +2,7 @@
 @section('sub-content')
     <h2 class="mb-4">出貨管理</h2>
 
-    <form id="search" action="{{ Route('cms.delivery.product_list') }}" method="GET">
+    <form id="search" action="{{ Route('cms.delivery_product.index') }}" method="GET">
         <div class="card shadow p-4 mb-4">
             <h6>搜尋條件</h6>
             <div class="row">

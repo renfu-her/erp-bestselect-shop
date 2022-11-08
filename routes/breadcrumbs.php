@@ -412,9 +412,9 @@ Breadcrumbs::for('cms.delivery.index', function (BreadcrumbTrail $trail) {
 });
 
 // 出貨商品查詢
-Breadcrumbs::for('cms.delivery.product_list', function (BreadcrumbTrail $trail) {
+Breadcrumbs::for('cms.delivery_product.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
-    $trail->push('出貨商品查詢', route('cms.delivery.product_list'));
+    $trail->push('出貨商品查詢', route('cms.delivery_product.index'));
 });
 
 // 寄倉搜尋
