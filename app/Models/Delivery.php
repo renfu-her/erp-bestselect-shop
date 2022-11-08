@@ -317,7 +317,7 @@ class Delivery extends Model
         if (isset($param['delivery_sdate']) && isset($param['delivery_edate'])) {
             $delivery_sdate = date('Y-m-d 00:00:00', strtotime($param['delivery_sdate']));
             $delivery_edate = date('Y-m-d 23:59:59', strtotime($param['delivery_edate']));
-            $query->whereBetween('delivery.created_at', [$delivery_sdate, $delivery_edate]);
+            $query->whereBetween('delivery.audit_date', [$delivery_sdate, $delivery_edate]);
         }
 
         //篩選宅配溫層
