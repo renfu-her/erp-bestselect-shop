@@ -31,18 +31,19 @@
                             <i class="bi bi-plus-circle"></i> 新增單號
                         </button>
                     </label>
-                    <div class="row -appendClone">
-                        <div class="input-group col-12 col-md-6 mb-2 -cloneElem">
-                            <input class="form-control" type="text" name="order[]" placeholder="請填入相關單號"
-                                aria-label="相關單號">
-                            <button class="btn btn-outline-secondary -del" type="button" data-bs-toggle="tooltip"
-                                title="刪除">
-                                <i class="bi bi-x-lg"></i>
-                            </button>
-                        </div>
-                    </div>
-                    @foreach (old('order', $order ?? []) as $key => $value)
-                        <div class="row">
+                    <div class="row -appendClone mb-2">
+                        @if ($method === 'create' && count(old('order', $order ?? [])) === 0)
+                            <div class="input-group col-12 col-md-6 mb-2 -cloneElem">
+                                <input class="form-control" type="text" name="order[]" placeholder="請填入相關單號"
+                                    aria-label="相關單號">
+                                <button class="btn btn-outline-secondary -del" type="button" data-bs-toggle="tooltip"
+                                    title="刪除">
+                                    <i class="bi bi-x-lg"></i>
+                                </button>
+                            </div>
+                        @endif
+
+                        @foreach (old('order', $order ?? []) as $key => $value)
                             <div class="input-group col-12 col-md-6 mb-2 -cloneElem">
                                 <input class="form-control @error('order.' . $key) is-invalid @enderror" type="text"
                                     name="order[]" value="{{ $value }}" placeholder="請填入相關單號" aria-label="相關單號">
@@ -51,29 +52,30 @@
                                     <i class="bi bi-x-lg"></i>
                                 </button>
                             </div>
-                        </div>
-                    @endforeach
+                        @endforeach
+                    </div>
 
-                    支援格式：採購單號、訂單編號、代墊單號、付款單號 
+                    <mark><i class="bi bi-exclamation-diamond-fill text-warning"></i>
+                        支援格式：採購單號、訂單編號、代墊單號、付款單號</mark>
                 </div>
             </div>
         </div>
 
-
-        <div class="col-auto">
-            <button type="submit" class="btn btn-primary px-4">儲存</button>
-            <a href="{{ Route('cms.petition.index', [], true) }}" class="btn btn-outline-primary px-4"
-                role="button">返回列表</a>
-        </div>
         @if ($errors->any())
             <div class="alert alert-danger">
-                <ul>
+                <ul class="mb-0">
                     @foreach ($errors->all() as $error)
                         <li>{{ $error }}</li>
                     @endforeach
                 </ul>
             </div>
         @endif
+
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary px-4">儲存</button>
+            <a href="{{ Route('cms.petition.index', [], true) }}" class="btn btn-outline-primary px-4"
+                role="button">返回列表</a>
+        </div>
     </form>
 
 @endsection
@@ -95,7 +97,7 @@
             // 新增單號
             $('.-newOrder').off('click').on('click', function() {
                 Clone_bindCloneBtn($clone, function($elem) {
-                    $elem.find('input').val('');
+                    $elem.find('input').val('').removeClass('is-invalid');
                     $elem.find('input, button').prop('disabled', false);
                     new bootstrap.Tooltip($elem.find('[data-bs-toggle="tooltip"]'));
                 }, {
