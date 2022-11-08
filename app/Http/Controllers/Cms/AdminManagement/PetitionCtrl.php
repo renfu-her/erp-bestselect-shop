@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Cms\AdminManagement;
 
 use App\Http\Controllers\Controller;
+use App\Models\Audit;
 use App\Models\Petition;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -114,8 +115,6 @@ class PetitionCtrl extends Controller
         $orders = array_map(function ($n) {
             return getErpOrderUrl($n);
         }, Petition::getOrderSn($id, 'petition')->get()->toArray());
-       
-
 
         return view('cms.admin_management.petition.show', [
             'method' => 'edit',
@@ -243,7 +242,7 @@ class PetitionCtrl extends Controller
 
         $orders = array_map(function ($n) {
             return getErpOrderUrl($n);
-        }, Petition::getPetitionOrders($id)->get()->toArray());
+        }, Petition::getOrderSn($id, 'petition')->get()->toArray());
 
         // dd($orders);
 
@@ -259,8 +258,7 @@ class PetitionCtrl extends Controller
 
     public function auditConfirm(Request $request, $id)
     {
-
-        Petition::confirm($id, $request->user()->id);
+        Audit::confirm($id, $request->user()->id, 'petition');
         wToast('審核完成');
         return redirect(route('cms.petition.audit-list'));
 

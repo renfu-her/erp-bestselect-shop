@@ -44,7 +44,7 @@ class Petition extends Model
 
         //  dd($re->get());
         if (isset($option['audit'])) {
-            $re->joinSub(self::waitAuditlist($option['audit']), 'pet', 'pet.source_id', '=', 'petition.id');
+            $re->joinSub(Audit::waitAuditlist($option['audit'], 'petition'), 'pet', 'pet.source_id', '=', 'petition.id');
         }
 
         if (isset($option['user_id']) && $option['user_id']) {
@@ -61,36 +61,6 @@ class Petition extends Model
 
         return $re;
 
-    }
-
-    public static function waitAuditlist($user_id)
-    {
-
-        $sub = DB::table('pet_audit as audit')
-            ->whereNull('audit.checked_at')
-            ->select('audit.source_id')
-            ->selectRaw('max(audit.step) as step')
-            ->groupBy('audit.source_id')
-            ->where('audit.source_type', 'petition');
-
-        $sub2 = DB::table('pet_audit as audit')
-            ->select('audit.*')
-            ->joinSub($sub, 'sub_audit', function ($join) {
-                $join->on('sub_audit.source_id', '=', 'audit.source_id')
-                    ->on('sub_audit.step', '=', 'audit.step');
-            })
-            ->where('audit.user_id', $user_id);
-
-        return $sub2;
-        /*
-    dd($sub2->get());
-
-    $re = DB::table('pet_petition as pet')
-    ->select('pet.*')
-    ->joinSub($sub2, 'audit2', 'audit2.source_id', '=', 'pet.id');
-
-    dd($re->get());
-     */
     }
 
     public static function getOrderSn($petition_id, $type)
@@ -113,18 +83,8 @@ class Petition extends Model
             'sn' => $sn,
         ])->id;
 
-        $org = UserOrganize::auditList($user_id);
 
-        //  dd($org);
-
-        DB::table('pet_audit')->insert(array_map(function ($n, $idx) use ($id) {
-            return [
-                'step' => $idx + 1,
-                'user_id' => $n->user_id,
-                'source_id' => $id,
-                'source_type' => 'petition',
-            ];
-        }, $org, array_keys($org)));
+        Audit::addAudit($user_id,$id,'petition'); 
 
         // 關聯訂單
         $re = self::updateOrderSn($orders, $id, 'petition');
@@ -167,7 +127,7 @@ class Petition extends Model
         foreach ($orders as $key => $order) {
             $order = strtoupper($order);
 
-           // dd($order);
+            // dd($order);
             $insert_data = null;
             preg_match('/^([A-Za-z])*/u', $order, $matches);
 
@@ -236,10 +196,5 @@ class Petition extends Model
         return ['success' => '1', 'data' => $order_sn];
 
     }
-    public static function confirm($pid, $user_id)
-    {
-
-        DB::table('pet_audit')->where('source_id', $pid)
-            ->where('user_id', $user_id)->update(['checked_at' => now()]);
-    }
+   
 }
