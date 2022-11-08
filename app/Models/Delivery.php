@@ -334,6 +334,82 @@ class Delivery extends Model
         return $query;
     }
 
+    //出貨商品查詢
+    public static function getListByProduct($param)
+    {
+        $rcv_depot_data = [
+            'product_title' => 'rcv_depot.product_title'
+            , 'qty' => 'rcv_depot.qty'
+            , 'prd_user_name' => 'usr.name'
+        ];
+        $re = DB::table(app(Delivery::class)->getTable(). ' as delivery')
+            ->leftJoin(app(ReceiveDepot::class)->getTable(). ' as rcv_depot', 'rcv_depot.delivery_id', '=', 'delivery.id')
+            ->leftJoin(app(ProductStyle::class)->getTable(). ' as style', 'style.id', '=', 'rcv_depot.product_style_id')
+            ->leftJoin(app(Product::class)->getTable(). ' as prd', 'prd.id', '=', 'style.product_id')
+            ->leftJoin(app(User::class)->getTable(). ' as usr', 'usr.id', '=', 'prd.user_id')
+
+            ->leftJoin(app(SubOrders::class)->getTable(). ' as sub_ord', function ($join) {
+                $join->on('sub_ord.id', '=', 'delivery.event_id')
+                    ->where('delivery.event', '=', Event::order()->value);
+            })
+            ->leftJoin(app(CsnOrder::class)->getTable(). ' as csn_ord', function ($join) {
+                $join->on('csn_ord.id', '=', 'delivery.event_id')
+                    ->where('delivery.event', '=', Event::csn_order()->value);
+            })
+            ->leftJoin(app(Consignment::class)->getTable(). ' as csn', function ($join) {
+                $join->on('csn.id', '=', 'delivery.event_id')
+                    ->where('delivery.event', '=', Event::csn_order()->value);
+            })
+            ->select(
+                'delivery.event_sn'
+                , 'delivery.event'
+                , 'delivery.event_id'
+                , 'delivery.sn'
+                , 'delivery.audit_user_name'
+                , 'sub_ord.order_id'
+                , DB::raw('DATE_FORMAT(delivery.audit_date,"%Y-%m-%d %H:%i:%s") as audit_date')
+                , DB::raw('DATE_FORMAT(delivery.created_at,"%Y-%m-%d %H:%i:%s") as created_at')
+            )
+            ->whereNull('csn_ord.deleted_at')
+            ->whereNull('csn.deleted_at')
+
+            ->whereNull('delivery.deleted_at')
+            ->whereNull('rcv_depot.deleted_at')
+            ->groupBy('delivery.id')
+            ->orderByDesc('delivery.id')
+        ;
+
+        //商品管理-搜尋廠商條件
+        if (!empty($param['search_supplier'])) {
+            $re->leftJoin(app(ProductSupplier::class)->getTable(). ' as prd_prd_supplier', 'prd_prd_supplier.product_id', '=', 'prd.id')
+                ->join(app(Supplier::class)->getTable(). ' as supplier', function ($join) use ($param) {
+                    $join->on('prd_prd_supplier.supplier_id', '=', 'supplier.id');
+                    if (is_array($param['search_supplier'])) {
+                        $join->whereIn('supplier.id', $param['search_supplier']);
+                    } else if (is_string($param['search_supplier']) || is_numeric($param['search_supplier'])) {
+                        $join->where('supplier.id', $param['search_supplier']);
+                    }
+                });
+            $rcv_depot_data['supplier_id'] = 'supplier.id';
+            $rcv_depot_data['supplier_name'] = 'supplier.name';
+        }
+        $re->addSelect(DB::raw(concatStr($rcv_depot_data). ' as rcv_depot_data'));
+
+        if (isset($param['delivery_sdate']) && isset($param['delivery_edate'])) {
+            $delivery_sdate = date('Y-m-d 00:00:00', strtotime($param['delivery_sdate']));
+            $delivery_edate = date('Y-m-d 23:59:59', strtotime($param['delivery_edate']));
+            $re->whereBetween('delivery.audit_date', [$delivery_sdate, $delivery_edate]);
+        }
+
+        if ($param['keyword']) {
+            $re->where(function ($query) use ($param) {
+                $query->where('rcv_depot.product_title', 'like', "%" . $param['keyword'] . "%")
+                    ->orWhere('rcv_depot.sku', 'like', "%" . $param['keyword'] . "%");
+            });
+        }
+        return $re;
+    }
+
     private static function getSumQtyWithRecDepot()
     {
         $sub_rec_depot = DB::table('dlv_receive_depot')

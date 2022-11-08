@@ -48,6 +48,7 @@ use App\Models\ReceiveDepot;
 use App\Models\ShipmentCategory;
 use App\Models\ShipmentGroup;
 use App\Models\SubOrders;
+use App\Models\Supplier;
 use App\Models\Temps;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -122,6 +123,27 @@ class DeliveryCtrl extends Controller
             'searchParam' => $cond,
             'data_per_page' => $cond['data_per_page'],
             'temps' => Temps::get()]);
+    }
+
+    public function product_list(Request $request)
+    {
+        $query = $request->query();
+
+        $cond['search_supplier'] = Arr::get($query, 'search_supplier', []);
+        $cond['keyword'] = Arr::get($query, 'keyword');
+        $cond['delivery_sdate'] = Arr::get($query, 'delivery_sdate', null);
+        $cond['delivery_edate'] = Arr::get($query, 'delivery_edate', null);
+        $cond['data_per_page'] = getPageCount(Arr::get($query, 'data_per_page'));
+
+        $data_list = Delivery::getListByProduct($cond)->paginate($cond['data_per_page'])->appends($query);
+
+        return view('cms.commodity.delivery.product_list', [
+            'dataList' => $data_list,
+            'searchParam' => $cond,
+            'data_per_page' => $cond['data_per_page'],
+            'suppliers' => Supplier::select('name', 'id', 'vat_no')->get()->toArray(),
+        ]);
+
     }
 
     public function create($event, $eventId)

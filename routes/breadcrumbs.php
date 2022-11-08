@@ -411,6 +411,12 @@ Breadcrumbs::for('cms.delivery.index', function (BreadcrumbTrail $trail) {
     $trail->push('出貨管理', route('cms.delivery.index'));
 });
 
+// 出貨商品查詢
+Breadcrumbs::for('cms.delivery.product_list', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('出貨商品查詢', route('cms.delivery.product_list'));
+});
+
 // 寄倉搜尋
 Breadcrumbs::for('cms.consignment.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
