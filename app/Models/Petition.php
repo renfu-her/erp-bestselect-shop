@@ -93,9 +93,10 @@ class Petition extends Model
      */
     }
 
-    public static function getPetitionOrders($petition_id)
+    public static function getOrderSn($petition_id, $type)
     {
-        return DB::table('pet_petition_order')->where('petition_id', $petition_id);
+        return DB::table('pet_order_sn')->where('source_id', $petition_id)
+            ->where('source_type', $type);
     }
 
     public static function createPetition($user_id, $title, $content, $orders = [])
@@ -126,7 +127,7 @@ class Petition extends Model
         }, $org, array_keys($org)));
 
         // 關聯訂單
-        $re = self::updatePetitionOrder($orders, $id);
+        $re = self::updateOrderSn($orders, $id, 'petition');
 
         if ($re['success'] != '1') {
             DB::rollBack();
@@ -137,19 +138,20 @@ class Petition extends Model
         return ['success' => '1'];
     }
 
-    public static function updatePetitionOrder($orders, $id)
+    public static function updateOrderSn($orders, $id, $type)
     {
         DB::beginTransaction();
 
-        DB::table('pet_petition_order')->where('petition_id', $id)->delete();
+        DB::table('pet_order_sn')->where('source_id', $id)
+            ->where('source_type', $type)->delete();
         if ($orders) {
-            $re = self::checkOrderSn($orders, $id);
+            $re = self::checkOrderSn($orders, $id, $type);
             if ($re['success'] != '1') {
                 DB::rollBack();
                 return $re;
             }
 
-            DB::table('pet_petition_order')->insert($re['data']);
+            DB::table('pet_order_sn')->insert($re['data']);
         }
 
         DB::commit();
@@ -157,7 +159,7 @@ class Petition extends Model
 
     }
 
-    public static function checkOrderSn($orders, $pid = null)
+    public static function checkOrderSn($orders, $pid = null, $type)
     {
         $err_order = []; //key
         $order_sn = [];
@@ -172,9 +174,9 @@ class Petition extends Model
                     case "O":
                         $o = Order::where('sn', $order)->get()->first();
                         if ($o) {
-                            $insert_data = ['source_id' => $o->id,
-                                'source_sn' => $o->sn,
-                                'source_type' => 'O'];
+                            $insert_data = ['order_id' => $o->id,
+                                'order_sn' => $o->sn,
+                                'order_type' => 'O'];
                         } else {
                             $err_order[] = $key;
                         }
@@ -182,9 +184,9 @@ class Petition extends Model
                     case "PSG":
                         $o = StituteOrder::where('sn', $order)->get()->first();
                         if ($o) {
-                            $insert_data = ['source_id' => $o->id,
-                                'source_sn' => $o->sn,
-                                'source_type' => 'PSG'];
+                            $insert_data = ['order_id' => $o->id,
+                                'order_sn' => $o->sn,
+                                'order_type' => 'PSG'];
                         } else {
                             $err_order[] = $key;
                         }
@@ -193,8 +195,8 @@ class Petition extends Model
                         $o = PayingOrder::where('sn', $order)->get()->first();
                         if ($o) {
                             $insert_data = ['source_id' => $o->id,
-                                'source_sn' => $o->sn,
-                                'source_type' => 'ISG'];
+                                'order_sn' => $o->sn,
+                                'order_type' => 'ISG'];
                         } else {
                             $err_order[] = $key;
                         }
@@ -203,8 +205,8 @@ class Petition extends Model
                         $o = Purchase::where('sn', $order)->get()->first();
                         if ($o) {
                             $insert_data = ['source_id' => $o->id,
-                                'source_sn' => $o->sn,
-                                'source_type' => 'B'];
+                                'order_sn' => $o->sn,
+                                'order_type' => 'B'];
                         } else {
                             $err_order[] = $key;
                         }
@@ -213,7 +215,8 @@ class Petition extends Model
 
                 if ($insert_data) {
                     if ($pid) {
-                        $insert_data['petition_id'] = $pid;
+                        $insert_data['source_id'] = $pid;
+                        $insert_data['source_type'] = $type;
                     }
                     $order_sn[] = $insert_data;
                 } else {

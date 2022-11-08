@@ -33,7 +33,7 @@ class PetitionCtrl extends Controller
             $users = User::where('id', $options['user_id'])->get();
         }
 
-        $dataList = Petition::dataList($options)->orderBy('petition.created_at','DESC')->paginate(100);
+        $dataList = Petition::dataList($options)->orderBy('petition.created_at', 'DESC')->paginate(100);
 
         foreach ($dataList as $data) {
             $data->users = $data->users ? json_decode($data->users) : [];
@@ -113,7 +113,7 @@ class PetitionCtrl extends Controller
 
         $orders = array_map(function ($n) {
             return getErpOrderUrl($n);
-        }, Petition::getPetitionOrders($id)->get()->toArray());
+        }, Petition::getOrderSn($id, 'petition')->get()->toArray());
 
         // dd($orders);
 
@@ -140,8 +140,8 @@ class PetitionCtrl extends Controller
             return abort(404);
         }
         $orders = array_map(function ($n) {
-            return $n->source_sn;
-        }, Petition::getPetitionOrders($id)->get()->toArray());
+            return $n->order_sn;
+        }, Petition::getOrderSn($id, 'petition')->get()->toArray());
 
         return view('cms.admin_management.petition.edit', [
             'method' => 'edit',
@@ -173,7 +173,7 @@ class PetitionCtrl extends Controller
         ]);
         $d['order'] = array_values(array_filter($d['order']));
 
-        $re = Petition::updatePetitionOrder($d['order'], $id);
+        $re = Petition::updateOrderSn($d['order'], $id, 'petition');
 
         if ($re['success'] != '1') {
             $errors = [];
@@ -217,7 +217,7 @@ class PetitionCtrl extends Controller
             'user_id' => Arr::get($query, 'user'),
         ];
 
-        $dataList = Petition::dataList($options)->orderBy('petition.created_at','DESC')->paginate(100);
+        $dataList = Petition::dataList($options)->orderBy('petition.created_at', 'DESC')->paginate(100);
 
         foreach ($dataList as $data) {
             $data->users = $data->users ? json_decode($data->users) : [];
