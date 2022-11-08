@@ -53,6 +53,8 @@
                             </div>
                         </div>
                     @endforeach
+
+                    支援格式：採購單號、訂單編號、代墊單號、付款單號 
                 </div>
             </div>
         </div>
