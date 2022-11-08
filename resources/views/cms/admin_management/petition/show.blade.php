@@ -27,7 +27,7 @@
                         <th>相關單號</th>
                         <td>
                             @foreach ($order as $key => $value)
-                                <div class="mb-1"><a href="{{ $value->url }}">{{ $value->source_sn }}</a></div>
+                                <div class="mb-1"><a href="{{ $value->url }}">{{ $value->order_sn }}</a></div>
                             @endforeach
 
                         </td>
