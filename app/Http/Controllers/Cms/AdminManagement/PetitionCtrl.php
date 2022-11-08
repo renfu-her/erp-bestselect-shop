@@ -114,8 +114,8 @@ class PetitionCtrl extends Controller
         $orders = array_map(function ($n) {
             return getErpOrderUrl($n);
         }, Petition::getOrderSn($id, 'petition')->get()->toArray());
+       
 
-        // dd($orders);
 
         return view('cms.admin_management.petition.show', [
             'method' => 'edit',

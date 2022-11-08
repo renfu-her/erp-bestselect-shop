@@ -166,6 +166,8 @@ class Petition extends Model
 
         foreach ($orders as $key => $order) {
             $order = strtoupper($order);
+
+           // dd($order);
             $insert_data = null;
             preg_match('/^([A-Za-z])*/u', $order, $matches);
 
