@@ -104,6 +104,7 @@ Route::group(['prefix' => 'cms', 'as' => 'cms.', 'middleware' => 'auth:user'], f
     require base_path('routes/cms/Organize.php');
 
     require base_path('routes/cms/Petition.php');
+    require base_path('routes/cms/Expenditure.php');
 
 
 });
