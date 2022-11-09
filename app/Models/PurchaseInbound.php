@@ -358,7 +358,7 @@ class PurchaseInbound extends Model
                         - $inboundDataGet->back_num - $inboundDataGet->scrap_num
                         - $sale_num) < 0) {
                     DB::rollBack();
-                    return ['success' => 0, 'error_msg' => '入庫單出貨數量超出範圍'];
+                    return ['success' => 0, 'error_msg' => '入庫單出貨數量超出範圍 '. $inboundDataGet->sn];
                 } else {
                     $update_arr = [];
 
@@ -499,6 +499,11 @@ class PurchaseInbound extends Model
                 , 'inbound.id as inbound_id' //入庫ID
                 , 'inbound.sn as inbound_sn' //入庫sn
                 , 'inbound.inbound_num as inbound_num' //入庫實進數量
+                , 'inbound.sale_num as sale_num'
+                , 'inbound.csn_num as csn_num'
+                , 'inbound.consume_num as consume_num'
+                , 'inbound.back_num as back_num'
+                , 'inbound.scrap_num as scrap_num'
                 , 'inbound.depot_id as depot_id'  //入庫倉庫ID
                 , 'inbound.depot_name as depot_name'  //入庫倉庫名稱
                 , 'inbound.unit_cost as unit_cost'  //單價
@@ -534,6 +539,9 @@ class PurchaseInbound extends Model
         }
         if (isset($param['event'])) {
             $result->where('inbound.event', '=', $param['event']);
+        }
+        if (isset($param['event_item_id'])) {
+            $result->where('inbound.event_item_id', '=', $param['event_item_id']);
         }
         if (isset($param['purchase_id'])) {
             $result->where('inbound.event_id', '=', $param['purchase_id']);
@@ -598,7 +606,7 @@ class PurchaseInbound extends Model
             $e_date = date('Y-m-d', strtotime($param['inbound_edate'] . ' +1 day'));
             $result->whereBetween('inbound.created_at', [$s_date, $e_date]);
         }
-        if (1 == $param['has_remain_qty']) {
+        if (isset($param['has_remain_qty']) && 1 == $param['has_remain_qty']) {
             $result->where(DB::raw('(inbound.inbound_num - inbound.sale_num - inbound.csn_num - inbound.consume_num - inbound.back_num - inbound.scrap_num)'), '>', 0);
         }
         return $result;

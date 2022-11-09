@@ -63,6 +63,7 @@ class DeliveryCtrl extends Controller
         $query = $request->query();
 
         $has_csn = [['false', '否'], ['true', '是']];
+        $has_back_sn = [['all', '不限'], ['1', '只顯示有銷貨退回單']];
         $cond = [];
         $cond['delivery_sn'] = Arr::get($query, 'delivery_sn', null);
         $cond['event_sn'] = Arr::get($query, 'event_sn', null);
@@ -77,6 +78,7 @@ class DeliveryCtrl extends Controller
         $cond['delivery_sdate'] = Arr::get($query, 'delivery_sdate', null);
         $cond['delivery_edate'] = Arr::get($query, 'delivery_edate', null);
         $cond['has_csn'] = Arr::get($query, 'has_csn', $has_csn[0][0]);
+        $cond['has_back_sn'] = Arr::get($query, 'has_back_sn', $has_back_sn[0][0]);
         $cond['ship_temp_id'] = Arr::get($query, 'ship_temp_id', []);
         $cond['depot_temp_id'] = Arr::get($query, 'depot_temp_id', []);
 
@@ -122,7 +124,9 @@ class DeliveryCtrl extends Controller
             'has_csn' => $has_csn,
             'searchParam' => $cond,
             'data_per_page' => $cond['data_per_page'],
-            'temps' => Temps::get()]);
+            'temps' => Temps::get(),
+            'has_back_sn' => $has_back_sn,
+            ]);
     }
 
     public function create($event, $eventId)
@@ -202,8 +206,11 @@ class DeliveryCtrl extends Controller
     {
         $errors = [];
         $delivery = Delivery::where('id', '=', $delivery_id)->get()->first();
+        $rcvDepot = ReceiveDepot::where('delivery_id', '=', $delivery_id)->where('back_qty', '>', 0)->get();
         if (null == $delivery->audit_date) {
             $errors['error_msg'] = '尚未送出審核';
+        } else if (null != $rcvDepot && 0 < count($rcvDepot)) {
+            $errors['error_msg'] = '已有退貨入庫 不可取消';
         } else {
             $re = ReceiveDepot::cancleShippingData($delivery->event, $delivery->event_id, $delivery_id, $request->user()->id, $request->user()->name);
             if ($re['success'] == '1') {
@@ -331,8 +338,6 @@ class DeliveryCtrl extends Controller
                     $subOrder = SubOrders::where('id', '=', $delivery->event_id)->first();
                     OrderFlow::changeOrderStatus($subOrder->order_id, OrderStatus::BackProcessing());
                 } else if (Event::consignment()->value == $delivery->event) {
-                    DB::rollBack();
-                    return ['success' => 0, 'error_msg' => '寄倉暫無退貨功能'];
                 } else if (Event::csn_order()->value == $delivery->event) {
                     DB::rollBack();
                     return ['success' => 0, 'error_msg' => '寄倉訂購暫無退貨功能'];
@@ -363,6 +368,7 @@ class DeliveryCtrl extends Controller
                 } else {
                     $data = [];
                     $default_grade_id = ReceivedDefault::where('name', '=', 'product')->first()->default_grade_id;
+                    $curr_date = date('Y-m-d H:i:s');
                     for($i = 0; $i < count($input_items['id']); $i++) {
                         $addItem = [
                             'delivery_id' => $delivery_id,
@@ -378,6 +384,8 @@ class DeliveryCtrl extends Controller
                             'show' => $input_items['show'][$i] ?? false,
                             'type' => DlvBackType::product()->value,
                             'grade_id' => $default_grade_id,
+                            'created_at' => $curr_date,
+                            'updated_at' => $curr_date,
                         ];
                         //判斷為訂單 則寫入目前訂單款式的bonus
                         if (Event::order()->value == $delivery->event) {
@@ -414,6 +422,7 @@ class DeliveryCtrl extends Controller
                             ]);
                         } else {
                             if (false == isset($input_other_items['bgrade_id'][$key])) {
+                                DB::rollBack();
                                 return ['success' => 0, 'error_msg' => '未填入會計科目'];
                             }
                             DlvBack::create([
@@ -481,7 +490,7 @@ class DeliveryCtrl extends Controller
             $ord_items = $dlv_back;
         } else if ('create' == $method){
             if(Event::order()->value == $event) {
-                $ord_items = DB::table(app(OrderItem::class)->getTable(). ' as ord_item')
+                $ord_items = DB::table(app(OrderItem::class)->getTable() . ' as ord_item')
                     ->where('ord_item.sub_order_id', '=', $eventId)
                     ->select('ord_item.id as event_item_id'
                         , 'ord_item.product_style_id'
@@ -490,6 +499,29 @@ class DeliveryCtrl extends Controller
                         , 'ord_item.price'
                         , 'ord_item.bonus'
                         , 'ord_item.qty as origin_qty'
+                    )->get();
+            } elseif(Event::consignment()->value == $event) {
+                $ord_items = DB::table(app(ConsignmentItem::class)->getTable() . ' as ord_item')
+                    ->where('ord_item.consignment_id', '=', $eventId)
+                    ->select('ord_item.id as event_item_id'
+                        , 'ord_item.product_style_id'
+                        , 'ord_item.title as product_title'
+                        , 'ord_item.sku'
+                        , 'ord_item.price'
+                        , DB::raw('@0:="0" as bonus')
+                        , 'ord_item.num as origin_qty'
+                    )->get();
+            } elseif(Event::csn_order()->value == $event) {
+                dd('寄倉訂購暫無退貨功能');
+                $ord_items = DB::table(app(CsnOrderItem::class)->getTable() . ' as ord_item')
+                    ->where('ord_item.csnord_id', '=', $eventId)
+                    ->select('ord_item.id as event_item_id'
+                        , 'ord_item.product_style_id'
+                        , 'ord_item.title as product_title'
+                        , 'ord_item.sku'
+                        , 'ord_item.price'
+                        , DB::raw('@0:="0" as bonus')
+                        , 'ord_item.num as origin_qty'
                     )->get();
             }
         }
@@ -523,32 +555,51 @@ class DeliveryCtrl extends Controller
         $orderInvoice = null;
         $logistic = null;
         $rsp_arr['has_payable_data_back'] = false; //退貨付款單已有付款紀錄
+        $source_type = null;
         if (Event::order()->value == $delivery->event) {
             $subOrder = SubOrders::where('id', '=', $delivery->event_id)->first();
             $order = Order::orderDetail($subOrder->order_id)->get()->first();
-            $orderInvoice = OrderInvoice::where('source_type', '=', app(Order::class)->getTable())
-                ->where('source_id', '=', $subOrder->order_id)->first();
-            $item_table = app(OrderItem::class)->getTable();
             $rsp_arr['order'] = $order;
-            $rsp_arr['orderInvoice'] = $orderInvoice;
-            //判斷該付款單是否有付款紀錄
-            $paying_order = PayingOrder::where('source_type', '=', app(Delivery::class)->getTable())
-                ->where('source_id', '=', $delivery->id)
-                ->whereNull('source_sub_id')
-                ->whereNull('deleted_at')
-                ->first();
-            if (isset($paying_order)) {
-                $payable_data = PayingOrder::get_payable_detail($paying_order->id);
-                if (0 < count($payable_data)) {
-                    $rsp_arr['has_payable_data_back'] = true;
-                }
-            }
+            $item_table = app(OrderItem::class)->getTable();
+            $source_type = app(Order::class)->getTable();
         } else if (Event::consignment()->value == $delivery->event) {
+            $order = DB::table(app(Consignment::class)->getTable(). ' as csn')
+                ->leftJoin(app(Depot::class)->getTable(). ' as depot', 'depot.id', '=', 'csn.receive_depot_id')
+                ->where('csn.id', $delivery->event_id)
+                ->whereNull('csn.deleted_at')
+                ->select('csn.sn as sn', 'depot.name as ord_name', 'depot.tel as ord_phone', 'depot.addr as ord_address')
+                ->first();
+            $rsp_arr['order'] = $order;
             $item_table = app(ConsignmentItem::class)->getTable();
-            return abort(404);
+            $source_type = app(Consignment::class)->getTable();
         } else if (Event::csn_order()->value == $delivery->event) {
+            dd('寄倉訂購暫無退貨功能');
+            $order = DB::table(app(CsnOrder::class)->getTable(). ' as csn')
+                ->leftJoin(app(Depot::class)->getTable(). ' as depot', 'depot.id', '=', 'csn.depot_id')
+                ->where('csn.id', $delivery->event_id)
+                ->whereNull('csn.deleted_at')
+                ->select('csn.sn as sn', 'depot.name as ord_name', 'depot.tel as ord_phone', 'depot.addr as ord_address')
+                ->first();
+            $rsp_arr['order'] = $order;
             $item_table = app(CsnOrderItem::class)->getTable();
-            return abort(404);
+            $source_type = app(CsnOrder::class)->getTable();
+        }
+        if (null != $source_type) {
+            $orderInvoice = OrderInvoice::where('source_type', '=', $source_type)
+                ->where('source_id', '=', $delivery->event_id)->first();
+            $rsp_arr['orderInvoice'] = $orderInvoice;
+        }
+        //判斷該付款單是否有付款紀錄
+        $paying_order = PayingOrder::where('source_type', '=', app(Delivery::class)->getTable())
+            ->where('source_id', '=', $delivery->id)
+            ->whereNull('source_sub_id')
+            ->whereNull('deleted_at')
+            ->first();
+        if (isset($paying_order)) {
+            $payable_data = PayingOrder::get_payable_detail($paying_order->id);
+            if (0 < count($payable_data)) {
+                $rsp_arr['has_payable_data_back'] = true;
+            }
         }
 
         if (isset($item_table)) {
@@ -681,6 +732,7 @@ class DeliveryCtrl extends Controller
 //        dd($request->all(), $bdcisc);
         if ($bdcisc['success'] == '1') {
             $msg = IttmsDBB::transaction(function () use ($delivery, $bdcisc, $request) {
+                //更新狀態
                 Delivery::where('id', '=', $delivery->id)->update([
                     'back_inbound_user_id' => $request->user()->id
                     , 'back_inbound_user_name' => $request->user()->name
@@ -693,50 +745,73 @@ class DeliveryCtrl extends Controller
                     DB::rollBack();
                     return $reLFCDS;
                 }
+                if (Event::order()->value == $delivery->event) {
+                    //狀態須回寫到訂單
+                    OrderFlow::changeOrderStatus($delivery->event_id, OrderStatus::Backed());
+                }
 
-                //查找相關退貨的組合包 將數量加回
-                $dlvBack_combo = DB::table(app(DlvBack::class)->getTable(). ' as dlv_back')
-                    ->leftJoin(app(ProductStyle::class)->getTable(). ' as style', 'style.id', '=', 'dlv_back.product_style_id')
-                    ->where('dlv_back.type', DlvBackType::product()->value)
-                    ->where('dlv_back.delivery_id', '=', $delivery->id)
-                    ->where('style.type', '=', 'c')
-                    ->get();
-                if (isset($dlvBack_combo) && 0 < count($dlvBack_combo)
-                    //(訂單在取消訂單已做) 做寄倉的即可
-                    && (Event::consignment()->value == $delivery->event)
-                ) {
-                    foreach ($dlvBack_combo as $back_item) {
-                        $rePSSC = ProductStock::stockChange($back_item->product_style_id, $back_item->qty
-                            , StockEvent::send_back()->value, $delivery->event_id
-                            , $request->user()->name. ' '. $delivery->sn. ' ' . $back_item->memo);
-                        if ($rePSSC['success'] == 0) {
-                            DB::rollBack();
-                            return $rePSSC;
-                        }
+                $is_calc_in_stock = false; //是否計算可售數量
+                //出貨只會在同一倉庫出 所以判斷其一元素是理貨倉就需計算可售數量
+                for ($num_bdcisc = 0; $num_bdcisc < count($bdcisc['data']['id']); $num_bdcisc++) {
+                    $can_tally = Depot::can_tally($bdcisc['data']['depot_id'][$num_bdcisc]);
+                    if ($can_tally == true) {
+                        $is_calc_in_stock = true;
+                        break;
+                    }
+                }
+                if (Event::order()->value == $delivery->event) {
+                    //訂單 可售數量在取消訂單已做 判斷已訂單取消 不可計算可售數量
+                    $subOrder = SubOrders::where('id', '=', $delivery->event_id)->get()->first();
+                    $order = Order::where('id', '=', $subOrder->order_id)->get()->first();
+                    if (OrderStatus::Canceled()->value == $order->status_code) {
+                        $is_calc_in_stock = false;
                     }
                 }
 
-                //直接依據退貨數量 寫回出貨單組合包的退貨數量
-                $dlvBack = DB::table(app(DlvBack::class)->getTable(). ' as dlv_back')
-                    ->leftJoin(app(ReceiveDepot::class)->getTable(). ' as rcv_depot', function ($join) {
-                        $join->on('rcv_depot.delivery_id', '=', 'dlv_back.delivery_id')
-                            ->on('rcv_depot.event_item_id', '=', 'dlv_back.event_item_id');
-                    })
-                    ->where('dlv_back.type', DlvBackType::product()->value)
-                    ->where('rcv_depot.prd_type', '=', 'c')
-                    ->where('dlv_back.qty', '>', 0)
-                    ->whereNull('rcv_depot.deleted_at')
-                    ->select(
-                        'rcv_depot.id as rcv_depot_id'
-                        , 'dlv_back.event_item_id'
-                        , 'dlv_back.product_style_id'
-                        , 'dlv_back.qty'
-                    )
-                    ->get();
-                if (isset($dlvBack) && 0 < count($dlvBack)) {
-                    foreach ($dlvBack as $key_back => $val_back) {
-                        ReceiveDepot::where('id', '=', $val_back->rcv_depot_id)->update([
-                            'back_qty' => $val_back->qty,
+                if (Event::order()->value == $delivery->event || Event::consignment()->value == $delivery->event) {
+                    //查找出貨時組出的組合包 相關退貨的商品 將數量加回
+                    $dlvBack_combo = DB::table(app(DlvBack::class)->getTable(). ' as dlv_back')
+                        ->leftJoin(app(ReceiveDepot::class)->getTable(). ' as rcv_depot', function ($join) {
+                            $join->on('rcv_depot.delivery_id', '=', 'dlv_back.delivery_id')
+                                ->on('rcv_depot.event_item_id', '=', 'dlv_back.event_item_id')
+                                ->where('rcv_depot.prd_type', '=', 'c');
+                        })
+                        ->leftJoin(app(ProductStyle::class)->getTable(). ' as style', 'style.id', '=', 'dlv_back.product_style_id')
+                        ->where('dlv_back.type', DlvBackType::product()->value)
+                        ->where('dlv_back.delivery_id', '=', $delivery->id)
+                        ->where('style.type', '=', 'c')
+                        ->where('dlv_back.qty', '>', 0)
+                        ->whereNull('rcv_depot.deleted_at')
+                        ->select(
+                            'dlv_back.event_item_id'
+                            , 'dlv_back.product_style_id'
+                            , 'dlv_back.qty'
+                            , 'dlv_back.memo'
+                            , 'rcv_depot.id as rcv_depot_id'
+                        )
+                        ->get();
+
+                    if (isset($dlvBack_combo) && 0 < count($dlvBack_combo)
+                        && ($is_calc_in_stock)
+                    ) {
+                        foreach ($dlvBack_combo as $back_item) {
+                            $rePSSC = ProductStock::stockChange($back_item->product_style_id, $back_item->qty
+                                , StockEvent::send_back()->value, $delivery->event_id
+                                , $request->user()->name. ' '. $delivery->sn. ' ' . $back_item->memo);
+                            if (Event::order()->value == $delivery->event) {
+                                //訂單需更新 待出貨數量
+                                ProductStyle::willBeShipped($back_item->product_style_id, $back_item->qty * -1);
+                            }
+                            if ($rePSSC['success'] == 0) {
+                                DB::rollBack();
+                                return $rePSSC;
+                            }
+                        }
+                    }
+                    //直接依據退貨數量 寫回出貨單組合包的退貨數量
+                    foreach ($dlvBack_combo as $back_item) {
+                        ReceiveDepot::where('id', '=', $back_item->rcv_depot_id)->update([
+                            'back_qty' => $back_item->qty,
                         ]);
                     }
                 }
@@ -752,27 +827,50 @@ class DeliveryCtrl extends Controller
                         $rcv_depot_item->inbound_id = $bdcisc['data']['inbound_id'][$num_bdcisc];
                         $rcv_depot_item->prd_type = $bdcisc['data']['prd_type'][$num_bdcisc];
                         $rcv_depot_item->combo_id = $bdcisc['data']['combo_id'][$num_bdcisc];
+                        $rcv_depot_item->depot_id = $bdcisc['data']['depot_id'][$num_bdcisc];
 
                         //增加back_num
                         ReceiveDepot::where('id', $rcv_depot_item->id)->update(['back_qty' => DB::raw("back_qty + $rcv_depot_item->back_qty")]);
                         //加回對應入庫單num
                         $update_arr = [];
-                        if (Event::order()->value == $delivery->event || Event::ord_pickup()->value == $delivery->event) {
-                            OrderFlow::changeOrderStatus($delivery->event_id, OrderStatus::Backed());
+                        if (Event::order()->value == $delivery->event) {
                             $update_arr['sale_num'] = DB::raw("sale_num - $rcv_depot_item->back_qty");
                             //TODO 自取可能有入庫 若有入庫過 則需判斷退貨的數量 不得大於後面入庫扣除售出之類的數量
                             // 並須把後面入庫單的退貨數量更新
                             if ('pickup' == $delivery->ship_category) {
                                 $pcsInbound_pickup = $this->getPickUpInboundLessThenBackQtyList($rcv_depot_item->id, $rcv_depot_item->back_qty);
                                 if (isset($pcsInbound_pickup) && 0 < count($pcsInbound_pickup)) {
+                                    //自取有入庫過 不給退貨
                                     DB::rollBack();
                                     return ['success' => 0, 'error_msg' => '訂單自取暫無退貨入庫功能'];
                                 }
                             }
                         } else if (Event::consignment()->value == $delivery->event) {
+//                          //TODO 寄倉可能有入庫 若有入庫過 須一併先把那邊的入庫退貨
+                            //找到該筆出貨資料的寄倉入庫單
+                            // 若有入庫過 需更新back_num
+                            $param = ['event' => Event::consignment()->value
+                                , 'event_item_id' => $rcv_depot_item->id
+                            ];
+                            $inboundList_consignment = PurchaseInbound::getInboundListWithEventSn(app(Consignment::class)->getTable(), [Event::consignment()->value], $param, false);
+
+                            if (isset($inboundList_consignment) && 0 < count($inboundList_consignment)) {
+                                if (1 < count($inboundList_consignment)) {
+                                    //理論上只有一條
+                                    DB::rollBack();
+                                    return ['success' => 0, 'error_msg' => '請檢查資料正確性 不應有多筆 '. json_encode($inboundList_consignment)];
+                                } else {
+                                    //判斷該寄倉入庫單可退回的數量 <= 總數量-售出數量-back_num
+                                    $inbound_data_consignment = $inboundList_consignment->first();
+                                    PurchaseInbound::where('id', $inbound_data_consignment->inbound_id)->update([
+                                        'back_num' => DB::raw("back_num + $rcv_depot_item->back_qty")
+                                    ]);
+                                }
+                            }
+
                             DB::rollBack();
-                            return ['success' => 0, 'error_msg' => '寄倉暫無退貨入庫功能'];
-                            //TODO 寄倉可能有入庫 若有入庫過 須先把那邊的入庫退貨
+                            dd($bdcisc['data'], $rcv_depot_item, $inboundList_consignment->get());
+
                             $update_arr['csn_num'] = DB::raw("csn_num - $rcv_depot_item->back_qty");
                         } else if (Event::csn_order()->value == $delivery->event) {
                             DB::rollBack();
@@ -790,15 +888,15 @@ class DeliveryCtrl extends Controller
                             DB::rollBack();
                             return $rePcsLSC;
                         }
-                        //寄倉 須將通路庫存加回
-                        //若為理貨倉can_tally 需修改通路庫存
+                        //將通路庫存加回可售數量 除了寄倉訂購
                         $inboundData = DB::table('pcs_purchase_inbound as inbound')
                             ->leftJoin('depot', 'depot.id', 'inbound.depot_id')
                             ->where('inbound.id', '=', $rcv_depot_item->inbound_id)
                             ->whereNull('inbound.deleted_at');
                         $inboundDataGet = $inboundData->get()->first();
                         if (isset($inboundDataGet)
-                            && (Event::consignment()->value == $delivery->event)
+                            && $is_calc_in_stock
+                            && (Event::csn_order()->value != $delivery->event)
                         ) {
                             //若非組合包元素 則需計算可售數量
                             if ('ce' != $rcv_depot_item->prd_type) {
@@ -807,6 +905,10 @@ class DeliveryCtrl extends Controller
                                     , StockEvent::send_back()->value, $delivery->event_id
                                     , $request->user()->name. ' '. $delivery->sn. ' ' . $memo
                                     , false, $inboundDataGet->can_tally);
+                                if (Event::order()->value == $delivery->event) {
+                                    //訂單需更新 待出貨數量
+                                    ProductStyle::willBeShipped($inboundDataGet->product_style_id, $rcv_depot_item->back_qty * -1);
+                                }
                                 if ($rePSSC['success'] == 0) {
                                     DB::rollBack();
                                     return $rePSSC;
@@ -869,6 +971,7 @@ class DeliveryCtrl extends Controller
                 , 'rcv_depot.inbound_id'
                 , 'rcv_depot.prd_type'
                 , 'rcv_depot.combo_id'
+                , 'rcv_depot.depot_id'
             )
             ->where('rcv_depot.back_qty', '>', 0)
             ->where('dlv_tb.id', '=', $delivery_id)
@@ -882,25 +985,61 @@ class DeliveryCtrl extends Controller
                     , 'back_inbound_date' => null,
                 ]);
                 Delivery::changeBackStatus($delivery->id, BackStatus::del_back_inbound());
+                $reLFCDS = LogisticFlow::createDeliveryStatus($request->user(), $delivery->id, [LogisticStatus::C2000()]);
+                if ($reLFCDS['success'] == 0) {
+                    DB::rollBack();
+                    return $reLFCDS;
+                }
+                if (Event::order()->value == $delivery->event) {
+                    //狀態須回寫到訂單
+                    OrderFlow::changeOrderStatus($delivery->event_id, OrderStatus::CancleBack());
+                }
 
-                //查找相關退貨的組合包 將數量扣回
-                $dlvBack_combo = DB::table(app(DlvBack::class)->getTable(). ' as dlv_back')
-                    ->leftJoin(app(ProductStyle::class)->getTable(). ' as style', 'style.id', '=', 'dlv_back.product_style_id')
-                    ->where('dlv_back.delivery_id', '=', $delivery->id)
-                    ->where('style.type', '=', 'c')
-                    ->where('dlv_back.type', DlvBackType::product()->value)
-                    ->get();
-                if (isset($dlvBack_combo) && 0 < count($dlvBack_combo)
-                    //(訂單在取消訂單已做) 做寄倉的即可
-                    && (Event::consignment()->value == $delivery->event)
-                ) {
-                    foreach ($dlvBack_combo as $back_item) {
-                        $rePSSC = ProductStock::stockChange($back_item->product_style_id, $back_item->qty * -1
-                            , StockEvent::send_back_cancle()->value, $delivery->event_id
-                            , $request->user()->name. ' '. $delivery->sn. ' ' . $back_item->memo);
-                        if ($rePSSC['success'] == 0) {
-                            DB::rollBack();
-                            return $rePSSC;
+                $is_calc_in_stock = false; //是否計算可售數量
+                //出貨只會在同一倉庫出 所以判斷其一元素是理貨倉就需計算可售數量
+                foreach ($rcv_depot as $key_rcv => $val_rcv) {
+                    if (0 == $val_rcv->depot_id) {
+                        continue;
+                    }
+                    $can_tally = Depot::can_tally($val_rcv->depot_id);
+                    if ($can_tally == true) {
+                        $is_calc_in_stock = true;
+                        break;
+                    }
+                }
+                if (Event::order()->value == $delivery->event) {
+                    //訂單 可售數量在取消訂單已做 判斷已訂單取消 不可計算可售數量
+                    $subOrder = SubOrders::where('id', '=', $delivery->event_id)->get()->first();
+                    $order = Order::where('id', '=', $subOrder->order_id)->get()->first();
+                    if (OrderStatus::Canceled()->value == $order->status_code) {
+                        $is_calc_in_stock = false;
+                    }
+                }
+
+                if (Event::order()->value == $delivery->event || Event::consignment()->value == $delivery->event) {
+                    //查找出貨時組出的組合包 相關退貨的商品 將數量加回
+                    $dlvBack_combo = DB::table(app(DlvBack::class)->getTable(). ' as dlv_back')
+                        ->leftJoin(app(ProductStyle::class)->getTable(). ' as style', 'style.id', '=', 'dlv_back.product_style_id')
+                        ->where('dlv_back.type', DlvBackType::product()->value)
+                        ->where('dlv_back.delivery_id', '=', $delivery->id)
+                        ->where('style.type', '=', 'c')
+                        ->get();
+                    if (isset($dlvBack_combo) && 0 < count($dlvBack_combo)
+                        && ($is_calc_in_stock)
+                    ) {
+                        foreach ($dlvBack_combo as $back_item) {
+                            $rePSSC = ProductStock::stockChange($back_item->product_style_id, $back_item->qty * -1
+                                , StockEvent::send_back_cancle()->value, $delivery->event_id
+                                , $request->user()->name. ' '. $delivery->sn. ' ' . $back_item->memo);
+                            if (Event::order()->value == $delivery->event) {
+                                //訂單需更新 待出貨數量
+                                ProductStyle::willBeShipped($back_item->product_style_id, $back_item->qty);
+                            }
+
+                            if ($rePSSC['success'] == 0) {
+                                DB::rollBack();
+                                return $rePSSC;
+                            }
                         }
                     }
                 }
@@ -910,48 +1049,55 @@ class DeliveryCtrl extends Controller
                     ReceiveDepot::where('id', $val_rcv->id)->update(['back_qty' => DB::raw("back_qty - $val_rcv->back_qty")]);
                     //減回對應入庫單num
                     $update_arr = [];
-                    if (Event::order()->value == $delivery->event || Event::ord_pickup()->value == $delivery->event) {
-                        OrderFlow::changeOrderStatus($delivery->event_id, OrderStatus::CancleBack());
+                    if (Event::order()->value == $delivery->event) {
                         $update_arr['sale_num'] = DB::raw("sale_num + $val_rcv->back_qty");
                         //TODO 自取可能有入庫 若有入庫過 則需判斷退貨的數量 不得大於後面入庫扣除售出之類的數量
                         // 並須把後面入庫單的退貨數量更新
-                        if (Event::ord_pickup()->value == $delivery->event) {
+                        if ('pickup' == $delivery->ship_category) {
                             $pcsInbound_pickup = $this->getPickUpInboundLessThenBackQtyList($val_rcv->id, $val_rcv->back_qty);
                             if (isset($pcsInbound_pickup) && 0 < count($pcsInbound_pickup)) {
+                                //自取有入庫過 不給退貨
                                 DB::rollBack();
                                 return ['success' => 0, 'error_msg' => '訂單自取暫無退貨入庫功能'];
                             }
                         }
                     } else if (Event::consignment()->value == $delivery->event) {
-                        DB::rollBack();
-                        return ['success' => 0, 'error_msg' => '寄倉暫無退貨入庫功能'];
                         $update_arr['csn_num'] = DB::raw("csn_num + $val_rcv->back_qty");
                     } else if (Event::csn_order()->value == $delivery->event) {
                         DB::rollBack();
                         return ['success' => 0, 'error_msg' => '寄倉訂購暫無退貨入庫功能'];
                         $update_arr['sale_num'] = DB::raw("sale_num + $val_rcv->back_qty");
                     }
-                    PurchaseInbound::where('id', $val_rcv->inbound_id)->update($update_arr);
 
-                    //寫入LOG
-                    $rePcsLSC = PurchaseLog::stockChange($delivery->event_id, $val_rcv->product_style_id, $delivery->event, $val_rcv->id
-                        , LogEventFeature::send_back_cancle()->value, $val_rcv->inbound_id, $val_rcv->back_qty * -1, $val_rcv->memo ?? null
-                        , $val_rcv->product_title, $val_rcv->prd_type
-                        , $request->user()->id, $request->user()->name);
-                    if ($rePcsLSC['success'] == 0) {
-                        DB::rollBack();
-                        return $rePcsLSC;
+                    $is_write_to_pcs_log = true;
+                    if ( (Event::consignment()->value == $delivery->event)) {
+                        if ('c' == $val_rcv->prd_type) {
+                            //寄倉 組合包退貨 不應紀錄LOG 因為之前出貨時就不會扣 而是從元素做組合而成
+                            $is_write_to_pcs_log = false;
+                        }
+                    }
+                    if (true == $is_write_to_pcs_log) {
+                        //寫入LOG
+                        PurchaseInbound::where('id', $val_rcv->inbound_id)->update($update_arr);
+                        $rePcsLSC = PurchaseLog::stockChange($delivery->event_id, $val_rcv->product_style_id, $delivery->event, $val_rcv->id
+                            , LogEventFeature::send_back_cancle()->value, $val_rcv->inbound_id, $val_rcv->back_qty * -1, $val_rcv->memo ?? null
+                            , $val_rcv->product_title, $val_rcv->prd_type
+                            , $request->user()->id, $request->user()->name);
+                        if ($rePcsLSC['success'] == 0) {
+                            DB::rollBack();
+                            return $rePcsLSC;
+                        }
                     }
 
-                    //寄倉 須將通路庫存減回 (訂單在取消訂單已做)
-                    //若為理貨倉can_tally 需修改通路庫存
+                    //將通路庫存減回可售數量 除了寄倉訂購
                     $inboundData = DB::table('pcs_purchase_inbound as inbound')
                         ->leftJoin('depot', 'depot.id', 'inbound.depot_id')
                         ->where('inbound.id', '=', $val_rcv->inbound_id)
                         ->whereNull('inbound.deleted_at');
                     $inboundDataGet = $inboundData->get()->first();
                     if (isset($inboundDataGet)
-                        && (Event::consignment()->value == $delivery->event)
+                        && $is_calc_in_stock
+                        && (Event::csn_order()->value != $delivery->event)
                     ) {
                         //若非組合包元素 則需計算可售數量
                         if ('ce' != $val_rcv->prd_type) {
@@ -960,6 +1106,10 @@ class DeliveryCtrl extends Controller
                                 , StockEvent::send_back_cancle()->value, $delivery->event_id
                                 , $request->user()->name. ' '. $delivery->sn. ' ' . $memo
                                 , false, $inboundDataGet->can_tally);
+                            if (Event::order()->value == $delivery->event) {
+                                //訂單需更新 待出貨數量
+                                ProductStyle::willBeShipped($inboundDataGet->product_style_id, $val_rcv->back_qty);
+                            }
                             if ($rePSSC['success'] == 0) {
                                 DB::rollBack();
                                 return $rePSSC;

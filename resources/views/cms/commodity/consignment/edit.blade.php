@@ -461,10 +461,23 @@
             <button type="button" class="btn btn-primary btn-ok">加入寄倉清單</button>
         </x-slot>
     </x-b-modal>
+
+    <!-- Modal -->
+    <x-b-modal id="confirm-delete-back">
+        <x-slot name="title">刪除確認</x-slot>
+        <x-slot name="body">確認要刪除？</x-slot>
+        <x-slot name="foot">
+            <a class="btn btn-danger btn-ok" href="#">確認並刪除</a>
+        </x-slot>
+    </x-b-modal>
 @endsection
 @once
     @push('sub-scripts')
         <script>
+            $('#confirm-delete-back').on('show.bs.modal', function(e) {
+                $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
+            });
+
             let hasCreatedFinalPayment = @json($hasCreatedFinalPayment?? false);
             const lgt_cost = @json($consignmentData->lgt_cost);
 
