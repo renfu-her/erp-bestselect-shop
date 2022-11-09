@@ -16,10 +16,15 @@ class OrderFlow extends Model
     public static function changeOrderStatus($order_id, OrderStatus $status)
     {
 
-        Order::where('id', $order_id)->update([
-            'status_code' => $status->value,
-            'status' => $status->description,
-        ]);
+        //若訂單取消則不改變狀態 只改變flow表
+        //否則在退貨時修改狀態 後面判斷訂單取消將導致可售數量錯亂
+        $order = Order::where('id', $order_id)->first();
+        if (OrderStatus::Canceled()->value != $order->status_code) {
+            Order::where('id', $order_id)->update([
+                'status_code' => $status->value,
+                'status' => $status->description,
+            ]);
+        }
 
         self::create([
             'order_id' => $order_id,

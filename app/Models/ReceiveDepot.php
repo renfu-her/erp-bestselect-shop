@@ -797,14 +797,21 @@ class ReceiveDepot extends Model
                 $id_and_qty_list['product_title'][$i] = $rcv_repot->product_title;
                 $id_and_qty_list['prd_type'][$i] = $rcv_repot->prd_type;
                 $id_and_qty_list['combo_id'][$i] = $rcv_repot->combo_id;
+                $id_and_qty_list['depot_id'][$i] = $rcv_repot->depot_id;
                 if (0 < $rcv_repot->back_qty) {
                     return ['success' => 0, 'error_msg' => "不可重複退貨"];
                 }
             }
         }
         $rcv_repot_combo = ReceiveDepot::where('delivery_id', $delivery_id)->where('prd_type', '=', 'c')->get();
+        $delivery = Delivery::where('id', $delivery_id)->first();
 
-        $rcv_repot_tobackqty = ReceiveDepot::getRcvDepotToBackQty($delivery_id);
+        $rcv_repot_tobackqty = null;
+        if(Event::order()->value == $delivery->event || Event::consignment()->value == $delivery->event) {
+            $rcv_repot_tobackqty = ReceiveDepot::getRcvDepotToBackQty($delivery_id);
+        } elseif (Event::csn_order()->value == $delivery->event) {
+            $rcv_repot_tobackqty = ReceiveDepot::getCsnOrderRcvDepotToBackQty($delivery_id);
+        }
         //將POST上來的資料依照combo_id、product_style_id加總
         $elements = array();
         if (0 < count($id_and_qty_list['id'])) {
@@ -941,6 +948,32 @@ class ReceiveDepot extends Model
         return $elements;
     }
 
+    public static function getCsnOrderRcvDepotToBackQty($delivery_id) {
+        //找一般商品欲退貨入庫資料
+        $rcv_repot_p = DB::table(app(ReceiveDepot::class)->getTable(). ' as rcv_depot')
+            ->where('rcv_depot.delivery_id', $delivery_id)
+//            ->where('rcv_depot.prd_type', '=', 'p')
+            ->whereNull('rcv_depot.combo_id')
+            ->whereNull('rcv_depot.deleted_at')
+            ->leftJoin(app(DlvBack::class)->getTable(). ' as back', function ($join) use($delivery_id) {
+                $join->on('back.product_style_id', '=', 'rcv_depot.product_style_id')
+                    ->where('back.delivery_id', '=', $delivery_id)
+                    ->where('back.type', DlvBackType::product()->value);
+            })
+            ->select(
+                'rcv_depot.event_item_id'
+                , 'rcv_depot.id'
+                , 'rcv_depot.delivery_id'
+                , 'rcv_depot.product_style_id'
+                , 'rcv_depot.product_style_id as product_style_child_id'
+                , DB::raw('rcv_depot.qty as qty') //出貨數量
+                , DB::raw('1 as unit_qty') //單位數量
+                , 'back.qty as to_back_qty' //欲退數量
+            );
+        $rcv_repot_p = $rcv_repot_p->get();
+        return $rcv_repot_p;
+    }
+
     //找欲退貨數量
     public static function getRcvDepotToBackQty($delivery_id) {
         //找一般商品欲退貨入庫資料
@@ -995,12 +1028,15 @@ class ReceiveDepot extends Model
     //找已退貨數量
     public static function getRcvDepotBackQty($delivery_id, $event, $event_id) {
         $ord_items_arr = null;
-        $rcv_repot_combo = ReceiveDepot::getRcvDepotToBackQty($delivery_id);
+        $rcv_repot_combo = null;
         if(Event::order()->value == $event) {
+            $rcv_repot_combo = ReceiveDepot::getRcvDepotToBackQty($delivery_id);
             $ord_items_arr = ReceiveDepot::getOrderShipItemWithDeliveryWithReceiveDepotList($event, $event_id, $delivery_id);
         } else if(Event::consignment()->value == $event) {
+            $rcv_repot_combo = ReceiveDepot::getRcvDepotToBackQty($delivery_id);
             $ord_items_arr = ReceiveDepot::getCSNShipItemWithDeliveryWithReceiveDepotList($event, $event_id, $delivery_id);
         } else if(Event::csn_order()->value == $event) {
+            $rcv_repot_combo = ReceiveDepot::getCsnOrderRcvDepotToBackQty($delivery_id);
             $ord_items_arr = ReceiveDepot::getCSNOrderShipItemWithDeliveryWithReceiveDepotList($event, $event_id, $delivery_id);
         }
         if (isset($ord_items_arr) && 0 < count($ord_items_arr) && isset($rcv_repot_combo) && 0 < count($rcv_repot_combo)) {
@@ -1008,15 +1044,23 @@ class ReceiveDepot extends Model
             for ($num_item = 0; $num_item < count($ord_items_arr); $num_item++) {
                 //組合包元素
                 for ($num_combo = 0; $num_combo < count($rcv_repot_combo); $num_combo++) {
-//                    dd($sub_order, $ord_items_arr[0], $rcv_repot_combo);
-                    if ($ord_items_arr[$num_item]->prd_type == 'c'
-                        && $ord_items_arr[$num_item]->papa_product_style_id == $rcv_repot_combo[$num_combo]->product_style_id
-                        && $ord_items_arr[$num_item]->product_style_id == $rcv_repot_combo[$num_combo]->product_style_child_id
-                    ) {
-                        $ord_items_arr[$num_item]->total_to_back_qty = $rcv_repot_combo[$num_combo]->to_back_qty * $rcv_repot_combo[$num_combo]->unit_qty;
-                    } else if ($ord_items_arr[$num_item]->prd_type == 'p' && null == $ord_items_arr[$num_item]->papa_product_style_id
-                        && $ord_items_arr[$num_item]->product_style_id == $rcv_repot_combo[$num_combo]->product_style_id) {
-                        $ord_items_arr[$num_item]->total_to_back_qty = $rcv_repot_combo[$num_combo]->to_back_qty;
+//                    dd("getRcvDepotBackQty", $ord_items_arr[0], $rcv_repot_combo);
+                    //訂單、寄倉的組合包需要打散
+                    if(Event::order()->value == $event || Event::consignment()->value == $event) {
+                        if ($ord_items_arr[$num_item]->prd_type == 'c'
+                            && $ord_items_arr[$num_item]->papa_product_style_id == $rcv_repot_combo[$num_combo]->product_style_id
+                            && $ord_items_arr[$num_item]->product_style_id == $rcv_repot_combo[$num_combo]->product_style_child_id
+                        ) {
+                            $ord_items_arr[$num_item]->total_to_back_qty = $rcv_repot_combo[$num_combo]->to_back_qty * $rcv_repot_combo[$num_combo]->unit_qty;
+                        } else if ($ord_items_arr[$num_item]->prd_type == 'p'
+                            && null == $ord_items_arr[$num_item]->papa_product_style_id
+                            && $ord_items_arr[$num_item]->product_style_id == $rcv_repot_combo[$num_combo]->product_style_id) {
+                            $ord_items_arr[$num_item]->total_to_back_qty = $rcv_repot_combo[$num_combo]->to_back_qty;
+                        }
+                    } else {
+                        if ($ord_items_arr[$num_item]->product_style_id == $rcv_repot_combo[$num_combo]->product_style_id) {
+                            $ord_items_arr[$num_item]->total_to_back_qty = $rcv_repot_combo[$num_combo]->to_back_qty;
+                        }
                     }
                 }
             }
