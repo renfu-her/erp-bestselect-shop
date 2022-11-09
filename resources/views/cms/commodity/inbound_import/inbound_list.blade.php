@@ -90,6 +90,8 @@
                     <label class="form-label">效期</label>
                     <select class="form-select" name="expire_day" aria-label="效期">
                         <option value="" @if ('' == $searchParam['expire_day'] ?? '') selected @endif>不限</option>
+                        <option value="365" @if (365 == $searchParam['expire_day'] ?? '') selected @endif>近365天</option>
+                        <option value="180" @if (180 == $searchParam['expire_day'] ?? '') selected @endif>近180天</option>
                         <option value="90" @if (90 == $searchParam['expire_day'] ?? '') selected @endif>近90天</option>
                         <option value="60" @if (60 == $searchParam['expire_day'] ?? '') selected @endif>近60天</option>
                         <option value="45" @if (45 == $searchParam['expire_day'] ?? '') selected @endif>近45天</option>
