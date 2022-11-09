@@ -41,6 +41,11 @@ return
                 "controller_name" => "DeliveryCtrl",
                 "route_name" => "cms.delivery.index",
             ],
+            [
+                "title" => "出貨商品查詢",
+                "controller_name" => "DeliveryProductCtrl",
+                "route_name" => "cms.delivery_product.index",
+            ],
         ],
     ],
     [
@@ -328,6 +333,11 @@ return
                 "title" => "佈告欄",
                 "controller_name" => "BulletinBoardCtrl",
                 "route_name" => "cms.bulletin_board.index",
+            ],
+            [
+                "title" => "申議書",
+                "controller_name" => "PetitionCtrl",
+                "route_name" => "cms.petition.index",
             ],
         ],
     ],
