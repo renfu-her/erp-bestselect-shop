@@ -12,7 +12,7 @@
                     <select class="form-select -select2 -single" name="payee_key" aria-label="客戶" data-placeholder="請選擇客戶">
                         <option value="" selected>不限</option>
                         @foreach ($payee as $value)
-                            <option value="{{ $value['id'] . '|' . $value['name'] }}" {{ $value['id'] . '|' . $value['name'] == $cond['payee_key'] ? 'selected' : '' }}>{{ $value['name'] . ' - ' . ($value['email'] ?? $value['id']) }}</option>
+                            <option value="{{ $value['id'] . '|' . $value['name'] }}" {{ $value['id'] . '|' . $value['name'] == $cond['payee_key'] ? 'selected' : '' }}>{{ $value['name'] . ' - ' . (isset($value['title']) ? $value['title'] . ' ' : '') . ($value['email'] ?? $value['id']) }}</option>
                         @endforeach
                     </select>
                 </div>
