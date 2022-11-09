@@ -14,7 +14,7 @@
                             @php
                                 $payee_name = explode(' - ', $paying_order->payee_name);
                             @endphp
-                            <option value="{{ $value['id'] . '|' . $value['name'] }}" {{ $value['id'] . '|' . $value['name'] == old('client_key', $paying_order->payee_id . '|' . $payee_name[0]) ? 'selected' : '' }}>{{ $value['name'] . ' - ' . ($value['email'] ?? $value['id']) }}</option>
+                            <option value="{{ $value['id'] . '|' . $value['name'] }}" {{ $value['id'] . '|' . $value['name'] == old('client_key', $paying_order->payee_id . '|' . $payee_name[0]) ? 'selected' : '' }}>{{ $value['name'] . ' - ' . (isset($value['title']) ? $value['title'] . ' ' : '') . ($value['email'] ?? $value['id']) }}</option>
                         @endforeach
                     </select>
                 </div>
