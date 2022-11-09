@@ -32,7 +32,7 @@
                         </button>
                     </label>
                     <div class="row -appendClone mb-2">
-                        @if ($method === 'create' && count(old('order', $order ?? [])) === 0)
+                        @if ($method === 'create' || count(old('order', $order ?? [])) === 0)
                             <div class="input-group col-12 col-md-6 mb-2 -cloneElem">
                                 <input class="form-control" type="text" name="order[]" placeholder="請填入相關單號"
                                     aria-label="相關單號">

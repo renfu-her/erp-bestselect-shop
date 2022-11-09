@@ -124,7 +124,7 @@ class ExpenditureCtrl extends Controller
 
         $orders = array_map(function ($n) {
             return getErpOrderUrl($n);
-        }, Petition::getOrderSn($id, 'petition')->get()->toArray());
+        }, Petition::getOrderSn($id, 'expenditure')->get()->toArray());
 
         return view('cms.admin_management.expenditure.show', [
             'method' => 'edit',
@@ -264,7 +264,7 @@ class ExpenditureCtrl extends Controller
 
         $orders = array_map(function ($n) {
             return getErpOrderUrl($n);
-        }, Petition::getOrderSn($id, 'petition')->get()->toArray());
+        }, Petition::getOrderSn($id, 'expenditure')->get()->toArray());
 
         // dd($orders);
 
