@@ -1137,5 +1137,54 @@ return [
             ],
         ],
     ],
+    [
+        "unit" => "通關優惠",
+        "permissions" => [
+            [
+                "cms.coupon-event.index",
+                "瀏覽",
+            ],
+            [
+                "cms.coupon-event.create",
+                "新增",
+            ],
+            [
+                "cms.coupon-event.edit",
+                "修改",
+            ],
+            [
+                "cms.coupon-event.delete",
+                "刪除",
+            ],
+        ],
+    ],
+    [
+        "unit" => "組織架構",
+        "permissions" => [
+            [
+                "cms.organize.index",
+                "瀏覽",
+            ],
+            [
+                "cms.organize.edit",
+                "修改",
+            ],
+
+        ],
+    ],
+    [
+        "unit" => "申議書",
+        "permissions" => [
+            [
+                "cms.petition.index",
+                "瀏覽",
+            ],
+            [
+                "cms.petition.admin",
+                "管理權限",
+            ],
+
+        ],
+    ],
 
 ];

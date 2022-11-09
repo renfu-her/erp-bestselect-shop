@@ -41,6 +41,11 @@ return
                 "controller_name" => "DeliveryCtrl",
                 "route_name" => "cms.delivery.index",
             ],
+            [
+                "title" => "出貨商品查詢",
+                "controller_name" => "DeliveryProductCtrl",
+                "route_name" => "cms.delivery_product.index",
+            ],
         ],
     ],
     [
@@ -102,6 +107,16 @@ return
                 "controller_name" => "DiscountCtrl",
                 "route_name" => "cms.discount.index",
             ],
+            [
+                "title" => "通關優惠劵",
+                "controller_name" => "CouponEventCtrl",
+                "route_name" => "cms.coupon-event.index",
+            ],
+            [
+                "title" => "縮短網址產生器",
+                "controller_name" => "UtmUrlCtrl",
+                "route_name" => "cms.utm-url.index",
+            ],
         ],
     ],
     [
@@ -148,6 +163,11 @@ return
                 "title" => "通知信管理",
                 "controller_name" => "MailSetCtrl",
                 "route_name" => "cms.mail_set.index",
+            ],
+            [
+                "title" => "組織架構",
+                "controller_name" => "OrganizeCtrl",
+                "route_name" => "cms.organize.index",
             ],
         ],
     ],
@@ -313,6 +333,11 @@ return
                 "title" => "佈告欄",
                 "controller_name" => "BulletinBoardCtrl",
                 "route_name" => "cms.bulletin_board.index",
+            ],
+            [
+                "title" => "申議書",
+                "controller_name" => "PetitionCtrl",
+                "route_name" => "cms.petition.index",
             ],
         ],
     ],

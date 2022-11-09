@@ -25,7 +25,7 @@ class PromoCtrl extends Controller
         $cond = [];
         $query = $request->query();
 
-        $data_per_page = getPageCount(Arr::get($query, 'data_per_page', 10));
+        $data_per_page = getPageCount(Arr::get($query, 'data_per_page', 100));
         $cond['title'] = Arr::get($query, 'title');
         $cond['method_code'] = Arr::get($query, 'method_code');
         $cond['status_code'] = Arr::get($query, 'status_code', '');

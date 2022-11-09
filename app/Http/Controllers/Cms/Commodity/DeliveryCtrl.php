@@ -48,6 +48,7 @@ use App\Models\ReceiveDepot;
 use App\Models\ShipmentCategory;
 use App\Models\ShipmentGroup;
 use App\Models\SubOrders;
+use App\Models\Supplier;
 use App\Models\Temps;
 use App\Models\User;
 use Illuminate\Http\Request;

@@ -169,6 +169,20 @@ class ReceiveDepot extends Model
         if (null != $delivery &&null != $rcvDepotGet && 0 < count($rcvDepotGet)) {
             $result = IttmsDBB::transaction(function () use ($delivery, $rcvDepot, $rcvDepotGet, $event, $event_id, $delivery_id, $user_id, $user_name
             ) {
+                //判斷都需是同一個倉庫出貨
+                $first_rcv_depot_item = $rcvDepot->where('delivery_id', $delivery_id)->where('depot_id', '<>', 0)->first();
+                if (null == $first_rcv_depot_item) {
+                    DB::rollBack();
+                    return ['success' => 0, 'error_msg' => "資料有誤 請回報給工程師 並說明相關單號與情況"];
+                }
+                $curr_depot_id = $first_rcv_depot_item->depot_id;
+                foreach ($rcvDepotGet as $item) {
+                    if ($curr_depot_id != $item->depot_id && 0 != $item->depot_id) {
+                        DB::rollBack();
+                        return ['success' => 0, 'error_msg' => "請確認是否都是同一倉庫出貨"];
+                    }
+                }
+
                 //判斷若為組合包商品 則需新建立一筆資料組合成組合包 並回寫新id
                 $queryComboElement = null;
                 $logisticStatus = [LogisticStatus::A5000()];

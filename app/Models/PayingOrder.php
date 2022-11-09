@@ -684,8 +684,8 @@ class PayingOrder extends Model
             ->selectRaw('
                 CASE
                     WHEN po.source_type = "' . app(Purchase::class)->getTable() . '" AND po.source_sub_id IS NULL THEN CASE WHEN po.type = "0" THEN NULL ELSE "物流費用" END
-                    WHEN po.source_type = "' . app(Order::class)->getTable() . '" AND po.source_sub_id IS NOT NULL AND po.type = 1 THEN CONCAT("物流費用 ", shi_group.name, " 物流編號：#", COALESCE(dlv_logistic.projlgt_order_sn, dlv_logistic.package_sn, "") )
-                    WHEN po.source_type = "' . app(Consignment::class)->getTable() . '" AND po.type = 1 THEN CONCAT("物流費用 ", co_shi_group.name, " 物流編號：#", COALESCE(co_logistic.projlgt_order_sn, co_logistic.package_sn, "") )
+                    WHEN po.source_type = "' . app(Order::class)->getTable() . '" AND po.source_sub_id IS NOT NULL AND po.type = 1 THEN CONCAT("物流費用 ", shi_group.name, " #", COALESCE(dlv_logistic.projlgt_order_sn, dlv_logistic.package_sn, "") )
+                    WHEN po.source_type = "' . app(Consignment::class)->getTable() . '" AND po.type = 1 THEN CONCAT("物流費用 ", co_shi_group.name, " #", COALESCE(co_logistic.projlgt_order_sn, co_logistic.package_sn, "") )
                     WHEN po.source_type = "' . app(StituteOrder::class)->getTable() . '" AND po.type = 1 THEN NULL
                     WHEN po.source_type = "' . app(Order::class)->getTable() . '" AND po.type = 9 THEN "物流費用"
                     WHEN po.source_type = "' . app(Delivery::class)->getTable() . '" AND po.type = 9 THEN NULL

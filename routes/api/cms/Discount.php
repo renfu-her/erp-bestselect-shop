@@ -12,5 +12,7 @@ Route::group(['prefix' => 'discount', 'as' => 'discount.'], function () {
     Route::post('check-discount-code', [DiscountCtrl::class, 'checkDiscountCode'])->name('check-discount-code');
     Route::post('get-coupons', [DiscountCtrl::class, 'getCoupons'])->name('get-coupons');
     Route::post('dividend/point', [DividendCtrl::class, 'getDividendPoint'])->name('get-dividend-point');
+    Route::post('change-coupon-event-active', [DiscountCtrl::class, 'changeCouponEventActive'])->name('change-coupon-event-active');
+
 
 });
