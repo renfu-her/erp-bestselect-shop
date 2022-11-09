@@ -201,8 +201,11 @@ class DeliveryCtrl extends Controller
     {
         $errors = [];
         $delivery = Delivery::where('id', '=', $delivery_id)->get()->first();
+        $rcvDepot = ReceiveDepot::where('delivery_id', '=', $delivery_id)->where('back_qty', '>', 0)->get();
         if (null == $delivery->audit_date) {
             $errors['error_msg'] = '尚未送出審核';
+        } else if (null != $rcvDepot && 0 < count($rcvDepot)) {
+            $errors['error_msg'] = '已有退貨入庫 不可取消';
         } else {
             $re = ReceiveDepot::cancleShippingData($delivery->event, $delivery->event_id, $delivery_id, $request->user()->id, $request->user()->name);
             if ($re['success'] == '1') {
