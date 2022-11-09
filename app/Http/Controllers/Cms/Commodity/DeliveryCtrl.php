@@ -63,6 +63,7 @@ class DeliveryCtrl extends Controller
         $query = $request->query();
 
         $has_csn = [['false', '否'], ['true', '是']];
+        $has_back_sn = [['all', '不限'], ['1', '只顯示有銷貨退回單']];
         $cond = [];
         $cond['delivery_sn'] = Arr::get($query, 'delivery_sn', null);
         $cond['event_sn'] = Arr::get($query, 'event_sn', null);
@@ -77,6 +78,7 @@ class DeliveryCtrl extends Controller
         $cond['delivery_sdate'] = Arr::get($query, 'delivery_sdate', null);
         $cond['delivery_edate'] = Arr::get($query, 'delivery_edate', null);
         $cond['has_csn'] = Arr::get($query, 'has_csn', $has_csn[0][0]);
+        $cond['has_back_sn'] = Arr::get($query, 'has_back_sn', $has_back_sn[0][0]);
         $cond['ship_temp_id'] = Arr::get($query, 'ship_temp_id', []);
         $cond['depot_temp_id'] = Arr::get($query, 'depot_temp_id', []);
 
@@ -122,7 +124,9 @@ class DeliveryCtrl extends Controller
             'has_csn' => $has_csn,
             'searchParam' => $cond,
             'data_per_page' => $cond['data_per_page'],
-            'temps' => Temps::get()]);
+            'temps' => Temps::get(),
+            'has_back_sn' => $has_back_sn,
+            ]);
     }
 
     public function create($event, $eventId)

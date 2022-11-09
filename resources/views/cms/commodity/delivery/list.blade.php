@@ -98,6 +98,20 @@
                         @endforeach
                     </div>
                 </fieldset>
+                <fieldset class="col-12 col-sm-6 mb-3">
+                    <legend class="col-form-label p-0 mb-2">銷貨退回單</legend>
+                    <div class="px-1 pt-1">
+                        @foreach ($has_back_sn as $key => $value)
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label">
+                                    <input class="form-check-input" name="has_back_sn" type="radio"
+                                           value="{{ $value[0] }}" @if ($value[0] == $searchParam['has_back_sn']) checked @endif>
+                                    {{ $value[1] }}
+                                </label>
+                            </div>
+                        @endforeach
+                    </div>
+                </fieldset>
 
                 <div class="col-12 mb-3">
                     <label class="form-label">訂單起訖日期</label>
@@ -157,7 +171,7 @@
         <div class="row justify-content-end mb-4">
             <div class="col-auto">
                 <div class="btn-group">
-                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" 
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button"
                         data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
                         顯示欄位
                     </button>
@@ -289,7 +303,7 @@
                 $('input[name=data_per_page]').val($(this).val());
                 $('#search').submit();
             });
-            
+
             // 選擇表格顯示欄位
             let DefHide = {};
             try {
@@ -297,7 +311,7 @@
             } catch (error) {}
             const Key = location.pathname;
 
-            setPrintTrCheckbox($('table.tableList'), $('#selectField'), 
+            setPrintTrCheckbox($('table.tableList'), $('#selectField'),
                 { type: 'dropdown', defaultHide: DefHide[Key] || [] }
             );
             // 紀錄選項

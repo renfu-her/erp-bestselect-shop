@@ -35,7 +35,7 @@
         <h6>銷貨退回明細</h6>
         <dl class="row">
             <div class="col">
-                <dt>銷貨單號</dt>
+                <dt>銷貨退回單號</dt>
                 <dd>{{$delivery->back_sn ?? ''}}</dd>
             </div>
             <div class="col">

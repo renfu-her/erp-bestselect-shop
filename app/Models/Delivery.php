@@ -309,6 +309,9 @@ class Delivery extends Model
         if (isset($param['has_csn']) && "false" == $param['has_csn']) {
             $query->whereNotIn('delivery.event', [Event::consignment()->value]);
         }
+        if (isset($param['has_back_sn']) && 'all' != $param['has_back_sn']) {
+            $query->whereNotNull('delivery.back_sn');
+        }
         if (isset($param['order_sdate']) && isset($param['order_edate'])) {
             $order_sdate = date('Y-m-d 00:00:00', strtotime($param['order_sdate']));
             $order_edate = date('Y-m-d 23:59:59', strtotime($param['order_edate']));
