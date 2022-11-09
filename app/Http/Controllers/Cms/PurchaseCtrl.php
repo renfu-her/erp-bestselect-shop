@@ -662,7 +662,7 @@ class PurchaseCtrl extends Controller
                     $request['deposit_summary'] ?? '',
                     $request['deposit_memo'] ?? '',
                     $purchase->supplier_id,
-                    $purchase->supplier_nickname ? $purchase->supplier_name . ' - ' . $purchase->supplier_nickname : $purchase->supplier_name,
+                    $purchase ? $purchase->supplier_name : null,
                     $purchase->supplier_phone,
                     $purchase->supplier_address
                 );

@@ -189,7 +189,7 @@ class RefundCtrl extends Controller
 
                         'account_name'=>$account_name,
                         'method_name'=>null,
-                        'summary'=>null,
+                        'summary'=>$value->logistics_summary,
                         'note'=>null,
                         'product_title'=>null,
                         'del_even'=>null,
@@ -248,7 +248,7 @@ class RefundCtrl extends Controller
             }
         // accounting classification end
 
-        $user = User::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+        $user = User::whereNull('deleted_at')->select('id', 'name', 'title')->get()->toArray();
         $customer = Customer::whereNull('deleted_at')->select('id', 'name', 'email')->get()->toArray();
         $depot = Depot::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
         $supplier = Supplier::whereNull('deleted_at')->select('id', 'name')->get()->toArray();

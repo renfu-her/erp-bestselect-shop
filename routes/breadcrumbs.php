@@ -212,6 +212,34 @@ Breadcrumbs::for('cms.bulletin_board.show', function (BreadcrumbTrail $trail) {
     $trail->push('公吿');
 });
 
+// 申議書
+Breadcrumbs::for('cms.petition.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('申議書列表');
+});
+Breadcrumbs::for('cms.petition.create', function (BreadcrumbTrail $trail) {
+    $trail->push('申議書列表', Route('cms.petition.index'));
+    $trail->push('新增申議書');
+});
+Breadcrumbs::for('cms.petition.edit', function (BreadcrumbTrail $trail) {
+    $trail->push('申議書列表', Route('cms.petition.index'));
+    $trail->push('編輯申議書');
+});
+Breadcrumbs::for('cms.petition.show', function (BreadcrumbTrail $trail, $value) {
+    $trail->push('申議書列表', Route('cms.petition.index'));
+    $trail->push('申議書【' . $value . '】');
+});
+
+Breadcrumbs::for('cms.petition.audit-list', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.petition.index');
+    $trail->push('待審核申議書列表');
+});
+
+Breadcrumbs::for('cms.petition.audit-confirm', function (BreadcrumbTrail $trail, $value) {
+    $trail->push('申議書列表', Route('cms.petition.audit-list'));
+    $trail->push('申議書【' . $value . '】');
+});
+
 // 組合包組裝
 Breadcrumbs::for('cms.combo-purchase.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
@@ -381,6 +409,12 @@ Breadcrumbs::for('cms.ar_csnorder.taxation', function (BreadcrumbTrail $trail, $
 Breadcrumbs::for('cms.delivery.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
     $trail->push('出貨管理', route('cms.delivery.index'));
+});
+
+// 出貨商品查詢
+Breadcrumbs::for('cms.delivery_product.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('出貨商品查詢', route('cms.delivery_product.index'));
 });
 
 // 寄倉搜尋
@@ -556,6 +590,28 @@ Breadcrumbs::for('cms.promo.create', function (BreadcrumbTrail $trail) {
 Breadcrumbs::for('cms.promo.edit', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.promo.index');
     $trail->push('[' . $value . '] 編輯');
+});
+
+// 通關優惠券
+Breadcrumbs::for('cms.coupon-event.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('通關優惠券', route('cms.coupon-event.index'));
+});
+
+Breadcrumbs::for('cms.coupon-event.edit', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.coupon-event.index');
+    $trail->push('編輯');
+});
+
+Breadcrumbs::for('cms.coupon-event.create', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.coupon-event.index');
+    $trail->push('新增');
+});
+
+//縮短網址產生器
+Breadcrumbs::for('cms.utm-url.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('縮短網址產生器', route('cms.utm-url.index'));
 });
 
 // Google數位行銷
@@ -1311,4 +1367,15 @@ Breadcrumbs::for('cms.order-bonus.person-detail', function (BreadcrumbTrail $tra
 Breadcrumbs::for('cms.order-bonus.create', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.order-bonus.index');
     $trail->push('新增');
+});
+
+// 組織架構
+Breadcrumbs::for('cms.organize.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('組織架構', route('cms.organize.index'));
+});
+
+Breadcrumbs::for('cms.organize.edit', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.organize.index');
+    $trail->push('編輯');
 });

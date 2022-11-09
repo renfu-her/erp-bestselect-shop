@@ -18,9 +18,14 @@
                                     $client_key = $request_order->request_o_client_id . '|' . $client_name[0];
                                 }
                             @endphp
-                            <option value="{{ $value['id'] . '|' . $value['name'] }}" {{ $value['id'] . '|' . $value['name'] == old('client_key', $client_key) ? 'selected' : '' }}>{{ $value['name'] . ' - ' . ($value['email'] ?? $value['id']) }}</option>
+                            <option value="{{ $value['id'] . '|' . $value['name'] }}" {{ $value['id'] . '|' . $value['name'] == old('client_key', $client_key) ? 'selected' : '' }}>{{ $value['name'] . ' - ' . (isset($value['title']) ? $value['title'] . ' ' : '') . ($value['email'] ?? $value['id']) }}</option>
                         @endforeach
                     </select>
+                    <div class="invalid-feedback">
+                        @error('client_key')
+                        {{ $message }}
+                        @enderror
+                    </div>
                 </div>
 
                 {{--
@@ -67,23 +72,78 @@
                         </tr>
                     </thead>
 
-                    <tbody>
-                        @php
-                            if($method == 'create'){
-                                $items = [];
-                            } else {
+                    <tbody class="-serial-number -appendClone">
+                        @if ($method !== 'create')
+                            @php
                                 $items = json_decode($request_order->request_o_items) ?? [];
-                            }
-                        @endphp
-                        @for ($i = 0; $i < 10; $i++)
-                        <tr>
-                            <td>{{ $i + 1 }}<input type="hidden" name="request_o_item_id[{{ $i }}]" value="{{ $items[$i]->id ?? '' }}"></td>
+                            @endphp
+                            @foreach ($items as $i => $item)
+                                <tr>
+                                    <th scope="row">
+                                        <span class="-serial-title -after"></span>
+                                        <input type="hidden" data-i="{{ $i }}" name="request_o_item_id[{{ $i }}]" value="{{ $item->id ?? '' }}">
+                                    </th>
+                                    <td>
+                                        <select class="select-check form-select form-select-sm -select2
+                                            @error('grade_id.' . $i) is-invalid @enderror" name="grade_id[{{ $i }}]" data-placeholder="請選擇會計科目">
+                                            <option value="" selected disabled>請選擇會計科目</option>
+                                            @foreach($total_grades as $g_value)
+                                                <option value="{{ $g_value['primary_id'] }}" {{ $g_value['primary_id'] == old('grade_id.' . $i, $item->grade_id ?? '') ? 'selected' : '' }}
+                                                    @if($g_value['grade_num'] === 1)
+                                                        class="grade_1"
+                                                    @elseif($g_value['grade_num'] === 2)
+                                                        class="grade_2"
+                                                    @elseif($g_value['grade_num'] === 3)
+                                                        class="grade_3"
+                                                    @elseif($g_value['grade_num'] === 4)
+                                                        class="grade_4"
+                                                    @endif
+                                                >{{ $g_value['code'] . ' ' . $g_value['name'] }}</option>
+                                            @endforeach
+                                        </select>
+                                    </td>
 
+                                    <td>
+                                        <input type="number" name="price[{{ $i }}]" 
+                                            value="{{ old('price.' . $i, $item->price ?? '') }}" min="0" 
+                                            class="d-target r-target form-control form-control-sm @error('price.' . $i) is-invalid @enderror" 
+                                            aria-label="金額" placeholder="請輸入金額" disabled>
+                                    </td>
+
+                                    <td>
+                                        <input type="number" name="qty[{{ $i }}]" 
+                                            value="{{ old('qty.' . $i, $item->qty ?? '') }}" min="0" 
+                                            class="d-target r-target form-control form-control-sm @error('qty.' . $i) is-invalid @enderror" 
+                                            aria-label="數量" placeholder="請輸入數量" disabled>
+                                    </td>
+
+                                    <td>
+                                        <input type="text" name="summary[{{ $i }}]" 
+                                            class="d-target form-control form-control-sm @error('summary.' . $i) is-invalid @enderror" 
+                                            value="{{ old('summary.' . $i, $item->summary ?? '') }}" 
+                                            aria-label="摘要" placeholder="請輸入摘要" disabled>
+                                    </td>
+
+                                    <td>
+                                        <input type="text" name="memo[{{ $i }}]" 
+                                            value="{{ old('memo.' . $i, $item->memo ?? '') }}" 
+                                            class="d-target form-control form-control-sm @error('memo.' . $i) is-invalid @enderror" 
+                                            aria-label="備註" placeholder="請輸入備註" disabled>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        @endif
+                        <tr class="-cloneElem">
+                            <th scope="row">
+                                <span class="-serial-title -after"></span>
+                                <input type="hidden" name="request_o_item_id[]" value="">
+                            </th>
                             <td>
-                                <select class="select-check form-select form-select-sm -select2 -single @error('grade_id.' . $i) is-invalid @enderror" name="grade_id[{{ $i }}]" data-placeholder="請選擇會計科目">
+                                <select class="select-check form-select form-select-sm -single2" 
+                                    name="grade_id[]" data-placeholder="請選擇會計科目">
                                     <option value="" selected disabled>請選擇會計科目</option>
                                     @foreach($total_grades as $g_value)
-                                        <option value="{{ $g_value['primary_id'] }}" {{ $g_value['primary_id'] == old('grade_id.' . $i, $items[$i]->grade_id ?? '') ? 'selected' : '' }}
+                                        <option value="{{ $g_value['primary_id'] }}"
                                             @if($g_value['grade_num'] === 1)
                                                 class="grade_1"
                                             @elseif($g_value['grade_num'] === 2)
@@ -97,37 +157,39 @@
                                     @endforeach
                                 </select>
                             </td>
-
                             <td>
-                                <input type="number" name="price[{{ $i }}]" 
-                                    value="{{ old('price.' . $i, $items[$i]->price ?? '') }}" min="0" 
-                                    class="d-target r-target form-control form-control-sm @error('price.' . $i) is-invalid @enderror" 
+                                <input type="number" name="price[]" value="" min="0" 
+                                    class="d-target r-target form-control form-control-sm" 
                                     aria-label="金額" placeholder="請輸入金額" disabled>
                             </td>
-
                             <td>
-                                <input type="number" name="qty[{{ $i }}]" 
-                                    value="{{ old('qty.' . $i, $items[$i]->qty ?? '') }}" min="0" 
-                                    class="d-target r-target form-control form-control-sm @error('qty.' . $i) is-invalid @enderror" 
+                                <input type="number" name="qty[]" value="" min="0" 
+                                    class="d-target r-target form-control form-control-sm -sx" 
                                     aria-label="數量" placeholder="請輸入數量" disabled>
                             </td>
-
                             <td>
-                                <input type="text" name="summary[{{ $i }}]" 
-                                    class="d-target form-control form-control-sm @error('summary.' . $i) is-invalid @enderror" 
-                                    value="{{ old('summary.' . $i, $items[$i]->summary ?? '') }}" 
+                                <input type="text" name="summary[]" value="" 
+                                    class="d-target form-control form-control-sm -l" 
                                     aria-label="摘要" placeholder="請輸入摘要" disabled>
                             </td>
-
                             <td>
-                                <input type="text" name="memo[{{ $i }}]" 
-                                    value="{{ old('memo.' . $i, $items[$i]->memo ?? '') }}" 
-                                    class="d-target form-control form-control-sm @error('memo.' . $i) is-invalid @enderror" 
+                                <input type="text" name="memo[]" value="" 
+                                    class="d-target form-control form-control-sm -l" 
                                     aria-label="備註" placeholder="請輸入備註" disabled>
                             </td>
                         </tr>
-                        @endfor
                     </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="6">
+                                <div class="d-grid gap-2 mt-3">
+                                    <button type="button" class="btn btn-outline-primary border-dashed -newClone" style="font-weight: 500;">
+                                        <i class="bi bi-plus-circle"></i> 新增項目
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tfoot>
                 </table>
             </div>
         </div>
@@ -159,39 +221,48 @@
                 padding-left: 8ch;
             }
             */
+            select.-single2 {
+                display: none;
+            }
         </style>
     @endpush
 
     @push('sub-scripts')
         <script>
             $(function() {
-                $('.-select2').select2({
-                    templateResult: function (data) {
-                        if (!data.element) {
-                            return data.text;
+                // clone 項目
+                const $clone = $('.-cloneElem').removeClass('-cloneElem').clone();
+                bindSelectEvent();
+
+                function bindSelectEvent() {
+                    $('select.-single2:not(.select2-hidden-accessible)').select2({
+                        templateResult: function (data) {
+                            if (!data.element) {
+                                return data.text;
+                            }
+
+                            var $element = $(data.element);
+
+                            var $wrapper = $('<span></span>');
+                            $wrapper.addClass($element[0].className);
+
+                            $wrapper.text(data.text);
+
+                            return $wrapper;
                         }
+                    });
 
-                        var $element = $(data.element);
-
-                        var $wrapper = $('<span></span>');
-                        $wrapper.addClass($element[0].className);
-
-                        $wrapper.text(data.text);
-
-                        return $wrapper;
-                    }
-                });
-
-
-                $(document).on('change', 'select.select-check', function() {
-                    if(this.value){
-                        $(this).parents('tr').find('.d-target').prop('disabled', false);
-                        $(this).parents('tr').find('.r-target').prop('required', true);
-                    } else {
-                        $(this).parents('tr').find('.d-target').prop('disabled', true);
-                        $(this).parents('tr').find('.r-target').prop('required', false);
-                    }
-                });
+                    $(document).off('change', 'select.select-check')
+                    .on('change', 'select.select-check', function() {
+                        if(this.value){
+                            $(this).parents('tr').find('.d-target').prop('disabled', false);
+                            $(this).parents('tr').find('.r-target').prop('required', true);
+                        } else {
+                            $(this).parents('tr').find('.d-target').prop('disabled', true);
+                            $(this).parents('tr').find('.r-target').prop('required', false);
+                        }
+                    });
+                }
 
                 $.each($('select.select-check'), function(i, ele) {
                     if(ele.value){
@@ -201,6 +272,29 @@
                         $(ele).parents('tr').find('.d-target').prop('disabled', true);
                         $(ele).parents('tr').find('.r-target').prop('required', false);
                     }
+                });
+
+                // 新增項目
+                $('.-newClone').off('click').on('click', function() {
+                    Clone_bindCloneBtn($clone, function() {});
+                    bindSelectEvent();
+                });
+
+                // submit
+                $('#form1').submit(function (e) {
+                    const  $input = $('input[name^=request_o_item_id][data-i]:last');
+                    let i = $input.length > 0 ? $input.data('i') : -1;
+                    $('input[name="request_o_item_id[]"]').each(function (index, element) {
+                        i++;
+                        // element == this
+                        $(element).attr('name', `request_o_item_id[${i}]`);
+                        const $tr = $(element).closest('tr');
+                        $tr.find('select[name="grade_id[]"]').attr('name', `grade_id[${i}]`);
+                        $tr.find('input[name="price[]"]').attr('name', `price[${i}]`);
+                        $tr.find('input[name="qty[]"]').attr('name', `qty[${i}]`);
+                        $tr.find('input[name="summary[]"]').attr('name', `summary[${i}]`);
+                        $tr.find('input[name="memo[]"]').attr('name', `memo[${i}]`);
+                    });
                 });
             });
         </script>

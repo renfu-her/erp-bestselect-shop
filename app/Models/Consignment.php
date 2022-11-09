@@ -166,6 +166,11 @@ class Consignment extends Model
                 }
                 self::where('id', '=', $id)->delete();
                 ConsignmentItem::where('consignment_id', '=', $id)->delete();
+                $reDlvDelByEI = Delivery::deleteByEventId(Event::consignment()->value, $id);
+                if ($reDlvDelByEI['success'] == 0) {
+                    DB::rollBack();
+                    return $rePcsLSC;
+                }
                 return ['success' => 1, 'error_msg' => ""];
             });
         }

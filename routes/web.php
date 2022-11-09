@@ -58,12 +58,14 @@ Route::group(['prefix' => 'cms', 'as' => 'cms.', 'middleware' => 'auth:user'], f
     require base_path('routes/cms/ArCsnOrder.php');
     require base_path('routes/cms/FirstGrade.php');
     require base_path('routes/cms/Delivery.php');
+    require base_path('routes/cms/DeliveryProduct.php');
     require base_path('routes/cms/Logistic.php');
     require base_path('routes/cms/UserMnt.php');
     require base_path('routes/cms/CustomPages.php');
 
     require base_path('routes/cms/Discount.php');
     require base_path('routes/cms/PromoCoupon.php');
+    require base_path('routes/cms/UtmUrl.php');
     require base_path('routes/cms/GoogleMarketing.php');
     require base_path('routes/cms/Consignment.php');
     require base_path('routes/cms/ConsignmentOrder.php');
@@ -99,6 +101,11 @@ Route::group(['prefix' => 'cms', 'as' => 'cms.', 'middleware' => 'auth:user'], f
     require base_path('routes/cms/UserPerformanceReport.php');
     require base_path('routes/cms/ProductManagerReport.php');
     require base_path('routes/cms/VolumeOfBusinessPerformanceReport.php');
+    require base_path('routes/cms/CouponEvent.php');
+    require base_path('routes/cms/Organize.php');
+
+    require base_path('routes/cms/Petition.php');
+
 
 });
 

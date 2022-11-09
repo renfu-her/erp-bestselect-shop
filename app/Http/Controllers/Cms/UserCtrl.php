@@ -28,11 +28,11 @@ class UserCtrl extends Controller
         $query = $request->query();
         $user = User::getUserBySearch($query);
         $roleData = Role::whereNull('deleted_at')
-                    ->select([
-                        'id',
-                        'title',
-                    ])
-                    ->get();
+            ->select([
+                'id',
+                'title',
+            ])
+            ->get();
         $roleDataArray = collect($roleData)->keyBy('id');
 
         return view('cms.admin.user.list', [
@@ -141,7 +141,12 @@ class UserCtrl extends Controller
         if (!$data) {
             return abort(404);
         }
-        $user_lgt = User::getLogisticUserIsOpen($id);
+        //正式機才做
+        if(env('APP_ENV') == 'rel') {
+            $user_lgt = User::getLogisticUserIsOpen($id);
+        } else {
+            wToast('非正式環境 無法編輯物流權限', ['type'=>'danger']);
+        }
 
         $role_ids = Role::getUserRoles($id, 'user', function ($arr) {
             return array_map(function ($n) {
@@ -163,7 +168,7 @@ class UserCtrl extends Controller
             'method' => 'edit', 'id' => $id,
             'formAction' => Route('cms.user.edit', ['id' => $id]),
             'data' => $data,
-            'user_lgt' => $user_lgt,
+            'user_lgt' => $user_lgt ?? null,
             'permissions' => Permission::getPermissionGroups('user'),
             'permission_id' => $permission_id,
             'roles' => Role::roleList('user'), 'role_ids' => $role_ids,
@@ -197,12 +202,14 @@ class UserCtrl extends Controller
         }
         $lgt_user = $request->input('lgt_user');
 
-        $logisticUserApiToken = User::getLogisticApiToken($request->user()->id)->user_token;
-        $modifyLogisticUser = UserProjLogistics::modifyLogisticUser($logisticUserApiToken, $id, ['user' => $lgt_user]);
-        if ($modifyLogisticUser['success'] == 0) {
-            throw ValidationException::withMessages(['lgt_user' => $modifyLogisticUser['error_msg']]);
+        //正式機才做
+        if(env('APP_ENV') == 'rel'){
+            $logisticUserApiToken = User::getLogisticApiToken($request->user()->id)->user_token;
+            $modifyLogisticUser = UserProjLogistics::modifyLogisticUser($logisticUserApiToken, $id, ['user' => $lgt_user]);
+            if ($modifyLogisticUser['success'] == 0) {
+                throw ValidationException::withMessages(['lgt_user' => $modifyLogisticUser['error_msg']]);
+            }
         }
-
         User::where('id', $id)->update($userData);
 
         Permission::updateDirectPermissions($id, 'user', $perData);
@@ -242,7 +249,7 @@ class UserCtrl extends Controller
             'id' => $id,
             'formAction' => Route('cms.user.salechannel', ['id' => $id]),
             'channels' => SaleChannel::get()->toArray(),
-            'current_channel'=>$current_channel
+            'current_channel' => $current_channel,
         ]);
 
     }

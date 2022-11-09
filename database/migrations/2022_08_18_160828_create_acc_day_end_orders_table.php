@@ -25,6 +25,8 @@ class CreateAccDayEndOrdersTable extends Migration
             $table->integer('creator_id')->comment('建立人員id');
             $table->integer('clearinger_id')->nullable()->comment('日結人員id');
             $table->timestamps();
+
+            $table->unique('closing_date', 'closing_date');
         });
 
 
@@ -38,6 +40,8 @@ class CreateAccDayEndOrdersTable extends Migration
             $table->decimal('d_c_net', 12, 2)->default(0)->comment('借貸差額');
 
             $table->timestamps();
+
+            $table->unique('source_sn', 'source_sn');
         });
     }
 

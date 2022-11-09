@@ -135,6 +135,11 @@ class CsnOrder extends Model
                 }
                 self::where('id', '=', $id)->delete();
                 CsnOrderItem::where('csnord_id', '=', $id)->delete();
+                $reDlvDelByEI = Delivery::deleteByEventId(Event::csn_order()->value, $id);
+                if ($reDlvDelByEI['success'] == 0) {
+                    DB::rollBack();
+                    return $rePcsLSC;
+                }
                 return ['success' => 1, 'error_msg' => ""];
             });
         }

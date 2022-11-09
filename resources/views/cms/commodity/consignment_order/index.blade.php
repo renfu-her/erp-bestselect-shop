@@ -16,6 +16,11 @@
                         @endforeach
                     </select>
                 </div>
+                <div class="col-12 col-md-6 mb-3">
+                    <label class="form-label">寄倉訂購單號</label>
+                    <input class="form-control" name="csnorder_sn" type="text" placeholder="寄倉訂購單號" value="{{$csnorder_sn}}"
+                           aria-label="寄倉訂購單號">
+                </div>
             </div>
 
             <div class="col">

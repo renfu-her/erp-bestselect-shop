@@ -18,7 +18,7 @@
                                     $client_key = $stitute_order->so_client_id . '|' . $client_name[0];
                                 }
                             @endphp
-                            <option value="{{ $value['id'] . '|' . $value['name'] }}" {{ $value['id'] . '|' . $value['name'] == old('client_key', $client_key) ? 'selected' : '' }}>{{ $value['name'] . ' - ' . ($value['email'] ?? $value['id']) }}</option>
+                            <option value="{{ $value['id'] . '|' . $value['name'] }}" {{ $value['id'] . '|' . $value['name'] == old('client_key', $client_key) ? 'selected' : '' }}>{{ $value['name'] . ' - ' . (isset($value['title']) ? $value['title'] . ' ' : '') . ($value['email'] ?? $value['id']) }}</option>
                         @endforeach
                     </select>
                     <div class="invalid-feedback">
@@ -279,7 +279,8 @@
 
                 // submit
                 $('#form1').submit(function (e) {
-                    let i = $('input[name^=so_item_id][data-i]:last').data('i') || -1;
+                    const  $input = $('input[name^=so_item_id][data-i]:last');
+                    let i = $input.length > 0 ? $input.data('i') : -1;
                     $('input[name="so_item_id[]"]').each(function (index, element) {
                         i++;
                         // element == this

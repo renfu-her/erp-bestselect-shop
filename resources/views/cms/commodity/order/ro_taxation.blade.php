@@ -141,6 +141,58 @@
                             @endphp
                         @endforeach
 
+                        @foreach($order_refund_data as $r_value)
+                            <tr>
+                                <td class="text-center">{{ $serial }}</td>
+                                <td>
+                                    <select class="form-select form-select-sm -select2 -single" name="order_refund[{{ $r_value->refund_id }}][grade_id]" data-placeholder="請選擇會計科目" required>
+                                        <option value="" selected disabled>請選擇</option>
+                                        @foreach($total_grades as $g_value)
+                                            <option value="{{ $g_value['primary_id'] }}"{{ $g_value['primary_id'] == $r_value->refund_grade_id ? 'selected' : '' }}
+                                                @if($g_value['grade_num'] === 1)
+                                                    class="grade_1"
+                                                @elseif($g_value['grade_num'] === 2)
+                                                    class="grade_2"
+                                                @elseif($g_value['grade_num'] === 3)
+                                                    class="grade_3"
+                                                @elseif($g_value['grade_num'] === 4)
+                                                    class="grade_4"
+                                                @endif
+                                            >{{ $g_value['code'] . ' ' . $g_value['name'] }}</option>
+                                        @endforeach
+                                    </select>
+                                </td>
+                                <td>{{ $r_value->refund_title }}</td>
+                                <td class="text-end">{{ $r_value->refund_qty }}</td>
+                                <td class="text-end">{{ number_format($r_value->refund_total_price, 2) }}</td>
+                                <td>
+                                    <div class="form-check form-check-inline lh-base">
+                                        <label class="form-check-label" for="tax_{{ $serial }}_1">
+                                            <input class="form-check-input" 
+                                                name="order_refund[{{ $r_value->refund_id }}][taxation]" 
+                                                value="1" type="radio" id="tax_{{ $serial }}_1" 
+                                                required @if ($r_value->refund_taxation == '1') checked @endif>
+                                            應稅
+                                        </label>
+                                    </div>
+                                    <div class="form-check form-check-inline lh-base">
+                                        <label class="form-check-label" for="tax_{{ $serial }}_2">
+                                            <input class="form-check-input" 
+                                                name="order_refund[{{ $r_value->refund_id }}][taxation]" 
+                                                value="0" type="radio" id="tax_{{ $serial }}_2" 
+                                                required @if ($r_value->refund_taxation == '0') checked @endif>
+                                            免稅
+                                        </label>
+                                    </div>
+                                </td>
+                                <td><input class="form-control form-control-sm -l" name="order_refund[{{ $r_value->refund_id }}][note]" type="text" value="{{ $r_value->refund_note }}"></td>
+                                <td><input class="form-control form-control-sm -l" name="order_refund[{{ $r_value->refund_id }}][ro_note]" type="text" value="{{ $r_value->refund_ro_note }}"></td>
+                            </tr>
+                            @php
+                                $serial++;
+                            @endphp
+                        @endforeach
+
                         @if($order->dlv_fee > 0)
                             <tr>
                                 <td class="text-center">{{ $serial }}</td>
@@ -217,7 +269,7 @@
                                     </td>
                                     <td>{{ $d_value->title }}</td>
                                     <td class="text-end">1</td>
-                                    <td class="text-end">{{ number_format($d_value->discount_value, 2) }}</td>
+                                    <td class="text-end">-{{ number_format($d_value->discount_value, 2) }}</td>
                                     <td>
                                         <div class="form-check form-check-inline lh-base">
                                             <label class="form-check-label" for="tax_{{ $serial }}_1">

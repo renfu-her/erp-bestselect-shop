@@ -61,6 +61,7 @@ class ProductStock extends Model
                 //入庫時判斷倉庫需理貨 則再加到in_stock
                 if ($inbound_can_tally) {
                     $updateArr['in_stock'] = DB::raw("in_stock + $qty");
+                    $event = $event. '_pcs_ib_to_canttally';
                 }
                 $product_style->update($updateArr);
             }

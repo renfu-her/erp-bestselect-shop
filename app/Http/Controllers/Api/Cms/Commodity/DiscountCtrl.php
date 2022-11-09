@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Api\Cms\Commodity;
 
 use App\Http\Controllers\Controller;
+use App\Models\CouponEvent;
 use App\Models\CustomerCoupon;
 use App\Models\Discount;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use PhpOffice\PhpSpreadsheet\Calculation\Financial\Coupons;
 
 class DiscountCtrl extends Controller
 {
@@ -150,4 +152,25 @@ class DiscountCtrl extends Controller
 
     }
 
+
+    public static function changeCouponEventActive(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'id' => 'required',
+            'active' => 'required|in:0,1',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'E01',
+                'message' => $validator->errors(),
+            ]);
+        }
+        CouponEvent::where('id', $request->input('id'))->update(['active' => $request->input('active')]);
+        //  $re = Discount::getDiscountStatus($request->input('id'));
+        return response()->json([
+            'status' => '0'
+        ]);
+
+    }
 }
