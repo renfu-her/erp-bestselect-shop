@@ -136,7 +136,7 @@
                     <div class="px-1 pt-1">
                         <div class="form-check form-check-inline">
                             <input class="form-check-input" name="invoice_method" value="print" type="radio" id="print" required {{ (old('invoice_method') == 'print' || $invoice->print_flag == 'Y') ? 'checked' : '' }}>
-                            <label class="form-check-label" for="print">無載具(列印電子發票證明聯)</label>
+                            <label class="form-check-label" for="print">紙本發票(無載具、列印電子發票證明聯)</label>
                         </div>
                         {{--
                         <div class="form-check form-check-inline">

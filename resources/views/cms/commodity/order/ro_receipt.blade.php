@@ -114,7 +114,7 @@
 
                         @foreach($order_refund_data as $re_value)
                             <tr>
-                                <td>{{ $re_value->refund_grade_code . ' ' . $re_value->refund_grade_name }} --- {{ $re_value->refund_title }} 退回付款單號 <a href="{{ $re_value->po_url }}">{{ $re_value->po_sn }}</a></td>
+                                <td>{{ $re_value->refund_grade_code . ' ' . $re_value->refund_grade_name }} --- {{ $re_value->refund_title }} 退出付款單號 <a href="{{ $re_value->po_url }}">{{ $re_value->po_sn }}</a></td>
                                 <td class="text-end">{{ number_format($re_value->refund_qty) }}</td>
                                 <td class="text-end">{{ number_format($re_value->refund_price, 2) }}</td>
                                 <td class="text-end">{{ number_format($re_value->refund_total_price) }}</td>

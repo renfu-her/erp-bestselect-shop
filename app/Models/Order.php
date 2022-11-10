@@ -310,7 +310,6 @@ class Order extends Model
             ->selectRaw("IF(order.inv_title IS NULL,'',order.inv_title) as inv_title")
             ->selectRaw("IF(order.buyer_ubn IS NULL,'',order.buyer_ubn) as buyer_ubn")
             ->selectRaw("IF(order.unique_id IS NULL,'',order.unique_id) as unique_id")
-            ->selectRaw("IF(order.gui_number IS NULL,'',order.gui_number) as gui_number")
             ->selectRaw("IF(order.carrier_num IS NULL,'',order.carrier_num) as carrier_num")
             ->selectRaw("IF(order.invoice_category IS NULL,'',order.invoice_category) as invoice_category")
             ->selectRaw("IF(order.invoice_number IS NULL,'',order.invoice_number) as invoice_number")
@@ -897,8 +896,6 @@ class Order extends Model
     public static function update_invoice_info($parm)
     {
         self::where('id', $parm['order_id'])->update([
-            'gui_number' => $parm['gui_number'],
-            'invoice_category' => $parm['invoice_category'],
             'invoice_number' => $parm['invoice_number'],
         ]);
     }
