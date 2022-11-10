@@ -40,8 +40,8 @@
                     </div>
                 </div>
                 @php
-                $start_date = isset($data) ?date('Y-m-d\Th:i', strtotime($data->start_date)) : null;
-                $end_date = isset($data) ?date('Y-m-d\Th:i', strtotime($data->end_date)) : null;
+                $start_date = isset($data) ?date('Y-m-d\TH:i', strtotime($data->start_date)) : null;
+                $end_date = isset($data) ?date('Y-m-d\TH:i', strtotime($data->end_date)) : null;
             @endphp
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">活動開始時間<span class="small text-secondary">（未填則表示現在）</span></label>
