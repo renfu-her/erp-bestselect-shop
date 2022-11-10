@@ -144,6 +144,20 @@
                     <input class="form-control" type="text" value="{{ $cond['purchase_sn'] }}" name="purchase_sn"
                            placeholder="請輸入採購單號">
                 </div>
+                <fieldset class="col-12 col-sm-6 mb-3">
+                    <legend class="col-form-label p-0 mb-2">銷貨退回單</legend>
+                    <div class="px-1 pt-1">
+                        @foreach ($has_back_sn as $key => $value)
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label">
+                                    <input class="form-check-input" name="has_back_sn" type="radio"
+                                           value="{{ $value[0] }}" @if ($value[0] == $cond['has_back_sn']) checked @endif>
+                                    {{ $value[1] }}
+                                </label>
+                            </div>
+                        @endforeach
+                    </div>
+                </fieldset>
             </div>
             <div class="col">
                 <input type="hidden" name="data_per_page" value="{{ $data_per_page }}" />

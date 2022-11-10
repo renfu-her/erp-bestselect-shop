@@ -81,6 +81,7 @@ class OrderCtrl extends Controller
         //   dd(Discount::getDiscountStatus(1));
         // dd(Order::orderList()->get()->toArray());
 
+        $has_back_sn = [['all', '不限'], ['1', '只顯示有銷貨退回單']];
         $query = $request->query();
         //   dd($query);
         $cond = [];
@@ -97,6 +98,7 @@ class OrderCtrl extends Controller
         $cond['profit_user'] = Arr::get($query, 'profit_user', null);
         $cond['item_title'] = Arr::get($query, 'item_title', null);
         $cond['purchase_sn'] = Arr::get($query, 'purchase_sn', null);
+        $cond['has_back_sn'] = Arr::get($query, 'has_back_sn', $has_back_sn[0][0]);
 
         $order_date = null;
         if ($cond['order_sdate'] && $cond['order_edate']) {
@@ -123,7 +125,8 @@ class OrderCtrl extends Controller
             $cond['item_title'],
             $cond['purchase_sn'],
             $cond['received_method'],
-            $dlv_date
+            $dlv_date,
+            $cond['has_back_sn'] == 'all' ? null : $cond['has_back_sn'],
         );
 
         $dataList = $result['dataList']->groupBy('sub_order_id');
@@ -199,7 +202,8 @@ class OrderCtrl extends Controller
             'saleChannels' => SaleChannel::select('id', 'title')->get()->toArray(),
             'data_per_page' => $page,
             'canViewWholeOrder' => $canViewWholeOrder,
-            'profitUsers' => $profitUsers
+            'profitUsers' => $profitUsers,
+            'has_back_sn' => $has_back_sn
         ]);
     }
 
