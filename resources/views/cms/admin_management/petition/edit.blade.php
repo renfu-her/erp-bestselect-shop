@@ -56,7 +56,7 @@
                     </div>
 
                     <mark><i class="bi bi-exclamation-diamond-fill text-warning"></i>
-                        支援格式：採購單號、訂單編號、代墊單號、付款單號</mark>
+                        支援格式：採購單號、訂單編號、代墊單號、付款單號、支付憑單號</mark>
                 </div>
             </div>
         </div>

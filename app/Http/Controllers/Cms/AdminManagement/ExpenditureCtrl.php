@@ -26,6 +26,8 @@ class ExpenditureCtrl extends Controller
         $options = [
             'title' => Arr::get($query, 'title'),
             'sn' => Arr::get($query, 'sn'),
+            'sdate' => Arr::get($query, 'sdate'),
+            'edate' => Arr::get($query, 'edate'),
         ];
 
         if ($request->user()->can('cms.expenditure.admin')) {
@@ -236,6 +238,8 @@ class ExpenditureCtrl extends Controller
             'sn' => Arr::get($query, 'sn'),
             'audit' => $request->user()->id,
             'user_id' => Arr::get($query, 'user'),
+            'sdate' => Arr::get($query, 'sdate'),
+            'edate' => Arr::get($query, 'edate'),
         ];
 
         $dataList = Expenditure::dataList($options)->orderBy('expenditure.created_at', 'DESC')->paginate(100);

@@ -29,6 +29,15 @@
                     <input class="form-control" type="text" name="sn" value="" placeholder="輸入序號">
                 </div>
             </div>
+            <div class="row">
+                <div class="col-12 mb-3">
+                    <label class="form-label">起訖日期</label>
+                    <div class="input-group has-validation">
+                        <input type="date" class="form-control" name="sdate" value="" aria-label="起始日期" />
+                        <input type="date" class="form-control" name="edate" value="" aria-label="結束日期" />
+                    </div>
+                </div>
+            </div>
             <div class="col">
                 <button type="submit" class="btn btn-primary px-4">搜尋</button>
             </div>

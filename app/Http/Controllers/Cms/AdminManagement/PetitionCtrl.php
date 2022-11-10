@@ -24,6 +24,8 @@ class PetitionCtrl extends Controller
         $options = [
             'title' => Arr::get($query, 'title'),
             'sn' => Arr::get($query, 'sn'),
+            'sdate' => Arr::get($query, 'sdate'),
+            'edate' => Arr::get($query, 'edate'),
         ];
 
         if ($request->user()->can('cms.petition.admin')) {
@@ -215,6 +217,8 @@ class PetitionCtrl extends Controller
             'sn' => Arr::get($query, 'sn'),
             'audit' => $request->user()->id,
             'user_id' => Arr::get($query, 'user'),
+            'sdate' => Arr::get($query, 'sdate'),
+            'edate' => Arr::get($query, 'edate'),
         ];
 
         $dataList = Petition::dataList($options)->orderBy('petition.created_at', 'DESC')->paginate(100);

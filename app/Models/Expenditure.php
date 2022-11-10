@@ -52,6 +52,16 @@ class Expenditure extends Model
             $re->where('expenditure.title', 'like', "%" . $option['title'] . "%");
         }
 
+        if (isset($option['sdate']) && $option['sdate']) {
+            $sdate = date('Y-m-d 00:00:00', strtotime($option['sdate']));
+            $re->where('expenditure.created_at', '>=', $sdate);
+        }
+
+        if (isset($option['edate']) && $option['edate']) {
+            $edate = date('Y-m-d 23:59:59', strtotime($option['edate']));
+            $re->where('expenditure.created_at', '<=', $edate);
+        }
+
         return $re;
 
     }
