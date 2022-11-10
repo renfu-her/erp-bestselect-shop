@@ -1186,5 +1186,20 @@ return [
 
         ],
     ],
+    [
+        "unit" => "支付憑單",
+        "permissions" => [
+            [
+                "cms.expenditure.index",
+                "瀏覽",
+            ],
+            [
+                "cms.expenditure.admin",
+                "管理權限",
+            ],
+
+        ],
+    ],
+
 
 ];

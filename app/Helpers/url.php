@@ -91,7 +91,7 @@ if (!function_exists('getErpOrderUrl')) {
     // 取得各類訂單頁面
     function getErpOrderUrl($order)
     {
-       
+
         switch ($order->order_type) {
             case "O":
                 $order->url = route('cms.order.detail', ['id' => $order->order_id]);
@@ -105,6 +105,13 @@ if (!function_exists('getErpOrderUrl')) {
             case "B":
                 $order->url = route('cms.purchase.edit', ['id' => $order->order_id]);
                 break;
+            case "EXP":
+                $order->url = route('cms.expenditure.show', ['id' => $order->order_id]);
+                break;
+            case "PET":
+                $order->url = route('cms.petition.show', ['id' => $order->order_id]);
+                break;
+
             default:
                 $order->url = '#';
         }

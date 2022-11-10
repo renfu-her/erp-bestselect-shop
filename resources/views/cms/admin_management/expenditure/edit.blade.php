@@ -5,7 +5,7 @@
             新增
         @else
             編輯
-        @endif 申議書
+        @endif 支付憑單
     </h2>
     <form id="form1" method="post" action="{{ $formAction }}">
         @method('POST')
@@ -19,11 +19,42 @@
                         placeholder="請填入主旨" />
                 </x-b-form-group>
 
+                <x-b-form-group name="department_id" title="支出單位" required="true" class="mb-3">
+                    <select class="form-select form-select-sm" name="department_id" aria-label="支出單位">  
+                        @foreach ($departments as $value)
+                            <option value="{{ $value->id }}" @if ($value->id == old('department_id',$data->department_id ?? '')) selected @endif>
+                                {{ $value->title }}</option>
+                        @endforeach
+                    </select>
+                </x-b-form-group>
+
+                <x-b-form-group name="item_id" title="支出科目" required="true" class="mb-3">
+                    <select class="form-select form-select-sm" name="item_id" aria-label="支出科目">  
+                        @foreach ($items as $value)
+                            <option value="{{ $value->id }}" @if ($value->id == old('item_id',$data->item_id ?? '')) selected @endif>
+                                {{ $value->title }}</option>
+                        @endforeach
+                    </select>
+                </x-b-form-group>
+                <x-b-form-group name="payment_id" title="預計支付方式" required="true" class="mb-3">
+                    <select class="form-select form-select-sm" name="payment_id" aria-label="年度">  
+                        @foreach ($payments as $value)
+                            <option value="{{ $value->id }}" @if ($value->id == old('payment_id',$data->payment_id ?? '')) selected @endif>
+                                {{ $value->title }}</option>
+                        @endforeach
+                    </select>
+                </x-b-form-group>
+
                 <x-b-form-group name="content" title="內容" required="true" class="mb-3">
                     <textarea type="text" class="form-control @error('content') is-invalid @enderror" id="content" name="content"
                         required aria-label="內容" placeholder="請填入內容" rows="5">{{ old('content', $data->content ?? '') }}</textarea>
                 </x-b-form-group>
 
+                <x-b-form-group name="amount" title="金額" required="true" class="mb-3">
+                    <input type="number" class="form-control @error('amount') is-invalid @enderror" id="amount"
+                        name="amount" value="{{ old('amount', $data->amount ?? 0) }}" required aria-label="主旨"
+                        placeholder="請填入金額" />
+                </x-b-form-group>
                 <div>
                     <label class="form-label">相關單號
                         <button type="button" class="btn btn-sm btn-outline-primary border-dashed ms-2 -newOrder"
@@ -56,7 +87,7 @@
                     </div>
 
                     <mark><i class="bi bi-exclamation-diamond-fill text-warning"></i>
-                        支援格式：採購單號、訂單編號、代墊單號、付款單號、支付憑單號</mark>
+                        支援格式：採購單號、訂單編號、代墊單號、付款單號、申議書單號</mark>
                 </div>
             </div>
         </div>
@@ -73,7 +104,7 @@
 
         <div class="col-auto">
             <button type="submit" class="btn btn-primary px-4">儲存</button>
-            <a href="{{ Route('cms.petition.index', [], true) }}" class="btn btn-outline-primary px-4"
+            <a href="{{ Route('cms.expenditure.index', [], true) }}" class="btn btn-outline-primary px-4"
                 role="button">返回列表</a>
         </div>
     </form>

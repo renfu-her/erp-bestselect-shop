@@ -34,6 +34,25 @@ class Audit extends Model
         return $sub2;
     }
 
+    public static function auditList($type){
+        $concatString = concatStr([
+            'user_id' => 'audit.user_id',
+            'user_name' => 'user.name',
+            'user_title' => 'user.title',
+            'checked_at' => 'IFNULL(audit.checked_at,"")',
+        ]);
+
+        $sub = DB::table('pet_audit as audit')
+            ->leftJoin('usr_users as user', 'user.id', '=', 'audit.user_id')
+            ->select('audit.source_id')
+            ->selectRaw('(' . $concatString . ') as users')
+            ->orderBy('audit.step')
+            ->groupBy('audit.source_id')
+            ->where('audit.source_type', $type);
+
+        return $sub;
+    }
+
     public static function addAudit($user_id, $source_id, $type)
     {
         $org = UserOrganize::auditList($user_id);

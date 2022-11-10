@@ -3,7 +3,7 @@
     <h2 class="mb-4">
         @if (isset($type))
             審核
-        @endif 申議書
+        @endif 支付憑單
     </h2>
     <form id="search" method="GET">
         <div class="card shadow p-4 mb-4">
@@ -11,7 +11,7 @@
             <div class="row">
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">申請人</label>
-                    <select class="form-select -select2"  name="user" aria-label="負責人">
+                    <select class="form-select -select2" name="user" aria-label="負責人">
                         <option></option>
                         @foreach ($users as $user)
                             <option value="{{ $user->id }}">
@@ -23,7 +23,7 @@
                     <label class="form-label">主旨</label>
                     <input class="form-control" type="text" name="title" value="" placeholder="輸入主旨">
                 </div>
-               
+
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">序號</label>
                     <input class="form-control" type="text" name="sn" value="" placeholder="輸入序號">
@@ -47,20 +47,20 @@
         <div class="row mb-4">
             <div class="col">
                 @if (!isset($type))
-                    <a href="{{ Route('cms.petition.create', null, true) }}" class="btn btn-primary">
-                        <i class="bi bi-plus-lg"></i> 新增申議書
+                    <a href="{{ Route('cms.expenditure.create', null, true) }}" class="btn btn-primary">
+                        <i class="bi bi-plus-lg"></i> 新增支付憑單
                     </a>
                 @endif
                 @php
-                    $bTitle = '審核申議書';
+                    $bTitle = '審核支付憑單';
                     $bTarget = 'audit-list';
                     if (isset($type)) {
-                        $bTitle = '申議書列表';
+                        $bTitle = '支付憑單列表';
                         $bTarget = 'index';
                     }
                     
                 @endphp
-                <a href="{{ Route('cms.petition.' . $bTarget, null) }}" class="btn btn-success">
+                <a href="{{ Route('cms.expenditure.' . $bTarget, null) }}" class="btn btn-success">
                     {{ $bTitle }}
                 </a>
             </div>
@@ -88,6 +88,7 @@
                         <th scope="col">申請人</th>
                         <th scope="col" style="min-width: 100px">主旨</th>
                         <th scope="col">內容</th>
+                        <th scope="col">金額</th>
                         <th scope="col">新增日期</th>
                         @if (!isset($type))
                             <th scope="col" class="text-center">刪除</th>
@@ -99,7 +100,7 @@
                         $target = isset($type) ? 'audit-confirm' : 'show';
                         $permision = auth()
                             ->user()
-                            ->can('cms.petition.admin');
+                            ->can('cms.expenditure.admin');
                         $user_id = auth()->user()->id;
                     @endphp
                     @foreach ($dataList ?? [] as $key => $data)
@@ -108,7 +109,7 @@
                             @if (!isset($type))
                                 <td class="text-center">
                                     @if (($user_id == $data->user_id && $data->checked_at == null) || $permision)
-                                        <a href="{{ Route('cms.petition.edit', ['id' => $data->id], true) }}"
+                                        <a href="{{ Route('cms.expenditure.edit', ['id' => $data->id], true) }}"
                                             data-bs-toggle="tooltip" title="編輯"
                                             class="icon icon-btn fs-5 text-primary rounded-circle border-0">
                                             <i class="bi bi-pencil-square"></i>
@@ -123,12 +124,15 @@
                                 {{ $data->user_name }}
                             </td>
                             <td class="wrap">
-                                <a href="{{ Route('cms.petition.' . $target, ['id' => $data->id], true) }}">
+                                <a href="{{ Route('cms.expenditure.' . $target, ['id' => $data->id], true) }}">
                                     {{ $data->title ?? '' }}
                                 </a>
                             </td>
                             <td class="wrap small">
                                 <div class="multiline-ellipsis">{!! nl2br($data->content) !!}</div>
+                            </td>
+                            <td class="small">
+                                {{ $data->amount }}
                             </td>
                             <td class="small">
                                 {{ date('Y/m/d', strtotime($data->created_at ?? '')) }}
@@ -138,7 +142,7 @@
                                     @if ($user_id == $data->user_id || $permision)
                                         @if ($data->checked_at == null)
                                             <a href="javascript:void(0)"
-                                                data-href="{{ Route('cms.petition.delete', ['id' => $data->id], true) }}"
+                                                data-href="{{ Route('cms.expenditure.delete', ['id' => $data->id], true) }}"
                                                 data-bs-toggle="modal" data-bs-target="#confirm-delete"
                                                 class="icon -del icon-btn fs-5 text-danger rounded-circle border-0">
                                                 <i class="bi bi-trash"></i>
@@ -150,7 +154,7 @@
                         </tr>
                         <tr>
                             <th></th>
-                            <td colspan="7" class="pt-0 ps-0">
+                            <td colspan="8" class="pt-0 ps-0">
                                 <table class="table table-sm border border-top-0 m-0">
                                     <tbody>
                                         <tr>

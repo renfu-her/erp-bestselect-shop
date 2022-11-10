@@ -4,13 +4,15 @@ namespace App\Http\Controllers\Cms\AdminManagement;
 
 use App\Http\Controllers\Controller;
 use App\Models\Audit;
+use App\Models\Expenditure;
 use App\Models\Petition;
 use App\Models\User;
+use App\Models\UserOrganize;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
-class PetitionCtrl extends Controller
+class ExpenditureCtrl extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -28,7 +30,7 @@ class PetitionCtrl extends Controller
             'edate' => Arr::get($query, 'edate'),
         ];
 
-        if ($request->user()->can('cms.petition.admin')) {
+        if ($request->user()->can('cms.expenditure.admin')) {
             $options['user_id'] = Arr::get($query, 'user');
             $users = User::get();
         } else {
@@ -36,15 +38,15 @@ class PetitionCtrl extends Controller
             $users = User::where('id', $options['user_id'])->get();
         }
 
-        $dataList = Petition::dataList($options)->orderBy('petition.created_at', 'DESC')->paginate(100);
+        $dataList = Expenditure::dataList($options)->orderBy('expenditure.created_at', 'DESC')->paginate(100);
 
         foreach ($dataList as $data) {
             $data->users = $data->users ? json_decode($data->users) : [];
         }
 
-        //  dd($request->user()->can('cms.petition.admin'));
+        //  dd($request->user()->can('cms.expenditure.admin'));
 
-        return view('cms.admin_management.petition.list', [
+        return view('cms.admin_management.expenditure.list', [
             'dataList' => $dataList,
             'users' => $users,
             'data_per_page' => 100,
@@ -59,9 +61,12 @@ class PetitionCtrl extends Controller
     public function create(Request $request)
     {
         //
-        return view('cms.admin_management.petition.edit', [
+        return view('cms.admin_management.expenditure.edit', [
             'method' => 'create',
-            'formAction' => route('cms.petition.create'),
+            'items' => Expenditure::getItems(),
+            'payments' => Expenditure::getPayment(),
+            'departments' => UserOrganize::where('level', 2)->get(),
+            'formAction' => route('cms.expenditure.create'),
         ]);
     }
 
@@ -76,13 +81,18 @@ class PetitionCtrl extends Controller
         //
         $request->validate(['title' => 'required',
             'content' => 'required',
+            'payment_id' => 'required',
+            'item_id' => 'required',
+            'department_id' => 'required',
+            'amount' => 'required',
             'order' => ['nullable', 'array']]);
 
         $d = $request->all();
 
         $d['order'] = array_values(array_filter($d['order']));
 
-        $re = Petition::createPetition($request->user()->id, $d['title'], $d['content'], $d['order']);
+        $re = Expenditure::createExpenditure($request->user()->id, $d['title'], $d['content'],
+            $d['department_id'], $d['item_id'], $d['payment_id'], $d['amount'], $d['order']);
 
         if ($re['success'] != '1') {
             $errors = [];
@@ -95,7 +105,7 @@ class PetitionCtrl extends Controller
         }
 
         wToast('新增完成');
-        return redirect(route('cms.petition.index'));
+        return redirect(route('cms.expenditure.index'));
 
     }
 
@@ -107,7 +117,7 @@ class PetitionCtrl extends Controller
      */
     public function show($id)
     {
-        $data = Petition::dataList()->where('petition.id', $id)->get()->first();
+        $data = Expenditure::dataList()->where('expenditure.id', $id)->get()->first();
         if (!$data) {
             return abort(404);
         }
@@ -116,13 +126,13 @@ class PetitionCtrl extends Controller
 
         $orders = array_map(function ($n) {
             return getErpOrderUrl($n);
-        }, Petition::getOrderSn($id, 'petition')->get()->toArray());
+        }, Petition::getOrderSn($id, 'expenditure')->get()->toArray());
 
-        return view('cms.admin_management.petition.show', [
+        return view('cms.admin_management.expenditure.show', [
             'method' => 'edit',
             'data' => $data,
             'order' => $orders,
-            'formAction' => route('cms.petition.edit', ['id' => $id]),
+            'formAction' => route('cms.expenditure.edit', ['id' => $id]),
             'breadcrumb_data' => $data->title,
         ]);
     }
@@ -136,19 +146,22 @@ class PetitionCtrl extends Controller
     public function edit($id)
     {
 
-        $data = Petition::dataList()->where('petition.id', $id)->get()->first();
+        $data = Expenditure::dataList()->where('expenditure.id', $id)->get()->first();
         if (!$data) {
             return abort(404);
         }
         $orders = array_map(function ($n) {
             return $n->order_sn;
-        }, Petition::getOrderSn($id, 'petition')->get()->toArray());
+        }, Petition::getOrderSn($id, 'expenditure')->get()->toArray());
 
-        return view('cms.admin_management.petition.edit', [
+        return view('cms.admin_management.expenditure.edit', [
             'method' => 'edit',
             'data' => $data,
             'order' => $orders,
-            'formAction' => route('cms.petition.edit', ['id' => $id]),
+            'items' => Expenditure::getItems(),
+            'payments' => Expenditure::getPayment(),
+            'departments' => UserOrganize::where('level', 2)->get(),
+            'formAction' => route('cms.expenditure.edit', ['id' => $id]),
         ]);
     }
 
@@ -164,18 +177,26 @@ class PetitionCtrl extends Controller
         //
         $request->validate(['title' => 'required',
             'content' => 'required',
+            'payment_id' => 'required',
+            'item_id' => 'required',
+            'department_id' => 'required',
+            'amount' => 'required',
             'order' => ['nullable', 'array']]);
 
         $d = $request->all();
         DB::beginTransaction();
-        Petition::where('id', $id)->update([
+        Expenditure::where('id', $id)->update([
             'title' => $d['title'],
             'content' => $d['content'],
+            'department_id' => $d['department_id'],
+            'item_id' => $d['item_id'],
+            'payment_id' => $d['payment_id'],
+            'amount' => $d['amount'],
         ]);
 
         $order = isset($d['order']) ? $d['order'] : [];
         $order = array_values(array_filter($order));
-        $re = Petition::updateOrderSn($order, $id, 'petition');
+        $re = Petition::updateOrderSn($order, $id, 'expenditure');
 
         if ($re['success'] != '1') {
             $errors = [];
@@ -189,7 +210,7 @@ class PetitionCtrl extends Controller
         }
         DB::commit();
         wToast('更新完成');
-        return redirect(route('cms.petition.index'));
+        return redirect(route('cms.expenditure.index'));
     }
 
     /**
@@ -201,10 +222,10 @@ class PetitionCtrl extends Controller
     public function destroy($id)
     {
 
-        Petition::where('id', $id)->delete();
+        Expenditure::where('id', $id)->delete();
 
         wToast('刪除完成');
-        return redirect(route('cms.petition.index'));
+        return redirect(route('cms.expenditure.index'));
     }
 
     // 簽核列表
@@ -221,14 +242,14 @@ class PetitionCtrl extends Controller
             'edate' => Arr::get($query, 'edate'),
         ];
 
-        $dataList = Petition::dataList($options)->orderBy('petition.created_at', 'DESC')->paginate(100);
+        $dataList = Expenditure::dataList($options)->orderBy('expenditure.created_at', 'DESC')->paginate(100);
 
         foreach ($dataList as $data) {
             $data->users = $data->users ? json_decode($data->users) : [];
 
         }
 
-        return view('cms.admin_management.petition.list', [
+        return view('cms.admin_management.expenditure.list', [
             'dataList' => $dataList,
             'type' => 'audit',
             'users' => User::get(),
@@ -238,7 +259,7 @@ class PetitionCtrl extends Controller
 
     public function auditEdit(Request $request, $id)
     {
-        $data = Petition::dataList()->where('petition.id', $id)->get()->first();
+        $data = Expenditure::dataList()->where('expenditure.id', $id)->get()->first();
         if (!$data) {
             return abort(404);
         }
@@ -247,25 +268,25 @@ class PetitionCtrl extends Controller
 
         $orders = array_map(function ($n) {
             return getErpOrderUrl($n);
-        }, Petition::getOrderSn($id, 'petition')->get()->toArray());
+        }, Petition::getOrderSn($id, 'expenditure')->get()->toArray());
 
         // dd($orders);
 
-        return view('cms.admin_management.petition.show', [
+        return view('cms.admin_management.expenditure.show', [
             'method' => 'edit',
             'data' => $data,
             'order' => $orders,
             'type' => 'audit',
-            'formAction' => route('cms.petition.edit', ['id' => $id]),
+            'formAction' => route('cms.expenditure.edit', ['id' => $id]),
             'breadcrumb_data' => $data->title,
         ]);
     }
 
     public function auditConfirm(Request $request, $id)
     {
-        Audit::confirm($id, $request->user()->id, 'petition');
+        Audit::confirm($id, $request->user()->id, 'expenditure');
         wToast('審核完成');
-        return redirect(route('cms.petition.audit-list'));
+        return redirect(route('cms.expenditure.audit-list'));
 
     }
 
