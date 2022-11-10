@@ -241,32 +241,32 @@ Breadcrumbs::for('cms.petition.audit-confirm', function (BreadcrumbTrail $trail,
 });
 
 
-// 支付憑單
+// 支出憑單
 Breadcrumbs::for('cms.expenditure.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
-    $trail->push('支付憑單列表', Route('cms.expenditure.index'));
+    $trail->push('支出憑單列表', Route('cms.expenditure.index'));
 });
 Breadcrumbs::for('cms.expenditure.create', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.expenditure.index');
-    $trail->push('新增支付憑單');
+    $trail->push('新增支出憑單');
 });
 Breadcrumbs::for('cms.expenditure.edit', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.expenditure.index'); 
-    $trail->push('編輯支付憑單');
+    $trail->push('編輯支出憑單');
 });
 Breadcrumbs::for('cms.expenditure.show', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.expenditure.index'); 
-    $trail->push('支付憑單【' . $value . '】');
+    $trail->push('支出憑單【' . $value . '】');
 });
 
 Breadcrumbs::for('cms.expenditure.audit-list', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.expenditure.index');
-    $trail->push('待審核支付憑單列表');
+    $trail->push('待審核支出憑單列表');
 });
 
 Breadcrumbs::for('cms.expenditure.audit-confirm', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.expenditure.audit-list');
-    $trail->push('支付憑單【' . $value . '】');
+    $trail->push('支出憑單【' . $value . '】');
 });
 
 // 組合包組裝

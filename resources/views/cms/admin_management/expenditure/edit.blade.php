@@ -5,7 +5,7 @@
             新增
         @else
             編輯
-        @endif 支付憑單
+        @endif 支出憑單
     </h2>
     <form id="form1" method="post" action="{{ $formAction }}">
         @method('POST')
