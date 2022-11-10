@@ -14,8 +14,6 @@
                     @if($received_credit_card_log)
                         <a href="{{ Route('api.web.order.credit_card_checkout', ['id' => $order->id, 'unique_id' => $order->unique_id]) }}"
                             class="btn btn-primary btn-sm my-1 ms-1" role="button" target="_blank">線上刷卡連結</a>
-                    @else
-                        <button type="button" class="btn btn-primary btn-sm my-1 ms-1" disabled>線上刷卡連結</button>
                     @endif
 
                     @can('cms.collection_received.edit')
@@ -167,14 +165,7 @@
             <dl class="row">
                 <div class="col">
                     <dt>發票類型</dt>
-                    <dd>
-                        @if (\App\Enums\Order\InvoiceMethod::getDescription(\App\Enums\Order\InvoiceMethod::print()) ==
-                            $order->invoice_category)
-                            {{ $order->invoice_category }}
-                        @else
-                            {{ $order->invoice_number ? $order->invoice_category : '尚未開立發票' }}
-                    </dd>
-                    @endif
+                    <dd>{{ $order->invoice_category ?? '' }}</dd>
                 </div>
                 <div class="col">
                     <dt>發票號碼</dt>
@@ -183,12 +174,7 @@
                             <a href="{{ route('cms.order.show-invoice', ['id' => $order->id]) }}"
                                 class="-text">{{ $order->invoice_number ? $order->invoice_number : '' }}</a>
                         @else
-                            @if (\App\Enums\Order\InvoiceMethod::getDescription(\App\Enums\Order\InvoiceMethod::print()) ==
-                                $order->invoice_category)
-                                <span>{{ empty($order->invoice_number) ? '-' : $order->invoice_number }}</span>
-                            @else
-                                <span>尚未開立發票</span>
-                            @endif
+                            <span>尚未開立發票</span>
                         @endif
                     </dd>
                 </div>
@@ -219,14 +205,7 @@
                 </div>
                 <div class="col col-md-5">
                     <dt>統一編號</dt>
-                    <dd>
-                        @if (\App\Enums\Order\InvoiceMethod::getDescription(\App\Enums\Order\InvoiceMethod::print()) !=
-                            $order->invoice_category)
-                            {{ $order->buyer_ubn }}
-                        @else
-                            {{ $order->invoice_number ? $order->gui_number : '尚未開立發票' }}
-                        @endif
-                    </dd>
+                    <dd>{{ $order->buyer_ubn ?? '' }}</dd>
                 </div>
             </dl>
             <dl class="row">
