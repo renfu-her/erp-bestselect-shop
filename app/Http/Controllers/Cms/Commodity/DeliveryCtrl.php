@@ -512,7 +512,6 @@ class DeliveryCtrl extends Controller
                         , 'ord_item.num as origin_qty'
                     )->get();
             } elseif(Event::csn_order()->value == $event) {
-                dd('寄倉訂購暫無退貨功能');
                 $ord_items = DB::table(app(CsnOrderItem::class)->getTable() . ' as ord_item')
                     ->where('ord_item.csnord_id', '=', $eventId)
                     ->select('ord_item.id as event_item_id'
@@ -573,7 +572,6 @@ class DeliveryCtrl extends Controller
             $item_table = app(ConsignmentItem::class)->getTable();
             $source_type = app(Consignment::class)->getTable();
         } else if (Event::csn_order()->value == $delivery->event) {
-            dd('寄倉訂購暫無退貨功能');
             $order = DB::table(app(CsnOrder::class)->getTable(). ' as csn')
                 ->leftJoin(app(Depot::class)->getTable(). ' as depot', 'depot.id', '=', 'csn.depot_id')
                 ->where('csn.id', $delivery->event_id)
@@ -857,8 +855,6 @@ class DeliveryCtrl extends Controller
                             }
                             $update_arr['csn_num'] = DB::raw("csn_num - $rcv_depot_item->back_qty");
                         } else if (Event::csn_order()->value == $delivery->event) {
-                            DB::rollBack();
-                            return ['success' => 0, 'error_msg' => '寄倉訂購暫無退貨入庫功能'];
                             $update_arr['sale_num'] = DB::raw("sale_num - $rcv_depot_item->back_qty");
                         }
                         PurchaseInbound::where('id', $rcv_depot_item->inbound_id)->update($update_arr);
@@ -1090,8 +1086,6 @@ class DeliveryCtrl extends Controller
                         }
                         $update_arr['csn_num'] = DB::raw("csn_num + $val_rcv->back_qty");
                     } else if (Event::csn_order()->value == $delivery->event) {
-                        DB::rollBack();
-                        return ['success' => 0, 'error_msg' => '寄倉訂購暫無退貨入庫功能'];
                         $update_arr['sale_num'] = DB::raw("sale_num + $val_rcv->back_qty");
                     }
 
