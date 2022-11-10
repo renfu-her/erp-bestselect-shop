@@ -59,11 +59,11 @@
                     <legend class="col-form-label p-0 mb-2">發票種類 <span class="text-danger">*</span></legend>
                     <div class="px-1 pt-1">
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" name="category" value="B2C" type="radio" id="2c" required {{ ! old('category') || old('category') == 'B2C' ? 'checked' : '' }}>
+                            <input class="form-check-input" name="category" value="B2C" type="radio" id="2c" required {{ old('category', $order->category) == 'B2C' ? 'checked' : '' }}>
                             <label class="form-check-label" for="2c">個人</label>
                         </div>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" name="category" value="B2B" type="radio" id="2b" required {{ old('category') && old('category') == 'B2B' ? 'checked' : '' }}>
+                            <input class="form-check-input" name="category" value="B2B" type="radio" id="2b" required {{ old('category', $order->category) == 'B2B' ? 'checked' : '' }}>
                             <label class="form-check-label" for="2b">公司．企業</label>
                         </div>
                     </div>
@@ -74,9 +74,9 @@
                     </div>
                 </fieldset>
 
-                <div class="col-12 col-sm-6 mb-3 c_category d-none">
-                    <label class="form-label l_buyer_ubn">公司統編</label>
-                    <input type="text" name="buyer_ubn" class="form-control @error('buyer_ubn') is-invalid @enderror" placeholder="請輸入公司統編" aria-label="公司統編" value="{{ old('buyer_ubn') }}" disabled>
+                <div class="col-12 col-sm-6 mb-3 c_category{{ $order->category == 'B2B' ? '' : ' d-none' }}">
+                    <label class="form-label l_buyer_ubn">公司統編{!! $order->category == 'B2B' ? ' <span class="text-danger">*</span>' : '' !!}</label>
+                    <input type="text" name="buyer_ubn" class="form-control @error('buyer_ubn') is-invalid @enderror" placeholder="請輸入公司統編" aria-label="公司統編" value="{{ old('buyer_ubn', $order->buyer_ubn) }}"{{ $order->category == 'B2B' ? ' required' : ' disabled' }}>
                     <div class="invalid-feedback">
                         @error('buyer_ubn')
                         {{ $message }}
@@ -88,7 +88,7 @@
             <div class="row">
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">買受人名稱 <span class="text-danger">*</span></label>
-                    <input type="text" name="buyer_name" class="form-control @error('buyer_name') is-invalid @enderror" placeholder="請輸入買受人名稱" aria-label="買受人名稱" value="{{ old('buyer_name', $order->ord_name) }}" required>
+                    <input type="text" name="buyer_name" class="form-control @error('buyer_name') is-invalid @enderror" placeholder="請輸入買受人名稱" aria-label="買受人名稱" value="{{ old('buyer_name', ($order->inv_title ? $order->inv_title : $order->ord_name) ) }}" required>
                     <div class="invalid-feedback">
                         @error('buyer_name')
                         {{ $message }}
@@ -99,9 +99,9 @@
 
             <div class="row">
                 <div class="col-12 col-sm-6 mb-3">
-                    <label class="form-label l_buyer_email">買受人E-mail <span class="text-danger">*</span></label>
+                    <label class="form-label l_buyer_email">買受人E-mail{!! $order->carrier_type == '會員載具' ? ' <span class="text-danger">*</span>' : '' !!}</label>
                     <input type="email" name="buyer_email" class="form-control @error('buyer_email') is-invalid @enderror" placeholder="請輸入買受人E-mail" aria-label="買受人E-mail"
-                           value="{{ old('buyer_email', (\App\Enums\Order\CarrierType::getDescription(\App\Enums\Order\CarrierType::member) == $order->carrier_type)? $order->carrier_num: $order->email) }}" required>
+                           value="{{ old('buyer_email', ( $order->carrier_type == '會員載具' ? $order->carrier_num : $order->email) ) }}" {{ $order->carrier_num == '會員載具' ? 'required' : '' }}>
                     <div class="invalid-feedback">
                         @error('buyer_email')
                         {{ $message }}
@@ -135,7 +135,7 @@
                     <legend class="col-form-label p-0 mb-2">發票方式 <span class="text-danger">*</span></legend>
                     <div class="px-1 pt-1">
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" name="invoice_method" value="print" type="radio" id="print" required {{ old('invoice_method') && old('invoice_method') == 'print' ? 'checked' : '' }}>
+                            <input class="form-check-input" name="invoice_method" value="print" type="radio" id="print" required {{ (old('invoice_method') == 'print' || $order->invoice_category == '紙本發票') ? 'checked' : '' }}>
                             <label class="form-check-label" for="print">紙本發票(無載具、列印電子發票證明聯)</label>
                         </div>
                         {{--
@@ -145,7 +145,7 @@
                         </div>
                         --}}
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" name="invoice_method" value="e_inv" type="radio" id="e_inv" required {{ ! old('invoice_method') || old('invoice_method') == 'e_inv' ? 'checked' : '' }}>
+                            <input class="form-check-input" name="invoice_method" value="e_inv" type="radio" id="e_inv" required {{ (old('invoice_method') == 'e_inv' || $order->invoice_category == '電子發票') ? 'checked' : '' }}{{ $order->category == 'B2B' ? 'disabled' : '' }}>
                             <label class="form-check-label" for="e_inv">電子發票</label>
                         </div>
                     </div>
@@ -171,20 +171,20 @@
                 </div>
             </div>
 
-            <div class="row carrier">
+            <div class="row carrier{{ $order->invoice_category == '電子發票' ? '' : ' d-none' }}">
                 <fieldset class="col-12 col-sm-6 mb-3">
                     <legend class="col-form-label p-0 mb-2">載具類型 <span class="text-danger">*</span></legend>
                     <div class="px-1 pt-1">
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" name="carrier_type" value="0" type="radio" id="carrier_mobile" {{ old('carrier_type') && old('carrier_type') == 0 ? 'checked' : '' }}>
+                            <input class="form-check-input" name="carrier_type" value="0" type="radio" id="carrier_mobile" {{ (old('carrier_type', $order->order_carrier_type) == 0) && old('carrier_type', $order->order_carrier_type) != null ? 'checked' : '' }}>
                             <label class="form-check-label" for="carrier_mobile">手機條碼載具</label>
                         </div>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" name="carrier_type" value="1" type="radio" id="carrier_certificate" {{ old('carrier_type') && old('carrier_type') == 1 ? 'checked' : '' }}>
+                            <input class="form-check-input" name="carrier_type" value="1" type="radio" id="carrier_certificate" {{ old('carrier_type', $order->order_carrier_type) == 1 ? 'checked' : '' }}>
                             <label class="form-check-label" for="carrier_certificate">自然人憑證條碼載具</label>
                         </div>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" name="carrier_type" value="2" type="radio" id="carrier_member" {{ ! old('carrier_type') || old('carrier_type') == 2 ? 'checked' : '' }}>
+                            <input class="form-check-input" name="carrier_type" value="2" type="radio" id="carrier_member" {{ old('carrier_type', $order->order_carrier_type) == 2 ? 'checked' : '' }}>
                             <label class="form-check-label" for="carrier_member">會員載具</label>
                         </div>
                     </div>
@@ -195,9 +195,9 @@
                     </div>
                 </fieldset>
 
-                <div class="col-12 col-sm-6 mb-3 c_carrier_type d-none">
+                <div class="col-12 col-sm-6 mb-3 c_carrier_type{{ in_array($order->order_carrier_type, [null, 2]) ? ' d-none' : '' }}">
                     <label class="form-label l_carrier_num">載具號碼</label>
-                    <input type="text" name="carrier_num" class="form-control @error('carrier_num') is-invalid @enderror" placeholder="請輸入載具號碼" aria-label="載具號碼" value="{{ old('carrier_num') }}" disabled>
+                    <input type="text" name="carrier_num" class="form-control @error('carrier_num') is-invalid @enderror" placeholder="請輸入載具號碼" aria-label="載具號碼" value="{{ old('carrier_num', $order->carrier_num) }}" {{ $order->order_carrier_type != 2 ? '' : 'disabled' }}>
                     <div class="invalid-feedback">
                         @error('carrier_num')
                         {{ $message }}
