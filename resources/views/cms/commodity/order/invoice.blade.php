@@ -1,7 +1,7 @@
 @extends('layouts.main')
 
 @section('sub-content')
-    <h2 class="mb-4">開立電子發票</h2>
+    <h2 class="mb-4">開立發票</h2>
 
     @if($errors->any())
         <div class="alert alert-danger mt-3">{!! implode('', $errors->all('<div>:message</div>')) !!}</div>
@@ -136,7 +136,7 @@
                     <div class="px-1 pt-1">
                         <div class="form-check form-check-inline">
                             <input class="form-check-input" name="invoice_method" value="print" type="radio" id="print" required {{ old('invoice_method') && old('invoice_method') == 'print' ? 'checked' : '' }}>
-                            <label class="form-check-label" for="print">無載具(列印電子發票證明聯)</label>
+                            <label class="form-check-label" for="print">紙本發票(無載具、列印電子發票證明聯)</label>
                         </div>
                         {{--
                         <div class="form-check form-check-inline">

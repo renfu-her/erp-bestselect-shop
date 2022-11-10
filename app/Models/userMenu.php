@@ -339,6 +339,11 @@ return
                 "controller_name" => "PetitionCtrl",
                 "route_name" => "cms.petition.index",
             ],
+            [
+                "title" => "支付憑單",
+                "controller_name" => "ExpenditureCtrl",
+                "route_name" => "cms.expenditure.index",
+            ],
         ],
     ],
     [
