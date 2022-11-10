@@ -320,23 +320,23 @@ Breadcrumbs::for('cms.order.ro-taxation', function (BreadcrumbTrail $trail, $val
     $trail->push('收款單', route('cms.order.ro-receipt', ['id' => $value['id']]));
     $trail->push('修改摘要/稅別');
 });
-// 新增電子發票
+// 新增發票
 Breadcrumbs::for('cms.order.create-invoice', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.order.index');
     $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.order.detail', ['id' => $value['id']]));
-    $trail->push('開立電子發票');
+    $trail->push('開立發票');
 });
-// 顯示電子發票
+// 顯示發票
 Breadcrumbs::for('cms.order.show-invoice', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.order.index');
     $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.order.detail', ['id' => $value['id']]));
-    $trail->push('電子發票');
+    $trail->push('發票');
 });
-// 編輯電子發票
+// 編輯發票
 Breadcrumbs::for('cms.order.edit-invoice', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.order.index');
     $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.order.detail', ['id' => $value['id']]));
-    $trail->push('編輯電子發票');
+    $trail->push('編輯發票');
 });
 // Line Pay 付款取消
 Breadcrumbs::for('cms.order.line-pay-refund', function (BreadcrumbTrail $trail, $value) {
