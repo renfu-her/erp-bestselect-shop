@@ -1187,7 +1187,7 @@ return [
         ],
     ],
     [
-        "unit" => "支付憑單",
+        "unit" => "支出憑單",
         "permissions" => [
             [
                 "cms.expenditure.index",

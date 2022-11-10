@@ -1,6 +1,6 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h2 class="mb-4">支付憑單</h2>
+    <h2 class="mb-4">支出憑單</h2>
     @php
         $action = isset($type) ? Route('cms.expenditure.audit-confirm', ['id' => $data->id]) : '';
     @endphp
