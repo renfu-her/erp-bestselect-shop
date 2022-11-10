@@ -40,7 +40,8 @@ class Order extends Model
         $item_title = null,
         $purchase_sn = null,
         $received_method = null,
-        $dlv_date = null
+        $dlv_date = null,
+        $has_back_sn = null
     ) {
         $order = DB::table('ord_orders as order')
             ->select(['order.id as id',
@@ -185,6 +186,10 @@ class Order extends Model
                 $query->Where('inbound.pcs_sn', '=', "$purchase_sn");
             });
 
+        }
+
+        if ($has_back_sn) {
+            $order->whereNotNull('dlv_delivery.back_sn');
         }
 
         $order->orderByDesc('order.id');
