@@ -16,20 +16,7 @@ class Petition extends Model
     public static function dataList($option = [])
     {
 
-        $concatString = concatStr([
-            'user_id' => 'audit.user_id',
-            'user_name' => 'user.name',
-            'user_title' => 'user.title',
-            'checked_at' => 'IFNULL(audit.checked_at,"")',
-        ]);
-
-        $sub = DB::table('pet_audit as audit')
-            ->leftJoin('usr_users as user', 'user.id', '=', 'audit.user_id')
-            ->select('audit.source_id')
-            ->selectRaw('(' . $concatString . ') as users')
-            ->orderBy('audit.step')
-            ->groupBy('audit.source_id')
-            ->where('audit.source_type', 'petition');
+        $sub = Audit::auditList('petition');
 
         $canDelSub = DB::table('pet_audit')
             ->select('source_id', 'checked_at')
@@ -59,6 +46,16 @@ class Petition extends Model
             $re->where('petition.title', 'like', "%" . $option['title'] . "%");
         }
 
+        if (isset($option['sdate']) && $option['sdate']) {
+            $sdate = date('Y-m-d 00:00:00', strtotime($option['sdate']));
+            $re->where('petition.created_at', '>=', $sdate);
+        }
+
+        if (isset($option['edate']) && $option['edate']) {
+            $edate = date('Y-m-d 23:59:59', strtotime($option['edate']));
+            $re->where('petition.created_at', '<=', $edate);
+        }
+
         return $re;
 
     }
@@ -83,8 +80,7 @@ class Petition extends Model
             'sn' => $sn,
         ])->id;
 
-
-        Audit::addAudit($user_id,$id,'petition'); 
+        Audit::addAudit($user_id, $id, 'petition');
 
         // 關聯訂單
         $re = self::updateOrderSn($orders, $id, 'petition');
@@ -125,7 +121,7 @@ class Petition extends Model
         $order_sn = [];
 
         foreach ($orders as $key => $order) {
-            $order = strtoupper($order);
+            $order = str_replace(' ', '', strtoupper($order));
 
             // dd($order);
             $insert_data = null;
@@ -156,7 +152,7 @@ class Petition extends Model
                     case "ISG":
                         $o = PayingOrder::where('sn', $order)->get()->first();
                         if ($o) {
-                            $insert_data = ['source_id' => $o->id,
+                            $insert_data = ['order_id' => $o->id,
                                 'order_sn' => $o->sn,
                                 'order_type' => 'ISG'];
                         } else {
@@ -166,9 +162,31 @@ class Petition extends Model
                     case "B":
                         $o = Purchase::where('sn', $order)->get()->first();
                         if ($o) {
-                            $insert_data = ['source_id' => $o->id,
+                            $insert_data = ['order_id' => $o->id,
                                 'order_sn' => $o->sn,
                                 'order_type' => 'B'];
+                        } else {
+                            $err_order[] = $key;
+                        }
+                        break;
+
+                    case "EXP":
+                        $o = Expenditure::where('sn', $order)->get()->first();
+
+                        if ($o) {
+                            $insert_data = ['order_id' => $o->id,
+                                'order_sn' => $o->sn,
+                                'order_type' => 'EXP'];
+                        } else {
+                            $err_order[] = $key;
+                        }
+                        break;
+                    case "PET":
+                        $o = Petition::where('sn', $order)->get()->first();
+                        if ($o) {
+                            $insert_data = ['order_id' => $o->id,
+                                'order_sn' => $o->sn,
+                                'order_type' => 'PET'];
                         } else {
                             $err_order[] = $key;
                         }
@@ -196,5 +214,5 @@ class Petition extends Model
         return ['success' => '1', 'data' => $order_sn];
 
     }
-   
+
 }

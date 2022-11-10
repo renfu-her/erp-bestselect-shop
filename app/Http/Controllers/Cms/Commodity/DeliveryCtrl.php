@@ -991,6 +991,17 @@ class DeliveryCtrl extends Controller
                     return $reLFCDS;
                 }
                 if (Event::order()->value == $delivery->event) {
+                    //判斷已退貨入庫且訂單取消 則不可做刪除退貨入庫
+                    // 因先訂單取消再退貨入庫 (可售數量不變 (因訂單取消已加回可售數量，退貨入庫時不變))
+                    // 或先退貨入庫再訂單取消 (可售數量要扣除 含一般商品、組合包，不含元素 (因先退貨入庫有增加，要對應扣除))
+                    // 可售數量記錄不同 所以直接擋住 不能做
+                    $subOrder = SubOrders::where('id', '=', $delivery->event_id)->first();
+                    $order = Order::where('id', '=', $subOrder->order_id)->first();
+                    if (OrderStatus::Canceled()->value == $order->status_code) {
+                        DB::rollBack();
+                        return ['success' => 0, 'error_msg' => '無法進行刪除退貨入庫'];
+                    }
+
                     //狀態須回寫到訂單
                     OrderFlow::changeOrderStatus($delivery->event_id, OrderStatus::CancleBack());
                 }
@@ -1121,6 +1132,7 @@ class DeliveryCtrl extends Controller
                 return ['success' => 1];
             });
             if ($msg['success'] == 0) {
+                wToast($msg['error_msg'], ['type'=>'danger']);
                 throw ValidationException::withMessages(['error_msg' => $msg['error_msg']]);
             } else {
                 wToast('儲存成功');

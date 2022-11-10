@@ -3,8 +3,8 @@
 namespace App\Models;
 
 use App\Enums\Customer\ProfitStatus;
-use App\Enums\Delivery\BackStatus;
 use App\Enums\Delivery\Event;
+use App\Enums\Delivery\LogisticStatus;
 use App\Enums\Discount\DividendCategory;
 use App\Enums\Discount\DividendFlag;
 use App\Enums\Order\CarrierType;
@@ -1018,16 +1018,19 @@ class Order extends Model
         //已退貨入庫已計算可售數量 則不寫入
         $subOrders = SubOrders::where('order_id', '=', $order->id)->get();
         if (null != $subOrders && 0 < count($subOrders)) {
-            foreach ($subOrders as $so) {
+            foreach ($subOrders as $sub_ord) {
                 $is_calc_in_stock = true;
-                $delivery = Delivery::where('event_id', '=', $so->order_id)->where('event', '=', Event::order()->value)->first();
+                $delivery = Delivery::where('event_id', '=', $sub_ord->id)->where('event', '=', Event::order()->value)->first();
                 //判斷已退貨入庫
-                if (null != $delivery && BackStatus::add_back_inbound()->value == $delivery->back_status) {
+                if (null != $delivery
+                    && null != $delivery->back_inbound_date
+                    && LogisticStatus::C3000()->key == $delivery->logistic_status_code)
+                {
                     $is_calc_in_stock = false;
                 }
                 if (true == $is_calc_in_stock) {
                     // 返還訂購商品數量
-                    $items = OrderItem::where('order_id', $order_id)->where('sub_order_id', $so->id)->get();
+                    $items = OrderItem::where('order_id', $order_id)->where('sub_order_id', $sub_ord->id)->get();
                     foreach ($items as $item) {
                         ProductStock::stockChange($item->product_style_id,
                             $item->qty, 'order', $order_id, $item->sku . "取消訂單");

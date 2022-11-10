@@ -53,9 +53,7 @@
             @endif
 
             @can('cms.order_invoice_manager.index')
-                @if ($received_order &&
-                    !$order->invoice_number &&
-                     \App\Enums\Order\InvoiceMethod::getDescription(\App\Enums\Order\InvoiceMethod::e_inv()) == $order->invoice_category)
+                @if ($received_order && !$order->invoice_number)
                     <a href="{{ Route('cms.order.create-invoice', ['id' => $order->id]) }}" role="button"
                         class="btn btn-success btn-sm my-1 ms-1">開立發票</a>
                 @endif
