@@ -465,25 +465,47 @@ class DeliveryCtrl extends Controller
         if (null == $delivery) {
             return abort(404);
         }
-
+        //其他項目
         $rsp_arr['dlv_other_items'] = [];
-        if(Event::order()->value == $event) {
-            $sub_order = SubOrders::where('id', $delivery->event_id)->get()->first();
-            $rsp_arr['order_id'] = $sub_order->order_id;
+        if ('create' == $method) {
+            $product_title = null;
+            $price = null;
+            if(Event::order()->value == $event) {
+                $sub_order = SubOrders::where('id', $delivery->event_id)->get()->first();
+                $product_title = $sub_order->ship_event;
+                $price = $sub_order->dlv_fee;
+            } else if(Event::consignment()->value == $event) {
+                $logistic = DB::table(app(Logistic::class)->getTable() . ' as lgt')
+                    ->leftJoin(app(ShipmentGroup::class)->getTable(). ' as sgroup', 'sgroup.id', '=', 'lgt.ship_group_id')
+                    ->whereNull('lgt.deleted_at')
+                    ->where('lgt.delivery_id', '=', $delivery->id)
+                    ->select('lgt.cost', 'sgroup.name')
+                    ->first();
+                if (null != $logistic) {
+                    $product_title = $logistic->name ?? '';
+                    $price = $logistic->cost;
+                }
+            }
+            $rsp_arr['dlv_other_items'] = json_decode(json_encode([[
+                'id' => null,
+                'delivery_id' => $delivery->id,
+                'type' => DlvBackType::other()->value,
+                'product_title' => $product_title,
+                'price' => $price,
+                'qty' => 1,
+            ]]));
+        } else {
             $dlv_back_other = DlvBack::getOtherDataWithDeliveryID($delivery->id)->get();
             if (isset($dlv_back_other) && 0 < count($dlv_back_other)) {
                 $rsp_arr['dlv_other_items'] = $dlv_back_other;
-            } else if ('create' == $method){
-                $rsp_arr['dlv_other_items'] = json_decode(json_encode([[
-                    'id' => null,
-                    'delivery_id' => $delivery->id,
-                    'type' => DlvBackType::other()->value,
-                    'product_title' => $sub_order->ship_event,
-                    'price' => $sub_order->dlv_fee,
-                    'qty' => 1,
-                ]]));
             }
         }
+        if(Event::order()->value == $event) {
+            $sub_order = SubOrders::where('id', $delivery->event_id)->get()->first();
+            $rsp_arr['order_id'] = $sub_order->order_id;
+        }
+
+        //退貨商品款式
         $ord_items = [];
         $dlv_back = DlvBack::getDataWithDeliveryID($delivery->id)->get();
         if (isset($dlv_back) && 0 < count($dlv_back)) {
