@@ -136,6 +136,13 @@ class SaleChannelCtrl extends Controller
         return redirect(Route('cms.sale_channel.index'));
     }
 
+    public function batchAllPrice(Request $request)
+    {
+        SaleChannel::batchAllPrice();
+        wToast(__('Edit finished.'));
+        return redirect(Route('cms.sale_channel.index'));
+    }
+
     public function batchPrice(Request $request, $id)
     {
         SaleChannel::batchPrice($id);

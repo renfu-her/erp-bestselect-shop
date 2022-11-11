@@ -132,6 +132,70 @@ class SaleChannel extends Model
         });
     }
 
+    /**
+     * 多一個 "同步官網售價" 按下去所有通路都同步官網售價/經銷價/定價/獎金/鴻利點數
+     * @return void
+     */
+    public static function batchAllPrice()
+    {
+        DB::beginTransaction();
+
+        //非購物官網通路ID
+        $otherSalesChannels = self::where('is_master', '<>', 1)
+            ->select([
+                'id',
+            ])
+            ->get();
+
+        //購物官網通路ID
+        $officialSalesChannelId = self::where('is_master', 1)->select('id')->get()->first();
+        if (!$officialSalesChannelId) {
+            return;
+        }
+
+        //購物官網通路產品價錢
+        $officialProducts = DB::table('prd_salechannel_style_price')
+            ->where('sale_channel_id', $officialSalesChannelId->id)
+            ->get();
+
+        foreach ($otherSalesChannels as $otherSalesChannel) {
+            foreach ($officialProducts as $officialProduct) {
+                $newPrice = DB::table('prd_salechannel_style_price')
+                    ->where('sale_channel_id', $otherSalesChannel->id)
+                    ->where('style_id', $officialProduct->style_id)
+                    ->get()->first();
+
+                if (!$newPrice) {
+                    DB::table('prd_salechannel_style_price')
+                        ->insert([
+                            'style_id'        => $officialProduct->style_id,
+                            'sale_channel_id' => $otherSalesChannel->id,
+                            'dealer_price'    => $officialProduct->dealer_price,
+                            'origin_price'    => $officialProduct->origin_price,
+                            'price'           => $officialProduct->price,
+                            'bonus'           => $officialProduct->bonus,
+                            'dividend'        => $officialProduct->dividend,
+                        ]);
+                } else {
+                    DB::table('prd_salechannel_style_price')
+                        ->where([
+                            'sale_channel_id' => $otherSalesChannel->id,
+                            'style_id'        => $officialProduct->style_id,
+                        ])
+                        ->update([
+                            'dealer_price' => $officialProduct->dealer_price,
+                            'origin_price' => $officialProduct->origin_price,
+                            'price'        => $officialProduct->price,
+                            'bonus'        => $officialProduct->bonus,
+                            'dividend'     => $officialProduct->dividend,
+                        ]);
+                }
+            }
+        }
+
+        DB::commit();
+    }
+
     public static function batchPrice($sale_id)
     {
         DB::beginTransaction();
