@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\DividendSetting;
 use App\Models\SaleChannel;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class SaleChannelCtrl extends Controller
 {
@@ -132,6 +133,9 @@ class SaleChannelCtrl extends Controller
     public function destroy(Request $request, $id)
     {
         SaleChannel::where('id', '=', $id)->delete();
+        DB::table('prd_salechannel_style_price')
+            ->where('sale_channel_id', '=', $id)
+            ->delete();
         wToast(__('Delete finished.'));
         return redirect(Route('cms.sale_channel.index'));
     }
