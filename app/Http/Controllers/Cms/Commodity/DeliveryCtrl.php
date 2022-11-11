@@ -486,13 +486,14 @@ class DeliveryCtrl extends Controller
                     $price = $logistic->cost;
                 }
             }
+            $qty = $product_title ? 1: null;
             $rsp_arr['dlv_other_items'] = json_decode(json_encode([[
                 'id' => null,
                 'delivery_id' => $delivery->id,
                 'type' => DlvBackType::other()->value,
                 'product_title' => $product_title,
                 'price' => $price,
-                'qty' => 1,
+                'qty' => $qty,
             ]]));
         } else {
             $dlv_back_other = DlvBack::getOtherDataWithDeliveryID($delivery->id)->get();
