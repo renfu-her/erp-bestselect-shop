@@ -66,6 +66,15 @@
                             </div>
                         </div>
                     </fieldset>
+
+                    <div class="col-12 col-md-6 mb-3">
+                        <label class="form-label">相關單號</label>
+                        @if (isset($relation_order))
+                            @foreach ($relation_order as $value)
+                                <div><a href="{{ $value->url }}">{{ $value->sn }}</a></div>
+                            @endforeach
+                        @endif
+                    </div>
                 </div>
             </div>
         @endif
