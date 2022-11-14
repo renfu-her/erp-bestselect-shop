@@ -162,7 +162,15 @@
 
             <div class="col">
                 <input type="hidden" name="data_per_page" value="{{ $searchParam['data_per_page'] }}" />
-                <button type="submit" class="btn btn-primary px-4">搜尋</button>
+                <button type="submit" class="btn btn-primary px-4 mb-1" onclick="submitAction('{{ Route('cms.delivery.index') }}', 'GET')">搜尋</button>
+
+                <button type="button" class="btn btn-outline-success mb-1" onclick="submitAction('{{ Route('cms.delivery.export-list') }}', 'GET')">匯出清單</button>
+
+                <div class="mt-1">
+                    <mark class="fw-light small">
+                        <i class="bi bi-exclamation-diamond-fill mx-2 text-warning"></i>匯出excel會根據上面當前篩選條件輸出資料呦！
+                    </mark>
+                </div>
             </div>
         </div>
     </form>
@@ -327,6 +335,14 @@
                     [Key]: temp
                 }));
             });
+
+            function submitAction(route, method)
+            {
+                console.log(route, method);
+                document.getElementById("search").action = route;
+                document.getElementById("search").setAttribute("method", method);
+                document.getElementById("search").submit();
+            }
         </script>
     @endpush
 @endOnce
