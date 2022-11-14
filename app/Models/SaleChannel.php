@@ -132,6 +132,70 @@ class SaleChannel extends Model
         });
     }
 
+    /**
+     * 多一個 "同步官網售價" 按下去所有通路都同步官網售價/經銷價/定價/獎金/鴻利點數
+     * @return void
+     */
+    public static function batchAllPrice()
+    {
+        DB::beginTransaction();
+
+        //非購物官網通路ID
+        $otherSalesChannels = self::where('is_master', '<>', 1)
+            ->select([
+                'id',
+            ])
+            ->get();
+
+        //購物官網通路ID
+        $officialSalesChannelId = self::where('is_master', 1)->select('id')->get()->first();
+        if (!$officialSalesChannelId) {
+            return;
+        }
+
+        //購物官網通路產品價錢
+        $officialProducts = DB::table('prd_salechannel_style_price')
+            ->where('sale_channel_id', $officialSalesChannelId->id)
+            ->get();
+
+        foreach ($otherSalesChannels as $otherSalesChannel) {
+            foreach ($officialProducts as $officialProduct) {
+                $newPrice = DB::table('prd_salechannel_style_price')
+                    ->where('sale_channel_id', $otherSalesChannel->id)
+                    ->where('style_id', $officialProduct->style_id)
+                    ->get()->first();
+
+                if (!$newPrice) {
+                    DB::table('prd_salechannel_style_price')
+                        ->insert([
+                            'style_id'        => $officialProduct->style_id,
+                            'sale_channel_id' => $otherSalesChannel->id,
+                            'dealer_price'    => $officialProduct->dealer_price,
+                            'origin_price'    => $officialProduct->origin_price,
+                            'price'           => $officialProduct->price,
+                            'bonus'           => $officialProduct->bonus,
+                            'dividend'        => $officialProduct->dividend,
+                        ]);
+                } else {
+                    DB::table('prd_salechannel_style_price')
+                        ->where([
+                            'sale_channel_id' => $otherSalesChannel->id,
+                            'style_id'        => $officialProduct->style_id,
+                        ])
+                        ->update([
+                            'dealer_price' => $officialProduct->dealer_price,
+                            'origin_price' => $officialProduct->origin_price,
+                            'price'        => $officialProduct->price,
+                            'bonus'        => $officialProduct->bonus,
+                            'dividend'     => $officialProduct->dividend,
+                        ]);
+                }
+            }
+        }
+
+        DB::commit();
+    }
+
     public static function batchPrice($sale_id)
     {
         DB::beginTransaction();
@@ -153,64 +217,61 @@ class SaleChannel extends Model
             return;
         }
 
-        $originProduct = DB::table('prd_salechannel_style_price')
+        $product = DB::table('prd_salechannel_style_price')
             ->where('sale_channel_id', $masterSale->id)
-            ->get();
+            ->get()
+            ->first();
 
-        foreach ($originProduct as $product) {
-            // dd($product);
+        $newPrice = DB::table('prd_salechannel_style_price')
+            ->where('sale_channel_id', $currentSale->id)
+            ->where('style_id', $product->style_id)
+            ->get()->first();
 
-            $newPrice = DB::table('prd_salechannel_style_price')
-                ->where('sale_channel_id', $currentSale->id)
-                ->where('style_id', $product->style_id)
-                ->get()->first();
+        $p = $product->price;
+        if ($currentSale->basis_on_estimated_cost == '1') {
+            $p = ProductStyle::where('id', $product->style_id)->get()->first()->estimated_cost;
+        }
 
-            $p = $product->price;
-            if ($currentSale->basis_on_estimated_cost == '1') {
-                $p = ProductStyle::where('id', $product->style_id)->get()->first()->estimated_cost;
-            }
+        if ($currentSale->has_bonus === 1) {
+            $price = round($p * $currentSale->discount);
+        } else {
+            //將此通路經銷價販售(無獎金)的商品售價都等於經銷價
+            $price = $product->dealer_price;
+        }
 
-            if ($currentSale->has_bonus === 1) {
-                $price = round($p * $currentSale->discount);
-            } else {
-                //將此通路經銷價販售(無獎金)的商品售價都等於經銷價
-                $price = $product->dealer_price;
-            }
+        if ($currentSale->has_bonus === 1) {
+            $bonus = round(($price - $product->dealer_price) * Bonus::bonus()->value);
+            $bonus = $bonus > 0 ? $bonus : 0;
+        } else {
+            //無獎金通路的獎金都歸0
+            $bonus = 0;
+        }
 
-            if ($currentSale->has_bonus === 1) {
-                $bonus = round(($price - $product->dealer_price) * Bonus::bonus()->value);
-                $bonus = $bonus > 0 ? $bonus : 0;
-            } else {
-                //無獎金通路的獎金都歸0
-                $bonus = 0;
-            }
+        $dividend = round($price * $currentSale->dividend_rate / 100);
+        $dividend = $dividend > 0 ? $dividend : 0;
 
-            $dividend = round($price * $currentSale->dividend_rate / 100);
-            $dividend = $dividend > 0 ? $dividend : 0;
-
-            if (!$newPrice) {
-                DB::table('prd_salechannel_style_price')
-                    ->insert([
-                        'style_id' => $product->style_id,
-                        'sale_channel_id' => $currentSale->id,
-                        'dealer_price' => $product->dealer_price,
-                        'origin_price' => $product->origin_price,
-                        'price' => $price,
-                        'bonus' => $bonus,
-                        'dividend' => $dividend,
-                    ]);
-            } else {
-                DB::table('prd_salechannel_style_price')
-                    ->where(['style_id' => $product->style_id,
-                        'sale_channel_id' => $currentSale->id])
-                    ->update([
-                        'dealer_price' => $product->dealer_price,
-                        'origin_price' => $product->origin_price,
-                        'price' => $price,
-                        'bonus' => $bonus,
-                        'dividend' => $dividend,
-                    ]);
-            }
+        if (!$newPrice) {
+            DB::table('prd_salechannel_style_price')
+                ->insert([
+                    'style_id' => $product->style_id,
+                    'sale_channel_id' => $currentSale->id,
+                    'dealer_price' => $product->dealer_price,
+                    'origin_price' => $product->origin_price,
+                    'price' => $price,
+                    'bonus' => $bonus,
+                    'dividend' => $dividend,
+                ]);
+        } else {
+            DB::table('prd_salechannel_style_price')
+                ->where(['style_id' => $product->style_id,
+                    'sale_channel_id' => $currentSale->id])
+                ->update([
+                    'dealer_price' => $product->dealer_price,
+                    'origin_price' => $product->origin_price,
+                    'price' => $price,
+                    'bonus' => $bonus,
+                    'dividend' => $dividend,
+                ]);
         }
 
         DB::commit();

@@ -182,7 +182,11 @@ class UserPerformanceReportCtrl extends Controller
     {
         $query = $request->query();
 
-        $dataList = RptUserReportMonthly::userOrder($query['sDate'], $query['eDate'], [
+        $sDate = date('Y-m-d 00:00:00',strtotime($query['sDate']));
+        $eDate = date('Y-m-d 23:59:59',strtotime($query['eDate']));
+
+       
+        $dataList = RptUserReportMonthly::userOrder($sDate, $eDate, [
             'user_id' => $user_id])
             ->orderBy('sale_channel.sales_type')
             ->get();

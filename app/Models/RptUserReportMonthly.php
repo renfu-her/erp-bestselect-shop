@@ -57,7 +57,8 @@ class RptUserReportMonthly extends Model
             ->leftJoin('ord_received_orders as ro', 'order.id', '=', 'ro.source_id')
             ->leftJoin('prd_sale_channels as sale_channel', 'sale_channel.id', '=', 'order.sale_channel_id')
             ->select(['order.sn', 'order.id', 'order.origin_price', 'order.gross_profit', 'sale_channel.sales_type'])
-            ->whereBetween('ro.receipt_date', [$sdate, $edate]);
+            ->whereBetween('ro.receipt_date', [$sdate, $edate])
+            ->where('order.status_code','received');
 
         if (isset($options['user_id'])) {
             $re->leftJoin('usr_customers as customer', 'order.mcode', '=', 'customer.sn')
@@ -79,10 +80,9 @@ class RptUserReportMonthly extends Model
                 $query->whereNull('order.gross_profit')
                     ->orWhere('order.gross_profit', 0);
             })
-          
+
             ->get()
             ->toArray();
-
 
         $atomic = RptReport::atomic()->whereIn('order.id', array_map(function ($n) {
             return $n->id;
@@ -148,10 +148,10 @@ class RptUserReportMonthly extends Model
                 $user[$value->user_id] = ['0' => [], '1' => []];
             }
 
-            $user[$value->user_id][$value->sales_type] = $value;
+            $user[$value->user_id][$value->sales_type][] = $value;
         }
 
-        //   self::where('month', $currentMonth)->delete();
+       
 
         self::insert(array_map(function ($n, $idx) use ($currentMonth) {
             $data = ['user_id' => $idx,
@@ -161,28 +161,31 @@ class RptUserReportMonthly extends Model
                 'on_gross_profit' => 0,
                 'off_price' => 0,
                 'off_gross_profit' => 0,
+                'month' => date('Y-m-1', strtotime($currentMonth)),
             ];
 
-            if ($n[0]) {
-                $data['off_price'] = $n[0]->total_price;
-                $data['off_gross_profit'] = $n[0]->gross_profit;
-                $data['total_price'] += $n[0]->total_price;
-                $data['total_gross_profit'] += $n[0]->gross_profit;
-                $data['month'] = $n[0]->dd;
-
+            if (isset($n[0]) && count($n[0]) > 0) {
+                foreach ($n[0] as $d1) {
+                    self::subCacu($data, $d1, 'off');
+                }
             }
 
-            if ($n[1]) {
-                $data['on_price'] = $n[1]->total_price;
-                $data['on_gross_profit'] = $n[1]->gross_profit;
-                $data['total_price'] += $n[1]->total_price;
-                $data['total_gross_profit'] += $n[1]->gross_profit;
-                $data['month'] = $n[1]->dd;
-            }
-
+            if (isset($n[1]) && count($n[1]) > 0) {
+                foreach ($n[1] as $d1) {
+                    self::subCacu($data, $d1, 'on');
+                }
+            }   
             return $data;
 
         }, $user, array_keys($user)));
 
+    }
+
+    private static function subCacu(&$data, $d, $prefix)
+    {
+        $data[$prefix . '_price'] += $d->total_price;
+        $data[$prefix . '_gross_profit'] += $d->gross_profit;
+        $data['total_price'] += $d->total_price;
+        $data['total_gross_profit'] += $d->gross_profit;
     }
 }

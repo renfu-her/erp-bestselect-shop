@@ -3,7 +3,7 @@
     <h2 class="mb-4">
         @if (isset($type))
             審核
-        @endif 支付憑單
+        @endif 支出憑單
     </h2>
     <form id="search" method="GET">
         <div class="card shadow p-4 mb-4">
@@ -48,14 +48,14 @@
             <div class="col">
                 @if (!isset($type))
                     <a href="{{ Route('cms.expenditure.create', null, true) }}" class="btn btn-primary">
-                        <i class="bi bi-plus-lg"></i> 新增支付憑單
+                        <i class="bi bi-plus-lg"></i> 新增支出憑單
                     </a>
                 @endif
                 @php
-                    $bTitle = '審核支付憑單';
+                    $bTitle = '審核支出憑單';
                     $bTarget = 'audit-list';
                     if (isset($type)) {
-                        $bTitle = '支付憑單列表';
+                        $bTitle = '支出憑單列表';
                         $bTarget = 'index';
                     }
                     
