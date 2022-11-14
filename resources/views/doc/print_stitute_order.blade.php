@@ -56,7 +56,7 @@
                 <table width="710" style="font-size:small;text-align:left;border:0;margin: 0 auto;">
                     <tbody>
                         <tr>
-                            <td width="50%">付款單號：{{ $stitute_order->so_sn }}</td>
+                            <td width="50%">付款單號：{{ $stitute_order->so_sn }}{{ $stitute_order->po_id ? ' / ' . $stitute_order->po_sn : '' }}</td>
                             <td width="50%">製表日期：{{ date('Y-m-d', strtotime($stitute_order->so_created_at)) }}</td>
                         </tr>
                         <tr>
