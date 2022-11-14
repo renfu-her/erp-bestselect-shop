@@ -215,4 +215,9 @@ class Petition extends Model
 
     }
 
+    public static function getBindedOrder($order_id, $order_type)
+    {
+        
+    }
+
 }
