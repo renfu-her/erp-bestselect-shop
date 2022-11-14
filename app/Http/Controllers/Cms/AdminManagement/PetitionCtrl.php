@@ -19,6 +19,8 @@ class PetitionCtrl extends Controller
      */
     public function index(Request $request)
     {
+
+        Petition::getBindedOrder(42,'PET');
         $query = $request->all();
 
         $options = [

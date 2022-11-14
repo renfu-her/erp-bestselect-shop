@@ -217,7 +217,33 @@ class Petition extends Model
 
     public static function getBindedOrder($order_id, $order_type)
     {
-        
+
+        $select = ['source.id', 'source.sn', 'order.order_id', 'order.order_sn', 'order.order_type'];
+
+        $petition = DB::table('pet_order_sn as order')
+            ->select($select)->leftJoin('pet_petition as source', 'source.id', '=', 'order.source_id')
+            ->where('order.source_type', 'petition');
+
+        $expenditure = DB::table('pet_order_sn as order')
+            ->select($select)->leftJoin('exp_expenditure as source', 'source.id', '=', 'order.source_id')
+            ->where('order.source_type', 'expenditure');
+
+        $re = DB::table(DB::raw("({$petition->toSql()}) as sub"))->mergeBindings($petition)
+            ->union(DB::table(DB::raw("({$expenditure->toSql()}) as sub2"))->mergeBindings($expenditure));
+
+        $re2 = DB::table(DB::raw("({$re->toSql()}) as sub"))->mergeBindings($re)
+            ->where('order_id', 40);
+            
+
+        $re2->bindings['union'][] = 40;
+        unset($re2->bindings['where'][1]);
+       // dd($re2->bindings);
+        // ->where('')
+        //   ->where('sub.order_id', $order_id);
+        //   ->where('order_type', $order_type);
+
+      //  dd($re2->get());
+        // dd($expenditure->get());
     }
 
 }
