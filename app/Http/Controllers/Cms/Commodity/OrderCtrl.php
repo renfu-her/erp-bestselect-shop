@@ -48,6 +48,7 @@ use App\Models\PayableForeignCurrency;
 use App\Models\PayableOther;
 use App\Models\PayableRemit;
 use App\Models\PayingOrder;
+use App\Models\Petition;
 use App\Models\Product;
 use App\Models\PurchaseInbound;
 use App\Models\ReceivedDefault;
@@ -203,7 +204,7 @@ class OrderCtrl extends Controller
             'data_per_page' => $page,
             'canViewWholeOrder' => $canViewWholeOrder,
             'profitUsers' => $profitUsers,
-            'has_back_sn' => $has_back_sn
+            'has_back_sn' => $has_back_sn,
         ]);
     }
 
@@ -571,6 +572,8 @@ class OrderCtrl extends Controller
             }
         }
 
+        // 相關單號連結
+
         return view('cms.commodity.order.detail', [
             'sn' => $sn,
             'order' => $order,
@@ -590,6 +593,7 @@ class OrderCtrl extends Controller
             'po_check' => $po_check,
             'has_already_pay_delivery_back' => $has_already_pay_delivery_back,
             'dividendList' => $dividendList,
+            'relation_order' => Petition::getBindedOrder($id, 'O'),
         ]);
     }
 
@@ -1055,10 +1059,10 @@ class OrderCtrl extends Controller
         }
 
         $order_list_data = OrderItem::item_order(request('id'))->get();
-        $order_refund_data = ReceivedRefund::refund_list(null, $received_order_data->first()->id)->addSelect( DB::raw('("' . route('cms.collection_payment.refund-po-show', ['id' => $received_order_data->first()->id]) . '") AS po_url') )->get();
+        $order_refund_data = ReceivedRefund::refund_list(null, $received_order_data->first()->id)->addSelect(DB::raw('("' . route('cms.collection_payment.refund-po-show', ['id' => $received_order_data->first()->id]) . '") AS po_url'))->get();
         $refund_po_check = false;
-        if(count($order_refund_data) > 0){
-            if($order_refund_data->first()->po_id){
+        if (count($order_refund_data) > 0) {
+            if ($order_refund_data->first()->po_id) {
                 $refund_po_check = true;
             }
         }
@@ -1618,7 +1622,6 @@ class OrderCtrl extends Controller
             ]);
         }
     }
-
 
     public function logistic_po(Request $request, $id, $sid)
     {
@@ -2524,13 +2527,13 @@ class OrderCtrl extends Controller
         $balance = $pay_in - $pay_out;
 
         if (!$pay_in_log || $balance <= 0) {
-            wToast(__('Line Pay 付款取消失敗'), ['type'=>'danger']);
+            wToast(__('Line Pay 付款取消失敗'), ['type' => 'danger']);
             return redirect()->route('cms.order.detail', [
                 'id' => $source_id,
             ]);
         }
 
-        if($source_type == app(Order::class)->getTable()){
+        if ($source_type == app(Order::class)->getTable()) {
             $request->validate([
                 'id' => 'required|exists:ord_orders,id',
             ]);
@@ -2545,8 +2548,8 @@ class OrderCtrl extends Controller
                 ]);
 
                 $current_pay_out = request('pay_out_price');
-                if(($balance - $current_pay_out) < 0){
-                    wToast(__('Line Pay 付款取消失敗'), ['type'=>'danger']);
+                if (($balance - $current_pay_out) < 0) {
+                    wToast(__('Line Pay 付款取消失敗'), ['type' => 'danger']);
                     return redirect()->route('cms.order.detail', [
                         'id' => $source_id,
                     ]);
@@ -2554,17 +2557,17 @@ class OrderCtrl extends Controller
 
                 $data = [
                     // 'refundAmount' => null // set null = all price refund
-                    'refundAmount' => $current_pay_out
+                    'refundAmount' => $current_pay_out,
                 ];
                 $result = OrderPayLinePay::api_send('refund', $pay_in_log->transaction_id, $data);
                 $result->more_info = [
-                    'action'=>'refund',
-                    'transaction_id'=>$pay_in_log->transaction_id,
-                    'authamt'=>$current_pay_out,
+                    'action' => 'refund',
+                    'transaction_id' => $pay_in_log->transaction_id,
+                    'authamt' => $current_pay_out,
                 ];
                 OrderPayLinePay::create_log($source_type, $source_id, $result);
 
-                if($result->returnCode == '0000'){
+                if ($result->returnCode == '0000') {
                     wToast(__('Line Pay 付款取消成功'));
                     return redirect()->route('cms.order.detail', [
                         'id' => $source_id,
@@ -2585,7 +2588,7 @@ class OrderCtrl extends Controller
             }
         }
 
-        wToast(__('Line Pay 付款取消失敗'), ['type'=>'danger']);
+        wToast(__('Line Pay 付款取消失敗'), ['type' => 'danger']);
         return redirect()->route('cms.order.detail', [
             'id' => $source_id,
         ]);
@@ -2766,7 +2769,7 @@ class OrderCtrl extends Controller
 
     public function updateItem(Request $request, $id)
     {
-       // dd($_POST);
+        // dd($_POST);
         $request->validate([
             'item_id' => 'required|array',
             'note' => 'required|array',
@@ -2875,7 +2878,7 @@ class OrderCtrl extends Controller
         Order::where('id', $id)->update($updateData);
 
         // 發票
-        $re = Order::updateOrderUsrPayMethod($id, $request->only('category', 'invoice_method', 'carrier_type', 'carrier_email','inv_title','buyer_ubn','carrier_num'));
+        $re = Order::updateOrderUsrPayMethod($id, $request->only('category', 'invoice_method', 'carrier_type', 'carrier_email', 'inv_title', 'buyer_ubn', 'carrier_num'));
         if ($re['success'] != '1') {
             DB::rollBack();
             return redirect()->back()->withErrors(['invoice' => $re['error_msg']]);

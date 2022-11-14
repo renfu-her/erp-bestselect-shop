@@ -222,28 +222,40 @@ class Petition extends Model
 
         $petition = DB::table('pet_order_sn as order')
             ->select($select)->leftJoin('pet_petition as source', 'source.id', '=', 'order.source_id')
-            ->where('order.source_type', 'petition');
+            ->where('order.source_type', 'petition')
+            ->whereNull('source.deleted_at');
 
         $expenditure = DB::table('pet_order_sn as order')
             ->select($select)->leftJoin('exp_expenditure as source', 'source.id', '=', 'order.source_id')
-            ->where('order.source_type', 'expenditure');
+            ->where('order.source_type', 'expenditure')
+            ->whereNull('source.deleted_at');
 
         $re = DB::table(DB::raw("({$petition->toSql()}) as sub"))->mergeBindings($petition)
             ->union(DB::table(DB::raw("({$expenditure->toSql()}) as sub2"))->mergeBindings($expenditure));
 
         $re2 = DB::table(DB::raw("({$re->toSql()}) as sub"))->mergeBindings($re)
-            ->where('order_id', 40);
-            
+            ->select(['id', 'sn'])
+            ->where('order_id', $order_id)
+            ->where('order_type', $order_type);
 
-        $re2->bindings['union'][] = 40;
+        $re2->bindings['union'][] = $order_id;
+        $re2->bindings['union'][] = $order_type;
+
         unset($re2->bindings['where'][1]);
-       // dd($re2->bindings);
-        // ->where('')
-        //   ->where('sub.order_id', $order_id);
-        //   ->where('order_type', $order_type);
+        unset($re2->bindings['where'][2]);
 
-      //  dd($re2->get());
-        // dd($expenditure->get());
+        $re2 = $re2->get();
+        //    dd($re2);
+        foreach ($re2 as $d) {
+            $matches = null;
+            preg_match('/^([A-Za-z])*/u', $d->sn, $matches);
+            if ($matches) {
+                $d->url = getErpOrderUrl((object) ['order_id' => $d->id, 'order_type' => $matches[0]])->url;
+            }
+        }
+
+        return $re2;
+
     }
 
 }

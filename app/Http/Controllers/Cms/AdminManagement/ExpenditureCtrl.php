@@ -134,6 +134,7 @@ class ExpenditureCtrl extends Controller
             'order' => $orders,
             'formAction' => route('cms.expenditure.edit', ['id' => $id]),
             'breadcrumb_data' => $data->title,
+            'relation_order' => Petition::getBindedOrder($id, 'EXP'),
         ]);
     }
 
