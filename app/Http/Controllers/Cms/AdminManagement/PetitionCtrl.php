@@ -19,6 +19,8 @@ class PetitionCtrl extends Controller
      */
     public function index(Request $request)
     {
+
+        // Petition::getBindedOrder(42,'PET');
         $query = $request->all();
 
         $options = [
@@ -117,13 +119,14 @@ class PetitionCtrl extends Controller
         $orders = array_map(function ($n) {
             return getErpOrderUrl($n);
         }, Petition::getOrderSn($id, 'petition')->get()->toArray());
-
+        
         return view('cms.admin_management.petition.show', [
             'method' => 'edit',
             'data' => $data,
             'order' => $orders,
             'formAction' => route('cms.petition.edit', ['id' => $id]),
             'breadcrumb_data' => $data->title,
+            'relation_order' => Petition::getBindedOrder($id, 'PET'),
         ]);
     }
 

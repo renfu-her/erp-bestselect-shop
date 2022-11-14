@@ -10,17 +10,17 @@
             @endif
 
             @if ($received_order || !in_array($order->status, ['建立']))
-                @if (($receivable || in_array($order->status, ['已付款', '已入款', '結案'])))
-                    @if($received_credit_card_log)
+                @if ($receivable || in_array($order->status, ['已付款', '已入款', '結案']))
+                    @if ($received_credit_card_log)
                         <a href="{{ Route('api.web.order.credit_card_checkout', ['id' => $order->id, 'unique_id' => $order->unique_id]) }}"
                             class="btn btn-primary btn-sm my-1 ms-1" role="button" target="_blank">線上刷卡連結</a>
                     @endif
 
                     @can('cms.collection_received.edit')
-                    @if($line_pay_balance_price > 0)
-                        <a href="{{ route('cms.order.line-pay-refund', ['source_type' => 'ord_orders', 'source_id' => $order->id]) }}"
-                            class="btn btn-outline-danger btn-sm" role="button">Line Pay 付款取消</a>
-                    @endif
+                        @if ($line_pay_balance_price > 0)
+                            <a href="{{ route('cms.order.line-pay-refund', ['source_type' => 'ord_orders', 'source_id' => $order->id]) }}"
+                                class="btn btn-outline-danger btn-sm" role="button">Line Pay 付款取消</a>
+                        @endif
                     @endcan
                 @endif
             @else
@@ -120,6 +120,16 @@
                             <span>尚未完成收款</span>
                         @endif
                     </dd>
+                </div>
+            </dl>
+            <dl class="row">
+                <div class="col">
+                    <dt>相關單號</dt>
+                    @if (isset($relation_order))
+                        @foreach ($relation_order as $value)
+                            <dd><a href="{{ $value->url }}">{{ $value->sn }}</a></dd>
+                        @endforeach
+                    @endif
                 </div>
             </dl>
             <hr class="mt-0">
@@ -262,7 +272,7 @@
         @php
             $dlv_fee = 0;
             $price = 0;
-
+            
         @endphp
         @foreach ($subOrders as $subOrder)
             @php
@@ -436,11 +446,13 @@
                                 @if ($subOrder->ship_group_name == '')
                                     尚未設定物流
                                 @else
-                                    @if($subOrder->logistic_po_sn)
-                                        <a href="{{ Route('cms.order.logistic-po', ['id' => $subOrder->order_id, 'sid' => $subOrder->id]) }}">{{ $subOrder->logistic_po_sn }}</a>
+                                    @if ($subOrder->logistic_po_sn)
+                                        <a
+                                            href="{{ Route('cms.order.logistic-po', ['id' => $subOrder->order_id, 'sid' => $subOrder->id]) }}">{{ $subOrder->logistic_po_sn }}</a>
                                     @else
                                         @can('cms.collection_payment.logistic-po-create')
-                                        <a href="{{ Route('cms.order.logistic-po', ['id' => $subOrder->order_id, 'sid' => $subOrder->id]) }}">新增付款單</a>
+                                            <a
+                                                href="{{ Route('cms.order.logistic-po', ['id' => $subOrder->order_id, 'sid' => $subOrder->id]) }}">新增付款單</a>
                                         @endcan
                                     @endif
                                 @endif
@@ -468,14 +480,14 @@
                                     {{ $subOrder->package_sn }}
                                 @endif
                                 <!--
-                                                                            @if (false == empty($subOrder->projlgt_order_sn))
+                                                                                    @if (false == empty($subOrder->projlgt_order_sn))
     <a href="{{ env('LOGISTIC_URL') . 'guest/order-flow/' . $subOrder->projlgt_order_sn }}">
-                                                                                    {{ $subOrder->projlgt_order_sn }}
-                                                                                </a>
+                                                                                            {{ $subOrder->projlgt_order_sn }}
+                                                                                        </a>
 @else
     {{ $subOrder->package_sn ?? '(待處理)' }}
     @endif
-                                                                            -->
+                                                                                    -->
                             </dd>
                         </div>
                         <div class="col">

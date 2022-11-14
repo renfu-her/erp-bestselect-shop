@@ -49,7 +49,10 @@
                             @foreach ($order as $key => $value)
                                 <div class="mb-1"><a href="{{ $value->url }}">{{ $value->order_sn }}</a></div>
                             @endforeach
-
+                            <hr/>
+                            @foreach ($relation_order as $key => $value)
+                                <div class="mb-1"><a href="{{ $value->url }}">{{ $value->sn }}</a></div>
+                            @endforeach
                         </td>
                     </tr>
                 </tbody>
