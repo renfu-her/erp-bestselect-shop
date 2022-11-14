@@ -58,45 +58,15 @@ use Illuminate\Validation\ValidationException;
 
 class DeliveryCtrl extends Controller
 {
+    private $has_csn = [['false', '否'], ['true', '是']];
+    private $has_back_sn = [['all', '不限'], ['1', '只顯示有銷貨退回單']];
+
     public function index(Request $request)
     {
         $query = $request->query();
+        $cond = $this->initIndexQueryParam($query);
 
-        $has_csn = [['false', '否'], ['true', '是']];
-        $has_back_sn = [['all', '不限'], ['1', '只顯示有銷貨退回單']];
-        $cond = [];
-        $cond['delivery_sn'] = Arr::get($query, 'delivery_sn', null);
-        $cond['event_sn'] = Arr::get($query, 'event_sn', null);
-        $cond['receive_depot_id'] = Arr::get($query, 'receive_depot_id', []);
-        $cond['ship_method'] = Arr::get($query, 'ship_method', []);
-        $cond['logistic_status_code'] = Arr::get($query, 'logistic_status_code', []);
-        $cond['ship_category'] = Arr::get($query, 'ship_category', []);
-        $cond['order_status'] = Arr::get($query, 'order_status', []);
-
-        $cond['order_sdate'] = Arr::get($query, 'order_sdate', null);
-        $cond['order_edate'] = Arr::get($query, 'order_edate', null);
-        $cond['delivery_sdate'] = Arr::get($query, 'delivery_sdate', null);
-        $cond['delivery_edate'] = Arr::get($query, 'delivery_edate', null);
-        $cond['has_csn'] = Arr::get($query, 'has_csn', $has_csn[0][0]);
-        $cond['has_back_sn'] = Arr::get($query, 'has_back_sn', $has_back_sn[0][0]);
-        $cond['ship_temp_id'] = Arr::get($query, 'ship_temp_id', []);
-        $cond['depot_temp_id'] = Arr::get($query, 'depot_temp_id', []);
-
-        $cond['data_per_page'] = getPageCount(Arr::get($query, 'data_per_page'));
-
-        $delivery = null;
-        if (false == empty($cond['ship_category'])) {
-            $ship_method = $cond['ship_method'];
-            $ship_category = $cond['ship_category'];
-            if (true == in_array('pickup', $ship_category)) {
-                $cond['ship_method'] = [];
-            }
-            $delivery = Delivery::getList($cond)->paginate($cond['data_per_page'])->appends($query);
-            $cond['ship_method'] = $ship_method;
-            $cond['ship_category'] = $ship_category;
-        } else {
-            $delivery = Delivery::getList($cond)->paginate($cond['data_per_page'])->appends($query);
-        }
+        $delivery = Delivery::getList($cond)->paginate($cond['data_per_page'])->appends($query);
         $order_status = [];
         foreach (OrderStatus::asArray() as $item) {
             $order_status[$item] = OrderStatus::getDescription($item);
@@ -121,13 +91,38 @@ class DeliveryCtrl extends Controller
             'shipmentCategory' => ShipmentCategory::all(),
             'logisticStatus' => LogisticStatus::asArray(),
             'order_status' => $order_status,
-            'has_csn' => $has_csn,
+            'has_csn' => $this->has_csn,
             'searchParam' => $cond,
             'data_per_page' => $cond['data_per_page'],
             'temps' => Temps::get(),
-            'has_back_sn' => $has_back_sn,
+            'has_back_sn' => $this->has_back_sn,
             ]);
     }
+
+    private function initIndexQueryParam($query) {
+        $cond = [];
+        $cond['delivery_sn'] = Arr::get($query, 'delivery_sn', null);
+        $cond['event_sn'] = Arr::get($query, 'event_sn', null);
+        $cond['receive_depot_id'] = Arr::get($query, 'receive_depot_id', []);
+        $cond['ship_method'] = Arr::get($query, 'ship_method', []);
+        $cond['logistic_status_code'] = Arr::get($query, 'logistic_status_code', []);
+        $cond['ship_category'] = Arr::get($query, 'ship_category', []);
+        $cond['order_status'] = Arr::get($query, 'order_status', []);
+
+        $cond['order_sdate'] = Arr::get($query, 'order_sdate', null);
+        $cond['order_edate'] = Arr::get($query, 'order_edate', null);
+        $cond['delivery_sdate'] = Arr::get($query, 'delivery_sdate', null);
+        $cond['delivery_edate'] = Arr::get($query, 'delivery_edate', null);
+        $cond['has_csn'] = Arr::get($query, 'has_csn', $this->has_csn[0][0]);
+        $cond['has_back_sn'] = Arr::get($query, 'has_back_sn', $this->has_back_sn[0][0]);
+        $cond['ship_temp_id'] = Arr::get($query, 'ship_temp_id', []);
+        $cond['depot_temp_id'] = Arr::get($query, 'depot_temp_id', []);
+
+        $cond['data_per_page'] = getPageCount(Arr::get($query, 'data_per_page'));
+
+        return $cond;
+    }
+
 
     public function create($event, $eventId)
     {

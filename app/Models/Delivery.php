@@ -294,15 +294,24 @@ class Delivery extends Model
         if (isset($param['receive_depot_id']) && 0 < count($param['receive_depot_id'])) {
             $query->whereIn('query_receive_depot.depot_id', $param['receive_depot_id']);
         }
-        if (isset($param['ship_method']) && 0 < count($param['ship_method'])) {
-            $query->whereIn('shi_method.method', $param['ship_method']);
-        }
         if (isset($param['logistic_status_code']) && 0 < count($param['logistic_status_code'])) {
             $query->whereIn('delivery.logistic_status_code', $param['logistic_status_code']);
         }
         if (isset($param['ship_category']) && 0 < count($param['ship_category'])) {
             $query->whereIn('query_order.ship_category', $param['ship_category']);
         }
+        //判斷若為訂單自取 則不篩選 shi_method
+        $ship_method = $param['ship_method'];
+        if (false == empty($param['ship_category'])) {
+            if (true == in_array('pickup', $param['ship_category'])) {
+                $param['ship_method'] = [];
+            }
+        }
+        if (isset($ship_method) && 0 < count($ship_method)) {
+            $query->whereIn('shi_method.method', $ship_method);
+        }
+        $param['ship_method'] = $ship_method;
+
         if (isset($param['order_status']) && 0 < count($param['order_status'])) {
             $query->whereIn('query_order.order_status', $param['order_status']);
         }
