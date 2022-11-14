@@ -9,6 +9,11 @@
                         <i class="bi bi-plus-lg"></i> 新增通路
                     </a>
                 @endcan
+                @can('cms.sale_channel.edit')
+                    <a href="{{ Route('cms.sale_channel.batch-all-price') }}" class="btn btn-outline-success">
+                        <i class="bi"></i> 同步所有通路（官網售價/經銷價/訂價/獎金/鴻利點數）
+                    </a>
+                @endcan
             </div>
         </div>
 

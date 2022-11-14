@@ -24,6 +24,36 @@
                     列印出貨單-A4
                 </a>
             </div>
+            <div class="p-1 pe-2">
+            @if (isset($delivery) && isset($delivery->back_date))
+                @if (false == isset($delivery->back_inbound_date) && false == ($has_already_pay_delivery_back ?? false))
+                    <button type="button"
+                            data-href="{{ Route('cms.delivery.back_delete', ['deliveryId' => $delivery->id], true) }}"
+                            data-bs-toggle="modal" data-bs-target="#confirm-delete-back"
+                            class="btn btn-sm btn-danger -in-header mb-1">
+                        刪除退貨
+                    </button>
+                @endif
+
+                <a class="btn btn-sm btn-success -in-header mb-1"
+                   href="{{ Route('cms.delivery.back_detail', ['event' => \App\Enums\Delivery\Event::consignment()->value, 'eventId' => $delivery->event_id], true) }}">銷貨退回明細</a>
+
+                @can('cms.delivery.edit')
+                    @if (isset($delivery->back_inbound_date))
+                        <a class="btn btn-sm btn-danger -in-header mb-1"
+                           href="{{ Route('cms.delivery.back_inbound_delete', ['deliveryId' => $delivery->id], true) }}">刪除退貨入庫</a>
+                    @elseif(true == $is_inbounded)
+                        <a class="btn btn-sm btn-success -in-header mb-1"
+                           href="{{ Route('cms.delivery.back_inbound', ['event' => \App\Enums\Delivery\Event::consignment()->value, 'eventId' => $delivery->event_id], true) }}">退貨入庫審核</a>
+                    @endif
+                @endcan
+
+            @else
+                <a class="btn btn-sm btn-outline-danger -in-header mb-1"
+                   href="{{ Route('cms.delivery.back', ['event' => \App\Enums\Delivery\Event::consignment()->value, 'eventId' => $delivery->event_id], true) }}">退貨</a>
+            @endif
+            </div>
+
         </nav>
     @endif
 
