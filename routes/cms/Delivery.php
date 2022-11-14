@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::group(['prefix' => 'delivery','as'=>'delivery.'], function () {
     Route::get('', [DeliveryCtrl::class, 'index'])->name('index')->middleware('permission:cms.delivery.index');
+    //匯出
+    Route::get('export_list', [DeliveryCtrl::class, 'exportList'])->name('export-list')->middleware('permission:cms.delivery.index');
 
     Route::get('create/{event}/{eventId}', [DeliveryCtrl::class, 'create'])->name('create')->middleware('permission:cms.delivery.edit');
     Route::post('store/{deliveryId}', [DeliveryCtrl::class, 'store'])->name('store')->middleware('permission:cms.delivery.edit');

@@ -11,9 +11,9 @@ use App\Enums\Purchase\LogEventFeature;
 use App\Enums\Payable\ChequeStatus;
 use App\Enums\StockEvent;
 use App\Enums\Supplier\Payment;
+use App\Exports\Delivery\DeliveryListExport;
 use App\Helpers\IttmsDBB;
 use App\Http\Controllers\Controller;
-use App\Models\AllGrade;
 use App\Models\AccountPayable;
 use App\Models\Consignment;
 use App\Models\ConsignmentItem;
@@ -48,13 +48,13 @@ use App\Models\ReceiveDepot;
 use App\Models\ShipmentCategory;
 use App\Models\ShipmentGroup;
 use App\Models\SubOrders;
-use App\Models\Supplier;
 use App\Models\Temps;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use Maatwebsite\Excel\Facades\Excel;
 
 class DeliveryCtrl extends Controller
 {
@@ -97,6 +97,57 @@ class DeliveryCtrl extends Controller
             'temps' => Temps::get(),
             'has_back_sn' => $this->has_back_sn,
             ]);
+    }
+
+    public function exportList(Request $request)
+    {
+        $query = $request->query();
+        $cond = $this->initIndexQueryParam($query);
+
+        $data_list = Delivery::getList($cond)->get();
+
+        $data_arr = [];
+        if (null != $data_list) {
+            foreach ($data_list as $item) {
+                $data_arr[] = [
+                    $item->delivery_sn,
+                    $item->event_sn,
+                    $item->total_price,
+                    $item->depot_name ?? '-',
+                    $item->order_status,
+                    $item->logistic_status,
+                    $item->ship_category_name,
+                    $item->method ?? '-',
+                    $item->temp_name,
+                    $item->depot_temp_name,
+                    $item->sed_name,
+                    $item->rec_name,
+                    $item->rec_address,
+                ];
+            }
+        }
+        $column_name = [
+            '出貨單號',
+            '單據編號',
+            '訂單金額',
+            '寄件倉',
+            '訂單狀態',
+            '物流狀態',
+            '物流分類1',
+            '物流分類2',
+            '物流溫層',
+            '自取倉溫層',
+            '寄件人姓名',
+            '收件人姓名',
+            '收件人地址'
+        ];
+
+        $export= new DeliveryListExport([
+            $column_name,
+            $data_arr,
+        ]);
+
+        return Excel::download($export, 'delivery_list.xlsx');
     }
 
     private function initIndexQueryParam($query) {
