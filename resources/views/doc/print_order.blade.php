@@ -26,12 +26,6 @@
             position: relative;
         }
 
-        @page {
-            size: 214.9mm 140mm;
-            margin: 0;
-            /* 邊界 */
-        }
-
         .font {
             display: inline-block;
         }
@@ -169,11 +163,40 @@
                 </table>
             </div>
             <div class="print">
-                <button type="button" onclick="javascript:window.print();">我要列印</button>
+                <button type="button" onclick="printDoc('M1')">列印中一刀</button>
+                <button type="button" onclick="printDoc('A4')">列印A4</button>
                 <button type="button" onclick="javascript:window.close();">關閉視窗</button>
             </div>
         </div>
     </div>
 </body>
-
+<script>
+    function printDoc(type) {
+        switch (type) {
+            case 'A4':
+                document.head.insertAdjacentHTML('beforeend', `
+                <style>
+                    @page {
+                        size: A4 portrait;
+                        margin: 5mm auto;
+                    }
+                </style>
+                `);
+                break;
+            case 'M1':
+            default:
+                document.head.insertAdjacentHTML('beforeend', `
+                <style>
+                    @page {
+                        size: A5 landscape;
+                        margin: 2mm 0 0;
+                    }
+                </style>
+                `);
+                break;
+        }
+        
+        window.print();
+    }
+</script>
 </html>
