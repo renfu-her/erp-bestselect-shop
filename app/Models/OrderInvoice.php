@@ -608,7 +608,7 @@ class OrderInvoice extends Model
 
     public static function invoice_issue_api($id)
     {
-        $target = self::find($id);
+        $target = self::findOrFail($id);
 
         $data = [
             'RespondType' => 'JSON',
@@ -682,19 +682,47 @@ class OrderInvoice extends Model
     }
 
 
-    public static function invoice_invalid_api($id)
+    public static function invoice_invalid_api($id, string $invalid_reason)
     {
-        // $target = self::find($id);
+        $target = self::findOrFail($id);
 
-        // $data = [
-        //     'RespondType' => 'JSON',
-        //     'Version' => '1.0',
-        //     'TimeStamp' => time(),
-        //     'InvoiceNumber' => $target->invoice_number,
-        //     'InvalidReason' => $target->invalid_reason,
-        // ];
+        $data = [
+            'RespondType' => 'JSON',
+            'Version' => '1.0',
+            'TimeStamp' => time(),
+            'InvoiceNumber' => $target->invoice_number,
+            'InvalidReason' => $invalid_reason,
+        ];
 
-        // $api_result = self::api_send('invoice_invalid', $data);
+        $api_result = self::api_send('invoice_invalid', $data);
+
+        if($api_result){
+            foreach($api_result as $api_key => $api_value){
+                if($api_key == 'web_info'){
+                    if(is_string(json_decode($api_value)->Result)){
+                        $target->update([
+                            'r_invalid_status'=>json_decode($api_value)->Status,
+                            'r_invalid_msg'=>mb_convert_encoding(trim(json_decode($api_value)->Message), 'UTF-8', ['BIG5', 'UTF-8']),
+                            'r_invalid_json'=>json_decode($api_value)->Result,
+                            'invalid_merchant_id'=>json_decode(json_decode($api_value)->Result)->MerchantID,
+                            'invalid_invoice_number'=>json_decode(json_decode($api_value)->Result)->InvoiceNumber,
+                            'updated_at'=>date('Y-m-d H:i:s'),
+                            'deleted_at'=>date('Y-m-d H:i:s'),
+                        ]);
+
+                    } else {
+                        $target->update([
+                            'r_invalid_status'=>json_decode($api_value)->Status,
+                            'r_invalid_msg'=>mb_convert_encoding(trim(json_decode($api_value)->Message), 'UTF-8', ['BIG5', 'UTF-8']),
+                            'r_invalid_json'=>json_decode($api_value)->Result,
+                            'updated_at'=>date('Y-m-d H:i:s'),
+                        ]);
+                    }
+                }
+            }
+        }
+
+        return $target;
     }
 
 

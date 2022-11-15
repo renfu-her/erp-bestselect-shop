@@ -11,7 +11,7 @@
         <div class="card shadow p-4 mb-4">
             <div class="row">
                 <div class="col-12 col-sm-6 mb-3">
-                    <label class="form-label">自定訂單編號 <span class="text-danger">*</span></label>
+                    <label class="form-label">自定訂單編號 <i class="bi bi-info-circle" data-bs-toggle="tooltip" title="自定訂單編號僅允許英數字及_符號"></i><span class="text-danger">*</span></label>
                     <input type="text" name="merchant_order_no" class="form-control @error('merchant_order_no') is-invalid @enderror" placeholder="請輸入自定訂單編號" aria-label="自定訂單編號" value="{{ old('merchant_order_no', $invoice->merchant_order_no) }}" required>
                     <div class="invalid-feedback">
                         @error('merchant_order_no')
@@ -135,7 +135,7 @@
                     <legend class="col-form-label p-0 mb-2">發票方式 <span class="text-danger">*</span></legend>
                     <div class="px-1 pt-1">
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" name="invoice_method" value="print" type="radio" id="print" required {{ (old('invoice_method') == 'print' || $invoice->print_flag == 'Y') ? 'checked' : '' }}>
+                            <input class="form-check-input" name="invoice_method" value="print" type="radio" id="print" required {{ old('invoice_method') == 'print' ? 'checked' : ( (!old('invoice_method') && $invoice->print_flag == 'Y') ? 'checked' : '') }}>
                             <label class="form-check-label" for="print">紙本發票(無載具、列印電子發票證明聯)</label>
                         </div>
                         {{--
@@ -145,7 +145,7 @@
                         </div>
                         --}}
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" name="invoice_method" value="e_inv" type="radio" id="e_inv" required {{ (old('invoice_method') == 'e_inv' || $invoice->print_flag == 'N') ? 'checked' : '' }}{{ $invoice->category == 'B2B' ? 'disabled' : '' }}>
+                            <input class="form-check-input" name="invoice_method" value="e_inv" type="radio" id="e_inv" required {{ old('invoice_method') == 'e_inv' ? 'checked' : ( (!old('invoice_method') && $invoice->print_flag == 'N') ? 'checked' : '') }}{{ $invoice->category == 'B2B' ? 'disabled' : '' }}>
                             <label class="form-check-label" for="e_inv">電子發票</label>
                         </div>
                     </div>
@@ -171,7 +171,7 @@
                 </div>
             </div>
 
-            <div class="row carrier{{ $invoice->print_flag == 'N' ? '' : ' d-none' }}">
+            <div class="row carrier{{ old('invoice_method') == 'e_inv' ? '' : ( (!old('invoice_method') && $invoice->print_flag == 'N') ? '' : ' d-none') }}">
                 <fieldset class="col-12 col-sm-6 mb-3">
                     <legend class="col-form-label p-0 mb-2">載具類型 <span class="text-danger">*</span></legend>
                     <div class="px-1 pt-1">

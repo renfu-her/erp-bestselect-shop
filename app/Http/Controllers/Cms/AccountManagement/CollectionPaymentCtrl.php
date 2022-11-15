@@ -1261,7 +1261,7 @@ class CollectionPaymentCtrl extends Controller
         ]);
 
         $request->validate([
-            'id'=>'required|exists:ord_received_orders,id,deleted_at,NULL',
+            'id'=>'required|exists:ord_received_orders,id',
         ]);
 
         $received_order = ReceivedOrder::findOrFail($id);
