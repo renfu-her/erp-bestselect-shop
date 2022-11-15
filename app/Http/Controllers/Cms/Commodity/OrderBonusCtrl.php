@@ -157,7 +157,7 @@ class OrderBonusCtrl extends Controller
         $profit = OrderProfit::dataList(null, $customer_id, $month_report->report_at)->get();
         //   dd($profit);
         $customer_reports = OrderCustomerProfitReport::dataList($id)->where('customer.id', $customer_id)->get()->first();
-     //   dd($customer_reports);
+        //   dd($customer_reports);
 
         return view('cms.commodity.order_bonus.bonus', [
             'customer' => $customer_reports,
@@ -171,8 +171,8 @@ class OrderBonusCtrl extends Controller
     /**
      * @param  Request  $request
      * 明細CSV
-        列出所有每個人的訂單明細
-        姓名/mcode/子訂單/品名規格/金額/數量/小計/獎金
+    列出所有每個人的訂單明細
+    姓名/mcode/子訂單/品名規格/金額/數量/小計/獎金
      *
      */
     public function exportPersonalProfitToCsv(Request $request)
@@ -316,7 +316,7 @@ class OrderBonusCtrl extends Controller
         //  dd($baseData);
         //  exit;
         // return response()->stream($callback, 200, $headers);
-        return response()->streamDownload(function () use ($title, $datas, $bank_type, $baseData,$month_report) {
+        return response()->streamDownload(function () use ($title, $datas, $bank_type, $baseData, $month_report) {
             $file = fopen('php://output', 'w');
 
             fwrite($file, "\xEF\xBB\xBF");
@@ -326,10 +326,10 @@ class OrderBonusCtrl extends Controller
             if ($bank_type == 'a') {
                 foreach ($datas as $key => $data) {
                     fputcsv($file, [
-                        str_pad($key + 1, 3, '0', STR_PAD_LEFT),
+                        "001",
                         $baseData->pay_edi,
                         $baseData->pay_code,
-                        $month_report->transfer_at,
+                        date('Ymd', strtotime($month_report->transfer_at)),
                         "",
                         $data->bonus,
                         $baseData->pay_bank_account,
@@ -380,8 +380,8 @@ class OrderBonusCtrl extends Controller
     {
         return (object) [
             "pay_code" => '13',
-            "pay_bank_account" => '844871001158',
-            "pay_bank_code" => '60844',
+            "pay_bank_account" => '0844871001158',
+            "pay_bank_code" => '0060844',
             "pay_bank_account_name" => '喜鴻國際企業股份有限公司',
             "pay_identity_sn" => '83183027',
             'pay_notify' => 'AF',
