@@ -1215,8 +1215,10 @@
                 const Data = {
                     keyword: $('#addProduct .-searchBar input').val(),
                     price: $('#salechannel').val(),
-                    stock_status: 'in_stock',
-                    shipment: '1'
+                    stock_status: 'in_stock',   // 有庫存
+                    shipment: '1',      // 有設定物流
+                    active_date: '1',   // 上架期限
+                    public: '1',        // 公開
                 };
                 resetAddProductModal();
 

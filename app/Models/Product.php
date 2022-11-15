@@ -110,7 +110,7 @@ class Product extends Model
                 ->leftJoin('collection as colc', 'colc.id', '=', 'cprd.collection_id_fk')
                 ->addSelect([
                     'colc.name as collection_name',
-                    'collection_id_fk'
+                    'collection_id_fk',
                 ])
                 ->groupBy('id')
                 ->where('colc.is_liquor', '=', 1)
@@ -192,7 +192,7 @@ class Product extends Model
                         'prd_product_shipment.category_id as hasDelivery',
                     );
             }
-        } elseif(isset($options['hasDelivery']) && $options['hasDelivery'] == 'all') {
+        } elseif (isset($options['hasDelivery']) && $options['hasDelivery'] == 'all') {
             //不限是否設定宅配
             $re->leftJoin('prd_product_shipment', 'product.id', '=', 'prd_product_shipment.product_id')
                 ->addSelect(['prd_product_shipment.product_id AS hasDelivery']);
@@ -346,7 +346,7 @@ class Product extends Model
                 Supplier::updateProductSupplier($id, $supplier);
             }
 
-            return ['success' => 1, 'sku' => $sku, 'id' => $id,];
+            return ['success' => 1, 'sku' => $sku, 'id' => $id];
 
         });
     }
@@ -538,6 +538,16 @@ class Product extends Model
                     $query->whereNotNull('shipment.product_id')
                         ->orWhere('pickup.pickup_count', '>', 0);
                 });
+        }
+        // 是否撈取時限內的商品
+        if (isset($options['active_date']) && $options['active_date'] == '1') {
+            $re->where(function ($query) {
+                $now = date('Y-m-d H:i:s');
+                $query->where('p.active_sdate', '<=', $now)
+                    ->where('p.active_edate', '>=', $now)
+                    ->orWhereNull('p.active_sdate')
+                    ->orWhereNull('p.active_edate');
+            });
         }
 
         return $re;
@@ -1211,7 +1221,7 @@ class Product extends Model
                 $minImageId = $item->min('img_id');
                 $minImageUrl = $item[0]->img_url;
                 foreach ($item as $datum) {
-                    if($datum->img_id === $minImageId){
+                    if ($datum->img_id === $minImageId) {
                         $minImageUrl = $datum->img_url;
                     }
                 }
