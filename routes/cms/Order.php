@@ -38,7 +38,7 @@ Route::group(['prefix' => 'order', 'as' => 'order.'], function () {
     Route::post('ajax-detail', [OrderCtrl::class, '_order_detail'])->name('ajax-detail')->middleware('permission:cms.order_invoice_manager.index');
     Route::get('invoice/{id}/show', [OrderCtrl::class, 'show_invoice'])->name('show-invoice');
     Route::match(['get', 'post'], 'invoice/{id}/edit', [OrderCtrl::class, 'edit_invoice'])->name('edit-invoice')->middleware('permission:cms.order_invoice_manager.index');
-    Route::get('invoice/{id}/send', [OrderCtrl::class, 'send_invoice'])->name('send-invoice')->middleware('permission:cms.order_invoice_manager.index');
+    Route::match(['get', 'post'], 'invoice/{id}/{action}/send', [OrderCtrl::class, 'send_invoice'])->name('send-invoice')->middleware('permission:cms.order_invoice_manager.index');
 
     Route::match(['get', 'post'], 'line_pay_refund/{source_type}/{source_id}', [OrderCtrl::class, 'line_pay_refund'])->name('line-pay-refund')->middleware('permission:cms.collection_received.edit');
 
