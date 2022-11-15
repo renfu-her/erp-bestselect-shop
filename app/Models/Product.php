@@ -373,6 +373,8 @@ class Product extends Model
             $url = $url . "-" . time();
         }
 
+        $active_edate = $active_edate ? date('Y-m-d 23:59:59', strtotime($active_edate)) : $active_edate;
+
         self::where('id', $id)->update([
             "title" => $title,
             "user_id" => $user_id,
