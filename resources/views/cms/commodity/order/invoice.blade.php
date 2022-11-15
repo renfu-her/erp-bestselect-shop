@@ -11,8 +11,7 @@
         <div class="card shadow p-4 mb-4">
             <div class="row">
                 <div class="col-12 col-sm-6 mb-3">
-                    <label class="form-label">自定訂單編號 <span class="text-danger">*</span></label>
-                    <i class="bi bi-info-circle" data-bs-toggle="tooltip" title="商品名稱至多為30個字元"></i>
+                    <label class="form-label">自定訂單編號 <i class="bi bi-info-circle" data-bs-toggle="tooltip" title="自定訂單編號僅允許英數字及_符號"></i><span class="text-danger">*</span></label>
                     <input type="text" name="merchant_order_no" class="form-control @error('merchant_order_no') is-invalid @enderror" placeholder="請輸入自定訂單編號" aria-label="自定訂單編號" value="{{ old('merchant_order_no', $order->sn) }}" required>
                     <div class="invalid-feedback">
                         @error('merchant_order_no')
