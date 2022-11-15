@@ -138,10 +138,21 @@ class Product extends Model
 
             $re->where(function ($query) {
                 $now = date('Y-m-d H:i:s');
+                /*
                 $query->where('product.active_sdate', '<=', $now)
-                    ->where('product.active_edate', '>=', $now)
-                    ->orWhereNull('product.active_sdate')
-                    ->orWhereNull('product.active_edate');
+                ->where('product.active_edate', '>=', $now)
+                ->orWhereNull('product.active_sdate')
+                ->orWhereNull('product.active_edate');
+                 */
+
+                $query->where(function ($query) use ($now) {
+                    $query->where('product.active_sdate', '<=', $now)
+                        ->orWhereNull('product.active_sdate');
+                })
+                    ->where(function ($query) use ($now) {
+                        $query->where('product.active_edate', '>=', $now)
+                            ->orWhereNull('product.active_edate');
+                    });
             });
 
         }
@@ -545,10 +556,22 @@ class Product extends Model
         if (isset($options['active_date']) && $options['active_date'] == '1') {
             $re->where(function ($query) {
                 $now = date('Y-m-d H:i:s');
+                /*
                 $query->where('p.active_sdate', '<=', $now)
-                    ->where('p.active_edate', '>=', $now)
-                    ->orWhereNull('p.active_sdate')
-                    ->orWhereNull('p.active_edate');
+                ->where('p.active_edate', '>=', $now)
+                ->orWhereNull('p.active_sdate')
+                ->orWhereNull('p.active_edate');
+                 */
+
+                $query->where(function ($query) use ($now) {
+                    $query->where('p.active_sdate', '<=', $now)
+                        ->orWhereNull('p.active_sdate');
+                })
+                    ->where(function ($query) use ($now) {
+                        $query->where('p.active_edate', '>=', $now)
+                            ->orWhereNull('p.active_edate');
+                    });
+
             });
         }
 
