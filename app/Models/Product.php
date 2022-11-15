@@ -245,6 +245,7 @@ class Product extends Model
             ->leftJoin('prd_product_styles as style', 'style.id', '=', 'price.style_id')
             ->select(['price.*', 'style.product_id'])
             ->where('price.sale_channel_id', $sale_channel_id)
+            ->where('style.is_active', 1)
             ->orderBy('price.price', 'ASC');
         if ($product_id) {
             $subPrice->whereIn('product_id', $product_id);
