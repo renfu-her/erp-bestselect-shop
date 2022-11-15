@@ -1216,7 +1216,8 @@
                     keyword: $('#addProduct .-searchBar input').val(),
                     price: $('#salechannel').val(),
                     stock_status: 'in_stock',
-                    shipment: '1'
+                    shipment: '1',
+                    active_date: '1'    // 上架期限
                 };
                 resetAddProductModal();
 
