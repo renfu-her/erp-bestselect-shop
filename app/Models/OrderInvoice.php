@@ -704,9 +704,7 @@ class OrderInvoice extends Model
                             'r_invalid_status'=>json_decode($api_value)->Status,
                             'r_invalid_msg'=>mb_convert_encoding(trim(json_decode($api_value)->Message), 'UTF-8', ['BIG5', 'UTF-8']),
                             'r_invalid_json'=>json_decode($api_value)->Result,
-                            'invalid_merchant_id'=>json_decode(json_decode($api_value)->Result)->MerchantID,
                             'invalid_invoice_number'=>json_decode(json_decode($api_value)->Result)->InvoiceNumber,
-                            'updated_at'=>date('Y-m-d H:i:s'),
                             'deleted_at'=>date('Y-m-d H:i:s'),
                         ]);
 
