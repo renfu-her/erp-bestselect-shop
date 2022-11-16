@@ -105,11 +105,9 @@
 
                 <a href="{{ Route('cms.order.edit-invoice', ['id' => $invoice->id]) }}" class="btn btn-primary px-4" role="button">編輯發票</a>
 
-            @elseif($invoice->status == 1 && $invoice->r_status == 'SUCCESS')
+            @elseif($invoice->status == 1 && $invoice->r_status == 'SUCCESS' && $invoice->r_invalid_status != 'SUCCESS')
                 @if($check_invoice_invalid)
                     <button type="button" class="btn btn-outline-danger px-4" data-bs-toggle="modal" data-bs-target="#confirm-invalid-invoice">發票作廢</button>
-                @else
-                    <button type="button" class="btn btn-outline-danger px-4" disabled>發票作廢</button>
                 @endif
             @endif
         @endcan

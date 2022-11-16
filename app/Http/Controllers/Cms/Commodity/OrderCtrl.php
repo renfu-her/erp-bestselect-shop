@@ -2375,8 +2375,8 @@ class OrderCtrl extends Controller
         // }
 
         $inv_month = date('m', strtotime($invoice->created_at));
-        $modify_month = $inv_month % 2 == 0 ? '+1 months' : '+2 months';
-        $inv_invalid_date = date('Y-m-15', strtotime($modify_month, strtotime($invoice->created_at)));
+        $modify_month = $inv_month % 2 == 0 ? '+0 months' : '+1 months';
+        $inv_invalid_date = date('Y-m-t', strtotime($modify_month, strtotime($invoice->created_at)));
         $current_date = date('Y-m-d', time());
 
         $check_invoice_invalid = true;
