@@ -122,7 +122,7 @@ class ProductCtrl extends Controller
                             ->orWhereNull('product.active_edate');
                     });
             })
-            ->orderBy('id')
+            ->orderBy('product.updated_at','DESC')
             ->whereNull('product.deleted_at');
 
         $subImg = DB::table('prd_product_images as img')
