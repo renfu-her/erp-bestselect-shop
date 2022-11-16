@@ -2384,6 +2384,13 @@ class OrderCtrl extends Controller
             $check_invoice_invalid = false;
         }
 
+        $view = 'cms.commodity.order.invoice_detai';
+        if (request('action') == 'print_inv_a4') {
+            $view = 'doc.print_order_invoice_a4';
+        } else if(request('action') == 'print_inv_B2B') {
+            $view = 'doc.print_order_invoice_B2B';
+        }
+
         return view('cms.commodity.order.invoice_detail', [
             'breadcrumb_data' => ['id' => $id, 'sn' => $order->sn],
 
