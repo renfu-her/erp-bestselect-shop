@@ -3,6 +3,37 @@
 @section('sub-content')
     <h2 class="mb-4">電子發票</h2>
 
+    <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
+        <div class="p-1 pe-2">
+            @can('cms.order_invoice_manager.index')
+                {{-- @if($invoice->status == 1 && is_null($invoice->r_status)) --}}
+                @if($invoice->status == 1 && $invoice->r_status != 'SUCCESS')
+                    <a href="javascript:void(0)" role="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" 
+                        data-bs-target="#confirm-issue-invoice" data-href="{{ Route('cms.order.send-invoice', ['id' => $invoice->id, 'action' => 'issue']) }}">
+                        開立發票
+                    </a>
+
+                    <a href="{{ Route('cms.order.edit-invoice', ['id' => $invoice->id]) }}" class="btn btn-sm btn-primary" role="button">編輯發票</a>
+
+                @elseif($invoice->status == 1 && $invoice->r_status == 'SUCCESS')
+                    @if($invoice->print_flag == 'Y')
+                        <a href="{{ url()->full() . '?action=print_inv_a4' }}" target="_blank" 
+                            class="btn btn-sm btn-warning">發票列印(單張)</a>
+
+                        <a href="{{ url()->full() . '?action=print_inv_B2B' }}" target="_blank" 
+                            class="btn btn-sm btn-warning">發票列印(B2B)</a>
+                    @endif
+
+                    @if($invoice->r_invalid_status != 'SUCCESS')
+                        @if($check_invoice_invalid)
+                            <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#confirm-invalid-invoice">發票作廢</button>
+                        @endif
+                    @endif
+                @endif
+            @endcan
+        </div>
+    </nav>
+
     <div class="card shadow p-4 mb-4">
         <dl class="row border-bottom mx-0">
             <div class="col">
@@ -95,30 +126,35 @@
     </div>
 
     <div class="col-auto">
-        @can('cms.order_invoice_manager.index')
-        {{-- @if($invoice->status == 1 && is_null($invoice->r_status)) --}}
-        @if($invoice->status == 1 && $invoice->r_status != 'SUCCESS')
-        <a href="javascript:void(0)" role="button" class="btn btn-primary px-4" data-bs-toggle="modal" 
-            data-bs-target="#confirm-invoice" data-href="{{ Route('cms.order.send-invoice', ['id' => $invoice->id]) }}">
-            開立發票
-        </a>
-        @endif
-
-        @if($invoice->status == 1 && $invoice->r_status != 'SUCCESS')
-        <a href="{{ Route('cms.order.edit-invoice', ['id' => $invoice->id]) }}" class="btn btn-primary px-4" role="button">編輯發票</a>
-        @endif
-        @endcan
-
         <a href="{{ Route('cms.order.detail', ['id' => $invoice->source_id]) }}" class="btn btn-outline-primary px-4" 
             role="button">返回 訂單明細</a>
     </div>
 
     <!-- Modal -->
-    <x-b-modal id="confirm-invoice">
+    <x-b-modal id="confirm-issue-invoice">
         <x-slot name="title">開立發票</x-slot>
         <x-slot name="body">確認要開立此發票？</x-slot>
         <x-slot name="foot">
             <a class="btn btn-danger btn-ok" href="#">確認</a>
+        </x-slot>
+    </x-b-modal>
+
+    <x-b-modal id="confirm-invalid-invoice">
+        <x-slot name="title">發票作廢</x-slot>
+
+        <x-slot name="body">
+            <form action="{{ Route('cms.order.send-invoice', ['id' => $invoice->id, 'action' => 'invalid']) }}" method="POST">
+                @csrf
+                <p>確認要作廢此發票？</p>
+                <x-b-form-group name="invalid_reason" title="作廢原因" required="true">
+                    <input type="text" class="form-control" name="invalid_reason" value="" aria-label="作廢原因" required>
+                </x-b-form-group>
+
+                <div class="col-auto float-end">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-danger">確認</button>
+                </div>
+            </form>
         </x-slot>
     </x-b-modal>
 @endsection
@@ -130,7 +166,10 @@
     @push('sub-scripts')
         <script>
             // Modal Control
-            $('#confirm-invoice').on('show.bs.modal', function(e) {
+            $('#confirm-issue-invoice').on('show.bs.modal', function(e) {
+                $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
+            });
+            $('#confirm-invalid-invoice').on('show.bs.modal', function(e) {
                 $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
             });
         </script>

@@ -2221,7 +2221,7 @@ class OrderCtrl extends Controller
 
         $request->validate([
             'id' => 'required|exists:ord_orders,id',
-            'merchant_order_no' => 'required|string',
+            'merchant_order_no' => 'required|string|regex:/^[\w]{1,20}$/',
             'status' => 'required|in:1,9',
             'merge_source' => 'nullable|array',
             'merge_source.*' => 'exists:ord_orders,id',
@@ -2363,10 +2363,7 @@ class OrderCtrl extends Controller
         $invoice = OrderInvoice::where([
             'source_type' => $source_type,
             'source_id' => $id,
-        ])->first();
-        if (!$invoice) {
-            return abort(404);
-        }
+        ])->firstOrFail();
 
         $handler = User::find($invoice->user_id);
 
@@ -2377,11 +2374,29 @@ class OrderCtrl extends Controller
         //     $sub_order[$key]->consume_items = json_decode($value->consume_items);
         // }
 
+        $inv_month = date('m', strtotime($invoice->created_at));
+        $modify_month = $inv_month % 2 == 0 ? '+0 months' : '+1 months';
+        $inv_invalid_date = date('Y-m-t', strtotime($modify_month, strtotime($invoice->created_at)));
+        $current_date = date('Y-m-d', time());
+
+        $check_invoice_invalid = true;
+        if($current_date > $inv_invalid_date){
+            $check_invoice_invalid = false;
+        }
+
+        $view = 'cms.commodity.order.invoice_detai';
+        if (request('action') == 'print_inv_a4') {
+            $view = 'doc.print_order_invoice_a4';
+        } else if(request('action') == 'print_inv_B2B') {
+            $view = 'doc.print_order_invoice_B2B';
+        }
+
         return view('cms.commodity.order.invoice_detail', [
             'breadcrumb_data' => ['id' => $id, 'sn' => $order->sn],
 
             'invoice' => $invoice,
             'handler' => $handler,
+            'check_invoice_invalid' => $check_invoice_invalid,
             // 'order' => $order,
             // 'sub_order' => $sub_order,
         ]);
@@ -2451,7 +2466,7 @@ class OrderCtrl extends Controller
             }
         }
 
-        $invoice = OrderInvoice::find($id);
+        $invoice = OrderInvoice::findOrFail($id);
         $breadcrumb = (object) [
             'id' => null,
             'sn' => null,
@@ -2482,25 +2497,61 @@ class OrderCtrl extends Controller
         ]);
     }
 
-    public function send_invoice(Request $request, $id)
+    public function send_invoice(Request $request, $id, $action)
     {
         $request->merge([
             'id' => $id,
+            'action' => $action,
         ]);
         $request->validate([
             'id' => 'required|exists:ord_order_invoice,id',
+            'action' => 'required|in:issue,invalid,id',
         ]);
-        $inv_result = OrderInvoice::invoice_issue_api($id);
 
-        if ($inv_result->source_type == app(Order::class)->getTable() && $inv_result->r_status == 'SUCCESS') {
-            $parm = [
-                'order_id' => $inv_result->source_id,
-                'invoice_number' => $inv_result->invoice_number,
-            ];
-            Order::update_invoice_info($parm);
+        $inv_result = null;
+
+        if($action == 'issue'){
+            $inv_result = OrderInvoice::invoice_issue_api($id);
+
+            if ($inv_result->source_type == app(Order::class)->getTable() && $inv_result->r_status == 'SUCCESS') {
+                $parm = [
+                    'order_id' => $inv_result->source_id,
+                    'invoice_number' => $inv_result->invoice_number,
+                ];
+                Order::update_invoice_info($parm);
+            }
+
+            wToast(__($inv_result->r_msg));
+
+        } else if($action == 'invalid'){
+            $request->merge([
+                'invalid_reason' => request('invalid_reason'),
+            ]);
+            $request->validate([
+                'invalid_reason' => 'required|string',
+            ]);
+
+            $inv_result = OrderInvoice::invoice_invalid_api($id, request('invalid_reason'));
+
+            if ($inv_result->source_type == app(Order::class)->getTable() && $inv_result->r_invalid_status == 'SUCCESS') {
+                $parm = [
+                    'order_id' => $inv_result->source_id,
+                    'invoice_number' => null,
+                ];
+                Order::update_invoice_info($parm);
+            }
+
+            wToast(__($inv_result->r_invalid_msg));
+
+            return redirect()->route('cms.order.detail', [
+                'id' => $inv_result->source_id,
+            ]);
         }
 
-        wToast(__($inv_result->r_msg));
+        if(! $inv_result){
+            wToast(__('網路異常，請稍後重新嘗試', ['type' => 'danger']));
+        }
+
         return redirect()->back();
     }
 
