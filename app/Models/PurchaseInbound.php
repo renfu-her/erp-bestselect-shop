@@ -594,7 +594,7 @@ class PurchaseInbound extends Model
                 $result->whereBetween('inbound.expiry_date', [DB::raw('NOW()'), DB::raw('date_add(now(), interval '. $param['expire_day']. ' day)')]);
             } else if (0 > $param['expire_day']) {
                 //小於0 找過期
-                $result->where('inbound.expiry_date', '<=', $param['expire_day']);
+                $result->where('inbound.expiry_date', '<=', DB::raw('NOW()'));
             }
             $result->whereNotNull('inbound.expiry_date');
         }
@@ -1147,7 +1147,8 @@ class PurchaseInbound extends Model
             $products->whereIn('inbound.depot_id', $depot_id);
         }
         if ($searchParam['stock'] && in_array('still_actual_stock', $searchParam['stock'])) {
-            $products->where('inbound.total_in_stock_num', '>', 0);
+            $products->where('inbound.total_in_stock_num', '>', 0)
+                ->orWhere('inbound.total_in_stock_num_csn', '>', 0);
         }
         return $products;
     }

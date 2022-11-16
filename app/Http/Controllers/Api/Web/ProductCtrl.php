@@ -113,12 +113,16 @@ class ProductCtrl extends Controller
             ->where('product.online', 1)
             ->where(function ($query) {
                 $now = date('Y-m-d H:i:s');
-                $query->where('product.active_sdate', '<=', $now)
-                    ->where('product.active_edate', '>=', $now)
-                    ->orWhereNull('product.active_sdate')
-                    ->orWhereNull('product.active_edate');
+                $query->where(function ($query) use ($now) {
+                    $query->where('product.active_sdate', '<=', $now)
+                        ->orWhereNull('product.active_sdate');
+                })
+                    ->where(function ($query) use ($now) {
+                        $query->where('product.active_edate', '>=', $now)
+                            ->orWhereNull('product.active_edate');
+                    });
             })
-            ->orderBy('id')
+            ->orderBy('product.updated_at','DESC')
             ->whereNull('product.deleted_at');
 
         $subImg = DB::table('prd_product_images as img')

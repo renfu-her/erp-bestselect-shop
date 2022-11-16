@@ -55,6 +55,10 @@ class ProductCtrl extends Controller
         if (isset($d['shipment'])) {
             $options['shipment'] = 1;
         }
+
+        if (isset($d['active_date'])) {
+            $options['active_date'] = $d['active_date'];
+        }
        // $options['shipment'] = 1;
 
         // Arr::get($d, 'supplier_id',''),

@@ -236,6 +236,13 @@ class ConsignmentCtrl extends Controller
         $rcv_depot = ReceiveDepot::getDataList(['delivery_id' => $consignmentData->dlv_id])->get();
         $consumeItems = Consum::getConsumWithEvent(Event::consignment()->value, $id)->get()->toArray();
 
+        //判斷是否有入庫 有才可做退貨入庫審核
+        $is_inbounded = false;
+        $inbounded_list = PurchaseInbound::getInboundList(['event' => Event::consignment()->value, 'event_id' => $id])->get();
+        if (null != $inbounded_list && 0 < count($inbounded_list)) {
+            $is_inbounded = true;
+        }
+
         return view('cms.commodity.consignment.edit', [
             'id' => $id,
             'query' => $query,
@@ -244,6 +251,7 @@ class ConsignmentCtrl extends Controller
             'delivery' => $delivery,
             'consume_items' => $consumeItems,
             'rcv_depot' => $rcv_depot,
+            'is_inbounded' => $is_inbounded,
             'method' => 'edit',
             'formAction' => Route('cms.consignment.edit', ['id' => $id]),
             'breadcrumb_data' => ['id' => $id, 'sn' => $consignmentData->consignment_sn],

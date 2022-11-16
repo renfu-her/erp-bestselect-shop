@@ -12,6 +12,10 @@
             <table class="table table-bordered border-secondary">
                 <tbody>
                     <tr>
+                        <th width="100">序號</th>
+                        <td>{{ $data->sn }}</td>
+                    </tr>
+                    <tr>
                         <th width="100">主旨</th>
                         <td>{{ $data->title }}</td>
                     </tr>
@@ -28,6 +32,10 @@
                         <td>
                             @foreach ($order as $key => $value)
                                 <div class="mb-1"><a href="{{ $value->url }}">{{ $value->order_sn }}</a></div>
+                            @endforeach
+                            <hr/>
+                            @foreach ($relation_order as $key => $value)
+                                <div class="mb-1"><a href="{{ $value->url }}">{{ $value->sn }}</a></div>
                             @endforeach
 
                         </td>

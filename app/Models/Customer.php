@@ -93,7 +93,7 @@ class Customer extends Authenticatable
      * @return mixed
      */
     public static function createCustomer($name, $email, $password
-        , $phone = null, $birthday = null, $sex = null, $acount_status = 0
+        , $phone = null, $birthday = null, $sex = null, $acount_status = 1
         , $address = null, $city_id = null, $region_id = null, $addr = null
         , $newsletter = null
         , $loginMethods = null

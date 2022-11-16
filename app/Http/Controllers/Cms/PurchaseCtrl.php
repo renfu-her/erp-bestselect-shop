@@ -13,6 +13,7 @@ use App\Models\AllGrade;
 use App\Models\DayEnd;
 use App\Models\Depot;
 use App\Models\PayingOrder;
+use App\Models\Petition;
 use App\Models\Purchase;
 use App\Models\PayableAccount;
 use App\Models\PayableCash;
@@ -337,6 +338,7 @@ class PurchaseCtrl extends Controller
             'breadcrumb_data' => ['id' => $id, 'sn' => $purchaseData->purchase_sn],
 
             'inbound_names' => $inbound_names,
+            'relation_order' => Petition::getBindedOrder($id, 'B'),
         ]);
     }
 

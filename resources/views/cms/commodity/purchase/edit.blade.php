@@ -66,6 +66,15 @@
                             </div>
                         </div>
                     </fieldset>
+
+                    <div class="col-12 col-md-6 mb-3">
+                        <label class="form-label">相關單號</label>
+                        @if (isset($relation_order))
+                            @foreach ($relation_order as $value)
+                                <div><a href="{{ $value->url }}">{{ $value->sn }}</a></div>
+                            @endforeach
+                        @endif
+                    </div>
                 </div>
             </div>
         @endif
@@ -258,7 +267,9 @@
                                 @endif
                                 <td>
                                     <input type="text" class="form-control form-control-sm -xl" name="memo[]"
-                                           value="{{ old('memo.'. $psItemKey, $psItemVal->memo?? '') }}"/>
+                                           value="{{ old('memo.'. $psItemKey, $psItemVal->memo?? '') }}"
+                                           @if($hasReceivedFinalPayment) readonly @endif
+                                    />
                                 </td>
                             </tr>
                         @endforeach
@@ -435,7 +446,11 @@
                         && $purchaseData->audit_status == App\Enums\Consignment\AuditStatus::unreviewed()->value)
                         <button type="submit" class="btn btn-primary px-4">儲存</button>
                     @elseif($purchaseData->audit_status == App\Enums\Consignment\AuditStatus::approved()->value)
-                        <button type="submit" class="btn btn-primary px-4">儲存發票/採購備註</button>
+                        @if($hasReceivedFinalPayment)
+                            <button type="submit" class="btn btn-primary px-4">儲存發票</button>
+                        @else
+                            <button type="submit" class="btn btn-primary px-4">儲存發票/採購備註</button>
+                        @endif
                     @endif
                     <a href="{{ Route('cms.purchase.index', [], true) }}" class="btn btn-outline-primary px-4"
                        role="button">返回列表</a>

@@ -43,7 +43,7 @@
 
             <dl class="row mb-0">
                 <div class="col">
-                    <dd>付款單號：{{ $stitute_order->so_sn }}</dd>
+                    <dd>付款單號：{{ $stitute_order->so_sn }}{!! $stitute_order->po_id ? ' / ' . '<a href="' . route('cms.stitute.po-show', ['id' => $stitute_order->so_id]) . '">' . $stitute_order->po_sn . '</a>' : '' !!}</dd>
                 </div>
                 <div class="col">
                     <dd>製表日期：{{ date('Y-m-d', strtotime($stitute_order->so_created_at)) }}</dd>

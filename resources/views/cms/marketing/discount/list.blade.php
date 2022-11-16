@@ -168,8 +168,8 @@
                                     <i class="bi bi-check-lg text-success fs-5"></i>
                                 @endif
                             </td>
-                            <td>{{ date('Y/m/d h:i', strtotime($data->start_date)) }}</td>
-                            <td>{{ date('Y/m/d h:i', strtotime($data->end_date)) }}</td>
+                            <td>{{ date('Y/m/d H:i', strtotime($data->start_date)) }}</td>
+                            <td>{{ date('Y/m/d H:i', strtotime($data->end_date)) }}</td>
 
                             <td class="text-center">
                                 @can('cms.discount.delete')
