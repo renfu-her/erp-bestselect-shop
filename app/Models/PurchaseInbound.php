@@ -594,7 +594,7 @@ class PurchaseInbound extends Model
                 $result->whereBetween('inbound.expiry_date', [DB::raw('NOW()'), DB::raw('date_add(now(), interval '. $param['expire_day']. ' day)')]);
             } else if (0 > $param['expire_day']) {
                 //小於0 找過期
-                $result->where('inbound.expiry_date', '<=', $param['expire_day']);
+                $result->where('inbound.expiry_date', '<=', DB::raw('NOW()'));
             }
             $result->whereNotNull('inbound.expiry_date');
         }
