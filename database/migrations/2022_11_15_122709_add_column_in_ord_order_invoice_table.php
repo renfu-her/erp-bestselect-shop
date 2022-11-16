@@ -18,8 +18,10 @@ class AddColumnInOrdOrderInvoiceTable extends Migration
                 $tb->string('r_invalid_status', 50)->nullable()->comment('回傳狀態(作廢)');
                 $tb->string('r_invalid_msg')->nullable()->comment('回傳訊息(作廢)');
                 $tb->mediumText('r_invalid_json')->nullable()->comment('回傳資料(作廢)');
-                $tb->string('invalid_merchant_id', 20)->nullable()->comment('商店代號(作廢)');
                 $tb->string('invalid_invoice_number', 50)->nullable()->comment('發票號碼(作廢)');
+                // $tb->dateTime('invalid_at')->nullable()->comment('作廢時間');
+                // $tb->string('invalid_merchant_id', 20)->nullable()->comment('商店代號(作廢)');
+                // $tb->string('check_code', 100)->nullable()->comment('檢查碼');
             });
         });
     }
@@ -35,8 +37,10 @@ class AddColumnInOrdOrderInvoiceTable extends Migration
             $table->dropColumn('r_invalid_status');
             $table->dropColumn('r_invalid_msg');
             $table->dropColumn('r_invalid_json');
-            $table->dropColumn('invalid_merchant_id');
             $table->dropColumn('invalid_invoice_number');
+            // $table->dropColumn('invalid_at');
+            // $table->dropColumn('invalid_merchant_id');
+            // $table->dropColumn('check_code');
         });
     }
 }
