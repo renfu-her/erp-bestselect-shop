@@ -1,6 +1,8 @@
 @extends('layouts.main')
 @section('sub-content')
     <h2 class="mb-4">支出憑單</h2>
+    <a href="{{ Route('cms.expenditure.print', ['id' => $data->id]) }}" target="_blank" class="btn btn-outline-primary px-4 mb-1">列印</a>
+
     @php
         $action = isset($type) ? Route('cms.expenditure.audit-confirm', ['id' => $data->id]) : '';
     @endphp
@@ -14,6 +16,10 @@
                     <tr>
                         <th width="100">單號</th>
                         <td>{{ $data->sn }}</td>
+                    </tr>
+                    <tr>
+                        <th width="100">建立日期</th>
+                        <td>{{ $data->created_at }}</td>
                     </tr>
                     <tr>
                         <th width="100">主旨</th>
