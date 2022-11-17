@@ -1,7 +1,7 @@
 @extends('layouts.main')
 
 @section('sub-content')
-    <h2 class="mb-4">編輯電子發票</h2>
+    <h2 class="mb-4">編輯發票</h2>
 
     @if($errors->any())
         <div class="alert alert-danger mt-3">{!! implode('', $errors->all('<div>:message</div>')) !!}</div>
@@ -223,7 +223,7 @@
         </div>
 
         <div class="card shadow p-4 mb-4">
-            <h6>電子發票明細</h6>
+            <h6>發票明細</h6>
             {{--
             <div class="list-wrap-1">
                 <div class="table-responsive">

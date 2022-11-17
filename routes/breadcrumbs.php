@@ -359,7 +359,7 @@ Breadcrumbs::for('cms.order.create-invoice', function (BreadcrumbTrail $trail, $
 Breadcrumbs::for('cms.order.show-invoice', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.order.index');
     $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.order.detail', ['id' => $value['id']]));
-    $trail->push('發票');
+    $trail->push('發票資訊');
 });
 // 編輯發票
 Breadcrumbs::for('cms.order.edit-invoice', function (BreadcrumbTrail $trail, $value) {
