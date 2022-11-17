@@ -44,7 +44,7 @@
 
             <table width="650" cellpadding="3" cellspacing="0" border="1" bordercolor="#000000"
                 style="font-size:11pt;text-align:left;margin:0 auto;border-collapse:collapse;">
-                <tbody>
+
                 <tbody>
                     <tr>
                         <th width="100">序號</th>
@@ -72,13 +72,15 @@
                             @foreach ($order as $key => $value)
                                 <span>{{ $value->order_sn }} </span>
                             @endforeach
-                            @foreach ($relation_order as $key => $value)
-                                <span>{{ $value->order_sn }} </span>
-                            @endforeach
+                            @if ($relation_order)
+                                @foreach ($relation_order as $key => $value)
+                                    <span>{{ $value->order_sn }} </span>
+                                @endforeach
+                            @endif
                         </td>
                     </tr>
                 </tbody>
-                </tbody>
+
             </table>
             <table width="650" cellpadding="3" cellspacing="0" border="1" bordercolor="#000000"
                 style="font-size:11pt;text-align:left;margin:0 auto;border-collapse:collapse;">
