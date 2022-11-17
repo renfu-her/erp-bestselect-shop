@@ -82,6 +82,21 @@
             <div style="line-height: 1.5rem;">{{ date('Y-m-d', strtotime($invoice->created_at)) }}</div>
 
             <div>
+                @php
+                    $item_name_arr = explode('|', $invoice->item_name);
+                    $item_count_arr = explode('|', $invoice->item_count);
+                    $item_price_arr = explode('|', $invoice->item_price);
+                    $item_amt_arr = explode('|', $invoice->item_amt);
+                    $item_tax_type_arr = explode('|', $invoice->item_tax_type);
+
+                    $r_count = count($item_name_arr);
+                    if($r_count < 11 ){
+                        $total_page = 1;
+                    } else {
+                        $total_page = intval(ceil(($r_count - 10) / 14) + 1);
+                    }
+                @endphp
+
                 <table width="710" style="font-size:12pt;text-align:left;border:0;margin: 0 auto;">
                     <tbody>
                         <tr>
@@ -99,19 +114,11 @@
                         <tr>
                             <td colspan="2">
                                 <div style="text-align: left;">地　　址：{{ $invoice->buyer_address }}</div>
-                                <div style="text-align: end">第1頁 / 共2頁</div>
+                                <div style="text-align: end">第1頁 / 共{{ $total_page }}頁</div>
                             </td>
                         </tr>
                     </tbody>
                 </table>
-
-                @php
-                    $item_name_arr = explode('|', $invoice->item_name);
-                    $item_count_arr = explode('|', $invoice->item_count);
-                    $item_price_arr = explode('|', $invoice->item_price);
-                    $item_amt_arr = explode('|', $invoice->item_amt);
-                    $item_tax_type_arr = explode('|', $invoice->item_tax_type);
-                @endphp
                 <table width="710" cellpadding="2" cellspacing="0" border="1" bordercolor="#000000"
                     style="font-size:12pt;margin:20px auto 0;border-collapse:collapse;">
                     <thead style="text-align: center;">
@@ -125,19 +132,12 @@
                     </thead>
                     <tbody>
                         {{-- x10 --}}
-                        @for ($i = 0; $i < 5; $i++)
+                        @for ($i = 0; $i < 10; $i++)
                             <tr height="62" class="no-line">
-                                <td style="text-align: left;">【MAXCOS美雪蔻】德國原裝-阿爾卑斯百草蜂露波尿酸面膜（</td>
-                                <td style="text-align: right;">{{ number_format(2) }}</td>
-                                <td style="text-align: right;">{{ number_format(500) }}</td>
-                                <td style="text-align: right;">{{ number_format(1000) }}</td>
-                                <td style="text-align: left;"></td>
-                            </tr>
-                            <tr height="62" class="no-line">
-                                <td style="text-align: left;">【MAXCOS美雪蔻】德國原裝-品項{{$i}}</td>
-                                <td style="text-align: right;">{{ number_format(1) }}</td>
-                                <td style="text-align: right;">{{ number_format(500) }}</td>
-                                <td style="text-align: right;">{{ number_format(500) }}</td>
+                                <td style="text-align: left;">{{ array_key_exists($i, $item_name_arr) ? $item_name_arr[$i] : '' }}</td>
+                                <td style="text-align: right;">{{ array_key_exists($i, $item_name_arr) ? number_format($item_count_arr[$i]) : '' }}</td>
+                                <td style="text-align: right;">{{ array_key_exists($i, $item_name_arr) ? number_format($item_price_arr[$i]) : '' }}</td>
+                                <td style="text-align: right;">{{ array_key_exists($i, $item_name_arr) ? number_format($item_amt_arr[$i]) : '' }}</td>
                                 <td style="text-align: left;"></td>
                             </tr>
                         @endfor
@@ -187,13 +187,14 @@
                         </tr>
                     </tfoot>
                 </table>
-                {{-- 若還有次頁 --}}
-                <div style="width:710px; margin: 0 auto 20px;">
-                    <div style="text-align:left;padding-left:10px;font-size:1.2rem;">（次頁或反面續）</div>
-                </div>
 
-                {{-- 第二頁+ --}}
-                @for ($j = 0; $j < 2; $j++)
+                @for($p = 0; $p < ($total_page - 1); $p++)
+                    {{-- 若還有次頁 --}}
+                    <div style="width:710px; margin: 0 auto 20px;">
+                        <div style="text-align:left;padding-left:10px;font-size:1.2rem;">（次頁或反面續）</div>
+                    </div>
+
+                    {{-- 第二頁+ --}}
                     <table width="710" class="-page" style="font-size:12pt;text-align:center;border:0;margin: 0 auto;">
                         <thead>
                             <tr>
@@ -205,7 +206,7 @@
                             <tr>
                                 <td>
                                     <div style="text-align: left;">發票號碼：{{ $invoice->invoice_number }}</div>
-                                    <div style="text-align: end">第2頁 / 共2頁</div>
+                                    <div style="text-align: end">第{{ $p + 2 }}頁 / 共{{ $total_page }}頁</div>
                                 </td>
                             </tr>
                         </thead>
@@ -223,28 +224,20 @@
                         </thead>
                         <tbody>
                             {{-- x14 --}}
-                            @for ($i = 0; $i < 7; $i++)
+                            @for ($j = 0; $j < 14; $j++)
+                                @php
+                                    $j_key = $j + 10 + $p * 14;
+                                @endphp
                                 <tr height="62" class="no-line">
-                                    <td style="text-align: left;">【MAXCOS美雪蔻】德國原裝-阿爾卑斯百草蜂露波尿酸面膜（</td>
-                                    <td style="text-align: right;">{{ number_format(2) }}</td>
-                                    <td style="text-align: right;">{{ number_format(500) }}</td>
-                                    <td style="text-align: right;">{{ number_format(1000) }}</td>
-                                    <td style="text-align: left;"></td>
-                                </tr>
-                                <tr height="62" class="no-line">
-                                    <td style="text-align: left;">【MAXCOS美雪蔻】德國原裝-品項{{$i}}</td>
-                                    <td style="text-align: right;">{{ number_format(1) }}</td>
-                                    <td style="text-align: right;">{{ number_format(500) }}</td>
-                                    <td style="text-align: right;">{{ number_format(500) }}</td>
+                                    <td style="text-align: left;">{{ array_key_exists($j_key, $item_name_arr) ? $item_name_arr[$j_key] : '' }}</td>
+                                    <td style="text-align: right;">{{ array_key_exists($j_key, $item_name_arr) ? number_format($item_count_arr[$j_key]) : '' }}</td>
+                                    <td style="text-align: right;">{{ array_key_exists($j_key, $item_name_arr) ? number_format($item_price_arr[$j_key]) : '' }}</td>
+                                    <td style="text-align: right;">{{ array_key_exists($j_key, $item_name_arr) ? number_format($item_amt_arr[$j_key]) : '' }}</td>
                                     <td style="text-align: left;"></td>
                                 </tr>
                             @endfor
                         </tbody>
                     </table>
-                    {{-- 若還有次頁 --}}
-                    <div style="width:710px; margin: 0 auto 20px;">
-                        <div style="text-align:left;padding-left:10px;font-size:1.2rem;">（次頁或反面續）</div>
-                    </div>
                 @endfor
 
             </div>
