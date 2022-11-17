@@ -1,7 +1,8 @@
 @extends('layouts.main')
 @section('sub-content')
     <h2 class="mb-4">支出憑單</h2>
-    <a href="{{ Route('cms.expenditure.print', ['id' => $data->id]) }}" target="_blank" class="btn btn-outline-primary px-4 mb-1">列印</a>
+    <a href="{{ Route('cms.expenditure.print', ['id' => $data->id]) }}" target="_blank"
+        class="btn btn-outline-primary px-4 mb-1">列印</a>
 
     @php
         $action = isset($type) ? Route('cms.expenditure.audit-confirm', ['id' => $data->id]) : '';
@@ -55,10 +56,12 @@
                             @foreach ($order as $key => $value)
                                 <div class="mb-1"><a href="{{ $value->url }}">{{ $value->order_sn }}</a></div>
                             @endforeach
-                            <hr/>
-                            @foreach ($relation_order as $key => $value)
-                                <div class="mb-1"><a href="{{ $value->url }}">{{ $value->sn }}</a></div>
-                            @endforeach
+                            <hr />
+                            @if ($relation_order)
+                                @foreach ($relation_order as $key => $value)
+                                    <div class="mb-1"><a href="{{ $value->url }}">{{ $value->sn }}</a></div>
+                                @endforeach
+                            @endif
                         </td>
                     </tr>
                 </tbody>
