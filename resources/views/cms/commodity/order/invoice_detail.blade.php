@@ -20,8 +20,10 @@
                         <a href="{{ url()->full() . '?action=print_inv_a4' }}" target="_blank" 
                             class="btn btn-sm btn-warning">發票列印(單張)</a>
 
+                        @if($invoice->category == 'B2B')
                         <a href="{{ url()->full() . '?action=print_inv_B2B' }}" target="_blank" 
                             class="btn btn-sm btn-warning">發票列印(B2B)</a>
+                        @endif
                     @endif
 
                     @if($invoice->r_invalid_status != 'SUCCESS')
