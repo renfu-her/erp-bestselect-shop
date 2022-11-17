@@ -16,4 +16,7 @@ Route::group(['prefix' => 'petition', 'as' => 'petition.'], function () {
     Route::get('audit-confirm/{id}', [PetitionCtrl::class, 'auditEdit'])->name('audit-confirm');
     Route::post('audit-confirm/{id}', [PetitionCtrl::class, 'auditConfirm']);
 
+    Route::get('print/{id}', [PetitionCtrl::class, 'printPage'])->name('print');
+
+
 });

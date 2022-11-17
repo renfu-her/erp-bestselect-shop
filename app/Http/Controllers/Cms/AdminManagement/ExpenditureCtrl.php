@@ -291,4 +291,26 @@ class ExpenditureCtrl extends Controller
 
     }
 
+    public function printPage(Request $request, $id)
+    {
+        
+        $data = Expenditure::dataList()->where('expenditure.id', $id)->get()->first();
+        if (!$data) {
+            return abort(404);
+        }
+
+        $data->users = json_decode($data->users);
+
+        $orders = array_map(function ($n) {
+            return getErpOrderUrl($n);
+        }, Petition::getOrderSn($id, 'expenditure')->get()->toArray());
+
+        return view('cms.admin_management.expenditure.print', [
+            'data' => $data,
+            'order' => $orders,
+            'relation_order' => Petition::getBindedOrder($id, 'EXP'),
+        ]);    
+      
+    }
+
 }

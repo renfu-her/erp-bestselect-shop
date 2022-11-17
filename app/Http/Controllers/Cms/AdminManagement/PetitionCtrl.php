@@ -272,4 +272,26 @@ class PetitionCtrl extends Controller
 
     }
 
+    public function printPage(Request $request, $id)
+    {
+        $data = Petition::dataList()->where('petition.id', $id)->get()->first();
+        if (!$data) {
+            return abort(404);
+        }
+
+        $data->users = json_decode($data->users);
+
+        $orders = array_map(function ($n) {
+            return getErpOrderUrl($n);
+        }, Petition::getOrderSn($id, 'petition')->get()->toArray());
+        
+       // dd($data);
+        return view('cms.admin_management.petition.print', [
+            'data' => $data,
+            'order' => $orders,
+            'relation_order' => Petition::getBindedOrder($id, 'PET'),
+        ]);
+
+    }
+
 }
