@@ -122,7 +122,6 @@ class ProductCtrl extends Controller
                             ->orWhereNull('product.active_edate');
                     });
             })
-            ->orderBy('product.updated_at','DESC')
             ->whereNull('product.deleted_at');
 
         $subImg = DB::table('prd_product_images as img')
@@ -132,11 +131,12 @@ class ProductCtrl extends Controller
         $dataList->addSelect(DB::raw("({$subImg->toSql()}) as img_url"));
 
         $dataList = $dataList->leftJoin('collection_prd as cprd', 'product.id', '=', 'cprd.product_id_fk')
-                ->leftJoin('collection as colc', 'colc.id', '=', 'cprd.collection_id_fk')
-                ->where('cprd.collection_id_fk', '=', $d['collection_id'])
-                ->addSelect(['colc.name as collection_name', 'collection_id_fk'])
-                ->get()
-                ->toArray();
+            ->leftJoin('collection as colc', 'colc.id', '=', 'cprd.collection_id_fk')
+            ->where('cprd.collection_id_fk', '=', $d['collection_id'])
+            ->addSelect(['colc.name as collection_name', 'collection_id_fk','cprd.sort'])
+            ->orderBy('cprd.sort')
+            ->get()
+            ->toArray();
 
         if ($dataList) {
             $collection->list = array_map(function ($n) {
