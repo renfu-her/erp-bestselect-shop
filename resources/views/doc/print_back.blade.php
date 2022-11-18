@@ -76,7 +76,7 @@
                     <tbody>
                         <tr>
                             <td width="40%">退貨單號：{{$delivery->back_sn ?? ''}}</td>
-                            <td width="60%">發票類型：</td>
+                            <td width="60%">發票類型：{{ $order->invoice_category ?? '' }}</td>
                         </tr>
                         <tr>
                             @if ($type_display === 'back')
@@ -86,12 +86,12 @@
                         </tr>
                         <tr>
                             <td>收件人：{{ $order->rec_name }} {{ $order->rec_phone }}</td>
-                            <td>送貨地址：{{ $order->rec_zipcode ? $order->rec_zipcode . ' ' : '' }}{{ $order->rec_address }}
+                            <td>送貨地址：{{ $order->rec_address }}
                             </td>
                         </tr>
                         <tr>
-                            <td>取貨方式：</td>
-                            <td>統一編號：</td>
+                             <td>{{--  取貨方式：--}}</td>
+                            <td>統一編號：{{ $order->buyer_ubn ?? '' }}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -147,7 +147,7 @@
                         @endfor
                         <tr height="70">
                             <td style="vertical-align:top;" colspan="4">
-                                備註：{{ $order->note }}
+                               備註：{{-- {{ $order->note }}--}}
                                 <div style="font-size: small;margin-top:5px;">{{ $user->name }}
                                     {{ date('Y/m/d H:i:s') }}</div>
                                 @if ($type_display === 'back')
@@ -155,7 +155,7 @@
                                 @endif
                             </td>
                             @if ($type_display === 'back')
-{{--                                <td style="text-align: right;">總計 {{ number_format($subOrders->total_price) }}</td>--}}
+                                <td style="text-align: right;">總計 {{ number_format($total) }}</td>
                                 <td style="vertical-align:top;text-align: center;">客戶簽章</td>
                             @endif
                         </tr>
