@@ -261,6 +261,8 @@ class PetitionCtrl extends Controller
             'type' => 'audit',
             'formAction' => route('cms.petition.edit', ['id' => $id]),
             'breadcrumb_data' => $data->title,
+            'relation_order' => Petition::getBindedOrder($id, 'PET'),
+
         ]);
     }
 
@@ -269,6 +271,28 @@ class PetitionCtrl extends Controller
         Audit::confirm($id, $request->user()->id, 'petition');
         wToast('審核完成');
         return redirect(route('cms.petition.audit-list'));
+
+    }
+
+    public function printPage(Request $request, $id)
+    {
+        $data = Petition::dataList()->where('petition.id', $id)->get()->first();
+        if (!$data) {
+            return abort(404);
+        }
+
+        $data->users = json_decode($data->users);
+
+        $orders = array_map(function ($n) {
+            return getErpOrderUrl($n);
+        }, Petition::getOrderSn($id, 'petition')->get()->toArray());
+        
+       // dd($data);
+        return view('cms.admin_management.petition.print', [
+            'data' => $data,
+            'order' => $orders,
+            'relation_order' => Petition::getBindedOrder($id, 'PET'),
+        ]);
 
     }
 

@@ -280,6 +280,8 @@ class ExpenditureCtrl extends Controller
             'type' => 'audit',
             'formAction' => route('cms.expenditure.edit', ['id' => $id]),
             'breadcrumb_data' => $data->title,
+            'relation_order' => Petition::getBindedOrder($id, 'EXP'),
+
         ]);
     }
 
@@ -289,6 +291,28 @@ class ExpenditureCtrl extends Controller
         wToast('審核完成');
         return redirect(route('cms.expenditure.audit-list'));
 
+    }
+
+    public function printPage(Request $request, $id)
+    {
+        
+        $data = Expenditure::dataList()->where('expenditure.id', $id)->get()->first();
+        if (!$data) {
+            return abort(404);
+        }
+
+        $data->users = json_decode($data->users);
+
+        $orders = array_map(function ($n) {
+            return getErpOrderUrl($n);
+        }, Petition::getOrderSn($id, 'expenditure')->get()->toArray());
+
+        return view('cms.admin_management.expenditure.print', [
+            'data' => $data,
+            'order' => $orders,
+            'relation_order' => Petition::getBindedOrder($id, 'EXP'),
+        ]);    
+      
     }
 
 }

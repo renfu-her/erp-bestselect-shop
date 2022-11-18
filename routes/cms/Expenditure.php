@@ -16,4 +16,7 @@ Route::group(['prefix' => 'expenditure', 'as' => 'expenditure.'], function () {
     Route::get('audit-confirm/{id}', [ExpenditureCtrl::class, 'auditEdit'])->name('audit-confirm');
     Route::post('audit-confirm/{id}', [ExpenditureCtrl::class, 'auditConfirm']);
 
+    Route::get('print/{id}', [ExpenditureCtrl::class, 'printPage'])->name('print');
+
+
 });

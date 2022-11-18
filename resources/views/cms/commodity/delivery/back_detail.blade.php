@@ -28,6 +28,10 @@
                 <a class="btn btn-primary btn-sm my-1 ms-1"
                    href="{{ Route('cms.delivery.back_edit', ['event' => $delivery->event, 'eventId' => $delivery->event_id]) }}">編輯退貨</a>
             @endif
+            <a target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm my-1 ms-1"
+               href="{{ Route('cms.delivery.print_back', ['event' => $delivery->event, 'eventId' => $delivery->event_id]) }}">
+                列印退貨單
+            </a>
         </div>
     </nav>
 

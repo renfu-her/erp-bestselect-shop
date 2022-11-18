@@ -2221,7 +2221,7 @@ class OrderCtrl extends Controller
 
         $request->validate([
             'id' => 'required|exists:ord_orders,id',
-            'merchant_order_no' => 'required|string|regex:/^[\w]{1,20}$/',
+            'merchant_order_no' => 'required|string|regex:/^[\w]{1,20}$/|unique:ord_order_invoice,merchant_order_no',
             'status' => 'required|in:1,9',
             'merge_source' => 'nullable|array',
             'merge_source.*' => 'exists:ord_orders,id',
@@ -2232,7 +2232,7 @@ class OrderCtrl extends Controller
             'invoice_method' => 'required|in:print,give,e_inv',
             'love_code' => 'required_if:invoice_method,==,give',
             'carrier_type' => 'required_if:invoice_method,==,e_inv|in:0,1,2',
-            'carrier_num' => 'required_if:carrier_type,==,0|required_if:carrier_type,==,1',
+            'carrier_num' => 'required_if:invoice_method,==,e_inv',
             'create_status_time' => 'nullable|date|date_format:Y-m-d',
 
             'o_title' => 'required|array|min:1',
@@ -2384,14 +2384,27 @@ class OrderCtrl extends Controller
             $check_invoice_invalid = false;
         }
 
-        $view = 'cms.commodity.order.invoice_detai';
+        $view = 'cms.commodity.order.invoice_detail';
         if (request('action') == 'print_inv_a4') {
             $view = 'doc.print_order_invoice_a4';
         } else if(request('action') == 'print_inv_B2B') {
             $view = 'doc.print_order_invoice_B2B';
         }
+        // print supplementary info
+        if($invoice->merchant_id == '316943976'){
+            $invoice->seller_title = '喜鴻國際企業股份有限公司';
+            $invoice->seller_ubn = '23124926';
+            $invoice->seller_address = '台北市中山區松江路148號6樓之2';
+        } else {
+            $invoice->seller_title = '喜鴻國際企業股份有限公司';
+            $invoice->seller_ubn = '23124926';
+            $invoice->seller_address = '台北市中山區松江路148號6樓之2';
+        }
+        $month_range = $inv_month % 2 == 0 ? str_pad($inv_month - 1, 2, '0', STR_PAD_LEFT) . '-' . str_pad($inv_month, 2, '0', STR_PAD_LEFT) : str_pad($inv_month, 2, '0', STR_PAD_LEFT) . '-' . str_pad($inv_month + 1, 2, '0', STR_PAD_LEFT);
+        $invoice->zh_period = (date('Y', strtotime($invoice->created_at)) - 1911) . '年' . $month_range . '月';
+        $invoice->zh_total_amt = num_to_str($invoice->total_amt);
 
-        return view('cms.commodity.order.invoice_detail', [
+        return view($view, [
             'breadcrumb_data' => ['id' => $id, 'sn' => $order->sn],
 
             'invoice' => $invoice,
@@ -2414,7 +2427,7 @@ class OrderCtrl extends Controller
 
         if ($request->isMethod('post')) {
             $request->validate([
-                'merchant_order_no' => 'required|string',
+                'merchant_order_no' => 'required|string|regex:/^[\w]{1,20}$/|unique:ord_order_invoice,merchant_order_no,' . $id,
                 'status' => 'required|in:1,9',
                 'merge_source' => 'nullable|array',
                 'merge_source.*' => 'exists:ord_orders,id',
@@ -2425,7 +2438,7 @@ class OrderCtrl extends Controller
                 'invoice_method' => 'required|in:print,give,e_inv',
                 'love_code' => 'required_if:invoice_method,==,give',
                 'carrier_type' => 'required_if:invoice_method,==,e_inv|in:0,1,2',
-                'carrier_num' => 'required_if:carrier_type,==,0|required_if:carrier_type,==,1',
+                'carrier_num' => 'required_if:invoice_method,==,e_inv',
                 'create_status_time' => 'nullable|date|date_format:Y-m-d',
 
                 'o_title' => 'required|array|min:1',

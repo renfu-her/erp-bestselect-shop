@@ -129,12 +129,14 @@ class Collection extends Model
                 'collection.is_liquor',
                 'prd_products.id',
                 'prd_products.title',
-                'prd_products.sku')
+                'prd_products.sku',
+                'collection_prd.sort')
             ->selectraw(
                 'case
                 when prd_products.type = "p" then "一般商品"
                 when prd_products.type = "c" then "組合包"
                 end as type_title')
+            ->orderBy('collection_prd.sort')
             ->get();
     }
 
@@ -154,7 +156,9 @@ class Collection extends Model
         string $meta_title,
         string $meta_description,
         int $is_liquor,
-        array $prdIdArray
+        array $prdIdArray,
+        array $sort
+
     ) {
         if (self::where([
             ['id', '<>', $collectionId],
@@ -180,6 +184,7 @@ class Collection extends Model
             DB::table('collection_prd')->insert([
                 'collection_id_fk' => $collectionId,
                 'product_id_fk' => $prdIdArray[$i],
+                'sort' => $sort[$i],
             ]);
         }
     }
@@ -267,8 +272,8 @@ class Collection extends Model
             }
         }
 
-        return $domain.
-            FrontendApiUrl::collection .
+        return $domain .
+        FrontendApiUrl::collection .
             '/' .
             $id .
             '/' .

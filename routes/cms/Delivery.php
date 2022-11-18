@@ -19,6 +19,8 @@ Route::group(['prefix' => 'delivery','as'=>'delivery.'], function () {
     Route::post('back_store/{deliveryId}', [DeliveryCtrl::class, 'back_store'])->name('back_store')->middleware('permission:cms.delivery.edit');
     Route::get('back_edit/{event}/{eventId}', [DeliveryCtrl::class, 'back_edit'])->name('back_edit')->middleware('permission:cms.delivery.edit');
     Route::get('back_detail/{event}/{eventId}', [DeliveryCtrl::class, 'back_detail'])->name('back_detail')->middleware('permission:cms.delivery.edit');
+    Route::get('print_back/{event}/{eventId}', [DeliveryCtrl::class, 'print_back'])->name('print_back')->middleware('permission:cms.delivery.edit');
+
     //退貨入庫審核
     Route::get('back_inbound/{event}/{eventId}', [DeliveryCtrl::class, 'back_inbound'])->name('back_inbound')->middleware('permission:cms.delivery.edit');
     Route::post('back_inbound_store/{deliveryId}', [DeliveryCtrl::class, 'back_inbound_store'])->name('back_inbound_store')->middleware('permission:cms.delivery.edit');

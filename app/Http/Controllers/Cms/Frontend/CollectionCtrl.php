@@ -51,6 +51,7 @@ class CollectionCtrl extends Controller
      */
     public function store(Request $request, Collection $collection)
     {
+       
         $request->validate([
             'collection_name' => [
                 'required',
@@ -63,6 +64,7 @@ class CollectionCtrl extends Controller
             'is_public' => 'bool',
             'is_liquor' => ['required', 'int', 'min:0', 'max:1'],
             'id.*' => 'required|int|min:0',
+            'sort.*' => 'required|int',
         ]);
 
         $req = $request->all();
@@ -77,7 +79,8 @@ class CollectionCtrl extends Controller
             $req['meta_description'],
             false,
             $req['is_liquor'],
-            $req['id']);
+            $req['id'],
+            $req['sort']);
 
         return redirect(Route('cms.collection.index'));
     }
@@ -102,7 +105,8 @@ class CollectionCtrl extends Controller
      * @return \Illuminate\Http\Response
      */
     public function edit(Collection $collection, int $id)
-    {
+    {   
+
         $dataList = $collection->getCollectionDataById($id);
 
         return view('cms.frontend.collection.edit', [
@@ -136,8 +140,10 @@ class CollectionCtrl extends Controller
             'meta_description' => 'nullable|string',
             'is_liquor' => 'required|int|min:0',
             'id.*' => 'required|int|min:0',
+            'sort.*' => 'required|int',
         ]);
 
+       
         $req = $request->all();
         if (!isset($req['url'])) {
             $req['url'] = $req['collection_name'];
@@ -157,6 +163,7 @@ class CollectionCtrl extends Controller
             $req['meta_description'],
             $req['is_liquor'],
             $req['id'],
+            $req['sort'],
         );
 
         return redirect(Route('cms.collection.index'));
