@@ -74,9 +74,12 @@
                     </div>
                 </fieldset>
 
-                <div class="col-12 col-sm-6 mb-3 c_category{{ $order->category == 'B2B' ? '' : ' d-none' }}">
-                    <label class="form-label l_buyer_ubn">公司統編{!! $order->category == 'B2B' ? ' <span class="text-danger">*</span>' : '' !!}</label>
-                    <input type="text" name="buyer_ubn" class="form-control @error('buyer_ubn') is-invalid @enderror" placeholder="請輸入公司統編" aria-label="公司統編" value="{{ old('buyer_ubn', $order->buyer_ubn) }}"{{ $order->category == 'B2B' ? ' required' : ' disabled' }}>
+                <div class="col-12 col-sm-6 mb-3 c_category{{ old('category', $order->category) == 'B2B' ? '' : ' d-none' }}">
+                    <label class="form-label l_buyer_ubn">公司統編{!! old('category', $order->category) == 'B2B' ? ' <span class="text-danger">*</span>' : '' !!}</label>
+                    <input type="text" name="buyer_ubn" class="form-control @error('buyer_ubn') is-invalid @enderror" 
+                        placeholder="請輸入公司統編" aria-label="公司統編" 
+                        value="{{ old('buyer_ubn', $order->buyer_ubn) }}"
+                        {{ old('category', $order->category) == 'B2B' ? ' required' : ' disabled' }}>
                     <div class="invalid-feedback">
                         @error('buyer_ubn')
                         {{ $message }}
@@ -286,9 +289,9 @@
                                 <th scope="col" class="text-center">刪除</th>
                                 <th class="col" style="display:none">收款單號</th>
                                 <th class="col">產品名稱 <i class="bi bi-info-circle" data-bs-toggle="tooltip" title="商品名稱至多為30個字元"></i></th>
-                                <th class="col">價格(單價)</th>
-                                <th class="col">價格(總價)</th>
+                                <th class="col">單價</th>
                                 <th class="col">數量</th>
+                                <th class="col">總價金額</th>
                                 <th class="col">稅別</th>
                             </tr>
                         </thead>
@@ -302,22 +305,22 @@
                                 </td>
                                 <td style="display:none">{{ $received_order->sn }}</td>
                                 <td>
-                                    <input type="text" name="o_title[]" class="form-control form-control-sm -l" value="" aria-label="產品名稱" minlength="1" maxlength="30" required>
+                                    <input type="text" name="o_title[]" class="form-control form-control-sm -xl" value="" aria-label="產品名稱" minlength="1" maxlength="30" required>
                                 </td>
                                 <td>
                                     <div class="input-group input-group-sm flex-nowrap">
                                         <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                                        <input type="number" name="o_price[]" class="form-control form-control-sm -l" value="1" aria-label="價格(單價)" required>
+                                        <input type="number" name="o_price[]" class="form-control form-control-sm -sm" value="" aria-label="價格(單價)" required>
                                     </div>
+                                </td>
+                                <td>
+                                    <input type="number" name="o_qty[]" class="form-control form-control-sm -sm" value="1" aria-label="數量" min="1" required>
                                 </td>
                                 <td>
                                     <div class="input-group input-group-sm flex-nowrap">
                                         <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                                        <input type="number" name="o_total_price[]" class="form-control form-control-sm -l" value="1" aria-label="價格(總價)" required>
+                                        <input type="number" name="o_total_price[]" class="form-control form-control-sm -sm" value="" aria-label="價格(總價)" required>
                                     </div>
-                                </td>
-                                <td>
-                                    <input type="number" name="o_qty[]" class="form-control form-control-sm -l" value="1" aria-label="數量" min="1" required>
                                 </td>
                                 <td>
                                     <select name="o_taxation[]" class="form-select form-select-sm" required>
@@ -344,21 +347,21 @@
                                             </button>
                                         </td>
                                         <td style="display:none">{{ $received_order->sn }}</td>
-                                        <td><input type="text" name="o_title[]" class="form-control form-control-sm -l" value="{{ mb_substr(preg_replace('/(\t|\r|\n|\r\n)+/', ' ', $value->product_title), 0, 30) }}" aria-label="產品名稱" minlength="1" maxlength="30" required>
+                                        <td><input type="text" name="o_title[]" class="form-control form-control-sm -xl" value="{{ mb_substr(preg_replace('/(\t|\r|\n|\r\n)+/', ' ', $value->product_title), 0, 30) }}" aria-label="產品名稱" minlength="1" maxlength="30" required>
                                         <td>
                                             <div class="input-group input-group-sm flex-nowrap">
                                                 <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                                                <input type="number" name="o_price[]" class="form-control form-control-sm -l" value="{{ $value->price }}" aria-label="價格(單價)" required>
+                                                <input type="number" name="o_price[]" class="form-control form-control-sm -sm" value="{{ $value->price }}" aria-label="價格(單價)" required>
                                             </div>
+                                        </td>
+                                        <td>
+                                            <input type="number" name="o_qty[]" class="form-control form-control-sm -sm" value="{{ $value->qty }}" aria-label="數量" min="1" required>
                                         </td>
                                         <td>
                                             <div class="input-group input-group-sm flex-nowrap">
                                                 <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                                                <input type="number" name="o_total_price[]" class="form-control form-control-sm -l" value="{{ $value->total_price }}" aria-label="價格(總價)" required>
+                                                <input type="number" name="o_total_price[]" class="form-control form-control-sm -sm" value="{{ $value->total_price }}" aria-label="價格(總價)" required>
                                             </div>
-                                        </td>
-                                        <td>
-                                            <input type="number" name="o_qty[]" class="form-control form-control-sm -l" value="{{ $value->qty }}" aria-label="數量" min="1" required>
                                         </td>
                                         <td>
                                             <select name="o_taxation[]" class="form-select form-select-sm" required>
@@ -381,21 +384,21 @@
                                         </button>
                                     </td>
                                     <td style="display:none">{{ $received_order->sn }}</td>
-                                    <td><input type="text" name="o_title[]" class="form-control form-control-sm -l" value="物流費用" aria-label="產品名稱" minlength="1" maxlength="30" required>
+                                    <td><input type="text" name="o_title[]" class="form-control form-control-sm -xl" value="物流費用" aria-label="產品名稱" minlength="1" maxlength="30" required>
                                     <td>
                                         <div class="input-group input-group-sm flex-nowrap">
                                             <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                                            <input type="number" name="o_price[]" class="form-control form-control-sm -l" value="{{ $order->dlv_fee }}" aria-label="價格(單價)" required>
+                                            <input type="number" name="o_price[]" class="form-control form-control-sm -sm" value="{{ $order->dlv_fee }}" aria-label="價格(單價)" required>
                                         </div>
+                                    </td>
+                                    <td>
+                                        <input type="number" name="o_qty[]" class="form-control form-control-sm -sm" value="1" aria-label="數量" min="1" required>
                                     </td>
                                     <td>
                                         <div class="input-group input-group-sm flex-nowrap">
                                             <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                                            <input type="number" name="o_total_price[]" class="form-control form-control-sm -l" value="{{ $order->dlv_fee }}" aria-label="價格(總價)" required>
+                                            <input type="number" name="o_total_price[]" class="form-control form-control-sm -sm" value="{{ $order->dlv_fee }}" aria-label="價格(總價)" required>
                                         </div>
-                                    </td>
-                                    <td>
-                                        <input type="number" name="o_qty[]" class="form-control form-control-sm -l" value="1" aria-label="數量" min="1" required>
                                     </td>
                                     <td>
                                         <select name="o_taxation[]" class="form-select form-select-sm" required>
@@ -420,21 +423,21 @@
 
                                         <td style="display:none">{{ $received_order->sn }}</td>
 
-                                        <td><input type="text" name="o_title[]" class="form-control form-control-sm -l" value="{{ mb_substr(preg_replace('/(\t|\r|\n|\r\n)+/', ' ', $value->title), 0, 30) }}" aria-label="產品名稱" minlength="1" maxlength="30" required>
+                                        <td><input type="text" name="o_title[]" class="form-control form-control-sm -xl" value="{{ mb_substr(preg_replace('/(\t|\r|\n|\r\n)+/', ' ', $value->title), 0, 30) }}" aria-label="產品名稱" minlength="1" maxlength="30" required>
                                         <td>
                                             <div class="input-group input-group-sm flex-nowrap">
                                                 <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                                                <input type="number" name="o_price[]" class="form-control form-control-sm -l" value="{{ -($value->discount_value) }}" aria-label="價格(單價)" required>
+                                                <input type="number" name="o_price[]" class="form-control form-control-sm -sm" value="{{ -($value->discount_value) }}" aria-label="價格(單價)" required>
                                             </div>
+                                        </td>
+                                        <td>
+                                            <input type="number" name="o_qty[]" class="form-control form-control-sm -sm" value="1" aria-label="數量" min="1" required>
                                         </td>
                                         <td>
                                             <div class="input-group input-group-sm flex-nowrap">
                                                 <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                                                <input type="number" name="o_total_price[]" class="form-control form-control-sm -l" value="{{ -($value->discount_value) }}" aria-label="價格(總價)" required>
+                                                <input type="number" name="o_total_price[]" class="form-control form-control-sm -sm" value="{{ -($value->discount_value) }}" aria-label="價格(總價)" required>
                                             </div>
-                                        </td>
-                                        <td>
-                                            <input type="number" name="o_qty[]" class="form-control form-control-sm -l" value="1" aria-label="數量" min="1" required>
                                         </td>
                                         <td>
                                             <select name="o_taxation[]" class="form-select form-select-sm" required>
