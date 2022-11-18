@@ -195,9 +195,9 @@
                     </div>
                 </fieldset>
 
-                <div class="col-12 col-sm-6 mb-3 c_carrier_type{{ in_array($invoice->carrier_type, [null, 2]) ? ' d-none' : '' }}">
-                    <label class="form-label l_carrier_num">載具號碼</label>
-                    <input type="text" name="carrier_num" class="form-control @error('carrier_num') is-invalid @enderror" placeholder="請輸入載具號碼" aria-label="載具號碼" value="{{ old('carrier_num', $invoice->carrier_num) }}" {{ $invoice->carrier_type != 2 ? '' : 'disabled' }}>
+                <div class="col-12 col-sm-6 mb-3 c_carrier_type{{ old('invoice_method') == 'e_inv' ? '' : ( (!old('invoice_method') && $invoice->print_flag == 'N') ? '' : ' d-none') }}">
+                    <label class="form-label l_carrier_num">載具號碼{!! old('invoice_method') == 'e_inv' ? ' <span class="text-danger">*</span>' : ( (!old('invoice_method') && $invoice->print_flag == 'N') ? ' <span class="text-danger">*</span>' : '') !!}</label>
+                    <input type="text" name="carrier_num" class="form-control @error('carrier_num') is-invalid @enderror" placeholder="請輸入載具號碼" aria-label="載具號碼" value="{{ old('carrier_num', $invoice->carrier_num) }}" {{ old('invoice_method') == 'e_inv' ? '' : ( (!old('invoice_method') && $invoice->print_flag == 'N') ? '' : 'disabled') }}>
                     <div class="invalid-feedback">
                         @error('carrier_num')
                         {{ $message }}
@@ -205,7 +205,6 @@
                     </div>
                 </div>
             </div>
-
 
             {{--
                 <div class="row">
@@ -328,7 +327,7 @@
                                             ];
 
                                             foreach($tax as $t_key => $t_value){
-                                                echo '<option value="' . $t_key . '"' . ($t_key === 1 ? ' selected' : '') . '>' . $t_value . '</option>';
+                                                echo '<option value="' . $t_key . '"' . ($t_key == 1 ? ' selected' : '') . '>' . $t_value . '</option>';
                                             }
                                         @endphp
                                     </select>
@@ -370,7 +369,7 @@
                                         <select name="o_taxation[]" class="form-select form-select-sm" required>
                                             @php
                                                 foreach($tax as $t_key => $t_value){
-                                                    echo '<option value="' . $t_key . '"' . ($t_key === $tax_type_arr[$key] ? ' selected' : '') . '>' . $t_value . '</option>';
+                                                    echo '<option value="' . $t_key . '"' . ($t_key == ($tax_type_arr[$key] == 1 ? 1 : 0) ? ' selected' : '') . '>' . $t_value . '</option>';
                                                 }
                                             @endphp
                                         </select>
@@ -637,6 +636,14 @@
                             disabled:false,
                             required:true
                         });
+
+                        //載具號碼
+                        $('.c_carrier_type').removeClass('d-none');
+                        $('input[type=text][name=carrier_num]').prop({
+                            disabled:false,
+                            required:true
+                        });
+                        $('.l_carrier_num').html('載具號碼 <span class="text-danger">*</span>');
                     }
 
                 });
@@ -649,27 +656,20 @@
                         });
                         $('.l_buyer_email').html('買受人E-mail <span class="text-danger">*</span>');
 
-                        $('.c_carrier_type').addClass('d-none');
-                        $('input[type=text][name=carrier_num]').prop({
-                            disabled:true,
-                            required:false
-                        }).val('');
-                        $('.l_carrier_num').html('載具號碼');
-
                     } else {
 
                         $('input[type=email][name=buyer_email]').prop({
                             required:false
                         });
                         $('.l_buyer_email').html('買受人E-mail');
-
-                        $('.c_carrier_type').removeClass('d-none');
-                        $('input[type=text][name=carrier_num]').prop({
-                            disabled:false,
-                            required:true
-                        });
-                        $('.l_carrier_num').html('載具號碼 <span class="text-danger">*</span>');
                     }
+
+                    $('.c_carrier_type').removeClass('d-none');
+                    $('input[type=text][name=carrier_num]').prop({
+                        disabled:false,
+                        required:true
+                    });
+                    $('.l_carrier_num').html('載具號碼 <span class="text-danger">*</span>');
                 });
 
                 $('.form').submit((e) => {
