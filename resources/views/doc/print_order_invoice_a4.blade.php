@@ -105,15 +105,27 @@
     <div style="position: absolute; left: 0; top: 0; width:100%">
         <div style="width:710px;margin:0 auto;">
             <div style="display:flex;flex-wrap:wrap;">
+                @php
+                    $item_name_arr = explode('|', $invoice->item_name);
+                    $item_count_arr = explode('|', $invoice->item_count);
+                    $item_price_arr = explode('|', $invoice->item_price);
+                    $item_amt_arr = explode('|', $invoice->item_amt);
+                    $item_tax_type_arr = explode('|', $invoice->item_tax_type);
+
+                    $r_count = count($item_name_arr);
+                    if($r_count < 9 ){
+                        $total_page = 1;
+                    } else {
+                        $total_page = intval(ceil(($r_count - 8) / 15) + 1);
+                    }
+                @endphp
                 {{-- 第一張 --}}
                 <div class="-page e-inv main">
                     {{-- 主內容 --}}
                     <table cellpadding="2" cellspacing="0">
                         <tbody>
                             <tr height="60" style="font-size:0.9rem;line-height:1;" class="-ff">
-                                <td style="padding-top:0.5cm;vertical-align:bottom;">
-                                    {{ $invoice->seller_title ?? '喜鴻國際企業股份有限公司' }}
-                                </td>
+                                <td style="padding-top:0.5cm;vertical-align:bottom;">{{ $invoice->seller_title }}</td>
                             </tr>
                             <tr height="26" style="font-size:1.4rem;font-weight:500;line-height:1;">
                                 <td>電子發票證明聯</td>
@@ -128,7 +140,9 @@
                                 <td>
                                     <div style="display:flex;justify-content:space-between;">
                                         <div>{{ date('Y-m-d H:i:s', strtotime($invoice->created_at)) }}</div>
+                                        @if($invoice->category == 'B2B')
                                         <div>格式25</div>
+                                        @endif
                                     </div>
                                     <div style="display:flex;">
                                         <div style="flex-basis: 50%;">隨機碼:{{ $invoice->random_number }}</div>
@@ -136,7 +150,9 @@
                                     </div>
                                     <div style="display:flex;">
                                         <div style="flex-basis: 50%;">賣方:{{ $invoice->seller_ubn }}</div>
+                                        @if($invoice->category == 'B2B')
                                         <div>買方:{{ $invoice->buyer_ubn }}</div>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>
@@ -169,29 +185,39 @@
                         </thead>
                         <tbody>
                             {{-- max: x10 --}}
-                            @for ($i = 1; $i <= 10; $i++)
+                            @for ($i = 0; $i < min([10, $r_count]); $i++)
                                 <tr height="38">
-                                    <td colspan="3" style="padding-right:1cm;">
-                                        【MAXCOS美雪蔻】德國原裝-品項{{ $i }}
-                                    </td>
+                                    <td colspan="3" style="padding-right:1cm;">{{ $item_name_arr[$i] }}</td>
                                 </tr>
                                 <tr height="24">
-                                    <td style="text-align:right;padding-right:25px;">{{ number_format(500) }}</td>
-                                    <td>{{ number_format(2) }}</td>
-                                    <td style="text-align:right;">{{ number_format(1000) }}TX</td>
+                                    <td style="text-align:right;padding-right:25px;">{{ $item_price_arr[$i] }}</td>
+                                    <td>{{ $item_count_arr[$i] }}</td>
+                                    <td style="text-align:right;">{{ $item_amt_arr[$i] }}{{ $item_tax_type_arr[$i] == 1 ? 'TX' : '' }}</td>
                                 </tr>
                             @endfor
                         </tbody>
                         <tfoot>
+                            @if($total_page == 1)
+                            <tr>
+                                <td colspan="3" style="border-bottom: 1px dashed;padding:10px 8px;">
+                                    @if($invoice->category == 'B2B')
+                                    <div style="line-height: 1.6;">銷售額 ({{ $invoice->tax_type == 1 ? '應稅' : '免稅' }})：{{ number_format($invoice->amt) }}</div>
+                                    <div style="line-height: 1.6;">稅　額：{{ number_format($invoice->tax_amt) }}</div>
+                                    @endif
+                                    <div style="line-height: 1.6;">總　計：{{ number_format($invoice->total_amt) }}</div>
+                                    <div style="line-height: 1.6;">備　註：{{ $invoice->comment }}</div>
+                                </td>
+                            </tr>
+                            @endif
                             <tr height="24" style="text-align:center;">
-                                <td colspan="3">第1頁 / 總頁數3</td>
+                                <td colspan="3">第1頁 / 總頁數{{ $total_page }}</td>
                             </tr>
                         </tfoot>
                     </table>
                 </div>
 
-                {{-- 第二張+：交易明細 --}}
-                @for ($j = 0; $j < 3; $j++)
+                @for($p = 0; $p < ($total_page - 1); $p++)
+                    {{-- 第二張+：交易明細 --}}
                     <div class="-page e-inv">
                         <table cellpadding="2" cellspacing="0" class="-ff -detail" style="font-size:12px;font-weight:bold;">
                             <caption style="padding:5px;">交易明細(續)</caption>
@@ -203,7 +229,9 @@
                                     <td colspan="3">
                                         <div style="display:flex;justify-content:space-between;">
                                             <div style="flex-basis: 50%;">賣方：{{ $invoice->seller_ubn }}</div>
-                                            <div>買方：{{ $invoice->buyer_ubn ?? '　' }}</div>
+                                            @if($invoice->category == 'B2B')
+                                            <div>買方：{{ $invoice->buyer_ubn }}</div>
+                                            @endif
                                         </div>
                                     </td>
                                 </tr>
@@ -215,80 +243,41 @@
                             </thead>
                             <tbody>
                                 {{-- max: x15 --}}
-                                @for ($k = 1; $k <= 15; $k++)
+                                @for ($j = 0; $j < min([15, $r_count - (10 + $p * 15)]); $j++)
+                                    @php
+                                        $j_key = $j + 10 + $p * 15;
+                                    @endphp
                                     <tr height="38">
-                                        <td colspan="3" style="padding-right:1cm;">
-                                            【MAXCOS美雪蔻】德國原裝-品項{{ $k }}
-                                        </td>
+                                        <td colspan="3" style="padding-right:1cm;">{{ $item_name_arr[$j_key] }}</td>
                                     </tr>
                                     <tr height="24">
-                                        <td style="text-align:right;padding-right:25px;">{{ number_format(500) }}</td>
-                                        <td>{{ number_format(2) }}</td>
-                                        <td style="text-align:right;">{{ number_format(1000) }}TX</td>
+                                        <td style="text-align:right;padding-right:25px;">{{ $item_price_arr[$j_key] }}</td>
+                                        <td>{{ $item_count_arr[$j_key] }}</td>
+                                        <td style="text-align:right;">{{ $item_amt_arr[$j_key] }}{{ $item_tax_type_arr[$j_key] == 1 ? 'TX' : '' }}</td>
                                     </tr>
                                 @endfor
                             </tbody>
                             <tfoot>
+                                {{-- 最後一張 --}}
+                                @if($p + 2 == $total_page)
+                                <tr>
+                                    <td colspan="3" style="border-bottom: 1px dashed;padding:10px 8px;">
+                                        @if($invoice->category == 'B2B')
+                                        <div style="line-height: 1.6;">銷售額 ({{ $invoice->tax_type == 1 ? '應稅' : '免稅' }})：{{ number_format($invoice->amt) }}</div>
+                                        <div style="line-height: 1.6;">稅　額：{{ number_format($invoice->tax_amt) }}</div>
+                                        @endif
+                                        <div style="line-height: 1.6;">總　計：{{ number_format($invoice->total_amt) }}</div>
+                                        <div style="line-height: 1.6;">備　註：{{ $invoice->comment }}</div>
+                                    </td>
+                                </tr>
+                                @endif
                                 <tr height="24" style="text-align:center;vertical-align:bottom;">
-                                    <td colspan="3">第3頁 / 總頁數3</td>
+                                    <td colspan="3">第{{ $p + 2 }}頁 / 總頁數{{ $total_page }}</td>
                                 </tr>
                             </tfoot>
                         </table>
                     </div>
                 @endfor
-
-                {{-- 最後一張 --}}
-                <div class="-page e-inv">
-                    <table cellpadding="2" cellspacing="0" class="-ff -detail" style="font-size:12px;font-weight:bold;">
-                        <caption style="padding:5px;">交易明細(續)</caption>
-                        <thead>
-                            <tr>
-                                <td colspan="3">{{ date('Y-m-d H:i:s', strtotime($invoice->created_at)) }}</td>
-                            </tr>
-                            <tr>
-                                <td colspan="3">
-                                    <div style="display:flex;justify-content:space-between;">
-                                        <div style="flex-basis: 50%;">賣方：{{ $invoice->seller_ubn }}</div>
-                                        <div>買方：{{ $invoice->buyer_ubn ?? '　' }}</div>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td width="40%">[品名/單價]</td>
-                                <td width="35%">[數量]</td>
-                                <td width="25%">[金額]</td>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {{-- max: x13 --}}
-                            @for ($k = 1; $k <= 13; $k++)
-                                <tr height="38">
-                                    <td colspan="3" style="padding-right:1cm;">
-                                        【MAXCOS美雪蔻】德國原裝-品項{{ $k }}
-                                    </td>
-                                </tr>
-                                <tr height="24">
-                                    <td style="text-align:right;padding-right:25px;">{{ number_format(500) }}</td>
-                                    <td>{{ number_format(2) }}</td>
-                                    <td style="text-align:right;">{{ number_format(1000) }}TX</td>
-                                </tr>
-                            @endfor
-                        </tbody>
-                        <tfoot>
-                            <tr>
-                                <td colspan="3" style="border-bottom: 1px dashed;padding:10px 8px;">
-                                    <div style="line-height: 1.6;">銷售額 ({{ $invoice->tax_type == 1 ? '應稅' : '免稅' }})：{{ number_format($invoice->amt) }}</div>
-                                    <div style="line-height: 1.6;">稅　額：{{ number_format($invoice->tax_amt) }}</div>
-                                    <div style="line-height: 1.6;">總　計：{{ number_format($invoice->total_amt) }}</div>
-                                    <div style="line-height: 1.6;">備　註：{{ $invoice->comment }}</div>
-                                </td>
-                            </tr>
-                            <tr height="24" style="text-align:center;vertical-align:bottom;">
-                                <td colspan="3">第3頁 / 總頁數3</td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
             </div>
             <div class="print">
                 <button type="button" onclick="javascript:window.print();">我要列印</button>

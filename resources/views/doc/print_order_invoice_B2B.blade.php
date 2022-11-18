@@ -135,9 +135,9 @@
                         @for ($i = 0; $i < 10; $i++)
                             <tr height="62" class="no-line">
                                 <td style="text-align: left;">{{ array_key_exists($i, $item_name_arr) ? $item_name_arr[$i] : '' }}</td>
-                                <td style="text-align: right;">{{ array_key_exists($i, $item_name_arr) ? number_format($item_count_arr[$i]) : '' }}</td>
-                                <td style="text-align: right;">{{ array_key_exists($i, $item_name_arr) ? number_format($item_price_arr[$i]) : '' }}</td>
-                                <td style="text-align: right;">{{ array_key_exists($i, $item_name_arr) ? number_format($item_amt_arr[$i]) : '' }}</td>
+                                <td style="text-align: right;">{{ array_key_exists($i, $item_count_arr) ? number_format($item_count_arr[$i]) : '' }}</td>
+                                <td style="text-align: right;">{{ array_key_exists($i, $item_price_arr) ? number_format($item_price_arr[$i]) : '' }}</td>
+                                <td style="text-align: right;">{{ array_key_exists($i, $item_amt_arr) ? number_format($item_amt_arr[$i]) : '' }}</td>
                                 <td style="text-align: left;"></td>
                             </tr>
                         @endfor
@@ -230,16 +230,15 @@
                                 @endphp
                                 <tr height="62" class="no-line">
                                     <td style="text-align: left;">{{ array_key_exists($j_key, $item_name_arr) ? $item_name_arr[$j_key] : '' }}</td>
-                                    <td style="text-align: right;">{{ array_key_exists($j_key, $item_name_arr) ? number_format($item_count_arr[$j_key]) : '' }}</td>
-                                    <td style="text-align: right;">{{ array_key_exists($j_key, $item_name_arr) ? number_format($item_price_arr[$j_key]) : '' }}</td>
-                                    <td style="text-align: right;">{{ array_key_exists($j_key, $item_name_arr) ? number_format($item_amt_arr[$j_key]) : '' }}</td>
+                                    <td style="text-align: right;">{{ array_key_exists($j_key, $item_count_arr) ? number_format($item_count_arr[$j_key]) : '' }}</td>
+                                    <td style="text-align: right;">{{ array_key_exists($j_key, $item_price_arr) ? number_format($item_price_arr[$j_key]) : '' }}</td>
+                                    <td style="text-align: right;">{{ array_key_exists($j_key, $item_amt_arr) ? number_format($item_amt_arr[$j_key]) : '' }}</td>
                                     <td style="text-align: left;"></td>
                                 </tr>
                             @endfor
                         </tbody>
                     </table>
                 @endfor
-
             </div>
             <div class="print">
                 <button type="button" onclick="javascript:window.print();">我要列印</button>
