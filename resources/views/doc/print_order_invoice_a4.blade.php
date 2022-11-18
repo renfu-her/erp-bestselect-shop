@@ -148,10 +148,10 @@
                             <tr style="line-height:1;text-align:left;" class="-ff">
                                 <td style="padding-top:0.5cm;vertical-align:bottom;font-size:0.8rem;">{{ $invoice->seller_title }}</td>
                             </tr>
-                            <tr height="26" style="font-size:1.4rem;font-weight:500;line-height:1;">
+                            <tr height="26" style="font-size:1.4rem;font-weight:600;line-height:1;">
                                 <td>電子發票證明聯</td>
                             </tr>
-                            <tr height="30" style="font-size:1.6rem;font-weight:500;line-height:1;">
+                            <tr height="30" style="font-size:1.6rem;font-weight:600;line-height:1;">
                                 <td>{{ $invoice->zh_period }}</td>
                             </tr>
                             <tr height="30" style="font-size:1.6rem;font-weight:600;line-height:1;">
