@@ -1,49 +1,74 @@
 <?php
     if (!function_exists('num_to_str')) {
-        function num_to_str($num)
+        function num_to_str($amount)
         {
-            $numc = '零,壹,貳,參,肆,伍,陸,柒,捌,玖';
-            $unic = ',拾,佰,仟';
-            $unic1 = '元整,萬,億,兆,京';
-            $numc_arr = explode(',', $numc);
-            $unic_arr = explode(',', $unic);
-            $unic1_arr = explode(',', $unic1);
-            $i = str_replace(',', '', floor($num));
-            $c0 = 0;
-            $str = array();
-            do {
-                $aa = 0;
-                $c1 = 0;
-                $s = '';
-                $lan = (strlen($i) >= 4) ? 4 : strlen($i);
-                $j = substr($i, -$lan);
-                while ($j > 0) {
-                    $k = $j % 10;
-                    if ($k > 0) {
-                        $aa = 1;
-                        $s = $numc_arr[$k] . $unic_arr[$c1] . $s;
-                    } else if ($k == 0) {
-                        if ($aa == 1) $s = '0' . $s;
-                    }
-                    $j = intval($j / 10);
-                    $c1 += 1;
+            $capitalNumbers = [
+                '零', '壹', '貳', '參', '肆', '伍', '陸', '柒', '捌', '玖',
+            ];
+
+            $integerUnits = ['', '拾', '佰', '仟',];
+
+            $placeUnits = ['', '萬', '億', '兆', '京'];
+
+            $decimalUnits = ['角', '分', '厘', '毫',];
+
+            $result = [];
+
+            $arr = explode('.', $amount);
+
+            $integer = trim($arr[0] ?? '', '-');
+            $decimal = $arr[1] ?? '';
+
+            if (!((int) $decimal)) {
+                $decimal = '';
+            }
+
+            $integerNumbers = $integer ? array_reverse(str_split($integer)) : [];
+
+            $last = null;
+            foreach (array_chunk($integerNumbers, 4) as $chunkKey => $chunk) {
+                if (!((int) implode('', $chunk))) {
+                    continue;
                 }
-                $str[$c0] = ($s == '') ? '' : $s . $unic1_arr[$c0];
-                $count_len = strlen($i) - 4;
-                $i = ($count_len > 0) ? substr($i, 0, $count_len) : '';
-                $c0 += 1;
-            } while ($i != '');
 
-            $string = '';
+                array_unshift($result, $placeUnits[$chunkKey]);
 
-            foreach ($str as $v) {
-                $string .= array_pop($str);
+                foreach ($chunk as $key => $number) {
+                    if (!$number && (!$last || $key === 0)) {
+                        $last = $number;
+                        continue;
+                    }
+                    $last = $number;
+
+                    if ($number) {
+                        array_unshift($result, $integerUnits[$key]);
+                    }
+
+                    array_unshift($result, $capitalNumbers[$number]);
+                }
             }
 
-            $string = preg_replace('/0+/', '零', $string);
-            if(mb_substr($string, -2, 1) != '元' && mb_substr($string, -1, 1) != '整'){
-                $string .= '元整';
+            if (!$result) {
+                array_push($result, $capitalNumbers[0]);
             }
-            return $string;
+
+            array_push($result, '圓');
+
+            if (!$decimal) {
+                array_push($result, '整');
+            }
+
+            $decimalNumbers = $decimal ? str_split($decimal) : [];
+            foreach ($decimalNumbers as $key => $number) {
+                array_push($result, $capitalNumbers[$number]);
+                array_push($result, $decimalUnits[$key]);
+            }
+
+            if (strpos((string) $amount, '-') === 0) {
+                array_unshift($result, '負');
+            }
+
+            // return '新台幣' . implode('', $result);
+            return implode('', $result);
         }
     }
