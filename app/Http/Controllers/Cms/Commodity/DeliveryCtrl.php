@@ -612,7 +612,20 @@ class DeliveryCtrl extends Controller
     //銷貨退回明細
     public function back_detail($event, $eventId)
     {
-        $rsp_arr = [];
+        $rsp_arr = $this->getBackDetailRsp($event, $eventId);
+        return view('cms.commodity.delivery.back_detail', $rsp_arr);
+    }
+
+    public function print_back(Request $request, $event, $eventId)
+    {
+        $rsp_arr = $this->getBackDetailRsp($event, $eventId);
+        $rsp_arr['type_display'] = 'back';
+        $rsp_arr['user'] = $request->user();
+        return view('doc.print_back', $rsp_arr);
+    }
+
+    private function getBackDetailRsp($event, $eventId) {
+
         $delivery = Delivery::getData($event, $eventId)->get()->first();
         if (null == $delivery) {
             return abort(404);
@@ -627,6 +640,7 @@ class DeliveryCtrl extends Controller
         if (Event::order()->value == $delivery->event) {
             $subOrder = SubOrders::where('id', '=', $delivery->event_id)->first();
             $order = Order::orderDetail($subOrder->order_id)->get()->first();
+            $rsp_arr['subOrders'] = $subOrder;
             $rsp_arr['order'] = $order;
             $item_table = app(OrderItem::class)->getTable();
             $source_type = app(Order::class)->getTable();
@@ -735,7 +749,7 @@ class DeliveryCtrl extends Controller
         }
         $rsp_arr['back_item'] = $back_item->first();
         $rsp_arr['po_check'] = PayingOrder::source_confirmation(app(Order::class)->getTable(), $rsp_arr['back_item']->order_id);
-        return view('cms.commodity.delivery.back_detail', $rsp_arr);
+        return $rsp_arr;
     }
 
     public function back_inbound($event, $eventId)
