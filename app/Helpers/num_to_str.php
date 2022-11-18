@@ -52,7 +52,7 @@
                 array_push($result, $capitalNumbers[0]);
             }
 
-            array_push($result, '圓');
+            array_push($result, '元');
 
             if (!$decimal) {
                 array_push($result, '整');

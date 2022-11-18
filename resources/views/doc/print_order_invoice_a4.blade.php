@@ -38,11 +38,27 @@
             font-family: "Nunito", "Noto Sans TC", sans-serif;
         }
 
+        /* 強制換頁 */
         .-page {
-            page-break-after: always;   // 強制換頁
+            /* page-break-after: always; */
+            margin: 0.3cm 0.2cm;
         }
-        .-page:last-of-type {
-            page-break-after: auto; // 取消強制換頁
+        /* Firefox */
+        @-moz-document url-prefix() {
+            @page {
+                margin: 12.7mm auto;
+            }
+            /* .-page {
+                page-break-after: auto;
+            } */
+        }
+        @supports (-moz-appearance:none) {
+            @page {
+                margin: 12.7mm auto;
+            }
+            /* .-page {
+                page-break-after: auto;
+            } */
         }
 
         .no-line > td {
@@ -54,8 +70,10 @@
             width: 30%;
             min-width: 5.7cm;
             min-height: 9cm;
-            margin: 0.3cm 0.2cm;
             border: 1px solid #000000;
+        }
+        .e-inv.main {
+            margin-bottom: 0.2cm;
         }
         .e-inv > table {
             width: 5.7cm;
@@ -71,7 +89,9 @@
 
         .-ff, .-ff * {
             font-family: '標楷體';
+            font-size: 12px;
         }
+
         table.-detail td {
             padding-left: 8px;
             padding-right: 8px;
@@ -79,7 +99,7 @@
 
         #code39-bar {
             width: 100%;
-            margin-top: -2px;
+            margin-top: -5px;
         }
 
         @media print {
@@ -120,12 +140,13 @@
                     }
                 @endphp
                 {{-- 第一張 --}}
-                <div class="-page e-inv main">
+                <div class="-page">
+                <div class="e-inv main">
                     {{-- 主內容 --}}
                     <table cellpadding="2" cellspacing="0">
                         <tbody>
-                            <tr height="60" style="font-size:0.9rem;line-height:1;" class="-ff">
-                                <td style="padding-top:0.5cm;vertical-align:bottom;">{{ $invoice->seller_title }}</td>
+                            <tr style="line-height:1;text-align:left;" class="-ff">
+                                <td style="padding-top:0.5cm;vertical-align:bottom;font-size:0.8rem;">{{ $invoice->seller_title }}</td>
                             </tr>
                             <tr height="26" style="font-size:1.4rem;font-weight:500;line-height:1;">
                                 <td>電子發票證明聯</td>
@@ -136,7 +157,7 @@
                             <tr height="30" style="font-size:1.6rem;font-weight:600;line-height:1;">
                                 <td>{{ substr($invoice->invoice_number, 0, 2) . '-' . substr($invoice->invoice_number, 2)}}</td>
                             </tr>
-                            <tr height="45" style="text-align: left;font-size:12px;font-weight:bold;" class="-ff">
+                            <tr height="50" style="text-align: left;" class="-ff">
                                 <td>
                                     <div style="display:flex;justify-content:space-between;">
                                         <div>{{ date('Y-m-d H:i:s', strtotime($invoice->created_at)) }}</div>
@@ -156,9 +177,9 @@
                                     </div>
                                 </td>
                             </tr>
-                            <tr height="40">
+                            <tr height="35">
                                 <td>
-                                    <div style="overflow-y:hidden;height:36px;">
+                                    <div style="overflow-y:hidden;height:35px;">
                                         <svg id="code39-bar"></svg>
                                     </div>
                                 </td>
@@ -174,25 +195,27 @@
                         </tbody>
                     </table>
                     {{-- 交易明細 --}}
-                    <table cellpadding="2" cellspacing="0" class="-ff -detail" style="font-size:12px;font-weight:bold;">
+                    <table cellpadding="2" cellspacing="0" class="-ff -detail">
                         <caption style="border-top: 1px dashed;padding:2px;">[交易明細]</caption>
                         <thead>
                             <tr>
                                 <td width="40%">[品名/單價]</td>
-                                <td width="35%">[數量]</td>
-                                <td width="25%">[金額]</td>
+                                <td width="30%">[數量]</td>
+                                <td width="30%">[金額]</td>
                             </tr>
                         </thead>
                         <tbody>
                             {{-- max: x10 --}}
                             @for ($i = 0; $i < min([10, $r_count]); $i++)
                                 <tr height="38">
-                                    <td colspan="3" style="padding-right:1cm;">{{ $item_name_arr[$i] }}</td>
+                                    <td colspan="3" style="padding-right: 30px;padding-left: 4px;">
+                                        {{ $item_name_arr[$i] }}
+                                    </td>
                                 </tr>
-                                <tr height="24">
-                                    <td style="text-align:right;padding-right:25px;">{{ $item_price_arr[$i] }}</td>
-                                    <td>{{ $item_count_arr[$i] }}</td>
-                                    <td style="text-align:right;">{{ $item_amt_arr[$i] }}{{ $item_tax_type_arr[$i] == 1 ? 'TX' : '' }}</td>
+                                <tr height="24" style="white-space: nowrap;">
+                                    <td style="text-align:right;padding-right:25px;">{{ number_format($item_price_arr[$i]) }}</td>
+                                    <td>{{ number_format($item_count_arr[$i]) }}</td>
+                                    <td style="text-align:right;">{{ number_format($item_amt_arr[$i]) }}{{ $item_tax_type_arr[$i] == 1 ? ' TX' : '' }}</td>
                                 </tr>
                             @endfor
                         </tbody>
@@ -215,11 +238,13 @@
                         </tfoot>
                     </table>
                 </div>
+                </div>
 
                 @for($p = 0; $p < ($total_page - 1); $p++)
                     {{-- 第二張+：交易明細 --}}
-                    <div class="-page e-inv">
-                        <table cellpadding="2" cellspacing="0" class="-ff -detail" style="font-size:12px;font-weight:bold;">
+                    <div class="-page">
+                    <div class="e-inv">
+                        <table cellpadding="2" cellspacing="0" class="-ff -detail">
                             <caption style="padding:5px;">交易明細(續)</caption>
                             <thead>
                                 <tr>
@@ -237,8 +262,8 @@
                                 </tr>
                                 <tr>
                                     <td width="40%">[品名/單價]</td>
-                                    <td width="35%">[數量]</td>
-                                    <td width="25%">[金額]</td>
+                                    <td width="30%">[數量]</td>
+                                    <td width="30%">[金額]</td>
                                 </tr>
                             </thead>
                             <tbody>
@@ -248,12 +273,14 @@
                                         $j_key = $j + 10 + $p * 15;
                                     @endphp
                                     <tr height="38">
-                                        <td colspan="3" style="padding-right:1cm;">{{ $item_name_arr[$j_key] }}</td>
+                                        <td colspan="3" style="padding-right: 30px;padding-left: 4px;">
+                                            {{ $item_name_arr[$j_key] }}
+                                        </td>
                                     </tr>
-                                    <tr height="24">
-                                        <td style="text-align:right;padding-right:25px;">{{ $item_price_arr[$j_key] }}</td>
-                                        <td>{{ $item_count_arr[$j_key] }}</td>
-                                        <td style="text-align:right;">{{ $item_amt_arr[$j_key] }}{{ $item_tax_type_arr[$j_key] == 1 ? 'TX' : '' }}</td>
+                                    <tr height="24" style="white-space: nowrap;">
+                                        <td style="text-align:right;padding-right:25px;">{{ number_format($item_price_arr[$j_key]) }}</td>
+                                        <td>{{ number_format($item_count_arr[$j_key]) }}</td>
+                                        <td style="text-align:right;">{{ number_format($item_amt_arr[$j_key]) }}{{ $item_tax_type_arr[$j_key] == 1 ? ' TX' : '' }}</td>
                                     </tr>
                                 @endfor
                             </tbody>
@@ -277,6 +304,7 @@
                             </tfoot>
                         </table>
                     </div>
+                    </div>
                 @endfor
             </div>
             <div class="print">
@@ -290,11 +318,12 @@
 </html>
 
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.0/dist/barcodes/JsBarcode.code39.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.qrcode/1.0/jquery.qrcode.min.js"></script>
 <script>
-    const barcode = @json($invoice->bar_code);
-    const qrcodeL = @json($invoice->qr_code_l);
-    const qrcodeR = @json($invoice->qr_code_r);
+    const barcode = '{!! $invoice->bar_code !!}';
+    const qrcodeL = '{!! $invoice->qr_code_l !!}';
+    const qrcodeR = '{!! $invoice->qr_code_r !!}';
 
     // 二維條碼
     JsBarcode('#code39-bar', barcode, {
@@ -308,16 +337,15 @@
     // QR CODE opt
     const qr_opt = {
         width: 75,
-        height: 75,
-        correctLevel: QRCode.CorrectLevel.M
+        height: 75
     };
     // QR CODE 左
-    new QRCode(document.getElementById('qrcode-l'), {
+    $('#qrcode-l').qrcode({
         ...qr_opt,
         text: qrcodeL
     });
     // QR CODE 右
-    new QRCode(document.getElementById('qrcode-r'), {
+    $('#qrcode-r').qrcode({
         ...qr_opt,
         text: qrcodeR
     });
