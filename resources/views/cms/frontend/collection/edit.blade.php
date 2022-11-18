@@ -101,7 +101,7 @@
                                     </div>
                                     <div data-td="name" class="lh-base">
                                         @if (auth()->user()->can('cms.product.edit'))
-                                            <a class="-text" href=""></a>
+                                            <a class="-text" href="" target="_blank"></a>
                                         @endif
                                     </div>
                                 </td>
@@ -139,7 +139,7 @@
                                         </div>
                                         <div data-td="name" class="lh-base">
                                             @if (auth()->user()->can('cms.product.edit'))
-                                                <a class="-text" href="/cms/product/edit/{{ $data->id }}">
+                                                <a class="-text" href="/cms/product/edit/{{ $data->id }}" target="_blank">
                                                     {{ old('name.' . $key, $data->title ?? '') }}</a>
                                             @else
                                                 {{ old('name.' . $key, $data->title ?? '') }}
