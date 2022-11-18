@@ -151,7 +151,7 @@ class RptUserReportMonthly extends Model
             $user[$value->user_id][$value->sales_type][] = $value;
         }
 
-       
+
 
         self::insert(array_map(function ($n, $idx) use ($currentMonth) {
             $data = ['user_id' => $idx,
@@ -165,16 +165,18 @@ class RptUserReportMonthly extends Model
             ];
 
             if (isset($n[0]) && count($n[0]) > 0) {
+                $data['month'] = date('Y-m-d', strtotime($n[0][0]->dd));
                 foreach ($n[0] as $d1) {
                     self::subCacu($data, $d1, 'off');
                 }
             }
 
             if (isset($n[1]) && count($n[1]) > 0) {
+                $data['month'] = date('Y-m-d', strtotime($n[1][0]->dd));
                 foreach ($n[1] as $d1) {
                     self::subCacu($data, $d1, 'on');
                 }
-            }   
+            }
             return $data;
 
         }, $user, array_keys($user)));

@@ -28,6 +28,10 @@
                 <a class="btn btn-primary btn-sm my-1 ms-1"
                    href="{{ Route('cms.delivery.back_edit', ['event' => $delivery->event, 'eventId' => $delivery->event_id]) }}">編輯退貨</a>
             @endif
+            <a target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm my-1 ms-1"
+               href="{{ Route('cms.delivery.print_back', ['event' => $delivery->event, 'eventId' => $delivery->event_id]) }}">
+                列印退貨單
+            </a>
         </div>
     </nav>
 
@@ -48,10 +52,10 @@
             </div>
         </dl>
         <dl class="row">
-            <div class="col">
-                <dt>代墊單</dt>
-                <dd></dd>
-            </div>
+{{--            <div class="col">--}}
+{{--                <dt>代墊單</dt>--}}
+{{--                <dd></dd>--}}
+{{--            </div>--}}
             <div class="col">
                 <dt>物流類型</dt>
                 <dd>{{$logistic->group_name ?? ''}}</dd>
@@ -84,10 +88,10 @@
                 <dt>發票日期</dt>
                 <dd>{{ (isset($orderInvoice) && $orderInvoice->created_at) ? date('Y/m/d', strtotime($orderInvoice->created_at)) : '' }}</dd>
             </div>
-            <div class="col">
-                <dt>課稅別</dt>
-                <dd></dd>
-            </div>
+{{--            <div class="col">--}}
+{{--                <dt>課稅別</dt>--}}
+{{--                <dd></dd>--}}
+{{--            </div>--}}
         </dl>
         <dl class="row">
             <div class="col">
@@ -96,20 +100,20 @@
             </div>
         </dl>
         <dl class="row">
-            <div class="col-8">
-                <dt>物流說明</dt>
-                <dd>{{ (isset($logistic->memo)) ? $logistic->memo : '' }}</dd>
-            </div>
+{{--            <div class="col-8">--}}
+{{--                <dt>物流說明</dt>--}}
+{{--                <dd>{{ (isset($logistic->memo)) ? $logistic->memo : '' }}</dd>--}}
+{{--            </div>--}}
             <div class="col">
                 <dt>入庫者</dt>
                 <dd>{{$delivery->back_inbound_user_name ?? ''}}</dd>
             </div>
         </dl>
         <dl class="row">
-            <div class="col">
-                <dt>預計進貨日期</dt>
-                <dd></dd>
-            </div>
+{{--            <div class="col">--}}
+{{--                <dt>預計進貨日期</dt>--}}
+{{--                <dd></dd>--}}
+{{--            </div>--}}
             <div class="col">
                 <dt>採購備註</dt>
                 <dd>{{$delivery->back_memo ?? ''}}</dd>

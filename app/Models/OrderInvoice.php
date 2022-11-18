@@ -266,29 +266,29 @@ class OrderInvoice extends Model
 
                 } else if($carrier_type == 2){
                     $pattern = "/^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,})$/i";
-                    if (preg_match($pattern, $buyer_email) == 0) {
+                    if (preg_match($pattern, $carrier_num) == 0) {
                         wToast(__('會員電子發票載具格式錯誤'));
                         return $inv_result = null;
                     }
+                    /*
                     if (app(Order::class)->getTable() == $source_type) {
                         DB::beginTransaction();
                         try {
                             //判斷最後開立電子發票的email 若與現存的不同 代表使用者再次做編輯 需再更新回ord_orders.carrier_num
                             $order = Order::where('id', '=', $source_id)->first();
-                            if ($buyer_email != $order->carrier_num) {
-                                Order::where('id', '=', $source_id)->update(['carrier_num' => $buyer_email]);
+                            if ($carrier_num != $order->carrier_num) {
+                                Order::where('id', '=', $source_id)->update(['carrier_num' => $carrier_num]);
                             }
                             DB::commit();
                         } catch (\Exception $e) {
                             $inv_result = null;
                             // $e->getMessage();
-                            wToast(__('會員電子發票載具更新失敗'));
+                            wToast(__('訂單發票會員載具載具號碼更新失敗'));
                             DB::rollback();
                             return $inv_result = null;
                         }
                     }
-
-                    $carrier_num = $buyer_email;
+                    */
                 }
 
             } else {
@@ -512,12 +512,10 @@ class OrderInvoice extends Model
 
                 } else if($carrier_type == 2){
                     $pattern = "/^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,})$/i";
-                    if (preg_match($pattern, $buyer_email) == 0) {
+                    if (preg_match($pattern, $carrier_num) == 0) {
                         wToast(__('會員電子發票載具格式錯誤'));
                         return $inv_result = null;
                     }
-
-                    $carrier_num = $buyer_email;
                 }
 
             } else {
