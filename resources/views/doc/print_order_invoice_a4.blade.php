@@ -99,7 +99,7 @@
 
         #code39-bar {
             width: 100%;
-            margin-top: -2px;
+            margin-top: -5px;
         }
 
         @media print {
@@ -145,8 +145,8 @@
                     {{-- 主內容 --}}
                     <table cellpadding="2" cellspacing="0">
                         <tbody>
-                            <tr height="60" style="line-height:1;" class="-ff">
-                                <td style="padding-top:0.5cm;vertical-align:bottom;font-size:0.9rem;">{{ $invoice->seller_title }}</td>
+                            <tr style="line-height:1;text-align:left;" class="-ff">
+                                <td style="padding-top:0.5cm;vertical-align:bottom;font-size:0.8rem;">{{ $invoice->seller_title }}</td>
                             </tr>
                             <tr height="26" style="font-size:1.4rem;font-weight:500;line-height:1;">
                                 <td>電子發票證明聯</td>
@@ -157,7 +157,7 @@
                             <tr height="30" style="font-size:1.6rem;font-weight:600;line-height:1;">
                                 <td>{{ substr($invoice->invoice_number, 0, 2) . '-' . substr($invoice->invoice_number, 2)}}</td>
                             </tr>
-                            <tr height="45" style="text-align: left;" class="-ff">
+                            <tr height="50" style="text-align: left;" class="-ff">
                                 <td>
                                     <div style="display:flex;justify-content:space-between;">
                                         <div>{{ date('Y-m-d H:i:s', strtotime($invoice->created_at)) }}</div>
@@ -177,9 +177,9 @@
                                     </div>
                                 </td>
                             </tr>
-                            <tr height="40">
+                            <tr height="35">
                                 <td>
-                                    <div style="overflow-y:hidden;height:36px;">
+                                    <div style="overflow-y:hidden;height:35px;">
                                         <svg id="code39-bar"></svg>
                                     </div>
                                 </td>
@@ -318,11 +318,12 @@
 </html>
 
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.0/dist/barcodes/JsBarcode.code39.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.qrcode/1.0/jquery.qrcode.min.js"></script>
 <script>
-    const barcode = @json($invoice->bar_code);
-    const qrcodeL = @json($invoice->qr_code_l);
-    const qrcodeR = @json($invoice->qr_code_r);
+    const barcode = '{!! $invoice->bar_code !!}';
+    const qrcodeL = '{!! $invoice->qr_code_l !!}';
+    const qrcodeR = '{!! $invoice->qr_code_r !!}';
 
     // 二維條碼
     JsBarcode('#code39-bar', barcode, {
@@ -336,16 +337,15 @@
     // QR CODE opt
     const qr_opt = {
         width: 75,
-        height: 75,
-        correctLevel: QRCode.CorrectLevel.M
+        height: 75
     };
     // QR CODE 左
-    new QRCode(document.getElementById('qrcode-l'), {
+    $('#qrcode-l').qrcode({
         ...qr_opt,
         text: qrcodeL
     });
     // QR CODE 右
-    new QRCode(document.getElementById('qrcode-r'), {
+    $('#qrcode-r').qrcode({
         ...qr_opt,
         text: qrcodeR
     });
