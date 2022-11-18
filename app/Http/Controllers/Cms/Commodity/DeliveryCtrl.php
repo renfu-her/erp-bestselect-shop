@@ -826,14 +826,6 @@ class DeliveryCtrl extends Controller
                         break;
                     }
                 }
-                if (Event::order()->value == $delivery->event) {
-                    //訂單 可售數量在取消訂單已做 判斷已訂單取消 不可計算可售數量
-                    $subOrder = SubOrders::where('id', '=', $delivery->event_id)->get()->first();
-                    $order = Order::where('id', '=', $subOrder->order_id)->get()->first();
-                    if (OrderStatus::Canceled()->value == $order->status_code) {
-                        $is_calc_in_stock = false;
-                    }
-                }
 
                 if (Event::order()->value == $delivery->event || Event::consignment()->value == $delivery->event) {
                     //查找出貨時組出的組合包 相關退貨的商品 將數量加回
@@ -1110,21 +1102,6 @@ class DeliveryCtrl extends Controller
                     }
                 }
                 if (Event::order()->value == $delivery->event) {
-                    //判斷已退貨入庫且訂單取消 則不可做刪除退貨入庫
-                    // 因先訂單取消再退貨入庫 (可售數量不變 (因訂單取消已加回可售數量，退貨入庫時不變))
-                    // 或先退貨入庫再訂單取消 (可售數量要扣除 含一般商品、組合包，不含元素 (因先退貨入庫有增加，要對應扣除))
-                    // 可售數量記錄不同 所以直接擋住 不能做
-                    $subOrder = SubOrders::where('id', '=', $delivery->event_id)->first();
-                    $order = Order::where('id', '=', $subOrder->order_id)->first();
-                    if (OrderStatus::Canceled()->value == $order->status_code) {
-                        DB::rollBack();
-                        return ['success' => 0, 'error_msg' => '無法進行刪除退貨入庫'];
-                    }
-
-                    //訂單 可售數量在取消訂單已做 判斷已訂單取消 不可計算可售數量
-                    if (OrderStatus::Canceled()->value == $order->status_code) {
-                        $is_calc_in_stock = false;
-                    }
                     //狀態須回寫到訂單
                     OrderFlow::changeOrderStatus($delivery->event_id, OrderStatus::CancleBack());
                 }
