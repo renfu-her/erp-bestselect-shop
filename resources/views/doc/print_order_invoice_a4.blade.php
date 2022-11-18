@@ -103,10 +103,6 @@
         }
 
         @media print {
-            * {
-                font-weight: lighter;
-            }
-
             a,
             a:active,
             a:visited {
