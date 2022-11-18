@@ -2232,7 +2232,7 @@ class OrderCtrl extends Controller
             'invoice_method' => 'required|in:print,give,e_inv',
             'love_code' => 'required_if:invoice_method,==,give',
             'carrier_type' => 'required_if:invoice_method,==,e_inv|in:0,1,2',
-            'carrier_num' => 'required_if:carrier_type,==,0|required_if:carrier_type,==,1',
+            'carrier_num' => 'required_if:invoice_method,==,e_inv',
             'create_status_time' => 'nullable|date|date_format:Y-m-d',
 
             'o_title' => 'required|array|min:1',
@@ -2438,7 +2438,7 @@ class OrderCtrl extends Controller
                 'invoice_method' => 'required|in:print,give,e_inv',
                 'love_code' => 'required_if:invoice_method,==,give',
                 'carrier_type' => 'required_if:invoice_method,==,e_inv|in:0,1,2',
-                'carrier_num' => 'required_if:carrier_type,==,0|required_if:carrier_type,==,1',
+                'carrier_num' => 'required_if:invoice_method,==,e_inv',
                 'create_status_time' => 'nullable|date|date_format:Y-m-d',
 
                 'o_title' => 'required|array|min:1',
