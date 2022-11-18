@@ -223,7 +223,7 @@
         </div>
 
         <div class="card shadow p-4 mb-4">
-            <h6>電子發票明細</h6>
+            <h6>發票明細</h6>
             {{--
             <div class="list-wrap-1">
                 <div class="table-responsive">
