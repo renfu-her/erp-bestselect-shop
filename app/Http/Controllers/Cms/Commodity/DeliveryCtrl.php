@@ -649,7 +649,11 @@ class DeliveryCtrl extends Controller
                 ->leftJoin(app(Depot::class)->getTable(). ' as depot', 'depot.id', '=', 'csn.receive_depot_id')
                 ->where('csn.id', $delivery->event_id)
                 ->whereNull('csn.deleted_at')
-                ->select('csn.sn as sn', 'depot.name as ord_name', 'depot.tel as ord_phone', 'depot.addr as ord_address')
+                ->select('csn.sn as sn'
+                    , 'csn.send_depot_name as sed_name'
+                    , 'depot.name as ord_name', 'depot.tel as ord_phone', 'depot.addr as ord_address'
+                    , 'depot.name as rec_name', 'depot.tel as rec_phone', 'depot.addr as rec_address'
+                )
                 ->first();
             $rsp_arr['order'] = $order;
             $item_table = app(ConsignmentItem::class)->getTable();
