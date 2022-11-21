@@ -66,19 +66,19 @@
             @endif
         </div>
         <div class="card shadow p-4 mb-4">
-            <h6>新增商品</h6>
-            <div class="col-auto">
-                <button type="button" id="resort" class="btn btn-primary px-4">重整排序數列</button>
+            <div class="d-flex align-items-center mb-3">
+                <h6 class="mb-0">商品列表</h6>
+
+                <button type="button" id="resort" class="btn btn-outline-success btn-sm mx-2">重整排序數列</button>
             </div>
+            
             <div class="table-responsive tableOverBox">
                 <table class="table table-hover tableList mb-1">
                     <thead>
                         <tr>
                             <th scope="col" class="text-center">刪除</th>
                             <th scope="col">商品名稱</th>
-                            <th scope="col">商品形式</th>
                             <th scope="col">排序</th>
-                            <th scope="col">SKU</th>
                         </tr>
                     </thead>
                     <tbody class="-appendClone --selectedP">
@@ -94,14 +94,20 @@
                                     <input type="hidden" name="type_title[]" value="">
                                     <input type="hidden" name="sku[]" value="">
                                 </th>
-                                <td data-td="name">
-                                    @if (auth()->user()->can('cms.product.edit'))
-                                        <a class="-text" href=""></a>
-                                    @endif
+                                <td class="wrap">
+                                    <div class="lh-1 small text-nowrap">
+                                        <span data-td="type_title" class="badge rounded-pill me-2"></span>
+                                        <span data-td="sku" class="text-secondary"></span>
+                                    </div>
+                                    <div data-td="name" class="lh-base">
+                                        @if (auth()->user()->can('cms.product.edit'))
+                                            <a class="-text" href="" target="_blank"></a>
+                                        @endif
+                                    </div>
                                 </td>
-                                <td data-td="type_title"></td>
-                                <td><input type="number" name="sort[]" value="" required></td>
-                                <td data-td="sku"></td>
+                                <td width="100">
+                                    <input type="number" name="sort[]" value="" class="form-control form-control-sm -sm" required>
+                                </td>
                             </tr>
                         @elseif(count(old('id', $dataList ?? [])) > 0)
                             @foreach ($dataList as $key => $data)
@@ -120,18 +126,30 @@
                                         <input type="hidden" name="sku[]"
                                             value="{{ old('sku.' . $key, $data->sku ?? '') }}">
                                     </th>
-                                    <td data-td="name">
-                                        @if (auth()->user()->can('cms.product.edit'))
-                                            <a class="-text" href="/cms/product/edit/{{ $data->id }}">
-                                                {{ old('name.' . $key, $data->title ?? '') }}</a>
-                                        @else
-                                            {{ old('name.' . $key, $data->title ?? '') }}
-                                        @endif
+                                    <td class="wrap">
+                                        <div class="lh-1 small text-nowrap">
+                                            <span data-td="type_title" @class(['badge rounded-pill me-2', 
+                                                'bg-warning text-dark' => old('type_title.' . $key, $data->type_title) === '組合包',
+                                                'bg-success' => old('type_title.' . $key, $data->type_title) === '一般商品'])>
+                                                {{ old('type_title.' . $key, $data->type_title === '組合包' ? '組合包' : '一般') }}
+                                            </span>
+                                            <span data-td="sku" class="text-secondary">
+                                                {{ old('sku.' . $key, $data->sku ?? '') }}
+                                            </span>
+                                        </div>
+                                        <div data-td="name" class="lh-base">
+                                            @if (auth()->user()->can('cms.product.edit'))
+                                                <a class="-text" href="/cms/product/edit/{{ $data->id }}" target="_blank">
+                                                    {{ old('name.' . $key, $data->title ?? '') }}</a>
+                                            @else
+                                                {{ old('name.' . $key, $data->title ?? '') }}
+                                            @endif
+                                        </div>
                                     </td>
-                                    <td data-td="type_title">{{ old('type_title.' . $key, $data->type_title ?? '') }}</td>
-                                    <td><input type="number" name="sort[]"
-                                            value="{{ old('sort.' . $key, $data->sort ?? '') }}" required></td>
-                                    <td data-td="sku">{{ old('sku.' . $key, $data->sku ?? '') }}</td>
+                                    <td width="100">
+                                        <input type="number" name="sort[]" class="form-control form-control-sm -sm"
+                                            value="{{ old('sort.' . $key, $data->sort ?? '') }}" required>
+                                    </td>
                                 </tr>
                             @endforeach
                         @endif
@@ -366,12 +384,12 @@
                         cloneElem.find('.-del').attr('data-id', null);
 
                         //使用者若有「產品頁面」編輯的權限, default setup
-                        if (cloneElem.find('td[data-td="name"] a').length) {
-                            cloneElem.find('td[data-td]').not('td[data-td="name"]').text('');
-                            cloneElem.find('td[data-td="name"] a').text('');
-                            cloneElem.find('td[data-td="name"] a').attr('href', '');
+                        if (cloneElem.find('[data-td="name"] a').length) {
+                            cloneElem.find('[data-td]').not('[data-td="name"]').text('');
+                            cloneElem.find('[data-td="name"] a').text('');
+                            cloneElem.find('[data-td="name"] a').attr('href', '');
                         } else {
-                            cloneElem.find('td[data-td]').text('');
+                            cloneElem.find('[data-td]').text('');
                         }
 
                         cloneElem.find('.is-invalid').removeClass('is-invalid');
@@ -382,17 +400,28 @@
                             cloneElem.find('input[name="sku[]"]').val(p.sku);
 
                             //使用者若有「產品頁面」編輯的權限，讓使用者可以點擊連結編輯商品
-                            if (cloneElem.find('td[data-td="name"] a').length) {
-                                cloneElem.find('td[data-td="name"] a').text(`${p.name}`);
-                                cloneElem.find('td[data-td="name"] a').attr('href', '/cms/product/edit/' + p
+                            if (cloneElem.find('[data-td="name"] a').length) {
+                                cloneElem.find('[data-td="name"] a').text(`${p.name}`);
+                                cloneElem.find('[data-td="name"] a').attr('href', '/cms/product/edit/' + p
                                     .id);
                             } else {
-                                cloneElem.find('td[data-td="name"]').text(`${p.name}`);
+                                cloneElem.find('[data-td="name"]').text(`${p.name}`);
                             }
-
-                            cloneElem.find('td[data-td="type_title"]').text(p.type_title);
-                            cloneElem.find('td[data-td="sku"]').text(p.sku);
-                            cloneElem.find('input[name="sort\\[\\]"]').val(500);
+                            
+                            switch (p.type_title) {
+                                case '組合包商品':
+                                    cloneElem.find('[data-td="type_title"]').addClass('bg-warning text-dark');
+                                    cloneElem.find('[data-td="type_title"]').text('組合包');
+                                    break;
+                                case '一般商品':
+                                    cloneElem.find('[data-td="type_title"]').addClass('bg-success');
+                                    cloneElem.find('[data-td="type_title"]').text('一般');
+                                    break;
+                                default:
+                                    break;
+                            }
+                            cloneElem.find('[data-td="sku"]').text(p.sku);
+                            cloneElem.find('input[name="sort[]"]').val(500);
 
 
 
@@ -417,7 +446,7 @@
                 let count = 0;
                 $('.-cloneElem').each(function() {
                     count++;
-                    $(this).find('input[name="sort\\[\\]"]').val(count * 10);
+                    $(this).find('input[name="sort[]"]').val(count * 10);
                 })
             })
         </script>

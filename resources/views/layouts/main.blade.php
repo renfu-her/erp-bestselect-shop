@@ -29,7 +29,7 @@
 
 @once
     @push('styles')
-        <link rel="stylesheet" href="{{ Asset('dist/css/sub-content.css') }}?1.0">
+        <link rel="stylesheet" href="{{ Asset('dist/css/sub-content.css') }}?1.1">
         <link rel="stylesheet" href="{{ Asset('dist/css/component.css') }}?1.0">
         @stack('sub-styles')
     @endpush

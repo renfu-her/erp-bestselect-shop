@@ -1,8 +1,13 @@
 @extends('layouts.main')
 @section('sub-content')
     <h2 class="mb-4">申議書</h2>
-    <a href="{{ Route('cms.petition.print', ['id' => $data->id]) }}" target="_blank"
-        class="btn btn-outline-primary px-4 mb-1">列印</a>
+
+    <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
+        <div class="p-1 pe-2">
+            <a href="{{ Route('cms.petition.print', ['id' => $data->id]) }}" target="_blank"
+                class="btn btn-sm btn-warning px-4">列印</a>
+        </div>
+    </nav>
     @php
         $action = isset($type) ? Route('cms.petition.audit-confirm', ['id' => $data->id]) : '';
     @endphp
@@ -39,7 +44,9 @@
                             @foreach ($order as $key => $value)
                                 <div class="mb-1"><a href="{{ $value->url }}">{{ $value->order_sn }}</a></div>
                             @endforeach
-                            <hr />
+                            @if (count($order) > 0 && $relation_order && count($relation_order) > 0)
+                                <hr />
+                            @endif
                             @if ($relation_order)
                                 @foreach ($relation_order as $key => $value)
                                     <div class="mb-1"><a href="{{ $value->url }}">{{ $value->sn }}</a></div>

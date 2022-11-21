@@ -96,8 +96,8 @@
                 <tbody class="border-top-0">
                     <tr class="table-light">
                         <td class="col-2">摘要</td>
-                        <td class="col-2">數量</td>
                         <td class="col-2">單價</td>
+                        <td class="col-2">數量</td>
                         <td class="col-2">金額</td>
                         <td class="col-2">稅別</td>
                     </tr>
@@ -111,8 +111,8 @@
                     @foreach($item_name_arr as $key => $value)
                     <tr>
                         <td>{{ $value }}</td>
-                        <td>{{ $item_count_arr[$key] }}</td>
                         <td>{{ number_format($item_price_arr[$key]) }}</td>
+                        <td>{{ $item_count_arr[$key] }}</td>
                         <td>{{ number_format($item_amt_arr[$key]) }}</td>
                         <td>{{ $item_tax_type_arr[$key] == 1 ? '應稅' : '免稅' }}</td>
                     </tr>
