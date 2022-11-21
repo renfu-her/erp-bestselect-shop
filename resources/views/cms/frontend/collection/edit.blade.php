@@ -79,6 +79,7 @@
                             <th scope="col" class="text-center">刪除</th>
                             <th scope="col">商品名稱</th>
                             <th scope="col">排序</th>
+                            <th scope="col"></th>
                         </tr>
                     </thead>
                     <tbody class="-appendClone --selectedP">
@@ -150,6 +151,12 @@
                                         <input type="number" name="sort[]" class="form-control form-control-sm -sm"
                                             value="{{ old('sort.' . $key, $data->sort ?? '') }}" required>
                                     </td>
+                                    <td>
+                                        <span class="icon -move icon-btn col-auto fs-5 text-primary rounded-circle border-0 p-0"
+                                            data-bs-toggle="tooltip" title="拖曳排序">
+                                            <i class="bi bi-arrows-move"></i>
+                                        </span>
+                                    </td>
                                 </tr>
                             @endforeach
                         @endif
@@ -214,6 +221,20 @@
     </x-b-modal>
 @endsection
 @once
+    @push('sub-styles')
+        <style>
+            /* 拖曳預覽框 */
+            .-appendClone.--selectedP tr.placeholder-highlight {
+                width: 100%;
+                height: 60px;
+                margin-bottom: .5rem;
+                display: table-row;
+            }
+            tr.placeholder-highlight > td {
+                border: none;
+            }
+        </style>
+    @endpush
     @push('sub-scripts')
         <script>
             let addProductModal = new bootstrap.Modal(document.getElementById('addProduct'));
@@ -258,6 +279,7 @@
             if (!$('.-cloneElem.--selectedP').length) {
                 $('button[type="submit"]').prop('disabled', true);
             }
+            bindSortableBtn();
 
             // 加入商品、搜尋商品
             $('#addProductBtn, #addProduct .-searchBar button')
@@ -369,9 +391,7 @@
                         createOneSelected(p);
                     }
                 });
-                // if ($('.-cloneElem.--selectedP').length) {
-                //     $('#supplier').prop('disabled', true);
-                // }
+                bindSortableBtn();
 
                 // 關閉懸浮視窗
                 addProductModal.hide();
@@ -448,7 +468,26 @@
                     count++;
                     $(this).find('input[name="sort[]"]').val(count * 10);
                 })
-            })
+            });
+
+            function bindSortableBtn() {
+                $('tbody.-appendClone.--selectedP.ui-sortable').sortable('destroy');
+
+                $('tbody.-appendClone.--selectedP').sortable({
+                    axis: 'y',
+                    placeholder: 'placeholder-highlight',
+                    connectWith: '.-appendClone.--selectedP',
+                    handle: '.icon.-move',
+                    cursor: 'move',
+                });
+                
+                // 給 .placeholder-highlight 高度
+                $('tbody.-appendClone.--selectedP').off('sortstart');
+                $('tbody.-appendClone.--selectedP').on('sortstart', function (event, ui) {
+                    (ui.helper).css('height', `${(ui.item).height()}px`);
+                    (ui.placeholder).css('height', `${(ui.item).height()}px`);
+                });
+            }
         </script>
     @endpush
 @endonce
