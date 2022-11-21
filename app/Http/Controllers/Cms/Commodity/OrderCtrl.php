@@ -2266,8 +2266,10 @@ class OrderCtrl extends Controller
                 // if($result->r_msg){
                 //     wToast(__($result->r_msg));
                 // }
+                $unique_id = Order::findOrFail($id)->unique_id;
                 return redirect()->route('cms.order.show-invoice', [
                     'id' => $id,
+                    'unique_id' => $unique_id,
                 ]);
             }
 
@@ -2348,14 +2350,16 @@ class OrderCtrl extends Controller
         return response()->json($data);
     }
 
-    public function show_invoice(Request $request, $id)
+    public function show_invoice(Request $request, $id, $unique_id)
     {
         $request->merge([
             'id' => $id,
+            'unique_id' => $unique_id,
         ]);
 
         $request->validate([
             'id' => 'required|exists:ord_orders,id',
+            'unique_id' => 'required|exists:ord_orders,unique_id',
         ]);
 
         $source_type = app(Order::class)->getTable();
@@ -2366,7 +2370,10 @@ class OrderCtrl extends Controller
 
         $handler = User::find($invoice->user_id);
 
-        $order = Order::orderDetail($id)->first();
+        $order = Order::where([
+                'id' => $id,
+                'unique_id' => $unique_id,
+            ])->firstOrFail();
         // $sub_order = Order::subOrderDetail($id)->get();
         // foreach ($sub_order as $key => $value) {
         //     $sub_order[$key]->items = json_decode($value->items);
@@ -2468,8 +2475,10 @@ class OrderCtrl extends Controller
                     ];
                     Order::update_invoice_info($parm);
 
+                    $unique_id = Order::findOrFail($result->source_id)->unique_id;
                     return redirect()->route('cms.order.show-invoice', [
-                        'id' => $result->source_id,
+                        'id' => $id,
+                        'unique_id' => $unique_id,
                     ]);
                 }
 
