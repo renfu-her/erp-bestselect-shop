@@ -368,8 +368,7 @@ class OrderCtrl extends Controller
             'invoice_method' => 'required|in:print,give,e_inv',
             'love_code' => 'required_if:invoice_method,==,give',
             'carrier_type' => 'required_if:invoice_method,==,e_inv|in:0,1,2',
-            'carrier_num' => 'required_if:carrier_type,==,0|required_if:carrier_type,==,1',
-            'carrier_email' => 'required_if:carrier_type,==,2',
+            'carrier_num' => 'required_if:invoice_method,==,e_inv',
         ], $arrVali));
 
         $d = $request->all();
@@ -423,9 +422,9 @@ class OrderCtrl extends Controller
         $payinfo['invoice_method'] = $d['invoice_method'] ?? null;
         $payinfo['inv_title'] = $d['inv_title'] ?? null;
         $payinfo['buyer_ubn'] = $d['buyer_ubn'] ?? null;
+        $payinfo['buyer_email'] = $d['buyer_email'] ?? null;
         $payinfo['love_code'] = $d['love_code'] ?? null;
         $payinfo['carrier_type'] = $d['carrier_type'] ?? null;
-        $payinfo['carrier_email'] = $d['carrier_email'] ?? null;
         $payinfo['carrier_num'] = $d['carrier_num'] ?? null;
 
         $re = Order::createOrder($customer->email, $d['salechannel_id'], $address, $items, $d['mcode'] ?? null, $d['note'], $coupon, $payinfo, null, $dividend, $request->user());
@@ -2942,7 +2941,7 @@ class OrderCtrl extends Controller
         Order::where('id', $id)->update($updateData);
 
         // 發票
-        $re = Order::updateOrderUsrPayMethod($id, $request->only('category', 'invoice_method', 'carrier_type', 'carrier_email', 'inv_title', 'buyer_ubn', 'carrier_num'));
+        $re = Order::updateOrderUsrPayMethod($id, $request->only('category', 'invoice_method', 'carrier_type', 'buyer_email', 'inv_title', 'buyer_ubn', 'carrier_num'));
         if ($re['success'] != '1') {
             DB::rollBack();
             return redirect()->back()->withErrors(['invoice' => $re['error_msg']]);
