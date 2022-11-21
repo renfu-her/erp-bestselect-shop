@@ -701,6 +701,7 @@ class OrderCtrl extends Controller
             $payinfo['buyer_email'] = $customer->email;
             $payinfo['carrier_num'] = $customer->email;
         } else {
+            $payinfo['buyer_email'] = $customer->email;
             $payinfo['carrier_num'] = $payLoad['carrier_num'] ?? null;
         }
 
