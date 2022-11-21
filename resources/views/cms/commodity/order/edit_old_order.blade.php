@@ -303,33 +303,34 @@
                 </div>
             </fieldset>
 
-            {{-- 電子發票: 會員電子發票 --}}
-            <div class="col-12 mb-3 inv_method_carrier carrier_2">
-                <label class="form-label l_carrier_email">E-mail <span class="text-danger">*</span></label>
-                <input type="text" name="carrier_email"
-                    class="form-control @error('carrier_email') is-invalid @enderror" placeholder="請輸入E-mail"
-                    aria-label="E-mail" value="{{ old('carrier_email', $order->carrier_num ?? '') }}">
-                <div class="invalid-feedback">
-                    @error('carrier_email')
+            <div class="row">
+                {{-- 電子發票: 會員電子發票 --}}
+                <div class="col-12 col-sm-6 mb-3 buyer_email">
+                    <label class="form-label l_buyer_email">買受人E-mail</label>
+                    <input type="text" name="buyer_email" class="form-control @error('buyer_email') is-invalid @enderror"
+                        placeholder="請輸入買受人E-mail" aria-label="買受人E-mail" value="{{ old('buyer_email', $order->buyer_email ?? '') }}">
+                    <mark class="fw-light small">
+                        <i class="bi bi-exclamation-diamond-fill mx-2 text-warning"></i>發票開立時寄送的通知信收件位置
+                    </mark>
+
+                    <div class="invalid-feedback">
+                        @error('buyer_email')
                         {{ $message }}
-                    @enderror
+                        @enderror
+                    </div>
+                </div>
+                {{-- 電子發票: 條碼載具 --}}
+                <div class="col-12 col-sm-6 mb-3 inv_method_carrier">
+                    <label class="form-label l_carrier_num">載具號碼 <span class="text-danger">*</span></label>
+                    <input type="text" name="carrier_num" class="form-control @error('carrier_num') is-invalid @enderror"
+                        placeholder="請輸入載具號碼" aria-label="載具號碼" value="{{ old('carrier_num', $order->carrier_num ?? '') }}">
+                    <div class="invalid-feedback">
+                        @error('carrier_num')
+                        {{ $message }}
+                        @enderror
+                    </div>
                 </div>
             </div>
-            {{-- 電子發票: 條碼載具 --}}
-            <div class="col-12 mb-3 inv_method_carrier carrier_0 d-none">
-                <label class="form-label l_carrier_num">載具條碼 <span class="text-danger">*</span></label>
-                <input type="text" name="carrier_num" class="form-control @error('carrier_num') is-invalid @enderror"
-                    placeholder="請輸入載具條碼" aria-label="載具條碼" value="{{ old('carrier_num', $order->carrier_num) }}"
-                    disabled>
-                <div class="invalid-feedback">
-                    @error('carrier_num')
-                        <div class="danger">{{ $message }}</div>
-                    @enderror
-                </div>
-            </div>
-            @error('invoice')
-                <div class="alert alert-danger">{{ $message }}</div>
-            @enderror
         </div>
 
 
@@ -496,31 +497,21 @@
 
             //載具類型
             $('input[type=radio][name=carrier_type]').on('click change', function() {
+                $('.inv_method_carrier input[name="carrier_num"]').val('');
                 switch (this.value) {
                     case '2': // 會員電子發票
-                        // -會員
-                        $('.carrier_2').removeClass('d-none');
-                        $('.carrier_2 input').prop({
-                            disabled: false,
-                            required: true
-                        });
                         // -手機/自然人
                         $('.carrier_0').addClass('d-none');
                         $('.carrier_0 input').prop({
                             disabled: true,
                             required: false
                         });
+                        $('.inv_method_carrier input[name="carrier_num"]').val($('.buyer_email input').val());
                         break;
 
                     case '0': // 手機條碼載具
                     case '1': // 自然人憑證條碼載具
                     default:
-                        // -會員
-                        $('.carrier_2').addClass('d-none');
-                        $('.carrier_2 input').prop({
-                            disabled: true,
-                            required: false
-                        });
                         // -手機/自然人
                         $('.carrier_0').removeClass('d-none');
                         $('.carrier_0 input').prop({
