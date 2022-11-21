@@ -878,6 +878,15 @@ return [
         ],
     ],
     [
+        "unit" => "出貨商品查詢",
+        "permissions" => [
+            [
+                "cms.delivery_product.index",
+                "瀏覽",
+            ],
+        ],
+    ],
+    [
         "unit" => "物流管理",
         "permissions" => [
             [

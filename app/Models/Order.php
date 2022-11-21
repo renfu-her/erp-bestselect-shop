@@ -309,6 +309,7 @@ class Order extends Model
                 'sale.title as sale_title'])
             ->selectRaw("IF(order.inv_title IS NULL,'',order.inv_title) as inv_title")
             ->selectRaw("IF(order.buyer_ubn IS NULL,'',order.buyer_ubn) as buyer_ubn")
+            ->selectRaw("IF(order.buyer_email IS NULL,'',order.buyer_email) as buyer_email")
             ->selectRaw("IF(order.unique_id IS NULL,'',order.unique_id) as unique_id")
             ->selectRaw("IF(order.carrier_num IS NULL,'',order.carrier_num) as carrier_num")
             ->selectRaw("IF(order.invoice_category IS NULL,'',order.invoice_category) as invoice_category")
@@ -759,7 +760,7 @@ class Order extends Model
         $invoice_method = $payinfo['invoice_method'] ?? null;
         $inv_title = $payinfo['inv_title'] ?? null;
         $buyer_ubn = $payinfo['buyer_ubn'] ?? null;
-        $buyer_email = isset($payinfo['carrier_email']) ? trim($payinfo['carrier_email']) : null;
+        $buyer_email = $payinfo['buyer_email'] ?? null;
         $carrier_type = $payinfo['carrier_type'] ?? null;
         $carrier_num = isset($payinfo['carrier_num']) ? trim($payinfo['carrier_num']) : null;
         $love_code = $payinfo['love_code'] ?? null;
@@ -799,11 +800,10 @@ class Order extends Model
 
                 } else if ($carrier_type == 2) {
                     $pattern = "/^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,})$/i";
-                    if (preg_match($pattern, $buyer_email) == 0) {
+                    if (preg_match($pattern, $carrier_num) == 0) {
                         DB::rollBack();
                         return ['success' => '0', 'error_msg' => '會員電子發票載具格式錯誤'];
                     }
-                    $carrier_num = $buyer_email;
                 }
 
             } else {
@@ -828,6 +828,7 @@ class Order extends Model
             , 'invoice_category' => $invoice_category
             , 'inv_title' => $inv_title
             , 'buyer_ubn' => $buyer_ubn
+            , 'buyer_email' => $buyer_email
             , 'carrier_type' => $carrier_type
             , 'carrier_num' => $carrier_num
             , 'love_code' => $love_code,
@@ -835,12 +836,12 @@ class Order extends Model
         return ['success' => '1', 'error_msg' => ''];
     }
 
-    public static function generate_unique_id()
+    public static function generate_unique_id($len = 9)
     {
-        $unique_id = substr(base_convert(sha1(uniqid(mt_rand())), 16, 36), 0, 9); // return 9 characters
+        $unique_id = substr(base_convert(sha1(uniqid(mt_rand())), 16, 36), 0, $len); // return 9 characters
 
         if (self::where('unique_id', $unique_id)->first()) {
-            return self::generate_unique_id();
+            return self::generate_unique_id(strlen($unique_id) + 1);
         } else {
             return $unique_id;
         }

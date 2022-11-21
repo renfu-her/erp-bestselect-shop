@@ -368,8 +368,7 @@ class OrderCtrl extends Controller
             'invoice_method' => 'required|in:print,give,e_inv',
             'love_code' => 'required_if:invoice_method,==,give',
             'carrier_type' => 'required_if:invoice_method,==,e_inv|in:0,1,2',
-            'carrier_num' => 'required_if:carrier_type,==,0|required_if:carrier_type,==,1',
-            'carrier_email' => 'required_if:carrier_type,==,2',
+            'carrier_num' => 'required_if:invoice_method,==,e_inv',
         ], $arrVali));
 
         $d = $request->all();
@@ -423,9 +422,9 @@ class OrderCtrl extends Controller
         $payinfo['invoice_method'] = $d['invoice_method'] ?? null;
         $payinfo['inv_title'] = $d['inv_title'] ?? null;
         $payinfo['buyer_ubn'] = $d['buyer_ubn'] ?? null;
+        $payinfo['buyer_email'] = $d['buyer_email'] ?? null;
         $payinfo['love_code'] = $d['love_code'] ?? null;
         $payinfo['carrier_type'] = $d['carrier_type'] ?? null;
-        $payinfo['carrier_email'] = $d['carrier_email'] ?? null;
         $payinfo['carrier_num'] = $d['carrier_num'] ?? null;
 
         $re = Order::createOrder($customer->email, $d['salechannel_id'], $address, $items, $d['mcode'] ?? null, $d['note'], $coupon, $payinfo, null, $dividend, $request->user());
@@ -2267,8 +2266,10 @@ class OrderCtrl extends Controller
                 // if($result->r_msg){
                 //     wToast(__($result->r_msg));
                 // }
+                $unique_id = Order::findOrFail($id)->unique_id;
                 return redirect()->route('cms.order.show-invoice', [
                     'id' => $id,
+                    'unique_id' => $unique_id,
                 ]);
             }
 
@@ -2349,14 +2350,16 @@ class OrderCtrl extends Controller
         return response()->json($data);
     }
 
-    public function show_invoice(Request $request, $id)
+    public function show_invoice(Request $request, $id, $unique_id)
     {
         $request->merge([
             'id' => $id,
+            'unique_id' => $unique_id,
         ]);
 
         $request->validate([
             'id' => 'required|exists:ord_orders,id',
+            'unique_id' => 'required|exists:ord_orders,unique_id',
         ]);
 
         $source_type = app(Order::class)->getTable();
@@ -2367,7 +2370,10 @@ class OrderCtrl extends Controller
 
         $handler = User::find($invoice->user_id);
 
-        $order = Order::orderDetail($id)->first();
+        $order = Order::where([
+                'id' => $id,
+                'unique_id' => $unique_id,
+            ])->firstOrFail();
         // $sub_order = Order::subOrderDetail($id)->get();
         // foreach ($sub_order as $key => $value) {
         //     $sub_order[$key]->items = json_decode($value->items);
@@ -2469,8 +2475,10 @@ class OrderCtrl extends Controller
                     ];
                     Order::update_invoice_info($parm);
 
+                    $unique_id = Order::findOrFail($result->source_id)->unique_id;
                     return redirect()->route('cms.order.show-invoice', [
-                        'id' => $result->source_id,
+                        'id' => $id,
+                        'unique_id' => $unique_id,
                     ]);
                 }
 
@@ -2942,7 +2950,7 @@ class OrderCtrl extends Controller
         Order::where('id', $id)->update($updateData);
 
         // 發票
-        $re = Order::updateOrderUsrPayMethod($id, $request->only('category', 'invoice_method', 'carrier_type', 'carrier_email', 'inv_title', 'buyer_ubn', 'carrier_num'));
+        $re = Order::updateOrderUsrPayMethod($id, $request->only('category', 'invoice_method', 'carrier_type', 'buyer_email', 'inv_title', 'buyer_ubn', 'carrier_num'));
         if ($re['success'] != '1') {
             DB::rollBack();
             return redirect()->back()->withErrors(['invoice' => $re['error_msg']]);

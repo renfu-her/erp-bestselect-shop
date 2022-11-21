@@ -69,7 +69,7 @@
                         <tr>
                             <td>{{ $key + 1 }}</td>
                             @if(app(\App\Models\Order::class)->getTable() == $data->source_type)
-                                <td><a href="{{ route('cms.order.show-invoice', ['id' => $data->source_id]) }}">{{ $data->invoice_number }}</a></td>
+                                <td><a href="{{ route('cms.order.show-invoice', ['id' => $data->source_id, 'unique_id' => $data->unique_id]) }}">{{ $data->invoice_number }}</a></td>
                             @else
                                 <td>{{ $data->invoice_number }}</td>
                             @endif

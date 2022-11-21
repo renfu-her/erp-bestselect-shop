@@ -115,7 +115,7 @@
 {{--                <dd></dd>--}}
 {{--            </div>--}}
             <div class="col">
-                <dt>採購備註</dt>
+                <dt>退貨單備註</dt>
                 <dd>{{$delivery->back_memo ?? ''}}</dd>
             </div>
             <div class="col">
