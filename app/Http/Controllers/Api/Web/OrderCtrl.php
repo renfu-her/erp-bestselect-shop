@@ -693,14 +693,17 @@ class OrderCtrl extends Controller
         $payinfo['invoice_method'] = $d['invoice_method'] ?? InvoiceMethod::e_inv()->key; // 前端官網無紙本發票 所以一律為電子發票
         $payinfo['inv_title'] = $payLoad['inv_title'] ?? null;
         $payinfo['buyer_ubn'] = $payLoad['buyer_ubn'] ?? null;
+        $payinfo['buyer_email'] = $payLoad['buyer_email'] ?? null;
         $payinfo['love_code'] = $payLoad['love_code'] ?? null;
         $payinfo['carrier_type'] = $payLoad['carrier_type'] ?? null;
-        $payinfo['carrier_email'] = $payLoad['carrier_email'] ?? null;
         // 若為會員載具 前端官網不開放編輯修改功能 所以一律為預設email
         if (2 == $payinfo['carrier_type']) {
-            $payinfo['carrier_email'] = $customer->email;
+            $payinfo['buyer_email'] = $customer->email;
+            $payinfo['carrier_num'] = $customer->email;
+        } else {
+            $payinfo['buyer_email'] = $customer->email;
+            $payinfo['carrier_num'] = $payLoad['carrier_num'] ?? null;
         }
-        $payinfo['carrier_num'] = $payLoad['carrier_num'] ?? null;
 
         $dividend = [];
         if (isset($payLoad['points']) && isset($payLoad['points'])) {

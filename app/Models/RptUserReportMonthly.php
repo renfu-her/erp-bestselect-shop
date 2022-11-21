@@ -58,7 +58,7 @@ class RptUserReportMonthly extends Model
             ->leftJoin('prd_sale_channels as sale_channel', 'sale_channel.id', '=', 'order.sale_channel_id')
             ->select(['order.sn', 'order.id', 'order.origin_price', 'order.gross_profit', 'sale_channel.sales_type'])
             ->whereBetween('ro.receipt_date', [$sdate, $edate])
-            ->where('order.status_code','received');
+            ->where('order.status_code', 'received');
 
         if (isset($options['user_id'])) {
             $re->leftJoin('usr_customers as customer', 'order.mcode', '=', 'customer.sn')
@@ -145,41 +145,45 @@ class RptUserReportMonthly extends Model
         $user = [];
         foreach ($re as $value) {
             if (!isset($user[$value->user_id])) {
-                $user[$value->user_id] = ['0' => [], '1' => []];
+                //  $user[$value->user_id] = ['0' => [], '1' => []];
+                $user[$value->user_id] = [];
+            }
+            if (!isset($user[$value->user_id][$value->dd])) {
+                $user[$value->user_id][$value->dd] = ['0' => [], '1' => []];
             }
 
-            $user[$value->user_id][$value->sales_type][] = $value;
+            $user[$value->user_id][$value->dd][$value->sales_type][] = $value;
+        }
+        $insertData = [];
+        foreach ($user as $uid => $u) {
+            foreach ($u as $dd => $data) {
+                $d = ['user_id' => $uid,
+                    'total_price' => 0,
+                    'total_gross_profit' => 0,
+                    'on_price' => 0,
+                    'on_gross_profit' => 0,
+                    'off_price' => 0,
+                    'off_gross_profit' => 0,
+                    'month' => $dd,
+                ];
+
+                if (isset($data[0]) && count($data[0]) > 0) {
+                    foreach ($data[0] as $d1) {
+                        self::subCacu($d, $d1, 'off');
+                    }
+                }
+
+                if (isset($data[1]) && count($data[1]) > 0) {
+                    foreach ($data[1] as $d1) {
+                        self::subCacu($d, $d1, 'on');
+                    }
+                }
+
+                $insertData[] = $d;
+            }
         }
 
-
-
-        self::insert(array_map(function ($n, $idx) use ($currentMonth) {
-            $data = ['user_id' => $idx,
-                'total_price' => 0,
-                'total_gross_profit' => 0,
-                'on_price' => 0,
-                'on_gross_profit' => 0,
-                'off_price' => 0,
-                'off_gross_profit' => 0,
-                'month' => date('Y-m-1', strtotime($currentMonth)),
-            ];
-
-            if (isset($n[0]) && count($n[0]) > 0) {
-                $data['month'] = date('Y-m-d', strtotime($n[0][0]->dd));
-                foreach ($n[0] as $d1) {
-                    self::subCacu($data, $d1, 'off');
-                }
-            }
-
-            if (isset($n[1]) && count($n[1]) > 0) {
-                $data['month'] = date('Y-m-d', strtotime($n[1][0]->dd));
-                foreach ($n[1] as $d1) {
-                    self::subCacu($data, $d1, 'on');
-                }
-            }
-            return $data;
-
-        }, $user, array_keys($user)));
+        self::insert($insertData);
 
     }
 

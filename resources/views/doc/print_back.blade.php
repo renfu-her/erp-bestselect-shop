@@ -85,8 +85,8 @@
                             <td>寄件人：{{$order->sed_name ?? ''}}</td>
                         </tr>
                         <tr>
-                            <td>收件人：{{ $order->rec_name }} {{ $order->rec_phone }}</td>
-                            <td>送貨地址：{{ $order->rec_address }}
+                            <td>收件人：{{ $order->rec_name ?? '' }} {{ $order->rec_phone ?? '' }}</td>
+                            <td>送貨地址：{{ $order->rec_address ?? '' }}
                             </td>
                         </tr>
                         <tr>
