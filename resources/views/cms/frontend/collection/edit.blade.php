@@ -69,7 +69,9 @@
             <div class="d-flex align-items-center mb-3">
                 <h6 class="mb-0">商品列表</h6>
 
-                <button type="button" id="resort" class="btn btn-outline-success btn-sm mx-2">重整排序數列</button>
+                <button type="button" id="setItemByOrder" data-bs-toggle="tooltip" title="僅預覽順序，儲存後才會實際生效"
+                    data-bs-placement="right" class="btn btn-outline-success btn-sm mx-2">依排序值排列商品</button>
+                
             </div>
             
             <div class="table-responsive tableOverBox">
@@ -462,13 +464,26 @@
                 $('.-emptyData').hide();
             });
 
-            $('#resort').click(function() {
+            // 依排序值排列
+            $('#setItemByOrder').click(function() {
+                let $list = $('tr.-cloneElem.--selectedP');
+                $list.sort(function (a, b) {
+                    return Number($(a).find('[name="sort[]"]').val()) - Number($(b).find('[name="sort[]"]').val());
+                });
+                $list.each(function (index, element) {
+                    // element == this
+                    $('tbody.-appendClone.--selectedP').append($(element));
+                });
+            });
+
+            // 重排排序值
+            function resort() {
                 let count = 0;
                 $('.-cloneElem').each(function() {
                     count++;
                     $(this).find('input[name="sort[]"]').val(count * 10);
-                })
-            });
+                });
+            }
 
             function bindSortableBtn() {
                 $('tbody.-appendClone.--selectedP.ui-sortable').sortable('destroy');
@@ -486,6 +501,12 @@
                 $('tbody.-appendClone.--selectedP').on('sortstart', function (event, ui) {
                     (ui.helper).css('height', `${(ui.item).height()}px`);
                     (ui.placeholder).css('height', `${(ui.item).height()}px`);
+                });
+                
+                // 有更新順序時
+                $('tbody.-appendClone.--selectedP').off('sortupdate');
+                $('tbody.-appendClone.--selectedP').on('sortupdate', function () {
+                    resort();
                 });
             }
         </script>
