@@ -25,7 +25,7 @@
             @can('cms.user-performance-report.renew')
                 <form id="form2" action="{{ route('cms.user-performance-report.renew') }}" method="POST">
                     @csrf
-                    <div class="d-flex justify-content-end align-items-center mb-3">
+                    <div class="d-flex justify-content-end align-items-center mb-3 flex-wrap">
                         <span class="text-muted me-1">重新計算</span>
                         <div class="col-auto me-1">
                             <select class="form-select form-select-sm" name="year" aria-label="年度">
