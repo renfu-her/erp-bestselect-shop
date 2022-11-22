@@ -330,6 +330,16 @@ class DeliveryCtrl extends Controller
             wToast('已出貨 無法刪除');
             return redirect()->back();
         } else {
+            $out_prd = DlvOutStock::where('delivery_id', $delivery_id)->where('type', '=', DlvOutStockType::product()->value)->get();
+            if (null != $out_prd && 0 < count($out_prd)) {
+                foreach ($out_prd as $prd_item) {
+                    if (false == is_null($prd_item->qty) && 0 != $prd_item->qty) {
+                        ProductStock::stockChange($prd_item->product_style_id,
+                            $prd_item->qty * -1, StockEvent::out_stock_cancle()->value, $delivery->event_id, $delivery->event_sn. ' '. $prd_item->sku. ' ' . "缺貨");
+                    }
+                }
+            }
+
             Delivery::where('id', $delivery_id)->update([
                 'out_date' => null
                 , 'out_sn' => null
@@ -421,6 +431,11 @@ class DeliveryCtrl extends Controller
                             'updated_at' => $curr_date,
                         ];
                         $data[] = $addItem;
+
+                        if (false == is_null($input_items['back_qty'][$i]) && 0 != $input_items['back_qty'][$i]) {
+                            ProductStock::stockChange($input_items['product_style_id'][$i],
+                                $input_items['back_qty'][$i], StockEvent::out_stock()->value, $delivery->event_id, $delivery->event_sn. ' '. $input_items['sku'][$i]. ' '. "缺貨");
+                        }
                     }
                     DlvOutStock::insert($data);
                 }
