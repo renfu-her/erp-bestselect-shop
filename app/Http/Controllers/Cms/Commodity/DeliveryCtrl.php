@@ -481,6 +481,7 @@ class DeliveryCtrl extends Controller
 
     public function out_stock_edit(Request $request, $event, $eventId)
     {
+        dd('無此功能 因會需要計算最新可售數量');
         return $this->do_out_stock_edit($request, $event, $eventId, 'edit');
     }
 

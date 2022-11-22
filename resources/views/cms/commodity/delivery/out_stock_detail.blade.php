@@ -25,8 +25,8 @@
                     href="{{ Route('cms.delivery.return-pay-order', ['id' => $delivery->id]) }}">新增退貨付款單</a>
             @endif
             @if (false == $has_payable_data_back)
-                <a class="btn btn-primary btn-sm my-1 ms-1"
-                   href="{{ Route('cms.delivery.out_stock_edit', ['event' => $delivery->event, 'eventId' => $delivery->event_id]) }}">編輯缺貨</a>
+{{--                <a class="btn btn-primary btn-sm my-1 ms-1"--}}
+{{--                   href="{{ Route('cms.delivery.out_stock_edit', ['event' => $delivery->event, 'eventId' => $delivery->event_id]) }}">編輯缺貨</a>--}}
             @endif
             <a target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm my-1 ms-1"
                href="{{ Route('cms.delivery.print_out_stock', ['event' => $delivery->event, 'eventId' => $delivery->event_id]) }}">
