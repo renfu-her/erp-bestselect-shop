@@ -23,7 +23,7 @@ class edmCtrl extends Controller
         $data_per_page = Arr::get($query, 'data_per_page', 10);
         $data_per_page = is_numeric($data_per_page) ? $data_per_page : 10;
 
-        return view('cms.marketing.collection.list', [
+        return view('cms.marketing.edm.list', [
             'dataList' => $dataList,
             'data_per_page' => $data_per_page,
             'topList' => Collection::where('is_liquor', 0)->get(),
@@ -86,13 +86,13 @@ class edmCtrl extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * 列印頁
      *
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function print($id)
     {
-        //
+        // 
     }
 }
