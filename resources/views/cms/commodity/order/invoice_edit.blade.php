@@ -11,7 +11,7 @@
         <div class="card shadow p-4 mb-4">
             <div class="row">
                 <div class="col-12 col-sm-6 mb-3">
-                    <label class="form-label">自定訂單編號 <i class="bi bi-info-circle" data-bs-toggle="tooltip" title="自定訂單編號僅允許英數字及_符號"></i><span class="text-danger">*</span></label>
+                    <label class="form-label">自定訂單編號 <i class="bi bi-info-circle" data-bs-toggle="tooltip" title="自定訂單編號僅允許英數字及_符號"></i> <span class="text-danger">*</span></label>
                     <input type="text" name="merchant_order_no" class="form-control @error('merchant_order_no') is-invalid @enderror" placeholder="請輸入自定訂單編號" aria-label="自定訂單編號" value="{{ old('merchant_order_no', $invoice->merchant_order_no) }}" required>
                     <div class="invalid-feedback">
                         @error('merchant_order_no')
@@ -477,13 +477,13 @@
                                                     </div>
                                                 </td>
                                                 <td>
+                                                    <input type="number" name="o_qty[]" class="form-control form-control-sm -l" value="${data.count}" aria-label="數量" min="1" required>
+                                                </td>
+                                                <td>
                                                     <div class="input-group input-group-sm flex-nowrap">
                                                         <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
                                                         <input type="number" name="o_total_price[]" class="form-control form-control-sm -l" value="${data.amt}" aria-label="價格(總價)" required>
                                                     </div>
-                                                </td>
-                                                <td>
-                                                    <input type="number" name="o_qty[]" class="form-control form-control-sm -l" value="${data.count}" aria-label="數量" min="1" required>
                                                 </td>
                                                 <td>
                                                     <select name="o_taxation[]" class="form-select form-select-sm" required>

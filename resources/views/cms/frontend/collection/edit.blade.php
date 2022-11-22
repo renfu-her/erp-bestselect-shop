@@ -7,7 +7,7 @@
             編輯
         @endif 商品群組
     </h2>
-    <form class="card-body" method="post" action="{{ $formAction }}">
+    <form method="post" action="{{ $formAction }}">
         @method('POST')
         @csrf
 
