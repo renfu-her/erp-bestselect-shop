@@ -26,11 +26,11 @@ class CreateDlvOutStockTable extends Migration
         Schema::create('dlv_out_stock', function (Blueprint $table) {
             $table->id()->comment('取消出貨id ');
             $table->unsignedBigInteger('delivery_id')->comment('出貨單ID');
-            $table->unsignedBigInteger('event_item_id')->comment('事件物品ID 訂單ord_items.id、寄倉csn_consignment_items.id');
+            $table->unsignedBigInteger('event_item_id')->nullable()->comment('事件物品ID 訂單ord_items.id、寄倉csn_consignment_items.id');
             $table->integer('product_style_id')->nullable()->comment('款式ID');
             $table->string('sku', 20)->comment('商品sku');
             $table->string('product_title', 100)->comment('商品名稱');
-            $table->decimal('price')->default(0)->comment('單價');
+            $table->decimal('price')->comment('單價');
             $table->integer('origin_qty')->comment('原始數量');
             $table->integer('qty')->comment('數量');
             $table->decimal('bonus')->comment('獎金');
