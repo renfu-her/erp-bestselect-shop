@@ -655,6 +655,12 @@ Breadcrumbs::for('cms.google_marketing.create_ads_events', function (BreadcrumbT
     $trail->push('新增Google Ads 轉換追蹤 ');
 });
 
+// edm
+Breadcrumbs::for('cms.edm.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('EDM');
+});
+
 /**
  * 設定
  **/

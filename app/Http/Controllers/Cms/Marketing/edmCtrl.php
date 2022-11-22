@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Cms\Marketing;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Collection;
+use Illuminate\Support\Arr;
 
 class edmCtrl extends Controller
 {
@@ -12,9 +14,20 @@ class edmCtrl extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request, Collection $collection)
     {
         //
+
+        $query = $request->query();
+        $dataList = $collection->getDataList($query);
+        $data_per_page = Arr::get($query, 'data_per_page', 10);
+        $data_per_page = is_numeric($data_per_page) ? $data_per_page : 10;
+
+        return view('cms.marketing.collection.list', [
+            'dataList' => $dataList,
+            'data_per_page' => $data_per_page,
+            'topList' => Collection::where('is_liquor', 0)->get(),
+        ]);
     }
 
     /**
