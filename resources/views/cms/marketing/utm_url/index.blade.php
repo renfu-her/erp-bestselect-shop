@@ -1,61 +1,67 @@
 @extends('layouts.main')
 @section('sub-content')
     <h2 class="mb-4">縮短網址產生器</h2>
-    <div class="card mb-4">
+
+    <div class="card shadow p-4 mb-4">
         <form id="form">
-            <div class="card-body">
-                <h6>
-                    發佈平台
-                </h6>
-                <select name="select_platform" id="select_source" class="-select2 -single mb-4 form-select" required>
-                    <option value="Bestselect-Internal-Link">一般分享（會刪除分潤、廣告等參數）</option>
-                    @can('cms.utm-url.whole')
-                        <option value="Bestselect-Page">喜鴻購物-臉書粉絲團</option>
-                        <option value="Facebook-Bestselection-Group">喜鴻購物-臉書社團</option>
-                        <option value="Bestselection-Line-Text">喜鴻購物-Line文字</option>
-                        <option value="Bestselection-Line-Photo">喜鴻購物-Line圖片</option>
-                        <option value="Manual">喜鴻購物-車上購物手冊</option>
-                        <option value="QrCode">喜鴻購物-QR Code封條</option>
-                        <option value="Besttour-Banner">喜鴻假期-官網Banner</option>
-                        <option value="Besttour-Page">喜鴻假期-臉書粉絲團</option>
-                        <option value="Besttour-Youtube">喜鴻假期-YouTube</option>
-                        <option value="Birdsflyaway-Youtube">鳥事少一點-YouTube</option>
-                        <option value="Besttour-Youtube-CG">誠貫-喜鴻假期YouTube廣告</option>
-                        <option value="FB-CG">誠貫-FB廣告</option>
-                    @endcan
-                </select>
-                <h6>
-                    原始網址
-                </h6>
-                <div>
-                    <input name="input_url" type="text" id="ori_url" class="form-control" placeholder="">
+
+            <div class="row">
+                <div class="col-12 mb-3">
+                    <label class="form-label">發佈平台</label>
+                    <select name="select_platform" id="select_source" class="form-select -select2 -single" required>
+                        <option value="Bestselect-Internal-Link">一般分享（會刪除分潤、廣告等參數）</option>
+                        @can('cms.utm-url.whole')
+                            <option value="Bestselect-Page">喜鴻購物-臉書粉絲團</option>
+                            <option value="Facebook-Bestselection-Group">喜鴻購物-臉書社團</option>
+                            <option value="Bestselection-Line-Text">喜鴻購物-Line文字</option>
+                            <option value="Bestselection-Line-Photo">喜鴻購物-Line圖片</option>
+                            <option value="Manual">喜鴻購物-車上購物手冊</option>
+                            <option value="QrCode">喜鴻購物-QR Code封條</option>
+                            <option value="Besttour-Banner">喜鴻假期-官網Banner</option>
+                            <option value="Besttour-Page">喜鴻假期-臉書粉絲團</option>
+                            <option value="Besttour-Youtube">喜鴻假期-YouTube</option>
+                            <option value="Birdsflyaway-Youtube">鳥事少一點-YouTube</option>
+                            <option value="Besttour-Youtube-CG">誠貫-喜鴻假期YouTube廣告</option>
+                            <option value="FB-CG">誠貫-FB廣告</option>
+                        @endcan
+                    </select>
                 </div>
-                <br>
-                <!-- 浮動控制項-->
-                <div class="mb-4">
-                    <!-- 按鈕：確認 -->
+                <div class="col-12 mb-3">
+                    <label class="form-label">原始網址</label>
+                    <input class="form-control" type="text" name="input_url" id="ori_url" 
+                        value="" placeholder="輸入原始網址">
+                </div>
+                
+                <div class="col">
                     <button type="submit" class="btn btn-primary">產生短網址</button>
                 </div>
             </div>
         </form>
     </div>
 
-    <div class="card mb-4">
-        <div class="card-body">
-            <p id="wait">短網址正在產生中。。 請等待。。</p>
-            <h6 class="url_description">
-                產生的短網址是:
-            </h6>
-            <p id=short_url></p>
-            <button type="button" name="short_url" class="btn btn-outline-success copyBtn">點我複製短網址</button>
-            <br>
-            <br>
-            <h6 class="url_description">
-                產生的長網址是:
-            </h6>
-            <p id=long_url></p>
-            <button type="button" name="long_url" class="btn btn-outline-success copyBtn">點我複製長網址</button>
+    <div class="card shadow p-4 mb-4">
+        <h6>產生結果</h6>
+
+        <div id="wait" class="text-secondary align-items-center" style="display: flex;" hidden>短網址正在產生中
+            <span class="spinner-grow ms-2" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </span>
         </div>
+
+        <div class="col -result" hidden>
+            <div class="mb-3">
+                <label class="form-label">短網址：</label>
+                <button type="button" name="short_url" class="btn btn-outline-success btn-sm copyBtn">點我複製短網址</button>
+                <p id="short_url">xxx</p>
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">長網址：</label>
+                <button type="button" name="long_url" class="btn btn-outline-success btn-sm copyBtn">點我複製長網址</button>
+                <p id="long_url">xxx</p>
+            </div>
+        </div>
+
     </div>
 @endsection
 @once
@@ -70,9 +76,6 @@
             const BITLY_TOKEN = "a55bd2eca919950d842173e393eccd2e1e8300f8";
             const PICSEE_TOKEN = {!! '"' . $PicSeeToken . '"' !!}
             $(document).ready(function(){
-                $(".copyBtn").hide();
-                $('#wait').hide();
-                $(".url_description").hide();
 
                 $.validator.addMethod("checkBestselectionUrl", function(value, element) {
                         return this.optional(element) || BESTSELECTION_REGEX.test(value);
@@ -120,24 +123,20 @@
                                 success: function (data){
                                     $("#short_url").text(data["data"]["picseeUrl"]);
                                     $("#long_url").text(data["meta"]["request"]["query"]["url"]);
-                                    $(".copyBtn").show(1000);
-                                    $(".url_description").show(1000);
+                                    $(".-result").prop('hidden', false);
                                     console.log(data);
                                 },
                                 error: function(XMLHttpRequest, textStatus, errorThrown){
                                     console.info(XMLHttpRequest.responseJSON);
                                 },
                                 beforeSend: function() {
-                                    $('#wait').show(1000);
-                                    $(".copyBtn").hide();
-                                    $(".url_description").hide();
-                                    $("#short_url").empty();
-                                    $("#long_url").empty();
+                                    $('#wait').prop('hidden', false);
+                                    $(".-result").prop('hidden', true);
+                                    $("#short_url, #long_url").empty();
                                 },
                                 complete: function() {
-                                    $('#wait').hide(1000);
-                                    $(".copyBtn").show();
-                                    $(".url_description").show();
+                                    $('#wait').prop('hidden', true);
+                                    $(".-result").prop('hidden', false);
                                 }
                             });
                         } else {
@@ -155,23 +154,19 @@
                                 success: function (data){
                                     $("#short_url").text(data.link);
                                     $("#long_url").text(data.long_url);
-                                    $(".copyBtn").show(1000);
-                                    $(".url_description").show(1000);
+                                    $(".-result").prop('hidden', false);
                                 },
                                 error: function(XMLHttpRequest, textStatus, errorThrown){
                                     console.info(XMLHttpRequest.responseJSON);
                                 },
                                 beforeSend: function() {
-                                    $('#wait').show(1000);
-                                    $(".copyBtn").hide();
-                                    $(".url_description").hide();
-                                    $("#short_url").empty();
-                                    $("#long_url").empty();
+                                    $('#wait').prop('hidden', false);
+                                    $(".-result").prop('hidden', true);
+                                    $("#short_url, #long_url").empty();
                                 },
                                 complete: function() {
-                                    $('#wait').hide(1000);
-                                    $(".copyBtn").show();
-                                    $(".url_description").show();
+                                    $('#wait').prop('hidden', true);
+                                    $(".-result").prop('hidden', false);
                                 }
                             });
                         }
