@@ -78,9 +78,7 @@ class OrderCtrl extends Controller
             // 'unique_id' => 'required|exists:ord_orders,unique_id',
         ]);
 
-        $order = DB::table('ord_orders as order')
-            ->leftJoin('usr_customers as customer', 'order.email', '=', 'customer.email')
-            ->leftJoin('prd_sale_channels as sale', 'sale.id', '=', 'order.sale_channel_id')
+        $order = Order::orderDetail($id)
             ->leftJoin('ord_received_orders as received', function ($join) {
                 $join->on('received.source_id', '=', 'order.id');
                 $join->where([
@@ -89,22 +87,7 @@ class OrderCtrl extends Controller
                     'received.deleted_at' => null,
                 ]);
             })
-            ->select([
-                'order.id',
-                'order.sn',
-                'order.discount_value',
-                'order.discounted_price',
-                'order.dlv_fee',
-                'order.origin_price',
-                'order.note',
-                'order.status_code',
-                'order.status',
-                'order.total_price',
-                'order.created_at',
-                'order.unique_id',
-                'customer.name',
-                'customer.email',
-                'sale.title as sale_title',
+            ->addSelect([
                 'received.sn as received_sn',
             ])
             ->where([
@@ -119,6 +102,17 @@ class OrderCtrl extends Controller
         if (!$order) {
             return abort(404);
         }
+
+        $sub_order = Order::subOrderDetail($id)->get();
+        foreach ($sub_order as $key => $value) {
+            $sub_order[$key]->items = json_decode($value->items);
+            $sub_order[$key]->consume_items = json_decode($value->consume_items);
+        }
+
+        $order_discount = DB::table('ord_discounts')->where([
+            'order_type' => 'main',
+            'order_id' => $id,
+        ])->where('discount_value', '>', 0)->get()->toArray();
 
         include app_path() . '/Helpers/auth_mpi_mac.php';
 
@@ -144,6 +138,8 @@ class OrderCtrl extends Controller
 
         return view('cms.frontend.checkout', [
             'order' => $order,
+            'sub_order' => $sub_order,
+            'order_discount' => $order_discount,
             'str_url' => $str_url,
             'str_mac_string' => $str_mac_string,
             'str_mer_id' => $str_mer_id,
@@ -701,6 +697,7 @@ class OrderCtrl extends Controller
             $payinfo['buyer_email'] = $customer->email;
             $payinfo['carrier_num'] = $customer->email;
         } else {
+            $payinfo['buyer_email'] = $customer->email;
             $payinfo['carrier_num'] = $payLoad['carrier_num'] ?? null;
         }
 

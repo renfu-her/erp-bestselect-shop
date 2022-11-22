@@ -237,7 +237,7 @@ class OrderInvoice extends Model
 
         if($category === 'B2B'){
             if($tax_type == 9){
-                wToast(__('三聯式發票稅別不可為混合課稅'));
+                wToast(__('三聯式發票稅別不可為混合課稅'), ['type'=>'danger']);
                 return $inv_result = null;
             }
 
@@ -254,20 +254,20 @@ class OrderInvoice extends Model
             if($print_flag == 'N'){
                 if($carrier_type != null && $carrier_type == 0){
                     if(preg_match('/^\/[A-Z0-9+-.]{7}$/', $carrier_num) == 0 || strlen($carrier_num) != 8){
-                        wToast(__('手機條碼載具格式錯誤'));
+                        wToast(__('手機條碼載具格式錯誤'), ['type'=>'danger']);
                         return $inv_result = null;
                     }
 
                 } else if($carrier_type == 1){
                     if(preg_match('/^[A-Z]{2}[0-9]{14}$/', $carrier_num) == 0 || strlen($carrier_num) != 16){
-                        wToast(__('自然人憑證條碼載具格式錯誤'));
+                        wToast(__('自然人憑證條碼載具格式錯誤'), ['type'=>'danger']);
                         return $inv_result = null;
                     }
 
                 } else if($carrier_type == 2){
                     $pattern = "/^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,})$/i";
                     if (preg_match($pattern, $carrier_num) == 0) {
-                        wToast(__('會員電子發票載具格式錯誤'));
+                        wToast(__('會員電子發票載具格式錯誤'), ['type'=>'danger']);
                         return $inv_result = null;
                     }
                     /*
@@ -305,7 +305,7 @@ class OrderInvoice extends Model
             //     if($love_code != '' && preg_match('/^[0-9]{3,7}$/', $love_code) !== 1){
             //         echo 'love code not match';
 
-            //         wToast(__('捐贈碼格式錯誤'));
+            //         wToast(__('捐贈碼格式錯誤'), ['type'=>'danger']);
             //         return $inv_result = null;
             //     }
             // }
@@ -483,7 +483,7 @@ class OrderInvoice extends Model
 
         if($category === 'B2B'){
             if($tax_type == 9){
-                wToast(__('三聯式發票稅別不可為混合課稅'));
+                wToast(__('三聯式發票稅別不可為混合課稅'), ['type'=>'danger']);
                 return $inv_result = null;
             }
 
@@ -500,20 +500,20 @@ class OrderInvoice extends Model
             if($print_flag == 'N'){
                 if($carrier_type != null && $carrier_type == 0){
                     if(preg_match('/^\/[A-Z0-9+-.]{7}$/', $carrier_num) == 0 || strlen($carrier_num) != 8){
-                        wToast(__('手機條碼載具格式錯誤'));
+                        wToast(__('手機條碼載具格式錯誤'), ['type'=>'danger']);
                         return $inv_result = null;
                     }
 
                 } else if($carrier_type == 1){
                     if(preg_match('/^[A-Z]{2}[0-9]{14}$/', $carrier_num) == 0 || strlen($carrier_num) != 16){
-                        wToast(__('自然人憑證條碼載具格式錯誤'));
+                        wToast(__('自然人憑證條碼載具格式錯誤'), ['type'=>'danger']);
                         return $inv_result = null;
                     }
 
                 } else if($carrier_type == 2){
                     $pattern = "/^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,})$/i";
                     if (preg_match($pattern, $carrier_num) == 0) {
-                        wToast(__('會員電子發票載具格式錯誤'));
+                        wToast(__('會員電子發票載具格式錯誤'), ['type'=>'danger']);
                         return $inv_result = null;
                     }
                 }
@@ -532,7 +532,7 @@ class OrderInvoice extends Model
             //     if($love_code != '' && preg_match('/^[0-9]{3,7}$/', $love_code) !== 1){
             //         echo 'love code not match';
 
-            //         wToast(__('捐贈碼格式錯誤'));
+            //         wToast(__('捐贈碼格式錯誤'), ['type'=>'danger']);
             //         return $inv_result = null;
             //     }
             // }
@@ -725,9 +725,17 @@ class OrderInvoice extends Model
     public static function getData($param)
     {
         $query = DB::table(app(OrderInvoice::class)->getTable(). ' as ord_invoice')
-            ->select('ord_invoice.*'
-                , DB::raw('(substring_index(ord_invoice.item_name, "|", 1)) as item_1_name')
-                , DB::raw('DATE_FORMAT((ifnull(ord_invoice.create_status_time, ord_invoice.created_at)),"%Y-%m-%d") as invoice_date')
+            ->leftJoin('ord_orders as order', function ($join) {
+                $join->on('ord_invoice.source_id', '=', 'order.id');
+                $join->where([
+                    'ord_invoice.source_type' => app(Order::class)->getTable(),
+                ]);
+            })
+            ->select(
+                'ord_invoice.*',
+                'order.unique_id',
+                DB::raw('(substring_index(ord_invoice.item_name, "|", 1)) as item_1_name'),
+                DB::raw('DATE_FORMAT((ifnull(ord_invoice.create_status_time, ord_invoice.created_at)),"%Y-%m-%d") as invoice_date')
             )
             ->whereNull('ord_invoice.deleted_at')
             ->orderBY('ord_invoice.id', 'desc')

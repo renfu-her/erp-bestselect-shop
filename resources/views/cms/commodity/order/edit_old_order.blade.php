@@ -221,7 +221,7 @@
 
             {{-- 發票方式 --}}
             <fieldset class="col-12 col-sm-6 mb-3">
-                <legend class="col-form-label p-0 mb-2">發票方式<span class="text-danger">*</span></legend>
+                <legend class="col-form-label p-0 mb-2">發票方式 <span class="text-danger">*</span></legend>
                 <div class="px-1 pt-1">
                     <div class="form-check form-check-inline">
                         <label class="form-check-label">
@@ -309,9 +309,11 @@
                     <label class="form-label l_buyer_email">買受人E-mail</label>
                     <input type="text" name="buyer_email" class="form-control @error('buyer_email') is-invalid @enderror"
                         placeholder="請輸入買受人E-mail" aria-label="買受人E-mail" value="{{ old('buyer_email', $order->buyer_email ?? '') }}">
-                    <mark class="fw-light small">
-                        <i class="bi bi-exclamation-diamond-fill mx-2 text-warning"></i>發票開立時寄送的通知信收件位置
-                    </mark>
+
+                    <p class="mark mt-1 small">
+                        <i class="bi bi-exclamation-diamond-fill mx-2 text-warning"></i>
+                        發票開立時寄送的通知信收件位置
+                    </p>
 
                     <div class="invalid-feedback">
                         @error('buyer_email')

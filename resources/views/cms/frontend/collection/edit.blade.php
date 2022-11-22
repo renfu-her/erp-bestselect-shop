@@ -7,7 +7,7 @@
             編輯
         @endif 商品群組
     </h2>
-    <form class="card-body" method="post" action="{{ $formAction }}">
+    <form method="post" action="{{ $formAction }}">
         @method('POST')
         @csrf
 
@@ -69,7 +69,9 @@
             <div class="d-flex align-items-center mb-3">
                 <h6 class="mb-0">商品列表</h6>
 
-                <button type="button" id="resort" class="btn btn-outline-success btn-sm mx-2">重整排序數列</button>
+                <button type="button" id="setItemByOrder" data-bs-toggle="tooltip" title="僅預覽順序，儲存後才會實際生效"
+                    data-bs-placement="right" class="btn btn-outline-success btn-sm mx-2">依排序值排列商品</button>
+                
             </div>
             
             <div class="table-responsive tableOverBox">
@@ -79,6 +81,7 @@
                             <th scope="col" class="text-center">刪除</th>
                             <th scope="col">商品名稱</th>
                             <th scope="col">排序</th>
+                            <th scope="col"></th>
                         </tr>
                     </thead>
                     <tbody class="-appendClone --selectedP">
@@ -150,6 +153,12 @@
                                         <input type="number" name="sort[]" class="form-control form-control-sm -sm"
                                             value="{{ old('sort.' . $key, $data->sort ?? '') }}" required>
                                     </td>
+                                    <td>
+                                        <span class="icon -move icon-btn col-auto fs-5 text-primary rounded-circle border-0 p-0"
+                                            data-bs-toggle="tooltip" title="拖曳排序">
+                                            <i class="bi bi-arrows-move"></i>
+                                        </span>
+                                    </td>
                                 </tr>
                             @endforeach
                         @endif
@@ -214,6 +223,20 @@
     </x-b-modal>
 @endsection
 @once
+    @push('sub-styles')
+        <style>
+            /* 拖曳預覽框 */
+            .-appendClone.--selectedP tr.placeholder-highlight {
+                width: 100%;
+                height: 60px;
+                margin-bottom: .5rem;
+                display: table-row;
+            }
+            tr.placeholder-highlight > td {
+                border: none;
+            }
+        </style>
+    @endpush
     @push('sub-scripts')
         <script>
             let addProductModal = new bootstrap.Modal(document.getElementById('addProduct'));
@@ -258,6 +281,7 @@
             if (!$('.-cloneElem.--selectedP').length) {
                 $('button[type="submit"]').prop('disabled', true);
             }
+            bindSortableBtn();
 
             // 加入商品、搜尋商品
             $('#addProductBtn, #addProduct .-searchBar button')
@@ -369,9 +393,7 @@
                         createOneSelected(p);
                     }
                 });
-                // if ($('.-cloneElem.--selectedP').length) {
-                //     $('#supplier').prop('disabled', true);
-                // }
+                bindSortableBtn();
 
                 // 關閉懸浮視窗
                 addProductModal.hide();
@@ -442,13 +464,51 @@
                 $('.-emptyData').hide();
             });
 
-            $('#resort').click(function() {
+            // 依排序值排列
+            $('#setItemByOrder').click(function() {
+                let $list = $('tr.-cloneElem.--selectedP');
+                $list.sort(function (a, b) {
+                    return Number($(a).find('[name="sort[]"]').val()) - Number($(b).find('[name="sort[]"]').val());
+                });
+                $list.each(function (index, element) {
+                    // element == this
+                    $('tbody.-appendClone.--selectedP').append($(element));
+                });
+            });
+
+            // 重排排序值
+            function resort() {
                 let count = 0;
                 $('.-cloneElem').each(function() {
                     count++;
                     $(this).find('input[name="sort[]"]').val(count * 10);
-                })
-            })
+                });
+            }
+
+            function bindSortableBtn() {
+                $('tbody.-appendClone.--selectedP.ui-sortable').sortable('destroy');
+
+                $('tbody.-appendClone.--selectedP').sortable({
+                    axis: 'y',
+                    placeholder: 'placeholder-highlight',
+                    connectWith: '.-appendClone.--selectedP',
+                    handle: '.icon.-move',
+                    cursor: 'move',
+                });
+                
+                // 給 .placeholder-highlight 高度
+                $('tbody.-appendClone.--selectedP').off('sortstart');
+                $('tbody.-appendClone.--selectedP').on('sortstart', function (event, ui) {
+                    (ui.helper).css('height', `${(ui.item).height()}px`);
+                    (ui.placeholder).css('height', `${(ui.item).height()}px`);
+                });
+                
+                // 有更新順序時
+                $('tbody.-appendClone.--selectedP').off('sortupdate');
+                $('tbody.-appendClone.--selectedP').on('sortupdate', function () {
+                    resort();
+                });
+            }
         </script>
     @endpush
 @endonce
