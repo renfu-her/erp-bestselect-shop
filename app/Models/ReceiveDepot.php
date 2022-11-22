@@ -199,6 +199,10 @@ class ReceiveDepot extends Model
                             $join->on('sub_orders.id', '=', 'items.sub_order_id');
                             $join->on('sub_orders.order_id', 'items.order_id');
                         })
+                        ->leftJoin(app(DlvOutStock::class)->getTable(). ' as outs', function ($join) use($delivery_id) {
+                            $join->on('outs.event_item_id', '=', 'items.id');
+                            $join->where('outs.delivery_id', '=', $delivery_id);
+                        })
                         ->where('delivery.id', $delivery->id)
                         ->where('delivery.event', $delivery->event)
                         ->where('rcv_depot.prd_type', 'ce')
@@ -213,7 +217,7 @@ class ReceiveDepot extends Model
                             , 'items.product_title as title'
                             , 'rcv_depot.prd_type as prd_type'
                             , 'items.sku'
-                            , 'items.qty as num'
+                            , DB::raw('(items.qty - ifnull(outs.qty, 0)) as num')
                             , 'rcv_depot.depot_id as depot_id'
                             , 'rcv_depot.depot_name as depot_name'
                         )
@@ -687,6 +691,10 @@ class ReceiveDepot extends Model
                 $join->on('tb_combo.product_style_id', '=', 'item.product_style_id');
             })
             ->leftJoin('prd_products', 'prd_products.id', '=', 'tb_combo.product_id')
+            ->leftJoin(app(DlvOutStock::class)->getTable(). ' as outs', function ($join) use($delivery_id) {
+                $join->on('outs.event_item_id', '=', 'item.id');
+                $join->where('outs.delivery_id', '=', $delivery_id);
+            })
             ->select('item.id AS item_id'
                 , 'item.consignment_id AS consignment_id'
                 , 'item.price'
@@ -701,7 +709,7 @@ class ReceiveDepot extends Model
                 , 'tb_combo.id AS product_style_id'
                 , 'tb_combo.sku'
             )
-            ->selectRaw(DB::raw('( item.num * tb_combo.qty ) AS qty'))
+            ->selectRaw(DB::raw('( (item.num - ifnull(outs.qty, 0)) * tb_combo.qty ) AS qty'))
             ->selectRaw(DB::raw('Concat(prd_products.title, "-", tb_combo.title) AS product_title'))
             ->whereNotNull('tb_combo.type')
             ->whereNull('item.deleted_at')
@@ -711,6 +719,10 @@ class ReceiveDepot extends Model
         //取得寄倉單 一般商品
         $csn_items = DB::table('csn_consignment_items as item')
             ->leftJoin('prd_product_styles', 'prd_product_styles.id', '=', 'item.product_style_id')
+            ->leftJoin(app(DlvOutStock::class)->getTable(). ' as outs', function ($join) use($delivery_id) {
+                $join->on('outs.event_item_id', '=', 'item.id');
+                $join->where('outs.delivery_id', '=', $delivery_id);
+            })
             ->select('item.id as item_id'
                 , 'item.consignment_id'
                 , 'item.price'
@@ -723,7 +735,7 @@ class ReceiveDepot extends Model
                 , DB::raw('null as papa_product_style_id')
                 , 'item.product_style_id'
                 , 'item.sku'
-                , 'item.num as qty'
+                , DB::raw('( (item.num - ifnull(outs.qty, 0)) ) AS qty')
                 , 'item.title as product_title'
             )
             ->whereNull('item.deleted_at')
@@ -740,6 +752,10 @@ class ReceiveDepot extends Model
         // 子訂單的商品列表
         $query_ship = DB::table('csn_order_items as items')
             ->leftJoin('prd_product_styles', 'prd_product_styles.id', '=', 'items.product_style_id')
+            ->leftJoin(app(DlvOutStock::class)->getTable(). ' as outs', function ($join) use($delivery_id) {
+                $join->on('outs.event_item_id', '=', 'item.id');
+                $join->where('outs.delivery_id', '=', $delivery_id);
+            })
             //->where('prd_product_styles.type', '=', 'p')
             ->where('items.csnord_id', '=', $csn_order_id)
             ->select('items.id AS item_id'
@@ -750,12 +766,11 @@ class ReceiveDepot extends Model
                 , 'prd_product_styles.id  AS product_style_id'
                 , 'prd_product_styles.product_id'
                 , 'prd_product_styles.sku'
-                , DB::raw('items.num AS qty')
+                , DB::raw('(items.num - ifnull(outs.qty, 0)) AS qty')
                 //, DB::raw('Concat("") AS combo_product_title')
                 , DB::raw('case when prd_product_styles.type = "c" then "組合包"
                     else  Concat("") end combo_product_title ')
             )
-
         ;
 
         // 對應的出貨資料
@@ -897,6 +912,7 @@ class ReceiveDepot extends Model
                     ->where('rcv_depot.combo_id', '=', $rcv_repot_combo[$i]->id)
                     ->whereNull('rcv_depot.deleted_at')
                     ->get();
+
                 if (0 < count($elements)) {
                     $shangsoo = -1; //TODO 商數 之後必須從退貨數量寫到此 例如組合包退2件，商數就是2、組合包退一件，商數就是1
                     for($num_rre = 0 ; $num_rre < count($rcv_repot_element); $num_rre++) {
@@ -924,7 +940,7 @@ class ReceiveDepot extends Model
                                     } else {
                                         $shangsoo_curr = $elements_same_combo[$num_ele]['back_qty'] / $rcv_repot_element[$num_rre]->unit_qty;
                                         if ($shangsoo != $shangsoo_curr) {
-                                            return ['success' => 0, 'error_msg' => "數量不符"];
+                                            return ['success' => 0, 'error_msg' => "數量不符 ". $shangsoo . ' vs '.  $shangsoo_curr];
                                         }
                                     }
                                 }
