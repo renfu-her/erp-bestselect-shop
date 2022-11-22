@@ -573,6 +573,21 @@ class OrderCtrl extends Controller
 
         // 相關單號連結
 
+        // 相關發票資訊連結
+        $invoice = OrderInvoice::where([
+            'source_type' => $source_type,
+            'source_id' => $id,
+            ])->first();
+        $relation_invoice = null;
+        if($invoice && $invoice->invoice_id){
+            $relation_invoice = OrderInvoice::find($invoice->invoice_id);
+            $r_order = Order::find($relation_invoice->source_id);
+            $relation_invoice->link = route('cms.order.show-invoice', [
+                'id'=>$relation_invoice->source_id,
+                'unique_id'=>$r_order->unique_id,
+            ]);
+        }
+
         return view('cms.commodity.order.detail', [
             'sn' => $sn,
             'order' => $order,
@@ -593,6 +608,7 @@ class OrderCtrl extends Controller
             'has_already_pay_delivery_back' => $has_already_pay_delivery_back,
             'dividendList' => $dividendList,
             'relation_order' => Petition::getBindedOrder($id, 'O'),
+            'relation_invoice' => $relation_invoice,
         ]);
     }
 
@@ -2359,7 +2375,7 @@ class OrderCtrl extends Controller
 
         $request->validate([
             'id' => 'required|exists:ord_orders,id',
-            'unique_id' => 'required|exists:ord_orders,unique_id',
+            // 'unique_id' => 'required|exists:ord_orders,unique_id',
         ]);
 
         $source_type = app(Order::class)->getTable();
