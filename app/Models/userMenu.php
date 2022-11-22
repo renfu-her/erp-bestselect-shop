@@ -117,6 +117,11 @@ return
                 "controller_name" => "UtmUrlCtrl",
                 "route_name" => "cms.utm-url.index",
             ],
+            [
+                "title" => "EDM",
+                "controller_name" => "EdmCtrl",
+                "route_name" => "cms.edm.index",
+            ],
         ],
     ],
     [
