@@ -187,6 +187,12 @@
                     <a href="{{ Route('cms.consignment-order.edit', ['id' => $eventId ]) }}" class="btn btn-outline-primary px-4" role="button">返回明細</a>
                 @endif
             </div>
+            <div class="col">
+                <mark class="fw-light small">
+                    <i class="bi bi-exclamation-diamond-fill mx-2 text-warning"></i>若客人可以等，請使用訂單分割，貨到了之後在分割後的子訂單出
+                    <br>若客人不要，再使用此功能
+                </mark>
+            </div>
         </div>
     </form>
 
