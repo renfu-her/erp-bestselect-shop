@@ -2264,7 +2264,7 @@ class OrderCtrl extends Controller
 
         if (array_sum(request('o_total_price')) < 1) {
             wToast(__('發票金額不可小於1', ['type' => 'danger']));
-            return redirect()->back();
+            return redirect()->back()->withInput();
         }
 
         $data = $request->except('_token');
@@ -2291,7 +2291,7 @@ class OrderCtrl extends Controller
 
         } else {
             // wToast(__('發票開立失敗'), ['type'=>'danger']);
-            return redirect()->back();
+            return redirect()->back()->withInput();
         }
     }
 
@@ -2477,7 +2477,7 @@ class OrderCtrl extends Controller
 
             if (array_sum(request('o_total_price')) < 1) {
                 wToast(__('發票金額不可小於1', ['type' => 'danger']));
-                return redirect()->back();
+                return redirect()->back()->withInput();
             }
 
             $data = $request->except('_token');
@@ -2493,13 +2493,13 @@ class OrderCtrl extends Controller
 
                     $unique_id = Order::findOrFail($result->source_id)->unique_id;
                     return redirect()->route('cms.order.show-invoice', [
-                        'id' => $id,
+                        'id' => $result->source_id,
                         'unique_id' => $unique_id,
                     ]);
                 }
 
             } else {
-                return redirect()->back();
+                return redirect()->back()->withInput();
             }
         }
 
