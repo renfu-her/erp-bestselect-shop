@@ -337,103 +337,94 @@
                                 </td>
                             </tr>
 
-                            @php
-                                /*
-                                if(old('o_title')){
-                                    $items = old('o_title') ? old('o_title') :
-                                }
-                                */
-                            @endphp
-                            @foreach($sub_order as $s_value)
-                                @foreach($s_value->items as $value)
-                                    <tr>
+                            @if(old('o_title'))
+                                @foreach(old('o_title') as $key => $value)
+                                    <tr class="-cloneElem">
                                         <td class="text-center">
                                             <button type="button" class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
                                                 <i class="bi bi-trash"></i>
                                             </button>
                                         </td>
                                         <td style="display:none">{{ $received_order->sn }}</td>
-                                        <td><input type="text" name="o_title[]" class="form-control form-control-sm -xl" value="{{ mb_substr(preg_replace('/(\t|\r|\n|\r\n)+/', ' ', $value->product_title), 0, 30) }}" aria-label="產品名稱" minlength="1" maxlength="30" required>
+                                        <td><input type="text" name="o_title[]" class="form-control form-control-sm -xl" value="{{ old('o_title.' . $key) }}" aria-label="產品名稱" minlength="1" maxlength="30" required>
                                         <td>
                                             <div class="input-group input-group-sm flex-nowrap">
                                                 <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                                                <input type="number" name="o_price[]" class="form-control form-control-sm -sm" value="{{ $value->price }}" aria-label="價格(單價)" required>
+                                                <input type="number" name="o_price[]" class="form-control form-control-sm -sm" value="{{ old('o_price.' . $key) }}" aria-label="價格(單價)" required>
                                             </div>
                                         </td>
                                         <td>
-                                            <input type="number" name="o_qty[]" class="form-control form-control-sm -sm" value="{{ $value->qty }}" aria-label="數量" min="1" required>
+                                            <input type="number" name="o_qty[]" class="form-control form-control-sm -sm" value="{{ old('o_qty.' . $key) }}" aria-label="數量" min="1" required>
                                         </td>
                                         <td>
                                             <div class="input-group input-group-sm flex-nowrap">
                                                 <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                                                <input type="number" name="o_total_price[]" class="form-control form-control-sm -sm" value="{{ $value->total_price }}" aria-label="價格(總價)" required>
+                                                <input type="number" name="o_total_price[]" class="form-control form-control-sm -sm" value="{{ old('o_total_price.' . $key) }}" aria-label="價格(總價)" required>
                                             </div>
                                         </td>
                                         <td>
                                             <select name="o_taxation[]" class="form-select form-select-sm" required>
                                                 @php
                                                     foreach($tax as $t_key => $t_value){
-                                                        echo '<option value="' . $t_key . '"' . ($t_key == $value->product_taxation ? ' selected' : '') . '>' . $t_value . '</option>';
+                                                        echo '<option value="' . $t_key . '"' . ($t_key == old('o_taxation.' . $key) ? ' selected' : '') . '>' . $t_value . '</option>';
                                                     }
                                                 @endphp
                                             </select>
                                         </td>
                                     </tr>
                                 @endforeach
-                            @endforeach
+                            @else
+                                @foreach($sub_order as $s_value)
+                                    @foreach($s_value->items as $value)
+                                        <tr class="-cloneElem">
+                                            <td class="text-center">
+                                                <button type="button" class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </td>
+                                            <td style="display:none">{{ $received_order->sn }}</td>
+                                            <td><input type="text" name="o_title[]" class="form-control form-control-sm -xl" value="{{ mb_substr(preg_replace('/(\t|\r|\n|\r\n)+/', ' ', $value->product_title), 0, 30) }}" aria-label="產品名稱" minlength="1" maxlength="30" required>
+                                            <td>
+                                                <div class="input-group input-group-sm flex-nowrap">
+                                                    <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
+                                                    <input type="number" name="o_price[]" class="form-control form-control-sm -sm" value="{{ $value->price }}" aria-label="價格(單價)" required>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <input type="number" name="o_qty[]" class="form-control form-control-sm -sm" value="{{ $value->qty }}" aria-label="數量" min="1" required>
+                                            </td>
+                                            <td>
+                                                <div class="input-group input-group-sm flex-nowrap">
+                                                    <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
+                                                    <input type="number" name="o_total_price[]" class="form-control form-control-sm -sm" value="{{ $value->total_price }}" aria-label="價格(總價)" required>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <select name="o_taxation[]" class="form-select form-select-sm" required>
+                                                    @php
+                                                        foreach($tax as $t_key => $t_value){
+                                                            echo '<option value="' . $t_key . '"' . ($t_key == $value->product_taxation ? ' selected' : '') . '>' . $t_value . '</option>';
+                                                        }
+                                                    @endphp
+                                                </select>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                @endforeach
 
-                            @if($order->dlv_fee > 0)
-                                <tr>
-                                    <td class="text-center">
-                                        <button type="button" class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </td>
-                                    <td style="display:none">{{ $received_order->sn }}</td>
-                                    <td><input type="text" name="o_title[]" class="form-control form-control-sm -xl" value="物流費用" aria-label="產品名稱" minlength="1" maxlength="30" required>
-                                    <td>
-                                        <div class="input-group input-group-sm flex-nowrap">
-                                            <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                                            <input type="number" name="o_price[]" class="form-control form-control-sm -sm" value="{{ $order->dlv_fee }}" aria-label="價格(單價)" required>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <input type="number" name="o_qty[]" class="form-control form-control-sm -sm" value="1" aria-label="數量" min="1" required>
-                                    </td>
-                                    <td>
-                                        <div class="input-group input-group-sm flex-nowrap">
-                                            <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                                            <input type="number" name="o_total_price[]" class="form-control form-control-sm -sm" value="{{ $order->dlv_fee }}" aria-label="價格(總價)" required>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <select name="o_taxation[]" class="form-select form-select-sm" required>
-                                            @php
-                                                foreach($tax as $t_key => $t_value){
-                                                    echo '<option value="' . $t_key . '"' . ($t_key == $order->dlv_taxation ? ' selected' : '') . '>' . $t_value . '</option>';
-                                                }
-                                            @endphp
-                                        </select>
-                                    </td>
-                                </tr>
-                            @endif
-
-                            @if(count($order_discount) > 0)
-                                @foreach($order_discount as $value)
-                                    <tr>
+                                @if($order->dlv_fee > 0)
+                                    <tr class="-cloneElem">
                                         <td class="text-center">
                                             <button type="button" class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
                                                 <i class="bi bi-trash"></i>
                                             </button>
                                         </td>
-
                                         <td style="display:none">{{ $received_order->sn }}</td>
-
-                                        <td><input type="text" name="o_title[]" class="form-control form-control-sm -xl" value="{{ mb_substr(preg_replace('/(\t|\r|\n|\r\n)+/', ' ', $value->title), 0, 30) }}" aria-label="產品名稱" minlength="1" maxlength="30" required>
+                                        <td><input type="text" name="o_title[]" class="form-control form-control-sm -xl" value="物流費用" aria-label="產品名稱" minlength="1" maxlength="30" required>
                                         <td>
                                             <div class="input-group input-group-sm flex-nowrap">
                                                 <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                                                <input type="number" name="o_price[]" class="form-control form-control-sm -sm" value="{{ -($value->discount_value) }}" aria-label="價格(單價)" required>
+                                                <input type="number" name="o_price[]" class="form-control form-control-sm -sm" value="{{ $order->dlv_fee }}" aria-label="價格(單價)" required>
                                             </div>
                                         </td>
                                         <td>
@@ -442,20 +433,60 @@
                                         <td>
                                             <div class="input-group input-group-sm flex-nowrap">
                                                 <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                                                <input type="number" name="o_total_price[]" class="form-control form-control-sm -sm" value="{{ -($value->discount_value) }}" aria-label="價格(總價)" required>
+                                                <input type="number" name="o_total_price[]" class="form-control form-control-sm -sm" value="{{ $order->dlv_fee }}" aria-label="價格(總價)" required>
                                             </div>
                                         </td>
                                         <td>
                                             <select name="o_taxation[]" class="form-select form-select-sm" required>
                                                 @php
                                                     foreach($tax as $t_key => $t_value){
-                                                        echo '<option value="' . $t_key . '"' . ($t_key == $value->discount_taxation ? ' selected' : '') . '>' . $t_value . '</option>';
+                                                        echo '<option value="' . $t_key . '"' . ($t_key == $order->dlv_taxation ? ' selected' : '') . '>' . $t_value . '</option>';
                                                     }
                                                 @endphp
                                             </select>
                                         </td>
                                     </tr>
-                                @endforeach
+                                @endif
+
+                                @if(count($order_discount) > 0)
+                                    @foreach($order_discount as $value)
+                                        <tr class="-cloneElem">
+                                            <td class="text-center">
+                                                <button type="button" class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </td>
+
+                                            <td style="display:none">{{ $received_order->sn }}</td>
+
+                                            <td><input type="text" name="o_title[]" class="form-control form-control-sm -xl" value="{{ mb_substr(preg_replace('/(\t|\r|\n|\r\n)+/', ' ', $value->title), 0, 30) }}" aria-label="產品名稱" minlength="1" maxlength="30" required>
+                                            <td>
+                                                <div class="input-group input-group-sm flex-nowrap">
+                                                    <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
+                                                    <input type="number" name="o_price[]" class="form-control form-control-sm -sm" value="{{ -($value->discount_value) }}" aria-label="價格(單價)" required>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <input type="number" name="o_qty[]" class="form-control form-control-sm -sm" value="1" aria-label="數量" min="1" required>
+                                            </td>
+                                            <td>
+                                                <div class="input-group input-group-sm flex-nowrap">
+                                                    <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
+                                                    <input type="number" name="o_total_price[]" class="form-control form-control-sm -sm" value="{{ -($value->discount_value) }}" aria-label="價格(總價)" required>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <select name="o_taxation[]" class="form-select form-select-sm" required>
+                                                    @php
+                                                        foreach($tax as $t_key => $t_value){
+                                                            echo '<option value="' . $t_key . '"' . ($t_key == $value->discount_taxation ? ' selected' : '') . '>' . $t_value . '</option>';
+                                                        }
+                                                    @endphp
+                                                </select>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                @endif
                             @endif
                         </tbody>
                     </table>
