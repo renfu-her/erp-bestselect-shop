@@ -29,11 +29,11 @@ class CreateDlvOutStockTable extends Migration
             $table->unsignedBigInteger('event_item_id')->comment('事件物品ID 訂單ord_items.id、寄倉csn_consignment_items.id');
             $table->integer('product_style_id')->nullable()->comment('款式ID');
             $table->string('sku', 20)->comment('商品sku');
-            $table->string('product_title', 40)->comment('商品名稱');
-            $table->integer('price')->default(0)->comment('單價');
+            $table->string('product_title', 100)->comment('商品名稱');
+            $table->decimal('price')->default(0)->comment('單價');
             $table->integer('origin_qty')->comment('原始數量');
             $table->integer('qty')->comment('數量');
-            $table->integer('bonus')->comment('獎金');
+            $table->decimal('bonus')->comment('獎金');
             $table->string('memo')->nullable()->comment('備註');
             $table->timestamps();
             $table->tinyInteger('show')->default(0)->comment('是否揭示 0:否 1:是');
