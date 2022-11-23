@@ -710,6 +710,10 @@ class OrderInvoice extends Model
                             'deleted_at'=>date('Y-m-d H:i:s'),
                         ]);
 
+                        self::where('invoice_id', $target->id)->update([
+                            'invoice_id' => null,
+                        ]);
+
                     } else {
                         $target->update([
                             'r_invalid_status'=>json_decode($api_value)->Status,
