@@ -35,17 +35,26 @@
                     @foreach ($dataList as $key => $data)
                         <tr>
                             <th scope="row">{{ $key + 1 }}</th>
-                            <td>{{ $data->name }}</td>
+                            <td>
+                                @can('cms.collection.edit')
+                                    <a href="{{ route('cms.collection.edit', ['id' => $data->id], true) }}">
+                                        {{ $data->name }}
+                                    </a>
+                                @else
+                                    {{ $data->name }}
+                                @endcan
+                            </td>
 
                             <td class="text-center">
                                 <a href="{{ route('cms.edm.print', ['id' => $data->id, 'type' => 'normal']) }}"
-                                    data-bs-toggle="tooltip" title="直客價"
+                                    data-bs-toggle="tooltip" title="直客價" target="_blank"
                                     class="icon icon-btn fs-5 text-primary rounded-circle border-0">
                                     <i class="bi bi-file-earmark-break"></i>
                                 </a>
                             </td>
                             <td class="text-center">
-                                <a href="{{ route('cms.edm.print', ['id' => $data->id, 'type' => 'dealer']) }}" data-bs-toggle="tooltip" title="經銷價"
+                                <a href="{{ route('cms.edm.print', ['id' => $data->id, 'type' => 'dealer']) }}" 
+                                    data-bs-toggle="tooltip" title="經銷價" target="_blank"
                                     class="icon icon-btn fs-5 text-primary rounded-circle border-0">
                                     <i class="bi bi-file-earmark-break-fill"></i>
                                 </a>

@@ -97,11 +97,16 @@ class edmCtrl extends Controller
      */
     function print(Request $request, $id, $type) {
         //
-       $re = Collection::getProductsEdmVer($id, $type, $request->user()->id);
-       if(!$re){
-        return abort(404);
-       }
+        $re = Collection::getProductsEdmVer($id, $type, $request->user()->id);
+        if(!$re){
+            return abort(404);
+        }
 
-       dd($re);
+        return view('cms.marketing.edm.print', [
+            'type' => $type,
+            'mcode' => $re["mcode"],
+            'products' => $re["product"],
+            'collection' => $re["collection"]
+        ]);
     }
 }
