@@ -573,6 +573,21 @@ class OrderCtrl extends Controller
 
         // 相關單號連結
 
+        // 相關發票資訊連結
+        $invoice = OrderInvoice::where([
+            'source_type' => $source_type,
+            'source_id' => $id,
+            ])->first();
+        $relation_invoice = null;
+        if($invoice && $invoice->invoice_id){
+            $relation_invoice = OrderInvoice::find($invoice->invoice_id);
+            $r_order = Order::find($relation_invoice->source_id);
+            $relation_invoice->link = route('cms.order.show-invoice', [
+                'id'=>$relation_invoice->source_id,
+                'unique_id'=>$r_order->unique_id,
+            ]);
+        }
+
         return view('cms.commodity.order.detail', [
             'sn' => $sn,
             'order' => $order,
@@ -593,6 +608,7 @@ class OrderCtrl extends Controller
             'has_already_pay_delivery_back' => $has_already_pay_delivery_back,
             'dividendList' => $dividendList,
             'relation_order' => Petition::getBindedOrder($id, 'O'),
+            'relation_invoice' => $relation_invoice,
         ]);
     }
 
@@ -2220,7 +2236,8 @@ class OrderCtrl extends Controller
 
         $request->validate([
             'id' => 'required|exists:ord_orders,id',
-            'merchant_order_no' => 'required|string|regex:/^[\w]{1,20}$/|unique:ord_order_invoice,merchant_order_no',
+            'merchant_order_no' => 'required|string|regex:/^[\w]{1,20}$/|unique:ord_order_invoice,merchant_order_no,' . $id,
+            'invoice_number' => 'nullable|string|min:8|max:10|unique:ord_order_invoice,invoice_number,' . $id,
             'status' => 'required|in:1,9',
             'merge_source' => 'nullable|array',
             'merge_source.*' => 'exists:ord_orders,id',
@@ -2248,7 +2265,7 @@ class OrderCtrl extends Controller
 
         if (array_sum(request('o_total_price')) < 1) {
             wToast(__('發票金額不可小於1', ['type' => 'danger']));
-            return redirect()->back();
+            return redirect()->back()->withInput();
         }
 
         $data = $request->except('_token');
@@ -2275,7 +2292,7 @@ class OrderCtrl extends Controller
 
         } else {
             // wToast(__('發票開立失敗'), ['type'=>'danger']);
-            return redirect()->back();
+            return redirect()->back()->withInput();
         }
     }
 
@@ -2359,7 +2376,7 @@ class OrderCtrl extends Controller
 
         $request->validate([
             'id' => 'required|exists:ord_orders,id',
-            'unique_id' => 'required|exists:ord_orders,unique_id',
+            // 'unique_id' => 'required|exists:ord_orders,unique_id',
         ]);
 
         $source_type = app(Order::class)->getTable();
@@ -2434,6 +2451,7 @@ class OrderCtrl extends Controller
         if ($request->isMethod('post')) {
             $request->validate([
                 'merchant_order_no' => 'required|string|regex:/^[\w]{1,20}$/|unique:ord_order_invoice,merchant_order_no,' . $id,
+                'invoice_number' => 'nullable|string|min:8|max:10|unique:ord_order_invoice,invoice_number,' . $id,
                 'status' => 'required|in:1,9',
                 'merge_source' => 'nullable|array',
                 'merge_source.*' => 'exists:ord_orders,id',
@@ -2461,7 +2479,7 @@ class OrderCtrl extends Controller
 
             if (array_sum(request('o_total_price')) < 1) {
                 wToast(__('發票金額不可小於1', ['type' => 'danger']));
-                return redirect()->back();
+                return redirect()->back()->withInput();
             }
 
             $data = $request->except('_token');
@@ -2477,13 +2495,13 @@ class OrderCtrl extends Controller
 
                     $unique_id = Order::findOrFail($result->source_id)->unique_id;
                     return redirect()->route('cms.order.show-invoice', [
-                        'id' => $id,
+                        'id' => $result->source_id,
                         'unique_id' => $unique_id,
                     ]);
                 }
 
             } else {
-                return redirect()->back();
+                return redirect()->back()->withInput();
             }
         }
 

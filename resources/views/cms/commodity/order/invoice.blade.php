@@ -11,10 +11,20 @@
         <div class="card shadow p-4 mb-4">
             <div class="row">
                 <div class="col-12 col-sm-6 mb-3">
-                    <label class="form-label">自定訂單編號 <i class="bi bi-info-circle" data-bs-toggle="tooltip" title="自定訂單編號僅允許英數字及_符號"></i><span class="text-danger">*</span></label>
+                    <label class="form-label">自定訂單編號 <i class="bi bi-info-circle" data-bs-toggle="tooltip" title="自定訂單編號僅允許英數字及_符號"></i> <span class="text-danger">*</span></label>
                     <input type="text" name="merchant_order_no" class="form-control @error('merchant_order_no') is-invalid @enderror" placeholder="請輸入自定訂單編號" aria-label="自定訂單編號" value="{{ old('merchant_order_no', $order->sn) }}" required>
                     <div class="invalid-feedback">
                         @error('merchant_order_no')
+                        {{ $message }}
+                        @enderror
+                    </div>
+                </div>
+
+                <div class="col-12 col-sm-6 mb-3 c_invoice_number{{ old('invoice_method') == 'print' ? '' : (!old('invoice_method') && $order->invoice_category == '紙本發票' ? '' : ' d-none') }}">
+                    <label class="form-label l_invoice_number">自定發票號碼</label>
+                    <input type="text" name="invoice_number" class="form-control @error('invoice_number') is-invalid @enderror" placeholder="請輸入自定發票號碼" aria-label="自定訂單編號" value="{{ old('invoice_number', $order->invoice_number) }}" maxlength="10" minlength="8" oninput="this.value=this.value.toUpperCase()">
+                    <div class="invalid-feedback">
+                        @error('invoice_number')
                         {{ $message }}
                         @enderror
                     </div>
@@ -136,10 +146,10 @@
             <div class="row">
                 <fieldset class="col-12 col-sm-6 mb-3">
                     <legend class="col-form-label p-0 mb-2">發票方式 <span class="text-danger">*</span></legend>
-                    <div class="px-1 pt-1">
+                    <div class="px-1 pt-1 @error('invoice_method') is-invalid @enderror">
                         <div class="form-check form-check-inline">
                             <input class="form-check-input" name="invoice_method" value="print" type="radio" id="print" required {{ old('invoice_method') == 'print' ? 'checked' : ( (!old('invoice_method') && $order->invoice_category == '紙本發票') ? 'checked' : '') }}>
-                            <label class="form-check-label" for="print">紙本發票(無載具、列印電子發票證明聯)</label>
+                            <label class="form-check-label" for="print">紙本發票(無載具、列印電子發票證明聯、手開複寫紙發票)</label>
                         </div>
                         {{--
                         <div class="form-check form-check-inline">
@@ -151,6 +161,12 @@
                             <input class="form-check-input" name="invoice_method" value="e_inv" type="radio" id="e_inv" required {{ old('invoice_method') == 'e_inv' ? 'checked' : ( (!old('invoice_method') && $order->invoice_category == '電子發票') ? 'checked' : '') }}{{ $order->category == 'B2B' ? 'disabled' : '' }}>
                             <label class="form-check-label" for="e_inv">電子發票</label>
                         </div>
+                        {{--
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" name="invoice_method" value="carbon" type="radio" id="carbon" required {{ old('invoice_method') == 'carbon' ? 'checked' : '' }}>
+                            <label class="form-check-label" for="carbon">手開複寫紙發票</label>
+                        </div>
+                        --}}
                     </div>
                     <div class="invalid-feedback">
                         @error('invoice_method')
@@ -183,11 +199,11 @@
                             <label class="form-check-label" for="carrier_mobile">手機條碼載具</label>
                         </div>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" name="carrier_type" value="1" type="radio" id="carrier_certificate" {{ old('carrier_type', $order->order_carrier_type) == 1 ? 'checked' : '' }}>
+                            <input class="form-check-input" name="carrier_type" value="1" type="radio" id="carrier_certificate" {{ old('carrier_type') == 1 ? 'checked' : ((!old('carrier_type') && $order->order_carrier_type) == 1 ? 'checked' : '') }}>
                             <label class="form-check-label" for="carrier_certificate">自然人憑證條碼載具</label>
                         </div>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" name="carrier_type" value="2" type="radio" id="carrier_member" {{ old('carrier_type', $order->order_carrier_type) == 2 ? 'checked' : '' }}>
+                            <input class="form-check-input" name="carrier_type" value="2" type="radio" id="carrier_member" {{ old('carrier_type') == 2 ? 'checked' : ((!old('carrier_type') && $order->order_carrier_type) == 2 ? 'checked' : '') }}>
                             <label class="form-check-label" for="carrier_member">會員載具</label>
                         </div>
                     </div>
@@ -337,8 +353,8 @@
                                 </td>
                             </tr>
 
-                            @foreach($sub_order as $s_value)
-                                @foreach($s_value->items as $value)
+                            @if(old('o_title'))
+                                @foreach(old('o_title') as $key => $value)
                                     <tr class="-cloneElem">
                                         <td class="text-center">
                                             <button type="button" class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
@@ -346,87 +362,85 @@
                                             </button>
                                         </td>
                                         <td style="display:none">{{ $received_order->sn }}</td>
-                                        <td><input type="text" name="o_title[]" class="form-control form-control-sm -xl" value="{{ mb_substr(preg_replace('/(\t|\r|\n|\r\n)+/', ' ', $value->product_title), 0, 30) }}" aria-label="產品名稱" minlength="1" maxlength="30" required>
+                                        <td><input type="text" name="o_title[]" class="form-control form-control-sm -xl" value="{{ old('o_title.' . $key) }}" aria-label="產品名稱" minlength="1" maxlength="30" required>
                                         <td>
                                             <div class="input-group input-group-sm flex-nowrap">
                                                 <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                                                <input type="number" name="o_price[]" class="form-control form-control-sm -sm" value="{{ $value->price }}" aria-label="價格(單價)" required>
+                                                <input type="number" name="o_price[]" class="form-control form-control-sm -sm" value="{{ old('o_price.' . $key) }}" aria-label="價格(單價)" required>
                                             </div>
                                         </td>
                                         <td>
-                                            <input type="number" name="o_qty[]" class="form-control form-control-sm -sm" value="{{ $value->qty }}" aria-label="數量" min="1" required>
+                                            <input type="number" name="o_qty[]" class="form-control form-control-sm -sm" value="{{ old('o_qty.' . $key) }}" aria-label="數量" min="1" required>
                                         </td>
                                         <td>
                                             <div class="input-group input-group-sm flex-nowrap">
                                                 <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                                                <input type="number" name="o_total_price[]" class="form-control form-control-sm -sm" value="{{ $value->total_price }}" aria-label="價格(總價)" required>
+                                                <input type="number" name="o_total_price[]" class="form-control form-control-sm -sm" value="{{ old('o_total_price.' . $key) }}" aria-label="價格(總價)" required>
                                             </div>
                                         </td>
                                         <td>
                                             <select name="o_taxation[]" class="form-select form-select-sm" required>
                                                 @php
                                                     foreach($tax as $t_key => $t_value){
-                                                        echo '<option value="' . $t_key . '"' . ($t_key == $value->product_taxation ? ' selected' : '') . '>' . $t_value . '</option>';
+                                                        echo '<option value="' . $t_key . '"' . ($t_key == old('o_taxation.' . $key) ? ' selected' : '') . '>' . $t_value . '</option>';
                                                     }
                                                 @endphp
                                             </select>
                                         </td>
                                     </tr>
                                 @endforeach
-                            @endforeach
+                            @else
+                                @foreach($sub_order as $s_value)
+                                    @foreach($s_value->items as $value)
+                                        <tr class="-cloneElem">
+                                            <td class="text-center">
+                                                <button type="button" class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </td>
+                                            <td style="display:none">{{ $received_order->sn }}</td>
+                                            <td><input type="text" name="o_title[]" class="form-control form-control-sm -xl" value="{{ mb_substr(preg_replace('/(\t|\r|\n|\r\n)+/', ' ', $value->product_title), 0, 30) }}" aria-label="產品名稱" minlength="1" maxlength="30" required>
+                                            <td>
+                                                <div class="input-group input-group-sm flex-nowrap">
+                                                    <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
+                                                    <input type="number" name="o_price[]" class="form-control form-control-sm -sm" value="{{ $value->price }}" aria-label="價格(單價)" required>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <input type="number" name="o_qty[]" class="form-control form-control-sm -sm" value="{{ $value->qty }}" aria-label="數量" min="1" required>
+                                            </td>
+                                            <td>
+                                                <div class="input-group input-group-sm flex-nowrap">
+                                                    <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
+                                                    <input type="number" name="o_total_price[]" class="form-control form-control-sm -sm" value="{{ $value->total_price }}" aria-label="價格(總價)" required>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <select name="o_taxation[]" class="form-select form-select-sm" required>
+                                                    @php
+                                                        foreach($tax as $t_key => $t_value){
+                                                            echo '<option value="' . $t_key . '"' . ($t_key == $value->product_taxation ? ' selected' : '') . '>' . $t_value . '</option>';
+                                                        }
+                                                    @endphp
+                                                </select>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                @endforeach
 
-                            @if($order->dlv_fee > 0)
-                                <tr class="-cloneElem">
-                                    <td class="text-center">
-                                        <button type="button" class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </td>
-                                    <td style="display:none">{{ $received_order->sn }}</td>
-                                    <td><input type="text" name="o_title[]" class="form-control form-control-sm -xl" value="物流費用" aria-label="產品名稱" minlength="1" maxlength="30" required>
-                                    <td>
-                                        <div class="input-group input-group-sm flex-nowrap">
-                                            <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                                            <input type="number" name="o_price[]" class="form-control form-control-sm -sm" value="{{ $order->dlv_fee }}" aria-label="價格(單價)" required>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <input type="number" name="o_qty[]" class="form-control form-control-sm -sm" value="1" aria-label="數量" min="1" required>
-                                    </td>
-                                    <td>
-                                        <div class="input-group input-group-sm flex-nowrap">
-                                            <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                                            <input type="number" name="o_total_price[]" class="form-control form-control-sm -sm" value="{{ $order->dlv_fee }}" aria-label="價格(總價)" required>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <select name="o_taxation[]" class="form-select form-select-sm" required>
-                                            @php
-                                                foreach($tax as $t_key => $t_value){
-                                                    echo '<option value="' . $t_key . '"' . ($t_key == $order->dlv_taxation ? ' selected' : '') . '>' . $t_value . '</option>';
-                                                }
-                                            @endphp
-                                        </select>
-                                    </td>
-                                </tr>
-                            @endif
-
-                            @if(count($order_discount) > 0)
-                                @foreach($order_discount as $value)
+                                @if($order->dlv_fee > 0)
                                     <tr class="-cloneElem">
                                         <td class="text-center">
                                             <button type="button" class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
                                                 <i class="bi bi-trash"></i>
                                             </button>
                                         </td>
-
                                         <td style="display:none">{{ $received_order->sn }}</td>
-
-                                        <td><input type="text" name="o_title[]" class="form-control form-control-sm -xl" value="{{ mb_substr(preg_replace('/(\t|\r|\n|\r\n)+/', ' ', $value->title), 0, 30) }}" aria-label="產品名稱" minlength="1" maxlength="30" required>
+                                        <td><input type="text" name="o_title[]" class="form-control form-control-sm -xl" value="物流費用" aria-label="產品名稱" minlength="1" maxlength="30" required>
                                         <td>
                                             <div class="input-group input-group-sm flex-nowrap">
                                                 <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                                                <input type="number" name="o_price[]" class="form-control form-control-sm -sm" value="{{ -($value->discount_value) }}" aria-label="價格(單價)" required>
+                                                <input type="number" name="o_price[]" class="form-control form-control-sm -sm" value="{{ $order->dlv_fee }}" aria-label="價格(單價)" required>
                                             </div>
                                         </td>
                                         <td>
@@ -435,20 +449,60 @@
                                         <td>
                                             <div class="input-group input-group-sm flex-nowrap">
                                                 <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                                                <input type="number" name="o_total_price[]" class="form-control form-control-sm -sm" value="{{ -($value->discount_value) }}" aria-label="價格(總價)" required>
+                                                <input type="number" name="o_total_price[]" class="form-control form-control-sm -sm" value="{{ $order->dlv_fee }}" aria-label="價格(總價)" required>
                                             </div>
                                         </td>
                                         <td>
                                             <select name="o_taxation[]" class="form-select form-select-sm" required>
                                                 @php
                                                     foreach($tax as $t_key => $t_value){
-                                                        echo '<option value="' . $t_key . '"' . ($t_key == $value->discount_taxation ? ' selected' : '') . '>' . $t_value . '</option>';
+                                                        echo '<option value="' . $t_key . '"' . ($t_key == $order->dlv_taxation ? ' selected' : '') . '>' . $t_value . '</option>';
                                                     }
                                                 @endphp
                                             </select>
                                         </td>
                                     </tr>
-                                @endforeach
+                                @endif
+
+                                @if(count($order_discount) > 0)
+                                    @foreach($order_discount as $value)
+                                        <tr class="-cloneElem">
+                                            <td class="text-center">
+                                                <button type="button" class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </td>
+
+                                            <td style="display:none">{{ $received_order->sn }}</td>
+
+                                            <td><input type="text" name="o_title[]" class="form-control form-control-sm -xl" value="{{ mb_substr(preg_replace('/(\t|\r|\n|\r\n)+/', ' ', $value->title), 0, 30) }}" aria-label="產品名稱" minlength="1" maxlength="30" required>
+                                            <td>
+                                                <div class="input-group input-group-sm flex-nowrap">
+                                                    <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
+                                                    <input type="number" name="o_price[]" class="form-control form-control-sm -sm" value="{{ -($value->discount_value) }}" aria-label="價格(單價)" required>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <input type="number" name="o_qty[]" class="form-control form-control-sm -sm" value="1" aria-label="數量" min="1" required>
+                                            </td>
+                                            <td>
+                                                <div class="input-group input-group-sm flex-nowrap">
+                                                    <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
+                                                    <input type="number" name="o_total_price[]" class="form-control form-control-sm -sm" value="{{ -($value->discount_value) }}" aria-label="價格(總價)" required>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <select name="o_taxation[]" class="form-select form-select-sm" required>
+                                                    @php
+                                                        foreach($tax as $t_key => $t_value){
+                                                            echo '<option value="' . $t_key . '"' . ($t_key == $value->discount_taxation ? ' selected' : '') . '>' . $t_value . '</option>';
+                                                        }
+                                                    @endphp
+                                                </select>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                @endif
                             @endif
                         </tbody>
                     </table>
@@ -534,7 +588,7 @@
                                 if (res && res.length) {
                                     (res).forEach(data => {
                                         $('.m_row').append(
-                                            `<tr class="-cloneElem new_row">
+                                            `<tr class="new_row">
                                                 <td class="text-center">
                                                     <button type="button" class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
                                                         <i class="bi bi-trash"></i>
@@ -551,13 +605,13 @@
                                                     </div>
                                                 </td>
                                                 <td>
+                                                    <input type="number" name="o_qty[]" class="form-control form-control-sm -l" value="${data.count}" aria-label="數量" min="1" required>
+                                                </td>
+                                                <td>
                                                     <div class="input-group input-group-sm flex-nowrap">
                                                         <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
                                                         <input type="number" name="o_total_price[]" class="form-control form-control-sm -l" value="${data.amt}" aria-label="價格(總價)" required>
                                                     </div>
-                                                </td>
-                                                <td>
-                                                    <input type="number" name="o_qty[]" class="form-control form-control-sm -l" value="${data.count}" aria-label="數量" min="1" required>
                                                 </td>
                                                 <td>
                                                     <select name="o_taxation[]" class="form-select form-select-sm" required>
@@ -592,6 +646,7 @@
                             required:false
                         }).val('');
 
+                        // $('input:radio[name=invoice_method][value!="print"]:not([value="carbon"])').prop({
                         $('input:radio[name=invoice_method][value!="print"]').prop({
                             disabled:false,
                         });
@@ -648,6 +703,12 @@
                         }).val('');
                         $('.l_carrier_num').html('載具號碼');
 
+                        //自定發票號碼
+                        $('.c_invoice_number').removeClass('d-none');
+                        $('input[type=text][name=invoice_number]').prop({
+                            disabled:false
+                        });
+
                     } else if(this.value == 'give'){
                         //Email
                         $('input[type=email][name=buyer_email]').prop({
@@ -682,6 +743,12 @@
                             required:false
                         }).val('');
                         $('.l_carrier_num').html('載具號碼');
+
+                        //自定發票號碼
+                        $('.c_invoice_number').addClass('d-none');
+                        $('input[type=text][name=invoice_number]').prop({
+                            disabled:true
+                        }).val('');
 
                     } else if(this.value == 'e_inv'){
                         //地址
@@ -718,6 +785,12 @@
                             required:true
                         });
                         $('.l_carrier_num').html('載具號碼 <span class="text-danger">*</span>');
+
+                        //自定發票號碼
+                        $('.c_invoice_number').addClass('d-none');
+                        $('input[type=text][name=invoice_number]').prop({
+                            disabled:true
+                        }).val('');
                     }
 
                 });

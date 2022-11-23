@@ -224,7 +224,7 @@ class OrderInvoice extends Model
 
         $merchant_id = null;
         $invoice_trans_no = null;
-        $invoice_number = 'E' . str_pad((OrderInvoice::get()->count()) + 1, 9, '0', STR_PAD_LEFT);
+        $invoice_number = isset($parm['invoice_number']) ? $parm['invoice_number'] : 'E' . str_pad((OrderInvoice::get()->count()) + 1, 9, '0', STR_PAD_LEFT);
         $random_number = null;
         $check_code = null;
         $bar_code = null;
@@ -237,7 +237,7 @@ class OrderInvoice extends Model
 
         if($category === 'B2B'){
             if($tax_type == 9){
-                wToast(__('三聯式發票稅別不可為混合課稅'));
+                wToast(__('三聯式發票稅別不可為混合課稅'), ['type'=>'danger']);
                 return $inv_result = null;
             }
 
@@ -254,20 +254,20 @@ class OrderInvoice extends Model
             if($print_flag == 'N'){
                 if($carrier_type != null && $carrier_type == 0){
                     if(preg_match('/^\/[A-Z0-9+-.]{7}$/', $carrier_num) == 0 || strlen($carrier_num) != 8){
-                        wToast(__('手機條碼載具格式錯誤'));
+                        wToast(__('手機條碼載具格式錯誤'), ['type'=>'danger']);
                         return $inv_result = null;
                     }
 
                 } else if($carrier_type == 1){
                     if(preg_match('/^[A-Z]{2}[0-9]{14}$/', $carrier_num) == 0 || strlen($carrier_num) != 16){
-                        wToast(__('自然人憑證條碼載具格式錯誤'));
+                        wToast(__('自然人憑證條碼載具格式錯誤'), ['type'=>'danger']);
                         return $inv_result = null;
                     }
 
                 } else if($carrier_type == 2){
                     $pattern = "/^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,})$/i";
                     if (preg_match($pattern, $carrier_num) == 0) {
-                        wToast(__('會員電子發票載具格式錯誤'));
+                        wToast(__('會員電子發票載具格式錯誤'), ['type'=>'danger']);
                         return $inv_result = null;
                     }
                     /*
@@ -305,7 +305,7 @@ class OrderInvoice extends Model
             //     if($love_code != '' && preg_match('/^[0-9]{3,7}$/', $love_code) !== 1){
             //         echo 'love code not match';
 
-            //         wToast(__('捐贈碼格式錯誤'));
+            //         wToast(__('捐贈碼格式錯誤'), ['type'=>'danger']);
             //         return $inv_result = null;
             //     }
             // }
@@ -477,13 +477,15 @@ class OrderInvoice extends Model
         $item_tax_type = implode('|', $item_tax_type_arr);
         $comment = isset($parm['comment']) ? $parm['comment'] : null;
 
+        $invoice_number = isset($parm['invoice_number']) ? $parm['invoice_number'] : 'E' . str_pad($parm['id'], 9, '0', STR_PAD_LEFT);
+
         // if($status == 3){
         //     $create_status_time = date('Y-m-d', strtotime("+ 7 day"));
         // }
 
         if($category === 'B2B'){
             if($tax_type == 9){
-                wToast(__('三聯式發票稅別不可為混合課稅'));
+                wToast(__('三聯式發票稅別不可為混合課稅'), ['type'=>'danger']);
                 return $inv_result = null;
             }
 
@@ -500,20 +502,20 @@ class OrderInvoice extends Model
             if($print_flag == 'N'){
                 if($carrier_type != null && $carrier_type == 0){
                     if(preg_match('/^\/[A-Z0-9+-.]{7}$/', $carrier_num) == 0 || strlen($carrier_num) != 8){
-                        wToast(__('手機條碼載具格式錯誤'));
+                        wToast(__('手機條碼載具格式錯誤'), ['type'=>'danger']);
                         return $inv_result = null;
                     }
 
                 } else if($carrier_type == 1){
                     if(preg_match('/^[A-Z]{2}[0-9]{14}$/', $carrier_num) == 0 || strlen($carrier_num) != 16){
-                        wToast(__('自然人憑證條碼載具格式錯誤'));
+                        wToast(__('自然人憑證條碼載具格式錯誤'), ['type'=>'danger']);
                         return $inv_result = null;
                     }
 
                 } else if($carrier_type == 2){
                     $pattern = "/^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,})$/i";
                     if (preg_match($pattern, $carrier_num) == 0) {
-                        wToast(__('會員電子發票載具格式錯誤'));
+                        wToast(__('會員電子發票載具格式錯誤'), ['type'=>'danger']);
                         return $inv_result = null;
                     }
                 }
@@ -532,7 +534,7 @@ class OrderInvoice extends Model
             //     if($love_code != '' && preg_match('/^[0-9]{3,7}$/', $love_code) !== 1){
             //         echo 'love code not match';
 
-            //         wToast(__('捐贈碼格式錯誤'));
+            //         wToast(__('捐贈碼格式錯誤'), ['type'=>'danger']);
             //         return $inv_result = null;
             //     }
             // }
@@ -577,6 +579,8 @@ class OrderInvoice extends Model
                 'item_amt' => $item_amt,
                 'item_tax_type' => $item_tax_type,
                 'comment' => $comment,
+
+                'invoice_number' => $invoice_number,
             ]);
 
             self::where('invoice_id', $inv_result->id)->update([
@@ -704,6 +708,10 @@ class OrderInvoice extends Model
                             'r_invalid_json'=>json_decode($api_value)->Result,
                             'invalid_invoice_number'=>json_decode(json_decode($api_value)->Result)->InvoiceNumber,
                             'deleted_at'=>date('Y-m-d H:i:s'),
+                        ]);
+
+                        self::where('invoice_id', $target->id)->update([
+                            'invoice_id' => null,
                         ]);
 
                     } else {
