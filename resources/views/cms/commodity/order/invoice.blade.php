@@ -19,6 +19,16 @@
                         @enderror
                     </div>
                 </div>
+
+                <div class="col-12 col-sm-6 mb-3 c_invoice_number{{ old('invoice_method') && old('invoice_method') == 'print' ? '' : ' d-none' }}">
+                    <label class="form-label l_invoice_number">自定發票號碼</label>
+                    <input type="text" name="invoice_number" class="form-control @error('invoice_number') is-invalid @enderror" placeholder="請輸入自定發票號碼" aria-label="自定訂單編號" value="{{ old('invoice_number', $order->invoice_number) }}">
+                    <div class="invalid-feedback">
+                        @error('invoice_number')
+                        {{ $message }}
+                        @enderror
+                    </div>
+                </div>
             </div>
 
             <div class="row">
@@ -136,10 +146,10 @@
             <div class="row">
                 <fieldset class="col-12 col-sm-6 mb-3">
                     <legend class="col-form-label p-0 mb-2">發票方式 <span class="text-danger">*</span></legend>
-                    <div class="px-1 pt-1">
+                    <div class="px-1 pt-1 @error('invoice_method') is-invalid @enderror">
                         <div class="form-check form-check-inline">
                             <input class="form-check-input" name="invoice_method" value="print" type="radio" id="print" required {{ old('invoice_method') == 'print' ? 'checked' : ( (!old('invoice_method') && $order->invoice_category == '紙本發票') ? 'checked' : '') }}>
-                            <label class="form-check-label" for="print">紙本發票(無載具、列印電子發票證明聯)</label>
+                            <label class="form-check-label" for="print">紙本發票(無載具、列印電子發票證明聯、手開複寫紙發票)</label>
                         </div>
                         {{--
                         <div class="form-check form-check-inline">
@@ -151,6 +161,12 @@
                             <input class="form-check-input" name="invoice_method" value="e_inv" type="radio" id="e_inv" required {{ old('invoice_method') == 'e_inv' ? 'checked' : ( (!old('invoice_method') && $order->invoice_category == '電子發票') ? 'checked' : '') }}{{ $order->category == 'B2B' ? 'disabled' : '' }}>
                             <label class="form-check-label" for="e_inv">電子發票</label>
                         </div>
+                        {{--
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" name="invoice_method" value="carbon" type="radio" id="carbon" required {{ old('invoice_method') == 'carbon' ? 'checked' : '' }}>
+                            <label class="form-check-label" for="carbon">手開複寫紙發票</label>
+                        </div>
+                        --}}
                     </div>
                     <div class="invalid-feedback">
                         @error('invoice_method')
@@ -630,6 +646,7 @@
                             required:false
                         }).val('');
 
+                        // $('input:radio[name=invoice_method][value!="print"]:not([value="carbon"])').prop({
                         $('input:radio[name=invoice_method][value!="print"]').prop({
                             disabled:false,
                         });
@@ -686,6 +703,12 @@
                         }).val('');
                         $('.l_carrier_num').html('載具號碼');
 
+                        //自定發票號碼
+                        $('.c_invoice_number').removeClass('d-none');
+                        $('input[type=text][name=invoice_number]').prop({
+                            disabled:false,
+                        });
+
                     } else if(this.value == 'give'){
                         //Email
                         $('input[type=email][name=buyer_email]').prop({
@@ -720,6 +743,12 @@
                             required:false
                         }).val('');
                         $('.l_carrier_num').html('載具號碼');
+
+                        //自定發票號碼
+                        $('.c_invoice_number').addClass('d-none');
+                        $('input[type=text][name=invoice_number]').prop({
+                            disabled:true,
+                        });
 
                     } else if(this.value == 'e_inv'){
                         //地址
@@ -756,6 +785,12 @@
                             required:true
                         });
                         $('.l_carrier_num').html('載具號碼 <span class="text-danger">*</span>');
+
+                        //自定發票號碼
+                        $('.c_invoice_number').addClass('d-none');
+                        $('input[type=text][name=invoice_number]').prop({
+                            disabled:true,
+                        });
                     }
 
                 });

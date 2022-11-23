@@ -224,7 +224,7 @@ class OrderInvoice extends Model
 
         $merchant_id = null;
         $invoice_trans_no = null;
-        $invoice_number = 'E' . str_pad((OrderInvoice::get()->count()) + 1, 9, '0', STR_PAD_LEFT);
+        $invoice_number = isset($parm['invoice_number']) ? $parm['invoice_number'] : 'E' . str_pad((OrderInvoice::get()->count()) + 1, 9, '0', STR_PAD_LEFT);
         $random_number = null;
         $check_code = null;
         $bar_code = null;
@@ -477,6 +477,8 @@ class OrderInvoice extends Model
         $item_tax_type = implode('|', $item_tax_type_arr);
         $comment = isset($parm['comment']) ? $parm['comment'] : null;
 
+        $invoice_number = isset($parm['invoice_number']) ? $parm['invoice_number'] : 'E' . str_pad($parm['id'], 9, '0', STR_PAD_LEFT);
+
         // if($status == 3){
         //     $create_status_time = date('Y-m-d', strtotime("+ 7 day"));
         // }
@@ -577,6 +579,8 @@ class OrderInvoice extends Model
                 'item_amt' => $item_amt,
                 'item_tax_type' => $item_tax_type,
                 'comment' => $comment,
+
+                'invoice_number' => $invoice_number,
             ]);
 
             self::where('invoice_id', $inv_result->id)->update([
