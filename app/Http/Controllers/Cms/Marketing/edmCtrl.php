@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Cms\Marketing;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Collection;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 
 class edmCtrl extends Controller
@@ -19,12 +19,16 @@ class edmCtrl extends Controller
         //
 
         $query = $request->query();
-        $dataList = $collection->getDataList($query);
+        $name = Arr::get($query, 'name');
+        $dataList = $collection::where('edm', 1);
+        if ($name) {
+            $dataList->where('name', 'like', "%$name%");
+        }
         $data_per_page = Arr::get($query, 'data_per_page', 10);
         $data_per_page = is_numeric($data_per_page) ? $data_per_page : 10;
 
         return view('cms.marketing.edm.list', [
-            'dataList' => $dataList,
+            'dataList' => $dataList->paginate(100)->appends($query),
             'data_per_page' => $data_per_page,
             'topList' => Collection::where('is_liquor', 0)->get(),
         ]);
@@ -91,8 +95,7 @@ class edmCtrl extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function print($id)
-    {
-        // 
+    function print($id) {
+        //
     }
 }

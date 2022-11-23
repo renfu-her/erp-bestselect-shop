@@ -220,4 +220,24 @@ class CollectionCtrl extends Controller
 
         return redirect()->back();
     }
+
+    public function setEdm(Request $request, Collection $collection)
+    {
+        $validator = Validator::make($request->all(), [
+            'id' => 'required|int|min:0',
+        ]);
+
+        $re = $request->all();
+
+        $collection->changeEdmStatus($re['id']);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'fail',
+                'errors' => $validator->errors()], 400);
+        }
+
+        return response()->json(['status' => 'success']);
+//        return redirect(Route('cms.collection.index'));
+    }
 }

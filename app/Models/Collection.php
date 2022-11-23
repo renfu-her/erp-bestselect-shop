@@ -203,6 +203,20 @@ class Collection extends Model
         }
     }
 
+    public function changeEdmStatus(int $id)
+    {
+        $edm = self::where('id', $id)
+            ->get()
+            ->first()
+            ->edm;
+
+        if ($edm) {
+            self::where('id', $id)->update(['edm' => 0]);
+        } else {
+            self::where('id', $id)->update(['edm' => 1]);
+        }
+    }
+
     public function getDataList(array $query)
     {
         $result = DB::table('collection');

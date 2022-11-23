@@ -2,7 +2,7 @@
 @section('sub-content')
     <h2 class="mb-4">EDM</h2>
 
-    <form id="search" action="{{ Route('cms.collection.index') }}" method="GET">
+    <form id="search" method="GET">
         <div class="card shadow p-4 mb-4">
             <div class="row">
                 <div class="col-12 mb-3">

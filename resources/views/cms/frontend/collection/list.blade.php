@@ -37,9 +37,8 @@
                 <tr>
                     <th scope="col" style="width:10%">#</th>
                     <th scope="col">商品群組</th>
-
                     <th scope="col" class="text-center">公開上架</th>
-
+                    <th scope="col" class="text-center">EDM</th>
                     <th scope="col" class="text-center">酒類</th>
                     <th scope="col" class="text-center">複製連結</th>
                     <th scope="col" class="text-center">編輯</th>
@@ -58,6 +57,13 @@
                                        type="checkbox" @if ($data->is_public) checked @endif
                                        @cannot('cms.collection.edit') disabled @endcannot>
                                 <input type="hidden" name="id[]" value="{{ $data->id }}">
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            <div class="form-check form-switch form-switch-lg">
+                                <input class="form-check-input" name="edm[]" value="{{ $data->edm }}" cid="{{ $data->id }}"
+                                       type="checkbox" @if ($data->edm) checked @endif
+                                       @cannot('cms.collection.edit') disabled @endcannot>
                             </div>
                         </td>
 
@@ -173,6 +179,36 @@
                     } else if (currentStatus === OFF) {
                         $(this).val(ON);
                         toast.show('群組已公開');
+                    }
+                }).catch((error) => {
+                    console.log('post error:' + error);
+                    toast.show('發生錯誤', {
+                        type: 'danger'
+                    });
+                });
+            });
+
+            $('tbody').on('change', 'input[name="edm[]"]', function () {
+           
+                let currentStatus = $(this).val();
+                let collectionId = $(this).attr('cid');
+                let _URL = '/cms/collection/set-edm/' + collectionId;
+                let DATA = {
+                    id: collectionId
+                };
+
+                const ON = '1';
+                const OFF = '0';
+
+                axios.post(_URL, DATA).then((result) => {
+                    if (currentStatus === ON) {
+                        $(this).val(OFF);
+                        toast.show('取消EDM', {
+                            type: 'warning'
+                        });
+                    } else if (currentStatus === OFF) {
+                        $(this).val(ON);
+                        toast.show('公開EDM');
                     }
                 }).catch((error) => {
                     console.log('post error:' + error);
