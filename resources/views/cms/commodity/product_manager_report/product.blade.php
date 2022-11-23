@@ -152,6 +152,9 @@
             h4 {
                 color: #415583;
             }
+            .negative::before {
+                content: '-';
+            }
         </style>
     @endpush
     @push('sub-scripts')
