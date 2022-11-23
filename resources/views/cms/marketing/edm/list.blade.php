@@ -8,12 +8,12 @@
                 <div class="col-12 mb-3">
                     <label class="form-label">搜尋條件</label>
                     <input class="form-control" name="name" type="text" placeholder="請輸入商品群組名稱" value=""
-                           aria-label="商品群組名稱">
+                        aria-label="商品群組名稱">
                 </div>
             </div>
 
             <div class="col">
-                <input type="hidden" name="data_per_page" value="{{ $data_per_page }}"/>
+                <input type="hidden" name="data_per_page" value="{{ $data_per_page }}" />
                 <button type="submit" class="btn btn-primary px-4">搜尋</button>
             </div>
         </div>
@@ -32,33 +32,32 @@
                     </tr>
                 </thead>
                 <tbody>
-                @foreach ($dataList as $key => $data)
-                    <tr>
-                        <th scope="row">{{ $key + 1 }}</th>
-                        <td>{{ $data->name }}</td>
+                    @foreach ($dataList as $key => $data)
+                        <tr>
+                            <th scope="row">{{ $key + 1 }}</th>
+                            <td>{{ $data->name }}</td>
 
-                        <td class="text-center">
-                            <a href="#"
-                                data-bs-toggle="tooltip" title="直客價"
-                                class="icon icon-btn fs-5 text-primary rounded-circle border-0">
-                                <i class="bi bi-file-earmark-break"></i>
-                            </a>
-                        </td>
-                        <td class="text-center">
-                            <a href="#"
-                                data-bs-toggle="tooltip" title="經銷價"
-                                class="icon icon-btn fs-5 text-primary rounded-circle border-0">
-                                <i class="bi bi-file-earmark-break-fill"></i>
-                            </a>
-                        </td>
-                        <td class="text-center">
-                            <button type="button" data-bs-toggle="tooltip" title="下載圖片"
+                            <td class="text-center">
+                                <a href="{{ route('cms.edm.print', ['id' => $data->id, 'type' => 'normal']) }}"
+                                    data-bs-toggle="tooltip" title="直客價"
+                                    class="icon icon-btn fs-5 text-primary rounded-circle border-0">
+                                    <i class="bi bi-file-earmark-break"></i>
+                                </a>
+                            </td>
+                            <td class="text-center">
+                                <a href="{{ route('cms.edm.print', ['id' => $data->id, 'type' => 'dealer']) }}" data-bs-toggle="tooltip" title="經銷價"
+                                    class="icon icon-btn fs-5 text-primary rounded-circle border-0">
+                                    <i class="bi bi-file-earmark-break-fill"></i>
+                                </a>
+                            </td>
+                            <td class="text-center">
+                                <button type="button" data-bs-toggle="tooltip" title="下載圖片"
                                     class="icon -copy icon-btn fs-5 text-primary rounded-circle border-0">
-                                <i class="bi bi-download"></i>
-                            </button>
-                        </td>
-                    </tr>
-                @endforeach
+                                    <i class="bi bi-download"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    @endforeach
                 </tbody>
             </table>
         </div>
@@ -72,17 +71,16 @@
             </div>
         </div>
     @endif
-
 @endsection
 
 @once
     @push('sub-scripts')
         <script>
-            $('#confirm-delete').on('show.bs.modal', function (e) {
+            $('#confirm-delete').on('show.bs.modal', function(e) {
                 $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
             });
 
-            $('tbody').on('change', 'input[name="is_public[]"]', function () {
+            $('tbody').on('change', 'input[name="is_public[]"]', function() {
                 let currentStatus = $(this).val();
                 let collectionId = $(this).next().val();
                 let _URL = '/cms/collection/publish/' + collectionId;
@@ -121,12 +119,12 @@
                                 type: 'success'
                             });
                         }).catch((err) => {
-                        console.error('剪貼簿錯誤', err);
-                        toast.show('請手動複製連結：<br>' + copy_url, {
-                            title: '發生錯誤',
-                            type: 'danger'
+                            console.error('剪貼簿錯誤', err);
+                            toast.show('請手動複製連結：<br>' + copy_url, {
+                                title: '發生錯誤',
+                                type: 'danger'
+                            });
                         });
-                    });
                 } else {
                     toast.show('請手動複製連結：<br>' + copy_url, {
                         title: '不支援剪貼簿功能',

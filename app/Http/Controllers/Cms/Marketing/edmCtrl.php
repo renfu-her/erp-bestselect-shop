@@ -95,7 +95,13 @@ class edmCtrl extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    function print($id) {
+    function print(Request $request, $id, $type) {
         //
+       $re = Collection::getProductsEdmVer($id, $type, $request->user()->id);
+       if(!$re){
+        return abort(404);
+       }
+
+       dd($re);
     }
 }

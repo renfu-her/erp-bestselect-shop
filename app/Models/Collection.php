@@ -307,4 +307,92 @@ class Collection extends Model
             ];
         }, $collection_ids));
     }
+
+    public static function getProductsEdmVer($collection_id, $price_type = 'normal', $user_id)
+    {
+        switch ($price_type) {
+            case 'dealer':
+                $field = 'dealer_price';
+                break;
+            case 'normal':
+                $field = 'price';
+                break;
+            default:
+                return false;
+        }
+
+        $col = self::where('id', $collection_id)->where('edm', '1')->get()->first();
+        if (!$col) {
+            return false;
+        }
+
+        $subImg = DB::table('prd_product_images')
+            ->select(['product_id'])
+            ->selectRaw('min(id) as id')
+            ->groupBy('product_id');
+
+        $img = DB::table('prd_product_images as pi')->joinSub($subImg, 'subimg', function ($join) {
+            $join->on('pi.product_id', '=', 'subimg.product_id')
+                ->on('pi.id', '=', 'subimg.id');
+        })
+        ->select('pi.*');
+
+          
+
+
+        $subMinPrice = DB::table('prd_product_styles as style')
+            ->join('prd_salechannel_style_price as sp', 'style.id', '=', 'sp.style_id')
+            ->select('style.product_id')
+            ->selectRaw("min($field) as price")
+            ->where('sale_channel_id', 1)
+            ->groupBy('style.product_id');
+
+        $minPrice = DB::table('prd_product_styles as style')
+            ->join('prd_salechannel_style_price as sp', 'style.id', '=', 'sp.style_id')
+            ->joinSub($subMinPrice, 'mp', function ($join) use ($field) {
+                $join->on('mp.product_id', '=', 'style.product_id')
+                    ->on('mp.price', '=', "sp.$field");
+            })
+            ->select('style.product_id', 'mp.price', 'sp.origin_price')
+            ->where('sp.sale_channel_id', 1)
+            ->distinct();
+
+        $stylesConcatString = concatStr([
+            'title' => 'style.title',
+        ]);
+
+        $styleSub = DB::table('prd_product_styles as style')
+            ->select('style.product_id')
+            ->selectRaw('(' . $stylesConcatString . ') as style')
+            ->groupBy('style.product_id');
+
+        $prd = DB::table('collection_prd as cp')
+            ->join('prd_products as product', 'cp.product_id_fk', '=', 'product.id')
+            ->leftJoinSub($img, 'img', 'img.product_id', '=', 'product.id')
+            ->leftJoinSub($minPrice, 'price', 'price.product_id', '=', 'product.id')
+            ->leftJoinSub($styleSub, 'style', 'style.product_id', '=', 'product.id')
+
+            ->select(['product.id as product_id',
+                'product.title as product_title',
+                'img.url as img_url',
+                'price.price',
+                'price.origin_price',
+                'style.style'])
+            ->where('cp.collection_id_fk', $collection_id)->get()->toArray();
+
+
+        $prd = array_map(function ($n) {
+            $n->style = json_decode($n->style);
+            $n->img_url = getImageUrl($n->img_url, true);
+            return $n;
+        }, $prd);
+
+        return [
+            'mcode' => User::getUserCustomer($user_id)->sn,
+            'product' => $prd,
+            'collection' => $col,
+        ];
+
+    }
+
 }
