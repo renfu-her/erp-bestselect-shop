@@ -33,6 +33,13 @@
     </div>
 
     <div class="card shadow p-4 mb-4">
+        @can('cms.product-profit.export_excel')
+            <div class="col">
+                <a href="{{ Route('cms.product-profit-report.export-excel', ['stock_status' => 'all']) }}" class="btn btn-outline-success export">
+                    <i class="bi"></i> 匯出售價利潤報表
+                </a>
+            </div>
+        @endcan
         <div class="table-responsive tableOverBox">
             <table class="table table-striped tableList">
                 <thead class="small align-middle">
