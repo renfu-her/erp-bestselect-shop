@@ -28,25 +28,32 @@ class Audit extends Model
             ->joinSub($sub, 'sub_audit', function ($join) {
                 $join->on('sub_audit.source_id', '=', 'audit.source_id')
                     ->on('sub_audit.step', '=', 'audit.step');
-            })
-            ->where('audit.user_id', $user_id);
+            });
+        // 04001
+        $account = User::where('id', $user_id)->get()->first()->account;
+
+        if (!in_array($account, ['04001'])) {
+            $sub2->where('audit.user_id', $user_id);
+        }
+
+        // ->where('audit.user_id', $user_id);
 
         return $sub2;
     }
 
-    public static function auditList($type){
+    public static function auditList($type)
+    {
         $concatString = concatStr([
             'user_id' => 'audit.user_id',
             'user_name' => 'user.name',
             'user_title' => 'user.title',
             'checked_at' => 'IFNULL(audit.checked_at,"")',
-        ]);
+        ],'ORDER BY audit.step DESC');
 
         $sub = DB::table('pet_audit as audit')
             ->leftJoin('usr_users as user', 'user.id', '=', 'audit.user_id')
             ->select('audit.source_id')
             ->selectRaw('(' . $concatString . ') as users')
-            ->orderBy('audit.step')
             ->groupBy('audit.source_id')
             ->where('audit.source_type', $type);
 
