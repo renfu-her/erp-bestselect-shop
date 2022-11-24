@@ -746,7 +746,8 @@ class DeliveryCtrl extends Controller
         ]);
         Delivery::changeBackStatus($delivery_id, BackStatus::del_back());
         if (Event::order()->value == $delivery->event) {
-            OrderFlow::changeOrderStatus($delivery->event_id, OrderStatus::CancleBack());
+            $subOrder = SubOrders::where('id', '=', $delivery->event_id)->first();
+            OrderFlow::changeOrderStatus($subOrder->order_id, OrderStatus::CancleBack());
         }
         DlvBack::where('delivery_id', $delivery_id)->delete();
 
@@ -1260,7 +1261,8 @@ class DeliveryCtrl extends Controller
                 }
                 if (Event::order()->value == $delivery->event) {
                     //狀態須回寫到訂單
-                    OrderFlow::changeOrderStatus($delivery->event_id, OrderStatus::Backed());
+                    $subOrder = SubOrders::where('id', '=', $delivery->event_id)->first();
+                    OrderFlow::changeOrderStatus($subOrder->order_id, OrderStatus::Backed());
                 }
 
                 $is_calc_in_stock = false; //是否計算可售數量
@@ -1549,7 +1551,8 @@ class DeliveryCtrl extends Controller
                 }
                 if (Event::order()->value == $delivery->event) {
                     //狀態須回寫到訂單
-                    OrderFlow::changeOrderStatus($delivery->event_id, OrderStatus::CancleBack());
+                    $subOrder = SubOrders::where('id', '=', $delivery->event_id)->first();
+                    OrderFlow::changeOrderStatus($subOrder->order_id, OrderStatus::CancleBack());
                 }
 
                 if (Event::order()->value == $delivery->event || Event::consignment()->value == $delivery->event) {
