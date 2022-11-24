@@ -66,15 +66,15 @@
                         <td>{{ number_format($data->price) }}</td>
                         {{--                        <td>{{ $data->estimated_cost }}</td>--}}
                         <td>
-                            @if($data->estimated_cost > 0)
-                                {{ round(($data->price - $data->estimated_cost) * 100 / $data->estimated_cost) }}%
+                            @if($data->price > 0)
+                                {{ round(($data->price - $data->estimated_cost) * 100 / $data->price) }}%
                             @else
                         </td>
                         @endif
                         <td>{{ number_format($data->dealer_price) }}</td>
                         <td>
-                            @if($data->estimated_cost > 0)
-                                {{ round(($data->dealer_price - $data->estimated_cost) * 100 / $data->estimated_cost) }}
+                            @if($data->dealer_price > 0)
+                                {{ round(($data->dealer_price - $data->estimated_cost) * 100 / $data->dealer_price) }}
                                 %
                             @endif
                         </td>

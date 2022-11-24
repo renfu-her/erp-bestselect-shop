@@ -69,12 +69,16 @@ class ProductProfitReportCtrl extends Controller
         $products = $products->get()->toArray();
         $data = [];
         foreach ($products as $product) {
-            if ($product->estimated_cost == 0) {
+            if ($product->price == 0) {
                 $price_profit = 0;
+            } else {
+                $price_profit = round(($product->price - $product->estimated_cost) * 100 / $product->price);
+            }
+
+            if ($product->dealer_price == 0) {
                 $dealer_profit = 0;
             } else {
-                $price_profit = round(($product->price - $product->estimated_cost) * 100 / $product->estimated_cost);
-                $dealer_profit = round(($product->dealer_price - $product->estimated_cost) * 100 / $product->estimated_cost);
+                $dealer_profit = round(($product->dealer_price - $product->estimated_cost) * 100 / $product->dealer_price);
             }
 
             $data[] = [
