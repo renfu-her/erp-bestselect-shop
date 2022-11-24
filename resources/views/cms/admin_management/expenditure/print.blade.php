@@ -47,43 +47,37 @@
                 <tbody>
                     <tr>
                         <th width="100">單號</th>
-                        <td>{{ $data->sn }}</td>
-                    </tr>
-                    <tr>
-                        <th width="100">建立日期</th>
-                        <td>{{ $data->created_at }}</td>
+                        <td colspan="3">{{ $data->sn }}</td>
                     </tr>
                     <tr>
                         <th width="100">主旨</th>
-                        <td>{{ $data->title }}</td>
+                        <td colspan="3">{{ $data->title }}</td>
                     </tr>
                     <tr>
                         <th>申請人</th>
                         <td>{{ $data->user_name }}</td>
+                        <th width="100">建立日期</th>
+                        <td>{{ $data->created_at }}</td>
                     </tr>
                     <tr>
                         <th>支出科目</th>
                         <td>{{ $data->item_title }}</td>
-                    </tr>
-                    <tr>
                         <th>支出部門</th>
                         <td>{{ $data->department_title }}</td>
                     </tr>
                     <tr>
+                        <th>金額</th>
+                        <td>{{ $data->amount }}</td>
                         <th>預計支付方式</th>
                         <td>{{ $data->payment_title }}</td>
                     </tr>
                     <tr>
-                        <th>金額</th>
-                        <td>{{ $data->amount }}</td>
-                    </tr>
-                    <tr>
                         <th>內容</th>
-                        <td>{!! nl2br($data->content) !!}</td>
+                        <td colspan="3">{!! nl2br($data->content) !!}</td>
                     </tr>
                     <tr>
                         <th>相關單號</th>
-                        <td>
+                        <td colspan="3">
                             @foreach ($order as $key => $value)
                                 <span>{{ $value->order_sn }} </span>
                             @endforeach
