@@ -96,6 +96,7 @@
                         <th scope="col">摘要</th>
                         <th scope="col" class="text-end">金額</th>
                         <th scope="col">部門</th>
+                        <th scope="col">傳票日期</th>
                         <th scope="col">審核日期</th>
                     </tr>
                 </thead>
@@ -115,6 +116,9 @@
                             <td class="p-0 border-bottom-0" height="0"></td>
                             <td class="p-0 border-bottom-0" height="0"></td>
                             <td class="p-0 border-bottom-0" height="0"></td>
+                            <td rowspan="{{ $rows }}">
+                                {{ $data->tv_voucher_date ? date('Y/m/d', strtotime($data->tv_voucher_date)) : '-' }}
+                            </td>
                             <td rowspan="{{ $rows }}">
                                 {{ $data->tv_audit_date ? date('Y/m/d', strtotime($data->tv_audit_date)) : '-' }}
                             </td>
