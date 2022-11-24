@@ -7,6 +7,24 @@
             @csrf
             <div class="col-12 col-sm-6 mb-3">
                 <fieldset class="col-12 mb-3">
+                    <legend class="col-form-label p-0 mb-2">利潤排序</legend>
+                    <div class="px-1 pt-1">
+                        <div class="form-check form-check-inline">
+                            <label class="form-check-label">
+                                <input class="form-check-input" name="profit" type="radio" value="price_profit"
+                                       checked>
+                                售價利潤
+                            </label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <label class="form-check-label">
+                                <input class="form-check-input" name="profit" type="radio" value="dealer_price_profit">
+                                經銷價利潤
+                            </label>
+                        </div>
+                    </div>
+                </fieldset>
+                <fieldset class="col-12 mb-3">
                     <legend class="col-form-label p-0 mb-2">理貨倉庫存</legend>
                     <div class="px-1 pt-1">
                         <div class="form-check form-check-inline">
@@ -66,17 +84,11 @@
                         <td>{{ number_format($data->price) }}</td>
                         {{--                        <td>{{ $data->estimated_cost }}</td>--}}
                         <td>
-                            @if($data->price > 0)
-                                {{ round(($data->price - $data->estimated_cost) * 100 / $data->price) }}%
-                            @else
+                            {{ $data->price_profit }}%
                         </td>
-                        @endif
                         <td>{{ number_format($data->dealer_price) }}</td>
                         <td>
-                            @if($data->dealer_price > 0)
-                                {{ round(($data->dealer_price - $data->estimated_cost) * 100 / $data->dealer_price) }}
-                                %
-                            @endif
+                            {{ $data->dealer_price_profit }}%
                         </td>
                         <td>{{ $data->total_in_stock_num }}</td>
                     </tr>

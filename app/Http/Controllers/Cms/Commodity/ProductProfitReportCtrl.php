@@ -48,6 +48,7 @@ class ProductProfitReportCtrl extends Controller
         //不查詢stock狀態（低於安全庫存、 無庫存 、尚有實際庫存）
         $searchParam['stock'] = Arr::get($query, 'stock', []);
         //有無「理貨倉庫存」
+        $searchParam['profit'] = Arr::get($query, 'profit', 'price_profit');
         $searchParam['stock_status'] = Arr::get($query, 'stock_status', 'in_stock');
         $searchParam['depot_id'] = Arr::get($query, 'depot_id',[]);
         $searchParam['price'] = 1;
@@ -69,25 +70,13 @@ class ProductProfitReportCtrl extends Controller
         $products = $products->get()->toArray();
         $data = [];
         foreach ($products as $product) {
-            if ($product->price == 0) {
-                $price_profit = 0;
-            } else {
-                $price_profit = round(($product->price - $product->estimated_cost) * 100 / $product->price);
-            }
-
-            if ($product->dealer_price == 0) {
-                $dealer_profit = 0;
-            } else {
-                $dealer_profit = round(($product->dealer_price - $product->estimated_cost) * 100 / $product->dealer_price);
-            }
-
             $data[] = [
                 $product->product_title,
                 $product->sku,
                 $product->price,
-                $price_profit,
+                $product->price_profit,
                 $product->dealer_price,
-                $dealer_profit,
+                $product->dealer_price_profit,
                 $product->total_in_stock_num,
             ];
         }
