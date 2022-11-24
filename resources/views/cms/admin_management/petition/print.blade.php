@@ -90,7 +90,7 @@
                             @endforeach
                             @if ($relation_order)
                                 @foreach ($relation_order as $key => $value)
-                                    <span>{{ $value->order_sn }} </span>
+                                    <span>{{ $value->sn }} </span>
                                 @endforeach
                             @endif
                         </td>

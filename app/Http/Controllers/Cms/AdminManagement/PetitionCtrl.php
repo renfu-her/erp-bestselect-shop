@@ -259,7 +259,8 @@ class PetitionCtrl extends Controller
             'data' => $data,
             'order' => $orders,
             'type' => 'audit',
-            'formAction' => route('cms.petition.edit', ['id' => $id]),
+            'formAction' => route('cms.petition.edit',
+             ['id' => $id]),
             'breadcrumb_data' => $data->title,
             'relation_order' => Petition::getBindedOrder($id, 'PET'),
 
@@ -287,7 +288,7 @@ class PetitionCtrl extends Controller
             return getErpOrderUrl($n);
         }, Petition::getOrderSn($id, 'petition')->get()->toArray());
         
-       // dd($data);
+        // dd(Petition::getBindedOrder($id, 'PET'));
         return view('cms.admin_management.petition.print', [
             'data' => $data,
             'order' => $orders,
