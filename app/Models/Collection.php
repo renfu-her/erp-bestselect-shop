@@ -378,7 +378,8 @@ class Collection extends Model
                 'price.price',
                 'price.origin_price',
                 'style.style'])
-            ->where('cp.collection_id_fk', $collection_id)->get()->toArray();
+            ->where('cp.collection_id_fk', $collection_id)
+            ->orderBy('cp.sort')->get()->toArray();
 
 
         $prd = array_map(function ($n) {
