@@ -1737,6 +1737,7 @@ class OrderCtrl extends Controller
             'logistics_grade_name' => $logistics_grade_name,
             'accountant' => implode(',', $accountant),
             'zh_price' => $zh_price,
+            'relation_order' => Petition::getBindedOrder($paying_order->id, 'ISG'),
         ]);
     }
 
@@ -2003,6 +2004,7 @@ class OrderCtrl extends Controller
             'logistics_grade_name' => $logistics_grade_name,
             'accountant' => implode(',', $accountant),
             'zh_price' => $zh_price,
+            'relation_order' => Petition::getBindedOrder($paying_order->id, 'ISG'),
         ]);
     }
 

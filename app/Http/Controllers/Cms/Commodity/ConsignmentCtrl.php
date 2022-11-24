@@ -36,6 +36,7 @@ use App\Models\PayableCheque;
 use App\Models\PayableForeignCurrency;
 use App\Models\PayableOther;
 use App\Models\PayableRemit;
+use App\Models\Petition;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -689,6 +690,7 @@ class ConsignmentCtrl extends Controller
             'logistics_grade_name' => $logistics_grade_name,
             'accountant' => implode(',', $accountant),
             'zh_price' => $zh_price,
+            'relation_order' => Petition::getBindedOrder($paying_order->id, 'ISG'),
         ]);
     }
 
