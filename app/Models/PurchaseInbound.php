@@ -1120,6 +1120,7 @@ class PurchaseInbound extends Model
             ['supplier' => ['condition' => $searchParam['supplier'], 'show' => true],
                 'user' => ['show' => true, 'condition' => $searchParam['user']],
                 'consume' => $searchParam['consume'] == 'all' ? null : $searchParam['consume'],
+                'price' => $searchParam['price'] ?? null,
             ])
 
             ->leftJoinSub($extPrdStyleList_send, 'inbound', function($join) use($depot_id) {
