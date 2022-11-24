@@ -69,8 +69,10 @@
             <div class="d-flex align-items-center mb-3">
                 <h6 class="mb-0">商品列表</h6>
 
-                <button type="button" id="setItemByOrder" data-bs-toggle="tooltip" title="僅預覽順序，儲存後才會實際生效"
-                    data-bs-placement="right" class="btn btn-outline-success btn-sm mx-2">依排序值排列商品</button>
+                <button type="button" id="setItemByOrder" data-bs-toggle="tooltip" title="僅預覽順序，儲存後生效"
+                    class="btn btn-outline-success btn-sm mx-2">依排序值排列商品</button>
+                <button type="button" id="setOrder" data-bs-toggle="tooltip" title="儲存後生效"
+                    class="btn btn-outline-primary btn-sm mx-2">依商品重設排序值</button>
                 
             </div>
             
@@ -474,6 +476,10 @@
                     // element == this
                     $('tbody.-appendClone.--selectedP').append($(element));
                 });
+            });
+            // 重設排序值
+            $('#setOrder').click(function() {
+                resort();
             });
 
             // 重排排序值
