@@ -14,16 +14,16 @@ class RemoveIdColumnRptUserReportMonthlyTable extends Migration
     public function up()
     {
         //
-        Schema::table('rpt_user_report_monthly', function (Blueprint $table) {
-            $table->dropColumn('id');
-        });
-
-        Schema::table('rpt_organize_report_monthly', function (Blueprint $table) {
-            $table->dropColumn('id');
-        });
-
-
-        
+        if (Schema::hasColumns('rpt_user_report_monthly', ['id'])) {
+            Schema::table('rpt_user_report_monthly', function (Blueprint $table) {
+                $table->dropColumn('id');
+            });
+        }
+        if (Schema::hasColumns('rpt_organize_report_monthly', ['id'])) {
+            Schema::table('rpt_organize_report_monthly', function (Blueprint $table) {
+                $table->dropColumn('id');
+            });
+        }
     }
 
     /**
