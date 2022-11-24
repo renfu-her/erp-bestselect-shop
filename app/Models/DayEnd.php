@@ -128,7 +128,7 @@ class DayEnd extends Model
 
         $ro = ReceivedOrder::whereDate('receipt_date', $date)->get();
         $po = PayingOrder::whereDate('payment_date', $date)->where('append_po_id', null)->get();
-        $tv = TransferVoucher::whereDate('created_at', $date)->get();
+        $tv = TransferVoucher::whereDate('voucher_date', $date)->get();
         $io = IncomeOrder::whereDate('posting_date', $date)->get();
         $nro = NoteReceivableOrder::whereDate('cashing_date', $date)->get();
         $npo = NotePayableOrder::whereDate('cashing_date', $date)->get();
@@ -145,7 +145,7 @@ class DayEnd extends Model
 
         $ro = ReceivedOrder::whereDate('receipt_date', $date)->get();
         $po = PayingOrder::whereDate('payment_date', $date)->where('append_po_id', null)->get();
-        $tv = TransferVoucher::whereDate('created_at', $date)->get();
+        $tv = TransferVoucher::whereDate('voucher_date', $date)->get();
 
         $io = IncomeOrder::whereDate('posting_date', $date)->get();
         $nro = NoteReceivableOrder::whereDate('cashing_date', $date)->get();
