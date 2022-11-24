@@ -9,7 +9,6 @@ use App\Enums\Supplier\Payment;
 use App\Enums\Payable\ChequeStatus;
 
 use App\Models\AccountPayable;
-use App\Models\AllGrade;
 use App\Models\Customer;
 use App\Models\DayEnd;
 use App\Models\Depot;
@@ -22,6 +21,7 @@ use App\Models\PayableForeignCurrency;
 use App\Models\PayableOther;
 use App\Models\PayableRemit;
 use App\Models\PayingOrder;
+use App\Models\Petition;
 use App\Models\StituteOrder;
 use App\Models\StituteOrderItem;
 use App\Models\Supplier;
@@ -326,6 +326,7 @@ class StituteOrderCtrl extends Controller
             'stitute_order' => $stitute_order,
             'applied_company' => $applied_company,
             'zh_price' => $zh_price,
+            'relation_order' => Petition::getBindedOrder($id, 'PSG'),
         ]);
     }
 
@@ -547,6 +548,7 @@ class StituteOrderCtrl extends Controller
             'payable_data' => $payable_data,
             'data_status_check' => $data_status_check,
             'accountant'=>implode(',', $accountant),
+            'relation_order' => Petition::getBindedOrder($paying_order->id, 'ISG'),
         ]);
     }
 }

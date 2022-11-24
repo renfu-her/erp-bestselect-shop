@@ -766,6 +766,7 @@ class PurchaseCtrl extends Controller
             'undertaker' => $undertaker,
             'appliedCompanyData' => $appliedCompanyData,
             'zh_price' => $zh_price,
+            'relation_order' => Petition::getBindedOrder($paying_order->id, 'ISG'),
         ]);
     }
 

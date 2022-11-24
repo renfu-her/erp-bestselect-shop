@@ -39,6 +39,7 @@ use App\Models\PayableRemit;
 use App\Models\PayableForeignCurrency;
 use App\Models\PayableOther;
 use App\Models\PayableDefault;
+use App\Models\Petition;
 use App\Models\ProductStock;
 use App\Models\ProductStyle;
 use App\Models\PurchaseInbound;
@@ -1338,6 +1339,7 @@ class DeliveryCtrl extends Controller
             'accountant'=>implode(',', $accountant),
             'undertaker' => $undertaker,
             'zh_price' => $zh_price,
+            'relation_order' => Petition::getBindedOrder($paying_order->id, 'ISG'),
         ]);
     }
 
