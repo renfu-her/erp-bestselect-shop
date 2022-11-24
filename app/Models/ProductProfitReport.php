@@ -22,6 +22,9 @@ class ProductProfitReport extends Model
             $products->orderBy('dealer_price_profit', 'desc');
         }
 
+        $products->orderBy('s.product_id')
+                ->orderBy('s.id');
+
         if ($param['stock_status'] == 'in_stock') {
             $products->where('inbound.total_in_stock_num', '>', 0);
         } else if ($param['stock_status'] == 'out_of_stock') {
