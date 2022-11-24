@@ -309,11 +309,11 @@
                                            href="{{ Route('cms.delivery.out_stock', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">缺貨</a>
                                     @endif
                                 @else
-                                    <a class="btn btn-sm btn-outline-success -in-header mb-1"
+                                    <a class="btn btn-sm btn-outline-dark -in-header mb-1"
                                        href="{{ Route('cms.delivery.out_stock_detail', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">缺貨明細</a>
 
                                     @if (false == isset($delivery->audit_date))
-                                        <a class="btn btn-sm btn-outline-success -in-header mb-1"
+                                        <a class="btn btn-sm btn-dark -in-header mb-1"
                                            href="{{ Route('cms.delivery.out_stock_delete', ['deliveryId' => $delivery->id], true) }}">刪除缺貨</a>
                                     @endif
                                 @endif
