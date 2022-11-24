@@ -189,7 +189,7 @@
             </div>
             <div class="col">
                 <mark class="fw-light small">
-                    <i class="bi bi-exclamation-diamond-fill mx-2 text-warning"></i>若客人可以等，請使用訂單分割，貨到了之後，在分割後的子訂單出
+                    <i class="bi bi-exclamation-diamond-fill mx-2 text-warning"></i>若客人可以等，請使用分割訂單，貨到了之後，在分割後的子訂單出
                     <br>若客人不要，再使用此功能
                 </mark>
             </div>
