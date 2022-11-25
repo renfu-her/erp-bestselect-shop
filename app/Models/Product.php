@@ -298,7 +298,7 @@ class Product extends Model
     public static function createProduct($title,
         $user_id, $category_id, $type = 'p',
         $feature = null, $url = null, $slogan = null, $active_sdate = null,
-        $active_edate = null, $supplier = null, $has_tax = 0, $consume = 0, $public = 1, $online = 0, $offline = 0) {
+        $active_edate = null, $supplier = null, $has_tax = 0, $consume = 0, $public = 1, $online = 0, $offline = 0, $purchase_note = null) {
         return IttmsDBB::transaction(function () use ($title,
             $user_id,
             $category_id,
@@ -313,7 +313,8 @@ class Product extends Model
             $consume,
             $public,
             $online,
-            $offline) {
+            $offline,
+            $purchase_note) {
 
             switch ($type) {
                 case 'p':
@@ -352,6 +353,7 @@ class Product extends Model
                 'public' => $public,
                 'online' => $online,
                 'offline' => $offline,
+                'purchase_note' => $purchase_note,
             ])->id;
 
             if ($supplier) {
@@ -377,7 +379,8 @@ class Product extends Model
         $consume = 0,
         $public = 1,
         $online = null,
-        $offline = null) {
+        $offline = null,
+        $purchase_note = null) {
 
         $url = $url ? $url : $title;
 
@@ -401,6 +404,7 @@ class Product extends Model
             'public' => $public,
             'online' => $online,
             'offline' => $offline,
+            'purchase_note' => $purchase_note,
         ]);
 
         Supplier::updateProductSupplier($id, $supplier);
