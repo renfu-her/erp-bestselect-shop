@@ -97,7 +97,7 @@
                             <th scope="col" class="text-end">數量</th>
                             <th scope="col" class="text-end">單價</th>
                             <th scope="col" class="text-end">金額</th>
-                            <th scope="col">備註</th>
+                            <th scope="col" colspan="2">備註</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -109,7 +109,8 @@
                                 <td class="text-end">{{ number_format($data->num) }}</td>
                                 <td class="text-end">${{ number_format($data->price / $data->num, 2) }}</td>
                                 <td class="text-end">${{ number_format($data->price) }}</td>
-                                <td>@php echo $data->memo ?? '' @endphp</td>
+                                <td>{!! nl2br($data->memo) !!}</td>
+                                <td>{!! nl2br($data->po_note) !!}</td>
                             </tr>
                             @endforeach
                             @endif
@@ -120,7 +121,8 @@
                                 <td class="text-end">1</td>
                                 <td class="text-end">${{ number_format($t_value->logistics_price, 2) }}</td>
                                 <td class="text-end">${{ number_format($t_value->logistics_price) }}</td>
-                                <td>@php echo $t_value->logistics_memo ?? '' @endphp</td>
+                                <td>{!! nl2br($t_value->logistics_memo) !!}</td>
+                                <td>{!! nl2br($t_value->logistics_po_note) !!}</td>
                             </tr>
                             @endif
 
@@ -131,6 +133,7 @@
                                     <td class="text-end">1</td>
                                     <td class="text-end">-{{ number_format($d_value->discount_value, 2) }}</td>
                                     <td class="text-end">-{{ number_format($d_value->discount_value) }}</td>
+                                    <td></td>
                                     <td></td>
                                 </tr>
                                 @endforeach
@@ -146,6 +149,7 @@
                                 </div>
                             </td>
                             <td class="text-end">{{ number_format($paying_order->price) }}</td>
+                            <td></td>
                             <td></td>
                         </tr>
                     </tfoot>
