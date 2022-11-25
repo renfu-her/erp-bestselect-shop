@@ -286,7 +286,8 @@ class PayingOrder extends Model
                         "price":"\', pcs_purchase_items.price, \'",
                         "num":"\', pcs_purchase_items.num, \'",
                         "summary":"\', COALESCE(pcs_purchase_items.memo, ""), \'",
-                        "memo":"\', COALESCE(pcs_purchase_items.memo, ""), \'"
+                        "memo":"\', COALESCE(pcs_purchase_items.memo, ""), \'",
+                        "po_note":"\', COALESCE(pcs_purchase_items.po_note, ""), \'"
                     }\' ORDER BY pcs_purchase_items.id), \']\') AS items
                 FROM pcs_purchase_items
                 LEFT JOIN (' . $sq . ') AS grade ON grade.name = "商品存貨"
@@ -371,7 +372,8 @@ class PayingOrder extends Model
                             "price":"\', so_item.total_price, \'",
                             "num":"\', so_item.qty, \'",
                             "summary":"\', COALESCE(so_item.summary, ""), \'",
-                            "memo":"\', COALESCE(so_item.memo, ""), \'"
+                            "memo":"\', COALESCE(so_item.memo, ""), \'",
+                            "po_note":"\', COALESCE(so_item.po_note, ""), \'"
                         }\' ORDER BY so_item.id), \']\') AS items
                 FROM acc_stitute_order_items AS so_item
                 LEFT JOIN (' . $sq . ') AS grade ON grade.id = so_item.grade_id
@@ -401,7 +403,8 @@ class PayingOrder extends Model
                         "price":"\', ord_items.price * ord_items.qty, \'",
                         "num":"\', ord_items.qty, \'",
                         "summary":"\', COALESCE(ord_items.note, ""), \'",
-                        "memo":"\', COALESCE(ord_items.note, ""), \'"
+                        "memo":"\', COALESCE(ord_items.note, ""), \'",
+                        "po_note":"\', COALESCE(ord_items.po_note, ""), \'"
                     }\' ORDER BY ord_items.id), \']\') AS items
                 FROM ord_items
                 LEFT JOIN (' . $sq . ') AS grade ON grade.name = "銷貨收入"
@@ -462,12 +465,14 @@ class PayingOrder extends Model
                         "price":"\', dlv_back.price * dlv_back.qty, \'",
                         "num":"\', dlv_back.qty, \'",
                         "summary":"\', COALESCE(dlv_back.memo, ""), \'",
-                        "memo":"\', COALESCE(dlv_back.memo, ""), \'"
+                        "memo":"\', COALESCE(dlv_back.memo, ""), \'",
+                        "po_note":"\', COALESCE(o_items.po_note, ""), \'"
                     }\' ORDER BY dlv_back.id), \']\') AS items
                 FROM dlv_back
                 LEFT JOIN (' . $sq . ') AS grade ON grade.id = dlv_back.grade_id
                 LEFT JOIN prd_product_styles ON prd_product_styles.id = dlv_back.product_style_id
                 LEFT JOIN prd_products AS product ON product.id = prd_product_styles.product_id
+                LEFT JOIN ord_items AS o_items ON o_items.id = dlv_back.event_item_id
                 LEFT JOIN usr_users AS p_owner ON p_owner.id = product.user_id
                 WHERE (product.deleted_at IS NULL AND dlv_back.qty > 0 AND dlv_back.show = 1)
                 GROUP BY dlv_back.delivery_id
@@ -498,7 +503,8 @@ class PayingOrder extends Model
                         "num":"\', 1, \'",
                         "all_grades_id":"\', acc_payable.all_grades_id, \'",
                         "summary":"\', COALESCE(acc_payable.summary, ""), \'",
-                        "memo":"\', COALESCE(acc_payable.note, ""), \'"
+                        "memo":"\', COALESCE(acc_payable.note, ""), \'",
+                        "po_note":"\', "", \'"
                     }\' ORDER BY acc_payable.id), \']\') AS items
                 FROM acc_payable
                 LEFT JOIN (' . $sq . ') AS grade ON grade.id = acc_payable.all_grades_id
@@ -532,7 +538,8 @@ class PayingOrder extends Model
                         "price":"\', it.price, \'",
                         "num":"\', 1, \'",
                         "summary":"\', "", \'",
-                        "memo":"\', "", \'"
+                        "memo":"\', "", \'",
+                        "po_note":"\', "", \'"
                     }\' ORDER BY id), \']\') AS items
                 FROM pcs_paying_orders AS it
                 WHERE it.deleted_at IS NULL
@@ -565,7 +572,8 @@ class PayingOrder extends Model
                             "price":"\', refund_item.total_price, \'",
                             "num":"\', refund_item.qty, \'",
                             "summary":"\', COALESCE(refund_item.summary, ""), \'",
-                            "memo":"\', COALESCE(refund_item.note, ""), \'"
+                            "memo":"\', COALESCE(refund_item.note, ""), \'",
+                            "po_note":"\', COALESCE(refund_item.po_note, ""), \'"
                         }\' ORDER BY refund_item.id), \']\') AS items
                 FROM acc_received_refund AS refund_item
                 GROUP BY refund_item.source_ro_id, refund_item.append_po_id
@@ -708,6 +716,20 @@ class PayingOrder extends Model
                     WHEN po.source_type = "' . app(ReceivedOrder::class)->getTable() . '" AND po.type = 9 THEN NULL
                     ELSE NULL
                 END AS logistics_memo
+            ')
+            ->selectRaw('
+                CASE
+                    WHEN po.source_type = "' . app(Purchase::class)->getTable() . '" AND po.source_sub_id IS NULL THEN NULL
+                    WHEN po.source_type = "' . app(Order::class)->getTable() . '" AND po.source_sub_id IS NOT NULL AND po.type = 1 THEN dlv_logistic.po_note
+                    WHEN po.source_type = "' . app(Consignment::class)->getTable() . '" AND po.type = 1 THEN co_logistic.po_note
+                    WHEN po.source_type = "' . app(StituteOrder::class)->getTable() . '" AND po.type = 1 THEN NULL
+                    WHEN po.source_type = "' . app(Order::class)->getTable() . '" AND po.type = 9 THEN NULL
+                    WHEN po.source_type = "' . app(Delivery::class)->getTable() . '" AND po.type = 9 THEN NULL
+                    WHEN po.source_type = "' . app(self::class)->getTable() . '" AND po.type = 1 THEN NULL
+                    WHEN po.source_type = "' . app(self::class)->getTable() . '" AND po.type = 2 THEN NULL
+                    WHEN po.source_type = "' . app(ReceivedOrder::class)->getTable() . '" AND po.type = 9 THEN NULL
+                    ELSE NULL
+                END AS logistics_po_note
             ')
             ->selectRaw('
                 CASE
