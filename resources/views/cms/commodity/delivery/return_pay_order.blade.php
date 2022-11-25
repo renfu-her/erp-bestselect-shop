@@ -97,7 +97,7 @@
                             <th scope="col" class="text-end">數量</th>
                             <th scope="col" class="text-end">單價</th>
                             <th scope="col" class="text-end">金額</th>
-                            <th scope="col">備註</th>
+                            <th scope="col" colspan="2">備註</th>
                         </tr>
                     </thead>
 
@@ -109,7 +109,8 @@
                                 <td class="text-end">{{ $db_value->qty }}</td>
                                 <td class="text-end">{{ number_format($db_value->price, 2) }}</td>
                                 <td class="text-end">{{ number_format($db_value->total_price) }}</td>
-                                <td>{{ $delivery->po_memo }} <a href="{{ route('cms.delivery.back_detail', ['event' => $delivery->delivery_event, 'eventId' => $delivery->delivery_event_id]) }}">{{ $delivery->delivery_event_sn }}</a> {{ $db_value->taxation == 1 ? '應稅' : '免稅' }} {!! nl2br($db_value->note) !!} {!! nl2br($db_value->po_note) !!}</td>
+                                <td>{{ $delivery->po_memo }} <a href="{{ route('cms.delivery.back_detail', ['event' => $delivery->delivery_event, 'eventId' => $delivery->delivery_event_id]) }}">{{ $delivery->delivery_event_sn }}</a> {{ $db_value->taxation == 1 ? '應稅' : '免稅' }} {!! nl2br($db_value->note) !!}</td>
+                                <td>{!! nl2br($db_value->po_note) !!}</td>
                             </tr>
                         @endforeach
                         @endif
@@ -123,6 +124,7 @@
                                 </div>
                             </td>
                             <td class="text-end">{{ number_format($delivery->po_price) }}</td>
+                            <td></td>
                             <td></td>
                         </tr>
                     </tfoot>
