@@ -142,7 +142,7 @@
                         @endfor
                         <tr height="70">
                             <td style="vertical-align:top;" colspan="4">
-                                備註：
+                                備註：{!! nl2br($purchaseData->note) !!}
                             </td>
                             <td>
                                 <div>合計：{{ number_format($total) }}</div>
