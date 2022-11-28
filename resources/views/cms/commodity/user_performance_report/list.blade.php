@@ -125,62 +125,48 @@
                                 @endswitch
 
                             </td>
-                            <td @class([
-                                'text-end table-success',
-                                'text-danger fw-bold negative' => $data->on_price < 0,
-                            ])>${{ number_format(abs($data->on_price)) }}</td>
-                            <td @class([
-                                'text-end table-success',
-                                'text-danger fw-bold negative' => $data->on_gross_profit < 0,
-                            ])>${{ number_format(abs($data->on_gross_profit)) }}</td>
-                            <td @class([
-                                'text-end table-warning',
-                                'text-danger fw-bold negative' => $data->off_price < 0,
-                            ])>${{ number_format(abs($data->off_price)) }}</td>
-                            <td @class([
-                                'text-end table-warning',
-                                'text-danger fw-bold negative' => $data->off_gross_profit < 0,
-                            ])>${{ number_format(abs($data->off_gross_profit)) }}</td>
-                            <td @class([
-                                'text-end',
-                                'text-danger fw-bold negative' => $data->total_price < 0,
-                            ])>${{ number_format(abs($data->total_price)) }}</td>
-                            <td @class([
-                                'text-end',
-                                'text-danger fw-bold negative' => $data->total_gross_profit < 0,
-                            ])>${{ number_format(abs($data->total_gross_profit)) }}</td>
-
-
+                            <td class="text-end table-success">
+                                <x-b-number :val="$data->on_price" prefix="$" />
+                            </td>
+                            <td class="text-end table-success">
+                                <x-b-number :val="$data->on_gross_profit" prefix="$" />
+                            </td>
+                            <td class="text-end table-warning">
+                                <x-b-number :val="$data->off_price" prefix="$" />
+                            </td>
+                            <td class="text-end table-warning">
+                                <x-b-number :val="$data->off_gross_profit" prefix="$" />
+                            </td>
+                            <td class="text-end">
+                                <x-b-number :val="$data->total_price" prefix="$" />
+                            </td>
+                            <td class="text-end">
+                                <x-b-number :val="$data->total_gross_profit" prefix="$" />
+                            </td>
                         </tr>
                     @endforeach
                 </tbody>
                 <tfoot>
                     <tr>
                         <th colspan="2">合計</th>
-                        <th @class([
-                            'text-end table-success',
-                            'text-danger fw-bold negative' => $on_price < 0,
-                        ])>${{ number_format(abs($on_price)) }}</th>
-                        <th @class([
-                            'text-end table-success',
-                            'text-danger fw-bold negative' => $on_gross_profit < 0,
-                        ])>${{ number_format(abs($on_gross_profit)) }}</th>
-                        <th @class([
-                            'text-end table-warning',
-                            'text-danger fw-bold negative' => $off_price < 0,
-                        ])>${{ number_format(abs($off_price)) }}</th>
-                        <th @class([
-                            'text-end table-warning',
-                            'text-danger fw-bold negative' => $off_gross_profit < 0,
-                        ])>${{ number_format(abs($off_gross_profit)) }}</th>
-                        <th @class([
-                            'text-end',
-                            'text-danger fw-bold negative' => $total_price < 0,
-                        ])>${{ number_format(abs($total_price)) }}</th>
-                        <th @class([
-                            'text-end',
-                            'text-danger fw-bold negative' => $total_gross_profit < 0,
-                        ])>${{ number_format(abs($total_gross_profit)) }}</th>
+                        <th class="text-end table-success">
+                            <x-b-number :val="$on_price" prefix="$" />
+                        </th>
+                        <th class="text-end table-success">
+                            <x-b-number :val="$on_gross_profit" prefix="$" />
+                        </th>
+                        <th class="text-end table-warning">
+                            <x-b-number :val="$off_price" prefix="$" />
+                        </th>
+                        <th class="text-end table-warning">
+                            <x-b-number :val="$off_gross_profit" prefix="$" />
+                        </th>
+                        <th class="text-end">
+                            <x-b-number :val="$total_price" prefix="$" />
+                        </th>
+                        <th class="text-end">
+                            <x-b-number :val="$total_gross_profit" prefix="$" />
+                        </th>
                     </tr>
                 </tfoot>
             </table>
@@ -200,10 +186,6 @@
         <style>
             h4 {
                 color: #415583;
-            }
-
-            .negative::before {
-                content: '-';
             }
         </style>
     @endpush
