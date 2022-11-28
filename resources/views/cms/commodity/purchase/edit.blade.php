@@ -161,6 +161,10 @@
                         </div>
                     @endif
                 </div>
+                <div class="col-12 col-sm-6 mb-3">
+                    <label class="form-label">備註</label>
+                    <textarea class="form-control" name="note" >{{ old('note', $purchaseData->note  ?? '') }}</textarea>
+                </div>
 
                 @if ($method === 'edit')
                     <div class="col-12 col-sm-6 mb-3">
