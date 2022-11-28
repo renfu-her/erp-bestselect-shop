@@ -25,7 +25,7 @@ class Purchase extends Model
 
     public static function createPurchase($sn = null, $supplier_id, $supplier_name, $supplier_nickname, $supplier_sn = null, $purchase_user_id, $purchase_user_name
         , $scheduled_date, $estimated_depot_id = null, $estimated_depot_name = null
-        , $logistics_price = 0, $logistics_memo = null, $invoice_num = null, $invoice_date = null
+        , $logistics_price = 0, $logistics_memo = null, $invoice_num = null, $invoice_date = null,$note=null
     )
     {
         return IttmsDBB::transaction(function () use (
@@ -42,14 +42,16 @@ class Purchase extends Model
             $logistics_price,
             $logistics_memo,
             $invoice_num,
-            $invoice_date
+            $invoice_date,
+            $note
             ) {
-
+             
             //判斷若無sn 則產生新的
             if(false == isset($sn)) {
                 $sn = Sn::createSn('purchase', 'B', 'ymd', 4);
             }
-
+            
+          
             $id = self::create([
                 "sn" => $sn,
                 'supplier_id' => $supplier_id,
@@ -65,6 +67,7 @@ class Purchase extends Model
                 'logistics_memo' => $logistics_memo ?? null,
                 'invoice_num' => $invoice_num ?? null,
                 'invoice_date' => $invoice_date ?? null,
+                'note' => $note
             ])->id;
 
             $rePcsLSC = PurchaseLog::stockChange($id, null, Event::purchase()->value, $id, LogEventFeature::add()->value, null, null, null, null, null, $purchase_user_id, $purchase_user_name);
@@ -92,7 +95,7 @@ class Purchase extends Model
         return $purchase;
     }
 
-    public static function checkToUpdatePurchaseData($id, array $purchaseReq, $operator_user_id, $operator_user_name, $tax, array $purchasePayReq
+    public static function checkToUpdatePurchaseData($id, array $purchaseReq, $operator_user_id, $operator_user_name, $tax, array $purchasePayReq,$note = null
     )
     {
         $purchase = Purchase::where('id', '=', $id)
@@ -120,7 +123,7 @@ class Purchase extends Model
             $purchase = Purchase::verifyPcsApprovedCanEditData($purchase, $tax, $purchaseReq, $purchasePayReq);
         }
 
-        return IttmsDBB::transaction(function () use ($purchase, $id, $purchaseReq, $operator_user_id, $operator_user_name, $tax, $purchasePayReq, $orign_audit_status
+        return IttmsDBB::transaction(function () use ($purchase, $id, $purchaseReq, $operator_user_id, $operator_user_name, $tax, $purchasePayReq, $orign_audit_status,$note
         ) {
 //            dd($purchase->isDirty(), $purchase);
             if ($purchase->isDirty()) {
@@ -204,6 +207,7 @@ class Purchase extends Model
                         'invoice_date' => $purchasePayReq['invoice_date'] ?? null,
                     ];
                 }
+                $updArr['note'] = $note;
                 Purchase::where('id', $id)->update($updArr);
             }
             return ['success' => 1, 'error_msg' => ''];
@@ -358,7 +362,7 @@ class Purchase extends Model
                 , 'purchase.supplier_sn as supplier_sn'
                 , 'purchase.estimated_depot_id as estimated_depot_id'
                 , 'purchase.estimated_depot_name as estimated_depot_name'
-
+                , 'purchase.note as note'
                 , 'purchase.has_tax as has_tax'
                 , 'purchase.logistics_price as logistics_price'
                 , 'purchase.logistics_memo as logistics_memo'
