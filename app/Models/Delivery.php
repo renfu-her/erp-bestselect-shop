@@ -353,9 +353,25 @@ class Delivery extends Model
             'product_title' => 'rcv_depot.product_title'
             , 'qty' => 'rcv_depot.qty'
             , 'prd_user_name' => 'usr.name'
+            , 'ib_source_sn' => 'ib_source.sn'
         ];
+        $re_event_sn_pcs = DB::table(app(Purchase::class)->getTable(). ' as pcs')
+            ->select(DB::raw('concat("'. Event::purchase()->value. '") as event'), 'pcs.id', 'pcs.sn');
+        $re_event_sn_csn = DB::table(app(Consignment::class)->getTable(). ' as csn')
+            ->select(DB::raw('concat("'. Event::consignment()->value. '") as event'), 'csn.id', 'csn.sn');
+        $re_event_sn_pcs = $re_event_sn_pcs->union($re_event_sn_csn);
+
+
         $re = DB::table(app(Delivery::class)->getTable(). ' as delivery')
             ->leftJoin(app(ReceiveDepot::class)->getTable(). ' as rcv_depot', 'rcv_depot.delivery_id', '=', 'delivery.id')
+            ->leftJoin(app(PurchaseInbound::class)->getTable(). ' as inbound', function ($join) {
+                $join->on('inbound.id', '=', 'rcv_depot.inbound_id');
+            })
+            ->leftJoinSub($re_event_sn_pcs, 'ib_source', function($join) {
+                $join->on('ib_source.id', '=', 'inbound.event_id')
+                    ->on('ib_source.event', '=', 'inbound.event');
+            })
+
             ->leftJoin(app(ProductStyle::class)->getTable(). ' as style', 'style.id', '=', 'rcv_depot.product_style_id')
             ->leftJoin(app(Product::class)->getTable(). ' as prd', 'prd.id', '=', 'style.product_id')
             ->leftJoin(app(User::class)->getTable(). ' as usr', 'usr.id', '=', 'prd.user_id')
