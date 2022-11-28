@@ -20,9 +20,9 @@
 
     <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
         <div class="p-1 pe-2">
-            @if(! $back_item->po_sn && $po_check)
+            @if(! $items->po_sn && $po_check)
                 <a class="btn btn-primary btn-sm my-1 ms-1"
-                    href="{{ Route('cms.delivery.return-pay-order', ['id' => $delivery->id]) }}">新增退貨付款單</a>
+                    href="{{ Route('cms.delivery.roe-po', ['id' => $delivery->id, 'behavior' => 'return']) }}">新增退貨付款單</a>
             @endif
             @if (false == $has_payable_data_back)
                 <a class="btn btn-primary btn-sm my-1 ms-1"
@@ -123,11 +123,11 @@
                 <dd>{{$order->sn ?? ''}}</dd>
             </div>
         </dl>
-        @if($back_item->po_sn)
+        @if($items->po_sn)
         <dl class="row">
             <div class="col">
                 <dt>退貨付款單號</dt>
-                <dd><a href="{{ route('cms.delivery.return-pay-order', ['id' => $back_item->delivery_id]) }}" class="-text">{{ $back_item->po_sn }}</a></dd>
+                <dd><a href="{{ route('cms.delivery.roe-po', ['id' => $items->delivery_id, 'behavior' => 'return']) }}" class="-text">{{ $items->po_sn }}</a></dd>
             </div>
         </dl>
         @endif

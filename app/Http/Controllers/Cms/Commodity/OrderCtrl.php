@@ -563,7 +563,7 @@ class OrderCtrl extends Controller
         if (count($subOrder) > 0) {
             foreach ($subOrder as $so_value) {
                 $delivery = Delivery::where('event', Event::order()->value)->where('event_id', $so_value->id)->first();
-                $po_check = PayingOrder::source_confirmation(app(Delivery::class)->getTable(), $delivery->id);
+                $po_check = PayingOrder::source_confirmation(app(Delivery::class)->getTable(), $delivery->id, 9);
                 if (!$po_check) {
                     break;
                 }

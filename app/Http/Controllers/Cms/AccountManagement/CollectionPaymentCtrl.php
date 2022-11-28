@@ -193,7 +193,7 @@ class CollectionPaymentCtrl extends Controller
                                 $account_name = $product_account ? $product_account->name : '無設定會計科目';
                                 $product_title = $account_name;
 
-                            } else if($value->po_type == 9 || $value->po_type == 2){
+                            } else if(in_array($value->po_type, [2, 7, 8, 9])){
                                 $account_code = $p_value->grade_code;
                                 $account_name = $p_value->grade_name;
                             }
@@ -552,13 +552,23 @@ class CollectionPaymentCtrl extends Controller
                 }
 
             } else if($paying_order->source_type == 'dlv_delivery'){
-                $delivery = Delivery::back_item($paying_order->source_id)->get();
+                if($paying_order->type == 9){
+                    $behavior = 'return';
+
+                } else if($paying_order->type == 8){
+                    $behavior = 'out';
+
+                } else if($paying_order->type == 7){
+                    $behavior = 'exchange';
+                }
+
+                $delivery = Delivery::delivery_item($paying_order->source_id, $behavior)->get();
                 foreach ($delivery as $key => $value) {
-                    $delivery[$key]->delivery_back_items = json_decode($value->delivery_back_items);
+                    $delivery[$key]->delivery_items = json_decode($value->delivery_items);
                 }
                 $delivery = $delivery->first();
 
-                foreach($delivery->delivery_back_items as $value){
+                foreach($delivery->delivery_items as $value){
                     if($value->event_item_id){
                         $item_data[] = (object)[
                             'item_id' => $value->event_item_id,
@@ -939,7 +949,7 @@ class CollectionPaymentCtrl extends Controller
                                 $account_name = $product_account ? $product_account->name : '無設定會計科目';
                                 $product_title = $account_name;
 
-                            } else if($value->po_type == 9 || $value->po_type == 2){
+                            } else if(in_array($value->po_type, [2, 7, 8, 9])){
                                 $account_code = $p_value->grade_code;
                                 $account_name = $p_value->grade_name;
                             }

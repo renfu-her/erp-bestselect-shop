@@ -573,16 +573,35 @@ Breadcrumbs::for('cms.delivery.back_detail', function (BreadcrumbTrail $trail, $
     $trail->parent('cms.' . $value['parent'] . '.index');
     $trail->push('#' . $value['sn'] . ' 銷貨退回明細');
 });
-Breadcrumbs::for('cms.delivery.return-pay-order', function (BreadcrumbTrail $trail, $value) {
+Breadcrumbs::for('cms.delivery.roe-po', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.order.index');
-    $trail->push('#' . $value['sn'] . ' 銷貨退回明細', route('cms.delivery.back_detail', ['event' => $value['event'], 'eventId' => $value['eventId']]));
-    $trail->push('退貨付款單');
+    if($value['behavior'] == 'return'){
+        $trail->push('#' . $value['sn'] . ' 銷貨退回明細', route('cms.delivery.back_detail', ['event' => $value['event'], 'eventId' => $value['eventId']]));
+        $trail->push('退貨付款單');
+
+    } else if($value['behavior'] == 'out'){
+        $trail->push('#' . $value['sn'] . ' 銷貨缺貨明細', route('cms.delivery.out_stock_detail', ['event' => $value['event'], 'eventId' => $value['eventId']]));
+        $trail->push('缺貨付款單');
+
+    } else if($value['behavior'] == 'exchange'){
+
+    }
 });
-Breadcrumbs::for('cms.delivery.return-pay-create', function (BreadcrumbTrail $trail, $value) {
+Breadcrumbs::for('cms.delivery.roe-po-create', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.order.index');
-    $trail->push('#' . $value['sn'] . ' 銷貨退回明細', route('cms.delivery.back_detail', ['event' => $value['event'], 'eventId' => $value['eventId']]));
-    $trail->push('退貨付款單', route('cms.delivery.return-pay-order', ['id' => $value['id']]));
-    $trail->push('新增付款');
+    if($value['behavior'] == 'return'){
+        $trail->push('#' . $value['sn'] . ' 銷貨退回明細', route('cms.delivery.back_detail', ['event' => $value['event'], 'eventId' => $value['eventId']]));
+        $trail->push('退貨付款單', route('cms.delivery.roe-po', ['id' => $value['id'], 'behavior' => $value['behavior']]));
+        $trail->push('新增付款');
+
+    } else if($value['behavior'] == 'out'){
+        $trail->push('#' . $value['sn'] . ' 銷貨缺貨明細', route('cms.delivery.out_stock_detail', ['event' => $value['event'], 'eventId' => $value['eventId']]));
+        $trail->push('缺貨付款單', route('cms.delivery.roe-po', ['id' => $value['id'], 'behavior' => $value['behavior']]));
+        $trail->push('新增付款');
+
+    } else if($value['behavior'] == 'exchange'){
+
+    }
 });
 
 /**

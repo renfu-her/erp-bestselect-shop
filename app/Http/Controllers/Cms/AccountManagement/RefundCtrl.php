@@ -142,7 +142,7 @@ class RefundCtrl extends Controller
                                 $account_name = $product_account ? $product_account->name : '無設定會計科目';
                                 $product_title = $account_name;
 
-                            } else if($value->po_type == 9 || $value->po_type == 2){
+                            } else if(in_array($value->po_type, [2, 7, 8, 9])){
                                 $account_code = $p_value->grade_code;
                                 $account_name = $p_value->grade_name;
                             }
