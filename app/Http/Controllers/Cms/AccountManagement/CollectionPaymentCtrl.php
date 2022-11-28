@@ -33,6 +33,7 @@ use App\Models\PayableForeignCurrency;
 use App\Models\PayableOther;
 use App\Models\PayableRemit;
 use App\Models\PayingOrder;
+use App\Models\Petition;
 use App\Models\Purchase;
 use App\Models\PurchaseItem;
 use App\Models\ReceivedOrder;
@@ -1250,6 +1251,7 @@ class CollectionPaymentCtrl extends Controller
             'zh_price' => $zh_price,
             'undertaker' => $undertaker,
             'accountant' => implode(',', $accountant),
+            'relation_order' => Petition::getBindedOrder($paying_order->id, 'ISG'),
         ]);
     }
 
@@ -1402,6 +1404,7 @@ class CollectionPaymentCtrl extends Controller
             'zh_price' => $zh_price,
             'undertaker' => $undertaker,
             'accountant' => implode(',', $accountant),
+            'relation_order' => Petition::getBindedOrder($paying_order->id, 'ISG'),
         ]);
     }
 

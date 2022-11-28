@@ -35,14 +35,14 @@ if (!function_exists('getPageCount')) {
 }
 
 if (!function_exists('concatStr')) {
-    function concatStr($data)
+    function concatStr($data, $orderBy = null)
     {
         $arr = [];
         foreach ($data as $key => $d) {
             $arr[] = '\\"' . $key . '\\":\\"",' . $d . ',"\\"';
         }
-
-        return 'CONCAT("[",' . 'GROUP_CONCAT("{' . implode(',', $arr) . '}")' . ',"]")';
+        $orderBy = $orderBy ? ' ' . $orderBy : '';
+        return 'CONCAT("[",' . 'GROUP_CONCAT("{' . implode(',', $arr) . '}"' . $orderBy . ')' . ',"]")';
 
     }
 }

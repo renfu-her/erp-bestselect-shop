@@ -188,7 +188,8 @@ class PurchaseCtrl extends Controller
             $purchasePayReq['logistics_price'] ?? null,
             $purchasePayReq['logistics_memo'] ?? null,
             $purchasePayReq['invoice_num'] ?? null,
-            $purchasePayReq['invoice_date'] ?? null,
+            $purchasePayReq['invoice_date'] ?? null,  
+            $request->input('note')  
         );
         $purchaseID = null;
         if (isset($rePcs['id'])) {
@@ -384,10 +385,11 @@ class PurchaseCtrl extends Controller
             }
         }
 //        dd('end');
-
-        $msg = IttmsDBB::transaction(function () use ($request, $id, $purchaseReq, $purchaseItemReq, $taxReq, $purchasePayReq, $purchaseGet
+        $note = $request->input('note');
+       
+        $msg = IttmsDBB::transaction(function () use ($request, $id, $purchaseReq, $purchaseItemReq, $taxReq, $purchasePayReq, $purchaseGet,$note
         ) {
-            $repcsCTPD = Purchase::checkToUpdatePurchaseData($id, $purchaseReq, $request->user()->id, $request->user()->name, $taxReq, $purchasePayReq);
+            $repcsCTPD = Purchase::checkToUpdatePurchaseData($id, $purchaseReq, $request->user()->id, $request->user()->name, $taxReq, $purchasePayReq,$note);
             if ($repcsCTPD['success'] == 0) {
                 DB::rollBack();
                 return $repcsCTPD;
@@ -766,6 +768,7 @@ class PurchaseCtrl extends Controller
             'undertaker' => $undertaker,
             'appliedCompanyData' => $appliedCompanyData,
             'zh_price' => $zh_price,
+            'relation_order' => Petition::getBindedOrder($paying_order->id, 'ISG'),
         ]);
     }
 

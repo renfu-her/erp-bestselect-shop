@@ -10,6 +10,7 @@ use App\Enums\Order\UserAddrType;
 // use App\Enums\;
 use App\Enums\Received\ReceivedMethod;
 use App\Http\Controllers\Controller;
+use App\Models\CrdCreditCard;
 use App\Models\Customer;
 use App\Models\Delivery;
 use App\Models\Discount;
@@ -220,6 +221,7 @@ class OrderCtrl extends Controller
                             $received_order = ReceivedOrder::create_received_order($source_type, $id);
                             $received_method = ReceivedMethod::CreditCard; //'credit_card'
                             $grade_id = ReceivedDefault::where('name', $received_method)->first() ? ReceivedDefault::where('name', $received_method)->first()->default_grade_id : 0;
+                            $card_info = CrdCreditCard::get_credit_card_info($CardNumber);
 
                             $data = [];
                             $data['acc_transact_type_fk'] = $received_method;
@@ -227,8 +229,8 @@ class OrderCtrl extends Controller
                                 'cardnumber' => $CardNumber,
                                 'authamt' => $authAmt ?? 0,
                                 'checkout_date' => date('Y-m-d H:i:s'),
-                                'card_type_code' => null,
-                                'card_type' => null,
+                                'card_type_code' => $card_info->card_type_code,
+                                'card_type' => $card_info->card_type,
                                 'card_owner_name' => $order ? '訂購人' . $order->ord_name : null,
                                 'authcode' => $authCode,
                                 'all_grades_id' => $grade_id,
@@ -957,6 +959,7 @@ class OrderCtrl extends Controller
                         $received_order = ReceivedOrder::create_received_order($source_type, $id);
                         $received_method = ReceivedMethod::CreditCard; //'credit_card'
                         $grade_id = ReceivedDefault::where('name', $received_method)->first() ? ReceivedDefault::where('name', $received_method)->first()->default_grade_id : 0;
+                        $card_info = CrdCreditCard::get_credit_card_info($CardNumber);
 
                         $data = [];
                         $data['acc_transact_type_fk'] = $received_method;
@@ -964,8 +967,8 @@ class OrderCtrl extends Controller
                             'cardnumber' => $CardNumber,
                             'authamt' => $authAmt ?? 0,
                             'checkout_date' => date('Y-m-d H:i:s'),
-                            'card_type_code' => null,
-                            'card_type' => null,
+                            'card_type_code' => $card_info->card_type_code,
+                            'card_type' => $card_info->card_type,
                             'card_owner_name' => $order ? '訂購人' . $order->ord_name : null,
                             'authcode' => $authCode,
                             'all_grades_id' => $grade_id,

@@ -35,6 +35,13 @@
                 <a href="{{ route('cms.collection_payment.edit_note', ['id' => $paying_order->id]) }}"
                     class="btn btn-dark btn-sm" role="button">編輯付款項目備註</a>
             @endcan
+
+            @if (count($relation_order) > 0)
+                <button type="button" class="btn btn-sm btn-primary" disabled>相關單號</button>
+                @foreach ($relation_order as $value)
+                    <a href="{{ $value->url }}" class="btn btn-sm btn-primary" role="button">{{ $value->sn }}</a>
+                @endforeach
+            @endif
         </div>
     </nav>
 
@@ -94,7 +101,7 @@
                             <th scope="col" class="text-end">數量</th>
                             <th scope="col" class="text-end">單價</th>
                             <th scope="col" class="text-end">金額</th>
-                            <th scope="col">備註</th>
+                            <th scope="col" colspan="2">備註</th>
                         </tr>
                     </thead>
 
@@ -106,7 +113,8 @@
                                 <td class="text-end">{{ $p_value->qty }}</td>
                                 <td class="text-end">{{ number_format($p_value->price, 2) }}</td>
                                 <td class="text-end">{{ number_format($p_value->total_price) }}</td>
-                                <td>{{ $paying_order->memo }} <a href="{{ Route('cms.order.detail', ['id' => $order->id]) }}">{{ $order->sn }}</a> {{ $p_value->product_taxation == 1 ? '應稅' : '免稅' }} {!! nl2br($p_value->note) !!} {!! nl2br($p_value->po_note) !!}</td>
+                                <td>{{ $paying_order->memo }} <a href="{{ Route('cms.order.detail', ['id' => $order->id]) }}">{{ $order->sn }}</a> {{ $p_value->product_taxation == 1 ? '應稅' : '免稅' }} {!! nl2br($p_value->note) !!}</td>
+                                <td>{!! nl2br($p_value->po_note) !!}</td>
                             </tr>
                         @endforeach
                         @endforeach
@@ -118,6 +126,7 @@
                                 <td class="text-end">{{ number_format($order->dlv_fee, 2) }}</td>
                                 <td class="text-end">{{ number_format($order->dlv_fee) }}</td>
                                 <td>{{ $paying_order->memo }} <a href="{{ Route('cms.order.detail', ['id' => $order->id]) }}">{{ $order->sn }}</a> {{ $order->dlv_taxation == 1 ? '應稅' : '免稅' }}</td>
+                                <td></td>
                             </tr>
                         @endif
 
@@ -129,6 +138,7 @@
                                 <td class="text-end">-{{ number_format($d_value->discount_value, 2) }}</td>
                                 <td class="text-end">-{{ number_format($d_value->discount_value) }}</td>
                                 <td>{{ $paying_order->memo }} <a href="{{ Route('cms.order.detail', ['id' => $order->id]) }}">{{ $order->sn }}</a> {{ $d_value->discount_taxation == 1 ? '應稅' : '免稅' }}</td>
+                                <td></td>
                             </tr>
                         @endforeach
                         @endif
@@ -142,6 +152,7 @@
                                 </div>
                             </td>
                             <td class="text-end">{{ number_format($paying_order->price) }}</td>
+                            <td></td>
                             <td></td>
                         </tr>
                     </tfoot>

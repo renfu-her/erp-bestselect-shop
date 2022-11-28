@@ -27,7 +27,8 @@ class Petition extends Model
             ->leftJoinSub($canDelSub, 'audit2', 'audit2.source_id', '=', 'petition.id')
             ->leftJoin('usr_users as user', 'petition.user_id', '=', 'user.id')
             ->select(['petition.*', 'audit.*', 'user.name as user_name', 'audit2.checked_at'])
-            ->whereNull('petition.deleted_at');
+            ->whereNull('petition.deleted_at')
+            ->distinct();
 
         //  dd($re->get());
         if (isset($option['audit'])) {

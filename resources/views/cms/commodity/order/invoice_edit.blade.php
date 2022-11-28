@@ -22,7 +22,7 @@
 
                 <div class="col-12 col-sm-6 mb-3 c_invoice_number{{ old('invoice_method') == 'print' ? '' : (!old('invoice_method') && $invoice->print_flag == 'Y' ? '' : ' d-none') }}">
                     <label class="form-label l_invoice_number">自定發票號碼</label>
-                    <input type="text" name="invoice_number" class="form-control @error('invoice_number') is-invalid @enderror" placeholder="請輸入自定發票號碼" aria-label="自定訂單編號" value="{{ old('invoice_number', $invoice->invoice_number) }}" maxlength="10" minlength="8" oninput="this.value=this.value.toUpperCase()">
+                    <input type="text" name="invoice_number" class="form-control @error('invoice_number') is-invalid @enderror" placeholder="請輸入自定發票號碼" aria-label="自定發票號碼" value="{{ old('invoice_number', $invoice->invoice_number) }}" maxlength="10" minlength="8" oninput="this.value=this.value.toUpperCase()">
                     <div class="invalid-feedback">
                         @error('invoice_number')
                         {{ $message }}

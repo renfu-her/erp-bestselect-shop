@@ -143,7 +143,7 @@ class TransferVoucherCtrl extends Controller
                 ]);
 
 
-                DayEnd::match_day_end_status($voucher->created_at, $voucher->sn);
+                DayEnd::match_day_end_status($voucher->voucher_date, $voucher->sn);
 
                 DB::commit();
                 wToast(__('轉帳傳票儲存成功'));
@@ -286,7 +286,7 @@ class TransferVoucherCtrl extends Controller
                     'credit_price' => $credit_price,
                 ]);
 
-                DayEnd::match_day_end_status($voucher->created_at, $voucher->sn);
+                DayEnd::match_day_end_status($voucher->voucher_date, $voucher->sn);
 
                 DB::commit();
                 wToast(__('轉帳傳票更新成功'));
@@ -327,7 +327,7 @@ class TransferVoucherCtrl extends Controller
         $target = TransferVoucher::delete_voucher($id);
 
         if($target){
-            DayEnd::match_day_end_status($target->created_at, $target->sn);
+            DayEnd::match_day_end_status($target->voucher_date, $target->sn);
 
             wToast('刪除完成');
         } else {

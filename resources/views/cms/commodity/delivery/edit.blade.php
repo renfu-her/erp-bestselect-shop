@@ -114,14 +114,14 @@
                 @if (isset($delivery->audit_date) &&
                     (\App\Enums\Delivery\Event::consignment()->value == $delivery->event
                         || \App\Enums\Delivery\Event::csn_order()->value == $delivery->event))
-                    <a href="{{ Route('cms.delivery.store_cancle', ['deliveryId' => $delivery->id ]) }}" class="btn btn-outline-dark px-4" role="button">取消送出審核</a>
+                    <a href="{{ Route('cms.delivery.store_cancle', ['deliveryId' => $delivery->id ]) }}" class="btn btn-outline-danger" role="button">取消送出審核</a>
                 @endif
                 @if($delivery->event == App\Enums\Delivery\Event::order()->value)
-                    <a href="{{ Route('cms.order.detail', ['id' => $order_id, 'subOrderId' => $eventId ]) }}" class="btn btn-outline-primary px-4" role="button">返回明細</a>
+                    <a href="{{ Route('cms.order.detail', ['id' => $order_id, 'subOrderId' => $eventId ]) }}" class="btn btn-outline-primary" role="button">返回明細</a>
                 @elseif($delivery->event == App\Enums\Delivery\Event::consignment()->value)
-                    <a href="{{ Route('cms.consignment.edit', ['id' => $eventId ]) }}" class="btn btn-outline-primary px-4" role="button">返回明細</a>
+                    <a href="{{ Route('cms.consignment.edit', ['id' => $eventId ]) }}" class="btn btn-outline-primary" role="button">返回明細</a>
                 @elseif($delivery->event == App\Enums\Delivery\Event::csn_order()->value)
-                    <a href="{{ Route('cms.consignment-order.edit', ['id' => $eventId ]) }}" class="btn btn-outline-primary px-4" role="button">返回明細</a>
+                    <a href="{{ Route('cms.consignment-order.edit', ['id' => $eventId ]) }}" class="btn btn-outline-primary" role="button">返回明細</a>
                 @endif
             </div>
         </div>
