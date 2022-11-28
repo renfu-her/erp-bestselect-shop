@@ -17,6 +17,7 @@ use App\View\Components\Modal as B_Modal;
 use App\View\Components\Toast as B_Toast;
 use App\View\Components\QtyAdjuster as B_QtyAdjuster;
 use App\View\Components\ReportSearch;
+use App\View\Components\Number as B_Number;
 
 
 use App\View\Components\Navbar\ProductNavi;
@@ -55,6 +56,7 @@ class ComponentServiceProvider extends ServiceProvider
         Blade::component('b-modal', B_Modal::class);
         Blade::component('b-toast', B_Toast::class);
         Blade::component('b-qty-adjuster', B_QtyAdjuster::class);
+        Blade::component('b-number', B_Number::class);
 
         Blade::component('b-prd-navi', ProductNavi::class);
         Blade::component('b-customer-navi', CustomerNavi::class);
