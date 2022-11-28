@@ -161,10 +161,6 @@
                         </div>
                     @endif
                 </div>
-                <div class="col-12 col-sm-6 mb-3">
-                    <label class="form-label">備註</label>
-                    <textarea class="form-control" name="note" >{{ old('note', $purchaseData->note  ?? '') }}</textarea>
-                </div>
 
                 @if ($method === 'edit')
                     <div class="col-12 col-sm-6 mb-3">
@@ -174,6 +170,11 @@
                                @if ($hasCreatedFinalPayment) readonly @endif placeholder="請輸入廠商訂單號">
                     </div>
                 @endif
+
+                <div class="col-12 mb-3">
+                    <label class="form-label">備註</label>
+                    <textarea class="form-control" name="note" >{{ old('note', $purchaseData->note  ?? '') }}</textarea>
+                </div>
             </div>
         </div>
 
@@ -239,11 +240,6 @@
                                     <input type="hidden" name="name[]" value="{{ old('name.'. $psItemKey, $psItemVal->title?? '') }}">
                                     <input type="hidden" name="sku[]" value="{{ old('sku.'. $psItemKey, $psItemVal->sku?? '') }}">
                                     <input type="hidden" name="estimated_cost[]" value="{{ old('estimated_cost.'. $psItemKey, $psItemVal->estimated_cost?? '') }}">
-
-                                    @if(true == $hasCreatedFinalPayment)
-                                        <input type="hidden" name="num[]" value="{{ old('num.'. $psItemKey, $psItemVal->num?? '') }}">
-                                        <input type="hidden" name="price[]" value="{{ old('price.'. $psItemKey, $psItemVal->price?? '') }}">
-                                    @endif
                                 </th>
                                 <td class="wrap">
                                     <div data-td="sku" class="lh-1 small text-nowrap text-secondary">
@@ -529,7 +525,8 @@
             let hasCreatedFinalPayment = @json($hasCreatedFinalPayment?? false);
 
             if (true == hasCreatedFinalPayment) {
-                $('.-cloneElem.--selectedP :input:not([name="memo[]"]):not(:hidden)').prop("disabled", true);
+                $('.-cloneElem.--selectedP button:not([name="memo[]"]):not(:hidden)').prop('disabled', true);
+                $('.-cloneElem.--selectedP input:not([name="memo[]"]):not(:hidden)').prop('readonly', true);
             }
 
             // 物流
