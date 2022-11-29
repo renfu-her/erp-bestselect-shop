@@ -77,6 +77,7 @@ class ProductProfitReportCtrl extends Controller
                 $product->price_profit,
                 $product->dealer_price,
                 $product->dealer_price_profit,
+                $product->estimated_cost,
                 $product->total_in_stock_num,
             ];
         }
@@ -88,6 +89,7 @@ class ProductProfitReportCtrl extends Controller
             '售價利潤(%)',
             '經銷價',
             '經銷價利潤(%)',
+            '成本',
             '理貨倉庫存',
         ];
         $export= new ProductProfitExport([
