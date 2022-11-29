@@ -374,6 +374,7 @@ class Collection extends Model
 
             ->select(['product.id as product_id',
                 'product.title as product_title',
+                'product.sku',
                 'img.url as img_url',
                 'price.price',
                 'price.origin_price',
