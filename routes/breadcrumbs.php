@@ -537,6 +537,12 @@ Breadcrumbs::for('cms.product-manager-report.product', function (BreadcrumbTrail
     $trail->push('商品報表');
 });
 
+//售價利潤報表
+Breadcrumbs::for('cms.product-profit-report.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('售價利潤報表');
+});
+
 // 營業額目標
 Breadcrumbs::for('cms.vob-performance-report.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');

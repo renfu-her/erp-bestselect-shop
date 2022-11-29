@@ -23,33 +23,32 @@
                    href="{{ Route('cms.consignment.print_order_ship', ['id' => $id]) . '?type=A4' }}">
                     列印出貨單-A4
                 </a>
-            </div>
-            <div class="p-1 pe-2">
+                
             @if (isset($delivery) && isset($delivery->back_date))
                 @if (false == isset($delivery->back_inbound_date) && false == ($has_already_pay_delivery_back ?? false))
                     <button type="button"
                             data-href="{{ Route('cms.delivery.back_delete', ['deliveryId' => $delivery->id], true) }}"
                             data-bs-toggle="modal" data-bs-target="#confirm-delete-back"
-                            class="btn btn-sm btn-danger -in-header mb-1">
+                            class="btn btn-sm btn-danger">
                         刪除退貨
                     </button>
                 @endif
 
-                <a class="btn btn-sm btn-success -in-header mb-1"
+                <a class="btn btn-sm btn-success"
                    href="{{ Route('cms.delivery.back_detail', ['event' => \App\Enums\Delivery\Event::consignment()->value, 'eventId' => $delivery->event_id], true) }}">銷貨退回明細</a>
 
                 @can('cms.delivery.edit')
                     @if (isset($delivery->back_inbound_date))
-                        <a class="btn btn-sm btn-danger -in-header mb-1"
+                        <a class="btn btn-sm btn-danger"
                            href="{{ Route('cms.delivery.back_inbound_delete', ['deliveryId' => $delivery->id], true) }}">刪除退貨入庫</a>
                     @elseif(true == $is_inbounded)
-                        <a class="btn btn-sm btn-success -in-header mb-1"
+                        <a class="btn btn-sm btn-success"
                            href="{{ Route('cms.delivery.back_inbound', ['event' => \App\Enums\Delivery\Event::consignment()->value, 'eventId' => $delivery->event_id], true) }}">退貨入庫審核</a>
                     @endif
                 @endcan
 
             @else
-                <a class="btn btn-sm btn-outline-danger -in-header mb-1"
+                <a class="btn btn-sm btn-outline-danger"
                    href="{{ Route('cms.delivery.back', ['event' => \App\Enums\Delivery\Event::consignment()->value, 'eventId' => $delivery->event_id], true) }}">退貨</a>
             @endif
             </div>
@@ -120,7 +119,7 @@
             </dl>
 
             <dl class="row">
-                <div class="col-auto" style="width: calc(100%/12*8.5);">
+                <div class="col">
                     <dt>寄倉單備註</dt>
                     @if(null == $consignmentData || (isset($consignmentData) && true == $editable))
                         <textarea id="order_memo" name="order_memo" class="form-control" rows="3">{{ old('order_memo', $consignmentData->memo  ?? '') }}</textarea>
@@ -172,7 +171,7 @@
             <div>
                 <div class="table-responsive tableOverBox">
                     <table class="table @if ($editable) table-hover @else table-striped @endif tableList mb-0">
-                        <thead>
+                        <thead class="small align-middle">
                             <tr>
                                 @if ($consignmentData->audit_status == App\Enums\Consignment\AuditStatus::unreviewed()->value)
                                     <th scope="col" class="text-center">刪除</th>
@@ -180,7 +179,7 @@
                                 <th scope="col">商品名稱</th>
                                 <th scope="col">SKU</th>
                                 <th scope="col" style="width: 10%">寄倉數量</th>
-                                <th scope="col">目前可售數量</th>
+                                <th scope="col" class="wrap lh-1">目前可售數量</th>
                                 <th scope="col" style="width: 12%" class="text-end">寄倉價錢</th>
                                 <th scope="col" style="width: 12%" class="text-end">小計</th>
                                 <th scope="col">採購入庫單號</th>
@@ -225,7 +224,7 @@
                                             </button>
                                         </th>
                                     @endif
-                                    <td data-td="name">{{ old('name.'. $psItemKey, $psItemVal->title ?? '') }}</td>
+                                    <td data-td="name" class="wrap">{{ old('name.'. $psItemKey, $psItemVal->title ?? '') }}</td>
 
                                     <input type="hidden" name="item_id[]" value="{{ old('item_id.'. $psItemKey, $psItemVal->id ?? '') }}">
                                     <input type="hidden" name="product_style_id[]" value="{{ old('product_style_id.'. $psItemKey, $psItemVal->product_style_id ?? '') }}">
@@ -412,13 +411,15 @@
                 @endif
 
                 <div class="col">
-                    <mark class="fw-light small">
-                        <i class="bi bi-exclamation-diamond-fill mx-2 text-warning"></i>審核狀態改為<b> 否決 </b>就不能再修改呦！
-                        <br>若要加減商品和修改數量 需先改成尚未審核 才可修改
-                        <br>若要改成尚未審核 必須在未出貨的狀態
-                        <br>若已出貨審核送出 需先點選取消送出 並將欲出貨入庫單刪除 此時即可修改成尚未審核
-
-                        <br>●但商品已入庫 則無法切換審核狀態
+                    <mark class="fw-light small d-block">
+                        <i class="bi bi-exclamation-diamond-fill mx-2 text-warning"></i>說明：
+                        <ul class="mb-0">
+                            <li>審核狀態改為 <b class="text-danger">否決</b> 就不能再修改呦！</li>
+                            <li>若要加減商品和修改數量，需先改成 <b>尚未審核</b> 才可修改</li>
+                            <li>若要改成尚未審核，必須在 <b>未出貨</b> 的狀態</li>
+                            <li>若已出貨審核送出，需先點選 <b>取消送出</b>，並將欲出貨入庫單刪除，此時即可修改成尚未審核</li>
+                            <li>商品 <b>已入庫</b>，則無法切換審核狀態</li>
+                        </ul>
                     </mark>
                 </div>
             </div>

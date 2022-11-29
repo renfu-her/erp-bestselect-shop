@@ -2,7 +2,6 @@
 @section('sub-content')
     <h2 class="mb-4">{{ $pageTitle }}</h2>
     <div class="card shadow p-4 mb-4">
-
         <div class="table-responsive tableOverBox">
             <table class="table table-striped tableList">
                 <thead class="small align-middle">
@@ -57,82 +56,75 @@
                                     </a>
                                 </div>
                                 <div class="lh-1 small">
-                                    <a href="{{ Route('cms.product.edit-price', ['id' => $data->product_id, 'sid' => $data->style_id]) }}">
-                                    <span class="badge bg-secondary">
-                                        {{ $data->style_title }}
-                                    </span>
+                                    <a
+                                        href="{{ Route('cms.product.edit-price', ['id' => $data->product_id, 'sid' => $data->style_id]) }}">
+                                        <span class="badge bg-secondary">
+                                            {{ $data->style_title }}
+                                        </span>
+
                                     </a>
                                 </div>
                             </td>
-                            <td @class([
-                                'text-end table-success',
-                                'text-danger fw-bold negative' => $data->on_price < 0,
-                            ])>${{ number_format(abs($data->on_price)) }}</td>
-                            <td @class([
-                                'text-end table-success',
-                                'text-danger fw-bold negative' => $data->on_gross_profit < 0,
-                            ])>${{ number_format(abs($data->on_gross_profit)) }}</td>
-                            <td @class([
-                                'text-end table-success',
-                                'text-danger fw-bold negative' => $data->on_qty < 0,
-                            ])>{{ number_format(abs($data->on_qty)) }}</td>
-                            <td @class([
-                                'text-end table-warning',
-                                'text-danger fw-bold negative' => $data->off_price < 0,
-                            ])>${{ number_format(abs($data->off_price)) }}</td>
-                            <td @class([
-                                'text-end table-warning',
-                                'text-danger fw-bold negative' => $data->off_gross_profit < 0,
-                            ])>${{ number_format(abs($data->off_gross_profit)) }}</td>
-                            <td @class([
-                                'text-end table-warning',
-                                'text-danger fw-bold negative' => $data->off_qty < 0,
-                            ])>{{ number_format(abs($data->off_qty)) }}</td>
-                            <td class="text-center">${{ number_format(abs($data->total_price)) }}</td>
-                            <td class="text-center">${{ number_format(abs($data->total_gross_profit)) }}</td>
-                            <td class="text-center">{{ number_format(abs($data->total_qty)) }}</td>
+                            <td class="text-end table-success">
+                                <x-b-number :val="$data->on_price" prefix="$" />
+                            </td>
+                            <td class="text-end table-success">
+                                <x-b-number :val="$data->on_gross_profit" prefix="$" />
+                            </td>
+                            <td class="text-end table-success">
+                                <x-b-number :val="$data->on_qty" />
+                            </td>
+                            <td class="text-end table-warning">
+                                <x-b-number :val="$data->off_price" prefix="$" />
+                            </td>
+                            <td class="text-end table-warning">
+                                <x-b-number :val="$data->off_gross_profit" prefix="$" />
+                            </td>
+                            <td class="text-end table-warning">
+                                <x-b-number :val="$data->off_qty" />
+                            </td>
+                            <td class="text-end">
+                                <x-b-number :val="$data->total_price" prefix="$" />
+                            </td>
+                            <td class="text-end">
+                                <x-b-number :val="$data->total_gross_profit" prefix="$" />
+                            </td>
+                            <td class="text-end">
+                                <x-b-number :val="$data->total_qty" />
+                            </td>
                         </tr>
                     @endforeach
                 </tbody>
                 <tfoot>
                     <tr>
                         <th colspan="2">合計</th>
-                        <th @class([
-                            'text-end table-success',
-                            'text-danger fw-bold negative' => $on_price < 0,
-                        ])>${{ number_format(abs($on_price)) }}</th>
-                        <th @class([
-                            'text-end table-success',
-                            'text-danger fw-bold negative' => $on_gross_profit < 0,
-                        ])>${{ number_format(abs($on_gross_profit)) }}</th>
-                        <th @class([
-                            'text-end table-success',
-                            'text-danger fw-bold negative' => $on_qty < 0,
-                        ])>{{ number_format(abs($on_qty)) }}</th>
-                        <th @class([
-                            'text-end table-warning',
-                            'text-danger fw-bold negative' => $off_price < 0,
-                        ])>${{ number_format(abs($off_price)) }}</th>
-                        <th @class([
-                            'text-end table-warning',
-                            'text-danger fw-bold negative' => $off_gross_profit < 0,
-                        ])>${{ number_format(abs($off_gross_profit)) }}</th>
-                        <th @class([
-                            'text-end table-warning',
-                            'text-danger fw-bold negative' => $off_qty < 0,
-                        ])>{{ number_format(abs($off_qty)) }}</th>
-                        <th @class([
-                            'text-end',
-                            'text-danger fw-bold negative' => $total_price < 0,
-                        ])>${{ number_format(abs($total_price)) }}</th>
-                        <th @class([
-                            'text-end',
-                            'text-danger fw-bold negative' => $total_gross_profit < 0,
-                        ])>${{ number_format(abs($total_gross_profit)) }}</th>
-                        <th @class([
-                            'text-end',
-                            'text-danger fw-bold negative' => $total_qty < 0,
-                        ])>{{ number_format(abs($total_qty)) }}</th>
+                        <th class="text-end table-success">
+                            <x-b-number :val="$on_price" prefix="$" />
+                        </th>
+                        <th class="text-end table-success">
+                            <x-b-number :val="$on_gross_profit" prefix="$" />
+                        </th>
+                        <th class="text-end table-success">
+                            <x-b-number :val="$on_qty"  />
+                        </th>
+                        <th class="text-end table-warning">
+                            <x-b-number :val="$off_price" prefix="$" />
+                        </th>
+                        <th class="text-end table-warning">
+                            <x-b-number :val="$off_gross_profit" prefix="$" />
+                        </th>
+                        <th class="text-end table-warning">
+                            <x-b-number :val="$off_qty" />
+                        </th>
+                        <th class="text-end">
+                            <x-b-number :val="$total_price" prefix="$" />
+                        </th>
+                        <th class="text-end">
+                            <x-b-number :val="$total_gross_profit" prefix="$" />
+                        </th>
+                        <th class="text-end">
+                            <x-b-number :val="$total_qty" />
+                        </th>
                     </tr>
                 </tfoot>
             </table>
@@ -153,8 +145,5 @@
                 color: #415583;
             }
         </style>
-    @endpush
-    @push('sub-scripts')
-        <script></script>
     @endpush
 @endOnce

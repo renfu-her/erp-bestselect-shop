@@ -30,6 +30,7 @@ use App\Models\PayingOrder;
 use App\Models\Supplier;
 use App\Models\GeneralLedger;
 use App\Models\PayableDefault;
+use App\Models\Petition;
 use App\Models\User;
 
 class AccountsPayableCtrl extends Controller
@@ -370,6 +371,7 @@ class AccountsPayableCtrl extends Controller
             'zh_price' => $zh_price,
             'undertaker'=>$undertaker,
             'accountant'=>implode(',', $accountant),
+            'relation_order' => Petition::getBindedOrder($paying_order->id, 'ISG'),
         ]);
     }
 }

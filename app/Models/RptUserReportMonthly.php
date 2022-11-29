@@ -70,17 +70,26 @@ class RptUserReportMonthly extends Model
 
     }
     // 毛利計算
-    public static function grossProfit()
+    public static function grossProfit($date = null, $type = "date")
     {
+         // 算商品毛利淨利
+         $date = $date ? $date : date("Y-m-d 00:00:00", strtotime(now() . " -1 days"));
+
+         switch ($type) {
+             case 'date':
+                 $sdate = date("Y-m-d 00:00:00", strtotime($date));
+                 $edate = date("Y-m-d 23:59:59", strtotime($date));
+                 break;
+             case 'month':
+                 $sdate = date("Y-m-01 00:00:00", strtotime($date));
+                 $edate = date("Y-m-t 23:59:59", strtotime($date));
+                 break;
+         }
+
         $order = DB::table('ord_orders as order')
             ->leftJoin('ord_received_orders as ro', 'order.id', '=', 'ro.source_id')
             ->select('order.id')
-            ->whereNotNull('ro.receipt_date')
-            ->where(function ($query) {
-                $query->whereNull('order.gross_profit')
-                    ->orWhere('order.gross_profit', 0);
-            })
-
+            ->whereBetween('ro.receipt_date', [$sdate, $edate]) 
             ->get()
             ->toArray();
 

@@ -180,16 +180,15 @@
                 <div class="col">
                     <dt>發票號碼</dt>
                     <dd>
-                        @if ($order->invoice_number)
-                            <a href="{{ route('cms.order.show-invoice', ['id' => $order->id, 'unique_id' => $order->unique_id]) }}"
-                                class="-text">{{ $order->invoice_number ? $order->invoice_number : '' }}</a>
-
-                            @if($relation_invoice)
-                                / <a href="{{ $relation_invoice->link }}"
-                                    class="-text">{{ $relation_invoice->invoice_number }}</a>
-                            @endif
+                        @if($relation_invoice)
+                            <a href="{{ $relation_invoice->link }}" class="-text">{{ $relation_invoice->invoice_number }}</a>
                         @else
-                            <span>尚未開立發票</span>
+                            @if ($order->invoice_number)
+                                <a href="{{ route('cms.order.show-invoice', ['id' => $order->id, 'unique_id' => $order->unique_id]) }}"
+                                    class="-text">{{ $order->invoice_number ? $order->invoice_number : '' }}</a>
+                            @else
+                                <span>尚未開立發票</span>
+                            @endif
                         @endif
                     </dd>
                 </div>

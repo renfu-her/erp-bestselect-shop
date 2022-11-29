@@ -247,7 +247,7 @@ $(function () {
         let chk = true;
         $('tr.--prod').each(function (index, element) {
             // element == this
-            chk &= $(element).find('input[name="qty_actual[]"').val() === $(element).find('td[data-td="o_qty"]').text().trim();
+            chk &= $(element).find('input[name="qty_actual[]"').val() === $(element).find('td[data-td="o_qty"]').text().replaceAll(',','').trim();
         });
         $('#submitDiv button.-submit').prop('disabled', !chk || readonly);
     }

@@ -86,6 +86,11 @@ return
                 "route_name" => "cms.product-manager-report.index",
             ],
             [
+                "title" => "售價利潤報表",
+                "controller_name" => "ProductProfitReportCtrl",
+                "route_name" => "cms.product-profit-report.index",
+            ],
+            [
                 "title" => "營業額目標",
                 "controller_name" => "VolumeOfBusinessPerformanceReportCtrl",
                 "route_name" => "cms.vob-performance-report.index",

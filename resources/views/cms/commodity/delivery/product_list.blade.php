@@ -78,6 +78,7 @@
                     <th scope="col">商品名稱</th>
                     <th scope="col">出貨數量</th>
                     <th scope="col">採購單號</th>
+                    <th scope="col">訂單號</th>
                     <th scope="col">出貨單號</th>
                     <th scope="col">出貨日期</th>
                     <th scope="col">商品負責人</th>
@@ -123,6 +124,15 @@
                                 @if(null != $rcv_depot_data && 0 < count($rcv_depot_data))
                                     @foreach ($rcv_depot_data as $item_data)
                                         <li class="list-group-item bg-transparent pe-1">{{ $item_data->qty }}</li>
+                                    @endforeach
+                                @endif
+                            </ul>
+                        </td>
+                        <td class="py-0 lh-base">
+                            <ul class="list-group list-group-flush">
+                                @if(null != $rcv_depot_data && 0 < count($rcv_depot_data))
+                                    @foreach ($rcv_depot_data as $item_data)
+                                        <li class="list-group-item bg-transparent pe-1">{{ $item_data->ib_source_sn }}</li>
                                     @endforeach
                                 @endif
                             </ul>

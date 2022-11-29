@@ -1737,6 +1737,7 @@ class OrderCtrl extends Controller
             'logistics_grade_name' => $logistics_grade_name,
             'accountant' => implode(',', $accountant),
             'zh_price' => $zh_price,
+            'relation_order' => Petition::getBindedOrder($paying_order->id, 'ISG'),
         ]);
     }
 
@@ -2003,6 +2004,7 @@ class OrderCtrl extends Controller
             'logistics_grade_name' => $logistics_grade_name,
             'accountant' => implode(',', $accountant),
             'zh_price' => $zh_price,
+            'relation_order' => Petition::getBindedOrder($paying_order->id, 'ISG'),
         ]);
     }
 
@@ -2236,7 +2238,8 @@ class OrderCtrl extends Controller
 
         $request->validate([
             'id' => 'required|exists:ord_orders,id',
-            'merchant_order_no' => 'required|string|regex:/^[\w]{1,20}$/|unique:ord_order_invoice,merchant_order_no',
+            'merchant_order_no' => 'required|string|regex:/^[\w]{1,20}$/|unique:ord_order_invoice,merchant_order_no,' . $id,
+            'invoice_number' => 'nullable|string|min:8|max:10|unique:ord_order_invoice,invoice_number,' . $id,
             'status' => 'required|in:1,9',
             'merge_source' => 'nullable|array',
             'merge_source.*' => 'exists:ord_orders,id',
@@ -2264,7 +2267,7 @@ class OrderCtrl extends Controller
 
         if (array_sum(request('o_total_price')) < 1) {
             wToast(__('發票金額不可小於1', ['type' => 'danger']));
-            return redirect()->back();
+            return redirect()->back()->withInput();
         }
 
         $data = $request->except('_token');
@@ -2291,7 +2294,7 @@ class OrderCtrl extends Controller
 
         } else {
             // wToast(__('發票開立失敗'), ['type'=>'danger']);
-            return redirect()->back();
+            return redirect()->back()->withInput();
         }
     }
 
@@ -2450,6 +2453,7 @@ class OrderCtrl extends Controller
         if ($request->isMethod('post')) {
             $request->validate([
                 'merchant_order_no' => 'required|string|regex:/^[\w]{1,20}$/|unique:ord_order_invoice,merchant_order_no,' . $id,
+                'invoice_number' => 'nullable|string|min:8|max:10|unique:ord_order_invoice,invoice_number,' . $id,
                 'status' => 'required|in:1,9',
                 'merge_source' => 'nullable|array',
                 'merge_source.*' => 'exists:ord_orders,id',
@@ -2477,7 +2481,7 @@ class OrderCtrl extends Controller
 
             if (array_sum(request('o_total_price')) < 1) {
                 wToast(__('發票金額不可小於1', ['type' => 'danger']));
-                return redirect()->back();
+                return redirect()->back()->withInput();
             }
 
             $data = $request->except('_token');
@@ -2493,13 +2497,13 @@ class OrderCtrl extends Controller
 
                     $unique_id = Order::findOrFail($result->source_id)->unique_id;
                     return redirect()->route('cms.order.show-invoice', [
-                        'id' => $id,
+                        'id' => $result->source_id,
                         'unique_id' => $unique_id,
                     ]);
                 }
 
             } else {
-                return redirect()->back();
+                return redirect()->back()->withInput();
             }
         }
 

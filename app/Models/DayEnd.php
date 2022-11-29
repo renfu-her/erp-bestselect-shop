@@ -128,7 +128,7 @@ class DayEnd extends Model
 
         $ro = ReceivedOrder::whereDate('receipt_date', $date)->get();
         $po = PayingOrder::whereDate('payment_date', $date)->where('append_po_id', null)->get();
-        $tv = TransferVoucher::whereDate('created_at', $date)->get();
+        $tv = TransferVoucher::whereDate('voucher_date', $date)->get();
         $io = IncomeOrder::whereDate('posting_date', $date)->get();
         $nro = NoteReceivableOrder::whereDate('cashing_date', $date)->get();
         $npo = NotePayableOrder::whereDate('cashing_date', $date)->get();
@@ -145,7 +145,7 @@ class DayEnd extends Model
 
         $ro = ReceivedOrder::whereDate('receipt_date', $date)->get();
         $po = PayingOrder::whereDate('payment_date', $date)->where('append_po_id', null)->get();
-        $tv = TransferVoucher::whereDate('created_at', $date)->get();
+        $tv = TransferVoucher::whereDate('voucher_date', $date)->get();
 
         $io = IncomeOrder::whereDate('posting_date', $date)->get();
         $nro = NoteReceivableOrder::whereDate('cashing_date', $date)->get();
@@ -688,44 +688,42 @@ class DayEnd extends Model
         }
 
         $target_item = DayEndItem::where('source_sn', $sn)->first();
-        if($target && $target_item){
+        if($target_item){
             $o_target = self::find($target_item->day_end_id);
 
             if($o_target){
-                if($target->id != $o_target->id){
-                    $o_status = $o_target->status ?? '';
+                $o_status = $o_target->status ?? '';
 
-                    if(mb_substr($sn, 1, 1) == 'I'){
-                        if (! strstr($o_status, '*')) {
-                            $str_arr = str_split($o_status);
-                            $str_arr[] = '*';
-                            sort($str_arr);
-                            $o_status = implode('', $str_arr);
-                        }
-
-                    } else if(mb_substr($sn, 1, 1) == 'M'){
-                        if (! strstr($o_status, 'M')) {
-                            $str_arr = str_split($o_status);
-                            $str_arr[] = 'M';
-                            sort($str_arr);
-                            $o_status = implode('', $str_arr);
-                        }
-
-                    } else if(mb_substr($sn, 1, 1) == 'Z'){
-                        if (! strstr($o_status, 'Z')) {
-                            $str_arr = str_split($o_status);
-                            $str_arr[] = 'Z';
-                            sort($str_arr);
-                            $o_status = implode('', $str_arr);
-                        }
+                if(mb_substr($sn, 0, 1) == 'I'){
+                    if (! strstr($o_status, '*')) {
+                        $str_arr = str_split($o_status);
+                        $str_arr[] = '*';
+                        sort($str_arr);
+                        $o_status = implode('', $str_arr);
                     }
 
-                    if($o_status){
-                        $o_target->update([
-                            'status'=>$o_status,
-                            'updated_at'=>date('Y-m-d H:i:s'),
-                        ]);
+                } else if(mb_substr($sn, 0, 1) == 'M'){
+                    if (! strstr($o_status, 'M')) {
+                        $str_arr = str_split($o_status);
+                        $str_arr[] = 'M';
+                        sort($str_arr);
+                        $o_status = implode('', $str_arr);
                     }
+
+                } else if(mb_substr($sn, 0, 1) == 'Z'){
+                    if (! strstr($o_status, 'Z')) {
+                        $str_arr = str_split($o_status);
+                        $str_arr[] = 'Z';
+                        sort($str_arr);
+                        $o_status = implode('', $str_arr);
+                    }
+                }
+
+                if($o_status){
+                    $o_target->update([
+                        'status'=>$o_status,
+                        'updated_at'=>date('Y-m-d H:i:s'),
+                    ]);
                 }
             }
         }

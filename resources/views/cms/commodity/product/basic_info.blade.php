@@ -87,6 +87,10 @@
                         type="text" placeholder="請輸入商品標語" aria-label="商品標語">
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
+                    <label class="form-label">採購備註</label>
+                    <textarea class="form-control" name="purchase_note">{{ old('purchase_note', $product->purchase_note ?? '') }}</textarea>
+                </div>
+                <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">商品歸類 <span class="text-danger">*</span></label>
                     <select class="form-select -select2 -single @error('category_id') is-invalid @enderror" required
                         aria-label="Select" name="category_id">

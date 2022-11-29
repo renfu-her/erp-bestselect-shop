@@ -289,7 +289,7 @@ abstract class AccountReceivedPapaCtrl extends Controller
             'id'=>$id,
         ]);
         $request->validate([
-            'id' => 'required|exists:ord_orders,id',
+            'id' => 'required|exists:csn_orders,id',
         ]);
 
         $order = $this->getOrderData(request('id'));
@@ -367,7 +367,7 @@ abstract class AccountReceivedPapaCtrl extends Controller
             'id'=>$id,
         ]);
         $request->validate([
-            'id' => 'required|exists:ord_orders,id',
+            'id' => 'required|exists:csn_orders,id',
         ]);
 
         $received_order_collection = ReceivedOrder::where([
@@ -695,7 +695,7 @@ abstract class AccountReceivedPapaCtrl extends Controller
             'id'=>$id,
         ]);
         $request->validate([
-            'id' => 'required|exists:ord_orders,id',
+            'id' => 'required|exists:csn_orders,id',
         ]);
 
         $received_order_collection = ReceivedOrder::where([

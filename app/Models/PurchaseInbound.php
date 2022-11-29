@@ -1120,6 +1120,7 @@ class PurchaseInbound extends Model
             ['supplier' => ['condition' => $searchParam['supplier'], 'show' => true],
                 'user' => ['show' => true, 'condition' => $searchParam['user']],
                 'consume' => $searchParam['consume'] == 'all' ? null : $searchParam['consume'],
+                'price' => $searchParam['price'] ?? null,
             ])
 
             ->leftJoinSub($extPrdStyleList_send, 'inbound', function($join) use($depot_id) {
@@ -1148,8 +1149,10 @@ class PurchaseInbound extends Model
             $products->whereIn('inbound.depot_id', $depot_id);
         }
         if ($searchParam['stock'] && in_array('still_actual_stock', $searchParam['stock'])) {
-            $products->where('inbound.total_in_stock_num', '>', 0)
-                ->orWhere('inbound.total_in_stock_num_csn', '>', 0);
+            $products->where(function ($q) {
+                $q->where('inbound.total_in_stock_num', '>', 0)
+                    ->orWhere('inbound.total_in_stock_num_csn', '>', 0);
+            });
         }
         return $products;
     }

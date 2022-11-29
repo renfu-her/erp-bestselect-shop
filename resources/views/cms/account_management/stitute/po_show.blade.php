@@ -25,6 +25,13 @@
 
             <a href="{{ route('cms.collection_payment.edit_note', ['id' => $paying_order->id]) }}"
                 class="btn btn-dark btn-sm" role="button">編輯付款項目備註</a>
+
+            @if (count($relation_order) > 0)
+                <button type="button" class="btn btn-sm btn-primary" disabled>相關單號</button>
+                @foreach ($relation_order as $value)
+                    <a href="{{ $value->url }}" class="btn btn-sm btn-primary" role="button">{{ $value->sn }}</a>
+                @endforeach
+            @endif
         </div>
     </nav>
 
@@ -74,7 +81,7 @@
                             <th scope="col" class="text-end">數量</th>
                             <th scope="col" class="text-end">單價</th>
                             <th scope="col" class="text-end">金額</th>
-                            <th scope="col">備註</th>
+                            <th scope="col" colspan="2">備註</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -85,7 +92,8 @@
                             <td class="text-end">{{ $data->qty }}</td>
                             <td class="text-end">{{ number_format($data->price, 2) }}</td>
                             <td class="text-end">{{ number_format($data->total_price) }}</td>
-                            <td>{{ $data->taxation == 1 ? '應稅' : '免稅' }} @php echo $data->memo ?? '' @endphp</td>
+                            <td>{!! nl2br($data->memo) !!}</td>
+                            <td>{!! nl2br($data->po_note) !!}</td>
                         </tr>
                         @endforeach
                         @endif
@@ -99,6 +107,7 @@
                                 </div>
                             </td>
                             <td class="text-end">{{ number_format($paying_order->price) }}</td>
+                            <td></td>
                             <td></td>
                         </tr>
                     </tfoot>
