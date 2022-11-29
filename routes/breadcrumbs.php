@@ -251,11 +251,11 @@ Breadcrumbs::for('cms.expenditure.create', function (BreadcrumbTrail $trail) {
     $trail->push('新增支出憑單');
 });
 Breadcrumbs::for('cms.expenditure.edit', function (BreadcrumbTrail $trail) {
-    $trail->parent('cms.expenditure.index'); 
+    $trail->parent('cms.expenditure.index');
     $trail->push('編輯支出憑單');
 });
 Breadcrumbs::for('cms.expenditure.show', function (BreadcrumbTrail $trail, $value) {
-    $trail->parent('cms.expenditure.index'); 
+    $trail->parent('cms.expenditure.index');
     $trail->push('支出憑單【' . $value . '】');
 });
 
@@ -572,6 +572,10 @@ Breadcrumbs::for('cms.delivery.back_inbound', function (BreadcrumbTrail $trail, 
 Breadcrumbs::for('cms.delivery.back_detail', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.' . $value['parent'] . '.index');
     $trail->push('#' . $value['sn'] . ' 銷貨退回明細');
+});
+Breadcrumbs::for('cms.delivery.out_stock_detail', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.' . $value['parent'] . '.index');
+    $trail->push('#' . $value['sn'] . ' 缺貨退回明細');
 });
 Breadcrumbs::for('cms.delivery.roe-po', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.order.index');
