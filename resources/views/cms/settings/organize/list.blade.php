@@ -24,7 +24,7 @@
                             <td>{{ $data->a_name }}</td>
                             <td>{{ $data->a_name2 }}</td>
                             <td>
-                                @can('cms.sale_channel.edit')
+                                @can('cms.organize.edit')
                                     <a href="{{ Route('cms.organize.edit', ['id' => $data->department_id]) }}"
                                         data-bs-toggle="tooltip" title="編輯"
                                         class="icon icon-btn fs-5 text-primary rounded-circle border-0">
@@ -40,7 +40,7 @@
                                 <td>{{ $group->b_name }}</td>
                                 <td>{{ $group->b_name2 }}</td>
                                 <td>
-                                    @can('cms.sale_channel.edit')
+                                    @can('cms.organize.edit')
                                         <a href="{{ Route('cms.organize.edit', ['id' => $group->group_id], true) }}"
                                             data-bs-toggle="tooltip" title="編輯"
                                             class="icon icon-btn fs-5 text-primary rounded-circle border-0">
