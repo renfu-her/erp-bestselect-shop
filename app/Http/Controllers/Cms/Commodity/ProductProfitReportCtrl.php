@@ -38,21 +38,34 @@ class ProductProfitReportCtrl extends Controller
         ]);
     }
 
-    private static function initParameter($query)
+    /**
+     * @param $query
+     * @param $exportAllToExcel bool 是否匯出所有資料到Excel?
+     *
+     * @return array
+     */
+    private static function initParameter($query , $exportAllToExcel = false)
     {
         $searchParam['keyword'] = Arr::get($query, 'keyword');
         $searchParam['type'] = Arr::get($query, 'type');
-        $searchParam['consume'] = Arr::get($query, 'consume', '0');
         $searchParam['user'] = Arr::get($query, 'user');
         $searchParam['supplier'] = Arr::get($query, 'supplier');
         //不查詢stock狀態（低於安全庫存、 無庫存 、尚有實際庫存）
         $searchParam['stock'] = Arr::get($query, 'stock', []);
         $searchParam['profit'] = Arr::get($query, 'profit', 'price_profit');
-        //有無「理貨倉庫存」
-        $searchParam['stock_status'] = Arr::get($query, 'stock_status', 'in_stock');
         $searchParam['depot_id'] = Arr::get($query, 'depot_id',[]);
         $searchParam['price'] = 1;
         $searchParam['data_per_page'] = getPageCount(Arr::get($query, 'data_per_page', 100));
+
+        if ($exportAllToExcel) {
+            $searchParam['consume'] = Arr::get($query, 'consume', 'all');
+            //有無「理貨倉庫存」
+            $searchParam['stock_status'] = Arr::get($query, 'stock_status', '');
+        } else {
+            $searchParam['consume'] = Arr::get($query, 'consume', '0');
+            //有無「理貨倉庫存」
+            $searchParam['stock_status'] = Arr::get($query, 'stock_status', 'in_stock');
+        }
 
         return $searchParam;
     }
@@ -65,7 +78,7 @@ class ProductProfitReportCtrl extends Controller
     public function exportExcel(Request $request)
     {
         $query = $request->query();
-        $searchParam = $this::initParameter($query);
+        $searchParam = $this::initParameter($query, true);
         $products = ProductProfitReport::getProductProfitData($searchParam);
         $products = $products->get()->toArray();
         $data = [];
