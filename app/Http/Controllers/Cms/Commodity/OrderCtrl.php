@@ -2759,9 +2759,13 @@ class OrderCtrl extends Controller
     public function cancel_order(Request $request, $id)
     {
 
-        Order::cancelOrder($id, 'backend');
+        $reOCO = Order::cancelOrder($id, 'backend');
+        if ($reOCO['success'] == 0) {
+            wToast($reOCO['error_msg'], ['type'=>'danger']);
+        } else {
+            wToast('訂單已經取消');
+        }
 
-        wToast('訂單已經取消');
 
         return redirect()->back();
     }
