@@ -28,7 +28,7 @@
                         <th scope="col">商品群組</th>
                         <th scope="col" class="text-center" style="width:15%">直客價EDM</th>
                         <th scope="col" class="text-center" style="width:15%">經銷價EDM</th>
-                        <th scope="col" class="text-center" style="width:15%">下載圖片</th>
+                        <th scope="col" class="text-center" style="width:15%">下載</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -60,10 +60,11 @@
                                 </a>
                             </td>
                             <td class="text-center">
-                                <button type="button" data-bs-toggle="tooltip" title="下載圖片"
+                                <a href="https://dhtml2pdf.herokuapp.com/api.php?url={{ route('cms.edm.print', ['id' => $data->id, 'type' => 'normal']) }}&result_type=show"
+                                    data-bs-toggle="tooltip" title="下載" target="_blank"
                                     class="icon -copy icon-btn fs-5 text-primary rounded-circle border-0">
                                     <i class="bi bi-download"></i>
-                                </button>
+                                </a>
                             </td>
                         </tr>
                     @endforeach
