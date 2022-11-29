@@ -43,6 +43,32 @@
                     </div>
                 </fieldset>
             </div>
+            <div class="row">
+                <fieldset class="col-12 col-sm-6 mb-3">
+                    <legend class="col-form-label p-0 mb-2">耗材</legend>
+                    <div class="px-1 pt-1">
+                        <div class="form-check form-check-inline">
+                            <label class="form-check-label">
+                                <input class="form-check-input" name="consume" type="radio" value="0"
+                                       checked>
+                                商品
+                            </label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <label class="form-check-label">
+                                <input class="form-check-input" name="consume" type="radio" value="1">
+                                耗材
+                            </label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <label class="form-check-label">
+                                <input class="form-check-input" name="consume" type="radio" value="all">
+                                不限
+                            </label>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
             <div class="col">
                 {{--            <input type="hidden" name="data_per_page" value="{{ $data_per_page }}" />--}}
                 <button type="submit" class="btn btn-primary px-4">搜尋</button>
