@@ -47,8 +47,8 @@ class ProductProfitReportCtrl extends Controller
         $searchParam['supplier'] = Arr::get($query, 'supplier');
         //不查詢stock狀態（低於安全庫存、 無庫存 、尚有實際庫存）
         $searchParam['stock'] = Arr::get($query, 'stock', []);
-        //有無「理貨倉庫存」
         $searchParam['profit'] = Arr::get($query, 'profit', 'price_profit');
+        //有無「理貨倉庫存」
         $searchParam['stock_status'] = Arr::get($query, 'stock_status', 'in_stock');
         $searchParam['depot_id'] = Arr::get($query, 'depot_id',[]);
         $searchParam['price'] = 1;
