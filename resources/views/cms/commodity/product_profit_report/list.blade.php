@@ -66,10 +66,10 @@
                     <th scope="col">商品名稱</th>
                     <th scope="col">款式</th>
                     <th scope="col">售價</th>
-                    {{--                    <th scope="col">cost</th>--}}
                     <th scope="col">售價利潤</th>
                     <th scope="col">經銷價</th>
                     <th scope="col">經銷價利潤</th>
+                    <th scope="col">成本</th>
                     <th scope="col">理貨倉庫存</th>
                 </tr>
                 </thead>
@@ -82,7 +82,6 @@
                         </td>
                         <td>{{ $data->sku }}</td>
                         <td>{{ number_format($data->price) }}</td>
-                        {{--                        <td>{{ $data->estimated_cost }}</td>--}}
                         <td>
                             {{ $data->price_profit }}%
                         </td>
@@ -90,6 +89,7 @@
                         <td>
                             {{ $data->dealer_price_profit }}%
                         </td>
+                        <td>{{ number_format(round($data->estimated_cost)) }}</td>
                         <td>{{ $data->total_in_stock_num }}</td>
                     </tr>
                 @endforeach
