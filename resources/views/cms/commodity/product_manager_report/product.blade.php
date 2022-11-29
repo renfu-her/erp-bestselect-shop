@@ -65,31 +65,31 @@
                                     </a>
                                 </div>
                             </td>
-                            <td>
+                            <td class="text-end table-success">
                                 <x-b-number :val="$data->on_price" prefix="$" />
                             </td>
-                            <td>
+                            <td class="text-end table-success">
                                 <x-b-number :val="$data->on_gross_profit" prefix="$" />
                             </td>
-                            <td>
+                            <td class="text-end table-success">
                                 <x-b-number :val="$data->on_qty" />
                             </td>
-                            <td>
+                            <td class="text-end table-warning">
                                 <x-b-number :val="$data->off_price" prefix="$" />
                             </td>
-                            <td>
+                            <td class="text-end table-warning">
                                 <x-b-number :val="$data->off_gross_profit" prefix="$" />
                             </td>
-                            <td>
+                            <td class="text-end table-warning">
                                 <x-b-number :val="$data->off_qty" />
                             </td>
-                            <td>
+                            <td class="text-end">
                                 <x-b-number :val="$data->total_price" prefix="$" />
                             </td>
-                            <td>
+                            <td class="text-end">
                                 <x-b-number :val="$data->total_gross_profit" prefix="$" />
                             </td>
-                            <td>
+                            <td class="text-end">
                                 <x-b-number :val="$data->total_qty" />
                             </td>
                         </tr>
@@ -98,31 +98,31 @@
                 <tfoot>
                     <tr>
                         <th colspan="2">合計</th>
-                        <th>
+                        <th class="text-end table-success">
                             <x-b-number :val="$on_price" prefix="$" />
                         </th>
-                        <th>
+                        <th class="text-end table-success">
                             <x-b-number :val="$on_gross_profit" prefix="$" />
                         </th>
-                        <th>
+                        <th class="text-end table-success">
                             <x-b-number :val="$on_qty"  />
                         </th>
-                        <th>
+                        <th class="text-end table-warning">
                             <x-b-number :val="$off_price" prefix="$" />
                         </th>
-                        <th>
+                        <th class="text-end table-warning">
                             <x-b-number :val="$off_gross_profit" prefix="$" />
                         </th>
-                        <th>
+                        <th class="text-end table-warning">
                             <x-b-number :val="$off_qty" />
                         </th>
-                        <th>
+                        <th class="text-end">
                             <x-b-number :val="$total_price" prefix="$" />
                         </th>
-                        <th>
+                        <th class="text-end">
                             <x-b-number :val="$total_gross_profit" prefix="$" />
                         </th>
-                        <th>
+                        <th class="text-end">
                             <x-b-number :val="$total_qty" />
                         </th>
                     </tr>
@@ -144,13 +144,6 @@
             h4 {
                 color: #415583;
             }
-
-            .negative::before {
-                content: '-';
-            }
         </style>
-    @endpush
-    @push('sub-scripts')
-        <script></script>
     @endpush
 @endOnce

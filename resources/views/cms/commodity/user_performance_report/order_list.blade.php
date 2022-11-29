@@ -37,8 +37,12 @@
                                     線下
                                 @endif
                             </td>
-                            <td @class(['text-end', 'text-danger fw-bold negative' => $data->origin_price < 0])>${{ number_format($data->origin_price) }}</td>
-                            <td @class(['text-end', 'text-danger fw-bold negative' => $data->gross_profit < 0])>${{ number_format($data->gross_profit) }}</td>
+                            <td class="text-end">
+                                <x-b-number :val="$data->origin_price" prefix="$" />
+                            </td>
+                            <td class="text-end">
+                                <x-b-number :val="$data->gross_profit" prefix="$" />
+                            </td>
                         </tr>
                     @endforeach
                 </tbody>
@@ -46,8 +50,12 @@
                     <tr>
                         <th colspan="2">合計</th>
                         <th></th>
-                        <th @class(['text-end', 'text-danger fw-bold negative' => $origin_price < 0])>${{ number_format($origin_price) }}</th>
-                        <th @class(['text-end', 'text-danger fw-bold negative' => $gross_profit < 0])>${{ number_format($gross_profit) }}</th>
+                        <th class="text-end">
+                            <x-b-number :val="$origin_price" prefix="$" />
+                        </th>
+                        <th class="text-end">
+                            <x-b-number :val="$gross_profit" prefix="$" />
+                        </th>
                     </tr>
                 </tfoot>
             </table>
@@ -67,11 +75,6 @@
             h4 {
                 color: #415583;
             }
-            .negative::before {
-                content: '-';
-            }
         </style>
-    @endpush
-    @push('sub-scripts')
     @endpush
 @endOnce

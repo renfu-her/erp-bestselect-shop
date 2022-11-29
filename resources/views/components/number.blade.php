@@ -1,3 +1,3 @@
 <span class="{{ $style }}">
-    {{ $prefix }}{{ $val }}
+    {{ $prefix }}{{ number_format($val) }}
 </span>
