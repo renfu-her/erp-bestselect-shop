@@ -753,7 +753,7 @@ class ReceiveDepot extends Model
         $query_ship = DB::table('csn_order_items as items')
             ->leftJoin('prd_product_styles', 'prd_product_styles.id', '=', 'items.product_style_id')
             ->leftJoin(app(DlvOutStock::class)->getTable(). ' as outs', function ($join) use($delivery_id) {
-                $join->on('outs.event_item_id', '=', 'item.id');
+                $join->on('outs.event_item_id', '=', 'items.id');
                 $join->where('outs.delivery_id', '=', $delivery_id);
             })
             //->where('prd_product_styles.type', '=', 'p')
