@@ -205,15 +205,21 @@
     //     height: 70,
     //     text: `https://www.bestselection.com.tw/product/${sku}?mcode=${mcode}`
     // });
-    $('.qrcode').each(function (index, element) {
-        // element == this
-        const sku = $(element).data('sku');
-        new QRCode(element, {
-            width: 70,
-            height: 70,
-            correctLevel: QRCode.CorrectLevel.M,
-            text: `https://www.bestselection.com.tw/product/${sku}?mcode=${mcode}`
-        });
+    $.when(
+        $('.qrcode').each(function (index, element) {
+            // element == this
+            const sku = $(element).data('sku');
+            new QRCode(element, {
+                width: 70,
+                height: 70,
+                correctLevel: QRCode.CorrectLevel.M,
+                text: `https://www.bestselection.com.tw/product/${sku}?mcode=${mcode}`
+            });
+        })
+    ).then((result) => {
+        console.log('all done');
+    }).catch((err) => {
+        console.log(err);
     });
     
     // 圖片下載
