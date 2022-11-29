@@ -111,4 +111,25 @@ class edmCtrl extends Controller
             'collection' => $re["collection"],
         ]);
     }
+
+    /**
+     * 列印頁-PDF
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    function printPDF(Request $request, $id, $type, $mcode) {
+        //
+        $re = Collection::getProductsEdmVer($id, $type);
+        if (!$re) {
+            return abort(404);
+        }
+
+        return view('cms.marketing.edm.print-pdf', [
+            'type' => $type,
+            'mcode' => $mcode,
+            'products' => $re["product"],
+            'collection' => $re["collection"],
+        ]);
+    }
 }

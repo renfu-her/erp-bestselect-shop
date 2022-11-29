@@ -203,7 +203,7 @@
     // $('.qrcode').qrcode({
     //     width: 70,
     //     height: 70,
-    //     text: `https://www.bestselection.com.tw/product/P220512314?mcode=${mcode}`
+    //     text: `https://www.bestselection.com.tw/product/${sku}?mcode=${mcode}`
     // });
     $('.qrcode').each(function (index, element) {
         // element == this
