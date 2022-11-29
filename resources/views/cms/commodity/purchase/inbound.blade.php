@@ -42,7 +42,7 @@
 
     @if(null == $purchaseData->close_date)
         <div class="card shadow p-4 mb-4">
-            <form id="form1" method="post" action="{{ $formAction }}">
+            <form id="form1" method="post" action="{{ $formAction }}" class="-banRedo">
                 @method('POST')
                 @csrf
 
@@ -227,7 +227,7 @@
         <x-slot name="title">結案確認</x-slot>
         <x-slot name="body">結案後將無法編輯入庫！確認要結案？</x-slot>
         <x-slot name="foot">
-            <form method="post" action="{{ $formActionClose }}">
+            <form method="post" action="{{ $formActionClose }}" class="-banRedo">
                 @method('POST')
                 @csrf
                 <button type="submit" class="btn btn-primary btn-ok">確認並結案</button>

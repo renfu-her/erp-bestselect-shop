@@ -1,6 +1,6 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h2 class="mb-4">退貨付款單</h2>
+    <h2 class="mb-4">{{ $behavior == 'return' ? '退貨' : ($behavior == 'out' ? '缺貨' : '換貨') }}付款單</h2>
 
     <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
         <div class="p-1 pe-2">
@@ -10,7 +10,7 @@
             @endcan
 
             @if(! $paying_order->payment_date)
-                <a href="{{ Route('cms.delivery.return-pay-create', ['id' => $delivery->delivery_id]) }}" 
+                <a href="{{ Route('cms.delivery.roe-po-create', ['id' => $delivery->delivery_id, 'behavior' => $behavior]) }}" 
                     class="btn btn-sm btn-primary px-3" role="button">付款</a>
             @endif
 
@@ -49,7 +49,7 @@
                 <span class="ms-3">電話：{{ $applied_company->phone }}</span>
                 <span class="ms-3">傳真：{{ $applied_company->fax }}</span>
             </div>
-            <h4 class="text-center">退貨付款單</h4>
+            <h4 class="text-center">{{ $behavior == 'return' ? '退貨' : ($behavior == 'out' ? '缺貨' : '換貨') }}付款單</h4>
             <hr>
 
             <dl class="row mb-0">
@@ -102,8 +102,8 @@
                     </thead>
 
                     <tbody>
-                        @if($delivery->delivery_back_items)
-                        @foreach($delivery->delivery_back_items as $db_value)
+                        @if($delivery->delivery_items)
+                        @foreach($delivery->delivery_items as $db_value)
                             <tr>
                                 <td>{{ $db_value->grade_code . ' ' . $db_value->grade_name }} - {{ $db_value->product_title }}{{'（' . $delivery->sub_order_ship_event . ' - ' . $delivery->sub_order_ship_category_name . '）'}}{{'（' . $db_value->price . ' * ' . $db_value->qty . '）'}}</td>
                                 <td class="text-end">{{ $db_value->qty }}</td>

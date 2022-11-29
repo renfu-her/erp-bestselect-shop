@@ -13,6 +13,14 @@ Route::group(['prefix' => 'delivery','as'=>'delivery.'], function () {
     Route::get('store_cancle/{deliveryId}', [DeliveryCtrl::class, 'store_cancle'])->name('store_cancle')->middleware('permission:cms.delivery.edit');
     Route::get('delete/{event}/{eventId}/{receiveDepotId}', [DeliveryCtrl::class, 'destroyItem'])->name('delete')->middleware('permission:cms.delivery.edit');
 
+    //缺貨
+    Route::get('out_stock/{event}/{eventId}', [DeliveryCtrl::class, 'out_stock'])->name('out_stock')->middleware('permission:cms.delivery.edit');
+    Route::get('out_stock_delete/{deliveryId}', [DeliveryCtrl::class, 'out_stock_delete'])->name('out_stock_delete')->middleware('permission:cms.delivery.edit');
+    Route::post('out_stock_store/{deliveryId}', [DeliveryCtrl::class, 'out_stock_store'])->name('out_stock_store')->middleware('permission:cms.delivery.edit');
+    Route::get('out_stock_edit/{event}/{eventId}', [DeliveryCtrl::class, 'out_stock_edit'])->name('out_stock_edit')->middleware('permission:cms.delivery.edit');
+    Route::get('out_stock_detail/{event}/{eventId}', [DeliveryCtrl::class, 'out_stock_detail'])->name('out_stock_detail')->middleware('permission:cms.delivery.edit');
+    Route::get('print_out_stock/{event}/{eventId}', [DeliveryCtrl::class, 'print_out_stock'])->name('print_out_stock')->middleware('permission:cms.delivery.edit');
+
     //退貨
     Route::get('back/{event}/{eventId}', [DeliveryCtrl::class, 'back'])->name('back')->middleware('permission:cms.delivery.edit');
     Route::get('back_delete/{deliveryId}', [DeliveryCtrl::class, 'back_delete'])->name('back_delete')->middleware('permission:cms.delivery.edit');
@@ -26,7 +34,6 @@ Route::group(['prefix' => 'delivery','as'=>'delivery.'], function () {
     Route::post('back_inbound_store/{deliveryId}', [DeliveryCtrl::class, 'back_inbound_store'])->name('back_inbound_store')->middleware('permission:cms.delivery.edit');
     Route::get('back_inbound_delete/{deliveryId}', [DeliveryCtrl::class, 'back_inbound_delete'])->name('back_inbound_delete')->middleware('permission:cms.delivery.edit');
 
-
-    Route::get('return_pay/{id}', [DeliveryCtrl::class, 'return_pay_order'])->name('return-pay-order');
-    Route::match(['get', 'post'], 'return_pay_create/{id}', [DeliveryCtrl::class, 'return_pay_create'])->name('return-pay-create');
+    Route::get('roe_po/{id}/{behavior}', [DeliveryCtrl::class, 'roe_po'])->name('roe-po');
+    Route::match(['get', 'post'], 'roe_po_create/{id}/{behavior}', [DeliveryCtrl::class, 'roe_po_create'])->name('roe-po-create');
 });

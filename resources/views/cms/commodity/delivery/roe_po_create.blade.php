@@ -33,7 +33,7 @@
                     </thead>
 
                     <tbody>
-                        @foreach($delivery->delivery_back_items as $db_value)
+                        @foreach($delivery->delivery_items as $db_value)
                         <tr>
                             <td class="text-wrap">
                                 <div class="fw-bold">{{ $delivery->po_sn }}</div>
@@ -415,7 +415,7 @@
 
         <div class="col-auto">
             <button type="submit" class="btn btn-primary px-4">儲存</button>
-            <a href="{{ Route('cms.delivery.return-pay-order', ['id' => $delivery->delivery_id]) }}" 
+            <a href="{{ Route('cms.delivery.roe-po', ['id' => $delivery->delivery_id, 'behavior' => $behavior]) }}" 
                 class="btn btn-outline-primary px-4" role="button">返回上一頁</a>
         </div>
     </form>

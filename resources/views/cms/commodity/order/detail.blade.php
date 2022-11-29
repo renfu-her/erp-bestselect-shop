@@ -276,7 +276,7 @@
         @php
             $dlv_fee = 0;
             $price = 0;
-            
+
         @endphp
         @foreach ($subOrders as $subOrder)
             @php
@@ -303,8 +303,23 @@
                                 href="{{ Route('cms.logistic.create', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">物流設定</a>
 
                             @can('cms.delivery.edit')
+                                @if (false == isset($delivery->out_sn))
+                                    @if (false == isset($delivery->audit_date))
+                                        <a class="btn btn-sm btn-outline-success -in-header mb-1"
+                                           href="{{ Route('cms.delivery.out_stock', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">缺貨</a>
+                                    @endif
+                                @else
+                                    <a class="btn btn-sm btn-outline-dark -in-header mb-1"
+                                       href="{{ Route('cms.delivery.out_stock_detail', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">缺貨明細</a>
+
+                                    @if (false == isset($delivery->audit_date))
+                                        <a class="btn btn-sm btn-dark -in-header mb-1"
+                                           href="{{ Route('cms.delivery.out_stock_delete', ['deliveryId' => $delivery->id], true) }}">刪除缺貨</a>
+                                    @endif
+                                @endif
+
                                 <a class="btn btn-sm btn-success -in-header mb-1"
-                                    href="{{ Route('cms.delivery.create', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">出貨審核</a>
+                                   href="{{ Route('cms.delivery.create', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">出貨審核</a>
                             @endcan
                             {{-- @if ('pickup' == $subOrder->ship_category) --}}
                             {{-- <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.order.inbound', ['subOrderId' => $subOrderId], true) }}">入庫審核</a> --}}
