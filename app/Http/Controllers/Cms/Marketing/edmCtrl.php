@@ -17,6 +17,7 @@ class edmCtrl extends Controller
     public function index(Request $request, Collection $collection)
     {
         //
+        $mcode = $request->user()->getUserCustomer($request->user()->id)->sn;
 
         $query = $request->query();
         $name = Arr::get($query, 'name');
@@ -31,6 +32,7 @@ class edmCtrl extends Controller
             'dataList' => $dataList->paginate(100)->appends($query),
             'data_per_page' => $data_per_page,
             'topList' => Collection::where('is_liquor', 0)->get(),
+            'mcode' => $mcode,
         ]);
     }
 
@@ -95,18 +97,18 @@ class edmCtrl extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    function print(Request $request, $id, $type) {
+    function print(Request $request, $id, $type, $mcode) {
         //
-        $re = Collection::getProductsEdmVer($id, $type, $request->user()->id);
-        if(!$re){
+        $re = Collection::getProductsEdmVer($id, $type);
+        if (!$re) {
             return abort(404);
         }
 
         return view('cms.marketing.edm.print', [
             'type' => $type,
-            'mcode' => $re["mcode"],
+            'mcode' => $mcode,
             'products' => $re["product"],
-            'collection' => $re["collection"]
+            'collection' => $re["collection"],
         ]);
     }
 }

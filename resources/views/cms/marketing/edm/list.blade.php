@@ -46,21 +46,21 @@
                             </td>
 
                             <td class="text-center">
-                                <a href="{{ route('cms.edm.print', ['id' => $data->id, 'type' => 'normal']) }}"
+                                <a href="{{ route('print-edm', ['id' => $data->id, 'type' => 'normal','mcode'=>$mcode]) }}"
                                     data-bs-toggle="tooltip" title="直客價" target="_blank"
                                     class="icon icon-btn fs-5 text-primary rounded-circle border-0">
                                     <i class="bi bi-file-earmark-break"></i>
                                 </a>
                             </td>
                             <td class="text-center">
-                                <a href="{{ route('cms.edm.print', ['id' => $data->id, 'type' => 'dealer']) }}" 
+                                <a href="{{ route('print-edm', ['id' => $data->id, 'type' => 'dealer','mcode'=>$mcode]) }}" 
                                     data-bs-toggle="tooltip" title="經銷價" target="_blank"
                                     class="icon icon-btn fs-5 text-primary rounded-circle border-0">
                                     <i class="bi bi-file-earmark-break-fill"></i>
                                 </a>
                             </td>
                             <td class="text-center">
-                                <a href="https://dhtml2pdf.herokuapp.com/api.php?url={{ route('cms.edm.print', ['id' => $data->id, 'type' => 'normal']) }}&result_type=show"
+                                <a href="https://dhtml2pdf.herokuapp.com/api.php?url={{ route('print-edm', ['id' => $data->id, 'type' => 'normal','mcode'=>$mcode]) }}&result_type=show"
                                     data-bs-toggle="tooltip" title="下載" target="_blank"
                                     class="icon -copy icon-btn fs-5 text-primary rounded-circle border-0">
                                     <i class="bi bi-download"></i>

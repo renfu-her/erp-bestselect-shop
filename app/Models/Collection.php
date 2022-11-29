@@ -308,7 +308,7 @@ class Collection extends Model
         }, $collection_ids));
     }
 
-    public static function getProductsEdmVer($collection_id, $price_type = 'normal', $user_id)
+    public static function getProductsEdmVer($collection_id, $price_type = 'normal')
     {
         switch ($price_type) {
             case 'dealer':
@@ -390,7 +390,7 @@ class Collection extends Model
         }, $prd);
 
         return [
-            'mcode' => User::getUserCustomer($user_id)->sn,
+          //  'mcode' => User::getUserCustomer($user_id)->sn,
             'product' => $prd,
             'collection' => $col,
         ];
