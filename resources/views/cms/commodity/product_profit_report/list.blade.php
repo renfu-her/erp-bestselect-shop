@@ -5,8 +5,8 @@
         <h6>搜尋條件</h6>
         <form>
             @csrf
-            <div class="col-12 col-sm-6 mb-3">
-                <fieldset class="col-12 mb-3">
+            <div class="row">
+                <fieldset class="col-12 col-sm-6 mb-3">
                     <legend class="col-form-label p-0 mb-2">利潤排序</legend>
                     <div class="px-1 pt-1">
                         <div class="form-check form-check-inline">
@@ -24,7 +24,7 @@
                         </div>
                     </div>
                 </fieldset>
-                <fieldset class="col-12 mb-3">
+                <fieldset class="col-12 col-sm-6 mb-3">
                     <legend class="col-form-label p-0 mb-2">理貨倉庫存</legend>
                     <div class="px-1 pt-1">
                         <div class="form-check form-check-inline">
