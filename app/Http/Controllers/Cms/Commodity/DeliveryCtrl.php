@@ -326,8 +326,12 @@ class DeliveryCtrl extends Controller
     public function out_stock_delete(Request $request, $delivery_id)
     {
         $delivery = Delivery::where('id', '=', $delivery_id)->first();
+        $items = Delivery::delivery_item($delivery->id, 'out')->first();
         if (null != $delivery->audit_date) {
             wToast('已出貨 無法刪除');
+            return redirect()->back();
+        } else if(null != $items && null != $items->po_sn) {
+            wToast('已有付款單 無法刪除');
             return redirect()->back();
         } else {
             $out_prd = DlvOutStock::where('delivery_id', $delivery_id)->where('type', '=', DlvOutStockType::product()->value)->get();
@@ -397,6 +401,8 @@ class DeliveryCtrl extends Controller
 
             if (isset($input_items['id']) && 0 < count($input_items['id'])) {
                 if(true == isset($input_items['id'][0])) {
+                    DB::rollBack();
+                    return ['success' => 0, 'error_msg' => '不提供缺貨編輯功能'];
                     //已有資料 做編輯
                     for($i = 0; $i < count($input_items['id']); $i++) {
                         DlvOutStock::where('id', '=', $input_items['id'][$i])->update([
@@ -740,6 +746,12 @@ class DeliveryCtrl extends Controller
     //刪除退貨
     public function back_delete(Request $request, int $delivery_id) {
         $delivery = Delivery::where('id', '=', $delivery_id)->first();
+        $items = Delivery::delivery_item($delivery->id, 'return')->first();
+        if(null != $items && null != $items->po_sn) {
+            wToast('已有付款單 無法刪除');
+            return redirect()->back();
+        }
+
         Delivery::where('id', $delivery_id)->update([
             'back_date' => null
             , 'back_sn' => null
