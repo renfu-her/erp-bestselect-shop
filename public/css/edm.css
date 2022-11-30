@@ -31,12 +31,16 @@ img {
     background-position: center;
     background-size: contain;
     text-align: center;
+    
 }
 .T1 thead h1 {
     -webkit-text-stroke: 1px #000000;
     color: #FFF;
     font-size: 3rem;
     letter-spacing: 5px;
+}
+.bg {
+    background-image: url('../images/edm/header_r.jpg');
 }
 .bg_b {
     background-image: url('../images/edm/header_b.jpg');
@@ -83,7 +87,7 @@ img {
 }
 
 .T3 {
-    background-color: #FFFFFF;
+    background-color: #F6F5F6;
 }
 .pImg {
     width: 100%;
@@ -94,9 +98,17 @@ img {
 .pName {
     line-height: 1;
     text-align: center;
-    padding-top: 5px;
+    padding: 5px 0;
     font-weight: 600;
     font-size: 1.1rem;
+
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+}
+.pName.small {
+    font-size: 1rem;
 }
 .style-pill {
     /* border: 1px solid #008BC6; */

@@ -47,9 +47,8 @@
                     <tr>
                         <th scope="col" style="width:10%">#</th>
                         <th scope="col">商品群組</th>
-                        <th scope="col" class="text-center" style="width:15%">直客價EDM</th>
-                        <th scope="col" class="text-center" style="width:15%">經銷價EDM</th>
-                        <th scope="col" class="text-center" style="width:15%">下載</th>
+                        <th scope="col" class="text-center" style="width:20%">直客價EDM</th>
+                        <th scope="col" class="text-center" style="width:20%">經銷價EDM</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -67,23 +66,29 @@
                             </td>
 
                             <td class="text-center">
-                                <a href="{{ route('print-edm', ['id' => $data->id, 'type' => 'normal','mcode'=>$mcode]) }}"
-                                    data-bs-toggle="tooltip" title="直客價" target="_blank"
-                                    class="icon icon-btn fs-5 text-primary rounded-circle border-0">
-                                    <i class="bi bi-file-earmark-break"></i>
-                                </a>
-                            </td>
-                            <td class="text-center">
-                                <a href="{{ route('print-edm', ['id' => $data->id, 'type' => 'dealer','mcode'=>$mcode]) }}" 
-                                    data-bs-toggle="tooltip" title="經銷價" target="_blank"
-                                    class="icon icon-btn fs-5 text-primary rounded-circle border-0">
+                                <button  type="button" 
+                                    data-href="{{ route('print-edm', ['id' => $data->id, 'type' => 'normal','mcode'=>$mcode]) }}"
+                                    data-bs-toggle="tooltip" title="網頁預覽"
+                                    class="-web icon icon-btn fs-5 text-primary rounded-circle border-0">
                                     <i class="bi bi-file-earmark-break-fill"></i>
-                                </a>
+                                </button>
+                                <button type="button" 
+                                    data-href="{{ route('print-edm', ['id' => $data->id, 'type' => 'normal','mcode'=>$mcode]) }}"
+                                    data-bs-toggle="tooltip" title="圖片下載"
+                                    class="-toImg icon icon-btn fs-5 text-primary rounded-circle border-0">
+                                    <i class="bi bi-download"></i>
+                                </button>
                             </td>
                             <td class="text-center">
+                                <button  type="button" 
+                                    data-href="{{ route('print-edm', ['id' => $data->id, 'type' => 'dealer','mcode'=>$mcode]) }}" 
+                                    data-bs-toggle="tooltip" title="網頁預覽"
+                                    class="-web icon icon-btn fs-5 text-primary rounded-circle border-0">
+                                    <i class="bi bi-file-earmark-break-fill"></i>
+                                </button>
                                 <button type="button" 
-                                    data-href="{{ route('print-edm-pdf', ['id' => $data->id, 'type' => 'normal','mcode'=>$mcode]) }}"
-                                    data-bs-toggle="tooltip" title="下載"
+                                    data-href="{{ route('print-edm', ['id' => $data->id, 'type' => 'dealer','mcode'=>$mcode]) }}"
+                                    data-bs-toggle="tooltip" title="圖片下載"
                                     class="-toImg icon icon-btn fs-5 text-primary rounded-circle border-0">
                                     <i class="bi bi-download"></i>
                                 </button>
@@ -108,10 +113,16 @@
 @once
     @push('sub-scripts')
         <script>
+            $('.-web').on('click', function(e) {
+                const bg = $('select[name="header_color"]').val();
+                const qr = $('input[name="qr_show"]').prop('checked') ? '1' : '0';
+                const url = $(this).data('href') + `?bg=${bg}&qr=${qr}`;
+                window.open(url, '_blank');
+            });
             $('.-toImg').on('click', function(e) {
                 const bg = $('select[name="header_color"]').val();
-                const qr = $('input[name="qr_show"]').prop('checked') ? 'y' : 'n';
-                const url = $(this).data('href') + `?bg=${bg}&qr=${qr}`;
+                const qr = $('input[name="qr_show"]').prop('checked') ? '1' : '0';
+                const url = $(this).data('href') + `?bg=${bg}&qr=${qr}&paginate=1&btn=0`;
                 window.open(url, '_blank');
             });
 

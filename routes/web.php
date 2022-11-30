@@ -127,7 +127,6 @@ Route::group(['prefix' => 'customer', 'as' => 'customer.', 'middleware' => 'gues
 
 
 Route::get('edm/{id}/{type}/{mcode}', [edmCtrl::class, 'print'])->name('print-edm');
-Route::get('edm-pdf/{id}/{type}/{mcode}', [edmCtrl::class, 'printPDF'])->name('print-edm-pdf');
 
 
 Route::get('_info', function () {

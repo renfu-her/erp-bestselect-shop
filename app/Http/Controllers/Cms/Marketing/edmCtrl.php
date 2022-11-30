@@ -102,6 +102,9 @@ class edmCtrl extends Controller
         //
         $query = $request->query();
         $paginate = Arr::get($query, 'paginate');
+        $bg = Arr::get($query, 'bg', 'r');
+        $qr = Arr::get($query, 'qr', '1');
+        $btn = Arr::get($query, 'btn', '1');
 
         $re = Collection::getProductsEdmVer($id, $type, $paginate ? true : false);
         if (!$re) {
@@ -119,34 +122,9 @@ class edmCtrl extends Controller
             'name' => $name,
             'products' => $re["product"],
             'collection' => $re["collection"],
-        ]);
-    }
-
-    /**
-     * 列印頁-PDF
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function printPDF(Request $request, $id, $type, $mcode)
-    {
-        //
-        $re = Collection::getProductsEdmVer($id, $type);
-        if (!$re) {
-            return abort(404);
-        }
-        $user = Customer::getUserByMcode($mcode);
-        $name = '';
-        if ($user) {
-            $name = $user->name;
-        }
-
-        return view('cms.marketing.edm.print-pdf', [
-            'type' => $type,
-            'mcode' => $mcode,
-            'name' => $name,
-            'products' => $re["product"],
-            'collection' => $re["collection"],
+            'bg' => $bg,
+            'qr' => $qr,
+            'btn' => $btn,
         ]);
     }
 }
