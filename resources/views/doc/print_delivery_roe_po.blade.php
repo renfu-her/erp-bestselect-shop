@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>退貨付款單</title>
+    <title>{{ $behavior == 'return' ? '退貨' : ($behavior == 'out' ? '缺貨' : '換貨') }}付款單</title>
     <style>
         * {
             font-family: "Nunito", "Noto Sans TC", sans-serif;
@@ -49,7 +49,7 @@
         </div>
 
         <div style="font-size: x-large; font-family:標楷體">
-            退貨付款單
+            {{ $behavior == 'return' ? '退貨' : ($behavior == 'out' ? '缺貨' : '換貨') }}付款單
         </div>
         <hr width="710" style="margin: .5rem auto;">
         <div>
@@ -85,8 +85,8 @@
                 </tr>
                 </thead>
                 <tbody style="text-align: left;">
-                @if($delivery->delivery_back_items)
-                @foreach($delivery->delivery_back_items as $db_value)
+                @if($delivery->delivery_items)
+                @foreach($delivery->delivery_items as $db_value)
                     <tr>
                         <td>{{ $db_value->grade_code . ' ' . $db_value->grade_name }} - {{ $db_value->product_title }}{{'（' . $delivery->sub_order_ship_event . ' - ' . $delivery->sub_order_ship_category_name . '）'}}{{'（' . $db_value->price . ' * ' . $db_value->qty . '）'}}</td>
                         <td style="text-align: right;">{{ $db_value->qty }}</td>

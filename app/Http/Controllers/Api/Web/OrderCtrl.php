@@ -1118,11 +1118,19 @@ class OrderCtrl extends Controller
         }
 
         $d = $request->all();
-        Order::cancelOrder($d['order_id'],'frontend');
+        $reOCO = Order::cancelOrder($d['order_id'],'frontend');
+        if ($reOCO['success'] == 0) {
+            $re = [];
+            $re[ResponseParam::status()->key] = 'E02';
+            $re[ResponseParam::msg()->key] = $reOCO['error_msg'];
 
-        return [
-            'status' => '0',
-        ];
+            return response()->json($re);
+        } else {
+            return [
+                'status' => '0',
+            ];
+        }
+
 
     }
 }

@@ -4,7 +4,6 @@ namespace App\Models;
 
 use App\Enums\Customer\ProfitStatus;
 use App\Enums\Delivery\Event;
-use App\Enums\Delivery\LogisticStatus;
 use App\Enums\Discount\DividendCategory;
 use App\Enums\Discount\DividendFlag;
 use App\Enums\Order\CarrierType;
@@ -16,8 +15,6 @@ use App\Enums\Received\ReceivedMethod;
 use App\Mail\OrderEstablished;
 use App\Mail\OrderPaid;
 use App\Mail\OrderShipped;
-use App\Models\CustomerDividend;
-use App\Models\OrderCart;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
@@ -1002,16 +999,16 @@ class Order extends Model
     public static function cancelOrder($order_id, $type)
     {
         if (!self::checkCanCancel($order_id, $type)) {
-            return;
+            return ['success' => 1, 'error_msg' => ""];
         }
 
         $order = self::where('id', $order_id)->get()->first();
         if (!$order) {
-            return;
+            return ['success' => 1, 'error_msg' => ""];
         }
         $customer = Customer::where('email', $order->email)->get()->first();
         if (!$customer) {
-            return;
+            return ['success' => 1, 'error_msg' => ""];
         }
 
         DB::beginTransaction();
@@ -1025,8 +1022,15 @@ class Order extends Model
                 $is_calc_in_stock = true;
                 $delivery = Delivery::where('event_id', '=', $sub_ord->id)->where('event', '=', Event::order()->value)->first();
                 //判斷未出貨 才須計算可售數量，否則是在退貨入庫時 才需計算可售數量
-                if (null != $delivery && null != $delivery->audit_date) {
-                    $is_calc_in_stock = false;
+                if (null != $delivery) {
+                    $out_prd = DlvOutStock::where('delivery_id', $delivery->id)->get();
+                    if (null != $out_prd && 0 < count($out_prd)) {
+                        DB::rollBack();
+                        return ['success' => 0, 'error_msg' => '請先刪除子訂單缺貨 '. $delivery->event_sn];
+                    }
+                    if (null != $delivery->audit_date) {
+                        $is_calc_in_stock = false;
+                    }
                 }
                 if (true == $is_calc_in_stock) {
                     // 返還訂購商品數量
@@ -1083,6 +1087,7 @@ class Order extends Model
 
         DB::commit();
 
+        return ['success' => 1, 'error_msg' => ""];
         return;
 
     }

@@ -5,8 +5,8 @@
         <h6>搜尋條件</h6>
         <form>
             @csrf
-            <div class="col-12 col-sm-6 mb-3">
-                <fieldset class="col-12 mb-3">
+            <div class="row">
+                <fieldset class="col-12 col-sm-6 mb-3">
                     <legend class="col-form-label p-0 mb-2">利潤排序</legend>
                     <div class="px-1 pt-1">
                         <div class="form-check form-check-inline">
@@ -24,7 +24,7 @@
                         </div>
                     </div>
                 </fieldset>
-                <fieldset class="col-12 mb-3">
+                <fieldset class="col-12 col-sm-6 mb-3">
                     <legend class="col-form-label p-0 mb-2">理貨倉庫存</legend>
                     <div class="px-1 pt-1">
                         <div class="form-check form-check-inline">
@@ -38,6 +38,32 @@
                             <label class="form-check-label">
                                 <input class="form-check-input" name="stock_status" type="radio" value="out_of_stock">
                                 無
+                            </label>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="row">
+                <fieldset class="col-12 col-sm-6 mb-3">
+                    <legend class="col-form-label p-0 mb-2">耗材</legend>
+                    <div class="px-1 pt-1">
+                        <div class="form-check form-check-inline">
+                            <label class="form-check-label">
+                                <input class="form-check-input" name="consume" type="radio" value="0"
+                                       checked>
+                                商品
+                            </label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <label class="form-check-label">
+                                <input class="form-check-input" name="consume" type="radio" value="1">
+                                耗材
+                            </label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <label class="form-check-label">
+                                <input class="form-check-input" name="consume" type="radio" value="all">
+                                不限
                             </label>
                         </div>
                     </div>
@@ -66,10 +92,10 @@
                     <th scope="col">商品名稱</th>
                     <th scope="col">款式</th>
                     <th scope="col">售價</th>
-                    {{--                    <th scope="col">cost</th>--}}
                     <th scope="col">售價利潤</th>
                     <th scope="col">經銷價</th>
                     <th scope="col">經銷價利潤</th>
+                    <th scope="col">成本</th>
                     <th scope="col">理貨倉庫存</th>
                 </tr>
                 </thead>
@@ -82,7 +108,6 @@
                         </td>
                         <td>{{ $data->sku }}</td>
                         <td>{{ number_format($data->price) }}</td>
-                        {{--                        <td>{{ $data->estimated_cost }}</td>--}}
                         <td>
                             {{ $data->price_profit }}%
                         </td>
@@ -90,6 +115,7 @@
                         <td>
                             {{ $data->dealer_price_profit }}%
                         </td>
+                        <td>{{ number_format(round($data->estimated_cost)) }}</td>
                         <td>{{ $data->total_in_stock_num }}</td>
                     </tr>
                 @endforeach

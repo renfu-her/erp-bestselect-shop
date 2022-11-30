@@ -11,7 +11,7 @@
         <div class="alert alert-danger mt-3">{!! implode('', $errors->all('<div>:message</div>')) !!}</div>
     @endif
 
-    <form method="post" action="{{ $formAction }}">
+    <form method="post" action="{{ $formAction }}" class="-banRedo">
         @method('POST')
         @csrf
         <div class="card shadow p-4 mb-4">

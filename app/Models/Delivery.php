@@ -353,9 +353,25 @@ class Delivery extends Model
             'product_title' => 'rcv_depot.product_title'
             , 'qty' => 'rcv_depot.qty'
             , 'prd_user_name' => 'usr.name'
+            , 'ib_source_sn' => 'ib_source.sn'
         ];
+        $re_event_sn_pcs = DB::table(app(Purchase::class)->getTable(). ' as pcs')
+            ->select(DB::raw('concat("'. Event::purchase()->value. '") as event'), 'pcs.id', 'pcs.sn');
+        $re_event_sn_csn = DB::table(app(Consignment::class)->getTable(). ' as csn')
+            ->select(DB::raw('concat("'. Event::consignment()->value. '") as event'), 'csn.id', 'csn.sn');
+        $re_event_sn_pcs = $re_event_sn_pcs->union($re_event_sn_csn);
+
+
         $re = DB::table(app(Delivery::class)->getTable(). ' as delivery')
             ->leftJoin(app(ReceiveDepot::class)->getTable(). ' as rcv_depot', 'rcv_depot.delivery_id', '=', 'delivery.id')
+            ->leftJoin(app(PurchaseInbound::class)->getTable(). ' as inbound', function ($join) {
+                $join->on('inbound.id', '=', 'rcv_depot.inbound_id');
+            })
+            ->leftJoinSub($re_event_sn_pcs, 'ib_source', function($join) {
+                $join->on('ib_source.id', '=', 'inbound.event_id')
+                    ->on('ib_source.event', '=', 'inbound.event');
+            })
+
             ->leftJoin(app(ProductStyle::class)->getTable(). ' as style', 'style.id', '=', 'rcv_depot.product_style_id')
             ->leftJoin(app(Product::class)->getTable(). ' as prd', 'prd.id', '=', 'style.product_id')
             ->leftJoin(app(User::class)->getTable(). ' as usr', 'usr.id', '=', 'prd.user_id')
@@ -600,7 +616,7 @@ class Delivery extends Model
         ]);
     }
 
-    public static function back_item($delivery_id = null)
+    public static function delivery_item($delivery_id = null, $behavior)
     {
         $sq = '
             SELECT
@@ -627,36 +643,47 @@ class Delivery extends Model
             GROUP BY acc_all_grades.id
         ';
 
+        if($behavior == 'return'){
+            $s_q_table = 'dlv_back';
+            $s_q_po_type = 9;
+        } else if($behavior == 'out'){
+            $s_q_table = 'dlv_out_stock';
+            $s_q_po_type = 8;
+        } else if($behavior == 'exchange'){
+            $s_q_table = 'dlv_back';
+            $s_q_po_type = 7;
+        }
+
         $query = DB::table('dlv_delivery as delivery')
             ->leftJoin(DB::raw('(
                 SELECT
                     delivery_id,
-                    SUM(dlv_back.price * dlv_back.qty) AS total_price,
+                    SUM(dlv_tmp.price * dlv_tmp.qty) AS total_price,
                     CONCAT(\'[\', GROUP_CONCAT(\'{
-                        "id":"\', dlv_back.id, \'",
-                        "event_item_id":"\', COALESCE(dlv_back.event_item_id, ""), \'",
-                        "sku":"\', COALESCE(dlv_back.sku, ""), \'",
-                        "product_title":"\', dlv_back.product_title, \'",
-                        "price":"\', dlv_back.price, \'",
-                        "qty":"\', dlv_back.qty, \'",
-                        "total_price":"\', dlv_back.price * dlv_back.qty, \'",
-                        "grade_id":"\', COALESCE(grade.id, dlv_back.grade_id), \'",
+                        "id":"\', dlv_tmp.id, \'",
+                        "event_item_id":"\', COALESCE(dlv_tmp.event_item_id, ""), \'",
+                        "sku":"\', COALESCE(dlv_tmp.sku, ""), \'",
+                        "product_title":"\', dlv_tmp.product_title, \'",
+                        "price":"\', dlv_tmp.price, \'",
+                        "qty":"\', dlv_tmp.qty, \'",
+                        "total_price":"\', dlv_tmp.price * dlv_tmp.qty, \'",
+                        "grade_id":"\', COALESCE(grade.id, dlv_tmp.grade_id), \'",
                         "grade_code":"\', COALESCE(grade.code, ""), \'",
                         "grade_name":"\', COALESCE(grade.name, ""), \'",
-                        "memo":"\', COALESCE(dlv_back.memo, ""), \'",
+                        "memo":"\', COALESCE(dlv_tmp.memo, ""), \'",
                         "note":"\', COALESCE(ord_items.note, ""), \'",
                         "po_note":"\', COALESCE(ord_items.po_note, ""), \'",
                         "taxation":"\', COALESCE(product.has_tax, 1), \'"
-                    }\' ORDER BY dlv_back.id), \']\') AS items
-                FROM dlv_back
-                LEFT JOIN (' . $sq . ') AS grade ON grade.id = dlv_back.grade_id
-                LEFT JOIN prd_product_styles ON prd_product_styles.id = dlv_back.product_style_id
-                LEFT JOIN ord_items ON ord_items.id = dlv_back.event_item_id
+                    }\' ORDER BY dlv_tmp.id), \']\') AS items
+                FROM ' . $s_q_table . ' AS dlv_tmp
+                LEFT JOIN (' . $sq . ') AS grade ON grade.id = dlv_tmp.grade_id
+                LEFT JOIN prd_product_styles ON prd_product_styles.id = dlv_tmp.product_style_id
+                LEFT JOIN ord_items ON ord_items.id = dlv_tmp.event_item_id
                 LEFT JOIN prd_products AS product ON product.id = prd_product_styles.product_id
-                WHERE (product.deleted_at IS NULL AND dlv_back.qty > 0 AND dlv_back.show = 1)
+                WHERE (product.deleted_at IS NULL AND dlv_tmp.qty > 0 AND dlv_tmp.show = 1)
                 GROUP BY delivery_id
-                ) AS delivery_back'), function ($join) {
-                $join->on('delivery_back.delivery_id', '=', 'delivery.id');
+                ) AS delivery_tmp'), function ($join) {
+                $join->on('delivery_tmp.delivery_id', '=', 'delivery.id');
             })
             ->leftJoin('ord_sub_orders AS sub_order', function ($join) {
                 $join->on('sub_order.id', '=', 'delivery.event_id');
@@ -672,11 +699,12 @@ class Delivery extends Model
                     'buyer_add.is_default_addr' => 1,
                 ]);
             })
-            ->leftJoin('pcs_paying_orders AS po', function ($join) {
+            ->leftJoin('pcs_paying_orders AS po', function ($join) use($s_q_po_type) {
                 $join->on('po.source_id', '=', 'delivery.id');
                 $join->where([
                     'po.source_type' => app(self::class)->getTable(),
                     'po.source_sub_id' => null,
+                    'po.type' => $s_q_po_type,
                     'po.deleted_at' => null,
                 ]);
             })
@@ -700,8 +728,8 @@ class Delivery extends Model
                 'delivery.event_sn AS delivery_event_sn',
                 'delivery.memo AS delivery_memo',
 
-                'delivery_back.items AS delivery_back_items',
-                'delivery_back.total_price AS delivery_back_total_price',
+                'delivery_tmp.items AS delivery_items',
+                'delivery_tmp.total_price AS delivery_total_price',
 
                 'order.id AS order_id',
                 'order.sn AS order_sn',

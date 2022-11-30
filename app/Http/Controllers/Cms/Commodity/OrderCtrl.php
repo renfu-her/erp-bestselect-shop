@@ -563,7 +563,7 @@ class OrderCtrl extends Controller
         if (count($subOrder) > 0) {
             foreach ($subOrder as $so_value) {
                 $delivery = Delivery::where('event', Event::order()->value)->where('event_id', $so_value->id)->first();
-                $po_check = PayingOrder::source_confirmation(app(Delivery::class)->getTable(), $delivery->id);
+                $po_check = PayingOrder::source_confirmation(app(Delivery::class)->getTable(), $delivery->id, 9);
                 if (!$po_check) {
                     break;
                 }
@@ -2761,9 +2761,13 @@ class OrderCtrl extends Controller
     public function cancel_order(Request $request, $id)
     {
 
-        Order::cancelOrder($id, 'backend');
+        $reOCO = Order::cancelOrder($id, 'backend');
+        if ($reOCO['success'] == 0) {
+            wToast($reOCO['error_msg'], ['type'=>'danger']);
+        } else {
+            wToast('訂單已經取消');
+        }
 
-        wToast('訂單已經取消');
 
         return redirect()->back();
     }

@@ -27,13 +27,16 @@ class Number extends Component
     {
         $val = $this->val;
         $style = '';
+        $prefix = $this->prefix;
         if (is_numeric($val)) {
             if ($val < 0) {
                 $style = 'text-danger fw-bold';
+                $prefix = '-' . $this->prefix;
+                $val = abs($val);
             }
         }
 
-        return view('components.number', ['val' => $val, 'style' => $style, 'prefix' => $this->prefix]);
+        return view('components.number', ['val' => $val, 'style' => $style, 'prefix' => $prefix]);
 
     }
 }

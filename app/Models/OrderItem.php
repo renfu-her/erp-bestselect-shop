@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Delivery\Event;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -18,6 +19,7 @@ class OrderItem extends Model
 
     public static function getShipItem($sub_order_id)
     {
+        $delivery = Delivery::where('event_id', '=', $sub_order_id)->where('event', '=', Event::order()->value)->first();
         $query_combo = DB::table('prd_style_combos')
             ->leftJoin('prd_product_styles', 'prd_product_styles.id', '=', 'prd_style_combos.product_style_child_id')
             ->select('prd_style_combos.product_style_id'
@@ -36,9 +38,16 @@ class OrderItem extends Model
                 $join->on('tb_combo.product_style_id', '=', 'ord_items.product_style_id');
             })
             ->leftJoin('prd_products', 'prd_products.id', '=', 'tb_combo.product_id')
+            ->leftJoin(app(DlvOutStock::class)->getTable(). ' as outs', function ($join) use($delivery) {
+                $join->on('outs.event_item_id', '=', 'ord_items.id');
+                $join->where('outs.delivery_id', '=', $delivery->id);
+            })
+            ->whereNotNull('tb_combo.type')
+            ->where('ord_items.sub_order_id', '=', $sub_order_id)
             ->select('ord_items.id AS item_id'
                 , 'ord_items.order_id AS order_id'
                 , 'ord_items.sub_order_id AS sub_order_id'
+                , DB::raw('Concat(prd_products.title, "-", tb_combo.title) AS product_title')
                 , 'ord_items.product_title AS combo_product_title'
                 , DB::raw('@tb_combo.type:="c" as prd_type')
                 , 'tb_combo.product_style_id AS papa_product_style_id'
@@ -46,29 +55,30 @@ class OrderItem extends Model
                 , 'tb_combo.product_id'
                 , 'tb_combo.sku'
             )
-            ->selectRaw(DB::raw('( ord_items.qty * tb_combo.qty ) AS qty'))
-            ->selectRaw(DB::raw('Concat(prd_products.title, "-", tb_combo.title) AS product_title'))
-            ->whereNotNull('tb_combo.type')
-            ->where('ord_items.sub_order_id', '=', $sub_order_id)
+            ->selectRaw(DB::raw('( (ord_items.qty - ifnull(outs.qty, 0)) * tb_combo.qty ) AS qty'))
             ->mergeBindings($query_combo);
 
         //取得子訂單商品內 一般商品
         $query_ship = DB::table('ord_items')
             ->leftJoin('prd_product_styles', 'prd_product_styles.id', '=', 'ord_items.product_style_id')
+            ->leftJoin(app(DlvOutStock::class)->getTable(). ' as outs', function ($join) use($delivery) {
+                $join->on('outs.event_item_id', '=', 'ord_items.id');
+                $join->where('outs.delivery_id', '=', $delivery->id);
+            })
             ->where('prd_product_styles.type', '=', 'p')
             ->where('ord_items.sub_order_id', '=', $sub_order_id)
             ->select('ord_items.id AS item_id'
                 , 'ord_items.order_id AS order_id'
                 , 'ord_items.sub_order_id AS sub_order_id'
                 , 'ord_items.product_title'
+                , DB::raw('Concat("") AS combo_product_title')
                 , 'prd_product_styles.type as prd_type'
                 , DB::raw('null as papa_product_style_id')
                 , 'prd_product_styles.id  AS product_style_id'
                 , 'prd_product_styles.product_id'
                 , 'prd_product_styles.sku'
             )
-            ->selectRaw('ord_items.qty AS qty')
-            ->selectRaw(DB::raw('Concat("") AS combo_product_title'));
+            ->selectRaw(DB::raw('( (ord_items.qty - ifnull(outs.qty, 0)) ) AS qty'));
 
         //組合時需要將欄位順序也對應好
         //一般商品的combo_product_title 設定為空字串
