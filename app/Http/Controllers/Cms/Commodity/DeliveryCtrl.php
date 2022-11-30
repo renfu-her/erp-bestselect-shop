@@ -1066,7 +1066,7 @@ class DeliveryCtrl extends Controller
         $rsp_arr = $this->getBackDetailRsp($event, $eventId);
         $rsp_arr['type_display'] = 'back';
         $rsp_arr['user'] = $request->user();
-        return view('doc.print_out_stock', $rsp_arr);
+        return view('doc.print_back', $rsp_arr);
     }
 
     private function getBackDetailRsp($event, $eventId) {
