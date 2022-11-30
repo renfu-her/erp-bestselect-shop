@@ -135,11 +135,16 @@ class edmCtrl extends Controller
         if (!$re) {
             return abort(404);
         }
+        $user = Customer::getUserByMcode($mcode);
+        $name = '';
+        if ($user) {
+            $name = $user->name;
+        }
 
         return view('cms.marketing.edm.print-pdf', [
             'type' => $type,
             'mcode' => $mcode,
-            'user' => Customer::getUserByMcode($mcode),
+            'name' => $name,
             'products' => $re["product"],
             'collection' => $re["collection"],
         ]);

@@ -8,108 +8,25 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@100;300;400;500;700&display=swap" rel="stylesheet">
-    <title>{{ $collection->name }}EDM（{{ $type === 'dealer' ? '經銷版' : '直客版' }}）</title>
+    <link rel="stylesheet" href="{{ Asset('css/edm.css') }}">
+    
+    <title>{{ $collection->name }}EDM_{{ $type === 'dealer' ? 'A' : 'B' }}</title>
     <style>
-        * {
-            font-family: "Noto Sans TC", sans-serif;
-            position: relative;
-        }
         @page {
             size: A4 portrait;
-            /* A4 直向 */
-            margin: 5mm auto;
+            /* A4(794×1123) 直向 */
+            margin: 0mm;
             /* 邊界 */
-        }
-        
-        .print {
-            margin: 1em auto;
-            text-align: center;
-        }
-
-        .print button {
-            font-size: 1.5rem;
-            margin: 0 10px;
-            font-family: "Nunito", "Noto Sans TC", sans-serif;
-        }
-        img {
-            width: 100%;
-            height: auto;
-        }
-        .pImg {
-            width: auto;
-            max-width: 100%;
-            max-height: 195px;
-        }
-        .style-pill {
-            /* border: 1px solid #008BC6; */
-            border-radius: 4px;
-            /* padding-right: 2px; */
-            color: #008BC6;
-            font-size: 12px;
-            line-height: 20px;
-        }
-        .style-pill:not(:last-child)::after {
-            content: ' /'
-        }
-        .origin-price {
-            color: #6c757d;
-            text-decoration: line-through;
-            margin-right: 10px;
-            position: relative;
-        }
-        .del-line::after {
-            content: '';
-            display: block;
-            position: absolute;
-            /* right: -3px; */
-            bottom: 12px;
-            width: 110%;
-            border-bottom: 2px solid #6c757d;
-        }
-        .price {
-            font-weight: bold;
-            font-size: 14pt;
-            color: #F00;
-            line-height: 1;
-        }
-        .origin-price::before,
-        .price::before {
-            content: "$";
-        }
-        .qrcode img {
-            width: auto;
-            margin-left: auto;
-        }
-        .page {
-            /* page-break-inside: avoid; */
-        }
-
-        @media print {
-            a,
-            a:active,
-            a:visited {
-                color: #000000;
-                text-decoration: none;
-            }
-
-            .print {
-                display: none;
-            }
         }
     </style>
 </head>
+@php
+    $bg = isset($_GET['bg']) && $_GET['bg'] ? $_GET['bg'] : 'r';
+    $qr = isset($_GET['qr']) && $_GET['qr'] ? $_GET['qr'] : '1';
+@endphp
 <body style="margin-top: 0px;">
 <div style="left: 0; top: 0; width:100%;">
     <div>
-        <div class="print">
-            <button type="button" onclick="javascript:window.print();">我要列印</button>
-            <button type="button" onclick="screenshot()">下載</button>
-            <button type="button" onclick="javascript:window.close();">關閉視窗</button>
-        </div>
-        {{-- <div id="Img"></div> --}}
-
-        <div id="Content">
-            
         @for ($p = 0; $p < (count($products) / 9); $p++)
             <table width="710" cellpadding="5" cellspacing="0" border="0" bordercolor="#000000" class="page"
                 style="font-size:11pt;text-align:left;margin:0 auto;border-collapse:collapse;">
@@ -185,7 +102,6 @@
             </table>
         @endfor
 
-        </div>
     </div>
 </div>
 </body>
@@ -194,8 +110,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
 {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.qrcode/1.0/jquery.qrcode.min.js"></script> --}}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-{{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script> --}}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script>
     const title = @json($collection->name);
     const mcode = @json($mcode);
@@ -212,6 +126,8 @@
             new QRCode(element, {
                 width: 70,
                 height: 70,
+                colorDark: '#000000',
+                colorLight: '#ECECEC',
                 correctLevel: QRCode.CorrectLevel.M,
                 text: `https://www.bestselection.com.tw/product/${sku}?mcode=${mcode}`
             });
@@ -221,47 +137,4 @@
     }).catch((err) => {
         console.log(err);
     });
-    
-    // 圖片下載
-    function screenshot() {
-        $('.origin-price').addClass('del-line');
-
-        // window.open(`https://dhtml2pdf.herokuapp.com/api.php?url=${window.location.href}&result_type=show`, '_blank');
-
-        html2pdf()
-        .set({
-            margin: 2,
-            filename: 'EDM_' + title + '.png',
-            image: { type: 'png', quality: 0.98 },
-            pagebreak: { mode: 'avoid-all', after: '.page' },
-            html2canvas: { useCORS: true, logging: true, }
-        })
-        .from(document.getElementById('Content'))
-        .to('img')
-        .output('img')
-        .outputImg('datauristring')
-        // .save()
-        .then((result) => {
-            $('.origin-price').removeClass('del-line');
-            const a = document.createElement('a');
-            a.href = result;
-            a.download = 'EDM_' + title + '.png';
-            a.click();
-        });
-
-        // html2canvas(document.getElementById('Content'), {
-        //     // useCORS: true,
-        //     // allowTaint: true,
-        //     imageTimeout: 0,
-        //     logging: true,
-        // }).then((canvas) => {
-        //     // document.body.appendChild(canvas);
-        //     // const a = document.createElement('a');
-        //     // a.href = canvas.toDataURL('image/png').replace('image/png', 'image/octet-stream');
-        //     // a.download = 'EDM_' + title + '.png';
-        //     // a.click();
-        // });
-
-        // $('.origin-price').removeClass('del-line');
-    }
 </script>
