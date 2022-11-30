@@ -308,7 +308,7 @@ class Collection extends Model
         }, $collection_ids));
     }
 
-    public static function getProductsEdmVer($collection_id, $price_type = 'normal')
+    public static function getProductsEdmVer($collection_id, $price_type = 'normal', $paginate = false)
     {
         switch ($price_type) {
             case 'dealer':
@@ -335,10 +335,7 @@ class Collection extends Model
             $join->on('pi.product_id', '=', 'subimg.product_id')
                 ->on('pi.id', '=', 'subimg.id');
         })
-        ->select('pi.*');
-
-          
-
+            ->select('pi.*');
 
         $subMinPrice = DB::table('prd_product_styles as style')
             ->join('prd_salechannel_style_price as sp', 'style.id', '=', 'sp.style_id')
@@ -380,17 +377,21 @@ class Collection extends Model
                 'price.origin_price',
                 'style.style'])
             ->where('cp.collection_id_fk', $collection_id)
-            ->orderBy('cp.sort')->get()->toArray();
+            ->orderBy('cp.sort');
 
+        if ($paginate) {
+            $prd = $prd->paginate(9);
+        } else {
+            $prd = $prd->get();
+        }
 
-        $prd = array_map(function ($n) {
-            $n->style = json_decode($n->style);
-            $n->img_url = getImageUrl($n->img_url, true);
-            return $n;
-        }, $prd);
+        foreach ($prd as $key => $value) {
+            $value->style = json_decode($value->style);
+            $value->img_url = getImageUrl($value->img_url, true);
+        }
 
         return [
-          //  'mcode' => User::getUserCustomer($user_id)->sn,
+            //  'mcode' => User::getUserCustomer($user_id)->sn,
             'product' => $prd,
             'collection' => $col,
         ];

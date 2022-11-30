@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Cms\Marketing;
 
 use App\Http\Controllers\Controller;
 use App\Models\Collection;
+use App\Models\Customer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 
@@ -99,14 +100,23 @@ class edmCtrl extends Controller
      */
     function print(Request $request, $id, $type, $mcode) {
         //
-        $re = Collection::getProductsEdmVer($id, $type);
+        $query = $request->query();
+        $paginate = Arr::get($query, 'paginate');
+
+        $re = Collection::getProductsEdmVer($id, $type, $paginate ? true : false);
         if (!$re) {
             return abort(404);
         }
-
+        $user = Customer::getUserByMcode($mcode);
+        $name = '';
+        if ($user) {
+            $name = $user->name;
+        }
+       
         return view('cms.marketing.edm.print', [
             'type' => $type,
             'mcode' => $mcode,
+            'name' => $name,
             'products' => $re["product"],
             'collection' => $re["collection"],
         ]);
@@ -118,7 +128,8 @@ class edmCtrl extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    function printPDF(Request $request, $id, $type, $mcode) {
+    public function printPDF(Request $request, $id, $type, $mcode)
+    {
         //
         $re = Collection::getProductsEdmVer($id, $type);
         if (!$re) {
@@ -128,6 +139,7 @@ class edmCtrl extends Controller
         return view('cms.marketing.edm.print-pdf', [
             'type' => $type,
             'mcode' => $mcode,
+            'user' => Customer::getUserByMcode($mcode),
             'products' => $re["product"],
             'collection' => $re["collection"],
         ]);
