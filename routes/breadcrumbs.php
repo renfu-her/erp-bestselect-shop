@@ -367,6 +367,13 @@ Breadcrumbs::for('cms.order.edit-invoice', function (BreadcrumbTrail $trail, $va
     $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.order.detail', ['id' => $value['id']]));
     $trail->push('編輯發票');
 });
+// 發票折讓
+Breadcrumbs::for('cms.order.allowance-invoice', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.order.index');
+    $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.order.detail', ['id' => $value['id']]));
+    $trail->push('發票資訊', $value['previous_url']);
+    $trail->push('發票折讓');
+});
 // Line Pay 付款取消
 Breadcrumbs::for('cms.order.line-pay-refund', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.order.index');
@@ -590,7 +597,7 @@ Breadcrumbs::for('cms.delivery.roe-po', function (BreadcrumbTrail $trail, $value
         $trail->push('退貨付款單');
 
     } else if($value['behavior'] == 'out'){
-        $trail->push('#' . $value['sn'] . ' 銷貨缺貨明細', route('cms.delivery.out_stock_detail', ['event' => $value['event'], 'eventId' => $value['eventId']]));
+        $trail->push('#' . $value['sn'] . ' 缺貨退回明細', route('cms.delivery.out_stock_detail', ['event' => $value['event'], 'eventId' => $value['eventId']]));
         $trail->push('缺貨付款單');
 
     } else if($value['behavior'] == 'exchange'){
@@ -605,7 +612,7 @@ Breadcrumbs::for('cms.delivery.roe-po-create', function (BreadcrumbTrail $trail,
         $trail->push('新增付款');
 
     } else if($value['behavior'] == 'out'){
-        $trail->push('#' . $value['sn'] . ' 銷貨缺貨明細', route('cms.delivery.out_stock_detail', ['event' => $value['event'], 'eventId' => $value['eventId']]));
+        $trail->push('#' . $value['sn'] . ' 缺貨退回明細', route('cms.delivery.out_stock_detail', ['event' => $value['event'], 'eventId' => $value['eventId']]));
         $trail->push('缺貨付款單', route('cms.delivery.roe-po', ['id' => $value['id'], 'behavior' => $value['behavior']]));
         $trail->push('新增付款');
 

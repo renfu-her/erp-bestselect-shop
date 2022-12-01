@@ -730,6 +730,107 @@ class OrderInvoice extends Model
     }
 
 
+    public static function allowance_issue_api($allowance_id)
+    {
+        $target = OrderInvoiceAllowance::findOrFail($allowance_id);
+
+        $data = [
+            'RespondType' => 'JSON',
+            'Version' => '1.3',
+            'TimeStamp' => time(),
+            'InvoiceNo' => $target->invoice_number,
+            'MerchantOrderNo' => $target->merchant_order_no,
+            'ItemName' => $target->item_name,
+            'ItemCount' => $target->item_count,
+            'ItemUnit' => $target->item_unit,
+            'ItemPrice' => $target->item_price,
+            'ItemAmt' => $target->item_amt,
+            'TaxTypeForMixed' => $target->tax_type,
+            'ItemTaxAmt' => $target->item_tax_amt,
+            'TotalAmt' => $target->total_amt + 0,
+            'BuyerEmail' => $target->buyer_email,
+            'Status' => 1,
+        ];
+
+        $api_result = self::api_send('allowance_issue', $data);
+
+        if($api_result){
+            foreach($api_result as $api_key => $api_value){
+                if($api_key == 'web_info'){
+                    if(is_string(json_decode($api_value)->Result)){
+                        $target->update([
+                            'r_status'=>json_decode($api_value)->Status,
+                            'r_msg'=>mb_convert_encoding(trim(json_decode($api_value)->Message), 'UTF-8', ['BIG5', 'UTF-8']),
+                            'r_json'=>json_decode($api_value)->Result,
+                            'merchant_id'=>json_decode(json_decode($api_value)->Result)->MerchantID,
+                            'allowance_no'=>json_decode(json_decode($api_value)->Result)->AllowanceNo,
+                            'remain_amt'=>json_decode(json_decode($api_value)->Result)->RemainAmt,
+                            'check_code'=>json_decode(json_decode($api_value)->Result)->CheckCode,
+                            'updated_at'=>date('Y-m-d H:i:s'),
+                        ]);
+
+                    } else {
+                        $target->update([
+                            'r_status'=>json_decode($api_value)->Status,
+                            'r_msg'=>mb_convert_encoding(trim(json_decode($api_value)->Message), 'UTF-8', ['BIG5', 'UTF-8']),
+                            'r_json'=>json_decode($api_value)->Result,
+                            'updated_at'=>date('Y-m-d H:i:s'),
+                        ]);
+                    }
+                }
+            }
+        }
+
+        return $target;
+    }
+
+
+    public static function allowance_invalid_api($allowance_id, string $invalid_reason)
+    {
+        $target = OrderInvoiceAllowance::findOrFail($allowance_id);
+
+        $data = [
+            'RespondType' => 'JSON',
+            'Version' => '1.0',
+            'TimeStamp' => time(),
+            'AllowanceNo' => $target->allowance_no,
+            'InvalidReason' => $invalid_reason,
+        ];
+
+        $api_result = self::api_send('allowanceInvalid', $data);
+
+        if($api_result){
+            foreach($api_result as $api_key => $api_value){
+                if($api_key == 'web_info'){
+                    if(is_string(json_decode($api_value)->Result)){
+                        $target->update([
+                            'r_invalid_status'=>json_decode($api_value)->Status,
+                            'r_invalid_msg'=>mb_convert_encoding(trim(json_decode($api_value)->Message), 'UTF-8', ['BIG5', 'UTF-8']),
+                            'r_invalid_json'=>json_decode($api_value)->Result,
+                            'invalid_allowance_no'=>json_decode(json_decode($api_value)->Result)->AllowanceNo,
+                            'deleted_at'=>date('Y-m-d H:i:s'),
+                        ]);
+
+                        self::where('invoice_id', $target->id)->update([
+                            'invoice_id' => null,
+                        ]);
+
+                    } else {
+                        $target->update([
+                            'r_invalid_status'=>json_decode($api_value)->Status,
+                            'r_invalid_msg'=>mb_convert_encoding(trim(json_decode($api_value)->Message), 'UTF-8', ['BIG5', 'UTF-8']),
+                            'r_invalid_json'=>json_decode($api_value)->Result,
+                            'updated_at'=>date('Y-m-d H:i:s'),
+                        ]);
+                    }
+                }
+            }
+        }
+
+        return $target;
+    }
+
+
     public static function getData($param)
     {
         $query = DB::table(app(OrderInvoice::class)->getTable(). ' as ord_invoice')
