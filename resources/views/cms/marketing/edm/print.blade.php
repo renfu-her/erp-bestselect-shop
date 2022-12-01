@@ -30,7 +30,7 @@
             </div>
         @endif
 
-        <table width="794" cellpadding="10" cellspacing="0" class="T1">
+        <table width="794" cellpadding="10" cellspacing="0" border="0" class="T1">
             <thead>
                 <tr height="115">
                     <th class="bg bg_{{ $bg }}">
@@ -44,7 +44,7 @@
                         @php
                             $n = 0;
                         @endphp
-                        <table width="100%" cellpadding="10" cellspacing="0" border="0" class="T2">
+                        <table width="100%" cellpadding="9" cellspacing="0" border="0" class="T2">
                             @for ($i = 0; $i < (count($products) / 3); $i++, $n++)
                                 <tr height="280" class="page">
                                     @for ($j = 0; $j < 3; $j++)
