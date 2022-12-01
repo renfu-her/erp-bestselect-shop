@@ -2,6 +2,10 @@
     font-family: "Noto Sans TC", sans-serif;
     position: relative;
 }
+html, body {
+    margin: 0;
+    padding: 0;
+}
 .print {
     margin: 1em auto;
     text-align: center;
@@ -96,9 +100,9 @@ img {
     margin: 0 auto;
 }
 .pName {
-    line-height: 1;
+    line-height: 1.1;
     text-align: center;
-    padding: 5px 0;
+    padding: 5px 0 1px;
     font-weight: 600;
     font-size: 1.1rem;
 

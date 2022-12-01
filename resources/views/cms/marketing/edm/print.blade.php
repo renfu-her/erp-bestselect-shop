@@ -20,7 +20,7 @@
         }
     </style>
 </head>
-<body style="margin-top: 0px;">
+<body>
 <div style="left: 0; top: 0; width:100%;">
     <div>
         @if ($btn === '1')
@@ -123,9 +123,9 @@
                                 <img src="{{ Asset('images/Bestselection-logo.png') }}" alt="喜鴻購物"
                                     style="display: block;">
                             </div>
-                            <div style="padding:0 20px;">官網看更多商品</div>
+                            <div style="padding:0 10px 0 20px;">官網看更多商品</div>
                             <div>
-                                <div class="qrcode" data-url="https://www.bestselection.com.tw?mcode={{ $mcode }}"></div>
+                                <div class="qrcode" data-size="70" data-url="https://www.bestselection.com.tw?mcode={{ $mcode }}"></div>
                             </div>
                             <div style="flex: 1;text-align: right;padding-right: 20px;">請洽{{ $name }}</div>
                         </div>
@@ -146,9 +146,10 @@
         $('.qrcode').each(function (index, element) {
             // element == this
             const url = $(element).data('url');
+            const size = Number($(element).data('size')) || 55;
             new QRCode(element, {
-                width: 55,
-                height: 55,
+                width: size,
+                height: size,
                 colorDark: '#000000',
                 colorLight: '#FFFFFF',
                 correctLevel: QRCode.CorrectLevel.M,
