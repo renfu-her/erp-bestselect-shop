@@ -30,30 +30,32 @@
             </div>
         @endif
 
-        <table style="width: 210mm;" cellpadding="10" cellspacing="0" border="0" class="T1">
+        <table width="{{ 794 * $x }}" cellpadding="10" cellspacing="0" border="0" class="T1">
             <thead>
-                <tr style="height: 30mm;">
+                <tr height="{{ 115 * $x }}">
                     <th class="bg bg_{{ $bg }}">
-                        <h1 style="margin: auto;">{{ $collection->name }}</h1>
+                        <h1 style="letter-spacing: {{ 5*$x }}px;font-size: {{ 3*$x }}rem;-webkit-text-stroke-width:{{ 2*$x }}px;">
+                            {{ $collection->name }}
+                        </h1>
                     </th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td>
+                    <td style="padding: {{ 15*$x }}px {{ 30*$x }}px {{ 10*$x }}px;">
                         @php
                             $n = 0;
                         @endphp
-                        <table width="100%" cellpadding="9" cellspacing="0" border="0" class="T2">
+                        <table width="100%" cellpadding="{{ 9*$x }}" cellspacing="0" border="0" class="T2">
                             @for ($i = 0; $i < (count($products) / 3); $i++, $n++)
-                                <tr style="height: 74mm;" class="page">
+                                <tr height="{{ 280 * $x }}" class="page">
                                     @for ($j = 0; $j < 3; $j++)
                                         @if (isset($products[$i * 3 + $j]))
-                                            <td style="height: 74mm;" style="">
-                                                <table width="100%" style="height: 74mm;" cellpadding="0" cellspacing="0" border="0" class="T3">
-                                                    <tr style="height: 47.6mm;" style="vertical-align: top;">
-                                                        <td style="padding: 0;height: 47.6mm;">
-                                                            <div style="overflow: hidden;width:100%;height:47.6mm;display:flex;">
+                                            <td height="{{ 280 * $x }}" style="">
+                                                <table width="100%" height="{{ 280 * $x }}" cellpadding="0" cellspacing="0" border="0" class="T3">
+                                                    <tr height="{{ 180 * $x }}" style="vertical-align: top;">
+                                                        <td height="{{ 180 * $x }}" style="padding: 0;">
+                                                            <div style="overflow: hidden;width:100%;height: {{ 180 * $x }}px;display:flex;">
                                                                 <img class="pImg" src="{{ $products[$i * 3 + $j]->img_url }}" 
                                                                     alt="{{ $products[$i * 3 + $j]->product_title }}">
                                                             </div>
@@ -61,7 +63,8 @@
                                                     </tr>
                                                     <tr style="vertical-align: top;">
                                                         <td>
-                                                            <div class="pName {{ strlen($products[$i * 3 + $j]->product_title) > 72 ? 'small' : '' }}">
+                                                            <div class="pName"
+                                                                style="padding: {{ 5 * $x }}px 0 {{ $x }}px;font-size: {{ strlen($products[$i * 3 + $j]->product_title) > 72 ? $x : 1.1 * $x }}rem;">
                                                                 {{ $products[$i * 3 + $j]->product_title }}
                                                             </div>
                                                         </td>
@@ -75,22 +78,22 @@
                                                             @endif
                                                         </td>
                                                     </tr> --}}
-                                                    <tr style="height: 14.56mm;">
+                                                    <tr height="{{ 55 * $x }}">
                                                         <td style="text-align: center;">
                                                             <div style="display: flex;align-items: flex-end;height:100%;">
                                                                 <div style="flex: 1;">
                                                                     @if ($products[$i * 3 + $j]->price < $products[$i * 3 + $j]->origin_price)
                                                                         <div class="origin-price">{{ $products[$i * 3 + $j]->origin_price }}</div>
                                                                     @endif
-                                                                    <div class="price">
+                                                                    <div class="price" style="padding-bottom: {{ 3 * $x }}px;font-size: {{ 2 * $x }}rem;">
                                                                         {{ $products[$i * 3 + $j]->price }}
                                                                         @if (count($products[$i * 3 + $j]->style) > 1)
-                                                                            <span style="font-size: 12px;font-weight: 500;margin-left: -1mm;">起</span>
+                                                                            <span style="font-size: {{ 12 * $x }}px;font-weight: 500;margin-left: {{ -5 * $x }}px;">起</span>
                                                                         @endif
                                                                     </div>
                                                                 </div>
                                                                 @if ($qr === '1')
-                                                                    <div style="width: 14.56mm;">
+                                                                    <div style="width: {{ 55 * $x }}px">
                                                                         {{-- QR code --}}
                                                                         <div class="qrcode" data-url="https://www.bestselection.com.tw/product/{{ $products[$i * 3 + $j]->sku }}?mcode={{ $mcode }}"></div>
                                                                     </div>
@@ -107,7 +110,7 @@
                                 </tr>
                             @endfor
                             @for ($i = 0; ($n % 3) > 0 && $i < 3-($n % 3); $i++)
-                                <tr style="height: 76.7mm;">
+                                <tr height="{{ 290 * $x }}">
                                     <td></td><td></td><td></td>
                                 </tr>
                             @endfor
@@ -116,18 +119,18 @@
                 </tr>
             </tbody>
             <tfoot>
-                <tr style="height: 18.5mm;">
-                    <th style="height: 18.5mm;font-size: 1.5rem;font-weight: 500;letter-spacing: 2px;">
+                <tr height="{{ 70 * $x }}">
+                    <th height="{{ 70 * $x }}" style="font-size: {{ 1.5 * $x }}rem;font-weight: 500;letter-spacing: {{ 2 * $x }}px;">
                         <div style="display: flex;align-items: center;">
-                            <div style="border-right: 1px solid #4B4B4B;padding:0 20px;width:30%;">
+                            <div style="border-right: {{ $x }}px solid #4B4B4B;padding:0 {{ 20 * $x }}px;width:30%;">
                                 <img src="{{ Asset('images/Bestselection-logo.png') }}" alt="喜鴻購物"
                                     style="display: block;">
                             </div>
-                            <div style="padding:0 10px 0 20px;">官網看更多商品</div>
+                            <div style="padding:0 {{ 10 * $x }}px 0 {{ 20 * $x }}px;">官網看更多商品</div>
                             <div>
                                 <div class="qrcode" data-size="70" data-url="https://www.bestselection.com.tw?mcode={{ $mcode }}"></div>
                             </div>
-                            <div style="flex: 1;text-align: right;padding-right: 20px;">請洽{{ $name }}</div>
+                            <div style="flex: 1;text-align: right;padding-right: {{ 20 * $x }}px;">請洽{{ $name }}</div>
                         </div>
                     </th>
                 </tr>
@@ -141,6 +144,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
+    const x = @json($x);
     // QR code
     $.when(
         $('.qrcode').each(function (index, element) {
@@ -148,8 +152,8 @@
             const url = $(element).data('url');
             const size = Number($(element).data('size')) || 55;
             new QRCode(element, {
-                width: size,
-                height: size,
+                width: size * x,
+                height: size * x,
                 colorDark: '#000000',
                 colorLight: '#FFFFFF',
                 correctLevel: QRCode.CorrectLevel.M,

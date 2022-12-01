@@ -37,11 +37,10 @@ img {
     text-align: center;
     
 }
-.T1 thead h1 {
-    -webkit-text-stroke: 1px #000000;
+.T1 > thead h1 {
+    margin: 0;
+    -webkit-text-stroke-color: #343032;
     color: #FFF;
-    font-size: 3rem;
-    letter-spacing: 5px;
 }
 .bg {
     background-image: url('../images/edm/header_r.jpg');
@@ -65,9 +64,6 @@ img {
 /* tbody */
 .T1 > tbody {
     background-color: #ECECEC;
-}
-.T1 > tbody > tr > td {
-    padding: 15px 30px 10px;
 }
 .T2 > tbody > tr > td {
     width: 33.33%;
@@ -95,28 +91,23 @@ img {
 }
 .pImg {
     width: 100%;
-    max-height: 180px;
+    height: 100%;
     display: block;
     margin: 0 auto;
 }
 .pName {
     line-height: 1.1;
     text-align: center;
-    padding: 5px 0 1px;
     font-weight: 600;
-    font-size: 1.1rem;
 
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
     overflow: hidden;
 }
-.pName.small {
-    font-size: 1rem;
-}
 .style-pill {
     /* border: 1px solid #008BC6; */
-    border-radius: 4px;
+    /* border-radius: 4px; */
     /* padding-right: 2px; */
     color: #008BC6;
     font-size: 12px;
@@ -132,18 +123,16 @@ img {
 }
 .price {
     font-weight: 800;
-    font-size: 2rem;
     color: #CE0A17;
     line-height: 1;
-    padding-bottom: 3px;
 }
 .origin-price::before,
 .price::before {
     content: "NT.";
-    font-size: 12px;
+    font-size: 50%;
 }
 .price::before {
-    margin-right: -7px;
+    margin-right: -2%;
 }
 .qrcode img {
     width: auto;

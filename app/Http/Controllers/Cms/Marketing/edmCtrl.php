@@ -105,6 +105,8 @@ class edmCtrl extends Controller
         $bg = Arr::get($query, 'bg', 'r');
         $qr = Arr::get($query, 'qr', '1');
         $btn = Arr::get($query, 'btn', '1');
+        $x = Arr::get($query, 'x', 1);
+        $x = intval($x) < 1 ? 1 : intval($x);
 
         $re = Collection::getProductsEdmVer($id, $type, $paginate ? true : false);
         if (!$re) {
@@ -125,6 +127,7 @@ class edmCtrl extends Controller
             'bg' => $bg,
             'qr' => $qr,
             'btn' => $btn,
+            'x' => $x,
         ]);
     }
 }
