@@ -131,6 +131,9 @@ img {
     content: "NT.";
     font-size: 50%;
 }
+.origin-price::before {
+    text-decoration: line-through;
+}
 .price::before {
     margin-right: -2%;
 }

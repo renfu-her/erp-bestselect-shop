@@ -83,7 +83,7 @@
                                                             <div style="display: flex;align-items: flex-end;height:100%;">
                                                                 <div style="flex: 1;">
                                                                     @if ($products[$i * 3 + $j]->price < $products[$i * 3 + $j]->origin_price)
-                                                                        <div class="origin-price">{{ $products[$i * 3 + $j]->origin_price }}</div>
+                                                                        <div class="origin-price" style="font-size: {{ $x }}rem">{{ $products[$i * 3 + $j]->origin_price }}</div>
                                                                     @endif
                                                                     <div class="price" style="padding-bottom: {{ 3 * $x }}px;font-size: {{ 2 * $x }}rem;">
                                                                         {{ $products[$i * 3 + $j]->price }}
