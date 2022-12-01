@@ -157,6 +157,10 @@ tfoot div {
 }
 
 @media print {
+    body {
+        -webkit-print-color-adjust: exact;
+    }
+    
     a,
     a:active,
     a:visited {

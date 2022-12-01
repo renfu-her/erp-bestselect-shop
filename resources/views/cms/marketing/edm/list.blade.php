@@ -20,7 +20,7 @@
     </form>
 
     <div class="card shadow p-4 mb-4">
-        <div class="row justify-content-end mb-4">
+        <div class="row justify-content-end mb-2">
             <div class="col">
                 <label class="form-label">標頭底色</label>
                 <select name="header_color" class="form-select form-select-sm">
@@ -42,6 +42,9 @@
         </div>
 
         <div class="table-responsive tableOverBox">
+            <div class="text-end small pe-2">
+                <mark><i class="bi bi-exclamation-diamond-fill text-warning"></i> 網頁預覽列印僅支援 Chrome / Edge 瀏覽器</mark>
+            </div>
             <table class="table table-striped tableList">
                 <thead>
                     <tr>

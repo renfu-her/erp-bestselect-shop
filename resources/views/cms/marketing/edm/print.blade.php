@@ -26,7 +26,6 @@
         @if ($btn === '1')
             <div class="print">
                 <button type="button" onclick="javascript:window.print();">我要列印</button>
-                {{-- <button type="button" onclick="">下載</button> --}}
                 <button type="button" onclick="javascript:window.close();">關閉視窗</button>
             </div>
         @endif
@@ -140,15 +139,9 @@
 </html>
 {{-- {{ dd($products[0]) }} --}}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
-{{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.qrcode/1.0/jquery.qrcode.min.js"></script> --}}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
     // QR code
-    // $('.qrcode').qrcode({
-    //     width: 60,
-    //     height: 60,
-    //     text: `https://www.bestselection.com.tw/product/${sku}?mcode=${mcode}`
-    // });
     $.when(
         $('.qrcode').each(function (index, element) {
             // element == this
