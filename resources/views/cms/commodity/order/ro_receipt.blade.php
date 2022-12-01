@@ -40,6 +40,13 @@
             <a href="{{ Route('cms.collection_payment.refund-po-show', ['id' => $received_order->id]) }}" class="btn btn-sm btn-primary" role="button">新增退出付款單</a>
             @endif
             @endcan
+
+            @if (count($relation_order) > 0)
+                <button type="button" class="btn btn-sm btn-primary" disabled>相關單號</button>
+                @foreach ($relation_order as $value)
+                    <a href="{{ $value->url }}" class="btn btn-sm btn-primary" role="button">{{ $value->sn }}</a>
+                @endforeach
+            @endif
         </div>
     </nav>
 

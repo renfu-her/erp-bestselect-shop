@@ -35,6 +35,13 @@
                     class="btn btn-sm btn-outline-danger">刪除收款單</a>
             @endif
             @endcan
+
+            @if (count($relation_order) > 0)
+                <button type="button" class="btn btn-sm btn-primary" disabled>相關單號</button>
+                @foreach ($relation_order as $value)
+                    <a href="{{ $value->url }}" class="btn btn-sm btn-primary" role="button">{{ $value->sn }}</a>
+                @endforeach
+            @endif
         </div>
     </nav>
 

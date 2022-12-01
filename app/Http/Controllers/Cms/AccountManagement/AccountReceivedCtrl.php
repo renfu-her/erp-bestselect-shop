@@ -13,6 +13,7 @@ use App\Models\CrdCreditCard;
 use App\Models\DayEnd;
 use App\Models\GeneralLedger;
 use App\Models\OrderPayCreditCard;
+use App\Models\Petition;
 use App\Models\ReceivedDefault;
 use App\Models\ReceivedOrder;
 use App\Models\User;
@@ -415,6 +416,7 @@ class AccountReceivedCtrl extends Controller
             // 'accountant'=>implode(',', $accountant),
             'accountant'=>$accountant,
             'zh_price' => $zh_price,
+            'relation_order' => Petition::getBindedOrder($received_order->id, 'MSG'),
         ]);
     }
 
