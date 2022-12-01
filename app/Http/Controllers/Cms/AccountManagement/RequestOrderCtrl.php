@@ -9,13 +9,13 @@ use App\Enums\Area\Area;
 use App\Enums\Received\ReceivedMethod;
 use App\Enums\Received\ChequeStatus;
 
-use App\Models\AllGrade;
 use App\Models\Customer;
 use App\Models\CrdCreditCard;
 use App\Models\DayEnd;
 use App\Models\Depot;
 use App\Models\GeneralLedger;
 use App\Models\OrderPayCreditCard;
+use App\Models\Petition;
 use App\Models\ReceivedOrder;
 use App\Models\RequestOrder;
 use App\Models\RequestOrderItem;
@@ -320,6 +320,7 @@ class RequestOrderCtrl extends Controller
             'request_order' => $request_order,
             'applied_company' => $applied_company,
             'zh_price' => $zh_price,
+            'relation_order' => Petition::getBindedOrder($id, 'KSG'),
         ]);
     }
 
@@ -603,6 +604,7 @@ class RequestOrderCtrl extends Controller
             // 'accountant'=>implode(',', $accountant),
             'accountant'=>$accountant,
             'zh_price' => $zh_price,
+            'relation_order' => Petition::getBindedOrder($received_order->id, 'MSG'),
         ]);
     }
 

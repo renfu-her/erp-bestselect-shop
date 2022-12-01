@@ -1139,6 +1139,7 @@ class OrderCtrl extends Controller
             'product_grade_name' => $product_grade_name,
             'logistics_grade_name' => $logistics_grade_name ?? '',
             'zh_price' => $zh_price,
+            'relation_order' => Petition::getBindedOrder($received_order_collection->first()->id, 'MSG'),
         ]);
     }
 

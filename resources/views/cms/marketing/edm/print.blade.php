@@ -14,7 +14,7 @@
     <style>
         @page {
             size: A4 portrait;
-            /* A4(794×1123) 直向 */
+            /* A4(794×1123px)(210mm×297mm) 直向 */
             margin: 0mm;
             /* 邊界 */
         }
@@ -30,11 +30,11 @@
             </div>
         @endif
 
-        <table width="794" cellpadding="10" cellspacing="0" class="T1">
+        <table style="width: 210mm;" cellpadding="10" cellspacing="0" border="0" class="T1">
             <thead>
-                <tr height="115">
+                <tr style="height: 30mm;">
                     <th class="bg bg_{{ $bg }}">
-                        <h1 style="margin: 5px auto;">{{ $collection->name }}</h1>
+                        <h1 style="margin: auto;">{{ $collection->name }}</h1>
                     </th>
                 </tr>
             </thead>
@@ -44,16 +44,16 @@
                         @php
                             $n = 0;
                         @endphp
-                        <table width="100%" cellpadding="10" cellspacing="0" border="0" class="T2">
+                        <table width="100%" cellpadding="9" cellspacing="0" border="0" class="T2">
                             @for ($i = 0; $i < (count($products) / 3); $i++, $n++)
-                                <tr height="280" class="page">
+                                <tr style="height: 74mm;" class="page">
                                     @for ($j = 0; $j < 3; $j++)
                                         @if (isset($products[$i * 3 + $j]))
-                                            <td height="280" style="">
-                                                <table width="100%" height="280" cellpadding="0" cellspacing="0" border="0" class="T3">
-                                                    <tr height="180" style="vertical-align: top;">
-                                                        <td height="180" style="padding: 0;">
-                                                            <div style="overflow: hidden;width:100%;height:180px;display:flex;">
+                                            <td style="height: 74mm;" style="">
+                                                <table width="100%" style="height: 74mm;" cellpadding="0" cellspacing="0" border="0" class="T3">
+                                                    <tr style="height: 47.6mm;" style="vertical-align: top;">
+                                                        <td style="padding: 0;height: 47.6mm;">
+                                                            <div style="overflow: hidden;width:100%;height:47.6mm;display:flex;">
                                                                 <img class="pImg" src="{{ $products[$i * 3 + $j]->img_url }}" 
                                                                     alt="{{ $products[$i * 3 + $j]->product_title }}">
                                                             </div>
@@ -75,7 +75,7 @@
                                                             @endif
                                                         </td>
                                                     </tr> --}}
-                                                    <tr height="55">
+                                                    <tr style="height: 14.56mm;">
                                                         <td style="text-align: center;">
                                                             <div style="display: flex;align-items: flex-end;height:100%;">
                                                                 <div style="flex: 1;">
@@ -85,12 +85,12 @@
                                                                     <div class="price">
                                                                         {{ $products[$i * 3 + $j]->price }}
                                                                         @if (count($products[$i * 3 + $j]->style) > 1)
-                                                                            <span style="font-size: 12px;font-weight: 500;margin-left: -5px;">起</span>
+                                                                            <span style="font-size: 12px;font-weight: 500;margin-left: -1mm;">起</span>
                                                                         @endif
                                                                     </div>
                                                                 </div>
                                                                 @if ($qr === '1')
-                                                                    <div style="width: 55px">
+                                                                    <div style="width: 14.56mm;">
                                                                         {{-- QR code --}}
                                                                         <div class="qrcode" data-url="https://www.bestselection.com.tw/product/{{ $products[$i * 3 + $j]->sku }}?mcode={{ $mcode }}"></div>
                                                                     </div>
@@ -107,7 +107,7 @@
                                 </tr>
                             @endfor
                             @for ($i = 0; ($n % 3) > 0 && $i < 3-($n % 3); $i++)
-                                <tr height="290">
+                                <tr style="height: 76.7mm;">
                                     <td></td><td></td><td></td>
                                 </tr>
                             @endfor
@@ -116,8 +116,8 @@
                 </tr>
             </tbody>
             <tfoot>
-                <tr height="70">
-                    <th height="70" style="font-size: 1.5rem;font-weight: 500;letter-spacing: 2px;">
+                <tr style="height: 18.5mm;">
+                    <th style="height: 18.5mm;font-size: 1.5rem;font-weight: 500;letter-spacing: 2px;">
                         <div style="display: flex;align-items: center;">
                             <div style="border-right: 1px solid #4B4B4B;padding:0 20px;width:30%;">
                                 <img src="{{ Asset('images/Bestselection-logo.png') }}" alt="喜鴻購物"

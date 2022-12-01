@@ -140,6 +140,26 @@ class Petition extends Model
                             $err_order[] = $key;
                         }
                         break;
+                    case "KSG":
+                        $o = RequestOrder::where('sn', $order)->get()->first();
+                        if ($o) {
+                            $insert_data = ['order_id' => $o->id,
+                                'order_sn' => $o->sn,
+                                'order_type' => 'KSG'];
+                        } else {
+                            $err_order[] = $key;
+                        }
+                        break;
+                    case "MSG":
+                        $o = ReceivedOrder::where('sn', $order)->get()->first();
+                        if ($o) {
+                            $insert_data = ['order_id' => $o->id,
+                                'order_sn' => $o->sn,
+                                'order_type' => 'MSG'];
+                        } else {
+                            $err_order[] = $key;
+                        }
+                        break;
                     case "PSG":
                         $o = StituteOrder::where('sn', $order)->get()->first();
                         if ($o) {
