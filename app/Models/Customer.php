@@ -372,4 +372,15 @@ class Customer extends Authenticatable
             ]);
         }
     }
+
+    /**
+     * 用mcode取得user 
+     */
+    public static function getUserByMcode($mcode) {
+       return  DB::table('usr_customers as customer')
+        ->join('usr_users as user','user.customer_id','=','customer.id')
+        ->select('user.*')
+        ->where('customer.sn',$mcode)
+        ->get()->first();
+    }
 }

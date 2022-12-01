@@ -27,6 +27,10 @@
                     @endif
 
                     @if($invoice->r_invalid_status != 'SUCCESS')
+                        @if($check_inv_allowance)
+                            <a href="{{ Route('cms.order.allowance-invoice', ['id' => $invoice->id]) }}" class="btn btn-sm btn-success" role="button">發票折讓</a>
+                        @endif
+
                         @if($check_invoice_invalid)
                             <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#confirm-invalid-invoice">發票作廢</button>
                         @endif
@@ -127,6 +131,92 @@
         </div>
     </div>
 
+    @if($inv_allowance->count() > 0)
+        <div class="card shadow p-4 mb-4">
+            <h6>發票折讓記錄</h6>
+
+            @foreach($inv_allowance as $value)
+                <div class="table-responsive">
+                    <table class="table table-bordered align-middle">
+                        <tbody class="border-top-0">
+                            <tr class="table-light text-center">
+                                <td colspan="4">折讓明細</td>
+                            </tr>
+                            <tr>
+                                <th class="table-light" style="width:15%">折讓單號</th>
+                                <td style="width:35%">{{ $value->allowance_no ? $value->allowance_no : '-' }}</td>
+                                <th class="table-light" style="width:15%">買受人E-mail</th>
+                                <td style="width:35%">{{ $value->buyer_email ? $value->buyer_email : '-' }}</td>
+                            </tr>
+                            <tr>
+                                <th class="table-light" style="width:15%">折讓日期</th>
+                                <td style="width:35%">{{ $value->r_status == 'SUCCESS' ? date('Y-m-d', strtotime($value->created_at)) : '-' }}</td>
+                                <th class="table-light" style="width:15%">作廢折讓日期</th>
+                                <td style="width:35%">{{ $value->r_invalid_status == 'SUCCESS' ? date('Y-m-d', strtotime($value->deleted_at)) : '-' }}</td>
+                            </tr>
+
+                            @if($value->r_invalid_status != 'SUCCESS')
+                            <tr>
+                                <td colspan="4">
+                                    @if($value->r_status != 'SUCCESS')
+                                        <a href="javascript:void(0)" role="button" class="btn btn-sm btn-outline-success" data-bs-toggle="modal" 
+                                            data-bs-target="#confirm-allowance-issue" data-href="{{ route('cms.order.send-invoice', ['id' => $value->invoice_id, 'action' => 'allowance_issue', 'allowance_id' => $value->id]) }}">
+                                            開立折讓
+                                        </a>
+                                    @elseif($value->r_status == 'SUCCESS')
+                                        <button type="button" class="btn btn-sm btn-outline-danger allowance-invalid" data-bs-toggle="modal" data-bs-target="#confirm-allowance-invalid" data-action="{{ route('cms.order.send-invoice', ['id' => $value->invoice_id, 'action' => 'allowanceInvalid', 'allowance_id' => $value->id]) }}">作廢折讓</button>
+                                    @endif
+                                </td>
+                            </tr>
+                            @endif
+                        </tbody>
+                    </table>
+
+                    <table class="table table-bordered text-center align-middle d-sm-table d-none text-nowrap">
+                        <tbody class="border-top-0">
+                            <tr class="table-light">
+                                <td class="col-2">品名</td>
+                                <td class="col-2">單價</td>
+                                <td class="col-2">數量</td>
+                                <td class="col-2">金額</td>
+                                <td class="col-2">營業稅額</td>
+                                <td class="col-2">稅別</td>
+                            </tr>
+                            @php
+                                $item_name_arr = explode('|', $value->item_name);
+                                $item_count_arr = explode('|', $value->item_count);
+                                $item_price_arr = explode('|', $value->item_price);
+                                $item_amt_arr = explode('|', $value->item_amt);
+                                $item_tax_type_arr = explode('|', $value->item_tax_type);
+                                $item_tax_amt_arr = explode('|', $value->item_tax_amt);
+                            @endphp
+                            @foreach($item_name_arr as $i_key => $i_value)
+                            <tr>
+                                <td>{{ $i_value }}</td>
+                                <td>{{ number_format($item_price_arr[$i_key]) }}</td>
+                                <td>{{ $item_count_arr[$i_key] }}</td>
+                                <td>{{ number_format($item_amt_arr[$i_key]) }}</td>
+                                <td>{{ number_format($item_tax_amt_arr[$i_key]) }}</td>
+                                <td>{{ $item_tax_type_arr[$i_key] == 1 ? '應稅' : '免稅' }}</td>
+                            </tr>
+                            @endforeach
+                            <tr>
+                                <td colspan="3">折讓金額小計</td>
+                                <td>{{ number_format(array_sum($item_amt_arr)) }}</td>
+                                <td>{{ number_format(array_sum($item_tax_amt_arr)) }}</td>
+                                <td>{{ $value->tax_type == 1 ? '應稅' : '免稅' }}</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3">折讓總金額</td>
+                                <td colspan="3">{{ number_format($value->total_amt) }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            @endforeach
+        </div>
+    @endif
+
     <div class="col-auto">
         <a href="{{ Route('cms.order.detail', ['id' => $invoice->source_id]) }}" class="btn btn-outline-primary px-4" 
             role="button">返回 訂單明細</a>
@@ -149,7 +239,36 @@
                 @csrf
                 <p>確認要作廢此發票？</p>
                 <x-b-form-group name="invalid_reason" title="作廢原因" required="true">
-                    <input type="text" class="form-control" name="invalid_reason" value="" aria-label="作廢原因" required>
+                    <i class="bi bi-info-circle" data-bs-toggle="tooltip" title="作廢原因至多為6個字元"></i>
+                    <input type="text" class="form-control" name="invalid_reason" value="" placeholder="請輸入作廢原因" aria-label="作廢原因" minlength="1" maxlength="6" required>
+                </x-b-form-group>
+
+                <div class="col-auto float-end">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-danger">確認</button>
+                </div>
+            </form>
+        </x-slot>
+    </x-b-modal>
+
+    <x-b-modal id="confirm-allowance-issue">
+        <x-slot name="title">開立發票折讓</x-slot>
+        <x-slot name="body">確認要開立此發票折讓？</x-slot>
+        <x-slot name="foot">
+            <a class="btn btn-danger btn-ok" href="#">確認</a>
+        </x-slot>
+    </x-b-modal>
+
+    <x-b-modal id="confirm-allowance-invalid">
+        <x-slot name="title">折讓作廢</x-slot>
+
+        <x-slot name="body">
+            <form action="#" method="POST" id="allowance-invalid">
+                @csrf
+                <p>確認要作廢此發票折讓？</p>
+                <x-b-form-group name="invalid_reason" title="作廢原因" required="true">
+                    <i class="bi bi-info-circle" data-bs-toggle="tooltip" title="作廢原因至多為6個字元"></i>
+                    <input type="text" class="form-control" name="invalid_reason" value="" placeholder="請輸入作廢原因" aria-label="作廢原因" minlength="1" maxlength="6" required>
                 </x-b-form-group>
 
                 <div class="col-auto float-end">
@@ -173,6 +292,16 @@
             });
             $('#confirm-invalid-invoice').on('show.bs.modal', function(e) {
                 $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
+            });
+            $('#confirm-allowance-issue').on('show.bs.modal', function(e) {
+                $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
+            });
+            $('#confirm-allowance-invalid').on('show.bs.modal', function(e) {
+                $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
+            });
+
+            $('.allowance-invalid').on('click', function(){
+                $('#allowance-invalid').attr('action', $(this).data('action'));
             });
         </script>
     @endpush
