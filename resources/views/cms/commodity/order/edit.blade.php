@@ -1254,6 +1254,7 @@
 
                                     // 關閉商品懸浮視窗
                                     addProductModal.hide();
+                                    $('#addProduct .-searchBar input').val('');
                                     // 開啟物流選擇視窗
                                     setShipmentModal.show();
                                 });
@@ -1564,7 +1565,7 @@
             /*** fn ***/
             // #清空商品 Modal
             function resetAddProductModal() {
-                $('#addProduct .-searchBar input').val('');
+               // $('#addProduct .-searchBar input').val('');
                 $('#addProduct tbody.-appendClone.--product').empty();
                 $('#addProduct #pageSum').text('');
                 $('#addProduct .page-item:not(:first-child, :last-child)').remove();
