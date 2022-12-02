@@ -1144,6 +1144,7 @@ class PurchaseInbound extends Model
                 , 'inbound.total_scrap_num'
                 , 'inbound.total_in_stock_num'
                 , 'inbound.total_in_stock_num_csn'
+                , 'p.public'
             );
         if (null != $depot_id && 0 < count($depot_id)) {
             $products->whereIn('inbound.depot_id', $depot_id);
@@ -1153,6 +1154,9 @@ class PurchaseInbound extends Model
                 $q->where('inbound.total_in_stock_num', '>', 0)
                     ->orWhere('inbound.total_in_stock_num_csn', '>', 0);
             });
+        }
+        if (isset($searchParam['public']) && !is_null($searchParam['public'])) {
+            $products->where('p.public', $searchParam['public']);
         }
         return $products;
     }

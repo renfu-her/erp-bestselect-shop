@@ -34,6 +34,7 @@ class StockCtrl extends Controller
         'out_of_stock' => '無庫存',
         'still_actual_stock' => '尚有實際庫存',
     ];
+    private $publics = [['all', '不限'], ['1', '公開'], ['0', '不公開']];
 
     /**
      * Display a listing of the resource.
@@ -60,6 +61,7 @@ class StockCtrl extends Controller
             'users' => User::select('id', 'name')->get()->toArray(),
             'typeRadios' => $this->typeRadios,
             'stockRadios' => $this->stockRadios,
+            'publics' => $this->publics,
             'consumes' => $this->consumes,
             'searchParam' => $searchParam,
         ]);
@@ -131,11 +133,14 @@ class StockCtrl extends Controller
         $searchParam['supplier'] = Arr::get($query, 'supplier');
         $searchParam['stock'] = Arr::get($query, 'stock',[]);
         $searchParam['depot_id'] = Arr::get($query, 'depot_id',[]);
+        $searchParam['public'] = Arr::get($query, 'public', 'all');
         $searchParam['data_per_page'] = getPageCount(Arr::get($query, 'data_per_page', 100));
 
         if (!in_array($searchParam['type'], array_keys($this->typeRadios))) {
             $searchParam['type'] = 'all';
         }
+        $searchParam['public'] =  $searchParam['public'] == 'all' ? null : $searchParam['public']; // 參考 ProductCtrl.index邏輯
+
         return $searchParam;
     }
 }
