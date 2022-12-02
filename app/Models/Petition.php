@@ -2,11 +2,12 @@
 
 namespace App\Models;
 
+use App\Models\Expenditure;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
-use App\Models\Expenditure;
+
 class Petition extends Model
 {
     use HasFactory, SoftDeletes;
@@ -94,7 +95,7 @@ class Petition extends Model
         DB::commit();
         return ['success' => '1'];
     }
-
+    // 新增關聯訂單
     public static function updateOrderSn($orders, $id, $type)
     {
         DB::beginTransaction();
@@ -116,7 +117,7 @@ class Petition extends Model
 
     }
 
-    public static function checkOrderSn($orders, $pid = null, $type)
+    public static function checkOrderSn($orders, $pid = null, $type = null)
     {
         $err_order = []; //key
         $order_sn = [];
@@ -277,6 +278,47 @@ class Petition extends Model
 
         return $re2;
 
+    }
+    // 反向綁定
+    public static function reverseBind($current_sn, $target_sn)
+    {
+        $target = self::checkOrderSn([$target_sn]);
+        $current = self::checkOrderSn([$current_sn]);
+
+        if ($target['success'] != '1' || $current['success'] != '1') {
+            return ['success' => '0', 'message' => '查無單號'];
+        }
+
+        $target = $target['data'][0];
+        $current = $current['data'][0];
+
+        switch ($target['order_type']) {
+            case 'PET':
+                $type = 'petition';
+                break;
+            case 'EXP':
+                $type = 'expenditure';
+                break;
+            default:
+                return ['success' => '0', 'message' => '綁定對象錯誤'];
+        }
+
+        if (DB::table('pet_order_sn')
+            ->where('source_type', $type)
+            ->where('source_id', $target['order_id'])
+            ->where('order_sn', $current_sn)->get()->first()) {
+            return ['success' => '0', 'message' => '已綁定'];
+        }
+
+        DB::table('pet_order_sn')->insert([
+            'source_type' => $type,
+            'source_id' => $target['order_id'],
+            'order_id' => $current['order_id'],
+            'order_sn' => $current_sn,
+            'order_type' => $current['order_type'],
+        ]);
+
+        return ['success' => '1'];
     }
 
 }
