@@ -16,6 +16,7 @@
                             <th scope="col" class="text-end">金額</th>
                             <th scope="col">稅別</th>
                             <th scope="col">備註</th>
+                            <th scope="col">收款項目備註</th>
                         </tr>
                     </thead>
 
@@ -23,7 +24,6 @@
                         @php
                             $serial = 1;
                             $product_grade_f = true;
-                            $order_note_f = true;
                         @endphp
 
                         @foreach($received_data as $value)
@@ -74,6 +74,7 @@
                                 <td>
                                     <input class="form-control form-control-sm -l" name="received[{{ $value->received_id }}][note]" type="text" value="{{ $value->note }}">
                                 </td>
+                                <td></td>
                             </tr>
                             @php
                                 $serial++;
@@ -129,14 +130,8 @@
                                         </label>
                                     </div>
                                 </td>
-                                <td>
-                                    @if($order_note_f)
-                                        {{ $value->order_note }}
-                                        @php
-                                            $order_note_f = false;
-                                        @endphp
-                                    @endif
-                                </td>
+                                <td><input class="form-control form-control-sm -l" name="csn_order_item[{{ $value->order_item_id }}][memo]" type="text" value="{{ $value->product_note }}"></td>
+                                <td><input class="form-control form-control-sm -l" name="csn_order_item[{{ $value->order_item_id }}][ro_note]" type="text" value="{{ $value->product_ro_note }}"></td>
                             </tr>
                             @php
                                 $serial++;
