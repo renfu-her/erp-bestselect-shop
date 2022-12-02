@@ -19,7 +19,7 @@ class PetitionCtrl extends Controller
      */
     public function index(Request $request)
     {
-
+        // dd(Petition::reverseBind('O202211070001','EXP000000005'));
         // Petition::getBindedOrder(42,'PET');
         $query = $request->all();
 
