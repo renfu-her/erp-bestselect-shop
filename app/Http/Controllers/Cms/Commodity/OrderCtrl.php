@@ -34,6 +34,7 @@ use App\Models\Order;
 use App\Models\OrderCart;
 use App\Models\OrderFlow;
 use App\Models\OrderInvoice;
+use App\Models\OrderInvoiceAllowance;
 use App\Models\OrderItem;
 use App\Models\OrderPayCreditCard;
 use App\Models\OrderPayLinePay;
@@ -1038,7 +1039,7 @@ class OrderCtrl extends Controller
 
         } catch (\Exception $e) {
             DB::rollback();
-            wToast(__('收款單儲存失敗', ['type' => 'danger']));
+            wToast(__('收款單儲存失敗'), ['type' => 'danger']);
         }
 
         if (ReceivedOrder::find($received_order_id) && ReceivedOrder::find($received_order_id)->balance_date) {
@@ -1138,6 +1139,7 @@ class OrderCtrl extends Controller
             'product_grade_name' => $product_grade_name,
             'logistics_grade_name' => $logistics_grade_name ?? '',
             'zh_price' => $zh_price,
+            'relation_order' => Petition::getBindedOrder($received_order_collection->first()->id, 'MSG'),
         ]);
     }
 
@@ -1227,7 +1229,7 @@ class OrderCtrl extends Controller
 
             } catch (\Exception $e) {
                 DB::rollback();
-                wToast(__('入帳日期更新失敗', ['type' => 'danger']));
+                wToast(__('入帳日期更新失敗'), ['type' => 'danger']);
 
                 return redirect()->back();
             }
@@ -1603,7 +1605,7 @@ class OrderCtrl extends Controller
 
             } catch (\Exception $e) {
                 DB::rollback();
-                wToast(__('摘要/稅別更新失敗', ['type' => 'danger']));
+                wToast(__('摘要/稅別更新失敗'), ['type' => 'danger']);
             }
 
             return redirect()->route('cms.order.ro-receipt', ['id' => request('id')]);
@@ -2266,7 +2268,7 @@ class OrderCtrl extends Controller
         ]);
 
         if (array_sum(request('o_total_price')) < 1) {
-            wToast(__('發票金額不可小於1', ['type' => 'danger']));
+            wToast(__('發票金額不可小於1'), ['type' => 'danger']);
             return redirect()->back()->withInput();
         }
 
@@ -2409,6 +2411,18 @@ class OrderCtrl extends Controller
             $check_invoice_invalid = false;
         }
 
+        $inv_allowance_collection = OrderInvoiceAllowance::where('invoice_id', $invoice->id);
+        if($invoice->category == 'B2B'){
+            if($inv_allowance_collection->withTrashed()->count() > 0) {
+                $check_invoice_invalid = false;
+            }
+
+        } else {
+            if($inv_allowance_collection->count() > 0) {
+                $check_invoice_invalid = false;
+            }
+        }
+
         $view = 'cms.commodity.order.invoice_detail';
         if (request('action') == 'print_inv_a4') {
             $view = 'doc.print_order_invoice_a4';
@@ -2429,12 +2443,21 @@ class OrderCtrl extends Controller
         $invoice->zh_period = (date('Y', strtotime($invoice->created_at)) - 1911) . '年' . $month_range . '月';
         $invoice->zh_total_amt = num_to_str($invoice->total_amt);
 
+        $inv_allowance = OrderInvoiceAllowance::where('invoice_id', $invoice->id)->orderBy('id', 'desc')->withTrashed()->get();
+        $inv_allowance_total_amt_sum = OrderInvoiceAllowance::where('invoice_id', $invoice->id)->get()->sum('total_amt');
+        $check_inv_allowance = true;
+        if($invoice->total_amt <= $inv_allowance_total_amt_sum){
+            $check_inv_allowance = false;
+        }
+
         return view($view, [
             'breadcrumb_data' => ['id' => $id, 'sn' => $order->sn],
 
             'invoice' => $invoice,
+            'inv_allowance' => $inv_allowance,
             'handler' => $handler,
             'check_invoice_invalid' => $check_invoice_invalid,
+            'check_inv_allowance' => $check_inv_allowance,
             // 'order' => $order,
             // 'sub_order' => $sub_order,
         ]);
@@ -2480,7 +2503,7 @@ class OrderCtrl extends Controller
             ]);
 
             if (array_sum(request('o_total_price')) < 1) {
-                wToast(__('發票金額不可小於1', ['type' => 'danger']));
+                wToast(__('發票金額不可小於1'), ['type' => 'danger']);
                 return redirect()->back()->withInput();
             }
 
@@ -2538,15 +2561,105 @@ class OrderCtrl extends Controller
         ]);
     }
 
-    public function send_invoice(Request $request, $id, $action)
+    public function allowance_invoice(Request $request, $id)
+    {
+        $invoice = OrderInvoice::findOrFail($id);
+        $inv_remain = $invoice->total_amt - OrderInvoiceAllowance::where('invoice_id', $id)->sum('total_amt');
+        if($inv_remain < 0){
+            return abort(404);
+        }
+
+        if ($request->isMethod('post')) {
+            $request->validate([
+                'buyer_email' => 'nullable|email:rfc,dns',
+
+                'o_title' => 'required|array|min:1',
+                'o_title.*' => 'required|string|between:1,30',
+                'o_price' => 'required|array|min:1',
+                'o_price.*' => 'required|numeric|min:0',
+                'o_total_price' => 'required|array|min:1',
+                'o_total_price.*' => 'required|numeric|min:0',
+                'o_qty' => 'required|array|min:1',
+                'o_qty.*' => 'required|numeric|gt:0',
+                'o_taxation' => 'required|array|min:1',
+                'o_taxation.*' => 'required|in:0,1',
+                'o_tax_price' => 'required|array|min:1',
+                'o_tax_price.*' => 'required|numeric|min:0',
+            ]);
+
+            if (array_sum(request('o_total_price')) < 0) {
+                wToast(__('發票金額不可小於0'), ['type' => 'danger']);
+                return redirect()->back()->withInput();
+            }
+
+            if (array_sum(request('o_tax_price')) < 0) {
+                wToast(__('營業稅額合計不可小於0'), ['type' => 'danger']);
+                return redirect()->back()->withInput();
+            }
+
+            if (count(array_unique($request->input('o_taxation'))) > 1) {
+                wToast(__('折讓商品稅別不可為混合課稅'), ['type' => 'danger']);
+                return redirect()->back()->withInput();
+            }
+
+            if ($inv_remain - (array_sum(request('o_total_price')) + array_sum(request('o_tax_price'))) < 0) {
+                wToast(__('折讓商品總價和稅別不可大於發票可折讓餘額'), ['type' => 'danger']);
+                return redirect()->back()->withInput();
+            }
+
+            $data = $request->except('_token');
+            $result = OrderInvoiceAllowance::create_allowance($id, $data);
+
+            if ($result) {
+                if ($invoice->source_type == app(Order::class)->getTable()) {
+                    $unique_id = Order::findOrFail($invoice->source_id)->unique_id;
+                    return redirect()->route('cms.order.show-invoice', [
+                        'id' => $invoice->source_id,
+                        'unique_id' => $unique_id,
+                    ]);
+                }
+
+            } else {
+                return redirect()->back()->withInput();
+            }
+        }
+
+        $breadcrumb = (object) [
+            'id' => null,
+            'sn' => null,
+            'unique_id' => null,
+        ];
+        if ($invoice->source_type == app(Order::class)->getTable()) {
+            $order = Order::find($invoice->source_id);
+            $breadcrumb->id = $order->id;
+            $breadcrumb->sn = $order->sn;
+            $previous_url = route('cms.order.show-invoice', ['id' => $order->id, 'unique_id' => $order->unique_id]);
+        }
+
+        return view('cms.commodity.order.invoice_allowance', [
+            'breadcrumb_data' => [
+                'id' => $breadcrumb->id,
+                'sn' => $breadcrumb->sn,
+                'previous_url' => $previous_url,
+            ],
+            'form_action' => route('cms.order.allowance-invoice', ['id' => $id]),
+            'previous_url' => $previous_url,
+            'invoice' => $invoice,
+            'inv_remain' => $inv_remain,
+        ]);
+    }
+
+    public function send_invoice(Request $request, $id, $action, $allowance_id = null)
     {
         $request->merge([
             'id' => $id,
             'action' => $action,
+            'allowance_id' => $allowance_id,
         ]);
         $request->validate([
             'id' => 'required|exists:ord_order_invoice,id',
-            'action' => 'required|in:issue,invalid,id',
+            'action' => 'required|in:issue,invalid,allowance_issue,allowanceInvalid',
+            'allowance_id' => 'nullable|exists:ord_order_invoice_allowance,id',
         ]);
 
         $inv_result = null;
@@ -2569,7 +2682,7 @@ class OrderCtrl extends Controller
                 'invalid_reason' => request('invalid_reason'),
             ]);
             $request->validate([
-                'invalid_reason' => 'required|string',
+                'invalid_reason' => 'required|string|min:1|max:6',
             ]);
 
             $inv_result = OrderInvoice::invoice_invalid_api($id, request('invalid_reason'));
@@ -2587,6 +2700,25 @@ class OrderCtrl extends Controller
             return redirect()->route('cms.order.detail', [
                 'id' => $inv_result->source_id,
             ]);
+
+        } else if($action == 'allowance_issue'){
+            // $invoice = OrderInvoice::findOrFail($id);
+            $inv_result = OrderInvoice::allowance_issue_api($allowance_id);
+
+            wToast(__($inv_result->r_msg));
+
+        } else if($action == 'allowanceInvalid'){
+            $request->merge([
+                'invalid_reason' => request('invalid_reason'),
+            ]);
+            $request->validate([
+                'invalid_reason' => 'required|string|min:1|max:6',
+            ]);
+
+            // $invoice = OrderInvoice::findOrFail($id);
+            $inv_result = OrderInvoice::allowance_invalid_api($allowance_id, request('invalid_reason'));
+
+            wToast(__($inv_result->r_invalid_msg));
         }
 
         if(! $inv_result){

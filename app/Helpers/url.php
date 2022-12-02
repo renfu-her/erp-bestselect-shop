@@ -3,6 +3,7 @@
 use App\Enums\Globals\AppEnvClass;
 use App\Enums\Globals\ImageDomain;
 use App\Models\PayingOrder;
+use App\Models\ReceivedOrder;
 use Illuminate\Support\Facades\App;
 
 if (!function_exists('isActive')) {
@@ -97,12 +98,19 @@ if (!function_exists('getErpOrderUrl')) {
             case "O":
                 $order->url = route('cms.order.detail', ['id' => $order->order_id]);
                 break;
+            case "KSG":
+                $order->url = route('cms.request.show', ['id' => $order->order_id]);
+                break;
+            case "MSG":
+                $ro = ReceivedOrder::find($order->order_id);
+                $order->url = ReceivedOrder::received_order_link($ro->source_type, $ro->source_id);
+                break;
             case "PSG":
                 $order->url = route('cms.stitute.show', ['id' => $order->order_id]);
                 break;
             case "ISG":
-                $append_po = PayingOrder::find($order->order_id);
-                $order->url = PayingOrder::paying_order_link($append_po->source_type, $append_po->source_id, $append_po->source_sub_id, $append_po->type);
+                $po = PayingOrder::find($order->order_id);
+                $order->url = PayingOrder::paying_order_link($po->source_type, $po->source_id, $po->source_sub_id, $po->type);
                 break;
             case "B":
                 $order->url = route('cms.purchase.edit', ['id' => $order->order_id]);

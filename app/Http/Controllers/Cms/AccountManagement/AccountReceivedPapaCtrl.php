@@ -21,6 +21,7 @@ use App\Models\CrdCreditCard;
 use App\Models\DayEnd;
 use App\Models\GeneralLedger;
 use App\Models\OrderPayCreditCard;
+use App\Models\Petition;
 use App\Models\Product;
 use App\Models\ReceivedDefault;
 use App\Models\ReceivedOrder;
@@ -358,6 +359,7 @@ abstract class AccountReceivedPapaCtrl extends Controller
             'product_grade_name'=>$product_grade_name,
             'logistics_grade_name'=>$logistics_grade_name ?? '',
             'zh_price' => $zh_price,
+            'relation_order' => Petition::getBindedOrder($received_order_collection->first()->id, 'MSG'),
         ]);
     }
 

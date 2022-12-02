@@ -455,7 +455,7 @@ class CollectionPaymentCtrl extends Controller
 
             } catch (\Exception $e) {
                 DB::rollback();
-                wToast(__('付款項目備註更新失敗', ['type' => 'danger']));
+                wToast(__('付款項目備註更新失敗'), ['type' => 'danger']);
             }
 
             return redirect()->back();
