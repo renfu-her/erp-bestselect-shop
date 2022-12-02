@@ -70,7 +70,7 @@
                         @endforeach
                     </div>
                 </fieldset>
-                <fieldset class="col-12 mb-3">
+                <fieldset class="col-12 col-sm-6 mb-3">
                     <legend class="col-form-label p-0 mb-2">庫存狀態</legend>
                     <div class="px-1 pt-1">
                         @foreach ($stockRadios as $key => $stockRadio)
@@ -84,12 +84,26 @@
                         @endforeach
                     </div>
                 </fieldset>
+                <fieldset class="col-12 col-sm-6 mb-3">
+                    <legend class="col-form-label p-0 mb-2">公開</legend>
+                    <div class="px-1 pt-1">
+                        @foreach ($publics as $key => $public)
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label">
+                                    <input class="form-check-input" name="public" type="radio"
+                                           value="{{ $public[0] }}" @if ($public[0] == ($searchParam['public']?? 'all')) checked @endif>
+                                    {{ $public[1] }}
+                                </label>
+                            </div>
+                        @endforeach
+                    </div>
+                </fieldset>
             </div>
 
             <div class="col">
                 <input type="hidden" name="data_per_page" value="{{ $searchParam['data_per_page'] }}" />
                 <button type="submit" class="btn btn-primary px-4 mb-1" onclick="submitAction('{{ Route('cms.stock.index') }}', 'GET')">搜尋</button>
-                
+
                 @can('cms.stock.export-detail')
                     <button type="button" class="btn btn-outline-success mb-1" onclick="submitAction('{{ Route('cms.stock.export-detail') }}', 'POST')">匯出庫存明細EXCEL</button>
                 @endcan
@@ -110,7 +124,7 @@
         <div class="row justify-content-end mb-4">
             <div class="col-auto">
                 <div class="btn-group">
-                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" 
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button"
                         data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
                         顯示欄位
                     </button>
@@ -143,6 +157,7 @@
                         <th scope="col" class="wrap lh-sm -sm text-center">官網可售數量</th>
                         <!--<th scope="col">預扣庫存</th>-->
                         <th scope="col" class="wrap lh-sm text-center" style="min-width:50px">安全庫存</th>
+                        <th scope="col" class="text-center">公開</th>
                         <th scope="col">廠商名稱</th>
                         <th scope="col">負責人</th>
                     </tr>
@@ -193,6 +208,13 @@
                                     </div>
                                 @endif
                             </td>
+                            <td class="text-center">
+                                @if ($data->public == '1')
+                                    <i class="bi bi-eye-fill fs-5"></i>
+                                @else
+                                    <i class="bi bi-eye-slash text-secondary fs-5"></i>
+                                @endif
+                            </td>
                             <td class="wrap -md">
                                 {{ $data->suppliers_name }}
                             </td>
@@ -222,15 +244,15 @@
                 $('input[name=data_per_page]').val($(this).val());
                 $('#search').submit();
             });
-            
+
             // 選擇表格顯示欄位
             let DefHide = {};
             try {
                 DefHide = JSON.parse(localStorage.getItem('table-hide-field')) || {};
             } catch (error) {}
             const Key = location.pathname;
-            
-            setPrintTrCheckbox($('table.tableList'), $('#selectField'), 
+
+            setPrintTrCheckbox($('table.tableList'), $('#selectField'),
                 { type: 'dropdown', defaultHide: DefHide[Key] || [] }
             );
             // 紀錄選項
