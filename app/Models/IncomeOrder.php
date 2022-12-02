@@ -165,8 +165,7 @@ class IncomeOrder extends Model
                 v_table_2.io_posting_date AS io_posting_date,
                 v_table_2.creator_name AS io_creator_name,
                 v_table_2.affirmant_name AS io_affirmant_name
-            ')
-            ->orderBy('_credit.id', 'asc');
+            ');
 
         if($received_credit_id) {
             if(gettype($received_credit_id) == 'array') {

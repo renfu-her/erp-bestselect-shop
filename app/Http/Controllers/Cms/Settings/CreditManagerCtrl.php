@@ -87,7 +87,7 @@ class CreditManagerCtrl extends Controller
                 $cond['mode'],
                 $checkout_date,
                 $posting_date
-            )->paginate($page)->appends($query);
+            )->orderBy('_credit.id', 'desc')->paginate($page)->appends($query);
 
         foreach($data_list as $value){
             $value->link = ReceivedOrder::received_order_link($value->ro_source_type, $value->ro_source_id);
@@ -357,7 +357,7 @@ class CreditManagerCtrl extends Controller
             ')
             ->first();
 
-        $data_list = IncomeOrder::get_credit_card_received_list([], 2, $income->sn)->get();
+        $data_list = IncomeOrder::get_credit_card_received_list([], 2, $income->sn)->orderBy('_credit.id', 'asc')->get();
 
         return view('cms.settings.credit_manager.income_detail', [
             'income'=>$income,

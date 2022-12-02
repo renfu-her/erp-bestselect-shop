@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\DB;
 
 use App\Models\AllGrade;
 use App\Models\CrdCreditCard;
+use App\Models\CsnOrderItem;
 use App\Models\DayEnd;
 use App\Models\GeneralLedger;
 use App\Models\OrderPayCreditCard;
@@ -717,6 +718,7 @@ abstract class AccountReceivedPapaCtrl extends Controller
                 'received' => 'required|array',
                 'product_grade_id' => 'required|exists:acc_all_grades,id',
                 'product' => 'required|array',
+                'csn_order_item' => 'required|array',
                 'logistics_grade_id' => 'nullable|exists:acc_all_grades,id',
                 'order_dlv' => 'nullable|array',
                 'discount' => 'nullable|array',
@@ -747,6 +749,14 @@ abstract class AccountReceivedPapaCtrl extends Controller
                     foreach($product as $key => $value){
                         $value['product_id'] = $key;
                         Product::update_product_taxation($value);
+                    }
+                }
+
+                if (request('csn_order_item') && is_array(request('csn_order_item'))) {
+                    $csn_order_item = request('csn_order_item');
+                    foreach ($csn_order_item as $key => $value) {
+                        $value['csn_order_item_id'] = $key;
+                        CsnOrderItem::update_csn_order_item($value);
                     }
                 }
 
