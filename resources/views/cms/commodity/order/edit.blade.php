@@ -965,6 +965,12 @@
                 backdrop: 'static',
                 keyboard: false
             });
+            // 商品modal關閉事件
+            document.getElementById('addProduct').addEventListener('hidden.bs.modal',function(e){
+                $('#addProduct .-searchBar input').val('');
+            })
+
+
             let prodPages = new Pagination($('#addProduct .-pages'));
             // 物流方式
             const EVENT_CLASS = {
@@ -1251,10 +1257,10 @@
                                 $('#addProduct .-appendClone.--product .-add').on('click', function() {
                                     const idx = Number($(this).attr('data-idx'));
                                     setProduct(prodData[idx]);
-
+                                  
                                     // 關閉商品懸浮視窗
                                     addProductModal.hide();
-                                    $('#addProduct .-searchBar input').val('');
+                                   
                                     // 開啟物流選擇視窗
                                     setShipmentModal.show();
                                 });
