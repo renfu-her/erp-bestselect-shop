@@ -331,6 +331,31 @@ class Petition extends Model
             return ['success' => '0', 'message' => '查無單號'];
         }
         $current = $current['data'][0];
+
+        foreach ($delete_sn as $value) {
+            $t = self::checkOrderSn([$value]);
+            if ($t['success'] == '1') {
+                $t = $t['data'][0];
+                $o_type = '';
+                $o_type_list = ['expenditure', 'petition'];
+                switch ($t['order_type']) {
+                    case 'EXP':
+                        $o_type = $o_type_list[0];
+                        break;
+                    case 'PET':
+                        $o_type = $o_type_list[1];
+                        break;
+
+                }
+                if ($o_type) {
+                    DB::table('pet_order_sn')
+                        ->where('source_type', $o_type)
+                        ->where('source_id', $t['order_id'])
+                        ->where('order_sn', $current_sn)->delete();
+                }
+            }
+        }
+
         $errs = [];
         foreach ($target_sn as $key => $value) {
             $processRe = self::reverseBind($current_sn, $value);

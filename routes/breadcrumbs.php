@@ -1450,3 +1450,9 @@ Breadcrumbs::for('cms.organize.edit', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.organize.index');
     $trail->push('編輯');
 });
+
+// 單據綁定
+Breadcrumbs::for('cms.reverse-bind-page', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('單據綁定');
+});

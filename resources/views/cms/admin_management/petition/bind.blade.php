@@ -6,7 +6,7 @@
     <form id="form1" method="post" action="{{ route('cms.reverse-bind-page', ['sn' => $sn, 'prev_url' => $prev_url]) }}">
         @method('POST')
         @csrf
-
+        <input type="hidden" name="del">
         <div class="card shadow p-4 mb-4">
             <div class="row">
 
@@ -41,6 +41,9 @@
                                 </button>
                             </div>
                         @endforeach
+                        @php
+                         //  dd(old('n_order'));
+                        @endphp
 
                         @foreach (old('n_order', []) as $key => $value)
                             <div class="input-group col-12 col-md-6 mb-2 -cloneElem">
@@ -82,6 +85,7 @@
 @once
     @push('sub-scripts')
         <script>
+            const delList = [];
             const $clone = $(`.-cloneElem:first-child`).clone();
             const beforeDelFn = ({
                 $this
@@ -89,6 +93,10 @@
                 const tooltip = bootstrap.Tooltip.getInstance($this);
                 if (tooltip) {
                     tooltip.dispose(); // 清除提示工具
+                }
+                let elem = $this.parent().find('input');
+                if (elem.prop('disabled')) {
+                    delList.push(elem.val());
                 }
             };
             Clone_bindDelElem($('.-appendClone .-del'), {
@@ -104,6 +112,10 @@
                     beforeDelFn: beforeDelFn
                 });
             });
+
+            $('#form1').on('submit', function(e) {
+                $('input[name="del"]').val(delList.join(','));
+            })
         </script>
     @endpush
 @endonce

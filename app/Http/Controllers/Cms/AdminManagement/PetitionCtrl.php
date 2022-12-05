@@ -331,7 +331,9 @@ class PetitionCtrl extends Controller
 
         $order = $request->input('n_order') ? $request->input('n_order') : [];
 
-        $re = Petition::reverseBindProcess($sn, $order);
+        $del = $request->input('del') ? explode(',', $request->input('del')) : [];
+
+        $re = Petition::reverseBindProcess($sn, $order, $del);
         // dd($re);
         if ($re['success'] == '1') {
             wToast('更新完成');
