@@ -251,6 +251,10 @@ class OrderCart extends Model
         self::getDividendStage($order, $_tempProducts);
         self::shipmentStage($order);
 
+        if ($order['discounted_price'] < 0) {
+            $order['discounted_price'] = 0;
+        }
+
         $order['total_price'] = $order['discounted_price'] + $order['dlv_fee'];
         $order['success'] = 1;
 
@@ -327,6 +331,7 @@ class OrderCart extends Model
             $order['discounts'][] = $dis[0];
             $order['discount_value'] += $dis[0]->currentDiscount;
             $order['discounted_price'] -= $dis[0]->currentDiscount;
+           
             self::_discountReturnToProducts($dis[0], $order, $_tempProducts);
         }
 
@@ -362,6 +367,14 @@ class OrderCart extends Model
             $order['shipments'][$p['groupIdx']]->discount_value += $currentDiscount;
             $order['shipments'][$p['groupIdx']]->discounted_price -= $currentDiscount;
 
+            if ($order['shipments'][$p['groupIdx']]->products[$p['productIdx']]->discounted_price < 0) {
+                $order['shipments'][$p['groupIdx']]->products[$p['productIdx']]->discounted_price = 0;
+            };
+
+            if ($order['shipments'][$p['groupIdx']]->discounted_price < 0) {
+                $order['shipments'][$p['groupIdx']]->discounted_price = 0;
+            }
+
             $_tempProducts[$key]['total_price'] = $order['shipments'][$p['groupIdx']]->products[$p['productIdx']]->discounted_price;
 
         }
@@ -373,6 +386,15 @@ class OrderCart extends Model
         $order['shipments'][$lp['groupIdx']]->products[$lp['productIdx']]->discounted_price -= $fix;
         $order['shipments'][$lp['groupIdx']]->discount_value += $fix;
         $order['shipments'][$lp['groupIdx']]->discounted_price -= $fix;
+
+        if ($order['shipments'][$lp['groupIdx']]->products[$lp['productIdx']]->discounted_price < 0) {
+            $order['shipments'][$lp['groupIdx']]->products[$lp['productIdx']]->discounted_price = 0;
+        }
+
+        if ($order['shipments'][$lp['groupIdx']]->discounted_price < 0) {
+            $order['shipments'][$lp['groupIdx']]->discounted_price = 0;
+        }
+
         $order['shipments'][$p['groupIdx']]->products[$p['productIdx']]->discounts[count($order['shipments'][$p['groupIdx']]->products[$p['productIdx']]->discounts) - 1]->currentDiscount += $fix;
 
     }
@@ -544,13 +566,15 @@ class OrderCart extends Model
                 case "deliver":
                     foreach ($ship->rules as $rule) {
                         $use_rule = false;
+                        $discounted_price = ($ship->discounted_price > 0) ? $ship->discounted_price : 0;
+
                         if ($rule->is_above == 'false') {
-                            if ($ship->discounted_price >= $rule->min_price && $ship->discounted_price < $rule->max_price) {
+                            if ($discounted_price >= $rule->min_price && $discounted_price < $rule->max_price) {
                                 $order['shipments'][$key]->dlv_fee = $rule->dlv_fee;
                                 $use_rule = $rule;
                             }
                         } else {
-                            if ($ship->discounted_price >= $rule->max_price) {
+                            if ($discounted_price >= $rule->max_price) {
                                 $order['shipments'][$key]->dlv_fee = $rule->dlv_fee;
                                 $use_rule = $rule;
 
