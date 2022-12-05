@@ -269,6 +269,12 @@ Breadcrumbs::for('cms.expenditure.audit-confirm', function (BreadcrumbTrail $tra
     $trail->push('支出憑單【' . $value . '】');
 });
 
+// 修改相關單號
+Breadcrumbs::for('cms.ref_expenditure_petition.edit', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.dashboard');
+    $trail->push('編輯相關單號');
+});
+
 // 組合包組裝
 Breadcrumbs::for('cms.combo-purchase.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');

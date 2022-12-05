@@ -307,7 +307,7 @@ class Petition extends Model
             ->where('source_type', $type)
             ->where('source_id', $target['order_id'])
             ->where('order_sn', $current_sn)->get()->first()) {
-            return ['success' => '0', 'message' => '已綁定'];
+            return ['success' => '1', 'message' => '已綁定'];
         }
 
         DB::table('pet_order_sn')->insert([

@@ -35,8 +35,10 @@
             @endif
             @endcan
 
+            @can('cms.collection_received.edit')
+            <a href="{{ route('cms.ref_expenditure_petition.edit', ['current_sn' => $received_order->sn]) }}" class="btn btn-sm btn-primary" role="button">相關單號</a>
+            @endcan
             @if (count($relation_order) > 0)
-                <button type="button" class="btn btn-sm btn-primary" disabled>相關單號</button>
                 @foreach ($relation_order as $value)
                     <a href="{{ $value->url }}" class="btn btn-sm btn-primary" role="button">{{ $value->sn }}</a>
                 @endforeach
