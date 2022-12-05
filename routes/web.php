@@ -1,11 +1,12 @@
 <?php
 
+use App\Http\Controllers\Cms\AdminManagement\PetitionCtrl;
 use App\Http\Controllers\Cms\AuthCtrl;
 use App\Http\Controllers\Cms\CustomerResetCtrl;
 use App\Http\Controllers\Cms\DashboardCtrl;
+use App\Http\Controllers\Cms\Marketing\edmCtrl;
 use App\Http\Controllers\Cms\StyleDemo;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Cms\Marketing\edmCtrl;
 
 /*
 |--------------------------------------------------------------------------
@@ -73,7 +74,7 @@ Route::group(['prefix' => 'cms', 'as' => 'cms.', 'middleware' => 'auth:user'], f
     require base_path('routes/cms/ConsignmentStock.php');
     require base_path('routes/cms/GroupbyCompany.php');
 
-	require base_path('routes/cms/CustomerProfit.php');
+    require base_path('routes/cms/CustomerProfit.php');
     require base_path('routes/cms/CreditManager.php');
     require base_path('routes/cms/CreditCard.php');
     require base_path('routes/cms/CreditBank.php');
@@ -112,6 +113,8 @@ Route::group(['prefix' => 'cms', 'as' => 'cms.', 'middleware' => 'auth:user'], f
 
     require base_path('routes/cms/Edm.php');
 
+    Route::get('reverse-bind-page/{sn}', [PetitionCtrl::class, 'reverseBindPage'])->name('reverse-bind-page');
+    Route::post('reverse-bind-page/{sn}', [PetitionCtrl::class, 'reverseBindPageUpdate']);
 
 });
 
@@ -126,12 +129,9 @@ Route::group(['prefix' => 'customer', 'as' => 'customer.', 'middleware' => 'gues
     Route::get('/login-reset-status', [CustomerResetCtrl::class, 'loginResetStatus'])->name('login-reset-status');
 });
 
-
 Route::get('edm/{id}/{type}/{mcode}', [edmCtrl::class, 'print'])->name('print-edm');
-
 
 Route::get('_info', function () {
     // dd(app('url')->route('test',[],false));
     return phpinfo();
 });
-

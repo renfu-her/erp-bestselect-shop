@@ -70,6 +70,9 @@
                 <a href="{{ Route('cms.order.return-pay-order', ['id' => $order->id]) }}" role="button"
                     class="btn btn-primary btn-sm my-1 ms-1">新增退貨付款單</a>
             @endif
+
+            <a href="{{ Route('cms.reverse-bind-page', ['sn' => $order->sn]) }}" role="button"
+                class="btn btn-primary btn-sm my-1 ms-1">相關單號榜定</a>
         </div>
     </nav>
 
@@ -180,8 +183,9 @@
                 <div class="col">
                     <dt>發票號碼</dt>
                     <dd>
-                        @if($relation_invoice)
-                            <a href="{{ $relation_invoice->link }}" class="-text">{{ $relation_invoice->invoice_number }}</a>
+                        @if ($relation_invoice)
+                            <a href="{{ $relation_invoice->link }}"
+                                class="-text">{{ $relation_invoice->invoice_number }}</a>
                         @else
                             @if ($order->invoice_number)
                                 <a href="{{ route('cms.order.show-invoice', ['id' => $order->id, 'unique_id' => $order->unique_id]) }}"
@@ -276,7 +280,7 @@
         @php
             $dlv_fee = 0;
             $price = 0;
-
+            
         @endphp
         @foreach ($subOrders as $subOrder)
             @php
@@ -306,20 +310,20 @@
                                 @if (false == isset($delivery->out_sn))
                                     @if (false == isset($delivery->audit_date))
                                         <a class="btn btn-sm btn-outline-success -in-header mb-1"
-                                           href="{{ Route('cms.delivery.out_stock', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">缺貨</a>
+                                            href="{{ Route('cms.delivery.out_stock', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">缺貨</a>
                                     @endif
                                 @else
                                     <a class="btn btn-sm btn-outline-dark -in-header mb-1"
-                                       href="{{ Route('cms.delivery.out_stock_detail', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">缺貨明細</a>
+                                        href="{{ Route('cms.delivery.out_stock_detail', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">缺貨明細</a>
 
                                     @if (false == isset($delivery->audit_date))
                                         <a class="btn btn-sm btn-dark -in-header mb-1"
-                                           href="{{ Route('cms.delivery.out_stock_delete', ['deliveryId' => $delivery->id], true) }}">刪除缺貨</a>
+                                            href="{{ Route('cms.delivery.out_stock_delete', ['deliveryId' => $delivery->id], true) }}">刪除缺貨</a>
                                     @endif
                                 @endif
 
                                 <a class="btn btn-sm btn-success -in-header mb-1"
-                                   href="{{ Route('cms.delivery.create', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">出貨審核</a>
+                                    href="{{ Route('cms.delivery.create', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">出貨審核</a>
                             @endcan
                             {{-- @if ('pickup' == $subOrder->ship_category) --}}
                             {{-- <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.order.inbound', ['subOrderId' => $subOrderId], true) }}">入庫審核</a> --}}
@@ -499,14 +503,14 @@
                                     {{ $subOrder->package_sn }}
                                 @endif
                                 <!--
-                                                                                    @if (false == empty($subOrder->projlgt_order_sn))
+                                                                                        @if (false == empty($subOrder->projlgt_order_sn))
     <a href="{{ env('LOGISTIC_URL') . 'guest/order-flow/' . $subOrder->projlgt_order_sn }}">
-                                                                                            {{ $subOrder->projlgt_order_sn }}
-                                                                                        </a>
+                                                                                                {{ $subOrder->projlgt_order_sn }}
+                                                                                            </a>
 @else
     {{ $subOrder->package_sn ?? '(待處理)' }}
     @endif
-                                                                                    -->
+                                                                                        -->
                             </dd>
                         </div>
                         <div class="col">
