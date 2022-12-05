@@ -119,7 +119,7 @@ class PetitionCtrl extends Controller
         $orders = array_map(function ($n) {
             return getErpOrderUrl($n);
         }, Petition::getOrderSn($id, 'petition')->get()->toArray());
-        
+
         return view('cms.admin_management.petition.show', [
             'method' => 'edit',
             'data' => $data,
@@ -260,7 +260,7 @@ class PetitionCtrl extends Controller
             'order' => $orders,
             'type' => 'audit',
             'formAction' => route('cms.petition.edit',
-             ['id' => $id]),
+                ['id' => $id]),
             'breadcrumb_data' => $data->title,
             'relation_order' => Petition::getBindedOrder($id, 'PET'),
 
@@ -287,13 +287,70 @@ class PetitionCtrl extends Controller
         $orders = array_map(function ($n) {
             return getErpOrderUrl($n);
         }, Petition::getOrderSn($id, 'petition')->get()->toArray());
-        
+
         // dd(Petition::getBindedOrder($id, 'PET'));
         return view('cms.admin_management.petition.print', [
             'data' => $data,
             'order' => $orders,
             'relation_order' => Petition::getBindedOrder($id, 'PET'),
         ]);
+
+    }
+    public function reverseBindPage(Request $request, $sn)
+    {
+        $prev_url = url()->previous();
+
+        // getBindedOrder
+
+        $current = Petition::checkOrderSn([$sn]);
+        if ($current['success'] != '1') {
+            return abort(404);
+        }
+
+        $current = $current['data'][0];
+        $re = Petition::getBindedOrder($current['order_id'], $current['order_type']);
+
+        //  dd($re);
+
+        return view('cms.admin_management.petition.bind', [
+            'method' => 'edit',
+            'sn' => $sn,
+            'order' => $re,
+            'prev_url' => $prev_url,
+        ]);
+
+    }
+
+    public function reverseBindPageUpdate(Request $request, $sn)
+    {
+
+        $query = $request->query();
+        $prev_url = Arr::get($query, 'prev_url');
+
+        $request->validate(['n_order' => 'array|nullable']);
+
+        $order = $request->input('n_order') ? $request->input('n_order') : [];
+
+        $re = Petition::reverseBindProcess($sn, $order);
+        // dd($re);
+        if ($re['success'] == '1') {
+            wToast('更新完成');
+            if ($prev_url) {
+                return redirect($prev_url);
+            }
+        }
+
+        if ($re['success'] == '0') {
+            $errors = [];
+            if ($re['type'] == 'multi') {
+                foreach ($re['data'] as $key => $value) {
+                    $errors['n_order.' . $key] = ['單號錯誤'];
+                }
+            }
+
+            return redirect()->back()->withInput()->withErrors($errors);
+
+        }
 
     }
 

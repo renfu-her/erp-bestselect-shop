@@ -116,8 +116,8 @@ class Petition extends Model
         return ['success' => '1'];
 
     }
-
-    public static function checkOrderSn($orders, $pid = null, $type = null)
+    //  trashed 尚未實裝
+    public static function checkOrderSn($orders, $pid = null, $type = null, $trashed = false)
     {
         $err_order = []; //key
         $order_sn = [];
@@ -317,6 +317,36 @@ class Petition extends Model
             'order_sn' => $current_sn,
             'order_type' => $current['order_type'],
         ]);
+
+        return ['success' => '1'];
+    }
+
+    //
+    public static function reverseBindProcess($current_sn, array $target_sn = [], array $delete_sn = [])
+    {
+        DB::beginTransaction();
+        $current = self::checkOrderSn([$current_sn]);
+
+        if ($current['success'] != '1') {
+            return ['success' => '0', 'message' => '查無單號'];
+        }
+        $current = $current['data'][0];
+        $errs = [];
+        foreach ($target_sn as $key => $value) {
+            $processRe = self::reverseBind($current_sn, $value);
+
+            if ($processRe['success'] != '1') {
+                $processRe['index'] = $key;
+                $errs[] = $processRe;
+            }
+        }
+
+        if (count($errs) > 0) {
+            DB::rollBack();
+            return ['success' => 0, 'message' => '錯誤', 'type' => 'multi', 'data' => $errs];
+        }
+
+        DB::commit();
 
         return ['success' => '1'];
     }
