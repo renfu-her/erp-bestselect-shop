@@ -353,24 +353,24 @@
                                             </button>
                                         </td>
                                         <td style="display:none"></td>
-                                        <td><input type="text" name="o_title[]" class="form-control form-control-sm -xl" value="{{ old('o_title.' . $key) }}" aria-label="產品名稱" minlength="1" maxlength="30" required>
+                                        <td><input type="text" name="o_title[]" class="form-control form-control-sm -xl @error('o_title.' . $key) is-invalid @enderror" value="{{ old('o_title.' . $key) }}" aria-label="產品名稱" minlength="1" maxlength="30" required>
                                         <td>
                                             <div class="input-group input-group-sm flex-nowrap">
                                                 <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                                                <input type="number" name="o_price[]" class="form-control form-control-sm -sm" value="{{ old('o_price.' . $key) }}" aria-label="價格(單價)" required>
+                                                <input type="number" name="o_price[]" class="form-control form-control-sm -sm @error('o_price.' . $key) is-invalid @enderror" value="{{ old('o_price.' . $key) }}" aria-label="價格(單價)" required>
                                             </div>
                                         </td>
                                         <td>
-                                            <input type="number" name="o_qty[]" class="form-control form-control-sm -sm" value="{{ old('o_qty.' . $key) }}" aria-label="數量" min="1" required>
+                                            <input type="number" name="o_qty[]" class="form-control form-control-sm -sm @error('o_qty.' . $key) is-invalid @enderror" value="{{ old('o_qty.' . $key) }}" aria-label="數量" min="1" required>
                                         </td>
                                         <td>
                                             <div class="input-group input-group-sm flex-nowrap">
                                                 <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                                                <input type="number" name="o_total_price[]" class="form-control form-control-sm -sm" value="{{ old('o_total_price.' . $key) }}" aria-label="價格(總價)" required>
+                                                <input type="number" name="o_total_price[]" class="form-control form-control-sm -sm @error('o_total_price.' . $key) is-invalid @enderror" value="{{ old('o_total_price.' . $key) }}" aria-label="價格(總價)" required>
                                             </div>
                                         </td>
                                         <td>
-                                            <select name="o_taxation[]" class="form-select form-select-sm" required>
+                                            <select name="o_taxation[]" class="form-select form-select-sm @error('o_taxation.' . $key) is-invalid @enderror" required>
                                                 @php
                                                     foreach($tax as $t_key => $t_value){
                                                         echo '<option value="' . $t_key . '"' . ($t_key == old('o_taxation.' . $key) ? ' selected' : '') . '>' . $t_value . '</option>';
