@@ -10,7 +10,7 @@
 
     <h2 class="mb-4">收款管理</h2>
 
-    <form method="POST" action="{{ $formAction }}">
+    <form method="POST" action="{{ $formAction }}" class="-banRedo">
         @csrf
         <input type="hidden" name="id" value="{{ $ord_orders_id }}">
 
