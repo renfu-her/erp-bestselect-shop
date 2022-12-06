@@ -10,7 +10,7 @@
 
     <h2 class="mb-4">收款管理</h2>
 
-    <form method="POST" action="{{ $form_action }}">
+    <form method="POST" action="{{ $form_action }}" class="-banRedo">
         @csrf
         <div class="card shadow p-4 mb-4">
             <h6>收款單明細</h6>
