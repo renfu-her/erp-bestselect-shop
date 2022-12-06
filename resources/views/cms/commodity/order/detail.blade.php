@@ -72,7 +72,7 @@
             @endif
 
             <a href="{{ Route('cms.reverse-bind-page', ['sn' => $order->sn]) }}" role="button"
-                class="btn btn-primary btn-sm my-1 ms-1">相關單號榜定</a>
+                class="btn btn-primary btn-sm my-1 ms-1">相關單號綁定</a>
         </div>
     </nav>
 

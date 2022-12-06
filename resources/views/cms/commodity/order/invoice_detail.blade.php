@@ -260,7 +260,7 @@
     </x-b-modal>
 
     <x-b-modal id="confirm-allowance-invalid">
-        <x-slot name="title">折讓作廢</x-slot>
+        <x-slot name="title">發票折讓作廢</x-slot>
 
         <x-slot name="body">
             <form action="#" method="POST" id="allowance-invalid">

@@ -665,6 +665,7 @@ class OrderInvoice extends Model
                             'bar_code'=>$target->print_flag == 'Y' ? json_decode(json_decode($api_value)->Result)->BarCode : null,
                             'qr_code_l'=>$target->print_flag == 'Y' ? json_decode(json_decode($api_value)->Result)->QRcodeL : null,
                             'qr_code_r'=>$target->print_flag == 'Y' ? json_decode(json_decode($api_value)->Result)->QRcodeR : null,
+                            'created_at'=>json_decode(json_decode($api_value)->Result)->CreateTime,
                             'updated_at'=>date('Y-m-d H:i:s'),
                         ]);
 
@@ -766,6 +767,7 @@ class OrderInvoice extends Model
                             'allowance_no'=>json_decode(json_decode($api_value)->Result)->AllowanceNo,
                             'remain_amt'=>json_decode(json_decode($api_value)->Result)->RemainAmt,
                             'check_code'=>json_decode(json_decode($api_value)->Result)->CheckCode,
+                            'created_at'=>date('Y-m-d H:i:s'),
                             'updated_at'=>date('Y-m-d H:i:s'),
                         ]);
 

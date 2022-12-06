@@ -247,6 +247,7 @@
     "The credit card has been expired": "信用卡已過期",
     "The credit card is expired": "信用卡已過期",
     "The credit card has low balance": "信用卡的額度不足",
+    "Credit card has insufficient funds.": "信用卡的額度不足",
     "Exceeded the credit card limit": "超過信用卡付款金額上限",
     "Exceeded the limit of the credit card per payment": "超過一次性付款的額度",
     "The card has been reported as a stolen card.": "此信用卡已被掛失",

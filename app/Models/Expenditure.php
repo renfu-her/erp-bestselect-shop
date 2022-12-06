@@ -19,6 +19,7 @@ class Expenditure extends Model
 
         $canDelSub = DB::table('pet_audit')
             ->select('source_id', 'checked_at')
+            ->where('source_type', 'expenditure')
             ->groupBy('source_id')->whereNotNull('checked_at');
 
         $re = DB::table('exp_expenditure as expenditure')

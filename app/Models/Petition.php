@@ -21,6 +21,7 @@ class Petition extends Model
 
         $canDelSub = DB::table('pet_audit')
             ->select('source_id', 'checked_at')
+            ->where('source_type', 'petition')
             ->groupBy('source_id')->whereNotNull('checked_at');
 
         $re = DB::table('pet_petition as petition')
