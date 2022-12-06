@@ -1,12 +1,12 @@
 (function () {
     'use strict'
 
-    window.Screenshot = (url, { start, process, error }) => {
+    window.Screenshot = (url = '', { pages = 1, start, process, error }) => {
         if (!window.EventSource) {
             toast.show('該瀏覽器不支援圖片下載功能', { type: 'danger' });
         }
         url = encodeURIComponent(url);
-        const source = new EventSource(`http://localhost:3003/edm-render?url=${url}&total_page=1`);
+        const source = new EventSource(`http://localhost:3003/edm-render?url=${url}&total_page=${pages}`);
         if (typeof start !== 'function') start = () => {};
         if (typeof process !== 'function') process = () => {};
         if (typeof error !== 'function') error = () => {};

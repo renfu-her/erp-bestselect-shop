@@ -157,6 +157,7 @@
                         // return;
                 console.log(url);
                 Screenshot(url, {
+                    pages: 2,
                     start: (e) => {
                         $bar.css('width', '0%').attr('aria-valuenow', 0).text('');
                         $title.text('圖片生產中，請稍後...');
