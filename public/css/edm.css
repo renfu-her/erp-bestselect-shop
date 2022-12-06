@@ -130,6 +130,7 @@ img {
 .price::before {
     content: "NT.";
     font-size: 50%;
+    display: inline-block;
 }
 .origin-price::before {
     text-decoration: line-through;

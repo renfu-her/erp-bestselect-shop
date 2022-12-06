@@ -111,22 +111,82 @@
             </div>
         </div>
     @endif
+
+    <x-b-modal id="loading" size="modal-dialog-centered" cancelBtn="false">
+        <x-slot name="body">
+            <p class="-title text-center">圖片生產中，請稍後...</p>
+            <div class="progress">
+                <div class="progress-bar progress-bar-striped progress-bar-animated bg-info" role="progressbar" 
+                    style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                    0%
+                </div>
+            </div>
+            <p class="-note text-secondary text-center my-2 small"></p>
+        </x-slot>
+        <x-slot name="foot">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+        </x-slot>
+    </x-b-modal>
 @endsection
 
 @once
     @push('sub-scripts')
+        <script src="{{ Asset('dist/js/screenshot.js') }}"></script>
         <script>
+            const loading = new bootstrap.Modal(document.getElementById('loading'), { 
+                backdrop: 'static',
+                // keyboard: false
+            });
+
             $('.-web').on('click', function(e) {
                 const bg = $('select[name="header_color"]').val();
                 const qr = $('input[name="qr_show"]').prop('checked') ? '1' : '0';
-                const url = $(this).data('href') + `?bg=${bg}&qr=${qr}`;
+                const url = $(this).data('href') + `?bg=${bg}&qr=${qr}&paginate=0&btn=1&x=1`;
                 window.open(url, '_blank');
             });
             $('.-toImg').on('click', function(e) {
                 const bg = $('select[name="header_color"]').val();
                 const qr = $('input[name="qr_show"]').prop('checked') ? '1' : '0';
-                const url = $(this).data('href') + `?bg=${bg}&qr=${qr}&paginate=1&btn=0`;
-                window.open(url, '_blank');
+                const url = $(this).data('href') + `?bg=${bg}&qr=${qr}&paginate=1&btn=0&x=2`;
+                // window.open(url, '_blank');
+                const $bar = $('#loading .progress-bar');
+                const $title = $('#loading .-title');
+                const $note = $('#loading .-note');
+                const $footer = $('#loading .modal-footer');
+                        // loading.show();
+                        // return;
+                console.log(url);
+                Screenshot(url, {
+                    start: (e) => {
+                        $bar.css('width', '0%').attr('aria-valuenow', 0).text('');
+                        $title.text('圖片生產中，請稍後...');
+                        $note.text('');
+                        $footer.prop('hidden', true);
+                        loading.show();
+                    },
+                    process: (data) => {
+                        $bar.css('width', `${data.rate}%`).attr('aria-valuenow', data.rate).text(`${data.rate}%`);
+                        $note.text(`（${data.task}/${data.totalTask}）${data.name}`);
+                        if (data.rate === 100) {
+                            $title.text('圖片生產完成：' + data.name);
+                        }
+                    },
+                    error: (msg) => {
+                        switch (msg) {
+                            case 'closed':
+                                $note.text('作業結束');
+                                break;
+                            case 'connecting':
+                                $note.text('連線中...');
+                                break;
+                        
+                            default:
+                                console.error(msg);
+                                break;
+                        }
+                        $footer.prop('hidden', false);
+                    }
+                });
             });
 
             //複製群組連結
