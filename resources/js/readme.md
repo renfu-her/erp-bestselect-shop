@@ -5,7 +5,13 @@
     - [1.2.1 日期區間](#121-日期區間)
     - [1.2.2 單一日期](#122-單一日期)
 ```
+- resources\js\bootstrap.js   // 外掛元件初始化
+- resources\js\component.js   // 元件
 - resources\js\dashboard.js   // 前端 JS
+- resources\js\deliveryAudit.js   // 出貨審核功能
+- resources\js\helper.js   // PHP 元件
+- resources\js\navinode.js   // 官網選單列表設定
+- resources\js\screenshot.js   // 截圖下載功能
 ```
 <!-- /TOC -->
 

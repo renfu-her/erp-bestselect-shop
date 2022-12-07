@@ -64,7 +64,7 @@
                                                     <tr style="vertical-align: top;">
                                                         <td>
                                                             <div class="pName"
-                                                                style="padding: {{ 5 * $x }}px 0 {{ $x }}px;font-size: {{ strlen($products[$i * 3 + $j]->product_title) > 72 ? $x : 1.1 * $x }}rem;">
+                                                                style="padding: {{ 2 * $x }}px 0 {{ 1 * $x }}px;font-size: {{ strlen($products[$i * 3 + $j]->product_title) > 72 ? $x : 1.1 * $x }}rem;">
                                                                 {{ $products[$i * 3 + $j]->product_title }}
                                                             </div>
                                                         </td>
@@ -78,10 +78,10 @@
                                                             @endif
                                                         </td>
                                                     </tr> --}}
-                                                    <tr height="{{ 55 * $x }}">
+                                                    <tr height="{{ 58 * $x }}">
                                                         <td style="text-align: center;">
-                                                            <div style="display: flex;align-items: flex-end;height:100%;">
-                                                                <div style="flex: 1;">
+                                                            <div style="display: flex;align-items: center;height:100%;">
+                                                                <div style="flex: 1;align-self: flex-end;">
                                                                     @if ($products[$i * 3 + $j]->price < $products[$i * 3 + $j]->origin_price)
                                                                         <div class="origin-price" style="font-size: {{ $x }}rem">{{ $products[$i * 3 + $j]->origin_price }}</div>
                                                                     @endif
@@ -93,7 +93,7 @@
                                                                     </div>
                                                                 </div>
                                                                 @if ($qr === '1')
-                                                                    <div style="width: {{ 55 * $x }}px">
+                                                                    <div style="width: {{ 58 * $x }}px">
                                                                         {{-- QR code --}}
                                                                         <div class="qrcode" data-url="https://www.bestselection.com.tw/product/{{ $products[$i * 3 + $j]->sku }}?mcode={{ $mcode }}"></div>
                                                                     </div>
@@ -128,7 +128,7 @@
                             </div>
                             <div style="padding:0 {{ 10 * $x }}px 0 {{ 20 * $x }}px;">官網看更多商品</div>
                             <div>
-                                <div class="qrcode" data-size="70" data-url="https://www.bestselection.com.tw?mcode={{ $mcode }}"></div>
+                                <div class="qrcode" data-size="55" data-url="https://www.bestselection.com.tw?mcode={{ $mcode }}"></div>
                             </div>
                             <div style="flex: 1;text-align: right;padding-right: {{ 20 * $x }}px;">請洽{{ $name }}</div>
                         </div>
@@ -150,7 +150,7 @@
         $('.qrcode').each(function (index, element) {
             // element == this
             const url = $(element).data('url');
-            const size = Number($(element).data('size')) || 55;
+            const size = Number($(element).data('size')) || 50;
             new QRCode(element, {
                 width: size * x,
                 height: size * x,
