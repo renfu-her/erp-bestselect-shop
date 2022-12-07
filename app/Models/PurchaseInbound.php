@@ -223,6 +223,8 @@ class PurchaseInbound extends Model
     {
         $inboundData = PurchaseInbound::where('id', '=', $id);
         $inboundDataGet = $inboundData->get()->first();
+        $inboundInventory = PcsInboundInventory::where('inbound_id', '=', $id);
+        $inboundInventoryGet = $inboundInventory->get();
         $purchase_id = '';
         if (null != $inboundDataGet) {
             $purchase_id = $inboundDataGet->event_id;
@@ -242,7 +244,9 @@ class PurchaseInbound extends Model
             $id,
             $user_id,
             $inboundData,
-            $inboundDataGet
+            $inboundDataGet,
+            $inboundInventory,
+            $inboundInventoryGet
         ) {
             if (null != $inboundDataGet) {
                 $event = $inboundDataGet->event;
@@ -308,6 +312,9 @@ class PurchaseInbound extends Model
                             DB::rollBack();
                             return $rePSSC;
                         }
+                    }
+                    if (null != $inboundInventoryGet && 0 < count($inboundInventoryGet)) {
+                        $inboundInventory->forceDelete();
                     }
                     $inboundData->forceDelete();
                     return ['success' => 1, 'error_msg' => ""];
