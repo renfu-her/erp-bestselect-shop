@@ -1,12 +1,12 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h2 class="mb-4">{{$title}} {{ $productStyle->sku }}</h2>
+    <h2 class="mb-4">{{$title}} ({{ $productStyle->sku }})</h2>
 
     <form id="search" action="" method="GET">
         <input type="hidden" name="data_per_page" value="{{ $data_per_page }}" />
     </form>
     <div class="card shadow p-4 mb-4">
-        <div class="row justify-content-end mb-4">
+        <div class="row justify-content-end">
             <div class="col-auto">
                 顯示
                 <select class="form-select d-inline-block w-auto" id="dataPerPageElem" aria-label="表格顯示筆數">
@@ -17,40 +17,42 @@
                 筆
             </div>
         </div>
-        <h6>明細</h6>
         <div class="table-responsive tableOverBox">
-            <table class="table table-striped tableList mb-1">
+            <table class="table table-striped tableList mb-1 small">
                 <thead>
-                <tr>
-                    <th scope="col">時間</th>
-                    <td scope="col" class="wrap">
-                        <div class="fw-bold">採購單號</div>
-                        <div>入庫單</div>
-                    </td>
-                    <th scope="col">倉庫</th>
-                    <th scope="col">商品名稱</th>
-                    <th scope="col">事件</th>
-                    <th scope="col">動作</th>
-                    <th scope="col">數量</th>
-                    <th scope="col">操作者</th>
-                    <th scope="col">備註</th>
-                </tr>
+                    <tr>
+                        <th scope="col">時間</th>
+                        <td scope="col" class="wrap">
+                            <div class="fw-bold">採購單號</div>
+                            <div>入庫單</div>
+                        </td>
+                        <th scope="col">倉庫</th>
+                        <th scope="col">商品名稱</th>
+                        <th scope="col">事件</th>
+                        <th scope="col">動作</th>
+                        <th scope="col">數量</th>
+                        <th scope="col">操作者</th>
+                        <th scope="col">備註</th>
+                    </tr>
                 </thead>
                 <tbody>
                  @foreach ($purchaseLog as $key =>$data)
                      <tr>
-                         <td>{{$data->created_at}}</td>
-                         <td class="wrap">
-                             <div class="fw-bold">{{ $data->event_sn }}</div>
-                             <div>{{ $data->inbound_sn ?? '-' }}</div>
-                         </td>
-                         <td>{{$data->depot_name}}</td>
-                         <td>{{$data->title}}</td>
-                         <td>{{$data->event}}</td>
-                         <td>{{$data->feature}}</td>
-                         <td>{{$data->qty}}</td>
-                         <td>{{$data->user_name}}</td>
-                         <td>{{$data->note}}</td>
+                        <td class="wrap">
+                            <div>{{date('Y/m/d', strtotime($data->created_at))}}</div>
+                            <div>{{date('H:i:s', strtotime($data->created_at))}}</div>
+                        </td>
+                        <td class="wrap">
+                            <div class="fw-bold">{{ $data->event_sn }}</div>
+                            <div>{{ $data->inbound_sn ?? '-' }}</div>
+                        </td>
+                        <td>{{$data->depot_name}}</td>
+                        <td class="wrap">{{$data->title}}</td>
+                        <td>{{$data->event}}</td>
+                        <td class="wrap">{{$data->feature}}</td>
+                        <td class="text-end">{{number_format($data->qty)}}</td>
+                        <td>{{$data->user_name}}</td>
+                        <td>{{$data->note}}</td>
                      </tr>
                  @endforeach
                 </tbody>

@@ -102,7 +102,7 @@ class StockCtrl extends Controller
             'purchaseLog' => $log_purchase,
             'returnAction' => Route('cms.stock.index', [], true),
             'title' => $title,
-            'breadcrumb_data' => $title . ' ' . $productStyle->sku,
+            'breadcrumb_data' => $title,
         ]);
     }
 
