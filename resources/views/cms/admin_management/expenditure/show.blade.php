@@ -62,6 +62,12 @@
                     </tr>
                 </tbody>
             </table>
+            @if (isset($type) && isset($canAudit) && $canAudit)
+                <div class="mb-4">
+                    <caption>簽核意見</caption>
+                    <textarea name="note" class="form-control"></textarea>
+                </div>
+            @endif
 
             <table class="table caption-top">
                 <caption>簽核狀態</caption>
@@ -70,6 +76,7 @@
                         <th>主管</th>
                         <th>職稱</th>
                         <th>簽核時間</th>
+                        <th>意見</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -78,6 +85,7 @@
                             <td>{{ $value->user_name }}</td>
                             <td>{{ $value->user_title }}</td>
                             <td>{{ $value->checked_at ? date('Y/m/d H:i:s', strtotime($value->checked_at)) : '' }}</td>
+                            <td>{{ $value->user_note }}</td>
                         </tr>
                     @endforeach
                 </tbody>
@@ -97,7 +105,7 @@
             <a href="{{ Route('cms.expenditure.' . $target, [], true) }}" class="btn btn-outline-primary px-4"
                 role="button">返回{{ $bTitle }}列表</a>
 
-            @if (isset($type))
+            @if (isset($type) && isset($canAudit) && $canAudit)
                 <button class="btn btn-outline-primary px-4">審核</button>
             @endif
         </div>

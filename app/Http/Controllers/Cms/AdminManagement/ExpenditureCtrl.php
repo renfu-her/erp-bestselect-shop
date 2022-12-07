@@ -266,7 +266,8 @@ class ExpenditureCtrl extends Controller
         }
 
         $data->users = json_decode($data->users);
-
+        $canAudit = Petition::canAudit($request->user()->id, $data->users);
+     
         $orders = array_map(function ($n) {
             return getErpOrderUrl($n);
         }, Petition::getOrderSn($id, 'expenditure')->get()->toArray());
@@ -278,6 +279,7 @@ class ExpenditureCtrl extends Controller
             'data' => $data,
             'order' => $orders,
             'type' => 'audit',
+            'canAudit' => $canAudit,
             'formAction' => route('cms.expenditure.edit', ['id' => $id]),
             'breadcrumb_data' => $data->title,
             'relation_order' => Petition::getBindedOrder($id, 'EXP'),
@@ -287,7 +289,7 @@ class ExpenditureCtrl extends Controller
 
     public function auditConfirm(Request $request, $id)
     {
-        Audit::confirm($id, $request->user()->id, 'expenditure');
+        Audit::confirm($id, $request->user()->id, 'expenditure', $request->input('note'));
         wToast('審核完成');
         return redirect(route('cms.expenditure.audit-list'));
 
@@ -295,7 +297,7 @@ class ExpenditureCtrl extends Controller
 
     public function printPage(Request $request, $id)
     {
-        
+
         $data = Expenditure::dataList()->where('expenditure.id', $id)->get()->first();
         if (!$data) {
             return abort(404);
@@ -311,8 +313,8 @@ class ExpenditureCtrl extends Controller
             'data' => $data,
             'order' => $orders,
             'relation_order' => Petition::getBindedOrder($id, 'EXP'),
-        ]);    
-      
+        ]);
+
     }
 
 }
