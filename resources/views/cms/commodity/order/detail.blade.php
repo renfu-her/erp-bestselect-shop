@@ -59,8 +59,9 @@
 
             @if ($canCancel)
                 @can('cms.order.cancel_order')
-                    <a href="{{ Route('cms.order.cancel-order', ['id' => $order->id]) }}" role="button"
-                        class="btn btn-outline-danger btn-sm my-1 ms-1">取消訂單</a>
+                    <button data-href="{{ Route('cms.order.cancel-order', ['id' => $order->id]) }}" type="button"
+                        data-bs-toggle="modal" data-bs-target="#confirm-delete-back" data-title="取消"
+                        class="btn btn-outline-danger btn-sm my-1 ms-1">取消訂單</button>
                 @endcan
             @endif
             <a href="{{ Route('cms.order.order-flow', ['id' => $order->id]) }}" role="button"
@@ -333,7 +334,7 @@
                                 @if (false == isset($delivery->back_inbound_date) && false == $has_already_pay_delivery_back)
                                     <button type="button"
                                         data-href="{{ Route('cms.delivery.back_delete', ['deliveryId' => $delivery->id], true) }}"
-                                        data-bs-toggle="modal" data-bs-target="#confirm-delete-back"
+                                        data-bs-toggle="modal" data-bs-target="#confirm-delete-back" data-title="刪除"
                                         class="btn btn-sm btn-danger -in-header mb-1">
                                         刪除退貨
                                     </button>
@@ -422,41 +423,6 @@
                     </div>
                 </div>
 
-                {{-- <div class="card-body px-4 py-0" hidden>
-                    <div class="table-responsive tableOverBox">
-                        <table class="table tableList table-sm mb-0">
-                            <thead class="table-light text-secondary">
-                                <tr>
-                                    <th scope="col">優惠類型</th>
-                                    <th scope="col">優惠名稱</th>
-                                    <th scope="col">贈品</th>
-                                    <th scope="col">金額</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>贈品</td>
-                                    <td>-</td>
-                                    <td>滑鼠墊</td>
-                                    <td>-</td>
-                                </tr>
-                                <tr>
-                                    <td>金額</td>
-                                    <td>滿額贈</td>
-                                    <td>-</td>
-                                    <td class="text-danger">- ${{ number_format(50) }}</td>
-                                </tr>
-                                <tr>
-                                    <td>優惠劵</td>
-                                    <td>優惠劵序號</td>
-                                    <td>-</td>
-                                    <td class="text-danger">- ${{ number_format(60) }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div> --}}
-
                 <div class="card-header px-4 text-secondary border-top">物流資訊</div>
                 <div class="card-body px-4 pb-4">
                     <dl class="row">
@@ -502,15 +468,15 @@
                                 @else
                                     {{ $subOrder->package_sn }}
                                 @endif
-                                <!--
-                                                                                        @if (false == empty($subOrder->projlgt_order_sn))
-    <a href="{{ env('LOGISTIC_URL') . 'guest/order-flow/' . $subOrder->projlgt_order_sn }}">
-                                                                                                {{ $subOrder->projlgt_order_sn }}
-                                                                                            </a>
-@else
-    {{ $subOrder->package_sn ?? '(待處理)' }}
-    @endif
-                                                                                        -->
+                                
+                                {{-- @if (false == empty($subOrder->projlgt_order_sn))
+                                    <a href="{{ env('LOGISTIC_URL') . 'guest/order-flow/' . $subOrder->projlgt_order_sn }}">
+                                        {{ $subOrder->projlgt_order_sn }}
+                                    </a>
+                                @else
+                                    {{ $subOrder->package_sn ?? '(待處理)' }}
+                                @endif --}}
+
                             </dd>
                         </div>
                         <div class="col">
@@ -829,7 +795,10 @@
     @push('sub-scripts')
         <script>
             $('#confirm-delete-back').on('show.bs.modal', function(e) {
-                $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
+                const title = $(e.relatedTarget).data('title') || '刪除';
+                $(this).find('#confirm-delete-backLabel').text(`${title}確認`);
+                $(this).find('.modal-body').text(`確認要${title}？`);
+                $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href')).text(`確認並${title}`);
             });
 
             // 更換推薦業務
