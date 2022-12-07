@@ -247,6 +247,7 @@ class PetitionCtrl extends Controller
         }
 
         $data->users = json_decode($data->users);
+        $canAudit = Petition::canAudit($request->user()->id, $data->users);
 
         $orders = array_map(function ($n) {
             return getErpOrderUrl($n);
@@ -259,6 +260,7 @@ class PetitionCtrl extends Controller
             'data' => $data,
             'order' => $orders,
             'type' => 'audit',
+            'canAudit' => $canAudit,
             'formAction' => route('cms.petition.edit',
                 ['id' => $id]),
             'breadcrumb_data' => $data->title,
@@ -269,7 +271,8 @@ class PetitionCtrl extends Controller
 
     public function auditConfirm(Request $request, $id)
     {
-        Audit::confirm($id, $request->user()->id, 'petition');
+
+        Audit::confirm($id, $request->user()->id, 'petition', $request->input('note'));
         wToast('審核完成');
         return redirect(route('cms.petition.audit-list'));
 

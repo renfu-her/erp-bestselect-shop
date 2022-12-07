@@ -48,7 +48,8 @@ class Audit extends Model
             'user_name' => 'user.name',
             'user_title' => 'user.title',
             'checked_at' => 'IFNULL(audit.checked_at,"")',
-        ],'ORDER BY audit.step DESC');
+            'user_note' => 'IFNULL(audit.note,"")',
+        ], 'ORDER BY audit.step DESC');
 
         $sub = DB::table('pet_audit as audit')
             ->leftJoin('usr_users as user', 'user.id', '=', 'audit.user_id')
@@ -76,11 +77,11 @@ class Audit extends Model
         }, $org, array_keys($org)));
     }
 
-    public static function confirm($pid, $user_id, $type)
+    public static function confirm($pid, $user_id, $type, $note = null)
     {
 
         self::where('source_id', $pid)
             ->where('source_type', $type)
-            ->where('user_id', $user_id)->update(['checked_at' => now()]);
+            ->where('user_id', $user_id)->update(['checked_at' => now(), 'note' => $note]);
     }
 }

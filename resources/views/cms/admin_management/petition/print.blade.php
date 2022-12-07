@@ -19,6 +19,7 @@
             margin: 5mm auto;
             /* 邊界 */
         }
+
         .print {
             margin-top: 2em;
             text-align: center;
@@ -29,7 +30,9 @@
             margin: 0 10px;
             font-family: "Nunito", "Noto Sans TC", sans-serif;
         }
+
         @media print {
+
             a,
             a:active,
             a:visited {
@@ -97,14 +100,15 @@
                     </tr>
                 </tbody>
             </table>
-            
+
             <table width="650" cellpadding="3" cellspacing="0" border="1" bordercolor="#000000"
                 style="font-size:11pt;text-align:left;margin:0 auto;border-collapse:collapse;">
                 <thead style="text-align: center;">
                     <tr>
-                        <th scope="col" width="35%">主管</th>
-                        <th scope="col" width="30%">職稱</th>
-                        <th scope="col" width="35%">簽核時間</th>
+                        <th scope="col" width="25%">主管</th>
+                        <th scope="col" width="25%">職稱</th>
+                        <th scope="col" width="25%">簽核時間</th>
+                        <th scope="col" width="25%">意見</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -118,6 +122,9 @@
                             </td>
                             <td>
                                 {{ $value->checked_at }}
+                            </td>
+                            <td>
+                                {{ $value->user_note }}
                             </td>
                         </tr>
                     @endforeach

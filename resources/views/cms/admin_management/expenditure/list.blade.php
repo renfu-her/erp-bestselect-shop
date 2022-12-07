@@ -164,6 +164,7 @@
                                             <th class="border-secondary">主管</th>
                                             <th class="border-secondary">職稱</th>
                                             <th class="border-secondary">簽核時間</th>
+                                            <th class="border-secondary">意見</th>
                                         </tr>
                                         @foreach ($data->users as $key => $user)
                                             <tr>
@@ -171,6 +172,7 @@
                                                 <td>{{ $user->user_title }}</td>
                                                 <td>{{ $user->checked_at ? date('Y/m/d H:i:s', strtotime($user->checked_at)) : '' }}
                                                 </td>
+                                                <td>{{ $user->user_note }}</td>
                                             </tr>
                                         @endforeach
                                     </tbody>

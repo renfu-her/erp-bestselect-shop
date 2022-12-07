@@ -87,7 +87,7 @@ img {
 }
 
 .T3 {
-    background-color: #F6F5F6;
+    background-color: #FFFFFF;
 }
 .pImg {
     width: 100%;
@@ -96,7 +96,7 @@ img {
     margin: 0 auto;
 }
 .pName {
-    line-height: 1.1;
+    line-height: 1.2;
     text-align: center;
     font-weight: 600;
 
@@ -130,6 +130,7 @@ img {
 .price::before {
     content: "NT.";
     font-size: 50%;
+    display: inline-block;
 }
 .origin-price::before {
     text-decoration: line-through;
@@ -139,8 +140,7 @@ img {
 }
 .qrcode img {
     width: auto;
-    margin-left: auto;
-    margin-top: auto;
+    margin: auto;
 }
 
 /* tfoot */

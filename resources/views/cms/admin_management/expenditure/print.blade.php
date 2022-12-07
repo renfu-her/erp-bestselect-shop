@@ -94,9 +94,10 @@
                 style="font-size:11pt;text-align:left;margin:0 auto;border-collapse:collapse;">
                 <thead style="text-align: center;">
                     <tr>
-                        <th scope="col" width="35%">主管</th>
-                        <th scope="col" width="30%">職稱</th>
-                        <th scope="col" width="35%">簽核時間</th>
+                        <th scope="col" width="25%">主管</th>
+                        <th scope="col" width="25%">職稱</th>
+                        <th scope="col" width="25%">簽核時間</th>
+                        <th scope="col" width="25%">意見</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -110,6 +111,9 @@
                             </td>
                             <td>
                                 {{ $value->checked_at }}
+                            </td>
+                            <td>
+                                {{ $value->user_note }}
                             </td>
                         </tr>
                     @endforeach

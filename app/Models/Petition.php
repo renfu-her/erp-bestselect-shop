@@ -377,4 +377,16 @@ class Petition extends Model
         return ['success' => '1'];
     }
 
+    public static function canAudit($user_id, $user_list)
+    {
+        $re = false;
+        foreach ($user_list as $value) {
+            if ($value->user_id == $user_id && !$value->checked_at) {
+                $re = true;
+            }
+        }
+
+        return $re;
+    }
+
 }
