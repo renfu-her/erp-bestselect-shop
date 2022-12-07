@@ -34,7 +34,8 @@ class Expenditure extends Model
                 'audit2.checked_at', 'item.title as item_title',
                 'payment.title as payment_title',
                 'org.title as department_title'])
-            ->whereNull('expenditure.deleted_at');
+            ->whereNull('expenditure.deleted_at')
+            ->distinct();
 
         //  dd($re->get());
         if (isset($option['audit'])) {
