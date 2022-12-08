@@ -24,9 +24,21 @@ class Collection extends Model
         'is_liquor',
     ];
 
+    public static function dataList($option = [])
+    {
+        $prd = DB::table('collection_prd as cp')
+            ->select('cp.collection_id_fk')
+            ->selectRaw('count(*) as qty')
+            ->groupBy('cp.collection_id_fk');
+
+        $re = DB::table('collection as col')
+            ->joinSub($prd, 'prd', 'prd.collection_id_fk', '=', 'col.id');
+
+        return $re;
+    }
+
     /**
      * @param  string  $id collection primary_id
-    //     * @param  int  $amount 分頁數、限制回傳數量（待討論）
      *
      * @return array|mixed
      */
