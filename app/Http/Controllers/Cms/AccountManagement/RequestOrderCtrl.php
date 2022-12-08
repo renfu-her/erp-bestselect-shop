@@ -358,6 +358,9 @@ class RequestOrderCtrl extends Controller
         $received_data = ReceivedOrder::get_received_detail($request_order->ro_id);
 
         $tw_price = $request_order->request_o_price - $received_data->sum('tw_price');
+        if ($tw_price == 0) {
+            return redirect()->back();
+        }
 
         // grade process start
             $defaultData = [];

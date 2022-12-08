@@ -851,7 +851,7 @@ class OrderCtrl extends Controller
 
         $tw_price = $received_order_data->sum('price') - $received_data->sum('tw_price');
         if ($tw_price == 0) {
-            // dd('此付款單金額已收齊');
+            return redirect()->back();
         }
 
         $defaultData = [];
