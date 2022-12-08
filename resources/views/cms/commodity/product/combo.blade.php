@@ -28,6 +28,7 @@
                             <th scope="col">獎金
                                 <i class="bi bi-info-circle" data-bs-toggle="tooltip" title="預設：(售價-經銷價) × 0.97"></i>
                             </th>
+                            <th scope="col">預估成本</th>
                             <th scope="col">庫存</th>
                             <th scope="col">安全庫存</th>
                             <!-- <th scope="col">庫存不足</th> -->
@@ -98,6 +99,13 @@
                                         <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
                                         <input type="number" class="form-control form-control-sm" name="bonus[]" min="0"
                                             value="{{ $style->bonus }}" required />
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="input-group input-group-sm flex-nowrap">
+                                        <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
+                                        <input type="number" class="form-control form-control-sm"
+                                            value="{{ $style->estimated_cost }}" disabled />
                                     </div>
                                 </td>
                                 <td>
