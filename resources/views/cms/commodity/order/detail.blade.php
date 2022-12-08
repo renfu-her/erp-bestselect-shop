@@ -4,7 +4,12 @@
 
     <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
         <div class="p-1 pe-2">
-            @if (!$receivable && in_array($order->status, ['建立', '收款單未平']))
+            @if ((!$receivable && in_array($order->status, ['建立'])) || !$received_order)
+                <button type="button" class="btn btn-success btn-sm my-1 ms-1"
+                    data-bs-toggle="modal" data-bs-target="#pay-win">我要付款</button>
+            @endif
+
+            @if (!$receivable && in_array($order->status, ['收款單未平']))
                 <a href="{{ Route('cms.order.ro-edit', ['id' => $order->id]) }}" class="btn btn-primary btn-sm my-1 ms-1"
                     role="button">新增收款單</a>
             @endif
@@ -13,22 +18,16 @@
                 @if ($receivable || in_array($order->status, ['已付款', '已入款', '結案']))
                     @if ($received_credit_card_log)
                         <a href="{{ Route('api.web.order.credit_card_checkout', ['id' => $order->id, 'unique_id' => $order->unique_id]) }}"
-                            class="btn btn-primary btn-sm my-1 ms-1" role="button" target="_blank">線上刷卡連結</a>
+                            class="btn btn-primary btn-sm my-1 ms-1" role="button" target="_blank">線上刷卡結果</a>
                     @endif
 
                     @can('cms.collection_received.edit')
                         @if ($line_pay_balance_price > 0)
                             <a href="{{ route('cms.order.line-pay-refund', ['source_type' => 'ord_orders', 'source_id' => $order->id]) }}"
-                                class="btn btn-outline-danger btn-sm" role="button">Line Pay 付款取消</a>
+                                class="btn btn-outline-danger btn-sm" role="button">LINE Pay 付款取消</a>
                         @endif
                     @endcan
                 @endif
-            @else
-                <a href="{{ Route('api.web.order.payment_credit_card', ['id' => $order->id, 'unique_id' => $order->unique_id]) }}"
-                    class="btn btn-primary btn-sm" role="button" target="_blank">線上刷卡連結</a>
-
-                <a href="{{ Route('api.web.order.line-pay-payment', ['source_type' => 'ord_orders', 'source_id' => $order->id, 'unique_id' => $order->unique_id]) }}"
-                    class="btn btn-primary btn-sm" role="button" target="_blank">Line Pay付款</a>
             @endif
             @can('cms.order.bonus-gross')
                 <a href="{{ Route('cms.order.bonus-gross', ['id' => $order->id]) }}" class="btn btn-warning btn-sm my-1 ms-1"
@@ -739,7 +738,7 @@
         </div>
     </form>
 
-    <!-- Modal -->
+    <!-- 確認 -->
     <x-b-modal id="confirm-delete-back">
         <x-slot name="title">刪除確認</x-slot>
         <x-slot name="body">確認要刪除？</x-slot>
@@ -748,6 +747,7 @@
         </x-slot>
     </x-b-modal>
 
+    {{-- 更改推薦業務員 --}}
     <div class="modal fade" id="change-mcode" tabindex="-1" aria-labelledby="change-mcodeLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -781,6 +781,33 @@
             </div>
         </div>
     </div>
+
+    {{-- 付款 --}}
+    <x-b-modal id="pay-win">
+        <x-slot name="title">我要付款</x-slot>
+        <x-slot name="body">
+            <div class="d-flex flex-column align-items-center">
+                @if (!$received_order && in_array($order->status, ['建立']))
+                    <a href="{{ Route('api.web.order.payment_credit_card', ['id' => $order->id, 'unique_id' => $order->unique_id]) }}"
+                        class="btn btn-success btn-lg col-6 mx-auto mb-3" role="button" target="_blank">線上刷卡
+                        <i class="bi bi-box-arrow-up-right"></i>
+                    </a>
+                    <a href="{{ Route('api.web.order.line-pay-payment', ['source_type' => 'ord_orders', 'source_id' => $order->id, 'unique_id' => $order->unique_id]) }}"
+                        class="btn btn-success btn-lg col-6 mx-auto mb-3" role="button" target="_blank">LINE Pay
+                        <i class="bi bi-box-arrow-up-right"></i>
+                    </a>
+                @endif
+                
+                @if (!$receivable && in_array($order->status, ['建立']))
+                    <div class="mark small text-muted">
+                        <i class="bi bi-exclamation-diamond-fill text-warning"></i> 點擊後會產生收款單，且無法再線上刷卡或LINE Pay付款
+                    </div>
+                    <a href="{{ Route('cms.order.ro-edit', ['id' => $order->id]) }}" 
+                        class="btn btn-primary btn-lg col-6 mx-auto mb-2" role="button">其他付款方式</a>
+                @endif
+            </div>
+        </x-slot>
+    </x-b-modal>
 
 @endsection
 @once
