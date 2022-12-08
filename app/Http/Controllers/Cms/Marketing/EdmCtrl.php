@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Response;
 
-class edmCtrl extends Controller
+class EdmCtrl extends Controller
 {
     /**
      * Display a listing of the resource.
