@@ -18,6 +18,7 @@ yarn-error.log
 /public/product_imgs
 /public/product_intro
 /public/idx_banner
+/public/edm
 /public/fonts/vendor
 /yarn.lock
 /composer.lock

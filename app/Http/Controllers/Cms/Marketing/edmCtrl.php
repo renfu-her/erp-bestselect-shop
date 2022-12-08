@@ -7,6 +7,7 @@ use App\Models\Collection;
 use App\Models\Customer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Response;
 
 class edmCtrl extends Controller
 {
@@ -117,7 +118,7 @@ class edmCtrl extends Controller
         if ($user) {
             $name = $user->name;
         }
-       
+
         return view('cms.marketing.edm.print', [
             'type' => $type,
             'mcode' => $mcode,
@@ -129,5 +130,15 @@ class edmCtrl extends Controller
             'btn' => $btn,
             'x' => $x,
         ]);
+    }
+
+    public function download(Request $request, $filename)
+    {
+        $path = storage_path() . '/app/edm/' . $filename;
+        if (file_exists($path)) {
+            return Response::download($path);
+        } else {
+            return abort(404);
+        }
     }
 }
