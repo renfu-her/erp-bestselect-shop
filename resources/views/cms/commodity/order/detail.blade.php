@@ -4,7 +4,7 @@
 
     <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
         <div class="p-1 pe-2">
-            @if ((!$receivable && in_array($order->status, ['建立'])) || !$received_order)
+            @if ((!$receivable && in_array($order->status, ['建立'])) || !($received_order || !in_array($order->status, ['建立'])))
                 <button type="button" class="btn btn-success btn-sm my-1 ms-1"
                     data-bs-toggle="modal" data-bs-target="#pay-win">我要付款</button>
             @endif
