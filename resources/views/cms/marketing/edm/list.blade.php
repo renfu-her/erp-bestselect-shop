@@ -79,7 +79,7 @@
                                     data-href="{{ route('print-edm', ['id' => $data->id, 'type' => 'normal','mcode'=>$mcode]) }}"
                                     data-bs-toggle="tooltip" title="圖片下載"
                                     class="-toImg icon icon-btn fs-5 text-primary rounded-circle border-0">
-                                    <i class="bi bi-download"></i>
+                                    <i class="bi bi-download"></i>{{ $data->qty }}
                                 </button>
                             </td>
                             <td class="text-center">
