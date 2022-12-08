@@ -87,5 +87,8 @@
         }
         $Btn.prop('disabled', true).addClass('disabled');
     });
+    $('.-blockReBtn').off('click.banRedo').on('click.banRedo', function (e) {
+        $(this).prop('disabled', true).addClass('disabled');
+    });
 
 })();

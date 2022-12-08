@@ -4,7 +4,12 @@
 
     <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
         <div class="p-1 pe-2">
-            @if (!$receivable && in_array($order->status, ['建立', '收款單未平']))
+            @if ((!$receivable && in_array($order->status, ['建立'])) || !$received_order)
+                <button type="button" class="btn btn-success btn-sm my-1 ms-1"
+                    data-bs-toggle="modal" data-bs-target="#pay-win">我要付款</button>
+            @endif
+
+            @if (!$receivable && in_array($order->status, ['收款單未平']))
                 <a href="{{ Route('cms.order.ro-edit', ['id' => $order->id]) }}" class="btn btn-primary btn-sm my-1 ms-1"
                     role="button">新增收款單</a>
             @endif
@@ -13,22 +18,16 @@
                 @if ($receivable || in_array($order->status, ['已付款', '已入款', '結案']))
                     @if ($received_credit_card_log)
                         <a href="{{ Route('api.web.order.credit_card_checkout', ['id' => $order->id, 'unique_id' => $order->unique_id]) }}"
-                            class="btn btn-primary btn-sm my-1 ms-1" role="button" target="_blank">線上刷卡連結</a>
+                            class="btn btn-primary btn-sm my-1 ms-1" role="button" target="_blank">線上刷卡結果</a>
                     @endif
 
                     @can('cms.collection_received.edit')
                         @if ($line_pay_balance_price > 0)
                             <a href="{{ route('cms.order.line-pay-refund', ['source_type' => 'ord_orders', 'source_id' => $order->id]) }}"
-                                class="btn btn-outline-danger btn-sm" role="button">Line Pay 付款取消</a>
+                                class="btn btn-outline-danger btn-sm" role="button">LINE Pay 付款取消</a>
                         @endif
                     @endcan
                 @endif
-            @else
-                <a href="{{ Route('api.web.order.payment_credit_card', ['id' => $order->id, 'unique_id' => $order->unique_id]) }}"
-                    class="btn btn-primary btn-sm" role="button" target="_blank">線上刷卡連結</a>
-
-                <a href="{{ Route('api.web.order.line-pay-payment', ['source_type' => 'ord_orders', 'source_id' => $order->id, 'unique_id' => $order->unique_id]) }}"
-                    class="btn btn-primary btn-sm" role="button" target="_blank">Line Pay付款</a>
             @endif
             @can('cms.order.bonus-gross')
                 <a href="{{ Route('cms.order.bonus-gross', ['id' => $order->id]) }}" class="btn btn-warning btn-sm my-1 ms-1"
@@ -59,8 +58,9 @@
 
             @if ($canCancel)
                 @can('cms.order.cancel_order')
-                    <a href="{{ Route('cms.order.cancel-order', ['id' => $order->id]) }}" role="button"
-                        class="btn btn-outline-danger btn-sm my-1 ms-1">取消訂單</a>
+                    <button data-href="{{ Route('cms.order.cancel-order', ['id' => $order->id]) }}" type="button"
+                        data-bs-toggle="modal" data-bs-target="#confirm-delete-back" data-title="取消"
+                        class="btn btn-outline-danger btn-sm my-1 ms-1">取消訂單</button>
                 @endcan
             @endif
             <a href="{{ Route('cms.order.order-flow', ['id' => $order->id]) }}" role="button"
@@ -333,7 +333,7 @@
                                 @if (false == isset($delivery->back_inbound_date) && false == $has_already_pay_delivery_back)
                                     <button type="button"
                                         data-href="{{ Route('cms.delivery.back_delete', ['deliveryId' => $delivery->id], true) }}"
-                                        data-bs-toggle="modal" data-bs-target="#confirm-delete-back"
+                                        data-bs-toggle="modal" data-bs-target="#confirm-delete-back" data-title="刪除"
                                         class="btn btn-sm btn-danger -in-header mb-1">
                                         刪除退貨
                                     </button>
@@ -422,41 +422,6 @@
                     </div>
                 </div>
 
-                {{-- <div class="card-body px-4 py-0" hidden>
-                    <div class="table-responsive tableOverBox">
-                        <table class="table tableList table-sm mb-0">
-                            <thead class="table-light text-secondary">
-                                <tr>
-                                    <th scope="col">優惠類型</th>
-                                    <th scope="col">優惠名稱</th>
-                                    <th scope="col">贈品</th>
-                                    <th scope="col">金額</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>贈品</td>
-                                    <td>-</td>
-                                    <td>滑鼠墊</td>
-                                    <td>-</td>
-                                </tr>
-                                <tr>
-                                    <td>金額</td>
-                                    <td>滿額贈</td>
-                                    <td>-</td>
-                                    <td class="text-danger">- ${{ number_format(50) }}</td>
-                                </tr>
-                                <tr>
-                                    <td>優惠劵</td>
-                                    <td>優惠劵序號</td>
-                                    <td>-</td>
-                                    <td class="text-danger">- ${{ number_format(60) }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div> --}}
-
                 <div class="card-header px-4 text-secondary border-top">物流資訊</div>
                 <div class="card-body px-4 pb-4">
                     <dl class="row">
@@ -502,15 +467,15 @@
                                 @else
                                     {{ $subOrder->package_sn }}
                                 @endif
-                                <!--
-                                                                                        @if (false == empty($subOrder->projlgt_order_sn))
-    <a href="{{ env('LOGISTIC_URL') . 'guest/order-flow/' . $subOrder->projlgt_order_sn }}">
-                                                                                                {{ $subOrder->projlgt_order_sn }}
-                                                                                            </a>
-@else
-    {{ $subOrder->package_sn ?? '(待處理)' }}
-    @endif
-                                                                                        -->
+                                
+                                {{-- @if (false == empty($subOrder->projlgt_order_sn))
+                                    <a href="{{ env('LOGISTIC_URL') . 'guest/order-flow/' . $subOrder->projlgt_order_sn }}">
+                                        {{ $subOrder->projlgt_order_sn }}
+                                    </a>
+                                @else
+                                    {{ $subOrder->package_sn ?? '(待處理)' }}
+                                @endif --}}
+
                             </dd>
                         </div>
                         <div class="col">
@@ -773,7 +738,7 @@
         </div>
     </form>
 
-    <!-- Modal -->
+    <!-- 確認 -->
     <x-b-modal id="confirm-delete-back">
         <x-slot name="title">刪除確認</x-slot>
         <x-slot name="body">確認要刪除？</x-slot>
@@ -782,6 +747,7 @@
         </x-slot>
     </x-b-modal>
 
+    {{-- 更改推薦業務員 --}}
     <div class="modal fade" id="change-mcode" tabindex="-1" aria-labelledby="change-mcodeLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -816,6 +782,33 @@
         </div>
     </div>
 
+    {{-- 付款 --}}
+    <x-b-modal id="pay-win">
+        <x-slot name="title">我要付款</x-slot>
+        <x-slot name="body">
+            <div class="d-flex flex-column align-items-center">
+                @if (!$received_order && in_array($order->status, ['建立']))
+                    <a href="{{ Route('api.web.order.payment_credit_card', ['id' => $order->id, 'unique_id' => $order->unique_id]) }}"
+                        class="btn btn-success btn-lg col-6 mx-auto mb-3" role="button" target="_blank">線上刷卡
+                        <i class="bi bi-box-arrow-up-right"></i>
+                    </a>
+                    <a href="{{ Route('api.web.order.line-pay-payment', ['source_type' => 'ord_orders', 'source_id' => $order->id, 'unique_id' => $order->unique_id]) }}"
+                        class="btn btn-success btn-lg col-6 mx-auto mb-3" role="button" target="_blank">LINE Pay
+                        <i class="bi bi-box-arrow-up-right"></i>
+                    </a>
+                @endif
+                
+                @if (!$receivable && in_array($order->status, ['建立']))
+                    <div class="mark small text-muted">
+                        <i class="bi bi-exclamation-diamond-fill text-warning"></i> 點擊後會產生收款單，且無法再線上刷卡或LINE Pay付款
+                    </div>
+                    <a href="{{ Route('cms.order.ro-edit', ['id' => $order->id]) }}" 
+                        class="btn btn-primary btn-lg col-6 mx-auto mb-2" role="button">其他付款方式</a>
+                @endif
+            </div>
+        </x-slot>
+    </x-b-modal>
+
 @endsection
 @once
     @push('sub-styles')
@@ -829,7 +822,10 @@
     @push('sub-scripts')
         <script>
             $('#confirm-delete-back').on('show.bs.modal', function(e) {
-                $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
+                const title = $(e.relatedTarget).data('title') || '刪除';
+                $(this).find('#confirm-delete-backLabel').text(`${title}確認`);
+                $(this).find('.modal-body').text(`確認要${title}？`);
+                $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href')).text(`確認並${title}`);
             });
 
             // 更換推薦業務

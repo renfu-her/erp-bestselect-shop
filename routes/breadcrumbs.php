@@ -112,6 +112,11 @@ Breadcrumbs::for('cms.stock.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
     $trail->push('庫存管理', route('cms.stock.index'));
 });
+// 庫存管理 - 明細
+Breadcrumbs::for('cms.stock.stock_detail_log', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.stock.index');
+    $trail->push('[' . $value . '] 明細');
+});
 
 // 採購單庫存匯入
 Breadcrumbs::for('cms.inbound_import.index', function (BreadcrumbTrail $trail) {
