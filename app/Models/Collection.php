@@ -399,7 +399,9 @@ class Collection extends Model
 
         foreach ($prd as $key => $value) {
             $value->style = json_decode($value->style);
-            $value->img_url = getImageUrl($value->img_url, true);
+            if ($value->img_url) {
+                $value->img_url = getImageUrl($value->img_url, true);
+            }
         }
 
         return [
