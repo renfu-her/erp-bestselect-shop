@@ -132,8 +132,11 @@ class edmCtrl extends Controller
         ]);
     }
 
-    public function download(Request $request, $filename)
+    public function download(Request $request, $filename = null)
     {
+        if (!$filename) {
+            return abort(404);
+        }
         $path = storage_path() . '/app/edm/' . $filename;
         if (file_exists($path)) {
             return Response::download($path);
