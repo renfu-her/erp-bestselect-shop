@@ -175,6 +175,7 @@
                             const a = document.createElement('a');
                             // 'http://localhost:3003/temp/edm1670482624096.zip'
                             a.href = Download_Url + '/' + data.name;
+                            console.log(a.href);
                             a.target = '_blank';
                             a.download = true;
                             a.click();
