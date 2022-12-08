@@ -153,17 +153,16 @@
                 const $title = $('#loading .-title');
                 const $note = $('#loading .-note');
                 const $footer = $('#loading .modal-footer');
-                        // loading.show();
-                        // return;
+                $bar.css('width', '0%').attr('aria-valuenow', 0).text('');
+                $title.text('圖片生產中，請稍後...');
+                $note.text('');
+                $footer.prop('hidden', true);
+                loading.show();
+
                 console.log(url);
                 Screenshot(url, {
                     pages: 2,
                     start: (e) => {
-                        $bar.css('width', '0%').attr('aria-valuenow', 0).text('');
-                        $title.text('圖片生產中，請稍後...');
-                        $note.text('');
-                        $footer.prop('hidden', true);
-                        loading.show();
                     },
                     process: (data) => {
                         $bar.css('width', `${data.rate}%`).attr('aria-valuenow', data.rate).text(`${data.rate}%`);
