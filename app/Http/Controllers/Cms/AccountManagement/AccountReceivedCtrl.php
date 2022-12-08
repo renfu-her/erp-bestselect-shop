@@ -177,6 +177,9 @@ class AccountReceivedCtrl extends Controller
         $received_data = ReceivedOrder::get_received_detail($id);
 
         $tw_price = $received_order->price - $received_data->sum('tw_price');
+        if ($tw_price == 0) {
+            return redirect()->back();
+        }
 
         // grade process start
             $defaultData = [];
