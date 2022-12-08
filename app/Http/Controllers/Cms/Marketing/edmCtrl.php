@@ -18,12 +18,11 @@ class edmCtrl extends Controller
      */
     public function index(Request $request, Collection $collection)
     {
-        //
         $mcode = $request->user()->getUserCustomer($request->user()->id)->sn;
 
         $query = $request->query();
         $name = Arr::get($query, 'name');
-        $dataList = $collection::where('edm', 1);
+        $dataList = $collection::dataList()->where('edm', 1);
         if ($name) {
             $dataList->where('name', 'like', "%$name%");
         }
