@@ -182,10 +182,11 @@
                                 break;
                         
                             default:
-                                console.error(msg);
+                                $note.text('發生錯誤：', msg);
                                 break;
                         }
                         $footer.prop('hidden', false);
+                        console.error('error', msg);
                     }
                 });
             });
