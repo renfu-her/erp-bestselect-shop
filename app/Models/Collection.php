@@ -27,9 +27,23 @@ class Collection extends Model
     public static function dataList($option = [])
     {
         $prd = DB::table('collection_prd as cp')
+            ->join('prd_products as product', 'cp.product_id_fk', '=', 'product.id')
             ->select('cp.collection_id_fk')
             ->selectRaw('count(*) as qty')
-            ->groupBy('cp.collection_id_fk');
+            ->groupBy('cp.collection_id_fk')
+            ->where(function ($query) {
+                $now = date('Y-m-d H:i:s');
+                $query->where(function ($query) use ($now) {
+                    $query->where('product.active_sdate', '<=', $now)
+                        ->orWhereNull('product.active_sdate');
+                })
+                    ->where(function ($query) use ($now) {
+                        $query->where('product.active_edate', '>=', $now)
+                            ->orWhereNull('product.active_edate');
+                    });
+            })
+            ->whereNull('product.deleted_at')
+            ->where('product.public', '1');
 
         $re = DB::table('collection as col')
             ->joinSub($prd, 'prd', 'prd.collection_id_fk', '=', 'col.id');
@@ -389,6 +403,19 @@ class Collection extends Model
                 'price.origin_price',
                 'style.style'])
             ->where('cp.collection_id_fk', $collection_id)
+            ->where(function ($query) {
+                $now = date('Y-m-d H:i:s');
+                $query->where(function ($query) use ($now) {
+                    $query->where('product.active_sdate', '<=', $now)
+                        ->orWhereNull('product.active_sdate');
+                })
+                    ->where(function ($query) use ($now) {
+                        $query->where('product.active_edate', '>=', $now)
+                            ->orWhereNull('product.active_edate');
+                    });
+            })
+            ->whereNull('product.deleted_at')
+            ->where('product.public', '1')
             ->orderBy('cp.sort');
 
         if ($paginate) {
