@@ -230,6 +230,7 @@ class OrderInvoice extends Model
         $bar_code = null;
         $qr_code_l = null;
         $qr_code_r = null;
+        $created_at = isset($parm['invoice_created_at']) ? $parm['invoice_created_at'] : date('Y-m-d H:i:s');
 
         // if($status == 3){
         //     $create_status_time = date('Y-m-d', strtotime("+ 7 day"));
@@ -366,6 +367,7 @@ class OrderInvoice extends Model
                 'bar_code' => $bar_code,
                 'qr_code_l' => $qr_code_l,
                 'qr_code_r' => $qr_code_r,
+                'created_at' => $created_at,
             ]);
 
             if($merge_source && $inv_result){
@@ -478,6 +480,7 @@ class OrderInvoice extends Model
         $comment = isset($parm['comment']) ? $parm['comment'] : null;
 
         $invoice_number = isset($parm['invoice_number']) ? $parm['invoice_number'] : 'E' . str_pad($parm['id'], 9, '0', STR_PAD_LEFT);
+        $created_at = isset($parm['invoice_created_at']) ? $parm['invoice_created_at'] : date('Y-m-d H:i:s');
 
         // if($status == 3){
         //     $create_status_time = date('Y-m-d', strtotime("+ 7 day"));
@@ -581,6 +584,7 @@ class OrderInvoice extends Model
                 'comment' => $comment,
 
                 'invoice_number' => $invoice_number,
+                'created_at' => $created_at,
             ]);
 
             self::where('invoice_id', $inv_result->id)->update([
