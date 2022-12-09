@@ -93,7 +93,7 @@
                                                                     </div>
                                                                 </div>
                                                                 @if ($qr === '1')
-                                                                    <div style="width: {{ 58 * $x }}px">
+                                                                    <div style="width: {{ 60 * $x }}px">
                                                                         {{-- QR code --}}
                                                                         <div class="qrcode" data-url="https://www.bestselection.com.tw/product/{{ $products[$i * 3 + $j]->sku }}?mcode={{ $mcode }}"></div>
                                                                     </div>
@@ -150,13 +150,13 @@
         $('.qrcode').each(function (index, element) {
             // element == this
             const url = $(element).data('url');
-            const size = Number($(element).data('size')) || 50;
+            const size = Number($(element).data('size')) || 55;
             new QRCode(element, {
                 width: size * x,
                 height: size * x,
                 colorDark: '#000000',
                 colorLight: '#FFFFFF',
-                correctLevel: QRCode.CorrectLevel.L,
+                correctLevel: QRCode.CorrectLevel.L,  //LMQH
                 text: url
             });
         })

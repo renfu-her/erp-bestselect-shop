@@ -138,9 +138,15 @@ img {
 .price::before {
     margin-right: -2%;
 }
-.qrcode img {
+.T3 .qrcode img {
     width: auto;
     margin: auto;
+    display: none !important;
+}
+.T3 .qrcode canvas {
+    width: auto;
+    margin: auto;
+    display: block !important;
 }
 
 /* tfoot */
