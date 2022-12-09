@@ -142,7 +142,7 @@
             $('.-web').on('click', function(e) {
                 const bg = $('select[name="header_color"]').val();
                 const qr = $('input[name="qr_show"]').prop('checked') ? '1' : '0';
-                const url = $(this).data('href') + `?bg=${bg}&qr=${qr}&paginate=0&btn=1&x=1`;
+                const url = $(this).data('href') + `?bg=${bg}&qr=${qr}&paginate=0&x=1`;
                 window.open(url, '_blank');
             });
             $('.-toImg').on('click', function(e) {
