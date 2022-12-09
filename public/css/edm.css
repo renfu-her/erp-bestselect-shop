@@ -32,7 +32,7 @@ img {
 /* thead */
 .T1 > thead th {
     background-repeat: repeat;
-    background-position: center;
+    background-position: top center;
     background-size: 100%;
     text-align: center;
     
