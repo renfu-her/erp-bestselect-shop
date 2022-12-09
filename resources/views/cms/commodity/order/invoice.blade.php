@@ -33,7 +33,7 @@
                 <div class="col-12 col-sm-4 mb-3 c_invoice_created_at{{ old('invoice_method') == 'print' ? '' : (!old('invoice_method') && $order->invoice_category == '紙本發票' ? '' : ' d-none') }}">
                     <label class="form-label">自定發票日期</label>
                     <div class="input-group has-validation">
-                        <input type="date" name="invoice_created_at" class="form-control @error('invoice_created_at') is-invalid @enderror" placeholder="請輸入自定發票日期" aria-label="自定發票日期" value="{{ old('invoice_created_at', date('Y-m-d')) }}">
+                        <input type="date" name="invoice_created_at" class="form-control @error('invoice_created_at') is-invalid @enderror" placeholder="請輸入自定發票日期" aria-label="自定發票日期" value="{{ old('invoice_created_at') }}">
                         <button class="btn btn-outline-secondary icon" type="button" data-clear data-bs-toggle="tooltip" title="清空日期">
                             <i class="bi bi-calendar-x"></i>
                         </button>
