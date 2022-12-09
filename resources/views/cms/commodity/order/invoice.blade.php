@@ -10,7 +10,7 @@
         @csrf
         <div class="card shadow p-4 mb-4">
             <div class="row">
-                <div class="col-12 col-sm-6 mb-3">
+                <div class="col-12 col-sm-4 mb-3">
                     <label class="form-label">自定訂單編號 <i class="bi bi-info-circle" data-bs-toggle="tooltip" title="自定訂單編號僅允許英數字及_符號"></i> <span class="text-danger">*</span></label>
                     <input type="text" name="merchant_order_no" class="form-control @error('merchant_order_no') is-invalid @enderror" placeholder="請輸入自定訂單編號" aria-label="自定訂單編號" value="{{ old('merchant_order_no', $order->sn) }}" required>
                     <div class="invalid-feedback">
@@ -20,13 +20,28 @@
                     </div>
                 </div>
 
-                <div class="col-12 col-sm-6 mb-3 c_invoice_number{{ old('invoice_method') == 'print' ? '' : (!old('invoice_method') && $order->invoice_category == '紙本發票' ? '' : ' d-none') }}">
+                <div class="col-12 col-sm-4 mb-3 c_invoice_number{{ old('invoice_method') == 'print' ? '' : (!old('invoice_method') && $order->invoice_category == '紙本發票' ? '' : ' d-none') }}">
                     <label class="form-label l_invoice_number">自定發票號碼</label>
                     <input type="text" name="invoice_number" class="form-control @error('invoice_number') is-invalid @enderror" placeholder="請輸入自定發票號碼" aria-label="自定發票號碼" value="{{ old('invoice_number', $order->invoice_number) }}" maxlength="10" minlength="8" oninput="this.value=this.value.toUpperCase()">
                     <div class="invalid-feedback">
                         @error('invoice_number')
                         {{ $message }}
                         @enderror
+                    </div>
+                </div>
+
+                <div class="col-12 col-sm-4 mb-3 c_invoice_created_at{{ old('invoice_method') == 'print' ? '' : (!old('invoice_method') && $order->invoice_category == '紙本發票' ? '' : ' d-none') }}">
+                    <label class="form-label">自定發票日期</label>
+                    <div class="input-group has-validation">
+                        <input type="date" name="invoice_created_at" class="form-control @error('invoice_created_at') is-invalid @enderror" placeholder="請輸入自定發票日期" aria-label="自定發票日期" value="{{ old('invoice_created_at', date('Y-m-d')) }}">
+                        <button class="btn btn-outline-secondary icon" type="button" data-clear data-bs-toggle="tooltip" title="清空日期">
+                            <i class="bi bi-calendar-x"></i>
+                        </button>
+                        <div class="invalid-feedback">
+                            @error('invoice_created_at')
+                            {{ $message }}
+                            @enderror
+                        </div>
                     </div>
                 </div>
             </div>
@@ -588,7 +603,7 @@
                                 if (res && res.length) {
                                     (res).forEach(data => {
                                         $('.m_row').append(
-                                            `<tr class="new_row">
+                                            `<tr class="-cloneElem new_row">
                                                 <td class="text-center">
                                                     <button type="button" class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
                                                         <i class="bi bi-trash"></i>
@@ -709,6 +724,12 @@
                             disabled:false
                         });
 
+                        //自定發票日期
+                        $('.c_invoice_created_at').removeClass('d-none');
+                        $('input[type=date][name=invoice_created_at]').prop({
+                            disabled:false
+                        });
+
                     } else if(this.value == 'give'){
                         //Email
                         $('input[type=email][name=buyer_email]').prop({
@@ -747,6 +768,12 @@
                         //自定發票號碼
                         $('.c_invoice_number').addClass('d-none');
                         $('input[type=text][name=invoice_number]').prop({
+                            disabled:true
+                        }).val('');
+
+                        //自定發票日期
+                        $('.c_invoice_created_at').addClass('d-none');
+                        $('input[type=date][name=invoice_created_at]').prop({
                             disabled:true
                         }).val('');
 
@@ -789,6 +816,12 @@
                         //自定發票號碼
                         $('.c_invoice_number').addClass('d-none');
                         $('input[type=text][name=invoice_number]').prop({
+                            disabled:true
+                        }).val('');
+
+                        //自定發票日期
+                        $('.c_invoice_created_at').addClass('d-none');
+                        $('input[type=date][name=invoice_created_at]').prop({
                             disabled:true
                         }).val('');
                     }

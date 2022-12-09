@@ -104,7 +104,7 @@ class EdmCtrl extends Controller
         $paginate = Arr::get($query, 'paginate');
         $bg = Arr::get($query, 'bg', 'r');
         $qr = Arr::get($query, 'qr', '1');
-        $btn = Arr::get($query, 'btn', '1');
+        $btn = Arr::get($query, 'btn', '0');
         $x = Arr::get($query, 'x', 1);
         $x = intval($x) < 1 ? 1 : intval($x);
 

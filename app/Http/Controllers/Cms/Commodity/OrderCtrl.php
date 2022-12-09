@@ -2242,6 +2242,7 @@ class OrderCtrl extends Controller
             'id' => 'required|exists:ord_orders,id',
             'merchant_order_no' => 'required|string|regex:/^[\w]{1,20}$/|unique:ord_order_invoice,merchant_order_no,' . $id,
             'invoice_number' => 'nullable|string|min:8|max:10|unique:ord_order_invoice,invoice_number,' . $id,
+            'invoice_created_at' => 'nullable|date_format:Y-m-d',
             'status' => 'required|in:1,9',
             'merge_source' => 'nullable|array',
             'merge_source.*' => 'exists:ord_orders,id',
@@ -2477,6 +2478,7 @@ class OrderCtrl extends Controller
             $request->validate([
                 'merchant_order_no' => 'required|string|regex:/^[\w]{1,20}$/|unique:ord_order_invoice,merchant_order_no,' . $id,
                 'invoice_number' => 'nullable|string|min:8|max:10|unique:ord_order_invoice,invoice_number,' . $id,
+                'invoice_created_at' => 'nullable|date_format:Y-m-d',
                 'status' => 'required|in:1,9',
                 'merge_source' => 'nullable|array',
                 'merge_source.*' => 'exists:ord_orders,id',
