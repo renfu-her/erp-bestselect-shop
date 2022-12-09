@@ -7,8 +7,9 @@ use App\Models\Collection;
 use App\Models\Customer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Response;
 
-class edmCtrl extends Controller
+class EdmCtrl extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -17,12 +18,11 @@ class edmCtrl extends Controller
      */
     public function index(Request $request, Collection $collection)
     {
-        //
         $mcode = $request->user()->getUserCustomer($request->user()->id)->sn;
 
         $query = $request->query();
         $name = Arr::get($query, 'name');
-        $dataList = $collection::where('edm', 1);
+        $dataList = $collection::dataList()->where('edm', 1);
         if ($name) {
             $dataList->where('name', 'like', "%$name%");
         }
@@ -117,7 +117,7 @@ class edmCtrl extends Controller
         if ($user) {
             $name = $user->name;
         }
-       
+
         return view('cms.marketing.edm.print', [
             'type' => $type,
             'mcode' => $mcode,
@@ -129,5 +129,18 @@ class edmCtrl extends Controller
             'btn' => $btn,
             'x' => $x,
         ]);
+    }
+
+    public function download(Request $request, $filename = null)
+    {
+        if (!$filename) {
+            return abort(404);
+        }
+        $path = storage_path() . '/app/edm/' . $filename;
+        if (file_exists($path)) {
+            return Response::download($path);
+        } else {
+            return abort(404);
+        }
     }
 }

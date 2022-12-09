@@ -4,7 +4,7 @@ use App\Http\Controllers\Cms\AdminManagement\PetitionCtrl;
 use App\Http\Controllers\Cms\AuthCtrl;
 use App\Http\Controllers\Cms\CustomerResetCtrl;
 use App\Http\Controllers\Cms\DashboardCtrl;
-use App\Http\Controllers\Cms\Marketing\edmCtrl;
+use App\Http\Controllers\Cms\Marketing\EdmCtrl;
 use App\Http\Controllers\Cms\StyleDemo;
 use Illuminate\Support\Facades\Route;
 
@@ -129,7 +129,7 @@ Route::group(['prefix' => 'customer', 'as' => 'customer.', 'middleware' => 'gues
     Route::get('/login-reset-status', [CustomerResetCtrl::class, 'loginResetStatus'])->name('login-reset-status');
 });
 
-Route::get('edm/{id}/{type}/{mcode}', [edmCtrl::class, 'print'])->name('print-edm');
+Route::get('edm/{id}/{type}/{mcode}', [EdmCtrl::class, 'print'])->name('print-edm');
 
 Route::get('_info', function () {
     // dd(app('url')->route('test',[],false));

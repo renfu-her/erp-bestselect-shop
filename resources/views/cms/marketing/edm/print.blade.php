@@ -56,7 +56,7 @@
                                                     <tr height="{{ 180 * $x }}" style="vertical-align: top;">
                                                         <td height="{{ 180 * $x }}" style="padding: 0;">
                                                             <div style="overflow: hidden;width:100%;height: {{ 180 * $x }}px;display:flex;">
-                                                                <img class="pImg" src="{{ $products[$i * 3 + $j]->img_url }}" 
+                                                                <img class="pImg" src="{{ $products[$i * 3 + $j]->img_url ?? Asset('images/NoImg.png') }}" 
                                                                     alt="{{ $products[$i * 3 + $j]->product_title }}">
                                                             </div>
                                                         </td>

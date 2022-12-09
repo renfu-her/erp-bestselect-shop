@@ -931,6 +931,10 @@ Breadcrumbs::for('cms.user.edit', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.user.index');
     $trail->push('編輯');
 });
+Breadcrumbs::for('cms.user.salechannel', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.user.index');
+    $trail->push('通路權限');
+});
 
 //會計分類
 Breadcrumbs::for('cms.first_grade.index', function (BreadcrumbTrail $trail) {

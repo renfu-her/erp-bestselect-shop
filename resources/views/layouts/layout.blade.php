@@ -45,12 +45,19 @@
     @yield('content')
     <script src="{{ Asset('dist/js/app.js') }}"></script>
     <script>
-        $('#sidebarMenu').on('show.bs.collapse', function () {
+        $('#sidebarMenu').on('shown.bs.collapse', function () {
             console.log('show');
             sessionStorage.setItem('sidebar', 'show');
+            const activeNav = $('#sidebarMenu .btn-toggle-nav li.active');
+            if (activeNav.length > 0) {
+                $('#sidebarMenu').animate({
+                    scrollTop: activeNav.offset().top - 120
+                }, 800);
+            }
         }).on('hide.bs.collapse', function () {
             console.log('hide');
             sessionStorage.setItem('sidebar', 'hide');
+            $('#sidebarMenu').scrollTop(0);
         });
         if (window.innerWidth >= 576 && sessionStorage.sidebar === 'show') {
             $('#sidebarMenu').addClass('show');

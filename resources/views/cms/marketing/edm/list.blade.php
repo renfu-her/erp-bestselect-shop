@@ -77,7 +77,7 @@
                                 </button>
                                 <button type="button" 
                                     data-href="{{ route('print-edm', ['id' => $data->id, 'type' => 'normal','mcode'=>$mcode]) }}"
-                                    data-bs-toggle="tooltip" title="圖片下載"
+                                    data-bs-toggle="tooltip" title="圖片下載" data-qty="{{ $data->qty }}"
                                     class="-toImg icon icon-btn fs-5 text-primary rounded-circle border-0">
                                     <i class="bi bi-download"></i>
                                 </button>
@@ -91,7 +91,7 @@
                                 </button>
                                 <button type="button" 
                                     data-href="{{ route('print-edm', ['id' => $data->id, 'type' => 'dealer','mcode'=>$mcode]) }}"
-                                    data-bs-toggle="tooltip" title="圖片下載"
+                                    data-bs-toggle="tooltip" title="圖片下載" data-qty="{{ $data->qty }}"
                                     class="-toImg icon icon-btn fs-5 text-primary rounded-circle border-0">
                                     <i class="bi bi-download"></i>
                                 </button>
@@ -133,6 +133,7 @@
     @push('sub-scripts')
         <script src="{{ Asset('dist/js/screenshot.js') }}"></script>
         <script>
+            const Download_Url = @json(route('cms.edm.download'));
             const loading = new bootstrap.Modal(document.getElementById('loading'), { 
                 backdrop: 'static',
                 // keyboard: false
@@ -148,16 +149,17 @@
                 const bg = $('select[name="header_color"]').val();
                 const qr = $('input[name="qr_show"]').prop('checked') ? '1' : '0';
                 const url = $(this).data('href') + `?bg=${bg}&qr=${qr}&paginate=1&btn=0&x=2`;
+                const qty = Number($(this).data('qty')) || 0;
                 // window.open(url, '_blank');
                 const $bar = $('#loading .progress-bar');
                 const $title = $('#loading .-title');
                 const $note = $('#loading .-note');
                 const $footer = $('#loading .modal-footer');
-                        // loading.show();
-                        // return;
+                // loading.show();
+                
                 console.log(url);
                 Screenshot(url, {
-                    pages: 2,
+                    pages: Math.ceil(qty / 9),
                     start: (e) => {
                         $bar.css('width', '0%').attr('aria-valuenow', 0).text('');
                         $title.text('圖片生產中，請稍後...');
@@ -168,8 +170,15 @@
                     process: (data) => {
                         $bar.css('width', `${data.rate}%`).attr('aria-valuenow', data.rate).text(`${data.rate}%`);
                         $note.text(`（${data.task}/${data.totalTask}）${data.name}`);
-                        if (data.rate === 100) {
+                        if (data.rate === 100 && RegExp('.zip').test(data.name)) {
                             $title.text('圖片生產完成：' + data.name);
+                            const a = document.createElement('a');
+                            // 'http://localhost:3003/temp/edm1670482624096.zip'
+                            a.href = Download_Url + '/' + data.name;
+                            console.log(a.href);
+                            a.target = '_blank';
+                            a.download = true;
+                            a.click();
                         }
                     },
                     error: (msg) => {
@@ -182,10 +191,11 @@
                                 break;
                         
                             default:
-                                console.error(msg);
+                                $note.text('發生錯誤：', msg);
                                 break;
                         }
                         $footer.prop('hidden', false);
+                        console.error('error', msg);
                     }
                 });
             });
