@@ -31,9 +31,9 @@ img {
 }
 /* thead */
 .T1 > thead th {
-    background-repeat: no-repeat;
+    background-repeat: repeat;
     background-position: center;
-    background-size: cover;
+    background-size: 100%;
     text-align: center;
     
 }
@@ -138,9 +138,11 @@ img {
 .price::before {
     margin-right: -2%;
 }
-.T3 .qrcode img {
+.qrcode img {
     width: auto;
     margin: auto;
+}
+.T3 .qrcode img {
     display: none !important;
 }
 .T3 .qrcode canvas {
