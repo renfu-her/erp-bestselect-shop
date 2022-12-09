@@ -586,6 +586,7 @@ class OrderCtrl extends Controller
             $relation_invoice->link = route('cms.order.show-invoice', [
                 'id'=>$relation_invoice->source_id,
                 'unique_id'=>$r_order->unique_id,
+                'pre'=>1,
             ]);
         }
 

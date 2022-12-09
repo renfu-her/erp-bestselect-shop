@@ -78,8 +78,8 @@
                     <tr>
                         <th scope="col">#</th>
                         <th scope="col">發票號碼</th>
-                        <th scope="col">訂購單號</th>
-                        <th scope="col">日期</th>
+                        <th scope="col">訂單編號</th>
+                        <th scope="col">發票日期</th>
                         <th scope="col">類型</th>
                         <th scope="col">買受人</th>
                         <th scope="col">金額</th>

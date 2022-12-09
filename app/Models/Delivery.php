@@ -347,22 +347,24 @@ class Delivery extends Model
     }
 
     //出貨商品查詢
-    public static function getListByProduct($param)
-    {
+    public static function getListByProduct($param) {
         $rcv_depot_data = [
             'product_title' => 'rcv_depot.product_title'
+            , 'product_style_id' => 'rcv_depot.product_style_id'
             , 'qty' => 'rcv_depot.qty'
             , 'prd_user_name' => 'usr.name'
             , 'ib_source_sn' => 'ib_source.sn'
+            , 'rcv_unit_cost' => 'rcv_depot.unit_cost'
         ];
+
         $re_event_sn_pcs = DB::table(app(Purchase::class)->getTable(). ' as pcs')
             ->select(DB::raw('concat("'. Event::purchase()->value. '") as event'), 'pcs.id', 'pcs.sn');
         $re_event_sn_csn = DB::table(app(Consignment::class)->getTable(). ' as csn')
             ->select(DB::raw('concat("'. Event::consignment()->value. '") as event'), 'csn.id', 'csn.sn');
         $re_event_sn_pcs = $re_event_sn_pcs->union($re_event_sn_csn);
 
-
-        $re = DB::table(app(Delivery::class)->getTable(). ' as delivery')
+        //出貨單
+        $query_delivery = DB::table(app(Delivery::class)->getTable(). ' as delivery')
             ->leftJoin(app(ReceiveDepot::class)->getTable(). ' as rcv_depot', 'rcv_depot.delivery_id', '=', 'delivery.id')
             ->leftJoin(app(PurchaseInbound::class)->getTable(). ' as inbound', function ($join) {
                 $join->on('inbound.id', '=', 'rcv_depot.inbound_id');
@@ -371,45 +373,30 @@ class Delivery extends Model
                 $join->on('ib_source.id', '=', 'inbound.event_id')
                     ->on('ib_source.event', '=', 'inbound.event');
             })
-
             ->leftJoin(app(ProductStyle::class)->getTable(). ' as style', 'style.id', '=', 'rcv_depot.product_style_id')
             ->leftJoin(app(Product::class)->getTable(). ' as prd', 'prd.id', '=', 'style.product_id')
             ->leftJoin(app(User::class)->getTable(). ' as usr', 'usr.id', '=', 'prd.user_id')
-
-            ->leftJoin(app(SubOrders::class)->getTable(). ' as sub_ord', function ($join) {
-                $join->on('sub_ord.id', '=', 'delivery.event_id')
-                    ->where('delivery.event', '=', Event::order()->value);
-            })
-            ->leftJoin(app(CsnOrder::class)->getTable(). ' as csn_ord', function ($join) {
-                $join->on('csn_ord.id', '=', 'delivery.event_id')
-                    ->where('delivery.event', '=', Event::csn_order()->value);
-            })
-            ->leftJoin(app(Consignment::class)->getTable(). ' as csn', function ($join) {
-                $join->on('csn.id', '=', 'delivery.event_id')
-                    ->where('delivery.event', '=', Event::csn_order()->value);
-            })
             ->select(
-                'delivery.event_sn'
+                'delivery.id as delivery_id'
                 , 'delivery.event'
+                , 'delivery.event_sn'
                 , 'delivery.event_id'
                 , 'delivery.sn'
                 , 'delivery.audit_user_name'
-                , 'sub_ord.order_id'
+                , 'delivery.logistic_status'
                 , DB::raw('DATE_FORMAT(delivery.audit_date,"%Y-%m-%d %H:%i:%s") as audit_date')
                 , DB::raw('DATE_FORMAT(delivery.created_at,"%Y-%m-%d %H:%i:%s") as created_at')
             )
-            ->whereNull('csn_ord.deleted_at')
-            ->whereNull('csn.deleted_at')
 
             ->whereNull('delivery.deleted_at')
             ->whereNull('rcv_depot.deleted_at')
             ->groupBy('delivery.id')
             ->orderByDesc('delivery.id')
-        ;
+            ;
 
         //商品管理-搜尋廠商條件
         if (!empty($param['search_supplier'])) {
-            $re->leftJoin(app(ProductSupplier::class)->getTable(). ' as prd_prd_supplier', 'prd_prd_supplier.product_id', '=', 'prd.id')
+            $query_delivery->leftJoin(app(ProductSupplier::class)->getTable(). ' as prd_prd_supplier', 'prd_prd_supplier.product_id', '=', 'prd.id')
                 ->join(app(Supplier::class)->getTable(). ' as supplier', function ($join) use ($param) {
                     $join->on('prd_prd_supplier.supplier_id', '=', 'supplier.id');
                     if (is_array($param['search_supplier'])) {
@@ -421,20 +408,162 @@ class Delivery extends Model
             $rcv_depot_data['supplier_id'] = 'supplier.id';
             $rcv_depot_data['supplier_name'] = 'supplier.name';
         }
-        $re->addSelect(DB::raw(concatStr($rcv_depot_data). ' as rcv_depot_data'));
+        $query_delivery->addSelect(DB::raw(concatStr($rcv_depot_data). ' as rcv_depot_data'));
 
         if (isset($param['delivery_sdate']) && isset($param['delivery_edate'])) {
             $delivery_sdate = date('Y-m-d 00:00:00', strtotime($param['delivery_sdate']));
             $delivery_edate = date('Y-m-d 23:59:59', strtotime($param['delivery_edate']));
-            $re->whereBetween('delivery.audit_date', [$delivery_sdate, $delivery_edate]);
+            $query_delivery->whereBetween('delivery.audit_date', [$delivery_sdate, $delivery_edate]);
         }
 
         if ($param['keyword']) {
-            $re->where(function ($query) use ($param) {
+            $query_delivery->where(function ($query) use ($param) {
                 $query->where('rcv_depot.product_title', 'like', "%" . $param['keyword'] . "%")
                     ->orWhere('rcv_depot.sku', 'like', "%" . $param['keyword'] . "%");
             });
         }
+//        dd($query_delivery->get());
+
+        //訂單
+        $ord_item_data = [
+            'ord_item_id' => 'ord_item.id'
+            , 'ord_title' => DB::raw('ord_item.product_title')
+            , 'product_style_id' => 'ord_item.product_style_id'
+            , 'ord_price' => DB::raw('ord_item.price')
+            , 'ord_qty' => 'ord_item.qty'
+            , 'ord_origin_price' => 'ord_item.origin_price'
+        ];
+        $query_order = DB::table(app(Order::class)->getTable(). ' as ord_ord')
+            ->leftJoin(app(SubOrders::class)->getTable(). ' as sub_ord', function ($join) {
+                $join->on('sub_ord.order_id', '=', 'ord_ord.id');
+            })
+            ->leftJoin(app(OrderItem::class)->getTable(). ' as ord_item', function ($join) {
+                $join->on('ord_item.order_id', '=', 'sub_ord.order_id')
+                    ->on('ord_item.sub_order_id', '=', 'sub_ord.id');
+            })
+            ->leftJoin(app(Delivery::class)->getTable(). ' as delivery', function ($join) {
+                $join->on('delivery.event_id', '=', 'sub_ord.id')
+                    ->where('delivery.event', '=', Event::order()->value);
+            })
+            ->leftJoin(app(Customer::class)->getTable(). ' as customer', function ($join) {
+                $join->on('customer.email', '=', 'ord_ord.email')
+                    ->whereNotNull('ord_ord.email');
+            })
+//            ->leftJoin(app(DlvOutStock::class)->getTable(). ' as outs', function ($join) {
+//                $join->on('outs.event_item_id', '=', 'ord_item.id');
+//                $join->where('outs.delivery_id', '=', 'dlv.id')
+//                    ->where('delivery.event', '=', Event::order()->value)
+//                    ->whereNull('delivery.deleted_at');
+//            })
+            ->select(
+                'delivery.id as delivery_id'
+                , 'delivery.event'
+                , 'delivery.event_id'
+                , 'ord_ord.status as ord_status'
+                , 'sub_ord.order_id as order_id'
+                , 'customer.name as buyer_name'
+                , DB::raw('DATE_FORMAT(ord_ord.created_at,"%Y-%m-%d") as ord_created_at')
+                , DB::raw(concatStr($ord_item_data). ' as ord_item_data')
+            )
+            ->groupBy('delivery.id')
+        ;
+//        dd($query_order->get());
+
+        //寄倉
+        $csn_item_data = [
+            'ord_item_id' => 'csn_item.id'
+            , 'ord_title' => DB::raw('csn_item.title')
+            , 'product_style_id' => 'csn_item.product_style_id'
+            , 'ord_price' => DB::raw('csn_item.price')
+            , 'ord_qty' => 'csn_item.num'
+            , 'ord_origin_price' => 'csn_item.price * csn_item.num'
+        ];
+        $query_csn = DB::table(app(Consignment::class)->getTable(). ' as csn')
+            ->leftJoin(app(ConsignmentItem::class)->getTable(). ' as csn_item', function ($join) {
+                $join->on('csn_item.consignment_id', '=', 'csn.id');
+            })
+            ->leftJoin(app(Delivery::class)->getTable(). ' as delivery', function ($join) {
+                $join->on('delivery.event_id', '=', 'csn.id')
+                    ->where('delivery.event', '=', Event::consignment()->value);
+            })
+            ->select(
+                'delivery.id as delivery_id'
+                , 'delivery.event'
+                , 'delivery.event_id'
+                , DB::raw('@null:=null as ord_status')
+                , DB::raw('csn.id as order_id')
+                , DB::raw('@null:=null as buyer_name')
+                , DB::raw('DATE_FORMAT(csn.created_at,"%Y-%m-%d") as ord_created_at')
+                , DB::raw(concatStr($csn_item_data). ' as ord_item_data')
+            )
+            ->whereNull('csn.deleted_at')
+            ->whereNull('csn_item.deleted_at')
+            ->groupBy('delivery.id');
+//        dd($query_csn->get());
+
+        //寄倉訂購
+        $csnord_item_data = [
+            'ord_item_id' => 'csnord_item.id'
+            , 'ord_title' => DB::raw('csnord_item.title')
+            , 'product_style_id' => 'csnord_item.product_style_id'
+            , 'ord_price' => DB::raw('csnord_item.price')
+            , 'ord_qty' => 'csnord_item.num'
+            , 'ord_origin_price' => 'csnord_item.price * csnord_item.num'
+        ];
+        $query_csnord = DB::table(app(CsnOrder::class)->getTable(). ' as csnord')
+            ->leftJoin(app(CsnOrderItem::class)->getTable(). ' as csnord_item', function ($join) {
+                $join->on('csnord_item.csnord_id', '=', 'csnord.id');
+            })
+            ->leftJoin(app(Delivery::class)->getTable(). ' as delivery', function ($join) {
+                $join->on('delivery.event_id', '=', 'csnord.id')
+                    ->where('delivery.event', '=', Event::csn_order()->value);
+            })
+            ->select(
+                'delivery.id as delivery_id'
+                , 'delivery.event'
+                , 'delivery.event_id'
+                , DB::raw('@null:=null as ord_status')
+                , DB::raw('csnord.id as order_id')
+                , DB::raw('@null:=null as buyer_name')
+                , DB::raw('DATE_FORMAT(csnord.created_at,"%Y-%m-%d") as ord_created_at')
+                , DB::raw(concatStr($csnord_item_data). ' as ord_item_data')
+            )
+            ->whereNull('csnord.deleted_at')
+            ->whereNull('csnord_item.deleted_at')
+            ->groupBy('delivery.id');
+
+        $query_order = $query_order->union($query_csn);
+        $query_order = $query_order->union($query_csnord);
+
+        $re = DB::query()->fromSub($query_delivery, 'dlv')
+            ->leftJoinSub($query_order, 'order', function($join) {
+                $join->on('order.delivery_id', '=', 'dlv.delivery_id')
+                    ->on('order.event', '=', 'dlv.event')
+                    ->on('order.event_id', '=', 'dlv.event_id');
+            })
+            ->select(
+                'dlv.delivery_id'
+                , 'dlv.event'
+                , 'dlv.event_sn'
+                , 'dlv.event_id'
+                , 'dlv.sn'
+                , 'dlv.audit_user_name'
+                , 'dlv.audit_date'
+                , 'dlv.created_at'
+                , 'dlv.rcv_depot_data'
+                , 'dlv.logistic_status'
+
+                , 'order.ord_status'
+                , 'order.order_id'
+                , 'order.buyer_name'
+                , 'order.ord_created_at'
+                , 'order.ord_item_data'
+            )
+            ->groupBy('order.delivery_id')
+            ->orderByDesc('order.delivery_id')
+        ;
+//        dd($re->get());
+
         return $re;
     }
 
