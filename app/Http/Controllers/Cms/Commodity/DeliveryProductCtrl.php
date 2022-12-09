@@ -42,7 +42,6 @@ class DeliveryProductCtrl extends Controller
         $cond['delivery_edate'] = Arr::get($query, 'delivery_edate', null);
 
         $data_list = Delivery::getListByProduct($cond)
-            ->where('dlv.logistic_status', '已出貨')
             ->get();
 
         $data_arr = [];
