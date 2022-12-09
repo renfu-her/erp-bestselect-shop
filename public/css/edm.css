@@ -31,9 +31,9 @@ img {
 }
 /* thead */
 .T1 > thead th {
-    background-repeat: no-repeat;
+    background-repeat: repeat;
     background-position: center;
-    background-size: cover;
+    background-size: 100%;
     text-align: center;
     
 }
@@ -141,6 +141,14 @@ img {
 .qrcode img {
     width: auto;
     margin: auto;
+}
+.T3 .qrcode img {
+    display: none !important;
+}
+.T3 .qrcode canvas {
+    width: auto;
+    margin: auto;
+    display: block !important;
 }
 
 /* tfoot */
