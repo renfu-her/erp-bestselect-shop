@@ -156,7 +156,7 @@
                 height: size * x,
                 colorDark: '#000000',
                 colorLight: '#FFFFFF',
-                correctLevel: QRCode.CorrectLevel.M,
+                correctLevel: QRCode.CorrectLevel.L,
                 text: url
             });
         })

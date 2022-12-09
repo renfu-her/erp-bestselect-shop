@@ -41,8 +41,8 @@
         const activeNav = $('#sidebarMenu .btn-toggle-nav li.active');
         if (activeNav.length > 0) {
             $('#sidebarMenu').animate({
-                scrollTop: activeNav.offset().top - 120
-            }, 800);
+                scrollTop: activeNav.closest('li.border-top').offset().top - 63
+            }, 500);
         }
     </script>
     @endpush
