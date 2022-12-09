@@ -1209,6 +1209,22 @@ return [
 
         ],
     ],
+    [
+        "unit" => "EDM",
+        "permissions" => [
+            [
+                "cms.edm.index",
+                "瀏覽",
+            ],
+            [
+                "cms.edm.edit",
+                "編輯",
+            ],
+
+        ],
+    ],
+
+   
 
 
 ];
