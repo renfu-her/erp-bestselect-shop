@@ -34,3 +34,16 @@
 
     </ul>
 </nav>
+
+@once
+    @push('sub-scripts')
+    <script>
+        const activeNav = $('#sidebarMenu .btn-toggle-nav li.active');
+        if (activeNav.length > 0) {
+            $('#sidebarMenu').animate({
+                scrollTop: activeNav.offset().top - 120
+            }, 800);
+        }
+    </script>
+    @endpush
+@endonce
