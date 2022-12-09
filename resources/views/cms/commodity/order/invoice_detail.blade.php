@@ -230,7 +230,7 @@
     @endif
 
     <div class="col-auto">
-        <a href="{{ Route('cms.order.detail', ['id' => $invoice->source_id]) }}" class="btn btn-outline-primary px-4" 
+        <a href="{{ request('pre') == 1 ? url()->previous() : Route('cms.order.detail', ['id' => $invoice->source_id]) }}" class="btn btn-outline-primary px-4" 
             role="button">返回 訂單明細</a>
     </div>
 
