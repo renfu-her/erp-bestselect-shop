@@ -25,7 +25,6 @@
         $items = $data_list->get()->toArray();
     @endphp
     <div style="left: 0; top: 0; width:100%;">
-        @for ($p = 0; $p < $page_count; $p++)
         <div>
             <table width="650" cellpadding="3" cellspacing="0" border="1" bordercolor="#000000"
                 style="font-size:11pt;text-align:left;margin:0 auto;border-collapse:collapse;">
@@ -48,6 +47,7 @@
                     </tr>
                 </thead>
                 <tbody>
+                @for ($p = 0; $p < $page_count; $p++)
                     @for($i = 0; $i < 8; $i++)
                         @php
                             $i_key = $i + $p * 8;
@@ -70,10 +70,10 @@
                             </td>
                         </tr>
                     @endfor
+                @endfor
                 </tbody>
             </table>
         </div>
-        @endfor
     </div>
 </body>
 </html>
