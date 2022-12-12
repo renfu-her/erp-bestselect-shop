@@ -367,7 +367,7 @@ class Collection extends Model
             ->join('prd_salechannel_style_price as sp', 'style.id', '=', 'sp.style_id')
             ->select('style.product_id')
             ->selectRaw("min($field) as price")
-            ->where('sale_channel_id', 1)
+            ->where('sale_channel_id', 10)
             ->groupBy('style.product_id');
 
         $minPrice = DB::table('prd_product_styles as style')
@@ -377,7 +377,7 @@ class Collection extends Model
                     ->on('mp.price', '=', "sp.$field");
             })
             ->select('style.product_id', 'mp.price', 'sp.origin_price')
-            ->where('sp.sale_channel_id', 1)
+            ->where('sp.sale_channel_id', 10)
             ->distinct();
 
         $stylesConcatString = concatStr([
