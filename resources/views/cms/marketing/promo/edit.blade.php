@@ -52,7 +52,7 @@
                     <label class="form-label">可用起始日 <span class="small text-secondary">（未填則表示現在）</span></label>
                     <div class="input-group has-validation">
                         <input type="date" name="start_date"
-                            value="{{ old('start_date') ? date('Y-m-d', strtotime($data->start_date)) : '' }}"
+                            value="{{ old('start_date', date('Y-m-d', strtotime($data->start_date)) ?? '') }}"
                             class="form-control @error('start_date') is-invalid @enderror" aria-label="可用起始日" editable
                             norequired />
                         <button class="btn btn-outline-secondary icon" type="button" data-clear data-bs-toggle="tooltip"
@@ -68,7 +68,7 @@
                 <div class="col-12 col-sm-6 mb-3" data-category="code" hidden>
                     <label class="form-label">可用結束日<span class="small text-secondary">（未填則表示不會結束）</span></label>
                     <div class="input-group has-validation">
-                        <input type="date" name="end_date" value="{{ old('end_date') ? date('Y-m-d', strtotime($data->end_date)) : '' }}"
+                        <input type="date" name="end_date" value="{{ old('end_date', date('Y-m-d', strtotime($data->end_date)) ?? '') }}"
                             class="form-control @error('end_date') is-invalid @enderror" aria-label="可用結束日" editable
                             norequired />
                         <button class="btn btn-outline-secondary icon" type="button" data-clear data-bs-toggle="tooltip"
