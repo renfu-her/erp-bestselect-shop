@@ -29,8 +29,9 @@
                         @foreach ($dis_categorys as $key => $value)
                             <div class="form-check form-check-inline">
                                 <label class="form-check-label">
-                                    <input class="form-check-input" name="category" type="radio" value="{{ $key }}"
-                                        {{ $editBlock }} @if (old('category', $data->category_code ?? 'coupon') == $key) checked @endif>
+                                    <input class="form-check-input" name="category" type="radio"
+                                        value="{{ $key }}" {{ $editBlock }}
+                                        @if (old('category', $data->category_code ?? 'coupon') == $key) checked @endif>
                                     {{ $value }}
                                 </label>
                             </div>
@@ -51,8 +52,10 @@
                 <div class="col-12 col-sm-6 mb-3" data-category="code" hidden>
                     <label class="form-label">可用起始日 <span class="small text-secondary">（未填則表示現在）</span></label>
                     <div class="input-group has-validation">
-                        <input type="date" name="start_date"
-                            value="{{ old('start_date', date('Y-m-d', strtotime($data->start_date)) ?? '') }}"
+                        @php
+                            $start_date = isset($data->start_date) ? date('Y-m-d', strtotime($data->start_date)) : '';
+                        @endphp
+                        <input type="date" name="start_date" value="{{ old('start_date', $start_date ?? '') }}"
                             class="form-control @error('start_date') is-invalid @enderror" aria-label="可用起始日" editable
                             norequired />
                         <button class="btn btn-outline-secondary icon" type="button" data-clear data-bs-toggle="tooltip"
@@ -68,7 +71,10 @@
                 <div class="col-12 col-sm-6 mb-3" data-category="code" hidden>
                     <label class="form-label">可用結束日<span class="small text-secondary">（未填則表示不會結束）</span></label>
                     <div class="input-group has-validation">
-                        <input type="date" name="end_date" value="{{ old('end_date', date('Y-m-d', strtotime($data->end_date)) ?? '') }}"
+                        @php
+                            $end_date = isset($data->end_date) ? date('Y-m-d', strtotime($data->end_date)) : '';
+                        @endphp
+                        <input type="date" name="end_date" value="{{ old('end_date', $end_date ?? '') }}"
                             class="form-control @error('end_date') is-invalid @enderror" aria-label="可用結束日" editable
                             norequired />
                         <button class="btn btn-outline-secondary icon" type="button" data-clear data-bs-toggle="tooltip"
@@ -84,14 +90,16 @@
                 <div class="col-12 col-sm-6 mb-3" data-category="code" hidden>
                     <label class="form-label">優惠券數量 <span class="text-danger">*</span><span
                             class="small text-secondary">（不限則填0）</span></label>
-                    <input type="number" name="max_usage" min="0" value="{{ old('max_usage', $data->max_usage ?? '') }}"
-                        class="form-control" placeholder="請輸入優惠券數量" required aria-label="優惠券數量" editable>
+                    <input type="number" name="max_usage" min="0"
+                        value="{{ old('max_usage', $data->max_usage ?? '') }}" class="form-control" placeholder="請輸入優惠券數量"
+                        required aria-label="優惠券數量" editable>
                 </div>
                 <div class="col-12 col-sm-6 mb-3" data-category="coupon" hidden>
                     <label class="form-label">優惠券使用天數<span class="small text-secondary">（未填則表示無限制）</span></label>
                     <div class="input-group flex-nowrap">
                         <input type="number" name="life_cycle" step="1" class="form-control" min="0"
-                            value="{{ old('life_cycle', $data->life_cycle ?? '') }}" placeholder="請輸入優惠券使用天數" norequired editable>
+                            value="{{ old('life_cycle', $data->life_cycle ?? '') }}" placeholder="請輸入優惠券使用天數" norequired
+                            editable>
                         <span class="input-group-text">天</span>
                     </div>
                 </div>
@@ -132,9 +140,9 @@
                         @foreach ($dis_methods as $key => $value)
                             <div class="form-check form-check-inline">
                                 <label class="form-check-label">
-                                    <input class="form-check-input" name="method_code" type="radio" {{ $editBlock }}
-                                        value="{{ $key }}" @if (old('method_code', $data->method_code ?? 'cash') == $key) checked @endif
-                                        required>
+                                    <input class="form-check-input" name="method_code" type="radio"
+                                        {{ $editBlock }} value="{{ $key }}"
+                                        @if (old('method_code', $data->method_code ?? 'cash') == $key) checked @endif required>
                                     {{ $value }}
                                 </label>
                             </div>
@@ -150,7 +158,7 @@
                             <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
                             <input type="number" name="discount_value"
                                 class="form-control @error('discount_value') is-invalid @enderror" min="0"
-                                value="{{ old('method_code', $data->method_code ?? '') === 'cash'? old('discount_value', $data->discount_value ?? ''): '' }}"
+                                value="{{ old('method_code', $data->method_code ?? '') === 'cash' ? old('discount_value', $data->discount_value ?? '') : '' }}"
                                 disabled placeholder="請輸入折扣金額">
                             <div class="invalid-feedback">
                                 @if (old('method_code', $data->method_code ?? '') === 'cash')
@@ -172,8 +180,9 @@
                         </label>
                         <div class="input-group has-validation">
                             <input type="number" name="discount_value"
-                                class="form-control @error('discount_value') is-invalid @enderror" min="1" max="100"
-                                value="{{ old('method_code', $data->method_code ?? '') === 'percent'? old('discount_value', $data->discount_value ?? ''): '' }}"
+                                class="form-control @error('discount_value') is-invalid @enderror" min="1"
+                                max="100"
+                                value="{{ old('method_code', $data->method_code ?? '') === 'percent' ? old('discount_value', $data->discount_value ?? '') : '' }}"
                                 disabled placeholder="請輸入百分比 1 ~ 100">
                             <span class="input-group-text"><i class="bi bi-percent"></i></span>
                             <div class="invalid-feedback">
