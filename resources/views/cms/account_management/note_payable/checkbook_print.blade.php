@@ -20,51 +20,60 @@
     </style>
 </head>
 <body style="margin-top: 0px;">
-<div style="left: 0; top: 0; width:100%;">
-    <div>
-        <table width="650" cellpadding="3" cellspacing="0" border="1" bordercolor="#000000"
-            style="font-size:11pt;text-align:left;margin:0 auto;border-collapse:collapse;">
-            <thead style="text-align: center;">
-                <tr height="70">
-                    <td colspan="3" style="border-color: #FFF #FFF #000;">
-                        <div style="font-size:18pt;">喜鴻國際企業股份有限公司</div>
-                        <div>
-                            <span style="font-size: 16pt;">應付票據簽收本</span>
-                            <span style="margin-left: 1.5rem;">
-                                列印日期：{{ date("Y/m/d") }} {{ $printer ? '('.$printer.')' : '　　　' }}
-                            </span>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <th scope="col" width="35%">票據號碼/金額</th>
-                    <th scope="col" width="30%">到期日/兌現日/狀態</th>
-                    <th scope="col" width="35%">廠商簽名</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($data_list->get() as $value)
-                    <tr height="120" style="page-break-inside: avoid;">
-                        <td>
-                            <div>票號：{{ $value->cheque_ticket_number }}</div>
-                            <div>金額：{{ $value->tw_price }}</div>
-                            <div>團號：</div>
-                            <div>付款單號：{{ $value->po_sn }}</div>
-                        </td>
-                        <td>
-                            <div>開票：{{ $value->payment_date ? date('Y-m-d', strtotime($value->payment_date)) : '' }}</div>
-                            <div>到期：{{ $value->cheque_due_date ? date('Y-m-d', strtotime($value->cheque_due_date)) : '' }}</div>
-                            <div>兌現：{{ $value->cheque_cashing_date ? date('Y-m-d', strtotime($value->cheque_cashing_date)) : '' }}</div>
-                            <div>狀態：{{ $value->cheque_status }}</div>
-                        </td>
-                        <td style="vertical-align: top;">
-                            {{ $value->po_target_name }}
+    @php
+        $page_count = $data_list->count() ? ceil($data_list->count() / 8) : 1;
+        $items = $data_list->get()->toArray();
+    @endphp
+    <div style="left: 0; top: 0; width:100%;">
+        @for ($p = 0; $p < $page_count; $p++)
+        <div>
+            <table width="650" cellpadding="3" cellspacing="0" border="1" bordercolor="#000000"
+                style="font-size:11pt;text-align:left;margin:0 auto;border-collapse:collapse;">
+                <thead style="text-align: center;">
+                    <tr height="70">
+                        <td colspan="3" style="border-color: #FFF #FFF #000;">
+                            <div style="font-size:18pt;">喜鴻國際企業股份有限公司</div>
+                            <div>
+                                <span style="font-size: 16pt;">應付票據簽收本</span>
+                                <span style="margin-left: 1.5rem;">
+                                    列印日期：{{ date("Y/m/d") }} {{ $printer ? '('.$printer.')' : '　　　' }}
+                                </span>
+                            </div>
                         </td>
                     </tr>
-                @endforeach
-            </tbody>
-        </table>
+                    <tr>
+                        <th scope="col" width="35%">票據號碼/金額</th>
+                        <th scope="col" width="30%">到期日/兌現日/狀態</th>
+                        <th scope="col" width="35%">廠商簽名</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for($i = 0; $i < 8; $i++)
+                        @php
+                            $i_key = $i + $p * 8;
+                        @endphp
+                        <tr height="120" style="page-break-inside: avoid;">
+                            <td>
+                                <div>票號：{{ array_key_exists($i_key, $items) ? $items[$i_key]->cheque_ticket_number : '' }}</div>
+                                <div>金額：{{ array_key_exists($i_key, $items) ? $items[$i_key]->tw_price : '' }}</div>
+                                <div>團號：</div>
+                                <div>付款單號：{{ array_key_exists($i_key, $items) ? $items[$i_key]->po_sn : '' }}</div>
+                            </td>
+                            <td>
+                                <div>開票：{{ array_key_exists($i_key, $items) ? ($items[$i_key]->payment_date ? date('Y-m-d', strtotime($items[$i_key]->payment_date)) : '') : '' }}</div>
+                                <div>到期：{{ array_key_exists($i_key, $items) ? ($items[$i_key]->cheque_due_date ? date('Y-m-d', strtotime($items[$i_key]->cheque_due_date)) : '') : '' }}</div>
+                                <div>兌現：{{ array_key_exists($i_key, $items) ? ($items[$i_key]->cheque_cashing_date ? date('Y-m-d', strtotime($items[$i_key]->cheque_cashing_date)) : '') : '' }}</div>
+                                <div>狀態：{{ array_key_exists($i_key, $items) ? $items[$i_key]->cheque_status : '' }}</div>
+                            </td>
+                            <td style="vertical-align: top;">
+                                {{ array_key_exists($i_key, $items) ? $items[$i_key]->po_target_name : '' }}
+                            </td>
+                        </tr>
+                    @endfor
+                </tbody>
+            </table>
+        </div>
+        @endfor
     </div>
-</div>
 </body>
 </html>
