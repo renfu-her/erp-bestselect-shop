@@ -98,12 +98,13 @@ class EdmCtrl extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    function print(Request $request, $id, $type, $mcode) {
+    function print(Request $request, $id, $type, $mcode = '') {
         //
         $query = $request->query();
         $paginate = Arr::get($query, 'paginate');
         $bg = Arr::get($query, 'bg', 'r');
         $qr = Arr::get($query, 'qr', '1');
+        $mc = Arr::get($query, 'mc', '1');
         $btn = Arr::get($query, 'btn', '0');
         $x = Arr::get($query, 'x', 1);
         $x = intval($x) < 1 ? 1 : intval($x);
@@ -126,6 +127,7 @@ class EdmCtrl extends Controller
             'collection' => $re["collection"],
             'bg' => $bg,
             'qr' => $qr,
+            'mc' => $mc,
             'btn' => $btn,
             'x' => $x,
         ]);

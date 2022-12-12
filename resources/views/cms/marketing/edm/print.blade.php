@@ -95,7 +95,7 @@
                                                                 @if ($qr === '1')
                                                                     <div style="width: {{ 60 * $x }}px">
                                                                         {{-- QR code --}}
-                                                                        <div class="qrcode" data-url="https://www.bestselection.com.tw/product/{{ $products[$i * 3 + $j]->sku }}?mcode={{ $mcode }}"></div>
+                                                                        <div class="qrcode" data-url="https://www.bestselection.com.tw/product/{{ $products[$i * 3 + $j]->sku }}{{ $mc === '1' ? '?mcode='.$mcode : '' }}"></div>
                                                                     </div>
                                                                 @endif
                                                             </div>
@@ -128,7 +128,7 @@
                             </div>
                             <div style="padding:0 {{ 10 * $x }}px 0 {{ 20 * $x }}px;">官網看更多商品</div>
                             <div>
-                                <div class="qrcode" data-size="55" data-url="https://www.bestselection.com.tw?mcode={{ $mcode }}"></div>
+                                <div class="qrcode" data-size="55" data-url="https://www.bestselection.com.tw{{ $mc === '1' ? '?mcode='.$mcode : '' }}"></div>
                             </div>
                             <div style="flex: 1;text-align: right;padding-right: {{ 20 * $x }}px;">請洽{{ $name }}</div>
                         </div>

@@ -39,6 +39,14 @@
                     </div>
                 </div>
             </fieldset>
+            <fieldset class="col">
+                <legend class="col-form-label p-0 mb-2">連結含推薦碼</legend>
+                <div class="px-1">
+                    <div class="form-check form-check-inline form-switch form-switch-lg">
+                        <input name="has_mcode" class="form-check-input" type="checkbox" value="1" checked>
+                    </div>
+                </div>
+            </fieldset>
         </div>
 
         <div class="table-responsive tableOverBox">
@@ -142,13 +150,15 @@
             $('.-web').on('click', function(e) {
                 const bg = $('select[name="header_color"]').val();
                 const qr = $('input[name="qr_show"]').prop('checked') ? '1' : '0';
-                const url = $(this).data('href') + `?bg=${bg}&qr=${qr}&paginate=0&x=1`;
+                const mcode = $('input[name="has_mcode"]').prop('checked') ? '1' : '0';
+                const url = $(this).data('href') + `?bg=${bg}&qr=${qr}&mc=${mcode}&paginate=0&x=1`;
                 window.open(url, '_blank');
             });
             $('.-toImg').on('click', function(e) {
                 const bg = $('select[name="header_color"]').val();
                 const qr = $('input[name="qr_show"]').prop('checked') ? '1' : '0';
-                const url = $(this).data('href') + `?bg=${bg}&qr=${qr}&paginate=1&btn=0&x=2`;
+                const mcode = $('input[name="has_mcode"]').prop('checked') ? '1' : '0';
+                const url = $(this).data('href') + `?bg=${bg}&qr=${qr}&mc=${mcode}&paginate=1&btn=0&x=2`;
                 const qty = Number($(this).data('qty')) || 0;
                 // window.open(url, '_blank');
                 const $bar = $('#loading .progress-bar');
