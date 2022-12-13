@@ -1294,6 +1294,13 @@ class DeliveryCtrl extends Controller
                     }
                 }
 
+                if (Event::order()->value == $delivery->event) {
+                    if (false == $is_calc_in_stock) {
+                        DB::rollBack();
+                        return ['success' => 0, 'error_msg' => '無法退貨入庫 該訂單商品含有非理貨倉 出貨之商品'];
+                    }
+                }
+
                 if (Event::order()->value == $delivery->event || Event::consignment()->value == $delivery->event) {
                     //查找出貨時組出的組合包 相關退貨的商品 將數量加回
                     $dlvBack_combo = DB::table(app(DlvBack::class)->getTable(). ' as dlv_back')
