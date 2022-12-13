@@ -109,11 +109,13 @@
                                     @endfor
                                 </tr>
                             @endfor
-                            @for ($i = 0; ($n % 3) > 0 && $i < 3-($n % 3); $i++)
-                                <tr height="{{ 290 * $x }}">
-                                    <td></td><td></td><td></td>
-                                </tr>
-                            @endfor
+                            @if ($a4 === '1')
+                                @for ($i = 0; ($n % 3) > 0 && $i < 3-($n % 3); $i++)
+                                    <tr height="{{ 290 * $x }}">
+                                        <td></td><td></td><td></td>
+                                    </tr>
+                                @endfor
+                            @endif
                         </table>
                     </td>
                 </tr>

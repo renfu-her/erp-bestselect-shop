@@ -22,7 +22,7 @@
     <div class="card shadow p-4 mb-4">
         <div class="row justify-content-end mb-2">
             <div class="col">
-                <label class="form-label">標頭底色</label>
+                <label class="form-label small">標頭底色</label>
                 <select name="header_color" class="form-select form-select-sm">
                     <option value="b" style="background:#008BC6;color:#FFF;">藍</option>
                     <option value="r" style="background:#DB5741;color:#FFF;">紅</option>
@@ -32,7 +32,7 @@
                 </select>
             </div>
             <fieldset class="col">
-                <legend class="col-form-label p-0 mb-2">顯示產品 QR code</legend>
+                <legend class="form-label p-0 mb-2 small">顯示QR code</legend>
                 <div class="px-1">
                     <div class="form-check form-check-inline form-switch form-switch-lg">
                         <input name="qr_show" class="form-check-input" type="checkbox" value="1" checked>
@@ -40,10 +40,18 @@
                 </div>
             </fieldset>
             <fieldset class="col">
-                <legend class="col-form-label p-0 mb-2">連結含推薦碼</legend>
+                <legend class="form-label p-0 mb-2 small">含推薦碼</legend>
                 <div class="px-1">
                     <div class="form-check form-check-inline form-switch form-switch-lg">
                         <input name="has_mcode" class="form-check-input" type="checkbox" value="1" checked>
+                    </div>
+                </div>
+            </fieldset>
+            <fieldset class="col">
+                <legend class="form-label p-0 mb-2 small">A4滿版</legend>
+                <div class="px-1">
+                    <div class="form-check form-check-inline form-switch form-switch-lg">
+                        <input name="a4" class="form-check-input" type="checkbox" value="1">
                     </div>
                 </div>
             </fieldset>
@@ -151,14 +159,16 @@
                 const bg = $('select[name="header_color"]').val();
                 const qr = $('input[name="qr_show"]').prop('checked') ? '1' : '0';
                 const mcode = $('input[name="has_mcode"]').prop('checked') ? '1' : '0';
-                const url = $(this).data('href') + `?bg=${bg}&qr=${qr}&mc=${mcode}&paginate=0&x=1`;
+                const a4 = $('input[name="a4"]').prop('checked') ? '1' : '0';
+                const url = $(this).data('href') + `?bg=${bg}&qr=${qr}&mc=${mcode}&a4=${a4}&paginate=0&x=1`;
                 window.open(url, '_blank');
             });
             $('.-toImg').on('click', function(e) {
                 const bg = $('select[name="header_color"]').val();
                 const qr = $('input[name="qr_show"]').prop('checked') ? '1' : '0';
                 const mcode = $('input[name="has_mcode"]').prop('checked') ? '1' : '0';
-                const url = $(this).data('href') + `?bg=${bg}&qr=${qr}&mc=${mcode}&paginate=1&btn=0&x=2`;
+                const a4 = $('input[name="a4"]').prop('checked') ? '1' : '0';
+                const url = $(this).data('href') + `?bg=${bg}&qr=${qr}&mc=${mcode}&a4=${a4}&paginate=1&btn=0&x=2`;
                 const qty = Number($(this).data('qty')) || 0;
                 // window.open(url, '_blank');
                 const $bar = $('#loading .progress-bar');
