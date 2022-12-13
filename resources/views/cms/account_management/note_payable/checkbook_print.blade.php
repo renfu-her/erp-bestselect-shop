@@ -25,12 +25,13 @@
         $items = $data_list->get()->toArray();
     @endphp
     <div style="left: 0; top: 0; width:100%;">
-        <div>
-            <table width="650" cellpadding="3" cellspacing="0" border="1" bordercolor="#000000"
+        @for ($p = 0; $p < $page_count; $p++)
+        <div style="page-break-inside: avoid;">
+            <table width="650" cellpadding="3" cellspacing="0" border="0"
                 style="font-size:11pt;text-align:left;margin:0 auto;border-collapse:collapse;">
                 <thead style="text-align: center;">
                     <tr height="70">
-                        <td colspan="3" style="border-color: #FFF #FFF #000;">
+                        <td colspan="3">
                             <div style="font-size:18pt;">喜鴻國際企業股份有限公司</div>
                             <div>
                                 <span style="font-size: 16pt;">應付票據簽收本</span>
@@ -40,6 +41,11 @@
                             </div>
                         </td>
                     </tr>
+                </thead>
+            </table>
+            <table width="650" cellpadding="3" cellspacing="0" border="1" bordercolor="#000000"
+                style="font-size:11pt;text-align:left;margin:0 auto;border-collapse:collapse;">
+                <thead style="text-align: center;">
                     <tr>
                         <th scope="col" width="35%">票據號碼/金額</th>
                         <th scope="col" width="30%">到期日/兌現日/狀態</th>
@@ -47,12 +53,11 @@
                     </tr>
                 </thead>
                 <tbody>
-                @for ($p = 0; $p < $page_count; $p++)
                     @for($i = 0; $i < 8; $i++)
                         @php
                             $i_key = $i + $p * 8;
                         @endphp
-                        <tr height="120" style="page-break-inside: avoid;">
+                        <tr height="120">
                             <td>
                                 <div>票號：{{ array_key_exists($i_key, $items) ? $items[$i_key]->cheque_ticket_number : '' }}</div>
                                 <div>金額：{{ array_key_exists($i_key, $items) ? $items[$i_key]->tw_price : '' }}</div>
@@ -70,10 +75,10 @@
                             </td>
                         </tr>
                     @endfor
-                @endfor
                 </tbody>
             </table>
         </div>
+        @endfor
     </div>
 </body>
 </html>

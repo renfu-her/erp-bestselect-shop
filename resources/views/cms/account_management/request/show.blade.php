@@ -29,7 +29,7 @@
                 class="btn btn-sm btn-warning" rel="noopener noreferrer">中一刀列印畫面</a>
 
             @can('cms.request.edit')
-            <a href="{{ route('cms.ref_expenditure_petition.edit', ['current_sn' => $request_order->ro_sn]) }}" class="btn btn-sm btn-primary" role="button">相關單號</a>
+            <a href="{{ route('cms.ref_expenditure_petition.edit', ['current_sn' => $request_order->request_o_sn]) }}" class="btn btn-sm btn-primary" role="button">相關單號</a>
             @endcan
             @if (count($relation_order) > 0)
                 @foreach ($relation_order as $value)

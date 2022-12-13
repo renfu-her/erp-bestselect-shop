@@ -843,14 +843,14 @@ class OrderCtrl extends Controller
             'source_id' => $order_id,
         ]);
 
-        if (!$received_order_collection->first()) {
-            ReceivedOrder::create_received_order($source_type, $order_id);
-        }
-
         $received_order_data = $received_order_collection->get();
         $received_data = ReceivedOrder::get_received_detail($received_order_data->pluck('id')->toArray());
 
-        $tw_price = $received_order_data->sum('price') - $received_data->sum('tw_price');
+        $tw_price = $order_data->discounted_price;
+        if($received_order_data->count() > 0){
+            $tw_price = $received_order_data->sum('price') - $received_data->sum('tw_price');
+        }
+
         if ($tw_price == 0) {
             return redirect()->back();
         }
@@ -965,8 +965,11 @@ class OrderCtrl extends Controller
 
     public function ro_store(Request $request)
     {
+        $source_id = request('id');
+        $source_type = app(Order::class)->getTable();
+
         $request->validate([
-            'id' => 'required|exists:' . app(Order::class)->getTable() . ',id',
+            'id' => 'required|exists:' . $source_type . ',id',
             'acc_transact_type_fk' => 'required|string|in:' . implode(',', ReceivedMethod::asArray()),
             'tw_price' => 'required|numeric',
             request('acc_transact_type_fk') => 'required|array',
@@ -977,9 +980,12 @@ class OrderCtrl extends Controller
 
         $data = $request->except('_token');
         $received_order_collection = ReceivedOrder::where([
-            'source_type' => app(Order::class)->getTable(),
-            'source_id' => $data['id'],
+            'source_type' => $source_type,
+            'source_id' => $source_id,
         ]);
+        if (!$received_order_collection->first()) {
+            ReceivedOrder::create_received_order($source_type, $source_id);
+        }
         $received_order_id = $received_order_collection->first()->id;
 
         DB::beginTransaction();
@@ -1032,7 +1038,7 @@ class OrderCtrl extends Controller
             ReceivedOrder::store_received($parm);
 
             if ($data['acc_transact_type_fk'] == ReceivedMethod::CreditCard) {
-                OrderPayCreditCard::create_log(app(Order::class)->getTable(), $data['id'], (object) $EncArray);
+                OrderPayCreditCard::create_log(app(Order::class)->getTable(), $source_id, (object) $EncArray);
             }
 
             DB::commit();
@@ -1045,12 +1051,12 @@ class OrderCtrl extends Controller
 
         if (ReceivedOrder::find($received_order_id) && ReceivedOrder::find($received_order_id)->balance_date) {
             return redirect()->route('cms.order.detail', [
-                'id' => $data['id'],
+                'id' => $source_id,
             ]);
 
         } else {
             return redirect()->route('cms.order.ro-edit', [
-                'id' => $data['id'],
+                'id' => $source_id,
             ]);
         }
     }
