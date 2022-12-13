@@ -846,7 +846,7 @@ class OrderCtrl extends Controller
         $received_order_data = $received_order_collection->get();
         $received_data = ReceivedOrder::get_received_detail($received_order_data->pluck('id')->toArray());
 
-        $tw_price = $order_data->discounted_price;
+        $tw_price = $order_data->total_price;
         if($received_order_data->count() > 0){
             $tw_price = $received_order_data->sum('price') - $received_data->sum('tw_price');
         }
