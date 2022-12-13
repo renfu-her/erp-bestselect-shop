@@ -122,9 +122,12 @@ class Order extends Model
 
         if ($received_method) {
             if (gettype($received_method) == 'array') {
-                $order->whereIn('order.payment_method', $received_method);
+                foreach ($received_method as $k) {
+                    $order->orWhere('order.payment_method', 'like', '%' . $k . '%');
+                }
+
             } else {
-                $order->where('order.payment_method', $received_method);
+                $order->where('order.payment_method', 'like', '%' . $received_method . '%');
             }
         }
 
