@@ -37,7 +37,7 @@
                     <tbody>
                         @foreach($order_list_data as $value)
                         <tr>
-                            <td>{{ $received_order_data->first()->sn }}</td>
+                            <td>{{ $received_order_data->first() ? $received_order_data->first()->sn : '' }}</td>
                             <td class="text-wrap">{{ $value->product_title }}{{'（' . $value->product_price . ' * ' . $value->product_qty . '）'}}</td>
                             <td class="text-end">${{ number_format($value->product_price, 2) }}</td>
                             <td class="text-end">{{$value->product_qty}}</td>
@@ -49,7 +49,7 @@
                         @endforeach
                         @if($order_data->dlv_fee > 0)
                         <tr>
-                            <td>{{ $received_order_data->first()->sn }}</td>
+                            <td>{{ $received_order_data->first() ? $received_order_data->first()->sn : '' }}</td>
                             <td class="text-wrap">物流費用</td>
                             <td class="text-end">${{ number_format($order_data->dlv_fee, 2) }}</td>
                             <td class="text-end">1</td>
@@ -62,7 +62,7 @@
                         @if($order_data->discount_value > 0)
                             @foreach($order_discount ?? [] as $d_value)
                             <tr>
-                                <td>{{ $received_order_data->first()->sn }}</td>
+                                <td>{{ $received_order_data->first() ? $received_order_data->first()->sn : '' }}</td>
                                 <td class="text-wrap">{{ $d_value->account_code }} {{ $d_value->account_name }} - {{ $d_value->title }}</td>
                                 <td class="text-end">-${{ number_format($d_value->discount_value, 2) }}</td>
                                 <td class="text-end">1</td>
@@ -75,7 +75,7 @@
                         @endif
                         @foreach($received_data as $value)
                         <tr>
-                            <td>{{ $received_order_data->first()->sn }}</td>
+                            <td>{{ $received_order_data->first() ? $received_order_data->first()->sn : '' }}</td>
                             <td class="text-wrap">{{ $value->received_method_name }} {{ $value->note }}{{ '（' . $value->account->code . ' - ' . $value->account->name . '）'}}</td>
                             <td class="text-end">${{ number_format($value->tw_price, 2) }}</td>
                             <td class="text-end">1</td>
