@@ -13,6 +13,7 @@ Route::group(['prefix' => 'order', 'as' => 'order.'], function () {
     // 訂單明細
     Route::get('detail/{id}/{subOrderId?}', [OrderCtrl::class, 'detail'])->name('detail')->middleware('whole.order');
     Route::post('detail/{id}', [OrderCtrl::class, 'update']);
+    Route::post('ajax-status', [OrderCtrl::class, '_order_status'])->name('ajax-status')->middleware('whole.order');
     Route::get('delete/{id}', [OrderCtrl::class, 'destroy'])->name('delete')->middleware('permission:cms.order.delete');
 
     Route::get('print_order_sales/{id}/{subOrderId}', [OrderCtrl::class, 'print_order_sales'])->name('print_order_sales')->middleware('permission:cms.order.detail');

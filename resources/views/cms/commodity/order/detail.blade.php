@@ -789,18 +789,18 @@
             <div class="d-flex flex-column align-items-center">
                 @if (!$received_order && in_array($order->status, ['建立']))
                     <a href="{{ Route('api.web.order.payment_credit_card', ['id' => $order->id, 'unique_id' => $order->unique_id]) }}"
-                        class="btn btn-success btn-lg col-6 mx-auto mb-3" role="button" target="_blank">線上刷卡
+                        class="btn btn-success btn-lg col-6 mx-auto mb-3 status_check" role="button" target="_blank">線上刷卡
                         <i class="bi bi-box-arrow-up-right"></i>
                     </a>
                     <a href="{{ Route('api.web.order.line-pay-payment', ['source_type' => 'ord_orders', 'source_id' => $order->id, 'unique_id' => $order->unique_id]) }}"
-                        class="btn btn-success btn-lg col-6 mx-auto mb-3" role="button" target="_blank">LINE Pay
+                        class="btn btn-success btn-lg col-6 mx-auto mb-3 status_check" role="button" target="_blank">LINE Pay
                         <i class="bi bi-box-arrow-up-right"></i>
                     </a>
                 @endif
                 
                 @if (!$receivable && in_array($order->status, ['建立']))
                     <div class="mark small text-muted">
-                        <i class="bi bi-exclamation-diamond-fill text-warning"></i> 點擊後會產生收款單，且無法再線上刷卡或LINE Pay付款
+                        <i class="bi bi-exclamation-diamond-fill text-warning"></i> 如現金、支票、匯款等其它非線上付款方式
                     </div>
                     <a href="{{ Route('cms.order.ro-edit', ['id' => $order->id]) }}" 
                         class="btn btn-primary btn-lg col-6 mx-auto mb-2" role="button">其他付款方式</a>
@@ -928,6 +928,29 @@
                         });
                     });
                 }
+            });
+
+
+            $('.status_check').on('click', function(e) {
+                for (let i = 1; i < 99999; i++)
+                    window.clearInterval(i);
+
+                window.setInterval(function(){
+                    const _URL = @json(route('cms.order.ajax-status'));
+                    const Data = {
+                        order_id: @json($order->id)
+                    };
+
+                    axios.post(_URL, Data)
+                        .then((result) => {
+                            const res = result.data;
+                            if (res && res.order_ststus == '已付款') {
+                                location.reload();
+                            }
+                        }).catch((err) => {
+                        console.error(err);
+                    });
+                }, 2000);
             });
         </script>
     @endpush

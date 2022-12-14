@@ -3151,4 +3151,15 @@ class OrderCtrl extends Controller
             'breadcrumb_data' => ['id' => $id, 'sn' => $order->sn],
         ]);
     }
+
+    public function _order_status(Request $request)
+    {
+        $order = Order::orderDetail(request('order_id'))->first();
+
+        $data = [
+            'order_ststus' => $order ? $order->status : null,
+        ];
+
+        return response()->json($data);
+    }
 }
