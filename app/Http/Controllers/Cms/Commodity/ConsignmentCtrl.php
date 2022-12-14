@@ -349,7 +349,9 @@ class ConsignmentCtrl extends Controller
             }
 
             // 判斷出貨倉是理貨倉
-            if (1 == $consignmentData->send_can_tally) {
+            //$can_tally = $consignmentData->send_can_tally;
+            $can_tally = true;
+            if (true == $can_tally) {
                 $queryCsnItems = DB::table('csn_consignment as csn')
                     ->leftJoin('csn_consignment_items as csn_items', 'csn_items.consignment_id', 'csn.id')
                     ->where('csn.id', $id)
@@ -364,7 +366,7 @@ class ConsignmentCtrl extends Controller
                         $rePSSC = ProductStock::stockChange($item->product_style_id, $item->num * -1
                             , $stock_event, $id
                             , $user_name . $stock_note
-                            , false, $consignmentData->send_can_tally);
+                            , false, $can_tally);
                         if ($rePSSC['success'] == 0) {
                             DB::rollBack();
                             return $rePSSC;
@@ -378,7 +380,7 @@ class ConsignmentCtrl extends Controller
                         $rePSSC = ProductStock::stockChange($item->product_style_id, $item->num
                             , $stock_event, $id
                             , $user_name . $stock_note
-                            , false, $consignmentData->send_can_tally);
+                            , false, $can_tally);
                         if ($rePSSC['success'] == 0) {
                             DB::rollBack();
                             return $rePSSC;

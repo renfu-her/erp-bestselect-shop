@@ -1287,7 +1287,8 @@ class DeliveryCtrl extends Controller
                 $is_calc_in_stock = false; //是否計算可售數量
                 //出貨只會在同一倉庫出 所以判斷其一元素是理貨倉就需計算可售數量
                 for ($num_bdcisc = 0; $num_bdcisc < count($bdcisc['data']['id']); $num_bdcisc++) {
-                    $can_tally = Depot::can_tally($bdcisc['data']['depot_id'][$num_bdcisc]);
+                    //$can_tally = Depot::can_tally($bdcisc['data']['depot_id'][$num_bdcisc]);
+                    $can_tally = true;
                     if ($can_tally == true) {
                         $is_calc_in_stock = true;
                         break;
@@ -1403,22 +1404,20 @@ class DeliveryCtrl extends Controller
                             return $rePcsLSC;
                         }
                         //將通路庫存加回可售數量 除了寄倉訂購
-                        $inboundData = DB::table('pcs_purchase_inbound as inbound')
-                            ->leftJoin('depot', 'depot.id', 'inbound.depot_id')
-                            ->where('inbound.id', '=', $rcv_depot_item->inbound_id)
-                            ->whereNull('inbound.deleted_at');
-                        $inboundDataGet = $inboundData->get()->first();
-                        if (isset($inboundDataGet)
+                        $inboundData = PurchaseInbound::where('id', '=', $rcv_depot_item->inbound_id)->first();
+                        if (isset($inboundData)
                             && $is_calc_in_stock
                             && (Event::csn_order()->value != $delivery->event)
                         ) {
                             //若非組合包元素 則需計算可售數量
                             if ('ce' != $rcv_depot_item->prd_type) {
                                 $memo = $rcv_depot_item->memo ?? '';
-                                $rePSSC = ProductStock::stockChange($inboundDataGet->product_style_id, $rcv_depot_item->back_qty
+                                //$ibdata_can_tally = $inboundData->can_tally;
+                                $ibdata_can_tally = true;
+                                $rePSSC = ProductStock::stockChange($inboundData->product_style_id, $rcv_depot_item->back_qty
                                     , StockEvent::send_back()->value, $delivery->event_id
                                     , $request->user()->name. ' '. $delivery->sn. ' ' . $memo
-                                    , false, $inboundDataGet->can_tally);
+                                    , false, $ibdata_can_tally);
                                 if ($rePSSC['success'] == 0) {
                                     DB::rollBack();
                                     return $rePSSC;
@@ -1569,7 +1568,8 @@ class DeliveryCtrl extends Controller
                     if (0 == $val_rcv->depot_id) {
                         continue;
                     }
-                    $can_tally = Depot::can_tally($val_rcv->depot_id);
+                    //$can_tally = Depot::can_tally($val_rcv->depot_id);
+                    $can_tally = true;
                     if ($can_tally == true) {
                         $is_calc_in_stock = true;
                         break;
@@ -1653,22 +1653,20 @@ class DeliveryCtrl extends Controller
                     }
 
                     //將通路庫存減回可售數量 除了寄倉訂購
-                    $inboundData = DB::table('pcs_purchase_inbound as inbound')
-                        ->leftJoin('depot', 'depot.id', 'inbound.depot_id')
-                        ->where('inbound.id', '=', $val_rcv->inbound_id)
-                        ->whereNull('inbound.deleted_at');
-                    $inboundDataGet = $inboundData->get()->first();
-                    if (isset($inboundDataGet)
+                    $inboundData = PurchaseInbound::where('id', '=', $val_rcv->inbound_id)->first();
+                    if (isset($inboundData)
                         && $is_calc_in_stock
                         && (Event::csn_order()->value != $delivery->event)
                     ) {
                         //若非組合包元素 則需計算可售數量
                         if ('ce' != $val_rcv->prd_type) {
                             $memo = '';
-                            $rePSSC = ProductStock::stockChange($inboundDataGet->product_style_id, $val_rcv->back_qty * -1
+                            //$ibdata_can_tally = $inboundData->can_tally;
+                            $ibdata_can_tally = true;
+                            $rePSSC = ProductStock::stockChange($inboundData->product_style_id, $val_rcv->back_qty * -1
                                 , StockEvent::send_back_cancle()->value, $delivery->event_id
                                 , $request->user()->name. ' '. $delivery->sn. ' ' . $memo
-                                , false, $inboundDataGet->can_tally);
+                                , false, $ibdata_can_tally);
                             if ($rePSSC['success'] == 0) {
                                 DB::rollBack();
                                 return $rePSSC;
