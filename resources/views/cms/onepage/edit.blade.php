@@ -5,7 +5,7 @@
             新增
         @else
             編輯
-        @endif 一頁式購物
+        @endif 一頁式網站
     </h2>
     <form method="post" action="{{ $formAction }}">
         @method('POST')

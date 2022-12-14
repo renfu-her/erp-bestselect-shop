@@ -1,7 +1,6 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h2 class="mb-4">
-        一頁式購物</h2>
+    <h2 class="mb-4">一頁式網站</h2>
 
     <form id="search" action="" method="GET">
         <div class="card shadow p-4 mb-4">
@@ -35,13 +34,14 @@
             <table class="table table-striped tableList">
                 <thead>
                 <tr>
-                    <th scope="col" style="width:10%">#</th>
+                    <th scope="col" style="width:40px">#</th>
+                    <th scope="col" class="text-center">編輯</th>
                     <th scope="col">名稱</th>
                     <th scope="col">商品群組</th>
                     <th scope="col">銷售通路</th>
                     <th scope="col" class="text-center">啟用</th>
                     <th scope="col" class="text-center">線上付款</th>
-                    <th scope="col" class="text-center">編輯</th>
+                    <th scope="col" class="text-center">複製連結</th>
                     <th scope="col" class="text-center">刪除</th>
                 </tr>
                 </thead>
@@ -49,6 +49,15 @@
                 @foreach ($dataList as $key => $data)
                     <tr>
                         <th scope="row">{{ $key + 1 }}</th>
+                        <td class="text-center">
+                            @can('cms.onepage.edit')
+                                <a href="{{ Route('cms.onepage.edit', ['id' => $data->id], true) }}"
+                                   data-bs-toggle="tooltip" title="編輯"
+                                   class="icon icon-btn fs-5 text-primary rounded-circle border-0">
+                                    <i class="bi bi-pencil-square"></i>
+                                </a>
+                            @endcan
+                        </td>
                         <td>{{ $data->title }}</td>
                         <td>{{ $data->collection_title }}</td>
                         <td>{{ $data->salechannel_title }}</td>
@@ -61,7 +70,6 @@
                             </div>
                         </td>
                        
-
                         <td class="text-center">
                             @if ($data->online_pay == 1)
                                 <i class="bi bi-check-lg text-success fs-5"></i>
@@ -69,15 +77,12 @@
                                 <i class="bi bi-x-lg text-danger fs-6"></i>
                             @endif
                         </td>
-                      
                         <td class="text-center">
-                            @can('cms.onepage.edit')
-                                <a href="{{ Route('cms.onepage.edit', ['id' => $data->id], true) }}"
-                                   data-bs-toggle="tooltip" title="編輯"
-                                   class="icon icon-btn fs-5 text-primary rounded-circle border-0">
-                                    <i class="bi bi-pencil-square"></i>
-                                </a>
-                            @endcan
+                            <button type="button" data-bs-toggle="tooltip" title="複製"
+                                data-url="{{ frontendUrl() . 'store/' . $data->id }}"
+                                class="icon -copy icon-btn fs-5 text-primary rounded-circle border-0">
+                                <i class="bi bi-clipboard2-check"></i>
+                            </button>
                         </td>
                         <td class="text-center">
                             @can('cms.onepage.delete')
@@ -139,12 +144,12 @@
                 axios.post(_URL, DATA).then((result) => {
                     if (currentStatus === ON) {
                         $(this).val(OFF);
-                        toast.show('下架', {
+                        toast.show('網頁已下架', {
                             type: 'warning'
                         });
                     } else if (currentStatus === OFF) {
                         $(this).val(ON);
-                        toast.show('公開');
+                        toast.show('網頁已公開');
                     }
                 }).catch((error) => {
                     console.log('post error:' + error);
@@ -154,58 +159,10 @@
                 });
             });
 
-            $('tbody').on('change', 'input[name="edm[]"]', function () {
-           
-                let currentStatus = $(this).val();
-                let onepageId = $(this).attr('cid');
-                let _URL = '/cms/onepage/set-edm/' + onepageId;
-                let DATA = {
-                    id: onepageId
-                };
-
-                const ON = '1';
-                const OFF = '0';
-
-                axios.post(_URL, DATA).then((result) => {
-                    if (currentStatus === ON) {
-                        $(this).val(OFF);
-                        toast.show('取消EDM', {
-                            type: 'warning'
-                        });
-                    } else if (currentStatus === OFF) {
-                        $(this).val(ON);
-                        toast.show('公開EDM');
-                    }
-                }).catch((error) => {
-                    console.log('post error:' + error);
-                    toast.show('發生錯誤', {
-                        type: 'danger'
-                    });
-                });
-            });
-
-            //複製群組連結
+            //複製連結
             $('button.-copy').off('click').on('click', function() {
                 const copy_url = $(this).data('url');
-                if (navigator && navigator.clipboard) {
-                    navigator.clipboard.writeText(copy_url)
-                        .then(() => {
-                            toast.show('已複製頁面連結至剪貼簿', {
-                                type: 'success'
-                            });
-                        }).catch((err) => {
-                        console.error('剪貼簿錯誤', err);
-                        toast.show('請手動複製連結：<br>' + copy_url, {
-                            title: '發生錯誤',
-                            type: 'danger'
-                        });
-                    });
-                } else {
-                    toast.show('請手動複製連結：<br>' + copy_url, {
-                        title: '不支援剪貼簿功能',
-                        type: 'danger'
-                    });
-                }
+                copyToClipboard(copy_url, '已複製頁面連結至剪貼簿', `請手動複製連結：<br>${copy_url}`);
             });
         </script>
     @endpush

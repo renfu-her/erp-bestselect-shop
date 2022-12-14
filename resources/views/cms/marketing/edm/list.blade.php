@@ -66,8 +66,8 @@
                     <tr>
                         <th scope="col" style="width:10%">#</th>
                         <th scope="col">商品群組</th>
-                        <th scope="col" class="text-center" style="width:20%">直客價EDM</th>
-                        <th scope="col" class="text-center" style="width:20%">經銷價EDM</th>
+                        <th scope="col" class="text-center" style="width:160px">直客價EDM</th>
+                        <th scope="col" class="text-center" style="width:160px">經銷價EDM</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -85,20 +85,30 @@
                             </td>
 
                             <td class="text-center">
+                                <button type="button" data-bs-toggle="tooltip" title="複製連結"
+                                    data-url="{{ route('print-edm', ['id' => $data->id, 'type' => 'normal','mcode'=>$mcode]) }}"
+                                    class="icon -copy icon-btn fs-5 text-success rounded-circle border-0">
+                                    <i class="bi bi-clipboard2-check"></i>
+                                </button>
                                 <button  type="button" 
                                     data-href="{{ route('print-edm', ['id' => $data->id, 'type' => 'normal','mcode'=>$mcode]) }}"
                                     data-bs-toggle="tooltip" title="網頁預覽"
-                                    class="-web icon icon-btn fs-5 text-primary rounded-circle border-0">
+                                    class="-web icon icon-btn fs-5 text-success rounded-circle border-0">
                                     <i class="bi bi-file-earmark-break-fill"></i>
                                 </button>
                                 <button type="button" 
                                     data-href="{{ route('print-edm', ['id' => $data->id, 'type' => 'normal','mcode'=>$mcode]) }}"
                                     data-bs-toggle="tooltip" title="圖片下載" data-qty="{{ $data->qty }}"
-                                    class="-toImg icon icon-btn fs-5 text-primary rounded-circle border-0">
+                                    class="-toImg icon icon-btn fs-5 text-success rounded-circle border-0">
                                     <i class="bi bi-download"></i>
                                 </button>
                             </td>
                             <td class="text-center">
+                                <button type="button" data-bs-toggle="tooltip" title="複製連結"
+                                    data-url="{{ route('print-edm', ['id' => $data->id, 'type' => 'dealer','mcode'=>$mcode]) }}"
+                                    class="icon -copy icon-btn fs-5 text-primary rounded-circle border-0">
+                                    <i class="bi bi-clipboard2-check"></i>
+                                </button>
                                 <button  type="button" 
                                     data-href="{{ route('print-edm', ['id' => $data->id, 'type' => 'dealer','mcode'=>$mcode]) }}" 
                                     data-bs-toggle="tooltip" title="網頁預覽"
@@ -220,28 +230,10 @@
                 });
             });
 
-            //複製群組連結
+            //複製連結
             $('button.-copy').off('click').on('click', function() {
                 const copy_url = $(this).data('url');
-                if (navigator && navigator.clipboard) {
-                    navigator.clipboard.writeText(copy_url)
-                        .then(() => {
-                            toast.show('已複製頁面連結至剪貼簿', {
-                                type: 'success'
-                            });
-                        }).catch((err) => {
-                            console.error('剪貼簿錯誤', err);
-                            toast.show('請手動複製連結：<br>' + copy_url, {
-                                title: '發生錯誤',
-                                type: 'danger'
-                            });
-                        });
-                } else {
-                    toast.show('請手動複製連結：<br>' + copy_url, {
-                        title: '不支援剪貼簿功能',
-                        type: 'danger'
-                    });
-                }
+                copyToClipboard(copy_url, '已複製EDM連結至剪貼簿', `請手動複製連結：<br>${copy_url}`);
             });
         </script>
     @endpush

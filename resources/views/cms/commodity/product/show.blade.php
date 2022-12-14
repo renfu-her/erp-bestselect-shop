@@ -199,27 +199,13 @@
                         }).catch((err) => {
                             console.error('分享連結錯誤', err);
                             if (!err.toString().includes('AbortError')) {
-                                copyToClipboard(link);
+                                copyToClipboard(link, '已複製連結網址。', `請手動複製網頁連結：<br>${link}`);
                             }
                         });
                 } else {
-                    copyToClipboard(link);
+                    copyToClipboard(link, '已複製連結網址。', `請手動複製網頁連結：<br>${link}`);
                 }
             });
-
-            // 複製剪貼簿
-            function copyToClipboard(link) {
-                if (navigator.clipboard) {
-                    navigator.clipboard.writeText(link)
-                        .then(() => {
-                            toast.show('已複製連結網址。');
-                        }).catch((err) => {
-                            toast.show(`不支援剪貼簿功能，請手動複製網頁連結：<br>${link}`, {
-                                type: 'danger'
-                            });
-                        });
-                }
-            }
         </script>
     @endpush
 @endOnce
