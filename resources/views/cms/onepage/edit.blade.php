@@ -33,7 +33,24 @@
                         @endforeach
                     </select>
                 </x-b-form-group>
-
+                <x-b-form-group name="view_mode" title="商品檢視模式" required="true">
+                    <div class="px-1">
+                        <div class="form-check form-check-inline">
+                            <label class="form-check-label">
+                                <i class="bi bi-list"></i> 條列檢視
+                                <input class="form-check-input @error('view_mode') is-invalid @enderror" value="1"
+                                    name="view_mode" type="radio" @if ('1' == old('view_mode', '1')) checked @endif>
+                            </label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <label class="form-check-label">
+                                <i class="bi bi-grid-3x3-gap-fill"></i> 格狀檢視
+                                <input class="form-check-input @error('view_mode') is-invalid @enderror" value="0"
+                                    name="view_mode" type="radio" @if ('0' == old('view_mode', '')) checked @endif>
+                            </label>
+                        </div>
+                    </div>
+                </x-b-form-group>
 
                 <x-b-form-group name="online_pay" title="線上付款" required="true">
                     <div class="px-1">
