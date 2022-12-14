@@ -454,7 +454,14 @@ class GeneralLedger extends Model
                     'received_info'=>$received_info,
                 ];
 
-                array_push($credit, $tmp);
+                if( in_array($d_type, ['received'])){
+                    // 借方
+                    array_push($debit, $tmp);
+
+                } else {
+                    // 貸方
+                    array_push($credit, $tmp);
+                }
 
             } else if(in_array($code, [2, 3, 4]) && $price < 0){
                 // 借方

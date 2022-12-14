@@ -134,11 +134,10 @@
             </div>
         </div>
 
-        <div class="card-body px-4 pb-4">
+        <div class="mb-3">
             @foreach($payable_data as $value)
-            <dl class="row">
-                <div class="col">
-                    <dt></dt>
+            <dl class="row mb-0">
+                <div class="col-12">
                     <dd>
                         {{ $value->account->code . ' ' . $value->account->name }}
                         {{ number_format($value->tw_price) }}
