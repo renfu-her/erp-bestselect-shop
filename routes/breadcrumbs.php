@@ -1471,3 +1471,19 @@ Breadcrumbs::for('cms.reverse-bind-page', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
     $trail->push('單據綁定');
 });
+
+// 一頁式購物
+Breadcrumbs::for('cms.onepage.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('一頁式購物');
+});
+
+Breadcrumbs::for('cms.onepage.create', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.onepage.index');
+    $trail->push('新增');
+});
+
+Breadcrumbs::for('cms.onepage.edit', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.onepage.index');
+    $trail->push('修改');
+});
