@@ -109,7 +109,7 @@ class CollectionReceivedCtrl extends Controller
                             $r_value->currency_rate = 1;
                         }
 
-                        $name = $received_method_name . ' ' . $r_value->summary . '（' . $received_account->code . ' - ' . $received_account->name . '）';
+                        $name = $received_method_name . ' ' . $r_value->summary . '（' . $received_account->code . ' ' . $received_account->name . '）';
 
                         $tmp = [
                             'account_code'=>$received_account->code,
@@ -143,7 +143,7 @@ class CollectionReceivedCtrl extends Controller
                     $account_name = $product_account ? $product_account->name : '無設定會計科目';
                     $product_name = $account_code . ' ' . $account_name;
                     foreach(json_decode($value->order_items) as $o_value){
-                        $name = $product_name . ' --- ' . $o_value->product_title . '（' . $o_value->price . ' * ' . $o_value->qty . '）';
+                        $name = $product_name . ' - ' . $o_value->product_title . '（' . $o_value->price . ' * ' . $o_value->qty . '）';
                         $product_title = $o_value->product_title;
 
                         // if(in_array($value->ro_source_type, ['ord_received_orders', 'acc_request_orders'])) {

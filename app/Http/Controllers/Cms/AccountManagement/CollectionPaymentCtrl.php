@@ -184,7 +184,7 @@ class CollectionPaymentCtrl extends Controller
                     $product_name = $account_code . ' ' . $account_name;
                     foreach(json_decode($value->product_items) as $p_value){
                         $avg_price = $p_value->num == 0 ? 0 : $p_value->price / $p_value->num;
-                        $name = $product_name . ' --- ' . $p_value->title . '（' . $avg_price . ' * ' . $p_value->num . '）';
+                        $name = $product_name . ' - ' . $p_value->title . '（' . $avg_price . ' * ' . $p_value->num . '）';
                         $product_title = $p_value->title;
 
                         if(in_array($value->po_source_type, ['acc_stitute_orders', 'dlv_delivery', 'pcs_paying_orders', 'ord_received_orders'])) {
@@ -940,7 +940,7 @@ class CollectionPaymentCtrl extends Controller
                     $product_name = $account_code . ' ' . $account_name;
                     foreach(json_decode($value->product_items) as $p_value){
                         $avg_price = $p_value->num == 0 ? 0 : $p_value->price / $p_value->num;
-                        $name = $product_name . ' --- ' . $p_value->title . '（' . $avg_price . ' * ' . $p_value->num . '）';
+                        $name = $product_name . ' - ' . $p_value->title . '（' . $avg_price . ' * ' . $p_value->num . '）';
                         $product_title = $p_value->title;
 
                         if(in_array($value->po_source_type, ['acc_stitute_orders', 'dlv_delivery', 'pcs_paying_orders', 'ord_received_orders'])) {

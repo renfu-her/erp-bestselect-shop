@@ -51,7 +51,7 @@
                         @foreach($received_data as $value)
                         <tr>
                             <td>{{ $value->ro_sn }}</td>
-                            <td class="text-wrap">{{ $value->received_method_name }} {{ $value->note }}{{ '（' . $value->account->code . ' - ' . $value->account->name . '）'}}</td>
+                            <td class="text-wrap">{{ $value->received_method_name }} {{ $value->note }}{{ '（' . $value->account->code . ' ' . $value->account->name . '）'}}</td>
                             <td class="text-end">${{ number_format($value->tw_price, 2) }}</td>
                             <td class="text-end">1</td>
                             <td class="text-end">{{ $value->currency_rate }}</td>

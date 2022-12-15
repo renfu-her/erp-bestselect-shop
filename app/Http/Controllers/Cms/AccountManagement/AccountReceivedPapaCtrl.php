@@ -470,7 +470,7 @@ abstract class AccountReceivedPapaCtrl extends Controller
 
                 // 收款項目
                 foreach($received_data as $value){
-                    $name = $value->received_method_name . ' ' . $value->summary . '（' . $value->account->code . ' - ' . $value->account->name . '）';
+                    $name = $value->received_method_name . ' ' . $value->summary . '（' . $value->account->code . ' ' . $value->account->name . '）';
                     // GeneralLedger::classification_processing($debit, $credit, $value->master_account->code, $name, $value->tw_price, 'r', 'received');
 
                     $tmp = [
@@ -504,7 +504,7 @@ abstract class AccountReceivedPapaCtrl extends Controller
                 $account_name = $product_account ? $product_account->name : '無設定會計科目';
                 $product_grade_name = $account_code . ' ' . $account_name;
                 foreach($order_list_data as $value){
-                    $name = $product_grade_name . ' --- ' . $this->getOrderListItemMsg($value);
+                    $name = $product_grade_name . ' - ' . $this->getOrderListItemMsg($value);
                     // GeneralLedger::classification_processing($debit, $credit, $product_master_account->code, $name, $value->product_origin_price, 'r', 'product');
 
                     $tmp = [
