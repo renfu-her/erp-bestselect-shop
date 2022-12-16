@@ -58,11 +58,9 @@ class ProductStock extends Model
             } else {
                 $updateArr = [];
                 $updateArr['total_inbound'] = DB::raw("total_inbound + $qty");
-                //入庫時判斷倉庫需理貨 則再加到in_stock
-                if ($inbound_can_tally) {
-                    $updateArr['in_stock'] = DB::raw("in_stock + $qty");
-                    $event = $event. '_pcs_ib_to_canttally';
-                }
+                //20221213 理查 非理貨倉數量也一律加到可售數量 因為都是要賣的
+                $updateArr['in_stock'] = DB::raw("in_stock + $qty");
+//                $event = $event. '_pcs_ib_to_canttally';
                 $product_style->update($updateArr);
             }
         }

@@ -24,7 +24,8 @@ class PurchaseInbound extends Model
     public static function createInbound($event, $event_id, $event_item_id, $product_style_id, $title, $sku, $unit_cost = 0, $expiry_date = null, $inbound_date = null
         , $inbound_num = 0, $depot_id = null, $depot_name = null, $inbound_user_id = null, $inbound_user_name = null, $memo = null, $prd_type = null, $parent_inbound_id = null, $origin_inbound_id = null)
     {
-        $can_tally = Depot::can_tally($depot_id);
+        //$can_tally = Depot::can_tally($depot_id);
+        $can_tally = true;
 
         return IttmsDBB::transaction(function () use (
             $event, $event_id, $event_item_id, $product_style_id, $title, $sku, $unit_cost, $expiry_date, $inbound_date,
@@ -79,7 +80,8 @@ class PurchaseInbound extends Model
         if (false == isset($inboundGet)) {
             return ['success' => 0, 'error_msg' => '無此入庫單'];
         }
-        $can_tally = Depot::can_tally($inboundGet->depot_id);
+        //$can_tally = Depot::can_tally($inboundGet->depot_id);
+        $can_tally = true;
 
         $inboundGet->inbound_num = $inboundGet->inbound_num + $add_qty;
         $inboundGet->expiry_date = date('Y-m-d H:i:s', strtotime($expiry_date));
@@ -280,7 +282,8 @@ class PurchaseInbound extends Model
                 if (is_numeric($inboundDataGet->sale_num) && 0 < $inboundDataGet->sale_num) {
                     return ['success' => 0, 'error_msg' => 'inbound already sell'];
                 } else {
-                    $can_tally = Depot::can_tally($inboundDataGet->depot_id);
+                    //$can_tally = Depot::can_tally($inboundDataGet->depot_id);
+                    $can_tally = true;
                     //判斷若為理貨倉 則採購款式 已到貨 ++; 採購款式 理貨 ++; product_style in_stock ++
                     //否則採購款式 已到貨 ++
                     $qty = $inboundDataGet->inbound_num * -1;
@@ -348,24 +351,17 @@ class PurchaseInbound extends Model
                 return ['success' => 0, 'error_msg' => '該入庫單已遭刪除 '. $inboundDelData->sn];
             }
 
-            $inboundData = DB::table('pcs_purchase_inbound as inbound')
-                ->leftJoin('depot', 'depot.id', 'inbound.depot_id')
-                ->where('inbound.id', '=', $id) //取得是否為理貨倉
-                ->whereNull('inbound.deleted_at')
-                ->select(
-                    'inbound.*'
-                    , 'depot.can_tally'
-                );
-            $inboundDataGet = $inboundData->get()->first();
-            if (null == $inboundDataGet) {
+            $inboundData = PurchaseInbound::where('id', '=', $id)->first();
+
+            if (null == $inboundData) {
                 DB::rollBack();
                 return ['success' => 0, 'error_msg' => '無此入庫單id:'. $id];
             } else {
-                if (($inboundDataGet->inbound_num - $inboundDataGet->sale_num - $inboundDataGet->csn_num - $inboundDataGet->consume_num
-                        - $inboundDataGet->back_num - $inboundDataGet->scrap_num
+                if (($inboundData->inbound_num - $inboundData->sale_num - $inboundData->csn_num - $inboundData->consume_num
+                        - $inboundData->back_num - $inboundData->scrap_num
                         - $sale_num) < 0) {
                     DB::rollBack();
-                    return ['success' => 0, 'error_msg' => '入庫單出貨數量超出範圍 '. $inboundDataGet->sn];
+                    return ['success' => 0, 'error_msg' => '入庫單出貨數量超出範圍 '. $inboundData->sn];
                 } else {
                     $update_arr = [];
 
@@ -396,19 +392,21 @@ class PurchaseInbound extends Model
 
                     PurchaseInbound::where('id', $id)
                         ->update($update_arr);
-                    $reStockChange =PurchaseLog::stockChange($event_parent_id, $inboundDataGet->product_style_id, $event, $event_id, $feature, $id, $sale_num * -1, null, $inboundDataGet->title, $inboundDataGet->prd_type, $user_id, $user_name);
+                    $reStockChange =PurchaseLog::stockChange($event_parent_id, $inboundData->product_style_id, $event, $event_id, $feature, $id, $sale_num * -1, null, $inboundData->title, $inboundData->prd_type, $user_id, $user_name);
                     if ($reStockChange['success'] == 0) {
                         DB::rollBack();
                         return $reStockChange;
                     }
 
+                    //$can_tally = Depot::can_tally($inboundData->depot_id); //取得是否為理貨倉
+                    $can_tally = true;
                     if (Event::order()->value == $event || Event::ord_pickup()->value == $event) {
                         //若為理貨倉can_tally 需修改通路庫存
-                        if ('' != $stock_event && $inboundDataGet->can_tally) {
-                            $rePSSC = ProductStock::stockChange($inboundDataGet->product_style_id, $sale_num * -1
+                        if ('' != $stock_event && $can_tally) {
+                            $rePSSC = ProductStock::stockChange($inboundData->product_style_id, $sale_num * -1
                                 , $stock_event, $id
-                                , $inboundDataGet->inbound_user_name . $stock_note
-                                , false, $inboundDataGet->can_tally);
+                                , $inboundData->inbound_user_name . $stock_note
+                                , false, $can_tally);
                             if ($rePSSC['success'] == 0) {
                                 DB::rollBack();
                                 return $rePSSC;

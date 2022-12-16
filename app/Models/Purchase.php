@@ -45,13 +45,13 @@ class Purchase extends Model
             $invoice_date,
             $note
             ) {
-             
+
             //判斷若無sn 則產生新的
             if(false == isset($sn)) {
                 $sn = Sn::createSn('purchase', 'B', 'ymd', 4);
             }
-            
-          
+
+
             $id = self::create([
                 "sn" => $sn,
                 'supplier_id' => $supplier_id,
@@ -282,7 +282,8 @@ class Purchase extends Model
                     ->get()->toArray();
                 if (0 < count($inboundList)) {
                     foreach ($inboundList as $key_ib => $val_ib) {
-                        $can_tally = Depot::can_tally($val_ib->depot_id);
+                        //$can_tally = Depot::can_tally($val_ib->depot_id);
+                        $can_tally = true;
                         $updateLog = PurchaseInbound::addLogAndUpdateStock(LogEventFeature::purchase_del()->value, $val_ib->inbound_id
                             , $val_ib->event, $val_ib->event_id, $val_ib->event_item_id
                             , $val_ib->product_style_id
