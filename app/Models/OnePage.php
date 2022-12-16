@@ -111,7 +111,7 @@ class OnePage extends Model
 
         }
 
-        dd($dataList);
+        
         return $dataList;
 
     }
