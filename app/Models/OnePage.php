@@ -95,7 +95,6 @@ class OnePage extends Model
             ->addSelect('style.styles');
 
         $dataList = $dataList->addSelect(DB::raw("({$subImg->toSql()}) as img_url"))->get()->toArray();
-       
 
         if ($dataList) {
 
@@ -104,12 +103,15 @@ class OnePage extends Model
                     $dataList[$key]->img_url = getImageUrl($value->img_url, true);
                     $dataList[$key]->styles = json_decode($value->styles);
                 }
+                $shipment = Product::getProductShipments($value->id);
+                $dataList[$key]->shipment = $shipment ? $shipment : '';
             }
 
             Product::getMinPriceProducts($sale_channel_id, null, $dataList);
 
         }
 
+        dd($dataList);
         return $dataList;
 
     }
