@@ -66,6 +66,7 @@ class OnePageCtrl extends Controller
             'collection_id' => 'required',
             'sale_channel_id' => 'required',
             'online_pay' => 'required',
+            'view_mode' => 'required',
         ]);
 
         $d = $request->all();
@@ -75,6 +76,7 @@ class OnePageCtrl extends Controller
             'collection_id' => $d['collection_id'],
             'sale_channel_id' => $d['sale_channel_id'],
             'online_pay' => $d['online_pay'],
+            'view_mode' => $d['view_mode'],
         ]);
 
         wToast('新增完成');
@@ -133,6 +135,7 @@ class OnePageCtrl extends Controller
             'collection_id' => 'required',
             'sale_channel_id' => 'required',
             'online_pay' => 'required',
+            'view_mode' => 'required',
         ]);
 
         $d = $request->all();
@@ -142,6 +145,7 @@ class OnePageCtrl extends Controller
             'collection_id' => $d['collection_id'],
             'sale_channel_id' => $d['sale_channel_id'],
             'online_pay' => $d['online_pay'],
+            'view_mode' => $d['view_mode'],
         ]);
 
         wToast('修改完成');

@@ -21,7 +21,7 @@
                 <x-b-form-group name="sale_channel_id" title="銷售通路" required="true">
                     <select name="sale_channel_id" class="form-select -select2 -single" data-placeholder="請單選">
                         @foreach ($saleChannel as $value)
-                            <option value="{{ $value->id }}" @if (old('sale_channel_id',$data->sale_channel_id ?? '') == $value->id) selected @endif>
+                            <option value="{{ $value->id }}" @if (old('sale_channel_id', $data->sale_channel_id ?? '') == $value->id) selected @endif>
                                 {{ $value->title }}</option>
                         @endforeach
                     </select>
@@ -29,7 +29,8 @@
                 <x-b-form-group name="collection_id" title="商品群組" required="true">
                     <select name="collection_id" class="form-select -select2 -single" data-placeholder="請單選">
                         @foreach ($collection as $value)
-                            <option value="{{ $value->id }}"  @if (old('collection_id',$data->collection_id ?? '') == $value->id) selected @endif>{{ $value->name }}</option>
+                            <option value="{{ $value->id }}" @if (old('collection_id', $data->collection_id ?? '') == $value->id) selected @endif>
+                                {{ $value->name }}</option>
                         @endforeach
                     </select>
                 </x-b-form-group>
@@ -39,14 +40,14 @@
                             <label class="form-check-label">
                                 <i class="bi bi-list"></i> 條列檢視
                                 <input class="form-check-input @error('view_mode') is-invalid @enderror" value="1"
-                                    name="view_mode" type="radio" @if ('1' == old('view_mode', '1')) checked @endif>
+                                    name="view_mode" type="radio" @if ('1' == old('view_mode', $data->online_pay ?? '1')) checked @endif>
                             </label>
                         </div>
                         <div class="form-check form-check-inline">
                             <label class="form-check-label">
                                 <i class="bi bi-grid-3x3-gap-fill"></i> 格狀檢視
                                 <input class="form-check-input @error('view_mode') is-invalid @enderror" value="0"
-                                    name="view_mode" type="radio" @if ('0' == old('view_mode', '')) checked @endif>
+                                    name="view_mode" type="radio" @if ('0' == old('view_mode', $data->online_pay ?? '')) checked @endif>
                             </label>
                         </div>
                     </div>

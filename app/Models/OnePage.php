@@ -15,7 +15,7 @@ class OnePage extends Model
 
     public static function dataList($title = null)
     {
-       
+
         $re = DB::table('opg_one_page as one')
             ->join('collection', 'one.collection_id', '=', 'collection.id')
             ->join('prd_sale_channels as channel', 'one.sale_channel_id', '=', 'channel.id')
@@ -43,4 +43,75 @@ class OnePage extends Model
             self::where('id', $id)->update(['active' => 1]);
         }
     }
+
+    public static function getProducts($collection_id, $sale_channel_id)
+    {
+
+        $dataList = DB::table('prd_products as product')
+            ->join('collection_prd as cp', 'cp.product_id_fk', '=', 'product.id')
+            ->select('product.id as id',
+                'product.title as title',
+                'product.sku as sku',
+                'product.type as type',
+                'product.consume as consume',
+                'product.online as online',
+                'product.offline as offline',
+                'product.public as public')
+            ->selectRaw('CASE product.type WHEN "p" THEN "一般商品" WHEN "c" THEN "組合包商品" END as type_title')
+            ->where('product.public', 1)
+            ->where('online', '1')
+            ->where('product.online', 1)
+            ->where(function ($query) {
+                $now = date('Y-m-d H:i:s');
+                $query->where(function ($query) use ($now) {
+                    $query->where('product.active_sdate', '<=', $now)
+                        ->orWhereNull('product.active_sdate');
+                })
+                    ->where(function ($query) use ($now) {
+                        $query->where('product.active_edate', '>=', $now)
+                            ->orWhereNull('product.active_edate');
+                    });
+            })
+            ->whereNull('product.deleted_at')
+            ->where('cp.collection_id_fk', '=', $collection_id);
+
+        $subImg = DB::table('prd_product_images as img')
+            ->select('img.url')
+            ->whereRaw('img.product_id = product.id')
+            ->limit(1);
+
+        $subStyle = DB::table('prd_product_styles as style')
+            ->join('prd_salechannel_style_price as price', 'style.id', '=', 'price.style_id')
+            ->select('style.product_id')
+            ->selectRaw(concatStr([
+                'title' => 'style.title',
+                'in_stock' => DB::raw('style.in_stock + style.overbought'),
+                'price' => 'price.price',
+            ]) . " as styles")
+            ->where('price.sale_channel_id', $sale_channel_id)
+            ->groupBy('style.product_id');
+
+        $dataList->joinSub($subStyle, 'style', 'product.id', '=', 'style.product_id')
+            ->addSelect('style.styles');
+
+        $dataList = $dataList->addSelect(DB::raw("({$subImg->toSql()}) as img_url"))->get()->toArray();
+       
+
+        if ($dataList) {
+
+            foreach ($dataList as $key => $value) {
+                if ($value->img_url) {
+                    $dataList[$key]->img_url = getImageUrl($value->img_url, true);
+                    $dataList[$key]->styles = json_decode($value->styles);
+                }
+            }
+
+            Product::getMinPriceProducts($sale_channel_id, null, $dataList);
+
+        }
+
+        return $dataList;
+
+    }
+
 }
