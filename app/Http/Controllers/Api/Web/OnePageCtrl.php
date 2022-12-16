@@ -15,7 +15,7 @@ class OnePageCtrl extends Controller
 
         if (!$data) {
             return response()->json([
-                'status' => 1,
+                'status' => '1',
                 'msg' => '404',
             ]);
         }
@@ -23,7 +23,7 @@ class OnePageCtrl extends Controller
         $data->products = OnePage::getProducts($data->collection_id, $data->sale_channel_id);
 
         return response()->json([
-            'status' => 0,
+            'status' => '0',
             'data' => $data,
         ]);
 
