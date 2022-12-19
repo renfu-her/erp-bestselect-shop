@@ -23,7 +23,7 @@
                             <th scope="col">款式</th>
                             <th scope="col">數量</th>
                             <th scope="col" class="text-center border-start border-end">目前庫存</th>
-                            <th scope="col" colspan="2" class="text-center small wrap">剩餘庫存試算</th>
+                            <th scope="col" class="text-center small wrap">剩餘庫存試算</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -36,20 +36,20 @@
                                 <td data-td="qty" class="text-center">{{ $combo->qty }}</td>
                                 <td data-td="stock" class="text-center border-start border-end fw-bold fs-5">{{ $combo->in_stock }}</td>
                                 <td data-td="count" class="text-center fs-5 pe-0">{{ $combo->in_stock }}</td>
-                                <td class="ps-0">
-                                    <div class="form-check-inline m-0">
-                                        <label class="form-check-label">
-                                            <input class="form-check-input" name="check_stock" type="checkbox" checked
-                                                data-bs-toggle="tooltip" title="負數檢查" data-bs-placement="bottom">
-                                        </label>
-                                    </div>
-                                </td>
                             </tr>
                         @endforeach
                     </tbody>
                 </table>
             </div>
 
+            <div>
+                <div class="form-check form-check-inline">
+                    <label class="form-check-label">
+                        <input class="form-check-input" name="check_stock" type="checkbox" checked>
+                        檢查<span class="text-primary">剩餘庫存試算</span>不為負
+                    </label>
+                </div>
+            </div>
         </div>
 
         <div>
@@ -92,7 +92,13 @@
                 countStock();
             });
             // 負數檢查
-            $('input[name="check_stock"]').on('change', countStock);
+            $('input[name="check_stock"]').on('change', function () {
+                if ($(this).prop('checked')) {
+                    countStock();
+                } else {
+                    $('form button[type="submit"]').prop('disabled', false);
+                }
+            });
 
             function countStock() {
                 const m_qty = Number($('input[name="qty"]').val());
@@ -108,7 +114,7 @@
                         if (remainder < 0) {
                             $(element).siblings('td[data-td="count"]').removeClass('text-primary')
                                 .addClass('text-danger');
-                            if ($(element).closest('tr').find('input[name="check_stock"]').prop('checked')) {
+                            if ($('input[name="check_stock"]').prop('checked')) {
                                 checkCount &= false;
                             }
                         } else {
