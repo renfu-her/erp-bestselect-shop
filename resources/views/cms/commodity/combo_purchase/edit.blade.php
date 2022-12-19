@@ -9,21 +9,21 @@
             <div class="row justify-content-center mb-3">
                 <label class="text-muted text-center">數量異動</label>
                 <div class="col-auto mb-3">
-                    <x-b-qty-adjuster name="qty" min="-{{ $style->in_stock }}" size="lg" minus="拆包" plus="組裝"></x-b-qty-adjuster>
+                    <x-b-qty-adjuster name="qty" min="{{ $style->in_stock > 0 ? -$style->in_stock : 0 }}" size="lg" minus="拆包" plus="組裝"></x-b-qty-adjuster>
                 </div>
             </div>
 
             <div class="table-responsive">
                 <table class="table table-striped tableList">
-                    <thead>
+                    <thead class="align-middle">
                         <tr>
-                            <th scope="col" style="width:10%">#</th>
+                            <th scope="col" style="width:40px">#</th>
                             <th scope="col">SKU</th>
                             <th scope="col">商品名稱</th>
                             <th scope="col">款式</th>
                             <th scope="col">數量</th>
                             <th scope="col" class="text-center border-start border-end">目前庫存</th>
-                            <th scope="col" class="text-center">剩餘庫存試算</th>
+                            <th scope="col" colspan="2" class="text-center small wrap">剩餘庫存試算</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -31,11 +31,19 @@
                             <tr>
                                 <th scope="row">{{ $key + 1 }}</th>
                                 <td>{{ $combo->sku }}</td>
-                                <td>{{ $combo->title }}</td>
+                                <td class="wrap">{{ $combo->title }}</td>
                                 <td>{{ $combo->spec }}</td>
-                                <td data-td="qty">{{ $combo->qty }}</td>
+                                <td data-td="qty" class="text-center">{{ $combo->qty }}</td>
                                 <td data-td="stock" class="text-center border-start border-end fw-bold fs-5">{{ $combo->in_stock }}</td>
-                                <td data-td="count" class="text-center fs-5">{{ $combo->in_stock }}</td>
+                                <td data-td="count" class="text-center fs-5 pe-0">{{ $combo->in_stock }}</td>
+                                <td class="ps-0">
+                                    <div class="form-check-inline m-0">
+                                        <label class="form-check-label">
+                                            <input class="form-check-input" name="check_stock" type="checkbox" checked
+                                                data-bs-toggle="tooltip" title="負數檢查" data-bs-placement="bottom">
+                                        </label>
+                                    </div>
+                                </td>
                             </tr>
                         @endforeach
                     </tbody>
@@ -83,6 +91,8 @@
                 }
                 countStock();
             });
+            // 負數檢查
+            $('input[name="check_stock"]').on('change', countStock);
 
             function countStock() {
                 const m_qty = Number($('input[name="qty"]').val());
@@ -98,7 +108,9 @@
                         if (remainder < 0) {
                             $(element).siblings('td[data-td="count"]').removeClass('text-primary')
                                 .addClass('text-danger');
-                            checkCount &= false;
+                            if ($(element).closest('tr').find('input[name="check_stock"]').prop('checked')) {
+                                checkCount &= false;
+                            }
                         } else {
                             $(element).siblings('td[data-td="count"]').removeClass('text-danger')
                                 .addClass('text-primary');

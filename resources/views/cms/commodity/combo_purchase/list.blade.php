@@ -50,7 +50,7 @@
                     @foreach ($dataList as $key => $data)
                         <tr>
                             <th scope="row">{{ $key + 1 }}</th>
-                            <td>【{{ $data->product_title }}】{{ $data->spec }}</td>
+                            <td class="wrap">【{{ $data->product_title }}】{{ $data->spec }}</td>
                             <td>{{ $data->sku }}</td>
                             <td>{{ $data->in_stock }}</td>
                             <td class="text-center">
