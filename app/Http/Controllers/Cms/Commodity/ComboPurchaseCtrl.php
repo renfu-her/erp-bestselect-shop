@@ -105,12 +105,16 @@ class ComboPurchaseCtrl extends Controller
      */
     public function update(Request $request, $id)
     {
+       // dd($_POST);
         $request->validate([
             'qty' => 'required',
         ]);
 
+        $check_stock = isset($_POST['check_stock']) ? true : false;
+
+      
         $qty = $request->input('qty');
-        $re = ProductStock::comboProcess($id, $qty);
+        $re = ProductStock::comboProcess($id, $qty, $check_stock);
        
         if (!$re['success']) {
             return redirect()->back()->withErrors(['qty' => $re['error_msg']]);
