@@ -11,6 +11,12 @@
                     <input class="form-control" type="text" name="keyword" 
                         value="{{ $query['keyword'] ?? '' }}" placeholder="組合包名稱 或 SKU">
                 </div>
+                <div class="col-12 mb-3">
+                    <input class="form-check-input" type="checkbox" value="1" name="negative_stock" id="negative_stock">
+                    <label class="form-check-label" for="negative_stock">
+                        當前庫存負數
+                    </label>
+                </div>
             </div>
 
             <div class="col">
@@ -42,7 +48,8 @@
                         <th scope="col" style="width:10%">#</th>
                         <th scope="col">【組合包】款式名稱</th>
                         <th scope="col">SKU</th>
-                        <th scope="col">庫存</th>
+                        <th scope="col">庫存(包含超賣)</th>
+                        <th scope="col">當前庫存</th>
                         <th scope="col" class="text-center">組裝/拆包</th>
                     </tr>
                 </thead>
@@ -50,9 +57,10 @@
                     @foreach ($dataList as $key => $data)
                         <tr>
                             <th scope="row">{{ $key + 1 }}</th>
-                            <td>【{{ $data->product_title }}】{{ $data->spec }}</td>
+                            <td class="wrap">【{{ $data->product_title }}】{{ $data->spec }}</td>
                             <td>{{ $data->sku }}</td>
                             <td>{{ $data->in_stock }}</td>
+                            <td>{{ $data->current_stock }}</td>
                             <td class="text-center">
                                 @can('cms.combo-purchase.edit')
                                     <a type="button" data-bs-toggle="tooltip" title="組裝/拆包"
