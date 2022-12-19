@@ -78,7 +78,7 @@ class ProductStock extends Model
 
     }
 
-    public static function comboProcess($style_id, $qty)
+    public static function comboProcess($style_id, $qty, $check_stock = true)
     {
         DB::beginTransaction();
         $style = ProductStyle::where('id', $style_id)->whereNotNull('sku')->where('type', 'c')->get()->first();
@@ -90,7 +90,7 @@ class ProductStock extends Model
 
         foreach ($combos as $combo) {
             $_qty = $qty * -1 * $combo['qty'];
-            $re = self::stockChange($combo['product_style_child_id'], $_qty, 'combo', $style_id);
+            $re = self::stockChange($combo['product_style_child_id'], $_qty, 'combo', $style_id, null, false, $check_stock);
             if (!$re['success']) {
                 DB::rollBack();
                 return $re;
