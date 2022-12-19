@@ -27,7 +27,7 @@ class ComboPurchaseCtrl extends Controller
 
         $options = ['negative_stock' => $negative_stock];
         $dataList = Product::productStyleList($keyword, 'c', null, $options)
-            ->paginate($data_per_page)->appends($query);
+            ->paginate(100)->appends($query);
 
         return view('cms.commodity.combo_purchase.list', [
             'dataList' => $dataList,
