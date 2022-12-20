@@ -79,9 +79,14 @@
                         </td>
                         <td class="text-center">
                             <button type="button" data-bs-toggle="tooltip" title="複製"
-                                data-url="{{ frontendUrl() . 'store/' . $data->id }}"
+                                data-url="{{ frontendUrl() . 'store/' . $data->id . '?openExternalBrowser=1' }}"
                                 class="icon -copy icon-btn fs-5 text-primary rounded-circle border-0">
-                                <i class="bi bi-clipboard2-check"></i>
+                                <i class="bi bi-clipboard2"></i>
+                            </button>
+                            <button type="button" data-bs-toggle="tooltip" title="帶mcode複製"
+                                data-url="{{ frontendUrl() . 'store/' . $data->id . '?openExternalBrowser=1&mcode=' . $mcode }}"
+                                class="icon -copy icon-btn fs-5 text-primary rounded-circle border-0">
+                                <i class="bi bi-clipboard2-plus"></i>
                             </button>
                         </td>
                         <td class="text-center">
