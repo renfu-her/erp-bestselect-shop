@@ -280,7 +280,7 @@
         @php
             $dlv_fee = 0;
             $price = 0;
-            
+
         @endphp
         @foreach ($subOrders as $subOrder)
             @php
@@ -329,6 +329,8 @@
                             {{-- <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.order.inbound', ['subOrderId' => $subOrderId], true) }}">入庫審核</a> --}}
                             {{-- @endif --}}
 
+                            <a class="btn btn-sm btn-outline-danger -in-header mb-1"
+                               href="{{ Route('cms.delivery.back_list', ['deliveryId' => $delivery->id], true) }}">退貨列表</a>
                             @if (isset($delivery) && isset($delivery->back_date))
                                 @if (false == isset($delivery->back_inbound_date) && false == $has_already_pay_delivery_back)
                                     <button type="button"
@@ -467,7 +469,7 @@
                                 @else
                                     {{ $subOrder->package_sn }}
                                 @endif
-                                
+
                                 {{-- @if (false == empty($subOrder->projlgt_order_sn))
                                     <a href="{{ env('LOGISTIC_URL') . 'guest/order-flow/' . $subOrder->projlgt_order_sn }}">
                                         {{ $subOrder->projlgt_order_sn }}
@@ -797,12 +799,12 @@
                         <i class="bi bi-box-arrow-up-right"></i>
                     </a>
                 @endif
-                
+
                 @if (!$receivable && in_array($order->status, ['建立']))
                     <div class="mark small text-muted">
                         <i class="bi bi-exclamation-diamond-fill text-warning"></i> 如現金、支票、匯款等其它非線上付款方式
                     </div>
-                    <a href="{{ Route('cms.order.ro-edit', ['id' => $order->id]) }}" 
+                    <a href="{{ Route('cms.order.ro-edit', ['id' => $order->id]) }}"
                         class="btn btn-primary btn-lg col-6 mx-auto mb-2" role="button">其他付款方式</a>
                 @endif
             </div>

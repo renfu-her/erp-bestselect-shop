@@ -23,7 +23,9 @@
                    href="{{ Route('cms.consignment.print_order_ship', ['id' => $id]) . '?type=A4' }}">
                     列印出貨單-A4
                 </a>
-                
+                <a class="btn btn-sm btn-outline-danger"
+                   href="{{ Route('cms.delivery.back_list', ['deliveryId' => $delivery->id], true) }}">退貨列表</a>
+
             @if (isset($delivery) && isset($delivery->back_date))
                 @if (false == isset($delivery->back_inbound_date) && false == ($has_already_pay_delivery_back ?? false))
                     <button type="button"

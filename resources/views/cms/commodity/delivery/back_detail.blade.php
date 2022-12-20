@@ -22,14 +22,14 @@
         <div class="p-1 pe-2">
             @if(! $items->po_sn && $po_check)
                 <a class="btn btn-primary btn-sm my-1 ms-1"
-                    href="{{ Route('cms.delivery.roe-po', ['id' => $delivery->id, 'behavior' => 'return']) }}">新增退貨付款單</a>
+                    href="{{ Route('cms.delivery.roe-po', ['id' => $bacPapa->id, 'behavior' => 'return']) }}">新增退貨付款單</a>
             @endif
             @if (false == $has_payable_data_back)
                 <a class="btn btn-primary btn-sm my-1 ms-1"
-                   href="{{ Route('cms.delivery.back_edit', ['event' => $delivery->event, 'eventId' => $delivery->event_id]) }}">編輯退貨</a>
+                   href="{{ Route('cms.delivery.back_edit', ['bac_papa_id' => $bacPapa->id]) }}">編輯退貨</a>
             @endif
             <a target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm my-1 ms-1"
-               href="{{ Route('cms.delivery.print_back', ['event' => $delivery->event, 'eventId' => $delivery->event_id]) }}">
+               href="{{ Route('cms.delivery.print_back', ['bac_papa_id' => $bacPapa->id]) }}">
                 列印退貨單
             </a>
         </div>
@@ -40,15 +40,15 @@
         <dl class="row">
             <div class="col">
                 <dt>銷貨退回單號</dt>
-                <dd>{{$delivery->back_sn ?? ''}}</dd>
+                <dd>{{$bacPapa->sn ?? ''}}</dd>
             </div>
             <div class="col">
                 <dt>狀態</dt>
-                <dd>{{ \App\Enums\Delivery\BackStatus::getDescription($delivery->back_status ?? '')}}</dd>
+                <dd>{{ \App\Enums\Delivery\BackStatus::getDescription($bacPapa->status ?? '')}}</dd>
             </div>
             <div class="col">
                 <dt>入庫日期</dt>
-                <dd>{{ $delivery->back_inbound_date ? date('Y/m/d', strtotime($delivery->back_inbound_date)) : '' }}</dd>
+                <dd>{{ $delivery->back_inbound_date ? date('Y/m/d', strtotime($bacPapa->inbound_date)) : '' }}</dd>
             </div>
         </dl>
         <dl class="row">
@@ -76,7 +76,7 @@
             </div>
             <div class="col">
                 <dt>新增者</dt>
-                <dd>{{$delivery->back_user_name ?? ''}}</dd>
+                <dd>{{$delivery->user_name ?? ''}}</dd>
             </div>
         </dl>
         <dl class="row">
@@ -106,7 +106,7 @@
 {{--            </div>--}}
             <div class="col">
                 <dt>入庫者</dt>
-                <dd>{{$delivery->back_inbound_user_name ?? ''}}</dd>
+                <dd>{{$delivery->inbound_user_name ?? ''}}</dd>
             </div>
         </dl>
         <dl class="row">

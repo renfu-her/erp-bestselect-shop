@@ -75,7 +75,7 @@
                 <table width="710" style="font-size:12pt;text-align:left;border:0;margin: 0 auto;">
                     <tbody>
                         <tr>
-                            <td width="40%">退貨單號：{{$delivery->back_sn ?? ''}}</td>
+                            <td width="40%">退貨單號：{{$bacPapa->sn ?? ''}}</td>
                             <td width="60%">發票類型：{{ $order->invoice_category ?? '' }}</td>
                         </tr>
                         <tr>
