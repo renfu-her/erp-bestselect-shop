@@ -88,9 +88,14 @@ class OnePage extends Model
             ->join('prd_salechannel_style_price as price', 'style.id', '=', 'price.style_id')
             ->select('style.product_id')
             ->selectRaw(concatStr([
+                'id' => 'style.id',
                 'title' => 'style.title',
                 'in_stock' => DB::raw('style.in_stock + style.overbought'),
                 'price' => 'price.price',
+                'origin_price' => 'price.origin_price',
+                'dividend' => 'price.dividend',
+                'sku' => 'style.sku',
+                'overbought' => 'style.overbought',
             ]) . " as styles")
             ->where('price.sale_channel_id', $sale_channel_id)
             ->groupBy('style.product_id');
@@ -115,7 +120,6 @@ class OnePage extends Model
 
         }
 
-        
         return $dataList;
 
     }
