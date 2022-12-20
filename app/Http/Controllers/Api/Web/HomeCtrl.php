@@ -119,7 +119,7 @@ class HomeCtrl extends Controller
             ->where('colc.is_liquor', '=', 0)
             ->addSelect(['colc.name as collection_name', 'collection_id_fk']);
         $dataList = IttmsUtils::setPager($dataList, $request);
-        $dataList = $dataList->get()->toArray();
+        $dataList = $dataList->orderBy('cprd.sort')->get()->toArray();
         Product::getMinPriceProducts(1, null, $dataList);
 
         $data = [];
