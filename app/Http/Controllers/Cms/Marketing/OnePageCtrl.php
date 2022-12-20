@@ -28,10 +28,12 @@ class OnePageCtrl extends Controller
         //    $data_per_page = Arr::get($query, 'data_per_page', 10);
 
         $data_per_page = 10; // is_numeric($data_per_page) ? $data_per_page : 10;
+        $mcode = $request->user()->getUserCustomer($request->user()->id)->sn;
 
         return view('cms.onepage.list', [
             'dataList' => $dataList,
             'data_per_page' => $data_per_page,
+            'mcode' => $mcode,
             //  'topList' => Collection::where('is_liquor', 0)->get(),
         ]);
     }
