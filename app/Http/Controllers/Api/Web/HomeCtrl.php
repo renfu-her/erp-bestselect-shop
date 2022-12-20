@@ -104,7 +104,6 @@ class HomeCtrl extends Controller
                     ->orWhereNull('product.active_sdate')
                     ->orWhereNull('product.active_edate');
             })
-            ->orderBy('id')
             ->whereNull('product.deleted_at');
 
         $subImg = DB::table('prd_product_images as img')
@@ -113,14 +112,19 @@ class HomeCtrl extends Controller
             ->limit(1);
         $dataList->addSelect(DB::raw("({$subImg->toSql()}) as img_url"));
 
-        $dataList = $dataList->leftJoin('collection_prd as cprd', 'product.id', '=', 'cprd.product_id_fk')
+        $dataList->leftJoin('collection_prd as cprd', 'product.id', '=', 'cprd.product_id_fk')
             ->leftJoin('collection as colc', 'colc.id', '=', 'cprd.collection_id_fk')
             ->where('cprd.collection_id_fk', '=', $d['collection_id'])
             ->where('colc.is_liquor', '=', 0)
-            ->addSelect(['colc.name as collection_name', 'collection_id_fk']);
+            ->orderBy('cprd.sort','ASC')
+            ->addSelect(['colc.name as collection_name', 'collection_id_fk','cprd.sort']);
+            
+       
         $dataList = IttmsUtils::setPager($dataList, $request);
-        $dataList = $dataList->orderBy('cprd.sort')->get()->toArray();
+        $dataList = $dataList->get()->toArray();
         Product::getMinPriceProducts(1, null, $dataList);
+
+        
 
         $data = [];
         if ($dataList) {
