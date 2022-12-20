@@ -56,7 +56,7 @@ class TemplateCtrl extends Controller
             'method' => 'edit',
             'collectionList' => Collection::all(),
             'formAction' => Route('cms.homepage.template.edit', ['id' => $id]),
-            'breadcrumb_data' => $id,
+            'breadcrumb_data' => $data->title,
         ]);
     }
 

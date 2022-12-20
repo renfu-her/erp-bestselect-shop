@@ -145,6 +145,7 @@ class BulletinBoardCtrl extends Controller
         return view('cms.admin_management.bulletin_board.show', [
             'data' => $data,
             'weight_title' => Weight::getDescription($data->weight),
+            'breadcrumb_data' => $data->title,
         ]);
     }
 
