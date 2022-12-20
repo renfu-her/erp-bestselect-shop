@@ -17,7 +17,7 @@
             @if ($received_order || !in_array($order->status, ['建立']))
                 @if ($receivable || in_array($order->status, ['已付款', '已入款', '結案']))
                     @if ($received_credit_card_log)
-                        <a href="{{ Route('api.web.order.credit_card_checkout', ['id' => $order->id, 'unique_id' => $order->unique_id]) }}"
+                        <a href="{{ Route('payment.credit-card-checkout', ['id' => $order->id, 'unique_id' => $order->unique_id]) }}"
                             class="btn btn-primary btn-sm my-1 ms-1" role="button" target="_blank">線上刷卡結果</a>
                     @endif
 
@@ -788,11 +788,11 @@
         <x-slot name="body">
             <div class="d-flex flex-column align-items-center">
                 @if (!$received_order && in_array($order->status, ['建立']))
-                    <a href="{{ Route('api.web.order.payment_credit_card', ['id' => $order->id, 'unique_id' => $order->unique_id]) }}"
+                    <a href="{{ Route('payment.credit-card', ['id' => $order->id, 'unique_id' => $order->unique_id]) }}"
                         class="btn btn-success btn-lg col-6 mx-auto mb-3 status_check" role="button" target="_blank">線上刷卡
                         <i class="bi bi-box-arrow-up-right"></i>
                     </a>
-                    <a href="{{ Route('api.web.order.line-pay-payment', ['source_type' => 'ord_orders', 'source_id' => $order->id, 'unique_id' => $order->unique_id]) }}"
+                    <a href="{{ Route('payment.line-pay', ['source_type' => 'ord_orders', 'source_id' => $order->id, 'unique_id' => $order->unique_id]) }}"
                         class="btn btn-success btn-lg col-6 mx-auto mb-3 status_check" role="button" target="_blank">LINE Pay
                         <i class="bi bi-box-arrow-up-right"></i>
                     </a>
