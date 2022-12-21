@@ -155,6 +155,7 @@
                         <th scope="col" class="wrap lh-sm -sm text-center">理貨倉庫存</th>
                         <th scope="col" class="wrap lh-sm text-center" style="min-width:50px">寄倉庫存</th>
                         <th scope="col" class="wrap lh-sm -sm text-center">官網可售數量</th>
+                        <th scope="col" class="wrap lh-sm -sm text-center">被組合數量</th>
                         <!--<th scope="col">預扣庫存</th>-->
                         <th scope="col" class="wrap lh-sm text-center" style="min-width:50px">安全庫存</th>
                         <th scope="col" class="text-center">公開</th>
@@ -192,6 +193,7 @@
                             <td class="text-center">{{ $data->total_in_stock_num }}</td>
                             <td class="text-center">{{ $data->total_in_stock_num_csn }}</td>
                             <td class="text-center">{{ $data->in_stock }}</td>
+                            <td class="text-center">{{ $data->combo_qty }}</td>
                             <!--
                                 <td>
                                     {{-- if (銷售控管 = 0) --}}
