@@ -19,7 +19,7 @@ class ComboPurchaseCtrl extends Controller
      */
     public function index(Request $request)
     {
-
+       
         $query = $request->query();
         $keyword = Arr::get($query, 'keyword', null);
         $data_per_page = Arr::get($query, 'data_per_page', 10);
