@@ -43,15 +43,64 @@ class ProductStyleCombo extends Model
             ->where('combo.product_style_id', $style_id)
             ->groupBy('combo.product_style_id')->get()->first();
 
-        if(!$re){
+        if (!$re) {
             return false;
         }
-        
+
         DB::table('prd_product_styles')->where('id', $style_id)->update([
             'estimated_cost' => $re->total,
         ]);
 
         return true;
+
+    }
+
+    public static function correction()
+    {
+        /*
+        $s = concatStr([
+        'qty' => 'combo.qty',
+        'in_stock' => 'style.in_stock',
+        'style_id' => 'style.id',
+        ]);
+
+        $sub = DB::table('prd_style_combos as combo')
+        ->leftJoin('prd_product_styles as style', 'combo.product_style_child_id', '=', 'style.id')
+        ->select('combo.product_style_id')
+        ->selectRaw('(' . $s . ') as element')
+        ->groupBy('combo.product_style_id');
+         */
+
+        $styles = DB::table('prd_product_styles as style')
+        //     ->leftJoinSub($sub, 'style2', 'style2.product_style_id', '=', 'style.id')
+            ->select(['style.id', 'in_stock'])
+            ->where('style.type', 'c')
+            ->where('style.in_stock', '<', 0)->get();
+
+        foreach ($styles as $value) {
+            $sub = DB::table('prd_style_combos as combo')
+                ->leftJoin('prd_product_styles as style', 'combo.product_style_child_id', '=', 'style.id')
+                ->select(['combo.qty', 'style.in_stock', 'style.id as style_id'])
+                ->where('combo.product_style_id', $value->id)->get();
+
+            //   $value->element = json_decode($value->element);
+            $value->in_stock = abs($value->in_stock);
+            $arrElemt = [];
+            foreach ($sub as $element) {
+                $arrElemt[] = floor($element->in_stock / $element->qty);
+            }
+            /*
+            print_r($value);
+            echo "<br/>";
+            print_r($arrElemt);
+             */
+            $min = min($arrElemt);
+            $s = $min > $value->in_stock ? $value->in_stock : $min;
+
+            if ($s > 0) {
+                ProductStock::comboProcess($value->id, $s, true);
+            }
+        }
 
     }
 
