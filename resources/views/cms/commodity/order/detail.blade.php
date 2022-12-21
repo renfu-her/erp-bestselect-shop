@@ -769,7 +769,7 @@
                         <div class="col-12 mb-3">
                             <label class="form-label">2. 選擇業務</label>
                             <select class="form-select" name="customer_id">
-                                <option>請選擇</option>
+                                <option value="">請選擇</option>
                             </select>
                         </div>
                     </div>
