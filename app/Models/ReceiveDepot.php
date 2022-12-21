@@ -810,11 +810,10 @@ class ReceiveDepot extends Model
      * @param $id_and_qty_list  出貨商品dlv_receive_depot.id 和數量
      * @return array|void
      */
-    public static function checkBackDlvComboItemSameCount($delivery_id, $id_and_qty_list) {
+    public static function checkBackDlvComboItemSameCount($delivery_id, $bac_papa_id, $id_and_qty_list) {
         //判斷prd_type = ce 則找到組合包 個別元素所需數量
         // 將同combo_id 的同款式加總
         // 同款式加總除上個別元素所需數量 判斷餘數為零 且各商數也相同
-
 
         if (0 < count($id_and_qty_list)) {
             //整理出貨商品對應的combo_id prd_type product_style_id
@@ -837,9 +836,9 @@ class ReceiveDepot extends Model
 
         $rcv_repot_tobackqty = null;
         if(Event::order()->value == $delivery->event || Event::consignment()->value == $delivery->event) {
-            $rcv_repot_tobackqty = ReceiveDepot::getRcvDepotToBackQty($delivery_id);
+            $rcv_repot_tobackqty = ReceiveDepot::getRcvDepotToBackQty($delivery_id, $bac_papa_id);
         } elseif (Event::csn_order()->value == $delivery->event) {
-            $rcv_repot_tobackqty = ReceiveDepot::getCsnOrderRcvDepotToBackQty($delivery_id);
+            $rcv_repot_tobackqty = ReceiveDepot::getCsnOrderRcvDepotToBackQty($delivery_id, $bac_papa_id);
         }
         //將POST上來的資料依照combo_id、product_style_id加總
         $elements = array();
@@ -978,16 +977,17 @@ class ReceiveDepot extends Model
         return $elements;
     }
 
-    public static function getCsnOrderRcvDepotToBackQty($delivery_id) {
+    public static function getCsnOrderRcvDepotToBackQty($delivery_id, $bac_papa_id) {
         //找一般商品欲退貨入庫資料
         $rcv_repot_p = DB::table(app(ReceiveDepot::class)->getTable(). ' as rcv_depot')
             ->where('rcv_depot.delivery_id', $delivery_id)
 //            ->where('rcv_depot.prd_type', '=', 'p')
             ->whereNull('rcv_depot.combo_id')
             ->whereNull('rcv_depot.deleted_at')
-            ->leftJoin(app(DlvBack::class)->getTable(). ' as back', function ($join) use($delivery_id) {
+            ->leftJoin(app(DlvBack::class)->getTable(). ' as back', function ($join) use($delivery_id, $bac_papa_id) {
                 $join->on('back.product_style_id', '=', 'rcv_depot.product_style_id')
                     ->where('back.delivery_id', '=', $delivery_id)
+                    ->where('back.bac_papa_id', '=', $bac_papa_id)
                     ->where('back.type', DlvBackType::product()->value);
             })
             ->select(
@@ -1005,25 +1005,28 @@ class ReceiveDepot extends Model
     }
 
     //找欲退貨數量
-    public static function getRcvDepotToBackQty($delivery_id) {
+    public static function getRcvDepotToBackQty($delivery_id, $bac_papa_id) {
         //找一般商品欲退貨入庫資料
         $rcv_repot_p = DB::table(app(ReceiveDepot::class)->getTable(). ' as rcv_depot')
             ->where('rcv_depot.delivery_id', $delivery_id)
             ->where('rcv_depot.prd_type', '=', 'p')
             ->whereNull('rcv_depot.combo_id')
             ->whereNull('rcv_depot.deleted_at')
-            ->leftJoin(app(DlvBack::class)->getTable(). ' as back', function ($join) use($delivery_id) {
+            ->leftJoin(app(DlvBack::class)->getTable(). ' as back', function ($join) use($delivery_id, $bac_papa_id) {
                 $join->on('back.product_style_id', '=', 'rcv_depot.product_style_id')
                     ->where('back.delivery_id', '=', $delivery_id)
+                    ->where('back.bac_papa_id', '=', $bac_papa_id)
                     ->where('back.type', DlvBackType::product()->value);
             })
+            ->groupBy('rcv_depot.product_style_id')
+            ->groupBy('rcv_depot.event_item_id')
             ->select(
                 'rcv_depot.event_item_id'
                 , 'rcv_depot.id'
                 , 'rcv_depot.delivery_id'
                 , 'rcv_depot.product_style_id'
                 , 'rcv_depot.product_style_id as product_style_child_id'
-                , DB::raw('rcv_depot.qty as qty') //出貨數量
+                , DB::raw('sum(rcv_depot.qty) as qty') //出貨數量
                 , DB::raw('1 as unit_qty') //單位數量
                 , 'back.qty as to_back_qty' //欲退數量
             );
@@ -1036,11 +1039,15 @@ class ReceiveDepot extends Model
             ->leftJoin(app(ProductStyleCombo::class)->getTable(). ' as style_combo', function ($join) {
                 $join->on('style_combo.product_style_id', '=', 'rcv_depot.product_style_id');
             })
-            ->leftJoin(app(DlvBack::class)->getTable(). ' as back', function ($join) use($delivery_id) {
+            ->leftJoin(app(DlvBack::class)->getTable(). ' as back', function ($join) use($delivery_id, $bac_papa_id) {
                 $join->on('back.product_style_id', '=', 'rcv_depot.product_style_id')
                     ->where('back.delivery_id', '=', $delivery_id)
+                    ->where('back.bac_papa_id', '=', $bac_papa_id)
                     ->where('back.type', DlvBackType::product()->value);
             })
+            ->groupBy('style_combo.product_style_id')
+            ->groupBy('style_combo.product_style_child_id')
+            ->groupBy('rcv_depot.event_item_id')
             ->select(
                 'rcv_depot.event_item_id'
                 , 'rcv_depot.id'
@@ -1049,24 +1056,24 @@ class ReceiveDepot extends Model
                 , 'style_combo.product_style_child_id'
                 , DB::raw('rcv_depot.qty as qty') //出貨數量
                 , DB::raw('style_combo.qty as unit_qty') //單位數量
-                , 'back.qty as to_back_qty' //欲退數量
+                , DB::raw('sum(back.qty) as to_back_qty') //欲退數量
             );
         $rcv_repot_combo = $rcv_repot_combo->union($rcv_repot_p)->get();
         return $rcv_repot_combo;
     }
 
     //找已退貨數量
-    public static function getRcvDepotBackQty($delivery_id, $event, $event_id) {
+    public static function getRcvDepotBackQty($delivery_id, $bac_papa_id, $event, $event_id) {
         $ord_items_arr = null;
         $rcv_repot_combo = null;
         if(Event::order()->value == $event) {
-            $rcv_repot_combo = ReceiveDepot::getRcvDepotToBackQty($delivery_id);
+            $rcv_repot_combo = ReceiveDepot::getRcvDepotToBackQty($delivery_id, $bac_papa_id);
             $ord_items_arr = ReceiveDepot::getOrderShipItemWithDeliveryWithReceiveDepotList($event, $event_id, $delivery_id);
         } else if(Event::consignment()->value == $event) {
-            $rcv_repot_combo = ReceiveDepot::getRcvDepotToBackQty($delivery_id);
+            $rcv_repot_combo = ReceiveDepot::getRcvDepotToBackQty($delivery_id, $bac_papa_id);
             $ord_items_arr = ReceiveDepot::getCSNShipItemWithDeliveryWithReceiveDepotList($event, $event_id, $delivery_id);
         } else if(Event::csn_order()->value == $event) {
-            $rcv_repot_combo = ReceiveDepot::getCsnOrderRcvDepotToBackQty($delivery_id);
+            $rcv_repot_combo = ReceiveDepot::getCsnOrderRcvDepotToBackQty($delivery_id, $bac_papa_id);
             $ord_items_arr = ReceiveDepot::getCSNOrderShipItemWithDeliveryWithReceiveDepotList($event, $event_id, $delivery_id);
         }
         if (isset($ord_items_arr) && 0 < count($ord_items_arr) && isset($rcv_repot_combo) && 0 < count($rcv_repot_combo)) {

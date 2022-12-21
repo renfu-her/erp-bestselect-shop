@@ -1241,7 +1241,7 @@ class DeliveryCtrl extends Controller
             )
             ->where('lgt_tb.delivery_id', '=', $delivery->id)
             ->first();
-        $ord_items_arr = ReceiveDepot::getRcvDepotBackQty($delivery->id, $delivery->event, $delivery->event_id);
+        $ord_items_arr = ReceiveDepot::getRcvDepotBackQty($delivery->id, $bac_papa_id, $delivery->event, $delivery->event_id);
 
         if (isset($ord_items_arr) && 0 < count($ord_items_arr)) {
             $sendBackData = PurchaseLog::getSendBackData($delivery->id, $delivery->event_id);
@@ -1321,7 +1321,7 @@ class DeliveryCtrl extends Controller
             $csn_order = CsnOrder::where('id', $delivery->event_id)->get()->first();
             $rsp_arr['depot_id'] = $csn_order->depot_id;
         }
-        $ord_items_arr = ReceiveDepot::getRcvDepotBackQty($delivery->id, $delivery->event, $delivery->event_id);
+        $ord_items_arr = ReceiveDepot::getRcvDepotBackQty($delivery->id, $bac_papa_id, $delivery->event, $delivery->event_id);
 
         $rsp_arr['event'] = $delivery->event;
         $rsp_arr['delivery'] = $delivery;
@@ -1356,7 +1356,7 @@ class DeliveryCtrl extends Controller
         }
 
         //判斷OK後 回寫入各出貨商品的product_style_id prd_type combo_id
-        $bdcisc = ReceiveDepot::checkBackDlvComboItemSameCount($delivery->id, $items_to_back);
+        $bdcisc = ReceiveDepot::checkBackDlvComboItemSameCount($delivery->id, $bac_papa_id, $items_to_back);
         dd($request->all(), $bdcisc);
         if ($bdcisc['success'] == '1') {
             $msg = IttmsDBB::transaction(function () use ($bac_papa_id, $delivery, $bdcisc, $request) {
