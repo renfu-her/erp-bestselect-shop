@@ -29,7 +29,9 @@
 
     <div class="card shadow p-4 mb-4">
         <div class="row justify-content-end mb-4">
+          
             <div class="col-auto">
+                <a href="{{ route('cms.combo-purchase.correction') }}" class="btn btn-primary px-4">校正回歸</a>
                 顯示
                 <select class="form-select d-inline-block w-auto" id="dataPerPageElem" aria-label="表格顯示筆數">
                     @foreach (config('global.dataPerPage') as $value)

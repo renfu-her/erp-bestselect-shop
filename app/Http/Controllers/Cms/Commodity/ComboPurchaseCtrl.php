@@ -136,4 +136,15 @@ class ComboPurchaseCtrl extends Controller
     {
         //
     }
+
+    public static function correction(){
+        //dd('aa');
+
+        ProductStyleCombo::correction();
+        // dd('vv');
+        wToast('校正回歸完成');
+
+        return redirect()->back();
+    }
+
 }
