@@ -64,7 +64,7 @@ class BannerCtrl extends Controller
             'collectionList' => Collection::all(),
             'productList' => $productList->get(),
             'formAction' => Route('cms.homepage.banner.edit', ['id' => $id]),
-            'breadcrumb_data' => $id,
+            'breadcrumb_data' => $data->title,
         ]);
     }
 

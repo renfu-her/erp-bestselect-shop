@@ -46,10 +46,10 @@
                 <thead>
                     <tr>
                         <th scope="col" style="width:10%">#</th>
-                        <th scope="col">【組合包】款式名稱</th>
+                        <th scope="col">組合包名稱</th>
                         <th scope="col">SKU</th>
-                        <th scope="col">庫存(包含超賣)</th>
-                        <th scope="col">當前庫存</th>
+                        <th scope="col" class="text-center">庫存(包含超賣)</th>
+                        <th scope="col" class="text-center">當前庫存</th>
                         <th scope="col" class="text-center">組裝/拆包</th>
                     </tr>
                 </thead>
@@ -57,10 +57,15 @@
                     @foreach ($dataList as $key => $data)
                         <tr>
                             <th scope="row">{{ $key + 1 }}</th>
-                            <td class="wrap">【{{ $data->product_title }}】{{ $data->spec }}</td>
+                            <td class="wrap">
+                                <div>{{ $data->product_title }}</div>
+                                <div class="lh-1 small"><span class="badge bg-secondary">{{ $data->spec }}</span></div>
+                            </td>
                             <td>{{ $data->sku }}</td>
-                            <td>{{ $data->in_stock }}</td>
-                            <td>{{ $data->current_stock }}</td>
+                            <td class="text-center">{{ $data->in_stock }}</td>
+                            <td @class(['text-center', 
+                                'fw-bold text-danger' => $data->current_stock < 0])
+                            >{{ $data->current_stock }}</td>
                             <td class="text-center">
                                 @can('cms.combo-purchase.edit')
                                     <a type="button" data-bs-toggle="tooltip" title="組裝/拆包"

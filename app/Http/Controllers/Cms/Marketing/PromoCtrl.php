@@ -170,7 +170,7 @@ class PromoCtrl extends Controller
 
         return view('cms.marketing.promo.edit', [
             'method' => 'edit',
-            'breadcrumb_data' => '優惠券',
+            'breadcrumb_data' => $data->title,
             'type' => 'coupon/code',
             'data' => $data,
             'dis_methods' => DisMethod::getValueWithDesc(['cash', 'percent']),

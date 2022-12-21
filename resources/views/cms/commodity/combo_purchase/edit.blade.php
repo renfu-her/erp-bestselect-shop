@@ -1,6 +1,8 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h2 class="mb-4">【{{ $product->title }}】{{ $style->title }}</h2>
+    <h2 class="mb-4">{{ $product->title }}
+        <span class="small"><span class="badge bg-secondary">{{ $style->title }}</span></span>
+    </h2>
     <form action="{{ Route('cms.combo-purchase.edit', ['id' => $style->id], true) }}" method="POST">
         @csrf
         <div class="card shadow p-4 mb-4">
