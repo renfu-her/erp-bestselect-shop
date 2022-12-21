@@ -578,15 +578,15 @@ class OrderCtrl extends Controller
         $invoice = OrderInvoice::where([
             'source_type' => $source_type,
             'source_id' => $id,
-            ])->first();
+        ])->first();
         $relation_invoice = null;
-        if($invoice && $invoice->invoice_id){
+        if ($invoice && $invoice->invoice_id) {
             $relation_invoice = OrderInvoice::find($invoice->invoice_id);
             $r_order = Order::find($relation_invoice->source_id);
             $relation_invoice->link = route('cms.order.show-invoice', [
-                'id'=>$relation_invoice->source_id,
-                'unique_id'=>$r_order->unique_id,
-                'previous'=>1,
+                'id' => $relation_invoice->source_id,
+                'unique_id' => $r_order->unique_id,
+                'previous' => 1,
             ]);
         }
 
@@ -847,7 +847,7 @@ class OrderCtrl extends Controller
         $received_data = ReceivedOrder::get_received_detail($received_order_data->pluck('id')->toArray());
 
         $tw_price = $order_data->total_price;
-        if($received_order_data->count() > 0){
+        if ($received_order_data->count() > 0) {
             $tw_price = $received_order_data->sum('price') - $received_data->sum('tw_price');
         }
 
@@ -2400,9 +2400,9 @@ class OrderCtrl extends Controller
         $handler = User::find($invoice->user_id);
 
         $order = Order::where([
-                'id' => $id,
-                'unique_id' => $unique_id,
-            ])->firstOrFail();
+            'id' => $id,
+            'unique_id' => $unique_id,
+        ])->firstOrFail();
         // $sub_order = Order::subOrderDetail($id)->get();
         // foreach ($sub_order as $key => $value) {
         //     $sub_order[$key]->items = json_decode($value->items);
@@ -2415,18 +2415,18 @@ class OrderCtrl extends Controller
         $current_date = date('Y-m-d', time());
 
         $check_invoice_invalid = true;
-        if($current_date > $inv_invalid_date){
+        if ($current_date > $inv_invalid_date) {
             $check_invoice_invalid = false;
         }
 
         $inv_allowance_collection = OrderInvoiceAllowance::where('invoice_id', $invoice->id);
-        if($invoice->category == 'B2B'){
-            if($inv_allowance_collection->withTrashed()->count() > 0) {
+        if ($invoice->category == 'B2B') {
+            if ($inv_allowance_collection->withTrashed()->count() > 0) {
                 $check_invoice_invalid = false;
             }
 
         } else {
-            if($inv_allowance_collection->count() > 0) {
+            if ($inv_allowance_collection->count() > 0) {
                 $check_invoice_invalid = false;
             }
         }
@@ -2434,11 +2434,11 @@ class OrderCtrl extends Controller
         $view = 'cms.commodity.order.invoice_detail';
         if (request('action') == 'print_inv_a4') {
             $view = 'doc.print_order_invoice_a4';
-        } else if(request('action') == 'print_inv_B2B') {
+        } else if (request('action') == 'print_inv_B2B') {
             $view = 'doc.print_order_invoice_B2B';
         }
         // print supplementary info
-        if($invoice->merchant_id == '316943976'){
+        if ($invoice->merchant_id == '316943976') {
             $invoice->seller_title = '喜鴻國際企業股份有限公司';
             $invoice->seller_ubn = '23124926';
             $invoice->seller_address = '台北市中山區松江路148號6樓之2';
@@ -2454,7 +2454,7 @@ class OrderCtrl extends Controller
         $inv_allowance = OrderInvoiceAllowance::where('invoice_id', $invoice->id)->orderBy('id', 'desc')->withTrashed()->get();
         $inv_allowance_total_amt_sum = OrderInvoiceAllowance::where('invoice_id', $invoice->id)->get()->sum('total_amt');
         $check_inv_allowance = true;
-        if($invoice->total_amt <= $inv_allowance_total_amt_sum){
+        if ($invoice->total_amt <= $inv_allowance_total_amt_sum) {
             $check_inv_allowance = false;
         }
 
@@ -2574,7 +2574,7 @@ class OrderCtrl extends Controller
     {
         $invoice = OrderInvoice::findOrFail($id);
         $inv_remain = $invoice->total_amt - OrderInvoiceAllowance::where('invoice_id', $id)->sum('total_amt');
-        if($inv_remain < 0){
+        if ($inv_remain < 0) {
             return abort(404);
         }
 
@@ -2673,7 +2673,7 @@ class OrderCtrl extends Controller
 
         $inv_result = null;
 
-        if($action == 'issue'){
+        if ($action == 'issue') {
             $inv_result = OrderInvoice::invoice_issue_api($id);
 
             if ($inv_result->source_type == app(Order::class)->getTable() && $inv_result->r_status == 'SUCCESS') {
@@ -2686,7 +2686,7 @@ class OrderCtrl extends Controller
 
             wToast(__($inv_result->r_msg));
 
-        } else if($action == 'invalid'){
+        } else if ($action == 'invalid') {
             $request->merge([
                 'invalid_reason' => request('invalid_reason'),
             ]);
@@ -2710,13 +2710,13 @@ class OrderCtrl extends Controller
                 'id' => $inv_result->source_id,
             ]);
 
-        } else if($action == 'allowance_issue'){
+        } else if ($action == 'allowance_issue') {
             // $invoice = OrderInvoice::findOrFail($id);
             $inv_result = OrderInvoice::allowance_issue_api($allowance_id);
 
             wToast(__($inv_result->r_msg));
 
-        } else if($action == 'allowanceInvalid'){
+        } else if ($action == 'allowanceInvalid') {
             $request->merge([
                 'invalid_reason' => request('invalid_reason'),
             ]);
@@ -2730,7 +2730,7 @@ class OrderCtrl extends Controller
             wToast(__($inv_result->r_invalid_msg));
         }
 
-        if(! $inv_result){
+        if (!$inv_result) {
             wToast(__('網路異常，請稍後重新嘗試', ['type' => 'danger']));
         }
 
@@ -2887,13 +2887,13 @@ class OrderCtrl extends Controller
     public function change_bonus_owner(Request $request, $id)
     {
 
-        $request->validate([
-            'customer_id' => 'required',
-        ]);
-
         $customer_id = $request->input('customer_id');
-
-        OrderProfit::changeOwner($id, $customer_id, $request->user()->id);
+        
+        if ($customer_id) {
+            OrderProfit::changeOwner($id, $customer_id, $request->user()->id);
+        } else {
+            Order::where('id', $id)->update(['mcode' => null]);
+        }
 
         return redirect()->back();
     }
@@ -2904,11 +2904,10 @@ class OrderCtrl extends Controller
 
         $reOCO = Order::cancelOrder($id, 'backend');
         if ($reOCO['success'] == 0) {
-            wToast($reOCO['error_msg'], ['type'=>'danger']);
+            wToast($reOCO['error_msg'], ['type' => 'danger']);
         } else {
             wToast('訂單已經取消');
         }
-
 
         return redirect()->back();
     }
