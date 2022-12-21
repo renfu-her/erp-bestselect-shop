@@ -43,29 +43,20 @@
 
         <div class="table-responsive tableOverBox">
             <table class="table table-striped tableList">
-                <thead>
+                <thead class="align-middle">
                     <tr>
-                        <th scope="col" style="width:10%">#</th>
+                        <th scope="col" style="width:40px">#</th>
+                        <th scope="col" class="text-center small lh-1">組裝<br>拆包</th>
                         <th scope="col">組合包名稱</th>
                         <th scope="col">SKU</th>
-                        <th scope="col" class="text-center">庫存(包含超賣)</th>
-                        <th scope="col" class="text-center">當前庫存</th>
-                        <th scope="col" class="text-center">組裝/拆包</th>
+                        <th scope="col" class="text-center wrap small lh-1">庫存 (包含超賣)</th>
+                        <th scope="col" class="text-center wrap small lh-1">當前庫存</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($dataList as $key => $data)
                         <tr>
                             <th scope="row">{{ $key + 1 }}</th>
-                            <td class="wrap">
-                                <div>{{ $data->product_title }}</div>
-                                <div class="lh-1 small"><span class="badge bg-secondary">{{ $data->spec }}</span></div>
-                            </td>
-                            <td>{{ $data->sku }}</td>
-                            <td class="text-center">{{ $data->in_stock }}</td>
-                            <td @class(['text-center', 
-                                'fw-bold text-danger' => $data->current_stock < 0])
-                            >{{ $data->current_stock }}</td>
                             <td class="text-center">
                                 @can('cms.combo-purchase.edit')
                                     <a type="button" data-bs-toggle="tooltip" title="組裝/拆包"
@@ -75,6 +66,19 @@
                                     </a>
                                 @endcan
                             </td>
+                            <td class="wrap">
+                                <div>{{ $data->product_title }}</div>
+                                <div class="lh-1 small">
+                                    <span class="badge bg-secondary text-start text-wrap">{{ $data->spec }}</span>
+                                </div>
+                            </td>
+                            <td>{{ $data->sku }}</td>
+                            <td @class(['text-center', 
+                                'fw-bold text-danger' => $data->in_stock < 0])
+                            >{{ $data->in_stock }}</td>
+                            <td @class(['text-center', 
+                                'fw-bold text-danger' => $data->current_stock < 0])
+                            >{{ $data->current_stock }}</td>
                         </tr>
                     @endforeach
                 </tbody>
