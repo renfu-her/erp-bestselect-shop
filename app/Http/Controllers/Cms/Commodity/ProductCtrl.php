@@ -619,6 +619,13 @@ class ProductCtrl extends Controller
         return redirect()->back();
     }
 
+    public function batchProductStylePrice(Request $request, $id, $sid)
+    {
+        SaleChannel::batchProductStylePrice($sid);
+        wToast('修改完成');
+        return redirect()->back();
+    }
+
     private static function _getStyleTitle($style)
     {
         if ($style->type == 'p') {
