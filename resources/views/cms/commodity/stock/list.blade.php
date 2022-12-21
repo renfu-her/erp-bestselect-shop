@@ -35,10 +35,11 @@
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">倉庫</label>
-                    <select class="form-select -select2  -multiple" multiple name="depot_id[]" aria-label="倉庫" data-placeholder="請選擇倉庫">
+                    <select class="form-select -select2  -multiple" multiple name="depot_id[]" aria-label="倉庫"
+                        data-placeholder="請選擇倉庫">
                         @foreach ($depotList as $key => $data)
-                            <option value="{{ $data->id }}"
-                                    @if (in_array($data->id, $searchParam['depot_id'])) selected @endif >{{ $data->name }}</option>
+                            <option value="{{ $data->id }}" @if (in_array($data->id, $searchParam['depot_id'])) selected @endif>
+                                {{ $data->name }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -63,7 +64,7 @@
                             <div class="form-check form-check-inline">
                                 <label class="form-check-label">
                                     <input class="form-check-input" name="consume" type="radio"
-                                           value="{{ $consume[0] }}" @if ($consume[0] == $searchParam['consume']) checked @endif>
+                                        value="{{ $consume[0] }}" @if ($consume[0] == $searchParam['consume']) checked @endif>
                                     {{ $consume[1] }}
                                 </label>
                             </div>
@@ -91,7 +92,7 @@
                             <div class="form-check form-check-inline">
                                 <label class="form-check-label">
                                     <input class="form-check-input" name="public" type="radio"
-                                           value="{{ $public[0] }}" @if ($public[0] == ($searchParam['public']?? 'all')) checked @endif>
+                                        value="{{ $public[0] }}" @if ($public[0] == ($searchParam['public'] ?? 'all')) checked @endif>
                                     {{ $public[1] }}
                                 </label>
                             </div>
@@ -102,13 +103,16 @@
 
             <div class="col">
                 <input type="hidden" name="data_per_page" value="{{ $searchParam['data_per_page'] }}" />
-                <button type="submit" class="btn btn-primary px-4 mb-1" onclick="submitAction('{{ Route('cms.stock.index') }}', 'GET')">搜尋</button>
+                <button type="submit" class="btn btn-primary px-4 mb-1"
+                    onclick="submitAction('{{ Route('cms.stock.index') }}', 'GET')">搜尋</button>
 
                 @can('cms.stock.export-detail')
-                    <button type="button" class="btn btn-outline-success mb-1" onclick="submitAction('{{ Route('cms.stock.export-detail') }}', 'POST')">匯出庫存明細EXCEL</button>
+                    <button type="button" class="btn btn-outline-success mb-1"
+                        onclick="submitAction('{{ Route('cms.stock.export-detail') }}', 'POST')">匯出庫存明細EXCEL</button>
                 @endcan
                 @can('cms.stock.export-check')
-                    <button type="button" class="btn btn-outline-success mb-1" onclick="submitAction('{{ Route('cms.stock.export-check') }}', 'POST')">匯出盤點明細EXCEL</button>
+                    <button type="button" class="btn btn-outline-success mb-1"
+                        onclick="submitAction('{{ Route('cms.stock.export-check') }}', 'POST')">匯出盤點明細EXCEL</button>
                 @endcan
 
                 <div class="mt-1">
@@ -124,8 +128,8 @@
         <div class="row justify-content-end mb-4">
             <div class="col-auto">
                 <div class="btn-group">
-                    <button class="btn btn-outline-secondary dropdown-toggle" type="button"
-                        data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                        data-bs-auto-close="outside" aria-expanded="false">
                         顯示欄位
                     </button>
                     <ul id="selectField" class="dropdown-menu">
@@ -154,7 +158,7 @@
                         <th scope="col">倉庫名稱</th>
                         <th scope="col" class="wrap lh-sm -sm text-center">理貨倉庫存</th>
                         <th scope="col" class="wrap lh-sm text-center" style="min-width:50px">寄倉庫存</th>
-                        <th scope="col" class="wrap lh-sm -sm text-center">官網可售數量</th>
+                        <th scope="col" class="wrap lh-sm -sm text-center">官網可售數量(超賣)</th>
                         <th scope="col" class="wrap lh-sm -sm text-center">被組合數量</th>
                         <!--<th scope="col">預扣庫存</th>-->
                         <th scope="col" class="wrap lh-sm text-center" style="min-width:50px">安全庫存</th>
@@ -168,39 +172,42 @@
                         <tr>
                             <th scope="row">{{ $key + 1 }}</th>
                             <td class="text-center">
-                                @if(isset($data->depot_id) && isset($data->id))
-                                <a href="{{ Route('cms.stock.stock_detail_log', ['depot_id' => $data->depot_id ?? -1, 'id' => $data->id], true) }}"
-                                   data-bs-toggle="tooltip" title="明細"
-                                   class="icon icon-btn fs-5 text-primary rounded-circle border-0">
-                                    <i class="bi bi-card-list"></i>
-                                </a>
+                                @if (isset($data->depot_id) && isset($data->id))
+                                    <a href="{{ Route('cms.stock.stock_detail_log', ['depot_id' => $data->depot_id ?? -1, 'id' => $data->id], true) }}"
+                                        data-bs-toggle="tooltip" title="明細"
+                                        class="icon icon-btn fs-5 text-primary rounded-circle border-0">
+                                        <i class="bi bi-card-list"></i>
+                                    </a>
                                 @endif
                             </td>
                             <td class="wrap">
                                 <div class="lh-1 small text-nowrap">
-                                    <span @class(['badge rounded-pill me-2',
-                                        'bg-warning text-dark' => $data->type_title === '組合包商品',
-                                        'bg-success' => $data->type_title === '一般商品'])
-                                    >{{ $data->type_title === '組合包商品' ? '組合包' : '一般' }}</span>
+                                    <span
+                                        @class([
+                                            'badge rounded-pill me-2',
+                                            'bg-warning text-dark' => $data->type_title === '組合包商品',
+                                            'bg-success' => $data->type_title === '一般商品',
+                                        ])>{{ $data->type_title === '組合包商品' ? '組合包' : '一般' }}</span>
                                     <span class="text-secondary">{{ $data->sku }}</span>
                                 </div>
                                 <div class="lh-lg">
-                                    <a href="{{ Route('cms.product.edit', ['id' => $data->product_id], true) }}">{{ $data->product_title }}</a>
+                                    <a
+                                        href="{{ Route('cms.product.edit', ['id' => $data->product_id], true) }}">{{ $data->product_title }}</a>
                                 </div>
                                 <div class="lh-1 small"><span class="badge bg-secondary">{{ $data->spec }}</span></div>
                             </td>
                             <td class="wrap -md">{{ $data->depot_name }}</td>
                             <td class="text-center">{{ $data->total_in_stock_num }}</td>
                             <td class="text-center">{{ $data->total_in_stock_num_csn }}</td>
-                            <td class="text-center">{{ $data->in_stock }}</td>
+                            <td class="text-center">{{ $data->in_stock }}({{ $data->overbought }})</td>
                             <td class="text-center">{{ $data->combo_qty }}</td>
                             <!--
-                                <td>
-                                    {{-- if (銷售控管 = 0) --}}
-                                    <a
-                                        href="{{ Route('cms.product.edit-stock', ['id' => $data->product_id, 'sid' => $data->id]) }}"></a>
-                                </td>
-                            -->
+                                    <td>
+                                        {{-- if (銷售控管 = 0) --}}
+                                        <a
+                                            href="{{ Route('cms.product.edit-stock', ['id' => $data->product_id, 'sid' => $data->id]) }}"></a>
+                                    </td>
+                                -->
                             <td class="text-center">
                                 <div class="lh-base">{{ $data->safety_stock }}</div>
                                 @if ($data->in_stock <= $data->safety_stock)
@@ -254,11 +261,12 @@
             } catch (error) {}
             const Key = location.pathname;
 
-            setPrintTrCheckbox($('table.tableList'), $('#selectField'),
-                { type: 'dropdown', defaultHide: DefHide[Key] || [] }
-            );
+            setPrintTrCheckbox($('table.tableList'), $('#selectField'), {
+                type: 'dropdown',
+                defaultHide: DefHide[Key] || []
+            });
             // 紀錄選項
-            $('#selectField').parent().on('hidden.bs.dropdown', function () {
+            $('#selectField').parent().on('hidden.bs.dropdown', function() {
                 let temp = [];
                 $('#selectField input[type="checkbox"][data-nth]').each((i, elem) => {
                     if (!$(elem).prop('checked')) {
@@ -271,8 +279,7 @@
                 }));
             });
 
-            function submitAction(route, method)
-            {
+            function submitAction(route, method) {
                 console.log(route, method);
                 document.getElementById("search").action = route;
                 document.getElementById("search").setAttribute("method", method);
