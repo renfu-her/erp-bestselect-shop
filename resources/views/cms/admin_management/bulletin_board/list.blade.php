@@ -1,3 +1,4 @@
+@php use Illuminate\Support\Facades\Auth; @endphp
 @extends('layouts.main')
 @section('sub-content')
     <h2 class="mb-4">公佈欄</h2>
@@ -82,7 +83,9 @@
                         </td>
                         <td>{{ $data->user_name }}</td>
                             <td class="text-center">
-                                @if(\Illuminate\Support\Facades\Auth::user()->id === $data->user_id)
+                                @if(Auth::user()->id === $data->user_id ||
+                                    Auth::user()->hasrole('Super Admin')
+                                )
                                     <a href="{{ Route('cms.bulletin_board.edit', ['id' => $data->id], true) }}"
                                        data-bs-toggle="tooltip" title="編輯"
                                        class="icon icon-btn fs-5 text-primary rounded-circle border-0">
@@ -91,7 +94,9 @@
                                 @endif
                             </td>
                             <td class="text-center">
-                                @if(\Illuminate\Support\Facades\Auth::user()->id === $data->user_id)
+                                @if(Auth::user()->id === $data->user_id ||
+                                    Auth::user()->hasrole('Super Admin')
+                                )
                                     <a href="javascript:void(0)"
                                        data-href="{{ Route('cms.bulletin_board.delete', ['id' => $data->id], true) }}"
                                        data-bs-toggle="modal" data-bs-target="#confirm-delete"
