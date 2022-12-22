@@ -467,7 +467,7 @@ class PayingOrder extends Model
                         "num":"\', dlv_back.qty, \'",
                         "summary":"\', COALESCE(dlv_back.memo, ""), \'",
                         "memo":"\', COALESCE(dlv_back.memo, ""), \'",
-                        "po_note":"\', COALESCE(o_items.po_note, ""), \'"
+                        "po_note":"\', COALESCE(dlv_back.po_note, ""), \'"
                     }\' ORDER BY dlv_back.id), \']\') AS items
                 FROM dlv_back
                 LEFT JOIN (' . $sq . ') AS grade ON grade.id = dlv_back.grade_id
@@ -605,7 +605,8 @@ class PayingOrder extends Model
                         "price":"\', dlv_out_stock.price * dlv_out_stock.qty, \'",
                         "num":"\', dlv_out_stock.qty, \'",
                         "summary":"\', COALESCE(dlv_out_stock.memo, ""), \'",
-                        "memo":"\', COALESCE(dlv_out_stock.memo, ""), \'"
+                        "memo":"\', COALESCE(dlv_out_stock.memo, ""), \'",
+                        "po_note":"\', COALESCE(dlv_out_stock.po_note, ""), \'"
                     }\' ORDER BY dlv_out_stock.id), \']\') AS items
                 FROM dlv_out_stock
                 LEFT JOIN (' . $sq . ') AS grade ON grade.id = dlv_out_stock.grade_id
