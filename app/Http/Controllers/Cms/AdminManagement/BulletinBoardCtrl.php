@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
@@ -177,7 +178,10 @@ class BulletinBoardCtrl extends Controller
             ->get()
             ->first();
 
-        if ($data->user_id !== $request->user()->id) {
+        if (
+            ($data->user_id !== $request->user()->id) &&
+            (!Auth::user()->hasrole('Super Admin'))
+        ) {
             return;
         }
 
