@@ -272,8 +272,9 @@ class CustomerCtrl extends Controller
      */
     public function order(Request $request, $id)
     {
-        $email = Customer::where('id', '=', $id)->select('email')->get()->first()->email;
-        $dataList = Order::orderListSimple($email)->addSelect([
+        $customer = Customer::where('id', '=', $id)->select('email', 'sn')->get()->first();
+
+        $dataList = Order::orderListSimple($customer->email, $customer->sn)->addSelect([
             'ord_address.phone as ord_phone',
         ])->paginate(50);
 
