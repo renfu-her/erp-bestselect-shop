@@ -617,7 +617,7 @@ class ReceiveDepot extends Model
     }
 
     //取得出貨列表
-    public static function getDeliveryWithReceiveDepotList($event = null, $event_id = null, $delivery_id = null, $product_style_id = null)
+    public static function getDeliveryWithReceiveDepotList($event = null, $event_id = null, $delivery_id = null, $bac_papa_id = null, $product_style_id = null)
     {
         $result = DB::table('dlv_delivery as delivery')
             ->leftJoin('dlv_receive_depot as rcv_depot', 'rcv_depot.delivery_id', '=', 'delivery.id')
@@ -655,6 +655,15 @@ class ReceiveDepot extends Model
         if (null != $delivery_id) {
             $result->where('rcv_depot.delivery_id', $delivery_id);
         }
+        if (null != $bac_papa_id) {
+            $result->leftJoin(app(DlvElementBack::class)->getTable(). ' as elebac', function ($join) use($bac_papa_id) {
+                $join->on('elebac.rcv_depot_id', '=', 'rcv_depot.id')
+                    ->where('elebac.bac_papa_id', $bac_papa_id);;
+            });
+            $result->addSelect(
+                'elebac.qty as elebac_qty'
+                , 'elebac.memo as elebac_memo');
+        }
         if (null != $product_style_id) {
             $result->where('rcv_depot.product_style_id', $product_style_id);
         }
@@ -664,15 +673,15 @@ class ReceiveDepot extends Model
     }
 
     //取得子訂單商品列表 與對應的出貨列表
-    public static function getOrderShipItemWithDeliveryWithReceiveDepotList($event, $sub_order_id, $delivery_id, $product_style_id = null) {
+    public static function getOrderShipItemWithDeliveryWithReceiveDepotList($event, $sub_order_id, $delivery_id, $bac_papa_id = null, $product_style_id = null) {
         // 子訂單的商品列表
         $ord_items = OrderItem::getShipItem($sub_order_id)->get();
         // 對應的出貨資料
-        $ord_items_arr = ReceiveDepot::getReceiveDepotParseData($event, $sub_order_id, $delivery_id, $product_style_id, $ord_items);
+        $ord_items_arr = ReceiveDepot::getReceiveDepotParseData($event, $sub_order_id, $delivery_id, $bac_papa_id, $product_style_id, $ord_items);
         return $ord_items_arr;
     }
 
-    public static function getCSNShipItemWithDeliveryWithReceiveDepotList($event, $consignment_id, $delivery_id, $product_style_id = null) {
+    public static function getCSNShipItemWithDeliveryWithReceiveDepotList($event, $consignment_id, $delivery_id, $bac_papa_id = null, $product_style_id = null) {
         $query_combo = DB::table('prd_style_combos')
             ->leftJoin('prd_product_styles', 'prd_product_styles.id', '=', 'prd_style_combos.product_style_child_id')
             ->select('prd_style_combos.product_style_id'
@@ -744,11 +753,11 @@ class ReceiveDepot extends Model
         $query_ship_overview = $csn_items->union($query_ship_combo);
 
         // 對應的出貨資料
-        $ord_items_arr = ReceiveDepot::getReceiveDepotParseData($event, $consignment_id, $delivery_id, $product_style_id, $query_ship_overview->get());
+        $ord_items_arr = ReceiveDepot::getReceiveDepotParseData($event, $consignment_id, $delivery_id, $bac_papa_id, $product_style_id, $query_ship_overview->get());
         return $ord_items_arr;
     }
 
-    public static function getCSNOrderShipItemWithDeliveryWithReceiveDepotList($event, $csn_order_id, $delivery_id, $product_style_id = null) {
+    public static function getCSNOrderShipItemWithDeliveryWithReceiveDepotList($event, $csn_order_id, $delivery_id, $bac_papa_id = null, $product_style_id = null) {
         // 子訂單的商品列表
         $query_ship = DB::table('csn_order_items as items')
             ->leftJoin('prd_product_styles', 'prd_product_styles.id', '=', 'items.product_style_id')
@@ -774,14 +783,14 @@ class ReceiveDepot extends Model
         ;
 
         // 對應的出貨資料
-        $ord_items_arr = ReceiveDepot::getReceiveDepotParseData($event, $csn_order_id, $delivery_id, $product_style_id, $query_ship->get());
+        $ord_items_arr = ReceiveDepot::getReceiveDepotParseData($event, $csn_order_id, $delivery_id, $bac_papa_id, $product_style_id, $query_ship->get());
         return $ord_items_arr;
     }
 
-    private static function getReceiveDepotParseData($event, $event_id, $delivery_id, $product_style_id, $obj_items) {
+    private static function getReceiveDepotParseData($event, $event_id, $delivery_id, $bac_papa_id = null, $product_style_id, $obj_items) {
         $obj_items_arr = null;
         if (null != $obj_items && 0 < count($obj_items)) {
-            $receiveDepotList = ReceiveDepot::getDeliveryWithReceiveDepotList($event, $event_id, $delivery_id, $product_style_id)->get();
+            $receiveDepotList = ReceiveDepot::getDeliveryWithReceiveDepotList($event, $event_id, $delivery_id, $bac_papa_id, $product_style_id)->get();
             $obj_items_arr = $obj_items;
             foreach ($obj_items_arr as $ord_key => $ord_item) {
                 $obj_items_arr[$ord_key]->receive_depot = [];
@@ -826,9 +835,6 @@ class ReceiveDepot extends Model
                 $id_and_qty_list['prd_type'][$i] = $rcv_repot->prd_type;
                 $id_and_qty_list['combo_id'][$i] = $rcv_repot->combo_id;
                 $id_and_qty_list['depot_id'][$i] = $rcv_repot->depot_id;
-                if (0 < $rcv_repot->back_qty) {
-                    return ['success' => 0, 'error_msg' => "不可重複退貨"];
-                }
             }
         }
         $rcv_repot_combo = ReceiveDepot::where('delivery_id', $delivery_id)->where('prd_type', '=', 'c')->get();
@@ -1068,13 +1074,13 @@ class ReceiveDepot extends Model
         $rcv_repot_combo = null;
         if(Event::order()->value == $event) {
             $rcv_repot_combo = ReceiveDepot::getRcvDepotToBackQty($delivery_id, $bac_papa_id);
-            $ord_items_arr = ReceiveDepot::getOrderShipItemWithDeliveryWithReceiveDepotList($event, $event_id, $delivery_id);
+            $ord_items_arr = ReceiveDepot::getOrderShipItemWithDeliveryWithReceiveDepotList($event, $event_id, $delivery_id, $bac_papa_id);
         } else if(Event::consignment()->value == $event) {
             $rcv_repot_combo = ReceiveDepot::getRcvDepotToBackQty($delivery_id, $bac_papa_id);
-            $ord_items_arr = ReceiveDepot::getCSNShipItemWithDeliveryWithReceiveDepotList($event, $event_id, $delivery_id);
+            $ord_items_arr = ReceiveDepot::getCSNShipItemWithDeliveryWithReceiveDepotList($event, $event_id, $delivery_id, $bac_papa_id);
         } else if(Event::csn_order()->value == $event) {
             $rcv_repot_combo = ReceiveDepot::getCsnOrderRcvDepotToBackQty($delivery_id, $bac_papa_id);
-            $ord_items_arr = ReceiveDepot::getCSNOrderShipItemWithDeliveryWithReceiveDepotList($event, $event_id, $delivery_id);
+            $ord_items_arr = ReceiveDepot::getCSNOrderShipItemWithDeliveryWithReceiveDepotList($event, $event_id, $delivery_id, $bac_papa_id);
         }
         if (isset($ord_items_arr) && 0 < count($ord_items_arr) && isset($rcv_repot_combo) && 0 < count($rcv_repot_combo)) {
             //出貨商品

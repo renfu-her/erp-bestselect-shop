@@ -22,7 +22,6 @@ Route::group(['prefix' => 'delivery','as'=>'delivery.'], function () {
     Route::get('print_out_stock/{event}/{eventId}', [DeliveryCtrl::class, 'print_out_stock'])->name('print_out_stock')->middleware('permission:cms.delivery.edit');
 
     //退貨
-    Route::get('back/{event}/{eventId}', [DeliveryCtrl::class, 'back_list'])->name('back')->middleware('permission:cms.delivery.edit');
     Route::get('back_list/{deliveryId?}', [DeliveryCtrl::class, 'back_list'])->name('back_list')->middleware('permission:cms.delivery.edit');
     Route::get('back_create/{deliveryId}', [DeliveryCtrl::class, 'back_create'])->name('back_create')->middleware('permission:cms.delivery.edit');
     Route::post('back_create/{deliveryId}', [DeliveryCtrl::class, 'back_create_store'])->name('back_create')->middleware('permission:cms.delivery.edit');

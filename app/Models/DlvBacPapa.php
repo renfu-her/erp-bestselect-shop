@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\Delivery\BackStatus;
+use App\Enums\DlvBack\DlvBackPapaType;
 use App\Helpers\IttmsDBB;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -16,10 +17,14 @@ class DlvBacPapa extends Model
     protected $guarded = [];
     public $timestamps = true;
 
-    public static function createData($delivery_id, $memo = null) {
-        return IttmsDBB::transaction(function () use ($delivery_id, $memo) {
-            $sn = Sn::createSn('dlv_bac_papa', 'DBK', 'ymd', 4);
+    public static function createData($type, $delivery_id, $memo = null) {
+        return IttmsDBB::transaction(function () use ($type, $delivery_id, $memo) {
+            if (!DlvBackPapaType::hasKey($type)) {
+                return ['success' => 0, 'error_msg' => 'type error'];
+            }
+            $sn = Sn::createSn('dlv_bac_papa', 'BK', 'ymd', 4);
             $id = self::create([
+                "type" => $type,
                 "sn" => $sn,
                 'delivery_id' => $delivery_id,
                 'user_id' => Auth::user()->id,

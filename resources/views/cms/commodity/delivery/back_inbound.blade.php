@@ -49,7 +49,7 @@
                                         <input type="text" value="" name="qty_actual[]" class="form-control form-control-sm text-center" readonly>
                                     </td>
                                     <td>
-                                        <input type="text" value="{{$ord->total_to_back_qty ?? ''}}" name="" class="form-control form-control-sm text-center" readonly>
+                                        <input type="text" value="{{$ord->total_to_back_qty ?? 0}}" name="" class="form-control form-control-sm text-center" readonly>
                                     </td>
                                 </tr>
                                 <tr class="--rece">
@@ -63,6 +63,7 @@
                                                 <td>倉庫</td>
                                                 <td>效期</td>
                                                 <td class="text-center" style="width: 10%">出貨數量</td>
+                                                <td class="text-center" style="width: 10%">已退數量</td>
                                                 <td class="text-center" style="width: 10%">退回數量</td>
                                                 <td>入庫說明</td>
                                             </tr>
@@ -78,6 +79,7 @@
                                                         </button>
                                                         <input type="hidden" name="id[]" value="{{ $rec->id }}">
                                                         <input type="hidden" value="{{$ord->total_to_back_qty}}" name="total_to_back_qty[]" class="form-control form-control-sm text-center" readonly>
+                                                        <input type="hidden" name="backed_qty[]" value="{{ $rec->back_qty }}">
                                                     </td>
                                                     <td data-td="sn">{{ $rec->inbound_sn }}</td>
                                                     <td data-td="depot">{{ $rec->depot_name }}</td>
@@ -85,8 +87,9 @@
                                                     <td class="text-center">
                                                         <input type="text" name="qty[]" value="{{ $rec->qty }}" class="form-control form-control-sm text-center" readonly>
                                                     </td>
+                                                    <td class="text-center" data-td="backed_qty">{{ $rec->back_qty ?? 0 }}</td>
                                                     <td class="text-center">
-                                                        <input type="number" name="back_qty[]" value="{{ $rec->back_qty }}" max="{{ $rec->qty }}" min="1" class="form-control form-control-sm text-center">
+                                                        <input type="number" name="back_qty[]" value="{{ $rec->elebac_qty ?? 0 }}" max="{{ ($rec->qty - ($rec->back_qty ?? 0)) }}" min="1" class="form-control form-control-sm text-center">
                                                     </td>
                                                     <td>
                                                         <input type="text" name="memo[]" value="" class="form-control form-control-sm">
@@ -110,7 +113,7 @@
         </div>
         <div id="submitDiv">
             <div class="col-auto">
-                @if(false == isset($delivery->back_inbound_date))
+                @if(false == isset($bacPapa->inbound_date))
                     <button type="submit" class="btn btn-primary px-4" >送出</button>
                 @endif
                 @if($delivery->event == App\Enums\Delivery\Event::order()->value)

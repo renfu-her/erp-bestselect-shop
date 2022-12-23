@@ -72,7 +72,7 @@
                                             class="form-control form-control-sm -sm" min="0" step="0.01" required>
                                     </td>
                                     <td class="text-center">{{ $item->origin_qty ? number_format($item->origin_qty) : 0 }}</td>
-                                    @if(null == $delivery->back_inbound_date)
+                                    @if('create' == $method || isset($bacPapa) && null == $bacPapa->inbound_date)
                                         <td>
                                             <x-b-qty-adjuster name="back_qty[]" value="{{ $item->back_qty ?? 0 }}"
                                                               min="0" max="{{ $item->origin_qty ?? '' }}"
