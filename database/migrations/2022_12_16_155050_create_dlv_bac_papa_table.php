@@ -29,7 +29,7 @@ class CreateDlvBacPapaTable extends Migration
         });
 
         Schema::table('dlv_back', function (Blueprint $table) {
-            $table->after('id', function ($tb) {
+            $table->after('delivery_id', function ($tb) {
                 $tb->unsignedBigInteger('bac_papa_id')->comment('退貨列表ID');
             });
         });
