@@ -857,13 +857,13 @@ class OrderInvoice extends Model
             ;
 
         if (isset($param['invoice_number'])) {
-            $query->where('ord_invoice.invoice_number', '=', $param['invoice_number']);
+            $query->where('ord_invoice.invoice_number', 'like', '%' . $param['invoice_number'] . '%');
         }
         if (isset($param['buyer_name'])) {
-            $query->where('ord_invoice.buyer_name', '=', $param['buyer_name']);
+            $query->where('ord_invoice.buyer_name', 'like', '%' . $param['buyer_name'] . '%');
         }
         if (isset($param['buyer_ubn'])) {
-            $query->where('ord_invoice.buyer_ubn', '=', $param['buyer_ubn']);
+            $query->where('ord_invoice.buyer_ubn', 'like', '%' . $param['buyer_ubn'] . '%');
         }
         if (isset($param['invoice_sdate']) && isset($param['invoice_edate'])) {
             $s_invoice_date = date('Y-m-d', strtotime($param['invoice_sdate']));
