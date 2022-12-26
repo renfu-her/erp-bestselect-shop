@@ -1570,66 +1570,72 @@ class DeliveryCtrl extends Controller
     }
 
     private function doCsnBackQty($request, $bac_papa_id, $event_item_id, $back_qty) {
-        //TODO 寄倉可能有入庫 若有入庫過 須一併先把那邊的入庫退貨
-        //找到該筆出貨資料的寄倉入庫單
-        // 若有入庫過 需更新back_num
-        $param = ['event' => Event::consignment()->value
-            , 'event_item_id' => $event_item_id
-        ];
-        $inboundList_consignment = PurchaseInbound::getInboundListWithEventSn(app(Consignment::class)->getTable(), [Event::consignment()->value], $param, false);
-        $inboundList_consignment = $inboundList_consignment->get();
-        if (0 != $back_qty && isset($inboundList_consignment) && 0 < count($inboundList_consignment)) {
-            $curr_calc_back_qty = $back_qty;
-            foreach ($inboundList_consignment as $key => $inbound_item) {
-                //判斷該寄倉入庫單可退回的數量 <= 總數量-售出數量-back_num
-                $inbound = PurchaseInbound::where('id', $inbound_item->inbound_id)->first();
-                $todo_qty = 0;
-                $LogEventFeature = null;
-                if (0 < $back_qty) {
-                    //扣除 總數量 > 0
-                    $qty = $inbound->inbound_num - $inbound->sale_num - $inbound->csn_num - $inbound->consume_num - $inbound->back_num - $inbound->scrap_num;
+        $msg = IttmsDBB::transaction(function () use ($request, $bac_papa_id, $event_item_id, $back_qty) {
+            //TODO 寄倉可能有入庫 若有入庫過 須一併先把那邊的入庫退貨
+            //找到該筆出貨資料的寄倉入庫單
+            // 若有入庫過 需更新back_num
+            $param = ['event' => Event::consignment()->value
+                , 'event_item_id' => $event_item_id
+            ];
+            $inboundList_consignment = PurchaseInbound::getInboundListWithEventSn(app(Consignment::class)->getTable(), [Event::consignment()->value], $param, false);
+            $inboundList_consignment = $inboundList_consignment->get();
+            if (0 != $back_qty && isset($inboundList_consignment) && 0 < count($inboundList_consignment)) {
+                $curr_calc_back_qty = $back_qty;
+                foreach ($inboundList_consignment as $key => $inbound_item) {
+                    //判斷該寄倉入庫單可退回的數量 <= 總數量-售出數量-back_num
+                    $inbound = PurchaseInbound::where('id', $inbound_item->inbound_id)->first();
+                    $todo_qty = 0;
+                    $LogEventFeature = null;
+                    if (0 < $back_qty) {
+                        //扣除 總數量 > 0
+                        $qty = $inbound->inbound_num - $inbound->sale_num - $inbound->csn_num - $inbound->consume_num - $inbound->back_num - $inbound->scrap_num;
 
-                    $LogEventFeature = LogEventFeature::send_back_from_rcv()->value;
-                    //未扣完 則扣目前總量 剩餘的往下一筆繼續
-                    if (0 > ($qty - $curr_calc_back_qty)) {
-                        $todo_qty = $qty;
-                        $curr_calc_back_qty = $curr_calc_back_qty - $qty;
-                    } else {
-                        $todo_qty = $curr_calc_back_qty;
-                        $curr_calc_back_qty = 0;
+                        $LogEventFeature = LogEventFeature::send_back_from_rcv()->value;
+                        //未扣完 則扣目前總量 剩餘的往下一筆繼續
+                        if (0 > ($qty - $curr_calc_back_qty)) {
+                            $todo_qty = $qty;
+                            $curr_calc_back_qty = $curr_calc_back_qty - $qty;
+                        } else {
+                            $todo_qty = $curr_calc_back_qty;
+                            $curr_calc_back_qty = 0;
+                        }
+                    } else if (0 > $back_qty && 0 < $inbound->back_num) {
+                        //加回 判斷back_num > 0
+
+                        $LogEventFeature = LogEventFeature::send_back_cancle_from_rcv()->value;
+                        //未加完 則加目前總量 剩餘的往下一筆繼續
+                        if (0 > ($inbound->back_num + $curr_calc_back_qty)) {
+                            $todo_qty = ($inbound->back_num * -1);
+                            $curr_calc_back_qty = $curr_calc_back_qty + $inbound->back_num;
+                        } else {
+                            $todo_qty = $curr_calc_back_qty;
+                            $curr_calc_back_qty = 0;
+                        }
                     }
-                } else if (0 > $back_qty && 0 < $inbound->back_num) {
-                    //加回 判斷back_num > 0
-
-                    $LogEventFeature = LogEventFeature::send_back_cancle_from_rcv()->value;
-                    //未加完 則加目前總量 剩餘的往下一筆繼續
-                    if (0 > ($inbound->back_num + $curr_calc_back_qty)) {
-                        $todo_qty = ($inbound->back_num * -1);
-                        $curr_calc_back_qty = $curr_calc_back_qty + $inbound->back_num;
-                    } else {
-                        $todo_qty = $curr_calc_back_qty;
-                        $curr_calc_back_qty = 0;
+                    if (0 != $todo_qty) {
+                        PurchaseInbound::where('id', $inbound_item->inbound_id)->update([
+                            'back_num' => DB::raw("back_num + $todo_qty")
+                        ]);
+                        $rePcsLSC = PurchaseLog::stockChange($inbound_item->event_id, $inbound_item->product_style_id, Event::consignment()->value, $inbound_item->event_item_id
+                            , $LogEventFeature, $inbound_item->inbound_id, $todo_qty * -1, $inbound_item->memo ?? null
+                            , $inbound_item->product_title, $inbound_item->prd_type
+                            , $request->user()->id, $request->user()->name, $bac_papa_id);
+                        if ($rePcsLSC['success'] == 0) {
+                            DB::rollBack();
+                            return $rePcsLSC;
+                        }
                     }
                 }
-                if (0 != $todo_qty) {
-                    PurchaseInbound::where('id', $inbound_item->inbound_id)->update([
-                        'back_num' => DB::raw("back_num + $todo_qty")
-                    ]);
-                    $rePcsLSC = PurchaseLog::stockChange($inbound_item->event_id, $inbound_item->product_style_id, Event::consignment()->value, $inbound_item->event_item_id
-                        , $LogEventFeature, $inbound_item->inbound_id, $todo_qty * -1, $inbound_item->memo ?? null
-                        , $inbound_item->product_title, $inbound_item->prd_type
-                        , $request->user()->id, $request->user()->name, $bac_papa_id);
-                    if ($rePcsLSC['success'] == 0) {
-                        DB::rollBack();
-                        return $rePcsLSC;
-                    }
+                if (0 != $curr_calc_back_qty) {
+                    return ['success' => 0
+                        , 'error_msg' => '當前庫存總數無法進行退貨，請確認剩餘數量是否可執行 '
+                        . '; $bac_papa_id:'. $bac_papa_id. '; $event_item_id:'. $event_item_id. '; $back_qty:'. $back_qty
+                    ];
                 }
             }
-            if (0 != $curr_calc_back_qty) {
-                return ['success' => 0, 'error_msg' => '當前庫存總數無法進行退貨，請確認剩餘數量是否可執行'];
-            }
-        }
-        return ['success' => 1, 'error_msg' => ''];
+            return ['success' => 1, 'error_msg' => ''];
+        });
+        return $msg;
     }
 
     //找自取倉已入庫 且數量小於欲退數量資料
