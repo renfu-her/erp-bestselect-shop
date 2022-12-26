@@ -1073,7 +1073,7 @@ class DeliveryCtrl extends Controller
             }
             $input_other_items = $request->only('back_item_id', 'bgrade_id', 'btitle', 'bprice', 'bqty', 'bmemo');
 
-            $dArray = array_diff(DlvBack::where('delivery_id', $delivery->id)->where('type', '<>', DlvBackType::product()->value)->pluck('id')->toArray()
+            $dArray = array_diff(DlvBack::where('bac_papa_id', $delivery->id)->where('type', '<>', DlvBackType::product()->value)->pluck('id')->toArray()
                 , array_intersect_key($input_other_items['back_item_id'], $input_other_items['bgrade_id']?? [] )
             );
             if($dArray) DlvBack::destroy($dArray);
@@ -1338,6 +1338,20 @@ class DeliveryCtrl extends Controller
             }
             $rsp_arr['order_id'] = $sub_order->order_id;
         } else if(Event::consignment()->value == $delivery->event) {
+            $is_all_inbound = true; //是否全部入庫
+            $inboundOverviewList = PurchaseInbound::getOverviewInboundList(Event::consignment()->value, $delivery->event_id)->get()->toArray();
+            if (null != $inboundOverviewList && 0 < count($inboundOverviewList)) {
+                foreach ($inboundOverviewList as $val_ibov) {
+                    if (0 != $val_ibov->should_enter_num) {
+                        $is_all_inbound = false;
+                        break;
+                    }
+                }
+            }
+            if (false == $is_all_inbound) {
+                return abort(200, '請修改寄倉數量 重新出貨');
+            }
+
             $consignment = Consignment::where('id', $delivery->event_id)->get()->first();
             $rsp_arr['depot_id'] = $consignment->send_depot_id;
         } else if(Event::csn_order()->value == $delivery->event) {
