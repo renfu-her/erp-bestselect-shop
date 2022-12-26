@@ -14,11 +14,11 @@
             <table class="table table-striped tableList mb-1 small">
                 <thead>
                     <tr>
+                        <th scope="col">#</th>
                         <th scope="col" class="text-center">明細</th>
+                        <th scope="col">退貨單號</th>
                         <th scope="col">退貨</th>
                         <th scope="col">時間</th>
-                        <th scope="col">退貨單號</th>
-                        <th scope="col">退貨時間</th>
                         <th scope="col">退貨入庫時間</th>
                         <th scope="col">備註</th>
                         <th scope="col" class="text-center">刪除</th>
@@ -27,6 +27,7 @@
                 <tbody>
                  @foreach ($dataList as $key =>$data)
                      <tr>
+                         <th scope="row">{{ $key + 1 }}</th>
                          <td class="text-center">
 {{--                             <a href="{{ Route('cms.delivery.back_edit', ['bac_papa_id' => $data->id], true) }}"--}}
 {{--                                data-bs-toggle="tooltip" title="編輯"--}}
@@ -39,6 +40,7 @@
                                  <i class="bi bi-pencil-square"></i>
                              </a>
                          </td>
+                         <td>{{$data->sn}}</td>
                          <td>
                              @if (isset($data->inbound_date))
                                  <a class="btn btn-sm btn-danger -in-header mb-1"
@@ -49,8 +51,6 @@
                              @endif
                          </td>
                          <td>{{date('Y/m/d H:i:s', strtotime($data->created_at))}}</td>
-                         <td>{{$data->sn}}</td>
-                         <td>{{$data->date ? date('Y/m/d H:i:s', strtotime($data->date)): ''}}</td>
                          <td>{{$data->inbound_date ? date('Y/m/d H:i:s', strtotime($data->inbound_date)): ''}}</td>
                          <td>{{$data->memo}}</td>
                          <td class="text-center">

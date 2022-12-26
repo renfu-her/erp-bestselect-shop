@@ -45,17 +45,4 @@ class DlvBacPapa extends Model
         }
         return $data;
     }
-
-    public static function changeBackStatus($bac_papa_id, BackStatus $status)
-    {
-        if (false == BackStatus::hasKey($status->key)) {
-            throw ValidationException::withMessages(['error_msg' => '無此退貨狀態']);
-        }
-
-        DlvBacPapa::where('id', '=', $bac_papa_id)->update([
-            'status' => $status->value
-            , 'status_date' => date('Y-m-d H:i:s'),
-        ]);
-    }
-
 }

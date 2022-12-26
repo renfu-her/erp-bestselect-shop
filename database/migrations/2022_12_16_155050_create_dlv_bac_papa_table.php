@@ -22,8 +22,6 @@ class CreateDlvBacPapaTable extends Migration
             $table->dateTime('inbound_date')->nullable()->comment('退貨入庫日期');
             $table->integer('inbound_user_id')->nullable()->comment('退貨入庫者');
             $table->string('inbound_user_name', 20)->nullable()->comment('退貨入庫者名稱');
-            $table->string('status', 20)->nullable()->comment('銷貨退回明細狀態 新增退貨 / 刪除退回入庫 / 退回入庫 / 取消退回入庫');
-            $table->dateTime('status_date')->nullable()->comment('退貨狀態審核日期');
             $table->string('memo')->nullable()->comment('備註');
             $table->timestamps();
         });
