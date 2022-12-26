@@ -2,14 +2,14 @@
 @section('sub-content')
     <h2 class="mb-4">退貨列表 ({{ $delivery->sn ?? '' }})</h2>
 
-    @if(null != $delivery)
-    <div class="col">
-        <a href="{{ Route('cms.delivery.back_create', ['deliveryId' => $delivery->id], true) }}" class="btn btn-primary">
-            <i class="bi bi-plus-lg pe-1"></i> 新增退貨單
-        </a>
-    </div>
-    @endif
     <div class="card shadow p-4 mb-4">
+        @if(null != $delivery)
+        <div class="col">
+            <a href="{{ Route('cms.delivery.back_create', ['deliveryId' => $delivery->id], true) }}" class="btn btn-primary">
+                <i class="bi bi-plus-lg pe-1"></i> 新增退貨單
+            </a>
+        </div>
+        @endif
         <div class="table-responsive tableOverBox">
             <table class="table table-striped tableList mb-1 small">
                 <thead>
@@ -43,10 +43,10 @@
                          <td>{{$data->sn}}</td>
                          <td>
                              @if (isset($data->inbound_date))
-                                 <a class="btn btn-sm btn-danger -in-header mb-1"
+                                 <a class="btn btn-sm btn-danger"
                                     href="{{ Route('cms.delivery.back_inbound_delete', ['bac_papa_id' => $data->id], true) }}">刪除退貨入庫</a>
                              @else
-                                 <a class="btn btn-sm btn-success -in-header mb-1"
+                                 <a class="btn btn-sm btn-success"
                                     href="{{ Route('cms.delivery.back_inbound', ['bac_papa_id' => $data->id], true) }}">退貨入庫審核</a>
                              @endif
                          </td>

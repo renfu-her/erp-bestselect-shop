@@ -49,7 +49,7 @@
                                         <input type="text" value="" name="qty_actual[]" class="form-control form-control-sm text-center" readonly>
                                     </td>
                                     <td>
-                                        <input type="text" value="{{$ord->total_to_back_qty ?? 0}}" name="" class="form-control form-control-sm text-center" readonly>
+                                        <input type="text" value="{{$ord->total_to_back_qty ?? 0}}" name="total_back_qty" class="form-control form-control-sm text-center" readonly>
                                     </td>
                                 </tr>
                                 <tr class="--rece">
@@ -89,7 +89,10 @@
                                                     </td>
                                                     <td class="text-center" data-td="backed_qty">{{ $rec->back_qty ?? 0 }}</td>
                                                     <td class="text-center">
-                                                        <input type="number" name="back_qty[]" value="{{ $rec->elebac_qty ?? 0 }}" max="{{ ($rec->qty - ($rec->back_qty ?? 0)) }}" min="1" class="form-control form-control-sm text-center">
+                                                        <input type="number" name="back_qty[]" value="{{ $rec->elebac_qty ?? 0 }}" 
+                                                            max="{{ ($rec->qty - ($rec->back_qty ?? 0)) }}" 
+                                                            min="{{ $ord->total_to_back_qty == 0 ? 0 : 1 }}" 
+                                                            class="form-control form-control-sm text-center">
                                                     </td>
                                                     <td>
                                                         <input type="text" name="memo[]" value="" class="form-control form-control-sm">
@@ -114,7 +117,7 @@
         <div id="submitDiv">
             <div class="col-auto">
                 @if(false == isset($bacPapa->inbound_date))
-                    <button type="submit" class="btn btn-primary px-4" >送出</button>
+                    <button type="submit" class="btn btn-primary px-4">送出</button>
                 @endif
                 @if($delivery->event == App\Enums\Delivery\Event::order()->value)
                     <a href="{{ Route('cms.order.detail', ['id' => $order_id, 'subOrderId' => $eventId ]) }}" class="btn btn-outline-primary px-4" role="button">返回明細</a>
@@ -132,16 +135,25 @@
     @push('sub-scripts')
         <script>
         $(function () {
-            const Readonly = @json(isset($delivery->audit_date));
+            // const Readonly = @json(isset($delivery->audit_date));
 
             // init
             sumExportQty();
-            // DvyCheckSubmit(Readonly);
+            checkBackQtySum();
 
             // 刪除
             $('tr.-cloneElem.--selectedIB .-del').off('click').on('click', function () {
                 $(this).closest('tr.-cloneElem.--selectedIB').remove();
                 sumExportQty();
+                checkBackQtySum();
+            });
+            // 改退回數量
+            $('tr.-cloneElem.--selectedIB input[name="back_qty[]"]')
+            .off('change')
+            .on('change', checkBackQtySum);
+
+            $('form.-banRedo').off('submit.check').on('submit.check', function () {
+                return checkBackQtySum();
             });
 
             // 加總出貨數量
@@ -154,6 +166,27 @@
                     });
                     $(element).find('input[name="qty_actual[]"]').val(sum);
                 });
+            }
+
+            // check 退貨數量 === sum(退回數量)
+            function checkBackQtySum() {
+                let chk = true;
+                $('#Pord_list tbody tr.--prod').each(function (index, element) {
+                    // element == this
+                    const total_back_qty = Number($(element).find('input[name="total_back_qty"]').val()) || 0;
+                    let back_qty = 0;
+                    $(element).next('tr.--rece').find('input[name="back_qty[]"]').each(function (i, el) {
+                        back_qty += Number($(el).val()) || 0;
+                    });
+                    if (total_back_qty !== back_qty) {
+                        chk &= false;
+                        $(element).next('tr.--rece').find('input[name="back_qty[]"]').addClass('is-invalid');
+                    } else {
+                        $(element).next('tr.--rece').find('input[name="back_qty[]"]').removeClass('is-invalid');
+                    }
+                });
+                $('#submitDiv button:submit').prop('disabled', !chk);
+                return chk;
             }
         });
         </script>
