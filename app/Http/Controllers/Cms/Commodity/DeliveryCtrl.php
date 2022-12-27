@@ -733,10 +733,7 @@ class DeliveryCtrl extends Controller
     public function back_list(Request $request, int $delivery_id = null)
     {
         $delivery = Delivery::where('id', '=', $delivery_id)->first();
-//        if (null == $delivery) {
-//            return abort(404);
-//        }
-        $bacPapa = DlvBacPapa::getData($delivery_id);
+        $bacPapa = DlvBacPapa::getDataWithDelivery($delivery_id)->get();
 
         $rsp_arr = [];
         if(null != $delivery && Event::order()->value == $delivery->event) {

@@ -16,11 +16,14 @@
                     <tr>
                         <th scope="col">#</th>
                         <th scope="col" class="text-center">明細</th>
+                        @if(true == is_null($delivery))
+                        <th scope="col">訂單號</th>
+                        @endif
                         <th scope="col">退貨單號</th>
-                        <th scope="col">退貨</th>
-                        <th scope="col">時間</th>
+                        <th scope="col">退貨入庫</th>
+                        <th scope="col">退貨時間</th>
                         <th scope="col">退貨入庫時間</th>
-                        <th scope="col">備註</th>
+                        <th scope="col">退貨備註</th>
                         <th scope="col" class="text-center">刪除</th>
                     </tr>
                 </thead>
@@ -40,6 +43,9 @@
                                  <i class="bi bi-pencil-square"></i>
                              </a>
                          </td>
+                         @if(true == is_null($delivery))
+                         <td>{{$data->event_sn}}</td>
+                         @endif
                          <td>{{$data->sn}}</td>
                          <td>
                              @if (isset($data->inbound_date))
