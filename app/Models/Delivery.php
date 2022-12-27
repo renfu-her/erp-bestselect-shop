@@ -745,7 +745,7 @@ class Delivery extends Model
         ]);
     }
 
-    public static function delivery_item($delivery_id = null, $behavior)
+    public static function delivery_item($delivery_id = null, $behavior, $bac_papa_id = null)
     {
         $sq = '
             SELECT
@@ -772,12 +772,16 @@ class Delivery extends Model
             GROUP BY acc_all_grades.id
         ';
 
+        $s_q_table_where = '';
         if($behavior == 'return'){
             $s_q_table = 'dlv_back';
             $s_q_po_type = 9;
+            $s_q_table_where = $bac_papa_id ? ' AND dlv_tmp.bac_papa_id = ' . $bac_papa_id : '';
+
         } else if($behavior == 'out'){
             $s_q_table = 'dlv_out_stock';
             $s_q_po_type = 8;
+
         } else if($behavior == 'exchange'){
             $s_q_table = 'dlv_back';
             $s_q_po_type = 7;
@@ -787,6 +791,7 @@ class Delivery extends Model
             ->leftJoin(DB::raw('(
                 SELECT
                     delivery_id,
+                    ' . ($bac_papa_id ?? "NULL") . ' AS bac_papa_id,
                     SUM(dlv_tmp.price * dlv_tmp.qty) AS total_price,
                     CONCAT(\'[\', GROUP_CONCAT(\'{
                         "id":"\', dlv_tmp.id, \'",
@@ -809,7 +814,7 @@ class Delivery extends Model
                 LEFT JOIN prd_product_styles ON prd_product_styles.id = dlv_tmp.product_style_id
                 LEFT JOIN ord_items ON ord_items.id = dlv_tmp.event_item_id
                 LEFT JOIN prd_products AS product ON product.id = prd_product_styles.product_id
-                WHERE (product.deleted_at IS NULL AND dlv_tmp.qty > 0 AND dlv_tmp.show = 1)
+                WHERE (product.deleted_at IS NULL AND dlv_tmp.qty > 0 AND dlv_tmp.show = 1' . $s_q_table_where . ')
                 GROUP BY delivery_id
                 ) AS delivery_tmp'), function ($join) {
                 $join->on('delivery_tmp.delivery_id', '=', 'delivery.id');
@@ -828,11 +833,11 @@ class Delivery extends Model
                     'buyer_add.is_default_addr' => 1,
                 ]);
             })
-            ->leftJoin('pcs_paying_orders AS po', function ($join) use($s_q_po_type) {
+            ->leftJoin('pcs_paying_orders AS po', function ($join) use($s_q_po_type, $bac_papa_id) {
                 $join->on('po.source_id', '=', 'delivery.id');
                 $join->where([
                     'po.source_type' => app(self::class)->getTable(),
-                    'po.source_sub_id' => null,
+                    'po.source_sub_id' => $bac_papa_id,
                     'po.type' => $s_q_po_type,
                     'po.deleted_at' => null,
                 ]);
@@ -859,6 +864,7 @@ class Delivery extends Model
 
                 'delivery_tmp.items AS delivery_items',
                 'delivery_tmp.total_price AS delivery_total_price',
+                'delivery_tmp.bac_papa_id AS delivery_bac_papa_id',
 
                 'order.id AS order_id',
                 'order.sn AS order_sn',
@@ -894,7 +900,9 @@ class Delivery extends Model
                 'po.payee_name AS po_payee_name',
                 'po.payee_phone AS po_payee_phone',
                 'po.payee_address AS po_payee_address',
-                'po.created_at AS po_created_at'
+                'po.created_at AS po_created_at',
+                DB::raw('"' . PayingOrder::paying_order_link('dlv_delivery', $delivery_id, $bac_papa_id, $s_q_po_type) . '" AS po_link'),
+                DB::raw('"' . PayingOrder::paying_order_source_link('dlv_delivery', $delivery_id, $bac_papa_id, $s_q_po_type) . '" AS po_source_link')
             )
             ->orderBy('delivery.id', 'desc');
 

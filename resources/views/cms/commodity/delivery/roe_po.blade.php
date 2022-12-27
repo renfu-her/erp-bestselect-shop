@@ -10,7 +10,7 @@
             @endcan
 
             @if(! $paying_order->payment_date)
-                <a href="{{ Route('cms.delivery.roe-po-create', ['id' => $delivery->delivery_id, 'behavior' => $behavior]) }}" 
+                <a href="{{ Route('cms.delivery.roe-po-create', ['id' => $delivery->delivery_id, 'behavior' => $behavior, 'bac_papa_id' => $delivery->delivery_bac_papa_id]) }}" 
                     class="btn btn-sm btn-primary px-3" role="button">付款</a>
             @endif
 
@@ -111,7 +111,7 @@
                                 <td class="text-end">{{ $db_value->qty }}</td>
                                 <td class="text-end">{{ number_format($db_value->price, 2) }}</td>
                                 <td class="text-end">{{ number_format($db_value->total_price) }}</td>
-                                <td>{{ $delivery->po_memo }} <a href="{{ route('cms.delivery.back_detail', ['event' => $delivery->delivery_event, 'eventId' => $delivery->delivery_event_id]) }}">{{ $delivery->delivery_event_sn }}</a> {{ $db_value->taxation == 1 ? '應稅' : '免稅' }} {!! nl2br($db_value->note) !!}</td>
+                                <td>{{ $delivery->po_memo }} <a href="{{ $delivery->po_source_link }}">{{ $delivery->delivery_event_sn }}</a> {{ $db_value->taxation == 1 ? '應稅' : '免稅' }} {!! nl2br($db_value->note) !!}</td>
                                 <td>{!! nl2br($db_value->po_note) !!}</td>
                             </tr>
                         @endforeach
@@ -174,8 +174,7 @@
     
     <div class="col-auto">
         {{--
-        <a href="{{ Route('cms.delivery.back_detail', ['event' => $delivery->delivery_event, 'eventId' => $delivery->delivery_event_id]) }}" 
-            class="btn btn-outline-primary px-4" role="button">返回 銷貨退回明細</a>
+        <a href="{{ $delivery->po_source_link }}" class="btn btn-outline-primary px-4" role="button">返回 銷貨退回明細</a>
         --}}
         @can('cms.collection_payment.index')
         <a href="javascript:void(0);" class="btn btn-outline-primary px-4 keep_po_url" role="button">

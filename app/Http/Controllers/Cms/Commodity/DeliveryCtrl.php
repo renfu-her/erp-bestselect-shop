@@ -330,7 +330,7 @@ class DeliveryCtrl extends Controller
     public function out_stock_delete(Request $request, $delivery_id)
     {
         $delivery = Delivery::where('id', '=', $delivery_id)->first();
-        $items = Delivery::delivery_item($delivery->id, 'out')->first();
+        $items = Delivery::delivery_item($delivery->id, 'out', null)->first();
         if (null != $delivery->audit_date) {
             wToast('已出貨 無法刪除');
             return redirect()->back();
@@ -721,12 +721,12 @@ class DeliveryCtrl extends Controller
         $rsp_arr['dlvBack'] = $dlvBack;
         $rsp_arr['dlv_other_items'] = $dlv_other_items;
         $rsp_arr['breadcrumb_data'] = ['sn' => $delivery->event_sn, 'parent' => $event ];
-        $items = Delivery::delivery_item($delivery->id, 'out')->get();
+        $items = Delivery::delivery_item($delivery->id, 'out', null)->get();
         foreach ($items as $key => $value) {
             $items[$key]->delivery_items = json_decode($value->delivery_items);
         }
         $rsp_arr['items'] = $items->first();
-        $rsp_arr['po_check'] = PayingOrder::source_confirmation(app(Order::class)->getTable(), $rsp_arr['items']->order_id, 8);
+        $rsp_arr['po_check'] = PayingOrder::source_confirmation(app(Order::class)->getTable(), $rsp_arr['items']->order_id, null, 9);
         return $rsp_arr;
     }
 
@@ -938,7 +938,7 @@ class DeliveryCtrl extends Controller
     public function back_delete(Request $request, int $bac_papa_id) {
         $bacPapa = DlvBacPapa::where('id', '=', $bac_papa_id)->first();
         $delivery = Delivery::where('id', '=', $bacPapa->delivery_id)->first();
-        $items = Delivery::delivery_item($delivery->id, 'return')->first();
+        $items = Delivery::delivery_item($delivery->id, 'return', $bac_papa_id)->first();
         if(null != $items && null != $items->po_sn) {
             wToast('已有付款單 無法刪除', ['type' => 'danger']);
             return redirect()->back();
@@ -1310,12 +1310,12 @@ class DeliveryCtrl extends Controller
         $rsp_arr['dlv_other_items'] = $dlv_other_items;
         $rsp_arr['ord_items_arr'] = $ord_items_arr;
         $rsp_arr['breadcrumb_data'] = ['sn' => $delivery->event_sn, 'parent' => $delivery->event ];
-        $items = Delivery::delivery_item($delivery->id, 'return')->get();
+        $items = Delivery::delivery_item($delivery->id, 'return', $bac_papa_id)->get();
         foreach ($items as $key => $value) {
             $items[$key]->delivery_items = json_decode($value->delivery_items);
         }
         $rsp_arr['items'] = $items->first();
-        $rsp_arr['po_check'] = PayingOrder::source_confirmation(app(Order::class)->getTable(), $rsp_arr['items']->order_id, 9);
+        $rsp_arr['po_check'] = PayingOrder::source_confirmation(app(Order::class)->getTable(), $rsp_arr['items']->order_id, null, 9);
         return $rsp_arr;
     }
 
@@ -1860,16 +1860,18 @@ class DeliveryCtrl extends Controller
         }
     }
 
-    public function roe_po(Request $request, $id, $behavior)
+    public function roe_po(Request $request, $id, $behavior, $bac_papa_id = null)
     {
         $request->merge([
             'id' => $id,
             'behavior' => $behavior,
+            'bac_papa_id' => $bac_papa_id,
         ]);
 
         $request->validate([
             'id' => 'required|exists:dlv_delivery,id',
             'behavior' => 'required|in:return,out,exchange',
+            'bac_papa_id' => 'nullable|exists:dlv_bac_papa,id',
         ]);
 
         $source_type = app(Delivery::class)->getTable();
@@ -1884,12 +1886,12 @@ class DeliveryCtrl extends Controller
         $paying_order = PayingOrder::where([
             'source_type' => $source_type,
             'source_id' => $id,
-            'source_sub_id' => null,
+            'source_sub_id' => $bac_papa_id,
             'type' => $type,
             'deleted_at' => null,
         ])->first();
 
-        $delivery = Delivery::delivery_item($id, $behavior)->get();
+        $delivery = Delivery::delivery_item($id, $behavior, $bac_papa_id)->get();
         foreach ($delivery as $key => $value) {
             $delivery[$key]->delivery_items = json_decode($value->delivery_items);
         }
@@ -1902,7 +1904,7 @@ class DeliveryCtrl extends Controller
             $result = PayingOrder::createPayingOrder(
                 $source_type,
                 $id,
-                null,
+                $bac_papa_id,
                 $request->user()->id,
                 $type,
                 $product_grade,
@@ -1918,7 +1920,7 @@ class DeliveryCtrl extends Controller
 
             $paying_order = PayingOrder::findOrFail($result['id']);
 
-            $delivery = Delivery::delivery_item($id, $behavior)->get();
+            $delivery = Delivery::delivery_item($id, $behavior, $bac_papa_id)->get();
             foreach ($delivery as $key => $value) {
                 $delivery[$key]->delivery_items = json_decode($value->delivery_items);
             }
@@ -1959,10 +1961,10 @@ class DeliveryCtrl extends Controller
 
         return view($view, [
             'breadcrumb_data' => [
-                'event' => $delivery->delivery_event,
-                'eventId' => $delivery->delivery_event_id,
                 'sn' => $delivery->delivery_event_sn,
                 'behavior' => $behavior,
+                'po_link' => $delivery->po_link,
+                'po_source_link' => $delivery->po_source_link,
             ],
             'behavior' => $behavior,
             'paying_order' => $paying_order,
@@ -1978,16 +1980,18 @@ class DeliveryCtrl extends Controller
         ]);
     }
 
-    public function roe_po_create(Request $request, $id, $behavior)
+    public function roe_po_create(Request $request, $id, $behavior, $bac_papa_id = null)
     {
         $request->merge([
             'id' => $id,
             'behavior' => $behavior,
+            'bac_papa_id' => $bac_papa_id,
         ]);
 
         $request->validate([
             'id' => 'required|exists:dlv_delivery,id',
             'behavior' => 'required|in:return,out,exchange',
+            'bac_papa_id' => 'nullable|exists:dlv_bac_papa,id',
         ]);
 
         $source_type = app(Delivery::class)->getTable();
@@ -2002,7 +2006,7 @@ class DeliveryCtrl extends Controller
         $paying_order = PayingOrder::where([
             'source_type' => $source_type,
             'source_id' => $id,
-            'source_sub_id' => null,
+            'source_sub_id' => $bac_papa_id,
             'type' => $type,
             'deleted_at' => null,
         ])->first();
@@ -2011,7 +2015,7 @@ class DeliveryCtrl extends Controller
             return abort(404);
         }
 
-        $delivery = Delivery::delivery_item($id, $behavior)->get();
+        $delivery = Delivery::delivery_item($id, $behavior, $bac_papa_id)->get();
         foreach ($delivery as $key => $value) {
             $delivery[$key]->delivery_items = json_decode($value->delivery_items);
         }
@@ -2065,16 +2069,14 @@ class DeliveryCtrl extends Controller
             }
 
             if (PayingOrder::find($paying_order->id) && PayingOrder::find($paying_order->id)->balance_date) {
-                return redirect()->route('cms.delivery.roe-po', [
-                    'id' => $delivery->delivery_id,
-                    'behavior' => $behavior,
-            ]);
+                return redirect($delivery->po_link);
 
             } else {
                 return redirect()->route('cms.delivery.roe-po-create', [
                     'id' => $delivery->delivery_id,
                     'behavior' => $behavior,
-            ]);
+                    'bac_papa_id' => $bac_papa_id,
+                ]);
             }
 
         } else {
@@ -2108,11 +2110,10 @@ class DeliveryCtrl extends Controller
 
             return view('cms.commodity.delivery.roe_po_create', [
                 'breadcrumb_data' => [
-                    'event' => $delivery->delivery_event,
-                    'eventId' => $delivery->delivery_event_id,
                     'sn' => $delivery->delivery_event_sn,
-                    'id' => $delivery->delivery_id,
                     'behavior' => $behavior,
+                    'po_link' => $delivery->po_link,
+                    'po_source_link' => $delivery->po_source_link,
                 ],
                 'behavior' => $behavior,
                 'paying_order' => $paying_order,
@@ -2131,7 +2132,7 @@ class DeliveryCtrl extends Controller
                 'accountPayableDefault' => PayableDefault::where('name', 'accounts_payable')->pluck('default_grade_id')->toArray(),
                 'otherDefault' => PayableDefault::where('name', 'other')->pluck('default_grade_id')->toArray(),
 
-                'form_action' => Route('cms.delivery.roe-po-create', ['id' => $delivery->delivery_id, 'behavior' => $behavior]),
+                'form_action' => route('cms.delivery.roe-po-create', ['id' => $delivery->delivery_id, 'behavior' => $behavior, 'bac_papa_id' => $bac_papa_id]),
                 'transactTypeList' => AccountPayable::getTransactTypeList(),
                 'chequeStatus' => ChequeStatus::get_key_value(),
             ]);

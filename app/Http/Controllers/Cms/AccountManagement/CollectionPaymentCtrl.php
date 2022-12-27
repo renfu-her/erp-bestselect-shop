@@ -563,7 +563,7 @@ class CollectionPaymentCtrl extends Controller
                     $behavior = 'exchange';
                 }
 
-                $delivery = Delivery::delivery_item($paying_order->source_id, $behavior)->get();
+                $delivery = Delivery::delivery_item($paying_order->source_id, $behavior, $paying_order->source_sub_id)->get();
                 foreach ($delivery as $key => $value) {
                     $delivery[$key]->delivery_items = json_decode($value->delivery_items);
                 }

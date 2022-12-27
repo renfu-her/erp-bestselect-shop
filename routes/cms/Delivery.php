@@ -36,6 +36,6 @@ Route::group(['prefix' => 'delivery','as'=>'delivery.'], function () {
     Route::post('back_inbound_store/{bac_papa_id}', [DeliveryCtrl::class, 'back_inbound_store'])->name('back_inbound_store')->middleware('permission:cms.delivery.edit');
     Route::get('back_inbound_delete/{bac_papa_id}', [DeliveryCtrl::class, 'back_inbound_delete'])->name('back_inbound_delete')->middleware('permission:cms.delivery.edit');
 
-    Route::get('roe_po/{id}/{behavior}', [DeliveryCtrl::class, 'roe_po'])->name('roe-po');
-    Route::match(['get', 'post'], 'roe_po_create/{id}/{behavior}', [DeliveryCtrl::class, 'roe_po_create'])->name('roe-po-create');
+    Route::get('roe_po/{id}/{behavior}/{bac_papa_id?}', [DeliveryCtrl::class, 'roe_po'])->name('roe-po');
+    Route::match(['get', 'post'], 'roe_po_create/{id}/{behavior}/{bac_papa_id?}', [DeliveryCtrl::class, 'roe_po_create'])->name('roe-po-create');
 });

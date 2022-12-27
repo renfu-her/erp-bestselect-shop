@@ -22,7 +22,7 @@
         <div class="p-1 pe-2">
             @if(! $items->po_sn && $po_check)
                 <a class="btn btn-primary btn-sm my-1 ms-1"
-                    href="{{ Route('cms.delivery.roe-po', ['id' => $bacPapa->id, 'behavior' => 'return']) }}">新增退貨付款單</a>
+                    href="{{ Route('cms.delivery.roe-po', ['id' => $delivery->id, 'behavior' => 'return', 'bac_papa_id' => $bacPapa->id]) }}">新增退貨付款單</a>
             @endif
             @if (false == $has_payable_data_back)
                 <a class="btn btn-primary btn-sm my-1 ms-1"
@@ -127,7 +127,7 @@
         <dl class="row">
             <div class="col">
                 <dt>退貨付款單號</dt>
-                <dd><a href="{{ route('cms.delivery.roe-po', ['id' => $items->delivery_id, 'behavior' => 'return']) }}" class="-text">{{ $items->po_sn }}</a></dd>
+                <dd><a href="{{ route('cms.delivery.roe-po', ['id' => $items->delivery_id, 'behavior' => 'return', 'bac_papa_id' => $bacPapa->id]) }}" class="-text">{{ $items->po_sn }}</a></dd>
             </div>
         </dl>
         @endif
