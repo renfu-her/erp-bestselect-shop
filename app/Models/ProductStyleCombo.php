@@ -85,20 +85,22 @@ class ProductStyleCombo extends Model
 
             //   $value->element = json_decode($value->element);
             $value->in_stock = abs($value->in_stock);
-            $arrElemt = [];
-            foreach ($sub as $element) {
-                $arrElemt[] = floor($element->in_stock / $element->qty);
-            }
             /*
+            $arrElemt = [];
+
+            foreach ($sub as $element) {
+            $arrElemt[] = floor($element->in_stock / $element->qty);
+            }
+
             print_r($value);
             echo "<br/>";
             print_r($arrElemt);
-             */
+
             $min = min($arrElemt);
             $s = $min > $value->in_stock ? $value->in_stock : $min;
-
-            if ($s > 0) {
-                ProductStock::comboProcess($value->id, $s, true);
+             */
+            if ($value->in_stock > 0) {
+                ProductStock::comboProcess($value->id, $value->in_stock, false);
             }
         }
 

@@ -434,8 +434,22 @@ class CollectionPaymentCtrl extends Controller
                     if (request('item') && is_array(request('item'))) {
                         $order_item = request('item');
                         foreach ($order_item as $key => $value) {
-                            $value['order_item_id'] = $key;
-                            OrderItem::update_order_item($value);
+                            $arr_key = explode('|', $key);
+                            $value['id'] = $arr_key[0];
+                            $value['order_item_id'] = $arr_key[1];
+                            if($paying_order->type == 9){
+                                $value['table'] = 'dlv_back';
+
+                            } else if($paying_order->type == 8){
+                                $value['table'] = 'dlv_out_stock';
+
+                            } else if($paying_order->type == 7){
+                                $value['table'] = 'dlv_back';
+                            }
+                            $o_value = $value;
+                            unset($o_value['po_note']);
+                            OrderItem::update_order_item($o_value);
+                            Delivery::update_item($value);
                         }
                     }
 
@@ -572,7 +586,7 @@ class CollectionPaymentCtrl extends Controller
                 foreach($delivery->delivery_items as $value){
                     if($value->event_item_id){
                         $item_data[] = (object)[
-                            'item_id' => $value->event_item_id,
+                            'item_id' => $value->id . '|' . $value->event_item_id,
                             'title' => $value->product_title,
                             'price' => $value->price,
                             'qty' => $value->qty,

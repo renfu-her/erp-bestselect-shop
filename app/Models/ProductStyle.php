@@ -381,10 +381,23 @@ class ProductStyle extends Model
 
     public static function willBeShipped($style_id, $qty)
     {
-       // dd('aaa');
+        // dd('aaa');
         self::where('id', $style_id)->update([
             'will_be_shipped' => DB::raw('will_be_shipped +' . $qty),
         ]);
+    }
+
+    public static function comboElementTotalQty()
+    {
+        return DB::table('prd_product_styles as style')->where('style.type', 'c')
+            ->leftJoin('prd_style_combos as sc', 'style.id', '=', 'sc.product_style_id')
+            ->select('sc.product_style_child_id')
+        //   ->selectRaw('style.in_stock * sc.qty as combo_qty')
+            ->selectRaw('sum(style.in_stock * sc.qty) as combo_qty')
+            ->groupBy('sc.product_style_child_id');
+        //    ->where('sc.product_style_child_id', 3694)
+        //  ->limit(10)
+
     }
 
 }

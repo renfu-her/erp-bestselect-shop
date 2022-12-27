@@ -201,7 +201,8 @@ class Order extends Model
     }
     // 簡易版
     public static function orderListSimple(
-        $email
+        $email,
+        $mcode = null
     ) {
         $order = DB::table('ord_orders as order')
             ->select(['order.id as id',
@@ -220,7 +221,7 @@ class Order extends Model
                 'shi_group.name as ship_group_name',
                 'ord_received_orders.sn as or_sn',
                 'so.projlgt_order_sn',
-                'so.dlv_audit_date'
+                'so.dlv_audit_date',
             ])
             ->selectRaw('DATE_FORMAT(order.created_at,"%Y-%m-%d") as order_date')
             ->selectRaw('so.sn as order_sn')
@@ -251,7 +252,12 @@ class Order extends Model
             });
 
         if ($email) {
-            $order->where('order.email', $email);
+            $order->where(function ($query) use ($email, $mcode) {
+                $query->where('order.email', $email);
+                if ($mcode) {
+                    $query->orWhere('order.mcode', $mcode);
+                }
+            });
         }
 
         $order->orderByDesc('order.id');
@@ -1029,7 +1035,7 @@ class Order extends Model
                     $out_prd = DlvOutStock::where('delivery_id', $delivery->id)->get();
                     if (null != $out_prd && 0 < count($out_prd)) {
                         DB::rollBack();
-                        return ['success' => 0, 'error_msg' => '請先刪除子訂單缺貨 '. $delivery->event_sn];
+                        return ['success' => 0, 'error_msg' => '請先刪除子訂單缺貨 ' . $delivery->event_sn];
                     }
                     if (null != $delivery->audit_date) {
                         $is_calc_in_stock = false;
