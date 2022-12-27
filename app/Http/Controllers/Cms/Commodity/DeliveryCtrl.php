@@ -733,10 +733,7 @@ class DeliveryCtrl extends Controller
     public function back_list(Request $request, int $delivery_id = null)
     {
         $delivery = Delivery::where('id', '=', $delivery_id)->first();
-//        if (null == $delivery) {
-//            return abort(404);
-//        }
-        $bacPapa = DlvBacPapa::getData($delivery_id);
+        $bacPapa = DlvBacPapa::getDataWithDelivery($delivery_id)->get();
 
         $rsp_arr = [];
         if(null != $delivery && Event::order()->value == $delivery->event) {
@@ -1349,7 +1346,7 @@ class DeliveryCtrl extends Controller
                 }
             }
             if (false == $is_all_inbound) {
-                return abort(200, '請修改寄倉數量 重新出貨');
+                return abort(200, '請確認是否全部入庫，或重新選擇出貨數量');
             }
 
             $consignment = Consignment::where('id', $delivery->event_id)->get()->first();

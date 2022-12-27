@@ -2,25 +2,28 @@
 @section('sub-content')
     <h2 class="mb-4">退貨列表 ({{ $delivery->sn ?? '' }})</h2>
 
-    @if(null != $delivery)
-    <div class="col">
-        <a href="{{ Route('cms.delivery.back_create', ['deliveryId' => $delivery->id], true) }}" class="btn btn-primary">
-            <i class="bi bi-plus-lg pe-1"></i> 新增退貨單
-        </a>
-    </div>
-    @endif
     <div class="card shadow p-4 mb-4">
+        @if(null != $delivery)
+        <div class="col">
+            <a href="{{ Route('cms.delivery.back_create', ['deliveryId' => $delivery->id], true) }}" class="btn btn-primary">
+                <i class="bi bi-plus-lg pe-1"></i> 新增退貨單
+            </a>
+        </div>
+        @endif
         <div class="table-responsive tableOverBox">
             <table class="table table-striped tableList mb-1 small">
                 <thead>
                     <tr>
                         <th scope="col">#</th>
                         <th scope="col" class="text-center">明細</th>
+                        @if(true == is_null($delivery))
+                        <th scope="col">訂單號</th>
+                        @endif
                         <th scope="col">退貨單號</th>
-                        <th scope="col">退貨</th>
-                        <th scope="col">時間</th>
+                        <th scope="col">退貨入庫</th>
+                        <th scope="col">退貨時間</th>
                         <th scope="col">退貨入庫時間</th>
-                        <th scope="col">備註</th>
+                        <th scope="col">退貨備註</th>
                         <th scope="col" class="text-center">刪除</th>
                     </tr>
                 </thead>
@@ -40,13 +43,16 @@
                                  <i class="bi bi-pencil-square"></i>
                              </a>
                          </td>
+                         @if(true == is_null($delivery))
+                         <td>{{$data->event_sn}}</td>
+                         @endif
                          <td>{{$data->sn}}</td>
                          <td>
                              @if (isset($data->inbound_date))
-                                 <a class="btn btn-sm btn-danger -in-header mb-1"
+                                 <a class="btn btn-sm btn-danger"
                                     href="{{ Route('cms.delivery.back_inbound_delete', ['bac_papa_id' => $data->id], true) }}">刪除退貨入庫</a>
                              @else
-                                 <a class="btn btn-sm btn-success -in-header mb-1"
+                                 <a class="btn btn-sm btn-success"
                                     href="{{ Route('cms.delivery.back_inbound', ['bac_papa_id' => $data->id], true) }}">退貨入庫審核</a>
                              @endif
                          </td>
