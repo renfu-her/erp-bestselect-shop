@@ -104,9 +104,11 @@ class OrderCtrl extends Controller
             "products.*.shipment_event_id" => "required",
         ];
 
+        $checkPayment = false;
         if (!isset($payLoad['type'])) {
             $valiRule['payment'] = Rule::in([ReceivedMethod::Cash()->value, ReceivedMethod::CreditCard()->value, ReceivedMethod::Remittance()->value, 'line_pay']);
-        } 
+            $checkPayment = true;
+        }
 
         if (!Auth::guard('sanctum')->check()) {
             $valiRule['email'] = 'required|email';
@@ -198,7 +200,7 @@ class OrderCtrl extends Controller
             $dividend = $payLoad['points'];
         }
 
-        if (isset($payLoad['payment'])) {
+        if (isset($payLoad['payment']) && $checkPayment) {
             if ($payLoad['payment'] == 'line_pay') {
                 $payment = (object) [
                     'value' => 'line_pay',
@@ -211,7 +213,7 @@ class OrderCtrl extends Controller
         } else {
             $payment = null;
         }
-
+        
         $re = Order::createOrder($customer->email, 1, $address, $payLoad['products'], $payLoad['mcode'] ?? null, $payLoad['note'], $couponObj, $payinfo, $payment, $dividend, $request->user());
 
         if ($re['success'] == '1') {
