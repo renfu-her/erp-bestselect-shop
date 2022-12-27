@@ -89,9 +89,9 @@
                                                     </td>
                                                     <td class="text-center" data-td="backed_qty">{{ $rec->back_qty ?? 0 }}</td>
                                                     <td class="text-center">
-                                                        <input type="number" name="back_qty[]" value="{{ $rec->elebac_qty ?? 0 }}" 
-                                                            max="{{ ($rec->qty - ($rec->back_qty ?? 0)) }}" 
-                                                            min="{{ $ord->total_to_back_qty == 0 ? 0 : 1 }}" 
+                                                        <input type="number" name="back_qty[]" value="{{ $rec->elebac_qty ?? 0 }}"
+                                                            max="{{ ($rec->qty - ($rec->back_qty ?? 0)) }}"
+                                                            min="{{ $ord->total_to_back_qty == 0 ? 0 : 1 }}"
                                                             class="form-control form-control-sm text-center">
                                                     </td>
                                                     <td>
@@ -119,6 +119,7 @@
                 @if(false == isset($bacPapa->inbound_date))
                     <button type="submit" class="btn btn-primary px-4">送出</button>
                 @endif
+                <a href="{{ Route('cms.delivery.back_list', ['deliveryId' => $delivery->id ]) }}" class="btn btn-outline-primary px-4" role="button">返回退貨列表</a>
                 @if($delivery->event == App\Enums\Delivery\Event::order()->value)
                     <a href="{{ Route('cms.order.detail', ['id' => $order_id, 'subOrderId' => $eventId ]) }}" class="btn btn-outline-primary px-4" role="button">返回明細</a>
                 @elseif($delivery->event == App\Enums\Delivery\Event::consignment()->value)
