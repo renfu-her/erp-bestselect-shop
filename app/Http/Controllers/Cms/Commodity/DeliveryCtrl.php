@@ -1349,7 +1349,7 @@ class DeliveryCtrl extends Controller
                 }
             }
             if (false == $is_all_inbound) {
-                return abort(200, '請修改寄倉數量 重新出貨');
+                return abort(200, '請確認是否全部入庫，或重新選擇出貨數量');
             }
 
             $consignment = Consignment::where('id', $delivery->event_id)->get()->first();
