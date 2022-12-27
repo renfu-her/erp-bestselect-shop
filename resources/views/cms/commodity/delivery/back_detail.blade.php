@@ -24,7 +24,7 @@
                 <a class="btn btn-primary btn-sm my-1 ms-1"
                     href="{{ Route('cms.delivery.roe-po', ['id' => $delivery->id, 'behavior' => 'return', 'bac_papa_id' => $bacPapa->id]) }}">新增退貨付款單</a>
             @endif
-            @if (false == $has_payable_data_back)
+            @if (! $items->po_sn)
                 <a class="btn btn-primary btn-sm my-1 ms-1"
                    href="{{ Route('cms.delivery.back_edit', ['bac_papa_id' => $bacPapa->id]) }}">編輯退貨</a>
             @endif
