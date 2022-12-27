@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Cms\Commodity;
 
+use App\Enums\Delivery\LogisticStatus;
+use App\Enums\Order\OrderStatus;
 use App\Exports\Delivery\DeliveryProductListExport;
 use App\Http\Controllers\Controller;
 use App\Models\Delivery;
@@ -20,13 +22,22 @@ class DeliveryProductCtrl extends Controller
         $cond['keyword'] = Arr::get($query, 'keyword');
         $cond['delivery_sdate'] = Arr::get($query, 'delivery_sdate', null);
         $cond['delivery_edate'] = Arr::get($query, 'delivery_edate', null);
+        $cond['logistic_status_code'] = Arr::get($query, 'logistic_status_code', []);
+        $cond['order_status'] = Arr::get($query, 'order_status', []);
+
         $cond['data_per_page'] = getPageCount(Arr::get($query, 'data_per_page'));
 
         $data_list = Delivery::getListByProduct($cond)->paginate($cond['data_per_page'])->appends($query);
 
+        $order_status = [];
+        foreach (OrderStatus::asArray() as $item) {
+            $order_status[$item] = OrderStatus::getDescription($item);
+        }
         return view('cms.commodity.delivery.product_list', [
             'dataList' => $data_list,
             'searchParam' => $cond,
+            'logisticStatus' => LogisticStatus::asArray(),
+            'order_status' => $order_status,
             'data_per_page' => $cond['data_per_page'],
             'suppliers' => Supplier::select('name', 'id', 'vat_no')->get()->toArray(),
         ]);
@@ -40,6 +51,8 @@ class DeliveryProductCtrl extends Controller
         $cond['keyword'] = Arr::get($query, 'keyword');
         $cond['delivery_sdate'] = Arr::get($query, 'delivery_sdate', null);
         $cond['delivery_edate'] = Arr::get($query, 'delivery_edate', null);
+        $cond['logistic_status_code'] = Arr::get($query, 'logistic_status_code', []);
+        $cond['order_status'] = Arr::get($query, 'order_status', []);
 
         $data_list = Delivery::getListByProduct($cond)
             ->get();

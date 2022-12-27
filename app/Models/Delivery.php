@@ -422,6 +422,9 @@ class Delivery extends Model
                     ->orWhere('rcv_depot.sku', 'like', "%" . $param['keyword'] . "%");
             });
         }
+        if (isset($param['logistic_status_code']) && 0 < count($param['logistic_status_code'])) {
+            $query_delivery->whereIn('delivery.logistic_status_code', $param['logistic_status_code']);
+        }
 //        dd($query_delivery->get());
 
         //訂單
@@ -562,6 +565,10 @@ class Delivery extends Model
             ->groupBy('order.delivery_id')
             ->orderByDesc('order.delivery_id')
         ;
+
+        if (isset($param['order_status']) && 0 < count($param['order_status'])) {
+            $re->whereIn('order.ord_status', $param['order_status']);
+        }
 //        dd($re->get());
 
         return $re;

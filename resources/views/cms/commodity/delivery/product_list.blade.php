@@ -46,6 +46,28 @@
                     <input class="form-control" value="{{ $searchParam['keyword'] }}" type="text" name="keyword"
                         placeholder="商品名稱">
                 </div>
+
+                <div class="col-12 col-sm-6 mb-3">
+                    <label class="form-label">訂單狀態</label>
+                    <select class="form-select -select2 -multiple" multiple name="order_status[]" aria-label="訂單狀態"
+                            data-placeholder="多選">
+                        @foreach ($order_status as $key => $value)
+                            <option value="{{ $value }}" @if (in_array($value, $searchParam['order_status'] ?? [])) selected @endif>
+                                {{ $value }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="col-12 col-sm-6 mb-3">
+                    <label class="form-label">物態</label>
+                    <select class="form-select -select2 -multiple" multiple name="logistic_status_code[]" aria-label="物態"
+                            data-placeholder="多選">
+                        @foreach ($logisticStatus as $key => $value)
+                            <option value="{{ $key }}" @if (in_array($key, $searchParam['logistic_status_code'] ?? [])) selected @endif>
+                                {{ $value }}</option>
+                        @endforeach
+                    </select>
+                </div>
             </div>
 
             <div class="col">
@@ -87,6 +109,8 @@
                     <th scope="col">採購單號</th>
                     <th scope="col">訂單號</th>
                     <th scope="col">出貨單號</th>
+                    <th scope="col">訂單狀態</th>
+                    <th scope="col">出貨狀態</th>
                     <th scope="col">出貨日期</th>
                     <th scope="col">商品負責人</th>
                     @if(null != $searchParam['search_supplier'])
@@ -147,6 +171,8 @@
 
                         <td>{{ $data->event_sn }}</td>
                         <td>{{ $data->sn }}</td>
+                        <td>{{ $data->ord_status }}</td>
+                        <td>{{ $data->logistic_status }}</td>
                         <td>{{ $data->audit_date }}</td>
 
                         <td class="py-0 lh-base">
