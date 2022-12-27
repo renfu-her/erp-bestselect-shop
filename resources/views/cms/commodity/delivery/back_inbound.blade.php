@@ -91,7 +91,7 @@
                                                     <td class="text-center">
                                                         <input type="number" name="back_qty[]" value="{{ $rec->elebac_qty ?? 0 }}"
                                                             max="{{ ($rec->qty - ($rec->back_qty ?? 0)) }}"
-                                                            min="{{ $ord->total_to_back_qty == 0 ? 0 : 1 }}"
+                                                            min="1"
                                                             class="form-control form-control-sm text-center">
                                                     </td>
                                                     <td>
