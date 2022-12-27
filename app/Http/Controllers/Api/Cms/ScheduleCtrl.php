@@ -80,7 +80,7 @@ class ScheduleCtrl extends Controller
         $date = Arr::get($query, 'date', null);
 
         // OrderReportMonth::createData($date);
-        return ['status' => '0', 'data' => CustomerReportMonth::createData($date)];
+        return ['status' => '0', 'data' =>'deprecated'];
     }
 
     public function userReportMonth(Request $request)

@@ -29,10 +29,8 @@ class DashboardCtrl extends Controller
 
         $customerMonth = CustomerReportMonth::dataList()->where('month.date', Date('Y-m-1'))->limit(20)->get()->toArray();
         $customerPrevMonth = CustomerReportMonth::dataList()->where('month.date', Date('Y-m-1', strtotime("-$days days")))->limit(20)->get()->toArray();
-     
-        $reportUpdatedTime = CustomerReportMonth::orderBy('updated_at', "DESC")->get()->first();
-        $reportUpdatedTime = $reportUpdatedTime ? date('Y/m/d H:i', strtotime($reportUpdatedTime->updated_at)) : '';
 
+        $reportUpdatedTime = now();
         $topCollections = Collection::where('erp_top', 1)->get()->toArray();
         $topCollections = array_map(function ($n) {
             return ['url' => frontendUrl() . "collection/${n['id']}/${n['name']}",
