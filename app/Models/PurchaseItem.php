@@ -173,7 +173,8 @@ class PurchaseItem extends Model
                         return ['success' => 0, 'error_msg' => "已出貨無法刪除", 'item_id' => $pcs_item->id];
                     } else {
                         $inbound_ids[] = $val_ib->inbound_id;
-                        $can_tally = Depot::can_tally($val_ib->depot_id);
+                        //$can_tally = Depot::can_tally($val_ib->depot_id);
+                        $can_tally = true;
                         $updateLog = PurchaseInbound::addLogAndUpdateStock(LogEventFeature::purchase_del()->value, $val_ib->inbound_id
                             , $val_ib->event, $val_ib->event_id, $val_ib->event_item_id
                             , $val_ib->product_style_id

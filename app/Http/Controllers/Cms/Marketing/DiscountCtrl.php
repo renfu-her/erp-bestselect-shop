@@ -149,7 +149,7 @@ class DiscountCtrl extends Controller
 
         return view('cms.marketing.discount.edit', [
             'method' => 'edit',
-            'breadcrumb_data' => '全館優惠',
+            'breadcrumb_data' => $data->title,
             'data' => $data,
             'dis_methods' => DisMethod::getValueWithDesc(),
             'formAction' => Route("cms.discount.edit", ['id' => $id]),

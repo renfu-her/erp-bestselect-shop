@@ -42,17 +42,17 @@ Breadcrumbs::for('cms.product.create', function (BreadcrumbTrail $trail) {
 // 瀏覽 - 商品資訊
 Breadcrumbs::for('cms.product.show', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.product.index');
-    $trail->push('[' . $value->title . '] 資訊');
+    $trail->push('資訊-' . $value->title);
 });
 // 編輯 - 商品資訊
 Breadcrumbs::for('cms.product.edit', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.product.index');
-    $trail->push('[' . $value->title . '] 編輯');
+    $trail->push('編輯-' . $value->title);
 });
 // 編輯 - 規格款式
 Breadcrumbs::for('cms.product.edit-style', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.product.index');
-    $trail->push('[' . $value->title . '] 規格款式', route('cms.product.edit-style', $value->id));
+    $trail->push('規格款式-' . $value->title, route('cms.product.edit-style', $value->id));
 });
 Breadcrumbs::for('cms.product.edit-spec', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.product.edit-style', $value);
@@ -61,7 +61,7 @@ Breadcrumbs::for('cms.product.edit-spec', function (BreadcrumbTrail $trail, $val
 // 編輯 - 組合包
 Breadcrumbs::for('cms.product.edit-combo', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.product.index');
-    $trail->push('[' . $value->title . '] 組合包款式', route('cms.product.edit-combo', ['id' => $value->id]));
+    $trail->push('組合包款式-' . $value->title, route('cms.product.edit-combo', ['id' => $value->id]));
 });
 Breadcrumbs::for('cms.product.create-combo-prod', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.product.edit-combo', $value);
@@ -69,12 +69,12 @@ Breadcrumbs::for('cms.product.create-combo-prod', function (BreadcrumbTrail $tra
 });
 Breadcrumbs::for('cms.product.edit-combo-prod', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.product.edit-combo', $value['product']);
-    $trail->push('[' . $value['style']->title . '] 編輯');
+    $trail->push($value['style']->title);
 });
 // 編輯 - 銷售控管
 Breadcrumbs::for('cms.product.edit-sale', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.product.index');
-    $trail->push('[' . $value->title . '] 銷售控管', route('cms.product.edit-sale', $value->id));
+    $trail->push('銷售控管-' . $value->title, route('cms.product.edit-sale', $value->id));
 });
 // 編輯 - 銷售控管 - 庫存管理
 Breadcrumbs::for('cms.product.edit-stock', function (BreadcrumbTrail $trail, $value) {
@@ -89,22 +89,17 @@ Breadcrumbs::for('cms.product.edit-price', function (BreadcrumbTrail $trail, $va
 // 編輯 - 網頁-商品介紹
 Breadcrumbs::for('cms.product.edit-web-desc', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.product.index');
-    $trail->push('[' . $value->title . '] 網頁-商品介紹');
+    $trail->push('[網頁]商品介紹-' . $value->title);
 });
 // 編輯 - 網頁-規格說明
 Breadcrumbs::for('cms.product.edit-web-spec', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.product.index');
-    $trail->push('[' . $value->title . '] 網頁-規格說明');
+    $trail->push('[網頁]規格說明-' . $value->title);
 });
-// // 編輯 - 網頁-運送方式
-// Breadcrumbs::for('cms.product.edit-web-logis', function (BreadcrumbTrail $trail, $value) {
-//     $trail->parent('cms.product.index');
-//     $trail->push('[' . $value->title . '] 網頁-運送方式');
-// });
 // 編輯 - 設定
 Breadcrumbs::for('cms.product.edit-setting', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.product.index');
-    $trail->push('[' . $value->title . '] 設定');
+    $trail->push('設定-' . $value->title);
 });
 
 // 庫存管理
@@ -115,7 +110,7 @@ Breadcrumbs::for('cms.stock.index', function (BreadcrumbTrail $trail) {
 // 庫存管理 - 明細
 Breadcrumbs::for('cms.stock.stock_detail_log', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.stock.index');
-    $trail->push('[' . $value . '] 明細');
+    $trail->push($value);
 });
 
 // 採購單庫存匯入
@@ -202,37 +197,37 @@ Breadcrumbs::for('cms.purchase.inbound', function (BreadcrumbTrail $trail, $valu
 //公佈欄
 Breadcrumbs::for('cms.bulletin_board.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
-    $trail->push('公佈欄列表');
+    $trail->push('公佈欄列表', Route('cms.bulletin_board.index'));
 });
 Breadcrumbs::for('cms.bulletin_board.create', function (BreadcrumbTrail $trail) {
-    $trail->push('公佈欄列表', Route('cms.bulletin_board.index'));
+    $trail->parent('cms.bulletin_board.index');
     $trail->push('新增公吿');
 });
 Breadcrumbs::for('cms.bulletin_board.edit', function (BreadcrumbTrail $trail) {
-    $trail->push('公佈欄列表', Route('cms.bulletin_board.index'));
+    $trail->parent('cms.bulletin_board.index');
     $trail->push('編輯公吿');
 });
-Breadcrumbs::for('cms.bulletin_board.show', function (BreadcrumbTrail $trail) {
-    $trail->push('公佈欄列表', Route('cms.bulletin_board.index'));
-    $trail->push('公吿');
+Breadcrumbs::for('cms.bulletin_board.show', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.bulletin_board.index');
+    $trail->push('主旨：' . $value);
 });
 
 // 申議書
 Breadcrumbs::for('cms.petition.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
-    $trail->push('申議書列表');
+    $trail->push('申議書列表', Route('cms.petition.index'));
 });
 Breadcrumbs::for('cms.petition.create', function (BreadcrumbTrail $trail) {
-    $trail->push('申議書列表', Route('cms.petition.index'));
+    $trail->parent('cms.petition.index');
     $trail->push('新增申議書');
 });
 Breadcrumbs::for('cms.petition.edit', function (BreadcrumbTrail $trail) {
-    $trail->push('申議書列表', Route('cms.petition.index'));
+    $trail->parent('cms.petition.index');
     $trail->push('編輯申議書');
 });
 Breadcrumbs::for('cms.petition.show', function (BreadcrumbTrail $trail, $value) {
-    $trail->push('申議書列表', Route('cms.petition.index'));
-    $trail->push('申議書【' . $value . '】');
+    $trail->parent('cms.petition.index');
+    $trail->push('主旨：' . $value);
 });
 
 Breadcrumbs::for('cms.petition.audit-list', function (BreadcrumbTrail $trail) {
@@ -241,8 +236,8 @@ Breadcrumbs::for('cms.petition.audit-list', function (BreadcrumbTrail $trail) {
 });
 
 Breadcrumbs::for('cms.petition.audit-confirm', function (BreadcrumbTrail $trail, $value) {
-    $trail->push('申議書列表', Route('cms.petition.audit-list'));
-    $trail->push('申議書【' . $value . '】');
+    $trail->push('申議書', Route('cms.petition.audit-list'));
+    $trail->push('主旨：' . $value);
 });
 
 
@@ -261,7 +256,7 @@ Breadcrumbs::for('cms.expenditure.edit', function (BreadcrumbTrail $trail) {
 });
 Breadcrumbs::for('cms.expenditure.show', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.expenditure.index');
-    $trail->push('支出憑單【' . $value . '】');
+    $trail->push('主旨：' . $value);
 });
 
 Breadcrumbs::for('cms.expenditure.audit-list', function (BreadcrumbTrail $trail) {
@@ -271,7 +266,7 @@ Breadcrumbs::for('cms.expenditure.audit-list', function (BreadcrumbTrail $trail)
 
 Breadcrumbs::for('cms.expenditure.audit-confirm', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.expenditure.audit-list');
-    $trail->push('支出憑單【' . $value . '】');
+    $trail->push('主旨：' . $value);
 });
 
 // 修改相關單號
@@ -287,7 +282,7 @@ Breadcrumbs::for('cms.combo-purchase.index', function (BreadcrumbTrail $trail) {
 });
 Breadcrumbs::for('cms.combo-purchase.edit', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.combo-purchase.index');
-    $trail->push('[【' . $value['product']->title . '】' . $value['style']->title . '] 組裝/拆包');
+    $trail->push($value['product']->title . ' - ' . $value['style']->title);
 });
 
 // 訂單管理
@@ -649,7 +644,7 @@ Breadcrumbs::for('cms.discount.create', function (BreadcrumbTrail $trail) {
 // 編輯 全館優惠
 Breadcrumbs::for('cms.discount.edit', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.discount.index');
-    $trail->push('[' . $value . '] 編輯');
+    $trail->push($value);
 });
 
 // 優惠劵 / 代碼
@@ -665,7 +660,7 @@ Breadcrumbs::for('cms.promo.create', function (BreadcrumbTrail $trail) {
 // 編輯 優惠劵 / 代碼
 Breadcrumbs::for('cms.promo.edit', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.promo.index');
-    $trail->push('[' . $value . '] 編輯');
+    $trail->push($value);
 });
 
 // 通關優惠券
@@ -850,7 +845,7 @@ Breadcrumbs::for('cms.homepage.banner.create', function (BreadcrumbTrail $trail)
 });
 Breadcrumbs::for('cms.homepage.banner.edit', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.homepage.banner.index');
-    $trail->push('[#' . $value . '] 編輯');
+    $trail->push($value);
 });
 
 //首頁設定-版型
@@ -864,7 +859,7 @@ Breadcrumbs::for('cms.homepage.template.create', function (BreadcrumbTrail $trai
 });
 Breadcrumbs::for('cms.homepage.template.edit', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.homepage.template.index');
-    $trail->push('[#' . $value . '] 編輯');
+    $trail->push($value);
 });
 
 //商品群組

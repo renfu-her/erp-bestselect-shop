@@ -514,7 +514,7 @@ class AccountReceivedCtrl extends Controller
 
                 // 收款項目
                 foreach($received_data as $value){
-                    $name = $value->received_method_name . ' ' . $value->summary . '（' . $value->account->code . ' - ' . $value->account->name . '）';
+                    $name = $value->received_method_name . ' ' . $value->summary . '（' . $value->account->code . ' ' . $value->account->name . '）';
                     // GeneralLedger::classification_processing($debit, $credit, $value->master_account->code, $name, $value->tw_price, 'r', 'received');
 
                     $tmp = [

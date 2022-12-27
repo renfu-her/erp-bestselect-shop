@@ -31,6 +31,7 @@ Route::group(['prefix' => 'product', 'as' => 'product.'], function () {
     // 價格管理
     Route::get('edit/{id}/sale/{sid}/price', [ProductCtrl::class, 'editPrice'])->name('edit-price')->middleware('permission:cms.product.edit-price');
     Route::post('edit/{id}/sale/{sid}/price', [ProductCtrl::class, 'updatePrice']);
+    Route::get('edit/{id}/sale/{sid}/batch-all-price', [ProductCtrl::class, 'batchProductStylePrice'])->name('batch-product-style-price')->middleware('permission:cms.product.edit-price');
     // [網頁]商品介紹
     Route::get('edit/{id}/web-desc', [ProductCtrl::class, 'editWebDesc'])->name('edit-web-desc')->middleware('permission:cms.product.edit-web-desc');
     Route::post('edit/{id}/web-desc', [ProductCtrl::class, 'updateWebDesc']); //->middleware('permission:cms.product.web-desc');

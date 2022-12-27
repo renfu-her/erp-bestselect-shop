@@ -48,6 +48,9 @@
                 <a class="ms-2" data-bs-toggle="popover" title="一鍵產生價格" data-bs-trigger="focus" tabindex="0"
                     data-bs-content="以黃底通路為基準，一次產生未設定價格 (已設定則不變)：售價=基準價*銷售通路折扣設定 / 經銷價、定價=基準價"><i class="bi bi-question-circle"></i>
                 </a>
+                <a href="{{ Route('cms.product.batch-product-style-price', ['id' => $style['product_id'], 'sid' => $style['id']]) }}" class="btn btn-outline-success">
+                    <i class="bi"></i> 同步所有通路（售價/經銷價/訂價/獎金/鴻利點數）
+                </a>
             </h6>
             <div class="table-responsive tableOverBox">
                 <table class="table tableList table-hover mb-1">

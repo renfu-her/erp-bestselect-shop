@@ -9,6 +9,7 @@ use App\Helpers\IttmsDBB;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -801,7 +802,7 @@ class Delivery extends Model
                         "grade_name":"\', COALESCE(grade.name, ""), \'",
                         "memo":"\', COALESCE(dlv_tmp.memo, ""), \'",
                         "note":"\', COALESCE(ord_items.note, ""), \'",
-                        "po_note":"\', COALESCE(ord_items.po_note, ""), \'",
+                        "po_note":"\', COALESCE(dlv_tmp.po_note, ""), \'",
                         "taxation":"\', COALESCE(product.has_tax, 1), \'"
                     }\' ORDER BY dlv_tmp.id), \']\') AS items
                 FROM ' . $s_q_table . ' AS dlv_tmp
@@ -899,5 +900,22 @@ class Delivery extends Model
             ->orderBy('delivery.id', 'desc');
 
         return $query;
+    }
+
+
+    public static function update_item($parm)
+    {
+        $update = [];
+        // if(Arr::exists($parm, 'note')){
+        //     $update['note'] = $parm['note'];
+        // }
+        // if(Arr::exists($parm, 'ro_note')){
+        //     $update['ro_note'] = $parm['ro_note'];
+        // }
+        if(Arr::exists($parm, 'po_note')){
+            $update['po_note'] = $parm['po_note'];
+        }
+
+        DB::table($parm['table'])->where('id', $parm['id'])->update($update);
     }
 }

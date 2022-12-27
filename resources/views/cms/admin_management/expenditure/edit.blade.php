@@ -20,7 +20,7 @@
                 </x-b-form-group>
 
                 <x-b-form-group name="department_id" title="支出單位" required="true" class="mb-3">
-                    <select class="form-select form-select-sm" name="department_id" aria-label="支出單位">  
+                    <select class="form-select" name="department_id" aria-label="支出單位">  
                         @foreach ($departments as $value)
                             <option value="{{ $value->id }}" @if ($value->id == old('department_id',$data->department_id ?? '')) selected @endif>
                                 {{ $value->title }}</option>
@@ -29,7 +29,7 @@
                 </x-b-form-group>
 
                 <x-b-form-group name="item_id" title="支出科目" required="true" class="mb-3">
-                    <select class="form-select form-select-sm" name="item_id" aria-label="支出科目">  
+                    <select class="form-select" name="item_id" aria-label="支出科目">  
                         @foreach ($items as $value)
                             <option value="{{ $value->id }}" @if ($value->id == old('item_id',$data->item_id ?? '')) selected @endif>
                                 {{ $value->title }}</option>
@@ -37,7 +37,7 @@
                     </select>
                 </x-b-form-group>
                 <x-b-form-group name="payment_id" title="預計支付方式" required="true" class="mb-3">
-                    <select class="form-select form-select-sm" name="payment_id" aria-label="年度">  
+                    <select class="form-select" name="payment_id" aria-label="年度">  
                         @foreach ($payments as $value)
                             <option value="{{ $value->id }}" @if ($value->id == old('payment_id',$data->payment_id ?? '')) selected @endif>
                                 {{ $value->title }}</option>

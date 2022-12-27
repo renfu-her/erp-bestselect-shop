@@ -19,12 +19,14 @@ class ComboPurchaseCtrl extends Controller
      */
     public function index(Request $request)
     {
-
+       
         $query = $request->query();
         $keyword = Arr::get($query, 'keyword', null);
         $data_per_page = Arr::get($query, 'data_per_page', 10);
+        $negative_stock = Arr::get($query, 'negative_stock', null);
 
-        $dataList = Product::productStyleList($keyword, 'c')
+        $options = ['negative_stock' => $negative_stock];
+        $dataList = Product::productStyleList($keyword, 'c', null, $options)
             ->paginate($data_per_page)->appends($query);
 
         return view('cms.commodity.combo_purchase.list', [
@@ -86,7 +88,7 @@ class ComboPurchaseCtrl extends Controller
             return abort(404);
         }
         $combos = ProductStyleCombo::comboList($id)->get();
-       
+
         $product = self::product_data($style->product_id);
         return view('cms.commodity.combo_purchase.edit', [
             'product' => $product,
@@ -105,13 +107,16 @@ class ComboPurchaseCtrl extends Controller
      */
     public function update(Request $request, $id)
     {
+        // dd($_POST);
         $request->validate([
             'qty' => 'required',
         ]);
 
+        $check_stock = isset($_POST['check_stock']) ? true : false;
+
         $qty = $request->input('qty');
-        $re = ProductStock::comboProcess($id, $qty);
-       
+        $re = ProductStock::comboProcess($id, $qty, $check_stock);
+
         if (!$re['success']) {
             return redirect()->back()->withErrors(['qty' => $re['error_msg']]);
         }
@@ -131,4 +136,15 @@ class ComboPurchaseCtrl extends Controller
     {
         //
     }
+
+    public static function correction(){
+        //dd('aa');
+
+        ProductStyleCombo::correction();
+        // dd('vv');
+        wToast('校正回歸完成');
+
+        return redirect()->back();
+    }
+
 }

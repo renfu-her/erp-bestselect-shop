@@ -213,7 +213,7 @@ class UserCtrl extends Controller
                         null,
                         $d['PASSWORD'],
                         [],
-                        [],
+                        [4],
                         'C000061',
                         $d['TITLE'], $d['COMPANY'], $d['DEPARTMENT'], $d['GROUP']);
 

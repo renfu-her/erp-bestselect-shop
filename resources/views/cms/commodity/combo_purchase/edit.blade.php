@@ -1,29 +1,33 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h2 class="mb-4">【{{ $product->title }}】{{ $style->title }}</h2>
+    <h2 class="mb-4">{{ $product->title }}
+        <span class="small"><span class="badge bg-secondary">{{ $style->title }}</span></span>
+    </h2>
     <form action="{{ Route('cms.combo-purchase.edit', ['id' => $style->id], true) }}" method="POST">
         @csrf
         <div class="card shadow p-4 mb-4">
             <p class="mb-4">當前庫存：<span class="text-decoration-underline fs-4">{{ $style->in_stock }}</span>（組）</p>
-
+            @php
+                $s_min = $style->in_stock > 0 ? -$style->in_stock : 0;
+            @endphp
             <div class="row justify-content-center mb-3">
                 <label class="text-muted text-center">數量異動</label>
                 <div class="col-auto mb-3">
-                    <x-b-qty-adjuster name="qty" min="-{{ $style->in_stock }}" size="lg" minus="拆包" plus="組裝"></x-b-qty-adjuster>
+                    <x-b-qty-adjuster name="qty" min="{{ $s_min }}" size="lg" minus="拆包" plus="組裝"></x-b-qty-adjuster>
                 </div>
             </div>
 
             <div class="table-responsive">
                 <table class="table table-striped tableList">
-                    <thead>
+                    <thead class="align-middle">
                         <tr>
-                            <th scope="col" style="width:10%">#</th>
+                            <th scope="col" style="width:40px">#</th>
                             <th scope="col">SKU</th>
                             <th scope="col">商品名稱</th>
                             <th scope="col">款式</th>
                             <th scope="col">數量</th>
                             <th scope="col" class="text-center border-start border-end">目前庫存</th>
-                            <th scope="col" class="text-center">剩餘庫存試算</th>
+                            <th scope="col" class="text-center small wrap">剩餘庫存試算</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -31,17 +35,25 @@
                             <tr>
                                 <th scope="row">{{ $key + 1 }}</th>
                                 <td>{{ $combo->sku }}</td>
-                                <td>{{ $combo->title }}</td>
+                                <td class="wrap">{{ $combo->title }}</td>
                                 <td>{{ $combo->spec }}</td>
-                                <td data-td="qty">{{ $combo->qty }}</td>
+                                <td data-td="qty" class="text-center">{{ $combo->qty }}</td>
                                 <td data-td="stock" class="text-center border-start border-end fw-bold fs-5">{{ $combo->in_stock }}</td>
-                                <td data-td="count" class="text-center fs-5">{{ $combo->in_stock }}</td>
+                                <td data-td="count" class="text-center fs-5 pe-0">{{ $combo->in_stock }}</td>
                             </tr>
                         @endforeach
                     </tbody>
                 </table>
             </div>
 
+            <div>
+                <div class="form-check form-check-inline">
+                    <label class="form-check-label">
+                        <input class="form-check-input" name="check_stock" type="checkbox" checked>
+                        限制<span class="text-primary">剩餘庫存</span>不為負
+                    </label>
+                </div>
+            </div>
         </div>
 
         <div>
@@ -66,7 +78,7 @@
     @endpush
     @push('sub-scripts')
         <script>
-            const min_stock = Number($('input[name="qty"]').attr('min'));
+            const min_stock = @json($s_min);
             
             // 數量異動 input
             $('input[name="qty"]').on('change', function() {
@@ -75,13 +87,28 @@
             // +/- btn
             $('button.-minus, button.-plus').on('click', function() {
                 const m_qty = Number($('input[name="qty"]').val());
-                if ($(this).hasClass('-minus') && m_qty > min_stock) {
+                if ($(this).hasClass('-minus') && 
+                    (!$('input[name="check_stock"]').prop('checked') || 
+                    m_qty > min_stock)) {
                     $('input[name="qty"]').val(m_qty - 1);
                 }
                 if ($(this).hasClass('-plus')) {
                     $('input[name="qty"]').val(m_qty + 1);
                 }
                 countStock();
+            });
+            // 負數檢查
+            $('input[name="check_stock"]').on('change', function () {
+                if ($(this).prop('checked')) {
+                    $('input[name="qty"]').attr('min', min_stock);
+                    if (Number($('input[name="qty"]').val()) < min_stock) {
+                        $('input[name="qty"]').val(min_stock);
+                    }
+                    countStock();
+                } else {
+                    $('form button[type="submit"]').prop('disabled', false);
+                    $('input[name="qty"]').removeAttr('min');
+                }
             });
 
             function countStock() {
@@ -106,7 +133,7 @@
                     }
                 });
 
-                if (m_qty < min_stock || !checkCount) {
+                if ($('input[name="check_stock"]').prop('checked') && (m_qty < min_stock || !checkCount)) {
                     $('form button[type="submit"]').prop('disabled', true);
                 } else {
                     $('form button[type="submit"]').prop('disabled', false);
