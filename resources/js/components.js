@@ -609,4 +609,27 @@
             }
         }
     }
+
+    /** 複製至剪貼簿 */
+    window.copyToClipboard = function (data = '', successMsg = '已複製至剪貼簿', errorMsg = '請手動複製') {
+        if (navigator && navigator.clipboard) {
+            navigator.clipboard.writeText(data)
+            .then(() => {
+                toast.show(successMsg, {
+                    type: 'success'
+                });
+            }).catch((err) => {
+                console.error('剪貼簿錯誤', err);
+                toast.show(errorMsg, {
+                    title: '發生錯誤',
+                    type: 'danger'
+                });
+            });
+        } else {
+            toast.show(errorMsg, {
+                title: '不支援剪貼簿功能',
+                type: 'danger'
+            });
+        }
+    }
 })();

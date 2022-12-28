@@ -127,6 +127,11 @@ return
                 "controller_name" => "EdmCtrl",
                 "route_name" => "cms.edm.index",
             ],
+            [
+                "title" => "一頁式網站",
+                "controller_name" => "OnePageCtrl",
+                "route_name" => "cms.onepage.index",
+            ],
         ],
     ],
     [
