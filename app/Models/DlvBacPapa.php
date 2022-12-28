@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use App\Enums\Delivery\BackStatus;
 use App\Enums\DlvBack\DlvBackPapaType;
 use App\Helpers\IttmsDBB;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class DlvBacPapa extends Model
 {
@@ -71,5 +73,17 @@ class DlvBacPapa extends Model
             $re->where('dlv.id', '=', $delivery_id);
         }
         return $re;
+    }
+
+    public static function changeBackStatus($bac_papa_id, BackStatus $status)
+    {
+        if (false == BackStatus::hasKey($status->key)) {
+            throw ValidationException::withMessages(['error_msg' => '無此退貨狀態']);
+        }
+
+        DlvBacPapa::where('id', '=', $bac_papa_id)->update([
+            'back_status' => $status->value
+            , 'back_status_date' => date('Y-m-d H:i:s'),
+        ]);
     }
 }

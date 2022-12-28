@@ -897,6 +897,7 @@ class DeliveryCtrl extends Controller
             $bac_papa_id = $reBacPapa['id'];
             //修改狀態改為只在新增時做
             Delivery::changeBackStatus($delivery->id, BackStatus::add_back());
+            DlvBacPapa::changeBackStatus($bac_papa_id, BackStatus::add_back());
             if (Event::order()->value == $delivery->event) {
                 $subOrder = SubOrders::where('id', '=', $delivery->event_id)->first();
                 OrderFlow::changeOrderStatus($subOrder->order_id, OrderStatus::BackProcessing());
@@ -952,6 +953,7 @@ class DeliveryCtrl extends Controller
         DlvBack::where('bac_papa_id', $bac_papa_id)->delete();
         DlvBacPapa::where('id', $bac_papa_id)->delete();
         Delivery::changeBackStatus($delivery->id, BackStatus::del_back());
+        DlvBacPapa::changeBackStatus($bac_papa_id, BackStatus::del_back());
 
         if (Event::order()->value == $delivery->event) {
             $subOrder = SubOrders::where('id', '=', $delivery->event_id)->first();
@@ -1402,6 +1404,7 @@ class DeliveryCtrl extends Controller
                     , 'inbound_date' => date("Y-m-d H:i:s"),
                 ]);
                 Delivery::changeBackStatus($delivery->id, BackStatus::add_back_inbound());
+                DlvBacPapa::changeBackStatus($bac_papa_id, BackStatus::add_back_inbound());
 
                 $reLFCDS = LogisticFlow::createDeliveryStatus($request->user(), $delivery->id, [LogisticStatus::C3000()]);
                 if ($reLFCDS['success'] == 0) {
@@ -1703,6 +1706,7 @@ class DeliveryCtrl extends Controller
                     , 'inbound_date' => null
                 ]);
                 Delivery::changeBackStatus($delivery->id, BackStatus::del_back_inbound());
+                DlvBacPapa::changeBackStatus($bac_papa_id, BackStatus::del_back_inbound());
                 $reLFCDS = LogisticFlow::createDeliveryStatus($request->user(), $delivery->id, [LogisticStatus::C2000()]);
                 if ($reLFCDS['success'] == 0) {
                     DB::rollBack();
