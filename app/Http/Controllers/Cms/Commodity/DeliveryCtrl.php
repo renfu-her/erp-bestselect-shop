@@ -1035,6 +1035,7 @@ class DeliveryCtrl extends Controller
                     for($i = 0; $i < count($input_items['id']); $i++) {
 //                        if (0 == $input_items['back_qty'][$i]) {
 //                            //判斷數量零的就跳過
+//                            //20221228 不跳過 就算數字為零 可能還是會編輯資料
 //                            continue;
 //                        }
                         $addItem = [
