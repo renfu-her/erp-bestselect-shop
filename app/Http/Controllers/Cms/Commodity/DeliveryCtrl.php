@@ -1033,10 +1033,10 @@ class DeliveryCtrl extends Controller
                     $default_grade_id = ReceivedDefault::where('name', '=', 'product')->first()->default_grade_id;
                     $curr_date = date('Y-m-d H:i:s');
                     for($i = 0; $i < count($input_items['id']); $i++) {
-                        if (0 == $input_items['back_qty'][$i]) {
-                            //判斷數量零的就跳過
-                            continue;
-                        }
+//                        if (0 == $input_items['back_qty'][$i]) {
+//                            //判斷數量零的就跳過
+//                            continue;
+//                        }
                         $addItem = [
                             'bac_papa_id' => $bac_papa_id,
                             'delivery_id' => $delivery->id,

@@ -83,7 +83,6 @@ class DlvBacPapa extends Model
 
         DlvBacPapa::where('id', '=', $bac_papa_id)->update([
             'back_status' => $status->value
-            , 'back_status_date' => date('Y-m-d H:i:s'),
         ]);
     }
 }
