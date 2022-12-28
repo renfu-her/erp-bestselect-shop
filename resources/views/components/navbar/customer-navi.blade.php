@@ -47,25 +47,7 @@
         <script>
             $('button.-copy').off('click').on('click', function() {
                 const mcode = $(this).data('mcode');
-                if (navigator && navigator.clipboard) {
-                    navigator.clipboard.writeText(mcode)
-                        .then(() => {
-                            toast.show('已複製頁面連結至剪貼簿', {
-                                type: 'success'
-                            });
-                        }).catch((err) => {
-                            console.error('剪貼簿錯誤', err);
-                            toast.show('請手動複製連結：<br>' + mcode, {
-                                title: '發生錯誤',
-                                type: 'danger'
-                            });
-                        });
-                } else {
-                    toast.show('請手動複製連結：<br>' + mcode, {
-                        title: '不支援剪貼簿功能',
-                        type: 'danger'
-                    });
-                }
+                copyToClipboard(mcode, '已複製Mcode至剪貼簿', `請手動複製Mcode：${mcode}`);
             });
         </script>
     @endpush

@@ -10,19 +10,13 @@ use App\Enums\Order\UserAddrType;
 // use App\Enums\;
 use App\Enums\Received\ReceivedMethod;
 use App\Http\Controllers\Controller;
-use App\Models\CrdCreditCard;
 use App\Models\Customer;
 use App\Models\Delivery;
 use App\Models\Discount;
-use App\Models\GeneralLedger;
 use App\Models\LogisticFlow;
 use App\Models\Order;
-use App\Models\OrderPayCreditCard;
-use App\Models\OrderPayLinePay;
-use App\Models\OrderRemit;
-use App\Models\ReceivedDefault;
-use App\Models\ReceivedOrder;
 use App\Models\OrderCreateLog;
+use App\Models\OrderRemit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -74,10 +68,10 @@ class OrderCtrl extends Controller
 
         if (!$payLoad) {
             OrderCreateLog::create([
-                'email'=>'',
-                'payload'=>'',
-                'return_value'=>'參數不能為空值',
-                'success'=> 0
+                'email' => '',
+                'payload' => '',
+                'return_value' => '參數不能為空值',
+                'success' => 0,
             ]);
             return response()->json([
                 'status' => 'E01',
@@ -101,7 +95,7 @@ class OrderCtrl extends Controller
             "recipient.phone" => "required",
             "recipient.region_id" => "required|numeric",
             "recipient.addr" => "required",
-            "payment" => Rule::in([ReceivedMethod::Cash()->value, ReceivedMethod::CreditCard()->value, ReceivedMethod::Remittance()->value, 'line_pay']),
+            //  "payment" => Rule::in([ReceivedMethod::Cash()->value, ReceivedMethod::CreditCard()->value, ReceivedMethod::Remittance()->value, 'line_pay']),
             "products" => 'array|required',
             "products.*.qty" => "required|numeric",
             "products.*.product_id" => "required",
@@ -109,6 +103,12 @@ class OrderCtrl extends Controller
             "products.*.shipment_type" => "required",
             "products.*.shipment_event_id" => "required",
         ];
+
+        $checkPayment = false;
+        if (!isset($payLoad['type'])) {
+            $valiRule['payment'] = Rule::in([ReceivedMethod::Cash()->value, ReceivedMethod::CreditCard()->value, ReceivedMethod::Remittance()->value, 'line_pay']);
+            $checkPayment = true;
+        }
 
         if (!Auth::guard('sanctum')->check()) {
             $valiRule['email'] = 'required|email';
@@ -118,10 +118,10 @@ class OrderCtrl extends Controller
 
         if ($validator->fails()) {
             OrderCreateLog::create([
-                'email'=>'',
-                'payload'=>json_encode($payLoad),
-                'return_value'=>json_encode($validator->errors()),
-                'success'=> 0
+                'email' => '',
+                'payload' => json_encode($payLoad),
+                'return_value' => json_encode($validator->errors()),
+                'success' => 0,
             ]);
             return response()->json([
                 'status' => 'E01',
@@ -151,27 +151,26 @@ class OrderCtrl extends Controller
             $customer = $request->user();
         }
 
-
         $address = [];
         $address[] = ['name' => $payLoad['orderer']['name'],
             'phone' => $payLoad['orderer']['phone'],
             'address' => $payLoad['orderer']['addr'],
-            'city_id'=>$payLoad['orderer']['city_id'],
-            'region_id'=>$payLoad['orderer']['region_id'],
+            'city_id' => $payLoad['orderer']['city_id'],
+            'region_id' => $payLoad['orderer']['region_id'],
             'type' => UserAddrType::orderer()->value];
 
         $address[] = ['name' => $payLoad['orderer']['name'],
             'phone' => $payLoad['orderer']['phone'],
             'address' => $payLoad['orderer']['addr'],
-            'city_id'=> $payLoad['orderer']['city_id'],
-            'region_id'=> $payLoad['orderer']['region_id'],
+            'city_id' => $payLoad['orderer']['city_id'],
+            'region_id' => $payLoad['orderer']['region_id'],
             'type' => UserAddrType::sender()->value];
 
         $address[] = ['name' => $payLoad['recipient']['name'],
             'phone' => $payLoad['recipient']['phone'],
             'address' => $payLoad['recipient']['addr'],
-            'city_id'=> $payLoad['recipient']['city_id'],
-            'region_id'=> $payLoad['recipient']['region_id'],
+            'city_id' => $payLoad['recipient']['city_id'],
+            'region_id' => $payLoad['recipient']['region_id'],
             'type' => UserAddrType::receiver()->value];
 
         $couponObj = null;
@@ -201,25 +200,30 @@ class OrderCtrl extends Controller
             $dividend = $payLoad['points'];
         }
 
-        if($payLoad['payment'] == 'line_pay'){
-            $payment = (object) [
-                'value' => 'line_pay',
-                'description' => 'Line Pay',
-            ];
+        if (isset($payLoad['payment']) && $checkPayment) {
+            if ($payLoad['payment'] == 'line_pay') {
+                $payment = (object) [
+                    'value' => 'line_pay',
+                    'description' => 'Line Pay',
+                ];
 
+            } else {
+                $payment = ReceivedMethod::fromValue($payLoad['payment']);
+            }
         } else {
-            $payment = ReceivedMethod::fromValue($payLoad['payment']);
+            $payment = null;
         }
+        
         $re = Order::createOrder($customer->email, 1, $address, $payLoad['products'], $payLoad['mcode'] ?? null, $payLoad['note'], $couponObj, $payinfo, $payment, $dividend, $request->user());
 
         if ($re['success'] == '1') {
             DB::commit();
             // log
             OrderCreateLog::create([
-                'email'=>$customer->email,
-                'payload'=>json_encode($payLoad),
-                'return_value'=>json_encode($re),
-                'success'=>1
+                'email' => $customer->email,
+                'payload' => json_encode($payLoad),
+                'return_value' => json_encode($re),
+                'success' => 1,
             ]);
             return [
                 'status' => '0',
@@ -233,10 +237,10 @@ class OrderCtrl extends Controller
         DB::rollBack();
         // log
         OrderCreateLog::create([
-            'email'=>$customer->email,
-            'payload'=>json_encode($payLoad),
-            'return_value'=>json_encode($re),
-            'success'=> 0
+            'email' => $customer->email,
+            'payload' => json_encode($payLoad),
+            'return_value' => json_encode($re),
+            'success' => 0,
         ]);
         return [
             'status' => 'E05',
@@ -304,7 +308,7 @@ class OrderCtrl extends Controller
                 'created_at' => $order->created_at,
                 'total_price' => $order->total_price,
                 'sub_order' => $subOrderArray,
-                'logistic_url' => env('LOGISTIC_URL') . 'guest/order-flow/'
+                'logistic_url' => env('LOGISTIC_URL') . 'guest/order-flow/',
 
             ];
         }
@@ -513,7 +517,7 @@ class OrderCtrl extends Controller
         }
 
         $d = $request->all();
-        $reOCO = Order::cancelOrder($d['order_id'],'frontend');
+        $reOCO = Order::cancelOrder($d['order_id'], 'frontend');
         if ($reOCO['success'] == 0) {
             $re = [];
             $re[ResponseParam::status()->key] = 'E02';
@@ -525,7 +529,6 @@ class OrderCtrl extends Controller
                 'status' => '0',
             ];
         }
-
 
     }
 }
