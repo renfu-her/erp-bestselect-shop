@@ -44,7 +44,7 @@
             </div>
             <div class="col">
                 <dt>狀態</dt>
-                <dd>{{ \App\Enums\Delivery\BackStatus::getDescription($bacPapa->status ?? '')}}</dd>
+                <dd>{{ \App\Enums\Delivery\BackStatus::getDescription($bacPapa->back_status ?? '')}}</dd>
             </div>
             <div class="col">
                 <dt>入庫日期</dt>
