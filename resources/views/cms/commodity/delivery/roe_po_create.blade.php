@@ -415,7 +415,7 @@
 
         <div class="col-auto">
             <button type="submit" class="btn btn-primary px-4">儲存</button>
-            <a href="{{ Route('cms.delivery.roe-po', ['id' => $delivery->delivery_id, 'behavior' => $behavior]) }}" 
+            <a href="{{ $delivery->po_link }}" 
                 class="btn btn-outline-primary px-4" role="button">返回上一頁</a>
         </div>
     </form>

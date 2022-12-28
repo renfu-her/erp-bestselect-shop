@@ -17,7 +17,9 @@ class PurchaseLog extends Model
 
     public static function stockChange($event_parent_id, $product_style_id, $event, $event_id, $feature, $inbound_id = null, $qty, $note = null
         , $product_title = null, $prd_type = null
-        , $operator_user_id, $operator_user_name)
+        , $operator_user_id, $operator_user_name
+        , $extra_id = 0
+    )
     {
         if (!Event::hasKey($event)) {
             return ['success' => 0, 'error_msg' => 'event error '.$event];
@@ -33,6 +35,7 @@ class PurchaseLog extends Model
                 'product_style_id' => $product_style_id,
                 'event' => $event,
                 'event_id' => $event_id,
+                'extra_id' => $extra_id,
                 'feature' => $feature,
                 'inbound_id' => $inbound_id,
                 'product_title' => $product_title,
