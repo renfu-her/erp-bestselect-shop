@@ -1134,6 +1134,19 @@ return [
         ],
     ],
     [
+        "unit" => "售價利潤報表",
+        "permissions" => [
+            [
+                "cms.product-profit-report.index",
+                "瀏覽",
+            ],
+            [
+                "cms.product-profit-report.export-excel",
+                "匯出",
+            ],
+        ],
+    ],
+    [
         "unit" => "營業額目標",
         "permissions" => [
             [
@@ -1224,7 +1237,7 @@ return [
         ],
     ],
 
-   
+
 
 
 ];

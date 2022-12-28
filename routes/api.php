@@ -85,6 +85,8 @@ Route::group(['prefix' => 'web', 'as' => 'web.'], function () {
     require base_path('routes/api/web/CustomPages.php');
     require base_path('routes/api/web/Product.php');
     require base_path('routes/api/web/Order.php');
+    require base_path('routes/api/web/OnePage.php');
+
 
     Route::post('check-discount-code', [DiscountCtrl::class, 'checkDiscountCode'])->name('check-discount-code');
 

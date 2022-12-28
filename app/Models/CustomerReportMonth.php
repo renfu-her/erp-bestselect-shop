@@ -13,7 +13,9 @@ class CustomerReportMonth extends Model
 
     protected $table = 'usr_customer_report_month';
     protected $guarded = [];
+    public $timestamps = false;
 
+    // deprecated
     public static function createData($date = null)
     {
         if (!$date) {
@@ -33,7 +35,7 @@ class CustomerReportMonth extends Model
             ->whereNotNull('order.mcode')
             ->groupBy('order.mcode')->get();
 
-        $currentDate =  Date("Y-m-1", strtotime($sdate));
+        $currentDate = Date("Y-m-1", strtotime($sdate));
         self::where('date', $currentDate)->delete();
 
         foreach ($re as $data) {
@@ -46,19 +48,19 @@ class CustomerReportMonth extends Model
                     'customer_id' => $customer->id,
                 ]);
                 /*
-                if (self::where('date', Date("Y-m-1", strtotime($sdate)))->where('customer_id', $customer->id)->get()->first()) {
-                    self::where('date', Date("Y-m-1", strtotime($sdate)))->where('customer_id', $customer->id)->update([
-                        'price' => $data->price ? $data->price : 0,
+            if (self::where('date', Date("Y-m-1", strtotime($sdate)))->where('customer_id', $customer->id)->get()->first()) {
+            self::where('date', Date("Y-m-1", strtotime($sdate)))->where('customer_id', $customer->id)->update([
+            'price' => $data->price ? $data->price : 0,
 
-                    ]);
-                } else {
-                    self::create([
-                        'date' => Date("Y-m-1", strtotime($sdate)),
-                        'price' => $data->price ? $data->price : 0,
-                        'customer_id' => $customer->id,
-                    ]);
-                }
-                */
+            ]);
+            } else {
+            self::create([
+            'date' => Date("Y-m-1", strtotime($sdate)),
+            'price' => $data->price ? $data->price : 0,
+            'customer_id' => $customer->id,
+            ]);
+            }
+             */
             }
         }
 
@@ -69,11 +71,37 @@ class CustomerReportMonth extends Model
 
     }
 
+    public static function report($sdate)
+    {
+        $sdate = Date("Y-m-1 00:00:00", strtotime($sdate));
+        $edate = Date("Y-m-t 23:59:59", strtotime($sdate));
+        $currentDate = Date("Y-m-1", strtotime($sdate));
+
+        self::where('date', $currentDate)->delete();
+
+        $re = DB::table('rpt_user_report_monthly')
+            ->select('user_id')
+            ->selectRaw('SUM(total_price) as total_price')
+            ->groupBy('user_id')
+            ->whereBetween('month', [$sdate, $edate]);
+
+        self::insert(array_map(function ($n) use ($currentDate) {
+            return [
+                'user_id' => $n->user_id,
+                'date' => $currentDate,
+                'price' => $n->total_price,
+            ];
+        }, $re->get()->toArray()));
+
+       // dd($re->get());
+
+    }
+
     public static function dataList()
     {
         return DB::table('usr_customer_report_month as month')
-            ->leftJoin('usr_customers as customer', 'month.customer_id', '=', 'customer.id')
-            ->select('customer.name', 'month.price')
+            ->leftJoin('usr_users as user', 'month.user_id', '=', 'user.id')
+            ->select('user.name', 'month.price')
             ->orderBy('month.price', 'DESC');
     }
 }

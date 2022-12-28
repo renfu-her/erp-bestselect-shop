@@ -193,6 +193,9 @@ class RptUserReportMonthly extends Model
         }
 
         self::insert($insertData);
+        
+
+        CustomerReportMonth::report($sdate);
 
     }
 

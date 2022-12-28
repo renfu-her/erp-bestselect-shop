@@ -22,14 +22,14 @@
         <div class="p-1 pe-2">
             @if(! $items->po_sn && $po_check)
                 <a class="btn btn-primary btn-sm my-1 ms-1"
-                    href="{{ Route('cms.delivery.roe-po', ['id' => $delivery->id, 'behavior' => 'return']) }}">新增退貨付款單</a>
+                    href="{{ Route('cms.delivery.roe-po', ['id' => $delivery->id, 'behavior' => 'return', 'bac_papa_id' => $bacPapa->id]) }}">新增退貨付款單</a>
             @endif
-            @if (false == $has_payable_data_back)
+            @if (! $items->po_sn)
                 <a class="btn btn-primary btn-sm my-1 ms-1"
-                   href="{{ Route('cms.delivery.back_edit', ['event' => $delivery->event, 'eventId' => $delivery->event_id]) }}">編輯退貨</a>
+                   href="{{ Route('cms.delivery.back_edit', ['bac_papa_id' => $bacPapa->id]) }}">編輯退貨</a>
             @endif
             <a target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm my-1 ms-1"
-               href="{{ Route('cms.delivery.print_back', ['event' => $delivery->event, 'eventId' => $delivery->event_id]) }}">
+               href="{{ Route('cms.delivery.print_back', ['bac_papa_id' => $bacPapa->id]) }}">
                 列印退貨單
             </a>
         </div>
@@ -40,15 +40,15 @@
         <dl class="row">
             <div class="col">
                 <dt>銷貨退回單號</dt>
-                <dd>{{$delivery->back_sn ?? ''}}</dd>
+                <dd>{{$bacPapa->sn ?? ''}}</dd>
             </div>
             <div class="col">
                 <dt>狀態</dt>
-                <dd>{{ \App\Enums\Delivery\BackStatus::getDescription($delivery->back_status ?? '')}}</dd>
+                <dd>{{ \App\Enums\Delivery\BackStatus::getDescription($bacPapa->back_status ?? '')}}</dd>
             </div>
             <div class="col">
                 <dt>入庫日期</dt>
-                <dd>{{ $delivery->back_inbound_date ? date('Y/m/d', strtotime($delivery->back_inbound_date)) : '' }}</dd>
+                <dd>{{ $bacPapa->inbound_date ? date('Y/m/d', strtotime($bacPapa->inbound_date)) : '' }}</dd>
             </div>
         </dl>
         <dl class="row">
@@ -76,7 +76,7 @@
             </div>
             <div class="col">
                 <dt>新增者</dt>
-                <dd>{{$delivery->back_user_name ?? ''}}</dd>
+                <dd>{{$bacPapa->user_name ?? ''}}</dd>
             </div>
         </dl>
         <dl class="row">
@@ -106,7 +106,7 @@
 {{--            </div>--}}
             <div class="col">
                 <dt>入庫者</dt>
-                <dd>{{$delivery->back_inbound_user_name ?? ''}}</dd>
+                <dd>{{$bacPapa->inbound_user_name ?? ''}}</dd>
             </div>
         </dl>
         <dl class="row">
@@ -116,7 +116,7 @@
 {{--            </div>--}}
             <div class="col">
                 <dt>退貨單備註</dt>
-                <dd>{{$delivery->back_memo ?? ''}}</dd>
+                <dd>{{$bacPapa->memo ?? ''}}</dd>
             </div>
             <div class="col">
                 <dt>訂貨單號</dt>
@@ -127,7 +127,7 @@
         <dl class="row">
             <div class="col">
                 <dt>退貨付款單號</dt>
-                <dd><a href="{{ route('cms.delivery.roe-po', ['id' => $items->delivery_id, 'behavior' => 'return']) }}" class="-text">{{ $items->po_sn }}</a></dd>
+                <dd><a href="{{ route('cms.delivery.roe-po', ['id' => $items->delivery_id, 'behavior' => 'return', 'bac_papa_id' => $bacPapa->id]) }}" class="-text">{{ $items->po_sn }}</a></dd>
             </div>
         </dl>
         @endif
@@ -275,7 +275,7 @@
                                                 <td data-td="sn">{{ $rec->inbound_sn }}</td>
                                                 <td data-td="depot">{{ $rec->depot_name }}</td>
                                                 <td data-td="expiry">{{ date('Y/m/d', strtotime($rec->expiry_date)) }}</td>
-                                                <td class="text-center">{{ $rec->back_qty }}</td>
+                                                <td class="text-center">{{ $rec->elebac_qty }}</td>
                                                 <td>{{ $rec->memo ?? '' }}</td>
                                             </tr>
                                         @endif
@@ -292,6 +292,7 @@
     @endif
 
     <div class="col-auto">
+        <a href="{{ Route('cms.delivery.back_list', ['deliveryId' => $delivery->id ]) }}" class="btn btn-outline-primary px-4" role="button">返回退貨列表</a>
         @if($delivery->event == App\Enums\Delivery\Event::order()->value)
             <a href="{{ Route('cms.order.detail', ['id' => $order->id, 'subOrderId' => $delivery->event_id ]) }}" class="btn btn-outline-primary px-4" role="button">返回明細</a>
         @elseif($delivery->event == App\Enums\Delivery\Event::consignment()->value)

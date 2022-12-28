@@ -22,18 +22,20 @@ Route::group(['prefix' => 'delivery','as'=>'delivery.'], function () {
     Route::get('print_out_stock/{event}/{eventId}', [DeliveryCtrl::class, 'print_out_stock'])->name('print_out_stock')->middleware('permission:cms.delivery.edit');
 
     //退貨
-    Route::get('back/{event}/{eventId}', [DeliveryCtrl::class, 'back'])->name('back')->middleware('permission:cms.delivery.edit');
-    Route::get('back_delete/{deliveryId}', [DeliveryCtrl::class, 'back_delete'])->name('back_delete')->middleware('permission:cms.delivery.edit');
-    Route::post('back_store/{deliveryId}', [DeliveryCtrl::class, 'back_store'])->name('back_store')->middleware('permission:cms.delivery.edit');
-    Route::get('back_edit/{event}/{eventId}', [DeliveryCtrl::class, 'back_edit'])->name('back_edit')->middleware('permission:cms.delivery.edit');
-    Route::get('back_detail/{event}/{eventId}', [DeliveryCtrl::class, 'back_detail'])->name('back_detail')->middleware('permission:cms.delivery.edit');
-    Route::get('print_back/{event}/{eventId}', [DeliveryCtrl::class, 'print_back'])->name('print_back')->middleware('permission:cms.delivery.edit');
+    Route::get('back_list/{deliveryId?}', [DeliveryCtrl::class, 'back_list'])->name('back_list')->middleware('permission:cms.delivery.edit');
+    Route::get('back_create/{deliveryId}', [DeliveryCtrl::class, 'back_create'])->name('back_create')->middleware('permission:cms.delivery.edit');
+    Route::post('back_create/{deliveryId}', [DeliveryCtrl::class, 'back_create_store'])->name('back_create')->middleware('permission:cms.delivery.edit');
+    Route::get('back_delete/{bac_papa_id}', [DeliveryCtrl::class, 'back_delete'])->name('back_delete')->middleware('permission:cms.delivery.edit');
+    Route::post('back_store/{bac_papa_id}', [DeliveryCtrl::class, 'back_store'])->name('back_store')->middleware('permission:cms.delivery.edit');
+    Route::get('back_edit/{bac_papa_id}', [DeliveryCtrl::class, 'back_edit'])->name('back_edit')->middleware('permission:cms.delivery.edit');
+    Route::get('back_detail/{bac_papa_id}', [DeliveryCtrl::class, 'back_detail'])->name('back_detail')->middleware('permission:cms.delivery.edit');
+    Route::get('print_back/{bac_papa_id}', [DeliveryCtrl::class, 'print_back'])->name('print_back')->middleware('permission:cms.delivery.edit');
 
     //退貨入庫審核
-    Route::get('back_inbound/{event}/{eventId}', [DeliveryCtrl::class, 'back_inbound'])->name('back_inbound')->middleware('permission:cms.delivery.edit');
-    Route::post('back_inbound_store/{deliveryId}', [DeliveryCtrl::class, 'back_inbound_store'])->name('back_inbound_store')->middleware('permission:cms.delivery.edit');
-    Route::get('back_inbound_delete/{deliveryId}', [DeliveryCtrl::class, 'back_inbound_delete'])->name('back_inbound_delete')->middleware('permission:cms.delivery.edit');
+    Route::get('back_inbound/{bac_papa_id}', [DeliveryCtrl::class, 'back_inbound'])->name('back_inbound')->middleware('permission:cms.delivery.edit');
+    Route::post('back_inbound_store/{bac_papa_id}', [DeliveryCtrl::class, 'back_inbound_store'])->name('back_inbound_store')->middleware('permission:cms.delivery.edit');
+    Route::get('back_inbound_delete/{bac_papa_id}', [DeliveryCtrl::class, 'back_inbound_delete'])->name('back_inbound_delete')->middleware('permission:cms.delivery.edit');
 
-    Route::get('roe_po/{id}/{behavior}', [DeliveryCtrl::class, 'roe_po'])->name('roe-po');
-    Route::match(['get', 'post'], 'roe_po_create/{id}/{behavior}', [DeliveryCtrl::class, 'roe_po_create'])->name('roe-po-create');
+    Route::get('roe_po/{id}/{behavior}/{bac_papa_id?}', [DeliveryCtrl::class, 'roe_po'])->name('roe-po');
+    Route::match(['get', 'post'], 'roe_po_create/{id}/{behavior}/{bac_papa_id?}', [DeliveryCtrl::class, 'roe_po_create'])->name('roe-po-create');
 });

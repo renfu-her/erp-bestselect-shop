@@ -25,7 +25,7 @@
             <h6>訂單退貨單內容</h6>
             <div class="col-12">
                 <label class="form-label">退貨單備註</label>
-                <input class="form-control" type="text" value="{{$delivery->back_memo ?? ''}}" name="dlv_memo" placeholder="退貨單備註">
+                <input class="form-control" type="text" value="{{$bacPapa->memo ?? ''}}" name="dlv_memo" placeholder="退貨單備註">
             </div>
             <div class="table-responsive tableOverBox mb-3">
                 <table id="Pord_list" class="table table-striped tableList">
@@ -72,7 +72,7 @@
                                             class="form-control form-control-sm -sm" min="0" step="0.01" required>
                                     </td>
                                     <td class="text-center">{{ $item->origin_qty ? number_format($item->origin_qty) : 0 }}</td>
-                                    @if(null == $delivery->back_inbound_date)
+                                    @if('create' == $method || isset($bacPapa) && null == $bacPapa->inbound_date)
                                         <td>
                                             <x-b-qty-adjuster name="back_qty[]" value="{{ $item->back_qty ?? 0 }}"
                                                               min="0" max="{{ $item->origin_qty ?? '' }}"
