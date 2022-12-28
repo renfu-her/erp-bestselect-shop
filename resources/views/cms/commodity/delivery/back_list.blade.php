@@ -49,8 +49,10 @@
                          <td>{{$data->sn}}</td>
                          <td>
                              @if (isset($data->inbound_date))
-                                 <a class="btn btn-sm btn-danger"
-                                    href="{{ Route('cms.delivery.back_inbound_delete', ['bac_papa_id' => $data->id], true) }}">刪除退貨入庫</a>
+                                 <a class="btn btn-sm btn-danger" href="javascript:void(0)"
+                                    data-href="{{ Route('cms.delivery.back_inbound_delete', ['bac_papa_id' => $data->id], true) }}"
+                                    data-bs-toggle="modal" data-bs-target="#confirm-delete">
+                                    刪除退貨入庫</a>
                              @else
                                  <a class="btn btn-sm btn-success"
                                     href="{{ Route('cms.delivery.back_inbound', ['bac_papa_id' => $data->id], true) }}">退貨入庫審核</a>
