@@ -307,14 +307,19 @@ class OrderCart extends Model
                     }
                     break;
                 case DisMethod::coupon()->value:
+                    $salechannel = SaleChannel::where('id', $order['salechannel_id'])
+                        ->where('use_coupon', 1)
+                        ->get()->first();
 
-                    foreach ($value as $cash) {
-                        if ($cash->min_consume == 0 || $cash->min_consume < $order['origin_price']) {
-                            $cc = floor($order['origin_price'] / $cash->min_consume);
+                    if ($salechannel) {
+                        foreach ($value as $cash) {
+                            if ($cash->min_consume == 0 || $cash->min_consume < $order['origin_price']) {
+                                $cc = floor($order['origin_price'] / $cash->min_consume);
 
-                            $cash->title = $cash->title . " (下次使用)";
-                            for ($i = 0; $i < $cc; $i++) {
-                                $coupons[] = $cash;
+                                $cash->title = $cash->title . " (下次使用)";
+                                for ($i = 0; $i < $cc; $i++) {
+                                    $coupons[] = $cash;
+                                }
                             }
                         }
                     }
@@ -331,7 +336,7 @@ class OrderCart extends Model
             $order['discounts'][] = $dis[0];
             $order['discount_value'] += $dis[0]->currentDiscount;
             $order['discounted_price'] -= $dis[0]->currentDiscount;
-           
+
             self::_discountReturnToProducts($dis[0], $order, $_tempProducts);
         }
 
