@@ -5,12 +5,12 @@
     <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
         <div class="p-1 pe-2">
             @can('cms.collection_payment.edit')
-            <a href="{{ route('cms.collection_payment.edit', ['id' => $delivery->po_id]) }}" 
+            <a href="{{ route('cms.collection_payment.edit', ['id' => $delivery->po_id]) }}"
                 class="btn btn-sm btn-success px-3" role="button">修改</a>
             @endcan
 
             @if(! $paying_order->payment_date)
-                <a href="{{ Route('cms.delivery.roe-po-create', ['id' => $delivery->delivery_id, 'behavior' => $behavior, 'bac_papa_id' => $delivery->delivery_bac_papa_id]) }}" 
+                <a href="{{ Route('cms.delivery.roe-po-create', ['id' => $delivery->delivery_id, 'behavior' => $behavior, 'bac_papa_id' => $delivery->delivery_bac_papa_id]) }}"
                     class="btn btn-sm btn-primary px-3" role="button">付款</a>
             @endif
 
@@ -26,11 +26,13 @@
             @endif
             @endcan
 
-            <a href="{{ url()->full() . '?action=print' }}" target="_blank" 
+            <a href="{{ url()->full() . '?action=print' }}" target="_blank"
                 class="btn btn-sm btn-warning" rel="noopener noreferrer">中一刀列印畫面</a>
 
+            @if(\App\Enums\Delivery\Event::consignment()->value != $delivery->delivery_event)
             <a href="{{ route('cms.collection_payment.edit_note', ['id' => $paying_order->id]) }}"
                 class="btn btn-sm btn-dark" role="button">編輯付款項目備註</a>
+            @endif
 
             @can('cms.collection_payment.edit')
             <a href="{{ route('cms.ref_expenditure_petition.edit', ['current_sn' => $paying_order->sn]) }}" class="btn btn-sm btn-primary" role="button">相關單號</a>
@@ -171,7 +173,7 @@
             </dl>
         </div>
     </div>
-    
+
     <div class="col-auto">
         {{--
         <a href="{{ $delivery->po_source_link }}" class="btn btn-outline-primary px-4" role="button">返回 銷貨退回明細</a>
