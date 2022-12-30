@@ -411,6 +411,14 @@ class Delivery extends Model
         }
         $query_delivery->addSelect(DB::raw(concatStr($rcv_depot_data). ' as rcv_depot_data'));
 
+
+        if (isset($param['order_sdate']) && isset($param['order_edate'])) {
+            //出貨單都在訂單建立時產生 也就等同於該訂單時間
+            $order_sdate = date('Y-m-d 00:00:00', strtotime($param['order_sdate']));
+            $order_edate = date('Y-m-d 23:59:59', strtotime($param['order_edate']));
+            $query_delivery->whereBetween('delivery.created_at', [$order_sdate, $order_edate]);
+        }
+
         if (isset($param['delivery_sdate']) && isset($param['delivery_edate'])) {
             $delivery_sdate = date('Y-m-d 00:00:00', strtotime($param['delivery_sdate']));
             $delivery_edate = date('Y-m-d 23:59:59', strtotime($param['delivery_edate']));
