@@ -331,6 +331,10 @@ class DeliveryCtrl extends Controller
     {
         $delivery = Delivery::where('id', '=', $delivery_id)->first();
         $items = Delivery::delivery_item($delivery->id, 'out', null)->first();
+        if (Event::order()->value != $delivery->event) {
+            wToast('此功能只提供訂單使用');
+            return redirect()->back();
+        }
         if (null != $delivery->audit_date) {
             wToast('已出貨 無法刪除');
             return redirect()->back();
@@ -338,26 +342,43 @@ class DeliveryCtrl extends Controller
             wToast('已有付款單 無法刪除');
             return redirect()->back();
         } else {
-            $out_prd = DlvOutStock::where('delivery_id', $delivery_id)->where('type', '=', DlvOutStockType::product()->value)->get();
-            if (null != $out_prd && 0 < count($out_prd)) {
-                foreach ($out_prd as $prd_item) {
-                    if (false == is_null($prd_item->qty) && 0 != $prd_item->qty) {
-                        ProductStock::stockChange($prd_item->product_style_id,
-                            $prd_item->qty * -1, StockEvent::out_stock_cancle()->value, $delivery->event_id, $delivery->event_sn. ' '. $prd_item->sku. ' ' . "缺貨");
+            $msg = IttmsDBB::transaction(function () use ($request, $delivery, $delivery_id) {
+                $out_prd = DlvOutStock::where('delivery_id', $delivery_id)->where('type', '=', DlvOutStockType::product()->value)->get();
+
+                $sub_order = SubOrders::where('id', '=', $delivery->event_id)->first();
+                $order = Order::where('id', '=', $sub_order->order_id)->first();
+
+                if (null != $out_prd && 0 < count($out_prd)) {
+                    foreach ($out_prd as $prd_item) {
+                        if (OrderStatus::Canceled()->value != $order->status_code) {
+                            //有訂單取消則不做 否則計算
+                            if (false == is_null($prd_item->qty) && 0 != $prd_item->qty) {
+                                ProductStock::stockChange($prd_item->product_style_id,
+                                    $prd_item->qty * -1, StockEvent::out_stock_cancle()->value, $delivery->event_id, $delivery->event_sn. ' '. $prd_item->sku. ' ' . "缺貨");
+
+                                ProductStyle::willBeShipped($prd_item->product_style_id, $prd_item->qty);
+                            }
+                        }
                     }
                 }
+
+                Delivery::where('id', $delivery_id)->update([
+                    'out_date' => null
+                    , 'out_sn' => null
+                    , 'out_memo' => null
+                    , 'out_user_id' => null
+                    , 'out_user_name' => null
+                ]);
+                DlvOutStock::where('delivery_id', $delivery_id)->delete();
+
+                return ['success' => 1];
+            });
+
+            if ($msg['success'] == 0) {
+                wToast($msg['error_msg']);
+            } else {
+                wToast('刪除成功');
             }
-
-            Delivery::where('id', $delivery_id)->update([
-                'out_date' => null
-                , 'out_sn' => null
-                , 'out_memo' => null
-                , 'out_user_id' => null
-                , 'out_user_name' => null
-            ]);
-            DlvOutStock::where('delivery_id', $delivery_id)->delete();
-
-            wToast('刪除成功');
             return redirect()->back();
         }
     }
@@ -389,6 +410,10 @@ class DeliveryCtrl extends Controller
 
         $errors = [];
         $delivery = Delivery::where('id', $delivery_id)->first();
+        if (Event::order()->value != $delivery->event) {
+            dd('此功能只提供訂單使用');
+        }
+
         $msg = IttmsDBB::transaction(function () use ($request, $delivery, $delivery_id) {
             $method = $request->input('method', null);
             $dlv_memo = $request->input('dlv_memo', null);
@@ -400,6 +425,9 @@ class DeliveryCtrl extends Controller
                 , 'out_user_id' => $request->user()->id
                 , 'out_user_name' => $request->user()->name
             ]);
+
+            $sub_order = SubOrders::where('id', '=', $delivery->event_id)->first();
+            $order = Order::where('id', '=', $sub_order->order_id)->first();
 
             $input_items = $request->only('id', 'event_item_id', 'product_style_id', 'product_title', 'sku', 'price', 'bonus', 'origin_qty', 'back_qty', 'memo', 'show');
 
@@ -442,9 +470,14 @@ class DeliveryCtrl extends Controller
                         ];
                         $data[] = $addItem;
 
-                        if (false == is_null($input_items['back_qty'][$i]) && 0 != $input_items['back_qty'][$i]) {
-                            ProductStock::stockChange($input_items['product_style_id'][$i],
-                                $input_items['back_qty'][$i], StockEvent::out_stock()->value, $delivery->event_id, $delivery->event_sn. ' '. $input_items['sku'][$i]. ' '. "缺貨");
+                        if (OrderStatus::Canceled()->value != $order->status_code) {
+                            //有訂單取消則不做 否則計算
+                            if (false == is_null($input_items['back_qty'][$i]) && 0 != $input_items['back_qty'][$i]) {
+                                ProductStock::stockChange($input_items['product_style_id'][$i],
+                                    $input_items['back_qty'][$i], StockEvent::out_stock()->value, $delivery->event_id, $delivery->event_sn. ' '. $input_items['sku'][$i]. ' '. "缺貨");
+
+                                ProductStyle::willBeShipped($input_items['product_style_id'][$i], $input_items['back_qty'][$i]);
+                            }
                         }
                     }
                     DlvOutStock::insert($data);

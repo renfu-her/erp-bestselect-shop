@@ -1032,11 +1032,11 @@ class Order extends Model
                 $delivery = Delivery::where('event_id', '=', $sub_ord->id)->where('event', '=', Event::order()->value)->first();
                 //判斷未出貨 才須計算可售數量，否則是在退貨入庫時 才需計算可售數量
                 if (null != $delivery) {
-                    $out_prd = DlvOutStock::where('delivery_id', $delivery->id)->get();
-                    if (null != $out_prd && 0 < count($out_prd)) {
-                        DB::rollBack();
-                        return ['success' => 0, 'error_msg' => '請先刪除子訂單缺貨 ' . $delivery->event_sn];
-                    }
+//                    $out_prd = DlvOutStock::where('delivery_id', $delivery->id)->get();
+//                    if (null != $out_prd && 0 < count($out_prd)) {
+//                        DB::rollBack();
+//                        return ['success' => 0, 'error_msg' => '請先刪除子訂單缺貨 ' . $delivery->event_sn];
+//                    }
                     if (null != $delivery->audit_date) {
                         $is_calc_in_stock = false;
                     }
@@ -1045,11 +1045,27 @@ class Order extends Model
                     // 返還訂購商品數量
                     // 因無出貨 所以不用判斷是理貨倉或非理貨倉 直接加回
                     $items = OrderItem::where('order_id', $order_id)->where('sub_order_id', $sub_ord->id)->get();
-                    foreach ($items as $item) {
-                        ProductStock::stockChange($item->product_style_id,
-                            $item->qty, 'order', $order_id, $item->sku . "取消訂單");
+                    // 扣除缺貨商品數量 已先加回
+                    $out_items = DlvOutStock::where('delivery_id', $delivery->id)
+                        ->where('qty', '>=', 1)
+                        ->where('show', '=', 1)
+                        ->get();
 
-                        ProductStyle::willBeShipped($item->product_style_id, $item->qty * -1);
+                    foreach ($items as $item) {
+                        $calc_qty = $item->qty;
+                        if (null != $out_items && 0 < count($out_items)) {
+                            foreach ($out_items as $back) {
+                                if ($item->id == $back->event_item_id) {
+                                    $calc_qty = $calc_qty - $back->qty;
+                                    break;
+                                }
+                            }
+                        }
+
+                        ProductStock::stockChange($item->product_style_id,
+                            $calc_qty, 'order', $order_id, $item->sku . "取消訂單");
+
+                        ProductStyle::willBeShipped($item->product_style_id, $calc_qty * -1);
                     }
                 }
             }
