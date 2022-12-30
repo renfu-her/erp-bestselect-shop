@@ -2440,11 +2440,11 @@ class OrderCtrl extends Controller
         // print supplementary info
         if ($invoice->merchant_id == '316943976') {
             $invoice->seller_title = '喜鴻國際企業股份有限公司';
-            $invoice->seller_ubn = '23124926';
+            $invoice->seller_ubn = '83183027';
             $invoice->seller_address = '台北市中山區松江路148號6樓之2';
         } else {
             $invoice->seller_title = '喜鴻國際企業股份有限公司';
-            $invoice->seller_ubn = '23124926';
+            $invoice->seller_ubn = '83183027';
             $invoice->seller_address = '台北市中山區松江路148號6樓之2';
         }
         $month_range = $inv_month % 2 == 0 ? str_pad($inv_month - 1, 2, '0', STR_PAD_LEFT) . '-' . str_pad($inv_month, 2, '0', STR_PAD_LEFT) : str_pad($inv_month, 2, '0', STR_PAD_LEFT) . '-' . str_pad($inv_month + 1, 2, '0', STR_PAD_LEFT);
