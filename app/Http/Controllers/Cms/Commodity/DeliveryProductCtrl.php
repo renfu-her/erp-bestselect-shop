@@ -20,6 +20,8 @@ class DeliveryProductCtrl extends Controller
 
         $cond['search_supplier'] = Arr::get($query, 'search_supplier', []);
         $cond['keyword'] = Arr::get($query, 'keyword');
+        $cond['order_sdate'] = Arr::get($query, 'order_sdate', null);
+        $cond['order_edate'] = Arr::get($query, 'order_edate', null);
         $cond['delivery_sdate'] = Arr::get($query, 'delivery_sdate', null);
         $cond['delivery_edate'] = Arr::get($query, 'delivery_edate', null);
         $cond['logistic_status_code'] = Arr::get($query, 'logistic_status_code', []);
@@ -49,6 +51,8 @@ class DeliveryProductCtrl extends Controller
 
         $cond['search_supplier'] = Arr::get($query, 'search_supplier', []);
         $cond['keyword'] = Arr::get($query, 'keyword');
+        $cond['order_sdate'] = Arr::get($query, 'order_sdate', null);
+        $cond['order_edate'] = Arr::get($query, 'order_edate', null);
         $cond['delivery_sdate'] = Arr::get($query, 'delivery_sdate', null);
         $cond['delivery_edate'] = Arr::get($query, 'delivery_edate', null);
         $cond['logistic_status_code'] = Arr::get($query, 'logistic_status_code', []);
@@ -103,6 +107,7 @@ class DeliveryProductCtrl extends Controller
                     $item->buyer_name,
                     $dlv_product_title,
                     $dlv_qty,
+                    $item->audit_date,
                 ];
             }
         }
@@ -120,6 +125,7 @@ class DeliveryProductCtrl extends Controller
             '訂購人',
             '實際出貨商品',
             '實際出貨數量',
+            '出貨日期',
         ];
 
         $export= new DeliveryProductListExport([

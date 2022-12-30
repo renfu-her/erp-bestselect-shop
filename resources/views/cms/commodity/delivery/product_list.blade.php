@@ -19,6 +19,29 @@
                 </div>
 
                 <div class="col-12 mb-3">
+                    <label class="form-label">訂單起訖日期</label>
+                    <div class="input-group has-validation">
+                        <input type="date" class="form-control -startDate @error('order_sdate') is-invalid @enderror"
+                               name="order_sdate" value="{{ $searchParam['order_sdate'] }}" aria-label="訂單起始日期" />
+                        <input type="date" class="form-control -endDate @error('order_edate') is-invalid @enderror"
+                               name="order_edate" value="{{ $searchParam['order_edate'] }}" aria-label="訂單結束日期" />
+                        <button class="btn px-2" data-daysBefore="yesterday" type="button">昨天</button>
+                        <button class="btn px-2" data-daysBefore="day" type="button">今天</button>
+                        <button class="btn px-2" data-daysBefore="tomorrow" type="button">明天</button>
+                        <button class="btn px-2" data-daysBefore="6" type="button">近7日</button>
+                        <button class="btn" data-daysBefore="month" type="button">本月</button>
+                        <div class="invalid-feedback">
+                            @error('order_sdate')
+                            {{ $message }}
+                            @enderror
+                            @error('order_edate')
+                            {{ $message }}
+                            @enderror
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 mb-3">
                     <label class="form-label">出貨起訖日期</label>
                     <div class="input-group has-validation">
                         <input type="date" class="form-control -startDate @error('delivery_sdate') is-invalid @enderror"
