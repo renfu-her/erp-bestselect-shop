@@ -1,6 +1,6 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h2 class="mb-4">退貨列表 ({{ $delivery->sn ?? '' }})</h2>
+    <h2 class="mb-4">退貨列表 {{ $delivery ? '('.$delivery->sn.')' : '' }}</h2>
 
     <div class="card shadow p-4 mb-4">
         @if(null != $delivery)
@@ -12,14 +12,16 @@
         @endif
         <div class="table-responsive tableOverBox">
             <table class="table table-striped tableList mb-1 small">
-                <thead>
+                <thead class="align-middle">
                     <tr>
-                        <th scope="col">#</th>
-                        <th scope="col" class="text-center">明細</th>
-                        @if(true == is_null($delivery))
-                        <th scope="col">訂單號</th>
-                        @endif
-                        <th scope="col">退貨單號</th>
+                        <th scope="col" style="width:40px">#</th>
+                        <th scope="col" style="width:40px" class="text-center">明細</th>
+                        <th scope="col" class="wrap lh-sm">
+                            <div class="fw-bold">退貨單號</div>
+                            @if(true == is_null($delivery))
+                                <div>訂單編號</div>
+                            @endif
+                        </th>
                         <th scope="col">退貨入庫</th>
                         <th scope="col">退貨時間</th>
                         <th scope="col">退貨入庫時間</th>
@@ -30,45 +32,47 @@
                 <tbody>
                  @foreach ($dataList as $key =>$data)
                      <tr>
-                         <th scope="row">{{ $key + 1 }}</th>
-                         <td class="text-center">
-{{--                             <a href="{{ Route('cms.delivery.back_edit', ['bac_papa_id' => $data->id], true) }}"--}}
-{{--                                data-bs-toggle="tooltip" title="編輯"--}}
-{{--                                class="icon icon-btn fs-5 text-primary rounded-circle border-0">--}}
-{{--                                 <i class="bi bi-pencil-square"></i>--}}
-{{--                             </a>--}}
-                             <a href="{{ Route('cms.delivery.back_detail', ['bac_papa_id' => $data->id], true) }}"
-                                data-bs-toggle="tooltip" title="明細"
-                                class="icon icon-btn fs-5 text-primary rounded-circle border-0">
-                                 <i class="bi bi-pencil-square"></i>
-                             </a>
-                         </td>
-                         @if(true == is_null($delivery))
-                         <td>{{$data->event_sn}}</td>
-                         @endif
-                         <td>{{$data->sn}}</td>
-                         <td>
-                             @if (isset($data->inbound_date))
-                                 <a class="btn btn-sm btn-danger" href="javascript:void(0)"
-                                    data-href="{{ Route('cms.delivery.back_inbound_delete', ['bac_papa_id' => $data->id], true) }}"
-                                    data-bs-toggle="modal" data-bs-target="#confirm-delete">
-                                    刪除退貨入庫</a>
-                             @else
-                                 <a class="btn btn-sm btn-success"
-                                    href="{{ Route('cms.delivery.back_inbound', ['bac_papa_id' => $data->id], true) }}">退貨入庫審核</a>
-                             @endif
-                         </td>
-                         <td>{{date('Y/m/d H:i:s', strtotime($data->created_at))}}</td>
-                         <td>{{$data->inbound_date ? date('Y/m/d H:i:s', strtotime($data->inbound_date)): ''}}</td>
-                         <td>{{$data->memo}}</td>
-                         <td class="text-center">
-                             <a href="javascript:void(0)"
-                                data-href="{{ Route('cms.delivery.back_delete', ['bac_papa_id' => $data->id], true) }}"
-                                data-bs-toggle="modal" data-bs-target="#confirm-delete"
-                                class="icon icon-btn fs-5 text-danger rounded-circle border-0">
-                                 <i class="bi bi-trash"></i>
-                             </a>
-                         </td>
+                        <th scope="row">{{ $key + 1 }}</th>
+                        <td class="text-center">
+                        {{-- <a href="{{ Route('cms.delivery.back_edit', ['bac_papa_id' => $data->id], true) }}"
+                            data-bs-toggle="tooltip" title="編輯"
+                            class="icon icon-btn fs-5 text-primary rounded-circle border-0">
+                            <i class="bi bi-pencil-square"></i>
+                        </a> --}}
+                            <a href="{{ Route('cms.delivery.back_detail', ['bac_papa_id' => $data->id], true) }}"
+                            data-bs-toggle="tooltip" title="明細"
+                            class="icon icon-btn fs-5 text-primary rounded-circle border-0">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
+                        </td>
+                        <td class="wrap">
+                            <div class="fw-bold">{{$data->sn}}</div>
+                            @if(true == is_null($delivery))
+                                <div>{{$data->event_sn}}</div>
+                            @endif
+                        </td>
+                        <td>
+                            @if (isset($data->inbound_date))
+                                <a class="btn btn-sm btn-danger" href="javascript:void(0)"
+                                data-href="{{ Route('cms.delivery.back_inbound_delete', ['bac_papa_id' => $data->id], true) }}"
+                                data-bs-toggle="modal" data-bs-target="#confirm-delete">
+                                刪除退貨入庫</a>
+                            @else
+                                <a class="btn btn-sm btn-success"
+                                href="{{ Route('cms.delivery.back_inbound', ['bac_papa_id' => $data->id], true) }}">退貨入庫審核</a>
+                            @endif
+                        </td>
+                        <td class="wrap">{{date('Y/m/d H:i:s', strtotime($data->created_at))}}</td>
+                        <td class="wrap">{{$data->inbound_date ? date('Y/m/d H:i:s', strtotime($data->inbound_date)): ''}}</td>
+                        <td class="wrap">{{$data->memo}}</td>
+                        <td class="text-center">
+                            <a href="javascript:void(0)"
+                            data-href="{{ Route('cms.delivery.back_delete', ['bac_papa_id' => $data->id], true) }}"
+                            data-bs-toggle="modal" data-bs-target="#confirm-delete"
+                            class="icon icon-btn fs-5 text-danger rounded-circle border-0">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </td>
                      </tr>
                  @endforeach
                 </tbody>
