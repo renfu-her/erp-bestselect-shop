@@ -968,8 +968,9 @@
             // 商品modal關閉事件
             document.getElementById('addProduct').addEventListener('hidden.bs.modal',function(e){
                 $('#addProduct .-searchBar input').val('');
-            })
-
+            });
+            let Prod_Url = @json(route('cms.product.show', ['id' => '#id']));
+            Prod_Url = Prod_Url.replace('#id', '');
 
             let prodPages = new Pagination($('#addProduct .-pages'));
             // 物流方式
@@ -1546,7 +1547,7 @@
                             cloneElem.find('input[name="shipment_type[]"]').val(s.category);
                             cloneElem.find('input[name="shipment_event_id[]"]').val(s.group_id);
                             cloneElem.find('div[data-td="title"]').html(
-                                `<a href="#" class="-text">${p.name}-${p.spec}</a>`
+                                `<a href="${Prod_Url + p.pid}" target="_blank" class="-text">${p.name}-${p.spec}</a>`
                             );
                             cloneElem.find('td[data-td="price"]').text(`$${formatNumber(p.price)}`);
                             cloneElem.find('div[data-td="subtotal"]').text(`$${formatNumber(p.total)}`);
