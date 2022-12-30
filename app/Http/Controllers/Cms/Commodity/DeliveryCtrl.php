@@ -115,6 +115,18 @@ class DeliveryCtrl extends Controller
         $data_arr = [];
         if (null != $data_list) {
             foreach ($data_list as $item) {
+                $back_detail = (null != $item->back_detail)? json_decode($item->back_detail): null;
+
+                $back_sn = "";
+                $back_status = "";
+                if(null != $back_detail && 0 < count($back_detail)) {
+                    foreach ($back_detail as $item_key => $item_data) {
+                        $endstr = ($item_key != count($back_detail) - 1) ? PHP_EOL: '';
+                        $back_sn .= $item_data->sn. $endstr;
+                        $back_status .= $item_data->back_status. $endstr;
+                    }
+                }
+
                 $data_arr[] = [
                     $item->delivery_sn,
                     $item->event_sn,
@@ -129,6 +141,8 @@ class DeliveryCtrl extends Controller
                     $item->sed_name,
                     $item->rec_name,
                     $item->rec_address,
+                    $back_sn,
+                    $back_status
                 ];
             }
         }
@@ -145,7 +159,9 @@ class DeliveryCtrl extends Controller
             '自取倉溫層',
             '寄件人姓名',
             '收件人姓名',
-            '收件人地址'
+            '收件人地址',
+            '退貨單號',
+            '退貨狀態',
         ];
 
         $export= new DeliveryListExport([
@@ -172,6 +188,7 @@ class DeliveryCtrl extends Controller
         $cond['delivery_edate'] = Arr::get($query, 'delivery_edate', null);
         $cond['has_csn'] = Arr::get($query, 'has_csn', $this->has_csn[0][0]);
         $cond['has_back_sn'] = Arr::get($query, 'has_back_sn', $this->has_back_sn[0][0]);
+        $cond['back_sn'] = Arr::get($query, 'back_sn', null);
         $cond['ship_temp_id'] = Arr::get($query, 'ship_temp_id', []);
         $cond['depot_temp_id'] = Arr::get($query, 'depot_temp_id', []);
 
