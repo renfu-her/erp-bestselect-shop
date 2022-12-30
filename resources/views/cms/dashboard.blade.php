@@ -6,7 +6,7 @@
     @endif
 
     <div class="d-flex flex-wrap">
-        <div class="col-12 col-lg-9">
+        <div class="col-12 col-xl-9">
             {{-- 電商訂單 --}}
             <h6 class="px-2"><i class="bi bi-cart-fill me-2"></i>電商訂單（已入賬）</h6>
             <div class="d-flex flex-column flex-md-row mb-3 border bg-white inner-border">
@@ -200,7 +200,7 @@
             </div>
         </div>
 
-        <div class="col ms-0 ms-lg-3">
+        <div class="col ms-0 ms-xl-3">
             <h6 class="px-2"><i class="bi bi-trophy-fill me-2"></i>排行榜</h6>
             <div class="bg-body">
                 {{-- <h6 class="border border-bottom-0 px-3 py-2 mb-0"><i class="bi bi-trophy-fill"></i> 排行榜</h6> --}}
