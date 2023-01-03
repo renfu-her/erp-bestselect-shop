@@ -169,6 +169,9 @@ class CsnOrderItem extends Model
         if(Arr::exists($parm, 'memo')){
             $update['memo'] = $parm['memo'];
         }
+        if(Arr::exists($parm, 'note')){
+            $update['memo'] = $parm['note'];
+        }
         if(Arr::exists($parm, 'ro_note')){
             $update['ro_note'] = $parm['ro_note'];
         }

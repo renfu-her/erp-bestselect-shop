@@ -29,10 +29,8 @@
             <a href="{{ url()->full() . '?action=print' }}" target="_blank"
                 class="btn btn-sm btn-warning" rel="noopener noreferrer">中一刀列印畫面</a>
 
-            @if(\App\Enums\Delivery\Event::consignment()->value != $delivery->delivery_event)
             <a href="{{ route('cms.collection_payment.edit_note', ['id' => $paying_order->id]) }}"
                 class="btn btn-sm btn-dark" role="button">編輯付款項目備註</a>
-            @endif
 
             @can('cms.collection_payment.edit')
             <a href="{{ route('cms.ref_expenditure_petition.edit', ['current_sn' => $paying_order->sn]) }}" class="btn btn-sm btn-primary" role="button">相關單號</a>
@@ -109,7 +107,7 @@
                         @if($delivery->delivery_items)
                         @foreach($delivery->delivery_items as $db_value)
                             <tr>
-                                <td>{{ $db_value->grade_code . ' ' . $db_value->grade_name }} - {{ $db_value->product_title }}{{'（' . $delivery->sub_order_ship_event . ' - ' . $delivery->sub_order_ship_category_name . '）'}}{{'（' . $db_value->price . ' * ' . $db_value->qty . '）'}}</td>
+                                <td>{{ $db_value->grade_code . ' ' . $db_value->grade_name }} - {{ $db_value->product_title }}{{ $delivery->sub_order_ship_event ? ('（' . $delivery->sub_order_ship_event . ' - ' . $delivery->sub_order_ship_category_name . '）') : '' }}{{'（' . $db_value->price . ' * ' . $db_value->qty . '）'}}</td>
                                 <td class="text-end">{{ $db_value->qty }}</td>
                                 <td class="text-end">{{ number_format($db_value->price, 2) }}</td>
                                 <td class="text-end">{{ number_format($db_value->total_price) }}</td>

@@ -776,7 +776,7 @@ class DeliveryCtrl extends Controller
             $items[$key]->delivery_items = json_decode($value->delivery_items);
         }
         $rsp_arr['items'] = $items->first();
-        $rsp_arr['po_check'] = PayingOrder::source_confirmation(app(Order::class)->getTable(), $rsp_arr['items']->order_id, null, 9);
+        $rsp_arr['po_check'] = $source_type == app(Order::class)->getTable() ? PayingOrder::source_confirmation($source_type, $order->id, null, 9) : true;
         return $rsp_arr;
     }
 
@@ -1365,7 +1365,7 @@ class DeliveryCtrl extends Controller
             $items[$key]->delivery_items = json_decode($value->delivery_items);
         }
         $rsp_arr['items'] = $items->first();
-        $rsp_arr['po_check'] = PayingOrder::source_confirmation(app(Order::class)->getTable(), $rsp_arr['items']->order_id, null, 9);
+        $rsp_arr['po_check'] = $source_type == app(Order::class)->getTable() ? PayingOrder::source_confirmation($source_type, $order->id, null, 9) : true;
         return $rsp_arr;
     }
 

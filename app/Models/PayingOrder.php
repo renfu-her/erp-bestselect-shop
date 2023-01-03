@@ -474,7 +474,6 @@ class PayingOrder extends Model
                 LEFT JOIN (' . $sq . ') AS grade ON grade.id = dlv_back.grade_id
                 LEFT JOIN prd_product_styles ON prd_product_styles.id = dlv_back.product_style_id
                 LEFT JOIN prd_products AS product ON product.id = prd_product_styles.product_id
-                LEFT JOIN ord_items AS o_items ON o_items.id = dlv_back.event_item_id
                 LEFT JOIN usr_users AS p_owner ON p_owner.id = product.user_id
                 WHERE (product.deleted_at IS NULL AND dlv_back.qty > 0 AND dlv_back.show = 1)
                 GROUP BY dlv_back.delivery_id, dlv_back.bac_papa_id
