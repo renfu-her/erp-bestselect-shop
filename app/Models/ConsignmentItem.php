@@ -10,6 +10,7 @@ use App\Helpers\IttmsDBB;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 class ConsignmentItem extends Model
@@ -310,5 +311,16 @@ class ConsignmentItem extends Model
         ->get();
 
         return $result;
+    }
+
+
+    public static function update_item($parm)
+    {
+        $update = [];
+        if(Arr::exists($parm, 'note')){
+            $update['memo'] = $parm['note'];
+        }
+
+        self::where('id', $parm['order_item_id'])->update($update);
     }
 }

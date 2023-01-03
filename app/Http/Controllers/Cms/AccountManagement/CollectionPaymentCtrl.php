@@ -16,6 +16,8 @@ use App\Enums\Supplier\Payment;
 use App\Models\AccountPayable;
 use App\Models\AllGrade;
 use App\Models\Consignment;
+use App\Models\ConsignmentItem;
+use App\Models\CsnOrderItem;
 use App\Models\Customer;
 use App\Models\DayEnd;
 use App\Models\Delivery;
@@ -448,7 +450,16 @@ class CollectionPaymentCtrl extends Controller
                             }
                             $o_value = $value;
                             unset($o_value['po_note']);
-                            OrderItem::update_order_item($o_value);
+
+                            $delivery = Delivery::find($paying_order->source_id);
+                            if($delivery->event == 'order'){
+                                OrderItem::update_order_item($o_value);
+                            } else if($delivery->event == 'consignment'){
+                                ConsignmentItem::update_item($o_value);
+                            } else if($delivery->event == 'csn_order'){
+                                CsnOrderItem::update_csn_order_item($o_value);
+                            }
+
                             Delivery::update_item($value);
                         }
                     }

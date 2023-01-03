@@ -821,20 +821,24 @@ class Delivery extends Model
                         "grade_code":"\', COALESCE(grade.code, ""), \'",
                         "grade_name":"\', COALESCE(grade.name, ""), \'",
                         "memo":"\', COALESCE(dlv_tmp.memo, ""), \'",
-                        "note":"\', COALESCE(ord_items.note, ""), \'",
+                        "note":"\', COALESCE(ord_items.note, csn_consignment_items.memo, csn_order_items.memo, ""), \'",
                         "po_note":"\', COALESCE(dlv_tmp.po_note, ""), \'",
                         "taxation":"\', COALESCE(product.has_tax, 1), \'"
                     }\' ORDER BY dlv_tmp.id), \']\') AS items
                 FROM ' . $s_q_table . ' AS dlv_tmp
                 LEFT JOIN (' . $sq . ') AS grade ON grade.id = dlv_tmp.grade_id
                 LEFT JOIN prd_product_styles ON prd_product_styles.id = dlv_tmp.product_style_id
-                LEFT JOIN ord_items ON ord_items.id = dlv_tmp.event_item_id
+                LEFT JOIN dlv_delivery AS dlv ON dlv.id = dlv_tmp.delivery_id
+                LEFT JOIN ord_items ON ord_items.id = dlv_tmp.event_item_id AND dlv.event = "order"
+                LEFT JOIN csn_consignment_items ON csn_consignment_items.id = dlv_tmp.event_item_id AND dlv.event = "consignment"
+                LEFT JOIN csn_order_items ON csn_order_items.id = dlv_tmp.event_item_id AND dlv.event = "csn_order"
                 LEFT JOIN prd_products AS product ON product.id = prd_product_styles.product_id
                 WHERE (product.deleted_at IS NULL AND dlv_tmp.qty > 0 AND dlv_tmp.show = 1' . $s_q_table_where . ')
                 GROUP BY delivery_id
                 ) AS delivery_tmp'), function ($join) {
                 $join->on('delivery_tmp.delivery_id', '=', 'delivery.id');
             })
+            // order
             ->leftJoin('ord_sub_orders AS sub_order', function ($join) {
                 $join->on('sub_order.id', '=', 'delivery.event_id');
                 $join->where([
@@ -849,6 +853,25 @@ class Delivery extends Model
                     'buyer_add.is_default_addr' => 1,
                 ]);
             })
+
+            // consignment
+            ->leftJoin('csn_consignment AS consignment', function ($join) {
+                $join->on('consignment.id', '=', 'delivery.event_id');
+                $join->where([
+                    'delivery.event' => 'consignment',
+                ]);
+            })
+            ->leftJoin('depot AS consignment_depot', 'consignment_depot.id', '=', 'consignment.receive_depot_id')
+
+            // csn_order
+            ->leftJoin('csn_orders AS csn_order', function ($join) {
+                $join->on('csn_order.id', '=', 'delivery.event_id');
+                $join->where([
+                    'delivery.event' => 'csn_order',
+                ]);
+            })
+            ->leftJoin('depot AS csn_depot', 'csn_depot.id', '=', 'csn_order.depot_id')
+
             ->leftJoin('pcs_paying_orders AS po', function ($join) use($s_q_po_type, $bac_papa_id) {
                 $join->on('po.source_id', '=', 'delivery.id');
                 $join->where([
@@ -882,29 +905,49 @@ class Delivery extends Model
                 'delivery_tmp.total_price AS delivery_total_price',
                 'delivery_tmp.bac_papa_id AS delivery_bac_papa_id',
 
-                'order.id AS order_id',
-                'order.sn AS order_sn',
-                'order.dlv_fee AS order_dlv_fee',
-                'order.origin_price AS order_origin_price',
-                'order.total_price AS order_total_price',
-                'order.discount_value AS order_discount_value',
-                'order.dlv_taxation AS order_dlv_taxation',
-                'order.note AS order_note',
+                // 'order.id AS order_id',
+                // 'order.sn AS order_sn',
+                // 'order.dlv_fee AS order_dlv_fee',
+                // 'order.origin_price AS order_origin_price',
+                // 'order.total_price AS order_total_price',
+                // 'order.discount_value AS order_discount_value',
+                // 'order.dlv_taxation AS order_dlv_taxation',
+                // 'order.note AS order_note',
 
-                'sub_order.id AS sub_order_id',
-                'sub_order.sn AS sub_order_sn',
-                'sub_order.ship_category AS sub_order_ship_category',
+                // 'sub_order.id AS sub_order_id',
+                // 'sub_order.sn AS sub_order_sn',
+                // 'sub_order.ship_category AS sub_order_ship_category',
                 'sub_order.ship_category_name AS sub_order_ship_category_name',
                 'sub_order.ship_event AS sub_order_ship_event',
-                'sub_order.dlv_fee AS sub_order_dlv_fee',
-                'sub_order.total_price AS sub_order_total_price',
-                'sub_order.discount_value AS sub_order_discount_value',
+                // 'sub_order.dlv_fee AS sub_order_dlv_fee',
+                // 'sub_order.total_price AS sub_order_total_price',
+                // 'sub_order.discount_value AS sub_order_discount_value',
 
-                'buyer.id AS buyer_id',
-                'buyer.name AS buyer_name',
-                'buyer.phone AS buyer_phone',
-                'buyer.email AS buyer_email',
-                'buyer_add.address AS buyer_address',
+                DB::raw('(CASE
+                        WHEN delivery.event = "order" THEN buyer.id
+                        WHEN delivery.event = "consignment" THEN consignment_depot.id
+                        WHEN delivery.event = "csn_order" THEN csn_depot.id
+                    END) AS buyer_id'),
+                DB::raw('(CASE
+                        WHEN delivery.event = "order" THEN buyer.name
+                        WHEN delivery.event = "consignment" THEN consignment_depot.name
+                        WHEN delivery.event = "csn_order" THEN csn_depot.name
+                    END) AS buyer_name'),
+                DB::raw('(CASE
+                        WHEN delivery.event = "order" THEN buyer.phone
+                        WHEN delivery.event = "consignment" THEN consignment_depot.tel
+                        WHEN delivery.event = "csn_order" THEN csn_depot.tel
+                    END) AS buyer_phone'),
+                DB::raw('(CASE
+                        WHEN delivery.event = "order" THEN buyer.email
+                        WHEN delivery.event = "consignment" THEN NULL
+                        WHEN delivery.event = "csn_order" THEN NULL
+                    END) AS buyer_email'),
+                DB::raw('(CASE
+                        WHEN delivery.event = "order" THEN buyer_add.address
+                        WHEN delivery.event = "consignment" THEN consignment_depot.address
+                        WHEN delivery.event = "csn_order" THEN csn_depot.address
+                    END) AS buyer_address'),
 
                 'po.id AS po_id',
                 'po.sn AS po_sn',
