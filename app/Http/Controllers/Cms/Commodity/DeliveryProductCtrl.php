@@ -14,20 +14,11 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class DeliveryProductCtrl extends Controller
 {
+    private $has_back_sn = [['all', '不限'], ['1', '只顯示有銷貨退回單']];
     public function index(Request $request)
     {
         $query = $request->query();
-
-        $cond['search_supplier'] = Arr::get($query, 'search_supplier', []);
-        $cond['keyword'] = Arr::get($query, 'keyword');
-        $cond['order_sdate'] = Arr::get($query, 'order_sdate', null);
-        $cond['order_edate'] = Arr::get($query, 'order_edate', null);
-        $cond['delivery_sdate'] = Arr::get($query, 'delivery_sdate', null);
-        $cond['delivery_edate'] = Arr::get($query, 'delivery_edate', null);
-        $cond['logistic_status_code'] = Arr::get($query, 'logistic_status_code', []);
-        $cond['order_status'] = Arr::get($query, 'order_status', []);
-
-        $cond['data_per_page'] = getPageCount(Arr::get($query, 'data_per_page'));
+        $cond = $this->initIndexQueryParam($query);
 
         $data_list = Delivery::getListByProduct($cond)->paginate($cond['data_per_page'])->appends($query);
 
@@ -42,21 +33,14 @@ class DeliveryProductCtrl extends Controller
             'order_status' => $order_status,
             'data_per_page' => $cond['data_per_page'],
             'suppliers' => Supplier::select('name', 'id', 'vat_no')->get()->toArray(),
+            'has_back_sn' => $this->has_back_sn,
         ]);
     }
 
     public function exportList(Request $request)
     {
         $query = $request->query();
-
-        $cond['search_supplier'] = Arr::get($query, 'search_supplier', []);
-        $cond['keyword'] = Arr::get($query, 'keyword');
-        $cond['order_sdate'] = Arr::get($query, 'order_sdate', null);
-        $cond['order_edate'] = Arr::get($query, 'order_edate', null);
-        $cond['delivery_sdate'] = Arr::get($query, 'delivery_sdate', null);
-        $cond['delivery_edate'] = Arr::get($query, 'delivery_edate', null);
-        $cond['logistic_status_code'] = Arr::get($query, 'logistic_status_code', []);
-        $cond['order_status'] = Arr::get($query, 'order_status', []);
+        $cond = $this->initIndexQueryParam($query);
 
         $data_list = Delivery::getListByProduct($cond)
             ->get();
@@ -134,6 +118,24 @@ class DeliveryProductCtrl extends Controller
         ]);
 
         return Excel::download($export, 'delivery_product_list.xlsx');
+    }
+
+    private function initIndexQueryParam($query) {
+        $cond = [];
+        $cond['search_supplier'] = Arr::get($query, 'search_supplier', []);
+        $cond['keyword'] = Arr::get($query, 'keyword');
+        $cond['order_sdate'] = Arr::get($query, 'order_sdate', null);
+        $cond['order_edate'] = Arr::get($query, 'order_edate', null);
+        $cond['delivery_sdate'] = Arr::get($query, 'delivery_sdate', null);
+        $cond['delivery_edate'] = Arr::get($query, 'delivery_edate', null);
+        $cond['logistic_status_code'] = Arr::get($query, 'logistic_status_code', []);
+        $cond['order_status'] = Arr::get($query, 'order_status', []);
+        $cond['has_back_sn'] = Arr::get($query, 'has_back_sn', $this->has_back_sn[0][0]);
+        $cond['back_sn'] = Arr::get($query, 'back_sn', null);
+
+        $cond['data_per_page'] = getPageCount(Arr::get($query, 'data_per_page'));
+
+        return $cond;
     }
 }
 
