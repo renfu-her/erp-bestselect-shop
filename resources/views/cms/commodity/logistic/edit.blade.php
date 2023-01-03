@@ -400,17 +400,17 @@
                             <th scope="col">耗材名稱</th>
                             <th scope="col">款式</th>
                             <th scope="col">SKU</th>
-                            <th scope="col">選擇</th>
+                            <th scope="col" class="text-center">選擇</th>
                         </tr>
                     </thead>
                     <tbody class="-appendClone --consume">
                         <tr class="-cloneElem d-none">
+                            <td class="wrap"></td>
                             <td></td>
                             <td></td>
-                            <td>$0</td>
-                            <td>
+                            <td class="text-center">
                                 <button type="button" class="btn btn-outline-primary -add" data-idx="">
-                                    <i class="bi bi-plus-circle"></i> 選擇
+                                    <i class="bi bi-plus-circle"></i>
                                 </button>
                             </td>
                         </tr>
@@ -592,10 +592,10 @@
                         });
 
                         // 產生分頁
-                        prodPages.create(res.current_page, {
+                        consPages.create(res.current_page, {
                             totalData: res.total,
                             totalPages: res.last_page,
-                            changePageFn: getProductList
+                            changePageFn: getConsumeList
                         });
                     } else {
                         $('#addConsume .-emptyData').show();
@@ -607,12 +607,12 @@
             // 耗材列表
             function createOneConsume(p, i) {
                 let $tr = $(`<tr>
-                    <td>${p.product_title}</td>
+                    <td class="wrap">${p.product_title}</td>
                     <td>${p.spec || ''}</td>
                     <td>${p.sku}</td>
-                    <td>
+                    <td class="text-center">
                         <button type="button" class="btn btn-outline-primary -add" data-idx="${i}">
-                            <i class="bi bi-plus-circle"></i> 選擇
+                            <i class="bi bi-plus-circle"></i>
                         </button>
                     </td>
                 </tr>`);
