@@ -91,6 +91,26 @@
                         @endforeach
                     </select>
                 </div>
+
+                <fieldset class="col-12 col-sm-6 mb-3">
+                    <legend class="col-form-label p-0 mb-2">銷貨退回單</legend>
+                    <div class="px-1 pt-1">
+                        @foreach ($has_back_sn as $key => $value)
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label">
+                                    <input class="form-check-input" name="has_back_sn" type="radio"
+                                           value="{{ $value[0] }}" @if ($value[0] == $searchParam['has_back_sn']) checked @endif>
+                                    {{ $value[1] }}
+                                </label>
+                            </div>
+                        @endforeach
+                    </div>
+                </fieldset>
+                <div class="col-12 col-sm-6 mb-3">
+                    <label class="form-label">退貨單號</label>
+                    <input class="form-control" value="{{ $searchParam['back_sn'] }}" type="text" name="back_sn"
+                           placeholder="輸入退貨單號">
+                </div>
             </div>
 
             <div class="col">
@@ -140,6 +160,7 @@
                         <th scope="col">廠商</th>
                     @endif
                     <th scope="col">出貨人員</th>
+                    <th scope="col">退貨</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -220,6 +241,16 @@
                         </td>
                         @endif
                         <td>{{ $data->audit_user_name }}</td>
+                        <td>
+                            @php
+                                if (null != $data->back_detail) {
+                                    $back_detail = json_decode($data->back_detail);
+                                    foreach ($back_detail as $val_bac) {
+                                        echo $val_bac->sn. ' '. $val_bac->back_status. '<br>';
+                                    }
+                                }
+                            @endphp
+                        </td>
                     </tr>
                 @endforeach
                 </tbody>

@@ -112,6 +112,11 @@
                         @endforeach
                     </div>
                 </fieldset>
+                <div class="col-12 col-sm-6 mb-3">
+                    <label class="form-label">退貨單號</label>
+                    <input class="form-control" value="{{ $searchParam['back_sn'] }}" type="text" name="back_sn"
+                           placeholder="輸入退貨單號">
+                </div>
 
                 <div class="col-12 mb-3">
                     <label class="form-label">訂單起訖日期</label>
@@ -220,6 +225,7 @@
                         <th scope="col">收件人姓名</th>
                         <th scope="col">收件人地址</th>
                         <th scope="col">產品名稱</th>
+                        <th scope="col">退貨</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -271,6 +277,16 @@
                                     <li class="list-group-item bg-transparent pe-1">{{ $productTitle->product_title }}</li>
                                 @endforeach
                                 </ul>
+                            </td>
+                            <td>
+                                @php
+                                if (null != $data->back_detail) {
+                                    $back_detail = json_decode($data->back_detail);
+                                    foreach ($back_detail as $val_bac) {
+                                        echo $val_bac->sn. ' '. $val_bac->back_status. '<br>';
+                                    }
+                                }
+                                @endphp
                             </td>
                         </tr>
                     @endforeach

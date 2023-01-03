@@ -5,7 +5,9 @@ namespace App\Models;
 use App\Enums\Delivery\BackStatus;
 use App\Enums\Delivery\Event;
 use App\Enums\Delivery\LogisticStatus;
+use App\Enums\DlvBack\DlvBackPapaType;
 use App\Helpers\IttmsDBB;
+use App\Helpers\IttmsUtils;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -208,6 +210,8 @@ class Delivery extends Model
             ->groupBy('dlv_receive_depot.depot_id')
             ->groupBy('dlv_receive_depot.depot_name');
 
+        $query_bac_papa = Delivery::getQueryBackpapa($param);
+
         $query = DB::table('dlv_delivery as delivery')
             ->whereNull('delivery.deleted_at')
             ->leftJoin('shi_group', function ($join) {
@@ -217,6 +221,9 @@ class Delivery extends Model
             ->leftJoin('shi_method', function ($join) {
                 $join->on('shi_method.id', '=', 'shi_group.method_fk');
                 $join->whereNotNull('shi_group.method_fk');
+            })
+            ->leftJoinSub($query_bac_papa, 'query_bacpapa', function ($join) {
+                $join->on('query_bacpapa.delivery_id', '=', 'delivery.id');
             })
             ->leftJoinSub($query_order, 'query_order', function ($join) {
                 $join->on('query_order.sub_order_id', '=', 'delivery.event_id')
@@ -285,6 +292,7 @@ class Delivery extends Model
                 , 'query_order.sed_zipcode'
                 , 'query_order.total_price'
                 , 'query_receive_depot.*'
+                , 'query_bacpapa.*'
             );
         if (isset($param['delivery_sn'])) {
             $query->where('delivery.sn', 'like', "%" . $param['delivery_sn'] . "%");
@@ -320,7 +328,7 @@ class Delivery extends Model
             $query->whereNotIn('delivery.event', [Event::consignment()->value]);
         }
         if (isset($param['has_back_sn']) && 'all' != $param['has_back_sn']) {
-            $query->whereNotNull('delivery.back_sn');
+            $query->whereNotNull('query_bacpapa.back_sns');
         }
         if (isset($param['order_sdate']) && isset($param['order_edate'])) {
             $order_sdate = date('Y-m-d 00:00:00', strtotime($param['order_sdate']));
@@ -547,11 +555,16 @@ class Delivery extends Model
         $query_order = $query_order->union($query_csn);
         $query_order = $query_order->union($query_csnord);
 
+        $query_bac_papa = Delivery::getQueryBackpapa($param);
+
         $re = DB::query()->fromSub($query_delivery, 'dlv')
             ->leftJoinSub($query_order, 'order', function($join) {
                 $join->on('order.delivery_id', '=', 'dlv.delivery_id')
                     ->on('order.event', '=', 'dlv.event')
                     ->on('order.event_id', '=', 'dlv.event_id');
+            })
+            ->leftJoinSub($query_bac_papa, 'query_bacpapa', function ($join) {
+                $join->on('query_bacpapa.delivery_id', '=', 'dlv.delivery_id');
             })
             ->select(
                 'dlv.delivery_id'
@@ -570,6 +583,7 @@ class Delivery extends Model
                 , 'order.buyer_name'
                 , 'order.ord_created_at'
                 , 'order.ord_item_data'
+                , 'query_bacpapa.back_detail'
             )
             ->groupBy('order.delivery_id')
             ->orderByDesc('order.delivery_id')
@@ -578,9 +592,38 @@ class Delivery extends Model
         if (isset($param['order_status']) && 0 < count($param['order_status'])) {
             $re->whereIn('order.ord_status', $param['order_status']);
         }
+        if (isset($param['has_back_sn']) && 'all' != $param['has_back_sn']) {
+            $re->whereNotNull('query_bacpapa.back_sns');
+        }
 //        dd($re->get());
 
         return $re;
+    }
+
+    private static function getQueryBackpapa($param) {
+        $back_status = '';
+        foreach (BackStatus::asArray() as $key => $val) {
+            $back_status = $back_status. ' when bacpapa.back_status = "'. $val. '" then "'. BackStatus::getDescription($val). '"';
+        }
+
+        $concatBackStr = concatStr([
+            'sn' => 'bacpapa.sn',
+            'back_status_code' => 'bacpapa.back_status',
+            'back_status' => DB::raw('(case '. $back_status. ' else bacpapa.back_status end)'),
+        ]);
+
+        $query_bac_papa = DB::table(app(DlvBacPapa::class)->getTable(). ' as bacpapa')
+            ->where('bacpapa.type', '=', DlvBackPapaType::back()->value)
+            ->groupBy('bacpapa.delivery_id')
+            ->select('bacpapa.delivery_id'
+                , DB::raw('group_concat(bacpapa.sn) as back_sns')
+                , DB::raw($concatBackStr. ' as back_detail')
+            );
+        if (isset($param['back_sn'])) {
+            $query_bac_papa->where('bacpapa.sn', 'like',  "%" . $param['back_sn'] . "%");
+        }
+
+        return $query_bac_papa;
     }
 
     private static function getSumQtyWithRecDepot()
