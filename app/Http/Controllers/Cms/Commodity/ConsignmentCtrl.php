@@ -371,6 +371,7 @@ class ConsignmentCtrl extends Controller
                             DB::rollBack();
                             return $rePSSC;
                         }
+                        ProductStyle::willBeShipped($item->product_style_id, $item->num);
                     }
                 }
                 //判斷audit_status從核可變成其他狀態，則須加回數量
@@ -385,6 +386,7 @@ class ConsignmentCtrl extends Controller
                             DB::rollBack();
                             return $rePSSC;
                         }
+                        ProductStyle::willBeShipped($item->product_style_id, $item->num * -1);
                     }
                 }
             }

@@ -493,7 +493,7 @@ class DeliveryCtrl extends Controller
                                 ProductStock::stockChange($input_items['product_style_id'][$i],
                                     $input_items['back_qty'][$i], StockEvent::out_stock()->value, $delivery->event_id, $delivery->event_sn. ' '. $input_items['sku'][$i]. ' '. "缺貨");
 
-                                ProductStyle::willBeShipped($input_items['product_style_id'][$i], $input_items['back_qty'][$i]);
+                                ProductStyle::willBeShipped($input_items['product_style_id'][$i], $input_items['back_qty'][$i] * -1);
                             }
                         }
                     }
