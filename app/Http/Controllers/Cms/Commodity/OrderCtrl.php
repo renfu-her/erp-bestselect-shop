@@ -311,7 +311,7 @@ class OrderCtrl extends Controller
         return view('cms.commodity.order.edit', [
             'customer_id' => $customer_id,
             'customer_email' => $customer_email,
-            'customers' => Customer::where('id', $customer_id)->get(),
+            'customers' => Customer::get(),
             'defaultAddress' => $defaultAddress,
             'otherOftenUsedAddresses' => $otherOftenUsedAddresses,
             'citys' => $citys,
