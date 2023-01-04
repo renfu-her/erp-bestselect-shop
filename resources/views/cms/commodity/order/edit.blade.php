@@ -78,7 +78,7 @@
                                             <input type="hidden" name="shipment_event_id[]" value="">
                                         </th>
                                         <td>
-                                            <div data-td="title"><a href="#" class="-text"></a></div>
+                                            <div data-td="title" class="text-wrap lh-1"><a href="#" class="-text"></a></div>
                                             {{-- 優惠 --}}
                                         </td>
                                         <td class="text-center" data-td="price">${{ number_format(0) }}</td>
@@ -829,6 +829,9 @@
             getSaleChannel();
             $('#customer').off('change.channel').on('change.channel', function() {
                 getSaleChannel();
+                if ($('input[name="coupon_type"]:checked').val() === 'coupon') {
+                    getCouponsAPI();
+                }
             });
 
             // 取得客戶身份
@@ -1942,7 +1945,7 @@
 
                 // 優惠內容
                 function createDiscountDiv(note) {
-                    return `<div data-td="discount" class="lh-1 small text-secondary -dis-data">
+                    return `<div data-td="discount" class="lh-base small text-secondary -dis-data">
                         <span class="badge rounded-pill bg-${meet ? 'danger' : 'secondary'} fw-normal me-2">
                             ${meet ? '已達優惠' : '未達優惠'}</span>
                         ${note}
