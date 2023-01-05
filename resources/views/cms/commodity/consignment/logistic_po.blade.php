@@ -101,9 +101,9 @@
                             @if($consignmentData->lgt_cost > 0)
                                 <tr>
                                     <td>{{ $logistics_grade_name . ' - 物流費用' }}</td>
-                                    <td class="text-end">1</td>
+                                    <td class="text-end">{{ $consignmentData->lgt_qty }}</td>
                                     <td class="text-end">{{ number_format($consignmentData->lgt_cost, 2) }}</td>
-                                    <td class="text-end">{{ number_format($consignmentData->lgt_cost) }}</td>
+                                    <td class="text-end">{{ number_format($consignmentData->lgt_qty * $consignmentData->lgt_cost) }}</td>
                                     <td>{!! nl2br($consignmentData->lgt_memo) !!}</td>
                                     <td>{!! nl2br($consignmentData->lgt_po_note) !!}</td>
                                 </tr>

@@ -625,7 +625,7 @@ class ConsignmentCtrl extends Controller
         $supplier = Supplier::find($consignmentData->supplier_id);
 
         if (!$paying_order) {
-            $price = $consignmentData->lgt_cost;
+            $price = $consignmentData->lgt_qty * $consignmentData->lgt_cost;
             $product_grade = PayableDefault::where('name', '=', 'product')->first()->default_grade_id;
             $logistics_grade = PayableDefault::where('name', '=', 'logistics')->first()->default_grade_id;
 
