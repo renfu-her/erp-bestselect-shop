@@ -719,7 +719,7 @@ class PayingOrder extends Model
                 CASE
                     WHEN po.source_type = "' . app(Purchase::class)->getTable() . '" AND po.source_sub_id IS NULL THEN CASE WHEN po.type = "0" THEN 0 ELSE purchase.logistics_price END
                     WHEN po.source_type = "' . app(Order::class)->getTable() . '" AND po.source_sub_id IS NOT NULL AND po.type = 1 THEN (dlv_logistic.cost * dlv_logistic.qty)
-                    WHEN po.source_type = "' . app(Consignment::class)->getTable() . '" AND po.type = 1 THEN co_logistic.cost
+                    WHEN po.source_type = "' . app(Consignment::class)->getTable() . '" AND po.type = 1 THEN (co_logistic.cost * co_logistic.qty)
                     WHEN po.source_type = "' . app(StituteOrder::class)->getTable() . '" AND po.type = 1 THEN 0
                     WHEN po.source_type = "' . app(Order::class)->getTable() . '" AND po.type = 9 THEN order_return.dlv_fee
                     WHEN po.source_type = "' . app(Delivery::class)->getTable() . '" AND po.source_sub_id IS NOT NULL AND po.type = 9 THEN 0
@@ -729,6 +729,36 @@ class PayingOrder extends Model
                     WHEN po.source_type = "' . app(Delivery::class)->getTable() . '" AND po.type = 8 THEN 0
                     ELSE 0
                 END AS logistics_price
+            ')
+            ->selectRaw('
+                CASE
+                    WHEN po.source_type = "' . app(Purchase::class)->getTable() . '" AND po.source_sub_id IS NULL THEN CASE WHEN po.type = "0" THEN 0 ELSE purchase.logistics_price END
+                    WHEN po.source_type = "' . app(Order::class)->getTable() . '" AND po.source_sub_id IS NOT NULL AND po.type = 1 THEN dlv_logistic.cost
+                    WHEN po.source_type = "' . app(Consignment::class)->getTable() . '" AND po.type = 1 THEN co_logistic.cost
+                    WHEN po.source_type = "' . app(StituteOrder::class)->getTable() . '" AND po.type = 1 THEN 0
+                    WHEN po.source_type = "' . app(Order::class)->getTable() . '" AND po.type = 9 THEN order_return.dlv_fee
+                    WHEN po.source_type = "' . app(Delivery::class)->getTable() . '" AND po.source_sub_id IS NOT NULL AND po.type = 9 THEN 0
+                    WHEN po.source_type = "' . app(self::class)->getTable() . '" AND po.type = 1 THEN 0
+                    WHEN po.source_type = "' . app(self::class)->getTable() . '" AND po.type = 2 THEN 0
+                    WHEN po.source_type = "' . app(ReceivedOrder::class)->getTable() . '" AND po.type = 9 THEN 0
+                    WHEN po.source_type = "' . app(Delivery::class)->getTable() . '" AND po.type = 8 THEN 0
+                    ELSE 0
+                END AS logistics_cost
+            ')
+            ->selectRaw('
+                CASE
+                    WHEN po.source_type = "' . app(Purchase::class)->getTable() . '" AND po.source_sub_id IS NULL THEN CASE WHEN po.type = "0" THEN 0 ELSE 1 END
+                    WHEN po.source_type = "' . app(Order::class)->getTable() . '" AND po.source_sub_id IS NOT NULL AND po.type = 1 THEN dlv_logistic.qty
+                    WHEN po.source_type = "' . app(Consignment::class)->getTable() . '" AND po.type = 1 THEN co_logistic.qty
+                    WHEN po.source_type = "' . app(StituteOrder::class)->getTable() . '" AND po.type = 1 THEN 0
+                    WHEN po.source_type = "' . app(Order::class)->getTable() . '" AND po.type = 9 THEN 1
+                    WHEN po.source_type = "' . app(Delivery::class)->getTable() . '" AND po.source_sub_id IS NOT NULL AND po.type = 9 THEN 0
+                    WHEN po.source_type = "' . app(self::class)->getTable() . '" AND po.type = 1 THEN 0
+                    WHEN po.source_type = "' . app(self::class)->getTable() . '" AND po.type = 2 THEN 0
+                    WHEN po.source_type = "' . app(ReceivedOrder::class)->getTable() . '" AND po.type = 9 THEN 0
+                    WHEN po.source_type = "' . app(Delivery::class)->getTable() . '" AND po.type = 8 THEN 0
+                    ELSE 0
+                END AS logistics_qty
             ')
             ->selectRaw('
                 CASE
