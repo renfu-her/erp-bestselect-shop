@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
+use App\Models\DlvOutStock;
 use App\Models\ProductStyle;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 
 class countWillBeShippedSeeder extends Seeder
 {
@@ -16,20 +16,20 @@ class countWillBeShippedSeeder extends Seeder
     public function run()
     {
         ProductStyle::query()->update(['will_be_shipped' => 0]);
-        $re = DB::table('ord_orders as order')
-            ->leftJoin('ord_sub_orders as sub_order', 'order.id', '=', 'sub_order.order_id')
-            ->leftJoin('ord_items as item', 'item.sub_order_id', '=', 'sub_order.id')
-            ->select([
-                'item.product_style_id', 'item.qty',
-            ])
-            ->where('order.status_code', '<>', 'canceled')
-            ->whereNull('sub_order.dlv_audit_date')
-            ->get();
 
+        //訂單未出貨
+        //減回訂單缺貨未出貨
+        $re = DlvOutStock::getAllOrderToDlvQty()->get();
         foreach ($re as $p) {
-            ProductStyle::willBeShipped($p->product_style_id, $p->qty);
+            ProductStyle::willBeShipped($p->product_style_id, $p->stock_qty);
         }
 
-        
+        //寄倉未出貨
+        //減回寄倉缺貨未出貨
+        $re_csn = DlvOutStock::getAllCsnToDlvQty()->get();
+//        dd($re, $re_csn);
+        foreach ($re_csn as $p) {
+            ProductStyle::willBeShipped($p->product_style_id, $p->stock_qty);
+        }
     }
 }

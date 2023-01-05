@@ -493,7 +493,7 @@ class DeliveryCtrl extends Controller
                                 ProductStock::stockChange($input_items['product_style_id'][$i],
                                     $input_items['back_qty'][$i], StockEvent::out_stock()->value, $delivery->event_id, $delivery->event_sn. ' '. $input_items['sku'][$i]. ' '. "缺貨");
 
-                                ProductStyle::willBeShipped($input_items['product_style_id'][$i], $input_items['back_qty'][$i]);
+                                ProductStyle::willBeShipped($input_items['product_style_id'][$i], $input_items['back_qty'][$i] * -1);
                             }
                         }
                     }
@@ -1692,9 +1692,16 @@ class DeliveryCtrl extends Controller
                     }
                 }
                 if (0 != $curr_calc_back_qty) {
+                    $inbound_sns = [];
+                    if (null != $inboundList_consignment && 0 < count($inboundList_consignment)) {
+                        foreach($inboundList_consignment as $val_ib) {
+                            $inbound_sns[] = $val_ib->inbound_sn;
+                        }
+
+                    }
                     return ['success' => 0
                         , 'error_msg' => '當前庫存總數無法進行退貨，請確認剩餘數量是否可執行 '
-                        . '; $bac_papa_id:'. $bac_papa_id. '; $event_item_id:'. $event_item_id. '; $back_qty:'. $back_qty
+                        . '; $bac_papa_id:'. $bac_papa_id. '; $event_item_id:'. $event_item_id. '; $back_qty:'. $back_qty. '; inbound_sn:'. implode(',', $inbound_sns)
                     ];
                 }
             }

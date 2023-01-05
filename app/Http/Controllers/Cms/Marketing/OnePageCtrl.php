@@ -79,6 +79,7 @@ class OnePageCtrl extends Controller
             'sale_channel_id' => $d['sale_channel_id'],
             'online_pay' => $d['online_pay'],
             'view_mode' => $d['view_mode'],
+            'country' => $d['country'],
         ]);
 
         wToast('新增完成');
@@ -148,6 +149,7 @@ class OnePageCtrl extends Controller
             'sale_channel_id' => $d['sale_channel_id'],
             'online_pay' => $d['online_pay'],
             'view_mode' => $d['view_mode'],
+            'country' => $d['country'],
         ]);
 
         wToast('修改完成');
