@@ -112,8 +112,8 @@
                     @if($t_value->logistics_price > 0)
                     <tr>
                         <td>{{ $t_value->po_logistics_grade_code . ' ' . $t_value->po_logistics_grade_name . ' ' . $t_value->logistics_summary }}</td>
-                        <td style="text-align: right;">1</td>
-                        <td style="text-align: right;">${{ number_format($t_value->logistics_price, 2) }}</td>
+                        <td style="text-align: right;">{{ $t_value->logistics_qty }}</td>
+                        <td style="text-align: right;">${{ number_format($t_value->logistics_cost, 2) }}</td>
                         <td style="text-align: right;">${{ number_format($t_value->logistics_price) }}</td>
                         <td>@php echo $t_value->logistics_memo ?? '' @endphp</td>
                     </tr>

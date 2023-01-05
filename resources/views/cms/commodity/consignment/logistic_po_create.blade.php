@@ -42,10 +42,10 @@
                                 <td class="text-wrap">{{ $logistics_grade_name }}</td>
                                 <td class="text-wrap">{{ $consignmentData->lgt_memo }}</td>
                                 <td class="text-end">${{ number_format($consignmentData->lgt_cost, 2) }}</td>
-                                <td class="text-end">1</td>
+                                <td class="text-end">{{ $consignmentData->lgt_qty }}</td>
                                 <td class="text-end">{{ $currency->rate }}</td>
                                 <td>{{ $currency->name }}</td>
-                                <td class="text-end">${{ number_format($consignmentData->lgt_cost) }}</td>
+                                <td class="text-end">${{ number_format($consignmentData->lgt_qty * $consignmentData->lgt_cost) }}</td>
                                 <td class="text-end"></td>
                             </tr>
                         @endif

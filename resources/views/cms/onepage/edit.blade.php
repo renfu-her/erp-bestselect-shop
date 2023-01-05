@@ -17,6 +17,10 @@
                     <input type="text" class="form-control @error('title') is-invalid @enderror" id="title"
                         name="title" value="{{ old('title', $data->title ?? '') }}" required aria-label="商品群組名稱" />
                 </x-b-form-group>
+                <x-b-form-group name="country" title="國家" required="true">
+                    <input type="text" class="form-control @error('country') is-invalid @enderror" id="country"
+                        name="country" value="{{ old('country', $data->country ?? '') }}" required aria-label="國家" />
+                </x-b-form-group>
 
                 <x-b-form-group name="sale_channel_id" title="銷售通路" required="true">
                     <select name="sale_channel_id" class="form-select -select2 -single" data-placeholder="請單選">
