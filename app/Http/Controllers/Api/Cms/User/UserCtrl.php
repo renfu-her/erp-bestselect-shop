@@ -95,6 +95,7 @@ class UserCtrl extends Controller
         }
 
         $mcode = '';
+        $email = '';
         if (CustomerProfit::getProfitData($d['customer_id'], ProfitStatus::Success())) {
             $customer = Customer::where('id', $d['customer_id'])->get()->first();
             $mcode = $customer->sn;
