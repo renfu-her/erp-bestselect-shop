@@ -108,6 +108,7 @@ class DlvOutStock extends Model
             })
             ->select([
                 'dlv.id as delivery_id', 'dlv.event', 'dlv.event_sn', 'dlv.event_id'
+                , DB::raw('DATE_FORMAT(dlv.created_at,"%Y-%m-%d %H:%i:%s") as created_at')
                 , 'item.product_style_id', 'item.sku', 'item.qty', DB::raw('ifnull(item.qty, 0) - ifnull(outs.qty, 0) as stock_qty')
             ])
             ->whereIn('order.status_code', ['Add', 'Paided', 'Unpaid', 'Unbalance', 'Received'])
@@ -137,6 +138,7 @@ class DlvOutStock extends Model
             })
             ->select([
                 'dlv.id as delivery_id', 'dlv.event', 'dlv.event_sn', 'dlv.event_id'
+                , DB::raw('DATE_FORMAT(dlv.created_at,"%Y-%m-%d %H:%i:%s") as created_at')
                 , 'csnitem.product_style_id', 'csnitem.sku', 'csnitem.num as qty', DB::raw('ifnull(csnitem.num, 0) - ifnull(outs.qty, 0) as stock_qty')
             ])
             ->whereNotNull('csnitem.product_style_id')

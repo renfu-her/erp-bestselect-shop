@@ -31,6 +31,7 @@
                 <thead class="small align-middle">
                     <tr>
                         <th scope="col" style="width:40px">#</th>
+                        <th scope="col" class="text-center">日期</th>
                         <th scope="col" class="text">事件</th>
                         <th scope="col" class="text-center">訂單號</th>
                         @if(false == isset($title))
@@ -44,6 +45,7 @@
                     @foreach ($dataList as $key => $data)
                         <tr>
                             <th scope="row">{{ $key + 1 }}</th>
+                            <td class="text-center">{{ $data->created_at }}</td>
                             <td class="text">{{ \App\Enums\Delivery\Event::getDescription($data->event) }}</td>
                             <td class="text-center">
                                 <a href="{{ Route('cms.stock.dlv_detail', ['delivery_id' => $data->delivery_id], true) }}"
