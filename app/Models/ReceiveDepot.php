@@ -424,6 +424,19 @@ class ReceiveDepot extends Model
                     CsnOrder::where('id', '=', $delivery->event_id)->update([ 'dlv_audit_date' => $curr_date ]);
                 }
 
+                //寫入待出貨
+                $orditems = null;
+                if (Event::order()->value == $delivery->event) {
+                    $orditems = DlvOutStock::getOrderToDlvQty($delivery->id, $delivery->event_id)->get();
+                } else if (Event::consignment()->value == $delivery->event) {
+                    $orditems = DlvOutStock::getCsnToDlvQty($delivery->id, $delivery->event_id)->get();
+                }
+                if (null != $orditems && 0 < count($orditems)) {
+                    foreach ($orditems as $value_item) {
+                        ProductStyle::willBeShipped($value_item->product_style_id, $value_item->stock_qty * -1);
+                    }
+                }
+
                 return ['success' => 1, 'error_msg' => ""];
             });
         } else {
@@ -544,6 +557,18 @@ class ReceiveDepot extends Model
                     CsnOrder::where('id', '=', $delivery->event_id)->update([ 'dlv_audit_date' => null ]);
                 }
 
+                //寫入待出貨
+                $orditems = null;
+                if (Event::order()->value == $delivery->event) {
+                    $orditems = DlvOutStock::getOrderToDlvQty($delivery->id, $delivery->event_id)->get();
+                } else if (Event::consignment()->value == $delivery->event) {
+                    $orditems = DlvOutStock::getCsnToDlvQty($delivery->id, $delivery->event_id)->get();
+                }
+                if (null != $orditems && 0 < count($orditems)) {
+                    foreach ($orditems as $value_item) {
+                        ProductStyle::willBeShipped($value_item->product_style_id, $value_item->stock_qty);
+                    }
+                }
                 return ['success' => 1, 'error_msg' => ""];
             });
         } else {

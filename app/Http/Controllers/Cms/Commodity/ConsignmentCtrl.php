@@ -371,6 +371,7 @@ class ConsignmentCtrl extends Controller
                             DB::rollBack();
                             return $rePSSC;
                         }
+                        ProductStyle::willBeShipped($item->product_style_id, $item->num);
                     }
                 }
                 //判斷audit_status從核可變成其他狀態，則須加回數量
@@ -385,6 +386,7 @@ class ConsignmentCtrl extends Controller
                             DB::rollBack();
                             return $rePSSC;
                         }
+                        ProductStyle::willBeShipped($item->product_style_id, $item->num * -1);
                     }
                 }
             }
@@ -625,7 +627,7 @@ class ConsignmentCtrl extends Controller
         $supplier = Supplier::find($consignmentData->supplier_id);
 
         if (!$paying_order) {
-            $price = $consignmentData->lgt_cost;
+            $price = $consignmentData->lgt_qty * $consignmentData->lgt_cost;
             $product_grade = PayableDefault::where('name', '=', 'product')->first()->default_grade_id;
             $logistics_grade = PayableDefault::where('name', '=', 'logistics')->first()->default_grade_id;
 

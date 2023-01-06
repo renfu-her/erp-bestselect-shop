@@ -61,8 +61,8 @@
                                 </td>
                                 <td class="text-wrap">{{ $t_value->po_logistics_grade_code . ' ' . $t_value->po_logistics_grade_name }}</td>
                                 <td>物流費用</td>
-                                <td class="text-end">${{ number_format($t_value->logistics_price, 2) }}</td>
-                                <td class="text-end">1</td>
+                                <td class="text-end">${{ number_format($t_value->logistics_cost, 2) }}</td>
+                                <td class="text-end">{{ $t_value->logistics_qty }}</td>
                                 <td class="text-end">{{ $t_value->currency_rate }}</td>
                                 <td>{{ $t_value->currency_name }}</td>
                                 <td class="text-end">${{ number_format($t_value->logistics_price) }}</td>
