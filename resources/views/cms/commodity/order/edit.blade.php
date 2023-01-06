@@ -880,9 +880,16 @@
                                     $('input.-recommender').val(res.mcode);
                                     checkRecommender(res.mcode);
                                 }
+                                // email
+                                if (res.email) {
+                                    $('input[name="buyer_email"], input[name="carrier_num"]').val(res.email);
+                                } else {
+                                    $('input[name="buyer_email"], input[name="carrier_num"]').val('');
+                                }
                             } else {
                                 $('#addProductBtn').prop('disabled', true);
                                 $('#salechannel').append('<option value="">未綁定身份（無法購物）</option>');
+                                $('input[name="buyer_email"], input[name="carrier_num"]').val('');
                             }
                         }).catch((err) => {
                             console.error(err);
