@@ -8,7 +8,9 @@ use App\Exports\Stock\ProductWithExitInboundDetailExport;
 use App\Http\Controllers\Controller;
 use App\Models\Consignment;
 use App\Models\CsnOrder;
+use App\Models\Delivery;
 use App\Models\Depot;
+use App\Models\DlvOutStock;
 use App\Models\Product;
 use App\Models\ProductStyle;
 use App\Models\Purchase;
@@ -19,6 +21,7 @@ use App\Models\Supplier;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 
 class StockCtrl extends Controller
 {
@@ -134,6 +137,7 @@ class StockCtrl extends Controller
         $searchParam['stock'] = Arr::get($query, 'stock',[]);
         $searchParam['depot_id'] = Arr::get($query, 'depot_id',[]);
         $searchParam['public'] = Arr::get($query, 'public', 'all');
+        $searchParam['has_stock_qty'] = Arr::get($query, 'has_stock_qty', 0);
         $searchParam['data_per_page'] = getPageCount(Arr::get($query, 'data_per_page', 100));
 
         if (!in_array($searchParam['type'], array_keys($this->typeRadios))) {
@@ -142,5 +146,62 @@ class StockCtrl extends Controller
         $searchParam['public'] =  $searchParam['public'] == 'all' ? null : $searchParam['public']; // 參考 ProductCtrl.index邏輯
 
         return $searchParam;
+    }
+
+    public function dlv_qty(Request $request, $style_id = null) {
+        $query = $request->query();
+        $searchParam['data_per_page'] = getPageCount(Arr::get($query, 'data_per_page', 100));
+
+        $title = null;
+        $style = null;
+        if (isset($style_id)) {
+            $style = DB::table(app(ProductStyle::class)->getTable() . ' as style')
+                ->leftJoin(app(Product::class)->getTable() . ' as product', 'product.id', '=', 'style.product_id')
+                ->where('style.id', '=', $style_id)
+                ->select('product.title as product_title', 'style.title as spec', 'style.sku as sku')
+                ->get()->first();
+            $title = $style->sku. ' '. $style->product_title. '-'. $style->spec;
+        }
+
+        $orderToDlvQty = DlvOutStock::getAllOrderToDlvQty($style_id)
+            ->where(DB::raw('ifnull(item.qty, 0) - ifnull(outs.qty, 0)'), '>', 0);
+        $csnToDlvQty = DlvOutStock::getAllCsnToDlvQty($style_id)
+            ->where(DB::raw('ifnull(csnitem.num, 0) - ifnull(outs.qty, 0)'), '>', 0);
+        $orderToDlvQty = $orderToDlvQty->union($csnToDlvQty);
+        $re = DB::query()->fromSub($orderToDlvQty, 'orddlv')
+            ->leftJoin(app(ProductStyle::class)->getTable() . ' as style', 'style.id', '=', 'orddlv.product_style_id')
+            ->leftJoin(app(Product::class)->getTable() . ' as product', 'product.id', '=', 'style.product_id')
+            ->select('orddlv.*'
+                , DB::raw('Concat(product.title, "-", style.title) AS product_title')
+            );
+        $dataList = $re->paginate($searchParam['data_per_page'])
+            ->appends($query);
+
+        return view('cms.commodity.stock.dlv_qty_list', [
+            'title' => $title,
+            'dataList' => $dataList,
+            'searchParam' => $searchParam,
+        ]);
+    }
+
+    public function dlv_detail(Request $request, $delivery_id) {
+        $delivery = Delivery::where('id', '=', $delivery_id)->first();
+        if (null == $delivery) {
+            return abort(404);
+        }
+        if (Event::order()->value == $delivery->event) {
+            $suborder = SubOrders::where('id', '=', $delivery->event_id)->first();
+            return redirect(Route('cms.order.detail', [
+                'id' => $suborder->order_id,
+                'subOrderId' => $suborder->id
+            ]));
+        } else if(Event::consignment()->value == $delivery->event) {
+            $consignment = Consignment::where('id', $delivery->event_id)->get()->first();
+            return redirect(Route('cms.consignment.edit', [
+                'id' => $delivery->event_id,
+            ]));
+        } else {
+            dd($delivery);
+        }
     }
 }
