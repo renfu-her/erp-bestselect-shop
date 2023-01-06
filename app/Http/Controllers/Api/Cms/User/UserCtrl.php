@@ -105,6 +105,7 @@ class UserCtrl extends Controller
             'status' => '0',
             'data' => $re,
             'mcode' => $mcode,
+            'email '=> $user->email
         ]);
 
     }
