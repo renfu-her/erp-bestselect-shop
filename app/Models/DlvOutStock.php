@@ -107,12 +107,13 @@ class DlvOutStock extends Model
                 $join->where('outs.type', '=', DB::raw(DlvOutStockType::product()->value));
             })
             ->select([
-                'dlv.event', 'dlv.event_sn', 'dlv.event_id'
-                , 'item.product_style_id', 'item.qty', DB::raw('ifnull(item.qty, 0) - ifnull(outs.qty, 0) as stock_qty')
+                'dlv.id as delivery_id', 'dlv.event', 'dlv.event_sn', 'dlv.event_id'
+                , 'item.product_style_id', 'item.sku', 'item.qty', DB::raw('ifnull(item.qty, 0) - ifnull(outs.qty, 0) as stock_qty')
             ])
             ->whereIn('order.status_code', ['Add', 'Paided', 'Unpaid', 'Unbalance', 'Received'])
             ->whereNotNull('item.product_style_id')
-            ->whereNull('dlv.audit_date');
+            ->whereNull('dlv.audit_date')
+            ->whereNull('dlv.deleted_at');
 
         if (isset($product_style_id)) {
             $re->where('item.product_style_id', $product_style_id);
@@ -135,11 +136,13 @@ class DlvOutStock extends Model
                 $join->where('outs.type', '=', DB::raw(DlvOutStockType::product()->value));
             })
             ->select([
-                'dlv.event', 'dlv.event_sn', 'dlv.event_id'
-                , 'csnitem.product_style_id', 'csnitem.num as qty', DB::raw('ifnull(csnitem.num, 0) - ifnull(outs.qty, 0) as stock_qty')
+                'dlv.id as delivery_id', 'dlv.event', 'dlv.event_sn', 'dlv.event_id'
+                , 'csnitem.product_style_id', 'csnitem.sku', 'csnitem.num as qty', DB::raw('ifnull(csnitem.num, 0) - ifnull(outs.qty, 0) as stock_qty')
             ])
             ->whereNotNull('csnitem.product_style_id')
-            ->whereNull('dlv.audit_date');
+            ->whereNotNull('csn.audit_date')
+            ->whereNull('dlv.audit_date')
+            ->whereNull('dlv.deleted_at');
         if (isset($product_style_id)) {
             $re_csn->where('csnitem.product_style_id', $product_style_id);
         }
