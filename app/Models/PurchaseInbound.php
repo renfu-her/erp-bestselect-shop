@@ -1129,6 +1129,17 @@ class PurchaseInbound extends Model
     {
         $subComboQty = ProductStyle::comboElementTotalQty();
 
+        $orderToDlvQty = DlvOutStock::getAllOrderToDlvQty();
+        $csnToDlvQty = DlvOutStock::getAllCsnToDlvQty();
+        $orderToDlvQty = $orderToDlvQty->union($csnToDlvQty);
+
+        $toDlvQty = DB::query()->fromSub($orderToDlvQty, 'dlv_tb')
+            ->select('dlv_tb.product_style_id'
+                , DB::raw('sum(stock_qty) as total_stock_qty')
+            )
+            ->groupBy('dlv_tb.product_style_id');
+//        dd($toDlvQty->get());
+
         $extPrdStyleList_send = PurchaseInbound::getExistInboundProductStyleList($depot_id);
         $products = Product::productStyleList($searchParam['keyword'], $searchParam['type'], $searchParam['stock'],
             ['supplier' => ['condition' => $searchParam['supplier'], 'show' => true],
@@ -1146,8 +1157,13 @@ class PurchaseInbound extends Model
             })
             ->leftJoin('depot', 'depot.id', '=', 'inbound.depot_id')
             ->leftJoinSub($subComboQty, 'combo_qty', 'combo_qty.product_style_child_id', '=', 'inbound.product_style_id')
+
+            ->leftJoinSub($toDlvQty, 'dlv_tb', function ($join) use ($depot_id) {
+                //對應到入庫倉可入到進貨倉 相同的product_style_id
+                $join->on('dlv_tb.product_style_id', '=', 's.id');
+            })
             ->addSelect(
-                'inbound.product_style_id'
+                's.id as product_style_id'
 //                , 'inbound.event'
                 , 'inbound.depot_id'
                 , 'depot.name as depot_name'
@@ -1161,6 +1177,7 @@ class PurchaseInbound extends Model
                 , 'inbound.total_in_stock_num_csn'
                 , 'p.public'
                 , 'combo_qty.combo_qty as combo_qty'
+                , 'dlv_tb.total_stock_qty'
             );
         if (null != $depot_id && 0 < count($depot_id)) {
             $products->whereIn('inbound.depot_id', $depot_id);
@@ -1173,6 +1190,9 @@ class PurchaseInbound extends Model
         }
         if (isset($searchParam['public']) && !is_null($searchParam['public'])) {
             $products->where('p.public', $searchParam['public']);
+        }
+        if (isset($searchParam['has_stock_qty']) && 1 == $searchParam['has_stock_qty']) {
+            $products->where('dlv_tb.total_stock_qty', '>', 0);
         }
         return $products;
     }

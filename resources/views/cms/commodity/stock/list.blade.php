@@ -99,6 +99,18 @@
                         @endforeach
                     </div>
                 </fieldset>
+                <fieldset class="col-12 mb-3">
+                    <legend class="col-form-label p-0 mb-2">待出貨數量</legend>
+                    <div class="px-1 pt-1">
+                        <div class="form-check form-check-inline">
+                            <label class="form-check-label">
+                                <input class="form-check-input" value="1" name="has_stock_qty"
+                                       @if (1 == $searchParam['has_stock_qty'] ?? 0) checked @endif type="checkbox">
+                                尚有待出貨數量
+                            </label>
+                        </div>
+                    </div>
+                </fieldset>
             </div>
 
             <div class="col">
@@ -160,6 +172,7 @@
                         <th scope="col" class="wrap lh-sm text-center" style="min-width:50px">寄倉庫存</th>
                         <th scope="col" class="wrap lh-sm -sm text-center">官網可售數量(超賣)</th>
                         <th scope="col" class="wrap lh-sm -sm text-center">被組合數量</th>
+                        <th scope="col" class="wrap lh-sm -sm text-center">待出貨</th>
                         <!--<th scope="col">預扣庫存</th>-->
                         <th scope="col" class="wrap lh-sm text-center" style="min-width:50px">安全庫存</th>
                         <th scope="col" class="text-center">公開</th>
@@ -201,6 +214,9 @@
                             <td class="text-center">{{ $data->total_in_stock_num_csn }}</td>
                             <td class="text-center">{{ $data->in_stock }}({{ $data->overbought }})</td>
                             <td class="text-center">{{ $data->combo_qty }}</td>
+                            <td class="text-center">
+                                <a href="{{ Route('cms.stock.dlv_qty', ['style_id' => $data->product_style_id], true) }}">{{ $data->total_stock_qty }}</a>
+                            </td>
                             <!--
                                     <td>
                                         {{-- if (銷售控管 = 0) --}}
