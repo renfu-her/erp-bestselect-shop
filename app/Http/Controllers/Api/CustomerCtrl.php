@@ -286,7 +286,21 @@ class CustomerCtrl extends Controller
     {
 
         if (get_class($request->user()) == "App\Models\User") {
-            $customerId = $request->user()->customer_id;
+            //  $customerId = $request->user()->customer_id;
+            $validator = Validator::make($request->all(), [
+                'customer_id' => ['required', 'string'],
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    ResponseParam::status => ApiStatusMessage::Fail,
+                    ResponseParam::msg => $validator->errors(),
+                    ResponseParam::data => [],
+                ]);
+            }
+
+            $customerId = $request->input('customer_id');
+
             $type = "user";
         } else {
             $customerId = $request->user()->id;
