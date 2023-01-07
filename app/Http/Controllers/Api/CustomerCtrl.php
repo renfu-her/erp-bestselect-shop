@@ -284,7 +284,15 @@ class CustomerCtrl extends Controller
      */
     public function customerAddress(Request $request)
     {
-        $customerId = $request->user()->id;
+
+        if (get_class($request->user()) == "App\Models\User") {
+            $customerId = $request->user()->customer_id;
+            $type = "user";
+        } else {
+            $customerId = $request->user()->id;
+            $type = "customer";
+        }
+
         $data = DB::table('usr_customers as customer')
             ->where('customer.id', $customerId)
             ->leftJoin('usr_customers_address', 'customer.id', '=', 'usr_customers_address.usr_customers_id_fk')
@@ -308,6 +316,7 @@ class CustomerCtrl extends Controller
             ResponseParam::status => ApiStatusMessage::Succeed,
             ResponseParam::msg => ApiStatusMessage::getDescription(ApiStatusMessage::Succeed),
             ResponseParam::data => $data,
+            'type' => $type,
         ]);
     }
 
