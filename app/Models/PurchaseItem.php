@@ -256,6 +256,7 @@ class PurchaseItem extends Model
         , $inbound_edate = null
         , $expire_day = null
         , $audit_status = null
+        , $has_error_num = null
     ) {
 
         //訂金單號
@@ -407,6 +408,9 @@ class PurchaseItem extends Model
         if ($expire_day) {
             $result->whereNotNull('inbound.expiry_date');
         }
+        if (isset($has_error_num) && 1 == $has_error_num) {
+            $result->where(DB::raw('(items.num - items.arrived_num)'), '<>', 0);
+        }
 
         $result2 = DB::table(DB::raw("({$result->toSql()}) as tb"))
             ->select('*')
@@ -455,6 +459,7 @@ class PurchaseItem extends Model
         , $inbound_edate = null
         , $expire_day = null
         , $audit_status = null
+        , $has_error_num = null
     ) {
         //訂金單號
         $subColumn = DB::table('pcs_paying_orders as order')
@@ -615,6 +620,9 @@ class PurchaseItem extends Model
         }
         if ($expire_day) {
             $result->whereNotNull('itemtb_new.expiry_date');
+        }
+        if (isset($has_error_num) && 1 == $has_error_num) {
+            $result->where(DB::raw('(itemtb_new.num - itemtb_new.arrived_num)'), '<>', 0);
         }
 
         $result2 = DB::table(DB::raw("({$result->toSql()}) as tb"))

@@ -10,4 +10,8 @@
 寄送到以下地址：
 收件者資訊：{{$receive_name}}
 {{$receive_address}} {{$receive_phone}}
+
+@if('pickup' == $sub_order->ship_category)
+{{$sub_order->ship_category_name}} {{$sub_order->ship_event}}
+@endif
 </pre>

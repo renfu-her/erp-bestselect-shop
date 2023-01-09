@@ -69,6 +69,7 @@ class PurchaseCtrl extends Controller
         $expire_day = Arr::get($query, 'expire_day', '');
         $type = Arr::get($query, 'type', '0'); //0:明細 1:總表
         $audit_status = Arr::get($query, 'audit_status', null);
+        $has_error_num = Arr::get($query, 'has_error_num', 0);
 
         $inbound_status_arr = [];
         if ('' != $inbound_status) {
@@ -93,7 +94,8 @@ class PurchaseCtrl extends Controller
                 , $inbound_sdate
                 , $inbound_edate
                 , $expire_day
-                , $audit_status)
+                , $audit_status
+                , $has_error_num)
                 ->paginate($data_per_page)->appends($query);
         } else {
             $dataList = PurchaseItem::getPurchaseOverviewList(
@@ -110,7 +112,8 @@ class PurchaseCtrl extends Controller
                 , $inbound_sdate
                 , $inbound_edate
                 , $expire_day
-                , $audit_status)
+                , $audit_status
+                , $has_error_num)
                 ->paginate($data_per_page)->appends($query);
         }
 
@@ -139,6 +142,7 @@ class PurchaseCtrl extends Controller
             , 'expire_day' => $expire_day
             , 'type' => $type
             , 'audit_status' => $audit_status
+            , 'has_error_num' => $has_error_num
         ]);
     }
 
@@ -188,8 +192,8 @@ class PurchaseCtrl extends Controller
             $purchasePayReq['logistics_price'] ?? null,
             $purchasePayReq['logistics_memo'] ?? null,
             $purchasePayReq['invoice_num'] ?? null,
-            $purchasePayReq['invoice_date'] ?? null,  
-            $request->input('note')  
+            $purchasePayReq['invoice_date'] ?? null,
+            $request->input('note')
         );
         $purchaseID = null;
         if (isset($rePcs['id'])) {
@@ -386,7 +390,7 @@ class PurchaseCtrl extends Controller
         }
 //        dd('end');
         $note = $request->input('note');
-       
+
         $msg = IttmsDBB::transaction(function () use ($request, $id, $purchaseReq, $purchaseItemReq, $taxReq, $purchasePayReq, $purchaseGet,$note
         ) {
             $repcsCTPD = Purchase::checkToUpdatePurchaseData($id, $purchaseReq, $request->user()->id, $request->user()->name, $taxReq, $purchasePayReq,$note);
