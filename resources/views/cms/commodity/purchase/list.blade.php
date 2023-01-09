@@ -176,6 +176,18 @@
                         @endforeach
                     </div>
                 </fieldset>
+                <fieldset class="col-12 mb-3">
+                    <legend class="col-form-label p-0 mb-2">異常數量</legend>
+                    <div class="px-1 pt-1">
+                        <div class="form-check form-check-inline">
+                            <label class="form-check-label">
+                                <input class="form-check-input" value="1" name="has_error_num"
+                                       @if (1 == $has_error_num ?? 0) checked @endif type="checkbox">
+                                有異常數量
+                            </label>
+                        </div>
+                    </div>
+                </fieldset>
             </div>
 
             <div class="col">
