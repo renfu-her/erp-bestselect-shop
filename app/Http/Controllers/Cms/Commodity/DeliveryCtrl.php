@@ -44,6 +44,7 @@ use App\Models\PayableRemit;
 use App\Models\PayableForeignCurrency;
 use App\Models\PayableOther;
 use App\Models\PayableDefault;
+use App\Models\PcsStatisInbound;
 use App\Models\Petition;
 use App\Models\ProductStock;
 use App\Models\ProductStyle;
@@ -1581,6 +1582,8 @@ class DeliveryCtrl extends Controller
                             $update_arr['sale_num'] = DB::raw("sale_num - $rcv_depot_item->back_qty");
                         }
                         PurchaseInbound::where('id', $rcv_depot_item->inbound_id)->update($update_arr);
+                        $ibouund_orignal = PurchaseInbound::where('id', $rcv_depot_item->inbound_id)->first();
+                        PcsStatisInbound::updateData($ibouund_orignal->event, $rcv_depot_item->product_style_id, $rcv_depot_item->depot_id, $rcv_depot_item->back_qty);
 
                         //寫入LOG
                         $rePcsLSC = PurchaseLog::stockChange($delivery->event_id, $rcv_depot_item->product_style_id, $delivery->event, $rcv_depot_item->id
@@ -1678,16 +1681,10 @@ class DeliveryCtrl extends Controller
                         }
                     }
                     if (0 != $todo_qty) {
-                        PurchaseInbound::where('id', $inbound_item->inbound_id)->update([
-                            'back_num' => DB::raw("back_num + $todo_qty")
-                        ]);
-                        $rePcsLSC = PurchaseLog::stockChange($inbound_item->event_id, $inbound_item->product_style_id, Event::consignment()->value, $inbound_item->event_item_id
-                            , $LogEventFeature, $inbound_item->inbound_id, $todo_qty * -1, $inbound_item->memo ?? null
-                            , $inbound_item->product_title, $inbound_item->prd_type
-                            , $request->user()->id, $request->user()->name, $bac_papa_id);
-                        if ($rePcsLSC['success'] == 0) {
+                        $reUBI = PurchaseInbound::updateBackInbound($inbound_item, Event::consignment()->value, $LogEventFeature, $todo_qty, $bac_papa_id);
+                        if ($reUBI['success'] == 0) {
                             DB::rollBack();
-                            return $rePcsLSC;
+                            return $reUBI;
                         }
                     }
                 }
@@ -1870,6 +1867,8 @@ class DeliveryCtrl extends Controller
                         $update_arr['sale_num'] = DB::raw("sale_num + $val_rcv->back_qty");
                     }
                     PurchaseInbound::where('id', $val_rcv->inbound_id)->update($update_arr);
+                    $ibouund_orignal = PurchaseInbound::where('id', $val_rcv->inbound_id)->first();
+                    PcsStatisInbound::updateData($ibouund_orignal->event, $val_rcv->product_style_id, $val_rcv->depot_id, $val_rcv->back_qty * -1);
 
                     //寫入LOG
                     $rePcsLSC = PurchaseLog::stockChange($delivery->event_id, $val_rcv->product_style_id, $delivery->event, $val_rcv->rcv_depot_id

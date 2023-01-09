@@ -57,6 +57,7 @@ class PurchaseInbound extends Model
             ];
 
             $id = self::create($insert_data)->id;
+            PcsStatisInbound::updateData($event, $product_style_id, $depot_id, $inbound_num);
             $updateLog = PurchaseInbound::addLogAndUpdateStock(LogEventFeature::inbound_add()->value, $id, $event, $event_id, $event_item_id, $product_style_id
                 , $prd_type, $title, $inbound_num, $can_tally, $memo, StockEvent::inbound()->value, null, $inbound_user_id, $inbound_user_name);
             if ($updateLog['success'] == 0) {
@@ -92,6 +93,7 @@ class PurchaseInbound extends Model
                     'inbound_num' => DB::raw("inbound_num + $add_qty")
                     , 'expiry_date' => $expiry_date,
                 ]);
+                PcsStatisInbound::updateData($inboundGet->event, $inboundGet->product_style_id, $inboundGet->depot_id, $add_qty);
 
                 $updateLog = PurchaseInbound::addLogAndUpdateStock(LogEventFeature::inbound_update()->value, $inboundGet->id, $inboundGet->event, $inboundGet->event_id, $inboundGet->event_item_id, $inboundGet->product_style_id
                     , $inboundGet->prd_type, $inboundGet->title, $add_qty, $can_tally, $memo, StockEvent::inbound()->value, null, $update_user_id, $update_user_name);
@@ -318,6 +320,7 @@ class PurchaseInbound extends Model
                             return $rePSSC;
                         }
                     }
+                    PcsStatisInbound::updateData($inboundDataGet->event, $inboundDataGet->product_style_id, $inboundDataGet->depot_id, $qty);
                     if (null != $inboundInventoryGet && 0 < count($inboundInventoryGet)) {
                         $inboundInventory->forceDelete();
                     }
@@ -394,6 +397,7 @@ class PurchaseInbound extends Model
 
                     PurchaseInbound::where('id', $id)
                         ->update($update_arr);
+                    PcsStatisInbound::updateData($inboundData->event, $inboundData->product_style_id, $inboundData->depot_id, $sale_num * -1);
                     $reStockChange = PurchaseLog::stockChange($event_parent_id, $inboundData->product_style_id, $event, $event_id, $feature, $id, $sale_num * -1, null, $inboundData->title, $inboundData->prd_type, $user_id, $user_name);
                     if ($reStockChange['success'] == 0) {
                         DB::rollBack();
@@ -418,6 +422,28 @@ class PurchaseInbound extends Model
                 }
             }
             return ['success' => 1, 'error_msg' => ""];
+        });
+    }
+
+    public static function updateBackInbound($inbound_item, $logEnent, $LogEventFeature, $todo_qty, $bac_papa_id) {
+        if (false == isset($inbound_item) || false == isset($logEnent) || false == isset($LogEventFeature) || false == isset($todo_qty) || false == isset($bac_papa_id)) {
+            return ['success' => 0, 'error_msg' => 'updateBackInbound param error'];
+        }
+        return IttmsDBB::transaction(function () use ($inbound_item, $logEnent, $LogEventFeature, $todo_qty, $bac_papa_id) {
+            PurchaseInbound::where('id', $inbound_item->inbound_id)->update([
+                'back_num' => DB::raw("back_num + $todo_qty")
+            ]);
+            PcsStatisInbound::updateData($inbound_item->event, $inbound_item->product_style_id, $inbound_item->depot_id, $todo_qty * -1);
+            $rePcsLSC = PurchaseLog::stockChange($inbound_item->event_id, $inbound_item->product_style_id, $logEnent, $inbound_item->event_item_id
+                , $LogEventFeature, $inbound_item->inbound_id, $todo_qty * -1, $inbound_item->memo ?? null
+                , $inbound_item->product_title, $inbound_item->prd_type
+                , Auth::user()->id, Auth::user()->name, $bac_papa_id);
+            if ($rePcsLSC['success'] == 0) {
+                DB::rollBack();
+                return $rePcsLSC;
+            } else {
+                return ['success' => 1, 'error_msg' => ""];
+            }
         });
     }
 
@@ -1006,114 +1032,19 @@ class PurchaseInbound extends Model
             ->groupBy('tb_rd.product_style_id')
             ->groupBy('tb_rd.product_title');
 
-        $queryInbound = DB::table('pcs_purchase_inbound as inbound')
-            ->leftJoin('prd_product_styles as style', 'style.id', '=', 'inbound.product_style_id')
-            ->leftJoin('prd_products as product', 'product.id', '=', 'style.product_id')
-            ->select(
-                'inbound.product_style_id'
-                , 'inbound.event'
-                , 'inbound.depot_id'
-                , 'product.id as product_id'
-                , 'product.title as product_title'
-                , 'product.type as product_type'
-                , 'style.title'
-                , 'style.sku'
-                , DB::raw('sum(inbound.inbound_num) as total_inbound_num')
-                , DB::raw('sum(inbound.sale_num) as total_sale_num')
-                , DB::raw('sum(inbound.csn_num) as total_csn_num')
-                , DB::raw('sum(inbound.consume_num) as total_consume_num')
-                , DB::raw('sum(inbound.back_num) as total_back_num')
-                , DB::raw('sum(inbound.scrap_num) as total_scrap_num')
-            )
-            ->selectRaw('(sum(inbound.inbound_num) - sum(inbound.sale_num) - sum(inbound.csn_num) - sum(inbound.consume_num) - sum(inbound.back_num) - sum(inbound.scrap_num)) as total_in_stock_num')
-            ->whereNull('inbound.deleted_at')
-            ->whereNotNull('style.sku')
-            ->whereNull('style.deleted_at')
-//            ->whereNotNull('inbound.close_date') //只篩選入庫有結案的
-        //            ->where(DB::raw('(inbound.inbound_num - inbound.sale_num - inbound.csn_num - inbound.consume_num - inbound.back_num - inbound.scrap_num)'), '>', 0)
-            ->groupBy('inbound.product_style_id')
-            ->groupBy('inbound.event')
-            ->groupBy('inbound.depot_id')
-            ->groupBy('product.id')
-            ->groupBy('product.title')
-            ->groupBy('product.type')
-            ->groupBy('style.title')
-            ->groupBy('style.sku');
-
-        $queryInbound_purchase = DB::query()->fromSub($queryInbound, 'ib_purchase')
+        $queryInbound_group_pcs_csn = DB::table(app(PcsStatisInbound::class)->getTable(). ' as ib_tb')
             ->leftJoinSub($querySub, 'tb_rd', function ($join) {
-                $join->on('tb_rd.depot_id', '=', 'ib_purchase.depot_id');
-                $join->on('tb_rd.product_style_id', '=', 'ib_purchase.product_style_id');
+                $join->on('tb_rd.depot_id', '=', 'ib_tb.depot_id');
+                $join->on('tb_rd.product_style_id', '=', 'ib_tb.product_style_id');
+                $join->where('ib_tb.event', '=', Event::purchase()->value);
             })
-            ->where('ib_purchase.event', Event::purchase()->value)
             ->select(
-                'ib_purchase.product_style_id'
-                , 'ib_purchase.event'
-                , 'ib_purchase.depot_id'
-                , 'ib_purchase.product_id'
-                , 'ib_purchase.product_title'
-                , 'ib_purchase.product_type'
-                , 'ib_purchase.title'
-                , 'ib_purchase.sku'
-                , 'ib_purchase.total_inbound_num'
-                , 'ib_purchase.total_sale_num'
-                , 'ib_purchase.total_csn_num'
-                , 'ib_purchase.total_consume_num'
-                , 'ib_purchase.total_back_num'
-                , 'ib_purchase.total_scrap_num'
-                , DB::raw('(ifnull(ib_purchase.total_in_stock_num, 0) - ifnull(tb_rd.qty, 0)) as total_in_stock_num')
-                , DB::raw('@0:="0" as total_in_stock_num_csn')
+                'ib_tb.product_style_id'
+                , 'ib_tb.event'
+                , 'ib_tb.depot_id'
+                , DB::raw('case when ib_tb.event = "'. Event::purchase()->value. '" then ifnull(ib_tb.qty, 0) - ifnull(tb_rd.qty, 0) else 0 end as total_in_stock_num')
+                , DB::raw('case when ib_tb.event = "'. Event::consignment()->value. '" then ib_tb.qty else 0 end as total_in_stock_num_csn')
             );
-
-        $queryInbound_consignment = DB::query()->fromSub($queryInbound, 'ib_consignment')
-            ->where('ib_consignment.event', Event::consignment()->value)
-            ->select(
-                'ib_consignment.product_style_id'
-                , 'ib_consignment.event'
-                , 'ib_consignment.depot_id'
-                , 'ib_consignment.product_id'
-                , 'ib_consignment.product_title'
-                , 'ib_consignment.product_type'
-                , 'ib_consignment.title'
-                , 'ib_consignment.sku'
-                , DB::raw('@0:="0" as total_inbound_num')
-                , DB::raw('@0:="0" as total_sale_num')
-                , DB::raw('@0:="0" as total_csn_num')
-                , DB::raw('@0:="0" as total_consume_num')
-                , DB::raw('@0:="0" as total_back_num')
-                , DB::raw('@0:="0" as total_scrap_num')
-                , DB::raw('@0:="0" as total_in_stock_num')
-                , DB::raw('(ifnull(ib_consignment.total_inbound_num, 0) - ifnull(ib_consignment.total_sale_num, 0) - ifnull(ib_consignment.total_csn_num, 0)
-                - ifnull(ib_consignment.total_consume_num, 0)- ifnull(ib_consignment.total_back_num, 0)- ifnull(ib_consignment.total_scrap_num, 0)) as total_in_stock_num_csn')
-            );
-
-        $queryInbound_union_pcs_csn = $queryInbound_purchase->union($queryInbound_consignment);
-
-        $queryInbound_group_pcs_csn = DB::query()->fromSub($queryInbound_union_pcs_csn, 'ib')
-            ->select('ib.product_style_id'
-                //, 'ib.event'
-                , 'ib.depot_id'
-                , 'ib.product_id'
-                , 'ib.product_title'
-                , 'ib.product_type'
-                , 'ib.title'
-                , 'ib.sku'
-                , DB::raw('sum(ib.total_inbound_num) as total_inbound_num')
-                , DB::raw('sum(ib.total_sale_num) as total_sale_num')
-                , DB::raw('sum(ib.total_csn_num) as total_csn_num')
-                , DB::raw('sum(ib.total_consume_num) as total_consume_num')
-                , DB::raw('sum(ib.total_back_num) as total_back_num')
-                , DB::raw('sum(ib.total_scrap_num) as total_scrap_num')
-                , DB::raw('sum(ib.total_in_stock_num) as total_in_stock_num')
-                , DB::raw('sum(ib.total_in_stock_num_csn) as total_in_stock_num_csn')
-            )
-            ->groupBy('ib.product_style_id')
-            ->groupBy('ib.depot_id')
-            ->groupBy('ib.product_id')
-            ->groupBy('ib.product_title')
-            ->groupBy('ib.product_type')
-            ->groupBy('ib.title')
-            ->groupBy('ib.sku');
 
         if (null != $depot_id && 0 < count($depot_id)) {
             $queryInbound_group_pcs_csn = DB::query()->fromSub($queryInbound_group_pcs_csn, 'inbound')
@@ -1138,7 +1069,6 @@ class PurchaseInbound extends Model
                 , DB::raw('sum(stock_qty) as total_stock_qty')
             )
             ->groupBy('dlv_tb.product_style_id');
-//        dd($toDlvQty->get());
 
         $extPrdStyleList_send = PurchaseInbound::getExistInboundProductStyleList($depot_id);
         $products = Product::productStyleList($searchParam['keyword'], $searchParam['type'], $searchParam['stock'],
@@ -1167,12 +1097,6 @@ class PurchaseInbound extends Model
 //                , 'inbound.event'
                 , 'inbound.depot_id'
                 , 'depot.name as depot_name'
-                , 'inbound.total_inbound_num'
-                , 'inbound.total_sale_num'
-                , 'inbound.total_csn_num'
-                , 'inbound.total_consume_num'
-                , 'inbound.total_back_num'
-                , 'inbound.total_scrap_num'
                 , 'inbound.total_in_stock_num'
                 , 'inbound.total_in_stock_num_csn'
                 , 'p.public'
