@@ -38,13 +38,7 @@ class DayEndCtrl extends Controller
             }
         }
 
-        $year_range = [
-            (date('Y') - 2),
-            (date('Y') - 1),
-            date('Y'),
-            (date('Y') + 1),
-            (date('Y') + 2),
-        ];
+        $year_range = range(date('Y', strtotime('-2 year')), date('Y', strtotime('+2 year')));
 
         $month_rage = [];
         for($i = 1; $i <= 12; $i++){
@@ -155,13 +149,7 @@ class DayEndCtrl extends Controller
                 grade_name
             ')->get();
 
-        $year_range = [
-            (date('Y') - 2),
-            (date('Y') - 1),
-            date('Y'),
-            (date('Y') + 1),
-            (date('Y') + 2),
-        ];
+        $year_range = range(date('Y', strtotime('-2 year')), date('Y', strtotime('+2 year')));
 
         $month_rage = [];
         for($i = 1; $i <= 12; $i++){

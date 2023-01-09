@@ -73,7 +73,8 @@
         <script>
             const BESTSELECTION_REGEX = /(^https:\/\/.*\.bestselection\.com\.tw)/;
 
-            const BITLY_TOKEN = "a55bd2eca919950d842173e393eccd2e1e8300f8";
+            //綁定在bit.ly帳號besttour2094@gmail.com
+            const BITLY_TOKEN = "13b7470ccac0b211df25fd8947bb3cb97b54daea";
             const PICSEE_TOKEN = {!! '"' . $PicSeeToken . '"' !!}
             $(document).ready(function(){
 
@@ -108,8 +109,9 @@
                         var long_url = toUtmUrl(oriUrl, source);
                         // console.log("long_url:" + long_url);
 
-                        // use Picsee instead
-                        if (true) {
+                        // Picsee的每年額度只有800筆已滿，改用bitly
+                        let enabledPicsee = false;
+                        if (enabledPicsee) {
                             // console.log("pics Supported");
                             $.ajax({
                                 url: "https://api.pics.ee/v1/links/?access_token=" + PICSEE_TOKEN,
