@@ -73,7 +73,7 @@ Route::group(['prefix' => 'cms', 'as' => 'cms.', 'middleware' => 'auth:cms-api']
     require base_path('routes/api/cms/Logistic.php');
     require base_path('routes/api/User.php');
     require base_path('routes/api/cms/Order.php');
-    Route::get('/address-list', [CustomerCtrl::class, 'customerAddress'])->name('customer_address');
+    Route::post('/address-list', [CustomerCtrl::class, 'customerAddress'])->name('customer_address');
 
 
 });
