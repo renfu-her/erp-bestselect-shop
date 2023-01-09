@@ -1423,7 +1423,8 @@ class Order extends Model
                 , 'receive_name' => $receiver->name ?? ''
                 , 'receive_address' => $receiver->address ?? ''
                 , 'receive_phone' => $receiver->phone ?? ''
-                , 'order_items' => $order_items ?? null,
+                , 'order_items' => $order_items ?? null
+                , 'sub_order' => $sub_order ?? null
             ];
             Mail::to($email)->queue(new OrderShipped($data));
         }
