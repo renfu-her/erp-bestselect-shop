@@ -115,7 +115,7 @@ class CollectionPaymentCtrl extends Controller
                                     'all_grades_id'=>$po_value->po_logistics_grade_id,
                                     'grade_code'=>$po_value->po_logistics_grade_code,
                                     'grade_name'=>$po_value->po_logistics_grade_name,
-                                    'price'=>$po_value->logistics_cost,
+                                    'price'=>$po_value->logistics_price,
                                     'num'=>$po_value->logistics_qty,
                                     'summary'=>$po_value->logistics_summary,
                                     'memo'=>$po_value->logistics_memo,

@@ -175,6 +175,9 @@ class PurchaseItem extends Model
                         $inbound_ids[] = $val_ib->inbound_id;
                         //$can_tally = Depot::can_tally($val_ib->depot_id);
                         $can_tally = true;
+
+                        $inbound_num = $val_ib->inbound_num?? 0 - $val_ib->shipped_num?? 0;
+                        PcsStatisInbound::updateData($val_ib->product_style_id, $val_ib->depot_id, $inbound_num * -1);
                         $updateLog = PurchaseInbound::addLogAndUpdateStock(LogEventFeature::purchase_del()->value, $val_ib->inbound_id
                             , $val_ib->event, $val_ib->event_id, $val_ib->event_item_id
                             , $val_ib->product_style_id
