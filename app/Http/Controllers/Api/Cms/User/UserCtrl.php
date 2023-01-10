@@ -95,8 +95,11 @@ class UserCtrl extends Controller
         }
 
         $mcode = '';
+        $email = '';
         if (CustomerProfit::getProfitData($d['customer_id'], ProfitStatus::Success())) {
-            $mcode = Customer::where('id', $d['customer_id'])->get()->first()->sn;
+            $customer = Customer::where('id', $d['customer_id'])->get()->first();
+            $mcode = $customer->sn;
+            $email = $customer->email;
         }
 
         $re = UserSalechannel::getSalechannels($user->id)->get()->toArray();
@@ -105,6 +108,7 @@ class UserCtrl extends Controller
             'status' => '0',
             'data' => $re,
             'mcode' => $mcode,
+            'email'=> $email
         ]);
 
     }

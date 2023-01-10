@@ -78,7 +78,7 @@
                                             <input type="hidden" name="shipment_event_id[]" value="">
                                         </th>
                                         <td>
-                                            <div data-td="title"><a href="#" class="-text"></a></div>
+                                            <div data-td="title" class="text-wrap lh-1"><a href="#" class="-text"></a></div>
                                             {{-- 優惠 --}}
                                         </td>
                                         <td class="text-center" data-td="price">${{ number_format(0) }}</td>
@@ -451,7 +451,7 @@
                                 <option disabled selected value="0">請選擇常用地址</option>
                                 @foreach($otherOftenUsedAddresses ?? [] as $otherOftenUsedAddress)
                                     <option value="{{ $otherOftenUsedAddress->customer_addr_id }}">
-                                        {{ $otherOftenUsedAddress->name . $otherOftenUsedAddress->address}}
+                                        {{ $otherOftenUsedAddress->name }} - {{ $otherOftenUsedAddress->address}}
                                     </option>
                                 @endforeach
                             </select>
@@ -549,7 +549,7 @@
                                 <option disabled selected value="0">請選擇常用地址</option>
                                 @foreach($otherOftenUsedAddresses ?? [] as $otherOftenUsedAddress)
                                     <option value="{{ $otherOftenUsedAddress->customer_addr_id }}">
-                                        {{ $otherOftenUsedAddress->name . $otherOftenUsedAddress->address}}
+                                        {{ $otherOftenUsedAddress->name }} - {{ $otherOftenUsedAddress->address}}
                                     </option>
                                 @endforeach
                             </select>
@@ -641,7 +641,7 @@
                                 <option disabled selected value="0">請選擇常用地址</option>
                                 @foreach($otherOftenUsedAddresses ?? [] as $otherOftenUsedAddress)
                                     <option value="{{ $otherOftenUsedAddress->customer_addr_id }}">
-                                        {{ $otherOftenUsedAddress->name . $otherOftenUsedAddress->address}}
+                                        {{ $otherOftenUsedAddress->name }} - {{ $otherOftenUsedAddress->address}}
                                     </option>
                                 @endforeach
                             </select>
@@ -829,6 +829,10 @@
             getSaleChannel();
             $('#customer').off('change.channel').on('change.channel', function() {
                 getSaleChannel();
+                if ($('input[name="coupon_type"]:checked').val() === 'coupon') {
+                    getCouponsAPI();
+                }
+                getAddress();
             });
 
             // 取得客戶身份
@@ -877,9 +881,16 @@
                                     $('input.-recommender').val(res.mcode);
                                     checkRecommender(res.mcode);
                                 }
+                                // email
+                                if (res.email) {
+                                    $('input[name="buyer_email"], input[name="carrier_num"]').val(res.email);
+                                } else {
+                                    $('input[name="buyer_email"], input[name="carrier_num"]').val('');
+                                }
                             } else {
                                 $('#addProductBtn').prop('disabled', true);
                                 $('#salechannel').append('<option value="">未綁定身份（無法購物）</option>');
+                                $('input[name="buyer_email"], input[name="carrier_num"]').val('');
                             }
                         }).catch((err) => {
                             console.error(err);
@@ -942,6 +953,68 @@
                     });
             }
 
+            // 取得地址
+            function getAddress() {
+                const _URL = @json(route('api.cms.customer_address'));
+                let Data = {
+                    customer_id: $('#customer').val()
+                };
+                // 清空
+                $(`input[name="ord_name"], input[name="ord_phone"], input[name="ord_addr"],
+                   select[name="ord_city_id"], select[name="ord_region_id"],
+                   input[name="sed_name"], input[name="sed_phone"], input[name="sed_addr"],
+                   select[name="sed_city_id"], select[name="sed_region_id"],
+                   input[name="rec_name"], input[name="rec_phone"], input[name="rec_addr"],
+                   select[name="rec_city_id"], select[name="rec_region_id"]`).val('');
+                $(`select[name="ord_region_id"], 
+                   select[name="sed_region_id"], 
+                   select[name="rec_region_id"]`).html('<option value="">地區</option>');
+                $(`.ord_selectOftenUsedAddress select,
+                   .sed_selectOftenUsedAddress select,
+                   .rec_selectOftenUsedAddress select`)
+                   .html('<option disabled selected value="0">請選擇常用地址</option>');
+
+                if (!Data.customer_id) {
+                    return false;
+                } else {
+                    axios.post(_URL, Data)
+                        .then((result) => {
+                            const res = result.data;
+                            console.log('取得地址', res);
+                            if (res.status === '0' && res.data && res.data.length) {
+                                const addresses = res.data;
+                                addresses.forEach(addr => {
+                                    if (addr.is_default !== 1) {
+                                        $(`.ord_selectOftenUsedAddress select,
+                                           .sed_selectOftenUsedAddress select,
+                                           .rec_selectOftenUsedAddress select`)
+                                           .append(`<option value="${addr.id}">${addr.name} - ${addr.address}</option>`);
+                                    }
+                                });
+                                // 預設地址
+                                const defaultAddr = addresses.find((v)=>(v.is_default));
+                                if (defaultAddr) {
+                                    DefaultAddress = defaultAddr;
+                                    $('input[name="ord_name"]').val(DefaultAddress.name);
+                                    $('input[name="ord_phone"]').val(DefaultAddress.phone);
+                                    $('input[name="ord_addr"]').val(DefaultAddress.addr);
+                                    $('select[name="ord_city_id"]').val(DefaultAddress.city_id);
+                                    getRegionsAction(
+                                        $(`select[name="ord_region_id`),
+                                        DefaultAddress.city_id,
+                                        DefaultAddress.region_id
+                                    );
+                                    $('input[name="ord_radio"][value="default"]').prop('checked', true);
+                                    $('input[name="sed_radio"],input[name="rec_radio"]').prop('checked', false);
+                                    $('.ord_selectOftenUsedAddress').prop('hidden', true);
+                                }
+                            }
+                        }).catch((err) => {
+                            console.error(err);
+                        });
+                }
+            }
+
             // 禁用鍵盤 Enter submit
             $('form').on('keydown', ':input:not(textarea)', function(e) {
                 return e.key !== 'Enter';
@@ -958,8 +1031,8 @@
                     return city + region + addr;
                 });
             });
-        </script>
-        <script>
+            
+
             let addProductModal = new bootstrap.Modal(document.getElementById('addProduct'));
             let setShipmentModal = new bootstrap.Modal(document.getElementById('setShipment'), {
                 backdrop: 'static',
@@ -1942,7 +2015,7 @@
 
                 // 優惠內容
                 function createDiscountDiv(note) {
-                    return `<div data-td="discount" class="lh-1 small text-secondary -dis-data">
+                    return `<div data-td="discount" class="lh-base small text-secondary -dis-data">
                         <span class="badge rounded-pill bg-${meet ? 'danger' : 'secondary'} fw-normal me-2">
                             ${meet ? '已達優惠' : '未達優惠'}</span>
                         ${note}
@@ -2471,10 +2544,10 @@
                 // 應付金額 HTML
                 calc_set_AllAmount();
             }
-        </script>
-        <script>
+        
+        
             // 預設地址資料
-            const DefaultAddress = {
+            let DefaultAddress = {
                 name: @json($defaultAddress->name ?? ''),
                 phone: @json($defaultAddress->phone ?? ''),
                 city_id: @json($defaultAddress->city_id ?? ''),
@@ -2547,7 +2620,7 @@
                        input[name="ord_phone"],
                        input[name="ord_addr"],
                        select[name="ord_city_id"],
-                       select[name="ord_region_id`).val('');
+                       select[name="ord_region_id"]`).val('');
                     $(`select[name="ord_region_id"]`).html('<option value="">地區</option>');
                     setSameNew($('#rec_same'));
                     setSameNew($('#sed_same'));
@@ -2576,7 +2649,7 @@
                         input[name="${prefix_}phone"],
                         input[name="${prefix_}addr"],
                         select[name="${prefix_}city_id"],
-                        select[name="${prefix_}region_id`).val('');
+                        select[name="${prefix_}region_id"]`).val('');
                         $(`select[name="${prefix_}region_id"]`).html('<option value="">地區</option>');
                     }
                 }
@@ -2625,7 +2698,7 @@
                        input[name="sed_phone"],
                        input[name="sed_addr"],
                        select[name="sed_city_id"],
-                       select[name="sed_region_id`).val('');
+                       select[name="sed_region_id"]`).val('');
                     $(`select[name="sed_region_id"]`).html('<option value="">地區</option>');
                     $('.sed_selectOftenUsedAddress').prop('hidden', true);
                 }
@@ -2669,7 +2742,7 @@
                        input[name="rec_phone"],
                        input[name="rec_addr"],
                        select[name="rec_city_id"],
-                       select[name="rec_region_id`).val('');
+                       select[name="rec_region_id"]`).val('');
                     $(`select[name="rec_region_id"]`).html('<option value="">地區</option>');
                     $('.rec_selectOftenUsedAddress').prop('hidden', true);
                 }
