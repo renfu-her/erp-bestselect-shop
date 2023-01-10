@@ -73,6 +73,7 @@ Route::group(['prefix' => 'cms', 'as' => 'cms.', 'middleware' => 'auth:cms-api']
     require base_path('routes/api/cms/Logistic.php');
     require base_path('routes/api/User.php');
     require base_path('routes/api/cms/Order.php');
+    Route::post('/address-list', [CustomerCtrl::class, 'customerAddress'])->name('customer_address');
 
 
 });
@@ -95,6 +96,8 @@ Route::group(['prefix' => 'web', 'as' => 'web.'], function () {
     Route::post('checksum-test', ['uses' => function () {
         return 'ok';
     }, 'middleware' => 'checksum'], );
+
+    
 });
 
 require base_path('routes/api/Addr.php');
