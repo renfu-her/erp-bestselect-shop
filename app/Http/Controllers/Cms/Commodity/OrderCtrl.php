@@ -308,10 +308,16 @@ class OrderCtrl extends Controller
 
         //    dd(Discount::getDiscounts('global-normal'));
 
+        if ($request->user()->hasPermissionTo('cms.order.proxy-buy')|| $request->user()->hasRole('Super Admin')) {
+            $customer = Customer::get();
+        } else {
+            $customer = Customer::where('id', $customer_id)->get();
+        }
+
         return view('cms.commodity.order.edit', [
             'customer_id' => $customer_id,
             'customer_email' => $customer_email,
-            'customers' => Customer::get(),
+            'customers' => $customer,
             'defaultAddress' => $defaultAddress,
             'otherOftenUsedAddresses' => $otherOftenUsedAddresses,
             'citys' => $citys,
@@ -2888,7 +2894,7 @@ class OrderCtrl extends Controller
     {
 
         $customer_id = $request->input('customer_id');
-        
+
         if ($customer_id) {
             OrderProfit::changeOwner($id, $customer_id, $request->user()->id);
         } else {

@@ -934,6 +934,10 @@ return [
                 "cms.order.edit-item",
                 "編輯訂單",
             ],
+            [
+                "cms.order.proxy-buy",
+                "代理定購",
+            ],
         ],
     ],
 
