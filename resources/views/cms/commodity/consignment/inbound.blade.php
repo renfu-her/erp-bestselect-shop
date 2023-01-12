@@ -125,7 +125,7 @@
                                     <input type="date"
                                            class="form-control form-control-sm @error('expiry_date.' . $styleKey) is-invalid @enderror"
                                            name="expiry_date[]" value="{{ old('expiry_date.'. $styleKey, $styleVal->expiry_date?? '') }}"
-                                           required readonly/>
+                                           required @if('c' != $styleVal->prd_type) readonly @endif />
                                 </td>
                                 <td>
                                     <input type="text" class="form-control form-control-sm @error('inbound_memo.' . $styleKey) is-invalid @enderror" name="inbound_memo[]"
