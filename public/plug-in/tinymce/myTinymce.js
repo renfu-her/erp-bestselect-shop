@@ -10,7 +10,7 @@ const TINY_OPTION = {
         styles | fontfamily | fontsize | bold italic underline strikethrough forecolor backcolor codeformat | removeformat |
         link unlink anchor | image media table hr blockquote charmap`,
     iframe_template_callback: (data) => (
-        `<div class="iframe-video">
+        `<div class="embed-iframe-video">
             <iframe src="${data.source}" frameborder="0" allowfullscreen></iframe>
         </div>`
     ),
