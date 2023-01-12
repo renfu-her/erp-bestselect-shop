@@ -1,5 +1,8 @@
 @extends('layouts.main')
 @section('sub-content')
+    @php
+      //  {{  dd(get_defined_vars()); }}
+    @endphp
     <h2 class="mb-4">新增訂單</h2>
 
     <form id="form1" method="post" action="{{ route('cms.order.create', $query) }}" class="-banRedo">
@@ -488,7 +491,7 @@
                             @endphp
                             <select name="ord_region_id" class="form-select" style="max-width:20%" required>
                                 <option value="">地區</option>
-                                @foreach ($default_region as $region)
+                                @foreach ($default_region ?? [] as $region)
                                     <option value="{{ $region['region_id'] }}"
                                         @if ($region['region_id'] == old('ord_region_id', $defaultAddress->region_id ?? '')) selected @endif>
                                         {{ $region['region_title'] }}
@@ -826,9 +829,10 @@
     @endpush
     @push('sub-scripts')
         <script>
+            
             getSaleChannel();
             $('#customer').off('change.channel').on('change.channel', function() {
-                getSaleChannel();
+                // getSaleChannel();
                 if ($('input[name="coupon_type"]:checked').val() === 'coupon') {
                     getCouponsAPI();
                 }

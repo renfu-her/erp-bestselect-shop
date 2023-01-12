@@ -308,7 +308,7 @@ class OrderCtrl extends Controller
 
         //    dd(Discount::getDiscounts('global-normal'));
 
-        if ($request->user()->hasPermissionTo('cms.order.proxy-buy')|| $request->user()->hasRole('Super Admin')) {
+        if ($request->user()->hasPermissionTo('cms.order.proxy-buy') || $request->user()->hasRole('Super Admin')) {
             $customer = Customer::get();
         } else {
             $customer = Customer::where('id', $customer_id)->get();
@@ -448,6 +448,7 @@ class OrderCtrl extends Controller
         }
         $errors = [];
         $addInput = [];
+        //  dd($re);
         if (isset($re['event'])) {
             switch ($re['event']) {
                 case "address":
@@ -474,11 +475,19 @@ class OrderCtrl extends Controller
                 case "dividend":
                     $errors['dividend'] = $re['error_msg'];
                     break;
+                case "check":
+                    if (gettype(array_keys($re['error_msg'])[0]) == "integer") {
+                        $errors['item'] = '購買超過上限';
+                        $addInput['overbought_id'] = array_keys($re['error_msg'])[0];
+                    }
+                    break;
             }
         }
-        if (isset($re['error_msg']) && '0' == $re['success']) {
+
+        if (isset($re['error_msg']) && '0' == $re['success'] && !$errors) {
             $errors['error_msg'] = $re['error_msg'];
         }
+        // dd($addInput,$errors);
 
         return redirect()->back()->withInput(array_merge($request->input(), $addInput))->withErrors($errors);
     }
