@@ -159,7 +159,7 @@
                                         <td>
                                             <div class="input-group input-group-sm flex-nowrap">
                                                 <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                                                <input type="number" name="o_price[]" class="form-control form-control-sm -sm" value="{{ $price_arr[$key] }}" aria-label="價格(單價)" min="0" required>
+                                                <input type="number" name="o_price[]" class="form-control form-control-sm -sm" value="{{ $tax_type_arr[$key] == 1 ? (round($amt_arr[$key] / 1.05) / $count_arr[$key]) : $price_arr[$key] }}" aria-label="價格(單價)" min="0" required>
                                             </div>
                                         </td>
                                         <td>
@@ -168,13 +168,13 @@
                                         <td>
                                             <div class="input-group input-group-sm flex-nowrap">
                                                 <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                                                <input type="number" name="o_total_price[]" class="form-control form-control-sm -sm" value="{{ $amt_arr[$key] }}" aria-label="價格(總價)" min="0" required>
+                                                <input type="number" name="o_total_price[]" class="form-control form-control-sm -sm" value="{{ $tax_type_arr[$key] == 1 ? round($amt_arr[$key] / 1.05) : $amt_arr[$key] }}" aria-label="價格(總價)" min="0" required>
                                             </div>
                                         </td>
                                         <td>
                                             <div class="input-group input-group-sm flex-nowrap">
                                                 <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                                                <input type="number" name="o_tax_price[]" class="form-control form-control-sm -sm" value="{{ $tax_type_arr[$key] == 1 ? 0 : round($amt_arr[$key] * $invoice->tax_rate / 100) }}" aria-label="稅額" min="0" required>
+                                                <input type="number" name="o_tax_price[]" class="form-control form-control-sm -sm" value="{{ $tax_type_arr[$key] == 1 ? ($amt_arr[$key] - round($amt_arr[$key] / 1.05)) : round($amt_arr[$key] * $invoice->tax_rate / 100) }}" aria-label="稅額" min="0" required>
                                             </div>
                                         </td>
                                         <td>
