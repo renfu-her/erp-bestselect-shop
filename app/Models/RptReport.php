@@ -37,7 +37,8 @@ class RptReport extends Model
             ->where('ro.source_type', 'ord_orders')
             ->where('order.payment_status', PaymentStatus::Received())
             ->where('order.status_code','received')
-            ->whereNotNull('ro.receipt_date');
+            ->whereNotNull('ro.receipt_date')
+            ->whereNull('style.deleted_at');
 
     }
 

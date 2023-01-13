@@ -359,7 +359,10 @@ class ProductStyle extends Model
             ->select('sp.style_id')
             ->selectRaw(('(' . $column . ') as prices'))
             ->groupBy('sp.style_id')
-            ->where('style.product_id', $product_id);
+            ->where('style.product_id', $product_id)
+            ->whereNull('style.deleted_at');
+        
+
 
         if ($salechannel && is_array($salechannel)) {
             $sub->whereIn('sp.sale_channel_id', $salechannel);
