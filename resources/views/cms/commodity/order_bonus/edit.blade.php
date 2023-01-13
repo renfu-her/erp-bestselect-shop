@@ -12,7 +12,7 @@
                 </x-b-form-group>
 
                 <x-b-form-group name="month" title="月份" required="true">
-                    <input class="form-control @error('month') is-invalid @enderror" name="month"
+                    <input class="form-control @error('month') is-invalid @enderror" name="month" placeholder="YYYY-MM"
                         value="{{ old('month', $data['month'] ?? '') }}"  type="month" required/>
                 </x-b-form-group>
 
