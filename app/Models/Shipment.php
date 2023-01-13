@@ -185,6 +185,7 @@ class Shipment extends Model
             ->join('shi_rule', 'group.id', '=', 'group_id_fk')
             ->join('shi_temps as _temps', '_temps.id', '=', 'group.temps_fk')
             ->join('shi_method', 'group.method_fk', '=', 'shi_method.id')
+            ->select(['group.*','shi_category.*','shi_rule.*','_temps.*','shi_method.method'])
             ->get();
     }
 
