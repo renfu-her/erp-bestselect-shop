@@ -9,11 +9,10 @@ use App\Models\ShipmentGroup;
 use App\Models\ShipmentMethod;
 use App\Models\Supplier;
 use App\Models\Temps;
-use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
-use Illuminate\Support\Facades\Validator;
 
 class ShipmentCtrl extends Controller
 {
@@ -40,9 +39,9 @@ class ShipmentCtrl extends Controller
             'shi_method' => ShipmentMethod::all(),
             'shi_temps' => DB::table('shi_temps')->get(),
             'currentCategoryId' => $shipData['currentCategoryId'],
-            'dataList'          => $shipData['dataList'],
-            'uniqueDataList'    => $shipData['uniqueDataList'],
-            'data_per_page'     => $shipData['data_per_page'],
+            'dataList' => $shipData['dataList'],
+            'uniqueDataList' => $shipData['uniqueDataList'],
+            'data_per_page' => $shipData['data_per_page'],
         ]);
         //
     }
@@ -56,10 +55,10 @@ class ShipmentCtrl extends Controller
     {
         $supplierList = Supplier::getSupplierList()->get();
         return view('cms.settings.shipment.edit', [
-            'method'      => 'create',
-            'formAction'  => Route('cms.shipment.create'),
+            'method' => 'create',
+            'formAction' => Route('cms.shipment.create'),
             'shipCategories' => ShipmentCategory::all(),
-            'shipTemps'   => Temps::all(),
+            'shipTemps' => Temps::all(),
             'shipMethods' => ShipmentMethod::all()->unique('method'),
             'supplierList' => $supplierList,
         ]);
@@ -75,8 +74,8 @@ class ShipmentCtrl extends Controller
     {
         $request->validate([
             'name' => ['required',
-                       'string',
-                       'unique:App\Models\ShipmentGroup'],
+                'string',
+                'unique:App\Models\ShipmentGroup'],
             'category' => 'required|string',
             'temps' => 'required|string',
             'method' => 'required|string',
@@ -134,13 +133,13 @@ class ShipmentCtrl extends Controller
         }
 
         return view('cms.settings.shipment.edit', [
-            'dataList'    => $dataList,
-            'method'      => 'edit',
-            'formAction'  => Route('cms.shipment.edit', $groupId),
+            'dataList' => $dataList,
+            'method' => 'edit',
+            'formAction' => Route('cms.shipment.edit', $groupId),
             'shipCategories' => ShipmentCategory::all()->unique('category'),
-            'shipName'    => $dataList[0]->name,
-            'note'        => $dataList[0]->note,
-            'shipTemps'   => Temps::all(),
+            'shipName' => $dataList[0]->name,
+            'note' => $dataList[0]->note,
+            'shipTemps' => Temps::all(),
             'shipMethods' => ShipmentMethod::all()->unique('method'),
             'supplierData' => $supplierData,
             'supplierList' => $supplierList,
@@ -158,15 +157,15 @@ class ShipmentCtrl extends Controller
     public function update(Request $request, Shipment $shipment, int $groupId, ShipmentGroup $shipmentGroup)
     {
         $ignoreId = $shipmentGroup->where('id', $groupId)
-                                ->get()
-                                ->first()
-                                ->id;
+            ->get()
+            ->first()
+            ->id;
 
         $request->validate([
             'category' => 'required|string',
             'name' => ['required',
-                       'string',
-                       Rule::unique('shi_group')->ignore($ignoreId)],
+                'string',
+                Rule::unique('shi_group')->ignore($ignoreId)],
             'temps' => 'required|string',
             'method' => 'required|string',
             'is_above.*' => 'required|string',
@@ -202,9 +201,9 @@ class ShipmentCtrl extends Controller
         return view('cms.settings.shipment.list', [
             'categories' => ShipmentCategory::all(),
             'currentCategoryId' => $shipData['currentCategoryId'],
-            'dataList'          => $shipData['dataList'],
-            'uniqueDataList'    => $shipData['uniqueDataList'],
-            'data_per_page'     => $shipData['data_per_page'],
+            'dataList' => $shipData['dataList'],
+            'uniqueDataList' => $shipData['uniqueDataList'],
+            'data_per_page' => $shipData['data_per_page'],
         ]);
     }
 
@@ -216,8 +215,8 @@ class ShipmentCtrl extends Controller
         $query = $request->query();
         $data_per_page = Arr::get($query, 'data_per_page', 50);
         $dataList = $shipment->getShipmentList($request, $categoryId)
-                            ->paginate($data_per_page)
-                            ->appends($query);
+            ->paginate($data_per_page)
+            ->appends($query);
 
         $uniqueGroupId = array();
         $uniqueDataList = array();
@@ -249,5 +248,27 @@ class ShipmentCtrl extends Controller
         $shipment->deleteShipment($groupId);
 
         return redirect(Route('cms.shipment.index'));
+    }
+
+    public function methodEdit(Request $request)
+    {
+
+        return view('cms.settings.shipment.method_edit', [
+            'datas' => ShipmentMethod::get(),
+        ]);
+    }
+    public function methodUpdate(Request $request)
+    {
+        $d = $request->all();
+
+        foreach ($d['id'] as $key => $value) {
+            ShipmentMethod::where('id', $value)
+                ->update(['note' => $d['note'][$key]]);
+        }
+
+        wToast('編輯完成');
+
+        return redirect(Route('cms.shipment.index')); 
+
     }
 }
