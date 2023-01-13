@@ -435,7 +435,7 @@ class Product extends Model
     {
         $re = DB::table('prd_products as p')
             ->leftJoin('prd_product_styles as s', 'p.id', '=', 's.product_id')
-            ->select('s.id', 's.sku', 's.estimated_cost', 'p.title as product_title', 'p.id as product_id', 's.title as spec', 's.safety_stock', 's.total_inbound', 's.in_stock as current_stock','s.overbought')
+            ->select('s.id', 's.sku', 's.estimated_cost', 'p.title as product_title', 'p.id as product_id', 's.title as spec', 's.safety_stock', 's.total_inbound', 's.in_stock as current_stock', 's.overbought')
             ->selectRaw('CASE p.type WHEN "p" THEN "一般商品" WHEN "c" THEN "組合包商品" END as type_title')
             ->selectRaw('s.in_stock + s.overbought as in_stock')
             ->selectRaw('(SELECT `url` FROM prd_product_images WHERE product_id=p.id LIMIT 1) as img_url')
@@ -832,6 +832,7 @@ class Product extends Model
             ->leftJoin(DB::raw("({$ruleSubQuery->toSql()}) as rule"), function ($join) {
                 $join->on('ps.group_id', '=', 'rule.group_id');
             })
+            ->leftJoin('shi_method as m', 'g.method_fk', '=', 'm.id')
             ->select(['category.code as category',
                 'category.category as category_name',
                 'g.id as group_id',
@@ -840,7 +841,9 @@ class Product extends Model
                 'g.note as note',
                 'temp.temps',
                 'temp.id as temp_id',
-                'rule.rules'])
+                'rule.rules',
+                'm.method as shipment_method',
+                'm.note as shipment_method_note'])
             ->mergeBindings($ruleSubQuery)
             ->where('ps.product_id', $product_id)
             ->where('code', $code);
