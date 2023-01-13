@@ -816,7 +816,7 @@ Breadcrumbs::for('cms.shipment.edit', function (BreadcrumbTrail $trail) {
 
 Breadcrumbs::for('cms.shipment.method-edit', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.shipment.index');
-    $trail->push('編輯出貨方式');
+    $trail->push('出貨方式');
 });
 // 團購主公司管理
 Breadcrumbs::for('cms.groupby-company.index', function (BreadcrumbTrail $trail) {

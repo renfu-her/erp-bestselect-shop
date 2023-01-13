@@ -84,8 +84,8 @@
                     </a>
                 @endcan
                 @can('cms.shipment.edit')
-                    <a href="{{ Route('cms.shipment.method-edit', null, true) }}" class="btn btn-primary">
-                        <i class="bi bi-pencil"></i> 編輯出貨方式
+                    <a href="{{ Route('cms.shipment.method-edit', null, true) }}" class="btn btn-success">
+                        <i class="bi bi-pencil"></i> 出貨方式
                     </a>
                 @endcan
             </div>
