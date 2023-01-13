@@ -142,13 +142,13 @@ class RptUserReportMonthly extends Model
             ->leftJoin('prd_sale_channels as sh', 'atomic.sale_channel_id', '=', 'sh.id')
             ->leftJoin('usr_customers as customer', 'customer.sn', '=', 'atomic.mcode')
             ->join('usr_users as user', 'user.customer_id', '=', 'customer.id')
-            ->select(['customer.email', 'user.id as user_id', 'sh.sales_type'])
+            ->select(['atomic.mcode', 'user.id as user_id', 'sh.sales_type'])
             ->selectRaw('SUM(atomic.total_price) as total_price')
             ->selectRaw('SUM(atomic.gross_profit) as gross_profit')
             ->selectRaw('DATE_FORMAT(atomic.receipt_date, "%Y-%m-%d") as dd')
             ->whereBetween('atomic.receipt_date', [$sdate, $edate])
             ->groupBy('dd')
-            ->groupBy('atomic.email')
+            ->groupBy('atomic.mcode')
             ->groupBy('sh.sales_type')->get();
 
         $user = [];

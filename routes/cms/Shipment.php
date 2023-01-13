@@ -11,4 +11,6 @@ Route::group(['prefix' => 'shipment','as'=>'shipment.'], function () {
     Route::post('create', [ShipmentCtrl::class, 'store']);
     Route::get('category/{categoryId}', [ShipmentCtrl::class, 'categorize'])->name('category');
     Route::get('delete/{groupId}', [ShipmentCtrl::class, 'destroy'])->name('delete')->middleware('permission:cms.shipment.delete');
+    Route::get('method-edit', [ShipmentCtrl::class, 'methodEdit'])->name('method-edit')->middleware('permission:cms.shipment.edit');
+    Route::post('method-edit', [ShipmentCtrl::class, 'methodUpdate']);
 });

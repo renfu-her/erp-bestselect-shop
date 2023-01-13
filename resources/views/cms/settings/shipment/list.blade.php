@@ -83,6 +83,11 @@
                         <i class="bi bi-plus-lg"></i> 新增物流運費
                     </a>
                 @endcan
+                @can('cms.shipment.edit')
+                    <a href="{{ Route('cms.shipment.method-edit', null, true) }}" class="btn btn-success">
+                        <i class="bi bi-pencil"></i> 出貨方式
+                    </a>
+                @endcan
             </div>
             <div class="col-auto">
                 顯示
