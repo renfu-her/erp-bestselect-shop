@@ -18,7 +18,8 @@
                 <div class="col-12 mb-3">
                     <div class="col-12 col-sm-6 mb-3">
                         <label class="form-label">報表月份</label>
-                        <input type="month" name="invoice_month" class="form-control" value="{{$cond['invoice_month'] ?? ''}}">
+                        <input type="month" name="invoice_month" class="form-control" 
+                            value="{{$cond['invoice_month'] ?? ''}}" placeholder="YYYY-MM">
                     </div>
                 </div>
             </div>
