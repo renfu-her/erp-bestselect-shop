@@ -1132,6 +1132,8 @@ class Order extends Model
             return;
         }
 
+        $order_sn = Sn::createSn('order', 'O');
+
         DB::beginTransaction();
 
         $nSubOrders = [];
@@ -1186,10 +1188,11 @@ class Order extends Model
 
         }
 
+        /*
         $order_sn = "O" . date("Ymd") . str_pad((self::whereDate('created_at', '=', date('Y-m-d'))
                 ->get()
                 ->count()) + 1, 4, '0', STR_PAD_LEFT);
-
+*/
         $order->where('id', $order_id)->update([
             'origin_price' => $order->origin_price - $total_price,
             'total_price' => $order->total_price - $total_price,
