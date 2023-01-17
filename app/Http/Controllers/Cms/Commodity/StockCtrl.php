@@ -51,8 +51,8 @@ class StockCtrl extends Controller
         $depot_id = $searchParam['depot_id'];
 
         $products = PurchaseInbound::productStyleListWithExistInbound($depot_id, $searchParam)
-            ->orderBy('s.product_id')
-            ->orderBy('s.id')
+//            ->orderBy('s.product_id')
+//            ->orderBy('s.id')
         ;
         $products = $products->paginate($searchParam['data_per_page'])
             ->appends($query);
