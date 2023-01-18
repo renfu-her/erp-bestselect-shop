@@ -1,11 +1,11 @@
 {{-- 功能按鈕群 --}}
 <div class="btn-group pm_btnGroup" role="group">
-    <a href="{{ Route('cms.purchase.print_order', ['id' => $id], true) . '?type=M1' }}" 
+    <a href="{{ Route('cms.purchase.print_order', ['id' => $id], true) . '?type=M1' }}"
         target="_blank" class="nav-link" rel="noopener noreferrer">
         <span class="icon"><i class="bi bi-printer"></i></span>
         <span class="label">中一刀列印</span>
     </a>
-    <a href="{{ Route('cms.purchase.print_order', ['id' => $id], true) . '?type=A4' }}" 
+    <a href="{{ Route('cms.purchase.print_order', ['id' => $id], true) . '?type=A4' }}"
         target="_blank" class="nav-link" rel="noopener noreferrer">
         <span class="icon"><i class="bi bi-printer"></i></span>
         <span class="label">A4列印</span>
@@ -37,14 +37,14 @@
 {{--        <a href="#"--}}
 {{--            class="nav-link disabled">物流資料</a>--}}
 {{--    </li>--}}
-    <li class="nav-item">
-        <a href="#"
-            class="nav-link disabled">結單管理</a>
-    </li>
-    <li class="nav-item">
-        <a href="#"
-            class="nav-link disabled">退貨</a>
-    </li>
+{{--    <li class="nav-item">--}}
+{{--        <a href="#"--}}
+{{--            class="nav-link disabled">結單管理</a>--}}
+{{--    </li>--}}
+{{--    <li class="nav-item">--}}
+{{--        <a href="#"--}}
+{{--            class="nav-link disabled">退貨</a>--}}
+{{--    </li>--}}
 </ul>
 <hr class="narbarBottomLine mb-3">
 
