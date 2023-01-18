@@ -146,23 +146,6 @@
                     </div>
                 </div>
                 <fieldset class="col-12 col-sm-6 mb-3">
-                    <legend class="col-form-label p-0 mb-2">顯示類型</legend>
-                    <div class="px-1 pt-1">
-                        <div class="form-check form-check-inline">
-                            <label class="form-check-label">
-                                <input class="form-check-input" name="type" type="radio" value="0" @if (0 == $type ?? '' || '' == $type ?? '') checked @endif>
-                                明細
-                            </label>
-                        </div>
-                        <div class="form-check form-check-inline">
-                            <label class="form-check-label">
-                                <input class="form-check-input" name="type" type="radio" value="1" @if (1 == $type ?? '') checked @endif>
-                                總表
-                            </label>
-                        </div>
-                    </div>
-                </fieldset>
-                <fieldset class="col-12 col-sm-6 mb-3">
                     <legend class="col-form-label p-0 mb-2">審核狀態</legend>
                     <div class="px-1 pt-1">
                         @foreach (App\Enums\Consignment\AuditStatus::asArray() as $key => $val)
@@ -220,16 +203,17 @@
 
             <div class="table-responsive tableOverBox">
                 <table class="table table-striped tableList">
-                    <thead class="small align-middle">
+                    <thead>
                         <tr>
                             <th scope="col" style="width:40px">#</th>
                             <th scope="col" style="width:40px" class="text-center">編輯</th>
                             <th scope="col">採購單號</th>
-                            <th scope="col">商品名稱</th>
                             <th scope="col">採購日期</th>
                             <th scope="col">預計入庫倉</th>
                             <th scope="col">審核狀態</th>
-                            <th scope="col">入庫狀態</th>
+                            <th scope="col">採購人員</th>
+                            <th scope="col">廠商</th>
+                            <th scope="col">發票號碼</th>
                             <th scope="col">訂金單號</th>
                             <th scope="col">尾款單號</th>
 
@@ -251,14 +235,12 @@
                                     @endcan
                                 </td>
                                 <td>{{ $data->sn }}</td>
-                                <td class="wrap">
-                                    <div class="lh-1 small text-nowrap text-secondary">{{ $data->sku }}</div>
-                                    <div class="lh-base">{{ $data->title }}</div>
-                                </td>
                                 <td>{{ date('Y/m/d', strtotime($data->created_at)) }}</td>
                                 <td>{{ $data->estimated_depot_name }}</td>
                                 <td>{{ $data->audit_status }}</td>
-                                <td>{{ $data->inbound_status }}</td>
+                                <td>{{ $data->purchase_user_name  }}</td>
+                                <td>{{ $data->supplier_name }}</td>
+                                <td>{{ $data->invoice_num }}</td>
                                 <td>{{ $data->deposit_num }}</td>
                                 <td>{{ $data->final_pay_num }}</td>
 
@@ -280,31 +262,38 @@
                                     <table class="table table-bordered table-sm mb-0">
                                         <thead class="small table-light">
                                             <tr class="border-top-0" style="border-bottom-color:var(--bs-secondary);">
-                                                <td scope="col">總價</td>
-                                                <td scope="col">單價</td>
-                                                <td scope="col">數量</td>
-                                                <td scope="col">入庫數量</td>
-                                                <td scope="col">異常數量</td>
-                                                <td scope="col">效期</td>
-                                                <td scope="col">採購人員</td>
-                                                <td scope="col">入庫人員</td>
-                                                <td scope="col">廠商</td>
-                                                <td scope="col">發票號碼</td>
+                                                <th scope="col">SKU</th>
+                                                <th scope="col">商品名稱</th>
+                                                <th scope="col">總價</th>
+                                                <th scope="col">單價</th>
+                                                <th scope="col">數量</th>
+                                                <th scope="col">入庫數量</th>
+                                                <th scope="col">異常數量</th>
+                                                <th scope="col">效期</th>
+                                                <th scope="col">入庫狀態</th>
+                                                <th scope="col">入庫人員</th>
                                             </tr>
                                         </thead>
                                         <tbody class="border-top-0">
-                                            <tr>
-                                                <td>${{ number_format(floatval($data->price)) }}</td>
-                                                <td>${{ number_format(floatval($data->single_price)) }}</td>
-                                                <td>{{ number_format($data->num) }}</td>
-                                                <td>{{ number_format($data->arrived_num) }}</td>
-                                                <td>{{ $data->error_num }}</td>
-                                                <td>{{ $data->expiry_date }}</td>
-                                                <td>{{ $data->purchase_user_name }}</td>
-                                                <td>{{ $data->inbound_user_names ?? '' }}</td>
-                                                <td class="text-break">{{ $data->supplier_name }}</td>
-                                                <td>{{ $data->invoice_num }}</td>
-                                            </tr>
+                                            @php
+                                                $itemsConcat = (null != $data->itemsConcat)? json_decode($data->itemsConcat): null;
+                                            @endphp
+                                            @if(null != $itemsConcat && 0 < count($itemsConcat))
+                                                @foreach ($itemsConcat as $item_data)
+                                                    <tr>
+                                                        <td>{{ $item_data->sku }}</td>
+                                                        <td>{{ $item_data->title }}</td>
+                                                        <td>${{ number_format(floatval($item_data->price)) }}</td>
+                                                        <td>${{ number_format(floatval($item_data->single_price)) }}</td>
+                                                        <td>{{ number_format($item_data->num) }}</td>
+                                                        <td>{{ number_format($item_data->arrived_num) }}</td>
+                                                        <td>{{ $item_data->error_num }}</td>
+                                                        <td>{{ $item_data->expiry_date }}</td>
+                                                        <td>{{ $item_data->inbound_status }}</td>
+                                                        <td>{{ $item_data->inbound_user_names ?? '' }}</td>
+                                                    </tr>
+                                                @endforeach
+                                            @endif
                                         </tbody>
                                     </table>
                                 </td>

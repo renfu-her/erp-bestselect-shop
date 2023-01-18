@@ -67,7 +67,6 @@ class PurchaseCtrl extends Controller
         $inbound_sdate = Arr::get($query, 'inbound_sdate', '');
         $inbound_edate = Arr::get($query, 'inbound_edate', '');
         $expire_day = Arr::get($query, 'expire_day', '');
-        $type = Arr::get($query, 'type', '0'); //0:明細 1:總表
         $audit_status = Arr::get($query, 'audit_status', null);
         $has_error_num = Arr::get($query, 'has_error_num', 0);
 
@@ -76,46 +75,23 @@ class PurchaseCtrl extends Controller
             $inbound_status_arr = explode(',', $inbound_status);
         }
 
-        $dataList = null;
-        if ('0' === $type) {
-            $dataList = PurchaseItem::getPurchaseDetailList(
-                null
-                , null
-                , $purchase_sn
-                , $title
-                , $purchase_user_id
-                , $purchase_sdate
-                , $purchase_edate
-                , $supplier_id
-                , $estimated_depot_id
-                , $depot_id
-                , $inbound_user_id
-                , $inbound_status_arr
-                , $inbound_sdate
-                , $inbound_edate
-                , $expire_day
-                , $audit_status
-                , $has_error_num)
-                ->paginate($data_per_page)->appends($query);
-        } else {
-            $dataList = PurchaseItem::getPurchaseOverviewList(
-                $purchase_sn
-                , $title
-                , $purchase_user_id
-                , $purchase_sdate
-                , $purchase_edate
-                , $supplier_id
-                , $estimated_depot_id
-                , $depot_id
-                , $inbound_user_id
-                , $inbound_status_arr
-                , $inbound_sdate
-                , $inbound_edate
-                , $expire_day
-                , $audit_status
-                , $has_error_num)
-                ->paginate($data_per_page)->appends($query);
-        }
+        $dataList = PurchaseItem::getPurchaseOverviewList(
+            $purchase_sn
+            , $title
+            , $purchase_user_id
+            , $purchase_sdate
+            , $purchase_edate
+            , $supplier_id
+            , $estimated_depot_id
+            , $depot_id
+            , $inbound_user_id
+            , $inbound_status_arr
+            , $inbound_sdate
+            , $inbound_edate
+            , $expire_day
+            , $audit_status
+            , $has_error_num)
+            ->paginate($data_per_page)->appends($query);
 
         return view('cms.commodity.purchase.list', [
             'startDate' => $startDate,
@@ -140,7 +116,6 @@ class PurchaseCtrl extends Controller
             , 'inbound_sdate' => $inbound_sdate
             , 'inbound_edate' => $inbound_edate
             , 'expire_day' => $expire_day
-            , 'type' => $type
             , 'audit_status' => $audit_status
             , 'has_error_num' => $has_error_num
         ]);
