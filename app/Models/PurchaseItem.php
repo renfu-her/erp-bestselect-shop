@@ -240,48 +240,7 @@ class PurchaseItem extends Model
     //******* 修改時請一併修改採購 總表
     public static function getPurchaseDetailList(
           $purchase_id = null
-        , $purchase_item_id = null
-        , $purchase_sn = null
-        , $title = null
-//        , $sku = null
-        , $purchase_user_id = []
-        , $purchase_sdate = null
-        , $purchase_edate = null
-        , $supplier_id = null
-        , $estimated_depot_id = null
-        , $depot_id = null
-        , $inbound_user_id = []
-        , $inbound_status = []
-        , $inbound_sdate = null
-        , $inbound_edate = null
-        , $expire_day = null
-        , $audit_status = null
-        , $has_error_num = null
     ) {
-
-        //訂金單號
-        $subColumn = DB::table('pcs_paying_orders as order')
-            ->select('order.sn')
-            ->whereColumn('order.source_id', '=', 'purchase.id')
-            ->where([
-                'order.source_type'=>DB::raw('"'. app(Purchase::class)->getTable().'"'),
-                'order.type'=>DB::raw('0'),
-            ])
-            ->whereNull('order.deleted_at')
-            ->orderByDesc('order.id')
-            ->limit(1);
-        //尾款單號
-        $subColumn2 = DB::table('pcs_paying_orders as order')
-            ->select('order.sn')
-            ->whereColumn('order.source_id', '=', 'purchase.id')
-            ->where([
-                'order.source_type'=>DB::raw('"'. app(Purchase::class)->getTable().'"'),
-                'order.type'=>DB::raw('1'),
-            ])
-            ->whereNull('order.deleted_at')
-            ->orderByDesc('order.id')
-            ->limit(1);
-
         $tempInboundSql = DB::table('pcs_purchase_inbound as inbound')
             ->select('event_id'
                 , 'event_item_id'
@@ -289,33 +248,11 @@ class PurchaseItem extends Model
             ->selectRaw('sum(inbound_num) as inbound_num')
             ->selectRaw('DATE_FORMAT((min(expiry_date)),"%Y-%m-%d") as expiry_date')
             ->selectRaw('GROUP_CONCAT(DISTINCT inbound.inbound_user_name) as inbound_user_names') //入庫人員
-            ->whereNull('deleted_at');
-
-        $tempInboundSql->where('inbound.event', '=', Event::purchase()->value);
-
-        $tempInboundSql->groupBy('event_id')
+            ->where('event', '=', Event::purchase()->value)
+            ->whereNull('deleted_at')
+            ->groupBy('event_id')
             ->groupBy('event_item_id')
             ->groupBy('product_style_id');
-        if ($depot_id) {
-            $tempInboundSql->where('inbound.depot_id', '=', $depot_id);
-        }
-        if ($inbound_user_id) {
-            $tempInboundSql->whereIn('inbound.inbound_user_id', $inbound_user_id);
-        }
-        if ($inbound_sdate && $inbound_edate) {
-            $sDate = date('Y-m-d 00:00:00', strtotime($inbound_sdate));
-            $eDate = date('Y-m-d 23:59:59', strtotime($inbound_edate));
-            $tempInboundSql->whereBetween('inbound.inbound_date', [$sDate, $eDate]);
-        }
-        if ($expire_day) {
-            if (0 < $expire_day) {
-                //大於0 找近N天
-                $tempInboundSql->whereBetween('inbound.expiry_date', [DB::raw('NOW()'), DB::raw('date_add(now(), interval '. $expire_day. ' day)')]);
-            } else if (0 > $expire_day) {
-                //小於0 找過期
-                $tempInboundSql->where('inbound.expiry_date', '<=', $expire_day);
-            }
-        }
 
         $query_not_yet = 'COALESCE((items.arrived_num), 0) = 0';
         $query_normal = '( COALESCE(items.num, 0) - COALESCE((items.arrived_num), 0) ) = 0 and COALESCE((items.arrived_num), 0) <> 0';
@@ -330,37 +267,20 @@ class PurchaseItem extends Model
                     ->on('items.id', '=', 'inbound.event_item_id')
                     ->on('items.product_style_id', '=', 'inbound.product_style_id');
             })
-            //->select('*')
             ->select('purchase.id as id'
                 ,'purchase.sn as sn'
                 ,'items.id as items_id'
-                ,'items.product_style_id as product_style_id'
-                ,'items.title as title'
-                ,'items.sku as sku'
-                ,'items.price as price'
-                ,'items.num as num'
-                ,'items.arrived_num as arrived_num'
-                ,'items.memo as memo'
+                ,'items.product_style_id'
+                ,'items.title'
+                ,'items.sku'
+                ,'items.price'
+                ,'items.num'
+                ,'items.arrived_num'
+                ,'items.memo'
                 ,'inbound.expiry_date'
                 ,'inbound.inbound_user_names'
-                ,'purchase.purchase_user_id as purchase_user_id'
-                ,'purchase.supplier_id as supplier_id'
-                ,'purchase.invoice_num as invoice_num'
-                ,'purchase.purchase_user_name as purchase_user_name'
-                ,'purchase.supplier_name as supplier_name'
-                ,'purchase.supplier_nickname as supplier_nickname'
-                ,'purchase.estimated_depot_id as estimated_depot_id'
-                ,'purchase.estimated_depot_name as estimated_depot_name'
-                ,'style.estimated_cost as estimated_cost'
-                , DB::raw('(case
-                    when purchase.audit_status ='. AuditStatus::unreviewed()->value. ' then "'. AuditStatus::getDescription(AuditStatus::unreviewed()->value). '"
-                    when purchase.audit_status ='. AuditStatus::approved()->value. ' then "'. AuditStatus::getDescription(AuditStatus::approved()->value). '"
-                    when purchase.audit_status ='. AuditStatus::veto()->value. ' then "'. AuditStatus::getDescription(AuditStatus::veto()->value). '"
-                    end ) as audit_status')
-
+                ,'style.estimated_cost'
             )
-            ->selectRaw('DATE_FORMAT(purchase.created_at,"%Y-%m-%d") as created_at')
-            ->selectRaw('DATE_FORMAT(purchase.scheduled_date,"%Y-%m-%d") as scheduled_date')
             ->selectRaw('convert(items.price / items.num, decimal) as single_price')
             ->selectRaw('(items.num - items.arrived_num) as error_num')
             ->selectRaw('(case
@@ -369,77 +289,13 @@ class PurchaseItem extends Model
                     when '. $query_shortage. ' then "'. InboundStatus::getDescription(InboundStatus::shortage()->value). '"
                     when '. $query_overflow. ' then "'. InboundStatus::getDescription(InboundStatus::overflow()->value). '"
                 end) as inbound_status')
-            ->addSelect(['deposit_num' => $subColumn, 'final_pay_num' => $subColumn2])
             ->whereNull('purchase.deleted_at')
             ->whereNull('items.deleted_at');
-
-        if ($estimated_depot_id) {
-            $result->where('purchase.estimated_depot_id', '=', $estimated_depot_id);
-        }
         if ($purchase_id) {
             $result->where('purchase.id', '=', $purchase_id);
         }
-        if ($purchase_item_id) {
-            $result->where('items.id', '=', $purchase_item_id);
-        }
-        if($purchase_sn) {
-            $result->where('purchase.sn', '=', $purchase_sn);
-        }
-        if($title) {
-            $result->where(function ($query) use ($title) {
-                $query->Where('items.title', 'like', "%{$title}%");
-                $query->orWhere('items.sku', 'like', "%{$title}%");
-            });
-        }
-        if ($purchase_user_id) {
-            $result->whereIn('purchase.purchase_user_id', $purchase_user_id);
-        }
-        if ($purchase_sdate && $purchase_edate) {
-            $sDate = date('Y-m-d 00:00:00', strtotime($purchase_sdate));
-            $eDate = date('Y-m-d 23:59:59', strtotime($purchase_edate));
-            $result->whereBetween('purchase.created_at', [$sDate, $eDate]);
-        }
-        if ($supplier_id) {
-            $result->where('purchase.supplier_id', '=', $supplier_id);
-        }
-        if (isset($audit_status)) {
-            $result->where('purchase.audit_status', $audit_status);
-        }
-        if ($expire_day) {
-            $result->whereNotNull('inbound.expiry_date');
-        }
-        if (isset($has_error_num) && 1 == $has_error_num) {
-            $result->where(DB::raw('(items.num - items.arrived_num)'), '<>', 0);
-        }
 
-        $result2 = DB::table(DB::raw("({$result->toSql()}) as tb"))
-            ->select('*')
-            ->orderByDesc('id')
-            ->orderBy('items_id')
-        ;
-
-        $result->mergeBindings($subColumn);
-        $result->mergeBindings($subColumn2);
-        $result2->mergeBindings($result);
-
-        if ($inbound_status) {
-            $arr_status = [];
-            if (in_array(InboundStatus::not_yet()->value, $inbound_status)) {
-                array_push($arr_status, InboundStatus::getDescription(InboundStatus::not_yet()->value));
-            }
-            if (in_array(InboundStatus::normal()->value, $inbound_status)) {
-                array_push($arr_status, InboundStatus::getDescription(InboundStatus::normal()->value));
-            }
-            if (in_array(InboundStatus::shortage()->value, $inbound_status)) {
-                array_push($arr_status, InboundStatus::getDescription(InboundStatus::shortage()->value));
-            }
-            if (in_array(InboundStatus::overflow()->value, $inbound_status)) {
-                array_push($arr_status, InboundStatus::getDescription(InboundStatus::overflow()->value));
-            }
-
-            $result2->whereIn('inbound_status', $arr_status);
-        }
-        return $result2;
+        return $result;
     }
 
     //採購 總表(同樣的採購單號只能顯示一次)
@@ -526,6 +382,7 @@ class PurchaseItem extends Model
         $tempPurchaseItemSql = DB::table('pcs_purchase_items as items')
             ->leftJoinSub($tempInboundSql, 'inbound', function($join) use($tempInboundSql) {
                 $join->on('items.purchase_id', '=', 'inbound.event_id')
+                    ->on('items.id', '=', 'inbound.event_item_id')
                     ->on('items.product_style_id', '=', 'inbound.product_style_id');
             })
             ->select(
