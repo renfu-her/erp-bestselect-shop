@@ -183,7 +183,16 @@
                         <td>{{ $inbound->inbound_sn }}</td>
                         <td>{{ $inbound->inbound_date }}</td>
                         <td>{{ $inbound->product_title }}</td>
-                        <td>{{ $inbound->style_sku }}</td>
+                        <td>
+                            @if(isset($inbound->depot_id) && isset($inbound->product_style_id))
+                                <a href="{{ Route('cms.stock.stock_detail_log', ['depot_id' => $inbound->depot_id ?? -1, 'id' => $inbound->product_style_id], true) }}"
+                                   class="lh-lg" target="_blank">
+                                    {{ $inbound->style_sku }}
+                                </a>
+                            @else
+                                {{ $inbound->style_sku }}
+                            @endif
+                        </td>
                         <td>{{ $inbound->inbound_num }}</td>
                         <td>{{ $inbound->expiry_date }}</td>
                         @if(null != $inbound->deleted_at)
