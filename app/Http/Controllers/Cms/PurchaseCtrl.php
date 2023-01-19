@@ -713,11 +713,7 @@ class PurchaseCtrl extends Controller
                             ->name;
         }
 
-        if($validatedReq['type'] === '0'){
-            $zh_price = num_to_str($depositPaymentData->price);
-        } else {
-            $zh_price = num_to_str($paymentPrice['finalPaymentPrice']);
-        }
+        $zh_price = num_to_str($paying_order->price);
 
         $view = 'cms.commodity.purchase.pay_order';
         if (request('action') == 'print') {
@@ -738,7 +734,6 @@ class PurchaseCtrl extends Controller
             'productGradeName' => $productGradeName,
             'logisticsGradeName' => $logisticsGradeName,
             'depositPaymentData' => $depositPaymentData,
-            'finalPaymentPrice' => $paymentPrice['finalPaymentPrice'],
             'logisticsPrice' => $paymentPrice['logisticsPrice'],
             'purchaseItemData' => $purchaseItemData,
             'payable_data' => $payable_data,
@@ -747,6 +742,7 @@ class PurchaseCtrl extends Controller
             'undertaker' => $undertaker,
             'appliedCompanyData' => $appliedCompanyData,
             'zh_price' => $zh_price,
+            'paying_order' => $paying_order,
             'relation_order' => Petition::getBindedOrder($paying_order->id, 'ISG'),
         ]);
     }
