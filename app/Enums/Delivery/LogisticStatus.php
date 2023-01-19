@@ -20,6 +20,8 @@ final class LogisticStatus extends Enum
 
     const D9000 = '寄倉售出';
 
+    const E1000 = '缺貨';
+
     public static function getDescription($value): string
     {
         $result = '';
