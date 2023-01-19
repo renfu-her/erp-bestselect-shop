@@ -574,7 +574,7 @@ class PurchaseCtrl extends Controller
         }
         $re = PurchaseInbound::delInbound($id, $request->user()->id);
         if ($re['success'] == 0) {
-            wToast($re['error_msg']);
+            wToast($re['error_msg'], ['type'=>'danger']);
         } else {
             wToast(__('Delete finished.'));
         }
