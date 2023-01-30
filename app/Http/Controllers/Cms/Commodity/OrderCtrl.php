@@ -2673,6 +2673,112 @@ class OrderCtrl extends Controller
         ]);
     }
 
+    public function edit_allowance(Request $request, $id, $allowance_id)
+    {
+        $request->merge([
+            'id' => $id,
+            'allowance_id' => $allowance_id,
+        ]);
+
+        $request->validate([
+            'id' => 'required|exists:ord_order_invoice,id',
+            'allowance_id' => 'required|exists:ord_order_invoice_allowance,id',
+        ]);
+
+        $invoice = OrderInvoice::findOrFail($id);
+        $inv_remain = $invoice->total_amt - OrderInvoiceAllowance::where('invoice_id', $id)->where('id', '!=', $allowance_id)->sum('total_amt');
+        if ($inv_remain < 0) {
+            return abort(404);
+        }
+        $inv_allowance = OrderInvoiceAllowance::where([
+            'id' => $allowance_id,
+            'invoice_id' => $id
+        ])->first();
+        if(! $inv_allowance){
+            return abort(404);
+        }
+
+        if ($request->isMethod('post')) {
+            $request->validate([
+                'buyer_email' => 'nullable|email:rfc,dns',
+
+                'o_title' => 'required|array|min:1',
+                'o_title.*' => 'required|string|between:1,30',
+                'o_price' => 'required|array|min:1',
+                'o_price.*' => 'required|numeric|min:0',
+                'o_total_price' => 'required|array|min:1',
+                'o_total_price.*' => 'required|numeric|min:0',
+                'o_qty' => 'required|array|min:1',
+                'o_qty.*' => 'required|numeric|gt:0',
+                'o_taxation' => 'required|array|min:1',
+                'o_taxation.*' => 'required|in:0,1',
+                'o_tax_price' => 'required|array|min:1',
+                'o_tax_price.*' => 'required|numeric|min:0',
+            ]);
+
+            if (array_sum(request('o_total_price')) < 0) {
+                wToast(__('發票金額不可小於0'), ['type' => 'danger']);
+                return redirect()->back()->withInput();
+            }
+
+            if (array_sum(request('o_tax_price')) < 0) {
+                wToast(__('營業稅額合計不可小於0'), ['type' => 'danger']);
+                return redirect()->back()->withInput();
+            }
+
+            if (count(array_unique($request->input('o_taxation'))) > 1) {
+                wToast(__('折讓商品稅別不可為混合課稅'), ['type' => 'danger']);
+                return redirect()->back()->withInput();
+            }
+
+            if ($inv_remain - (array_sum(request('o_total_price')) + array_sum(request('o_tax_price'))) < 0) {
+                wToast(__('折讓商品總價和稅別不可大於發票可折讓餘額'), ['type' => 'danger']);
+                return redirect()->back()->withInput();
+            }
+
+            $data = $request->except('_token');
+            $result = OrderInvoiceAllowance::update_allowance($data);
+
+            if ($result) {
+                if ($invoice->source_type == app(Order::class)->getTable()) {
+                    $unique_id = Order::findOrFail($invoice->source_id)->unique_id;
+                    return redirect()->route('cms.order.show-invoice', [
+                        'id' => $invoice->source_id,
+                        'unique_id' => $unique_id,
+                    ]);
+                }
+
+            } else {
+                return redirect()->back()->withInput();
+            }
+        }
+
+        $breadcrumb = (object) [
+            'id' => null,
+            'sn' => null,
+            'unique_id' => null,
+        ];
+        if ($invoice->source_type == app(Order::class)->getTable()) {
+            $order = Order::find($invoice->source_id);
+            $breadcrumb->id = $order->id;
+            $breadcrumb->sn = $order->sn;
+            $previous_url = route('cms.order.show-invoice', ['id' => $order->id, 'unique_id' => $order->unique_id]);
+        }
+
+        return view('cms.commodity.order.invoice_edit_allowance', [
+            'breadcrumb_data' => [
+                'id' => $breadcrumb->id,
+                'sn' => $breadcrumb->sn,
+                'previous_url' => $previous_url,
+            ],
+            'form_action' => route('cms.order.edit-allowance', ['id' => $id, 'allowance_id' => $allowance_id]),
+            'previous_url' => $previous_url,
+            'invoice' => $invoice,
+            'inv_remain' => $inv_remain,
+            'inv_allowance' => $inv_allowance,
+        ]);
+    }
+
     public function send_invoice(Request $request, $id, $action, $allowance_id = null)
     {
         $request->merge([

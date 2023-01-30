@@ -165,6 +165,9 @@
                                         data-bs-target="#confirm-allowance-issue" data-href="{{ route('cms.order.send-invoice', ['id' => $value->invoice_id, 'action' => 'allowance_issue', 'allowance_id' => $value->id]) }}">
                                         開立折讓
                                     </a>
+
+                                    <a href="{{ Route('cms.order.edit-allowance', ['id' => $value->invoice_id, 'allowance_id' => $value->id]) }}" class="btn btn-sm btn-success" role="button">編輯折讓</a>
+
                                 @elseif($value->r_status == 'SUCCESS')
                                     <button type="button" class="btn btn-sm btn-outline-danger allowance-invalid" data-bs-toggle="modal" data-bs-target="#confirm-allowance-invalid" data-action="{{ route('cms.order.send-invoice', ['id' => $value->invoice_id, 'action' => 'allowanceInvalid', 'allowance_id' => $value->id]) }}">作廢折讓</button>
                                 @endif
