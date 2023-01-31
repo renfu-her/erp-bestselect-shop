@@ -385,6 +385,13 @@ Breadcrumbs::for('cms.order.allowance-invoice', function (BreadcrumbTrail $trail
     $trail->push('發票資訊', $value['previous_url']);
     $trail->push('發票折讓');
 });
+// 編輯發票折讓
+Breadcrumbs::for('cms.order.edit-allowance', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.order.index');
+    $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.order.detail', ['id' => $value['id']]));
+    $trail->push('發票資訊', $value['previous_url']);
+    $trail->push('編輯發票折讓');
+});
 // Line Pay 付款取消
 Breadcrumbs::for('cms.order.line-pay-refund', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.order.index');

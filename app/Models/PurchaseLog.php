@@ -210,6 +210,11 @@ class PurchaseLog extends Model
         return $log_purchase;
     }
 
+    public static function getDataWithInboundID($inbound_id) {
+        $re = PurchaseLog::where('inbound_id', '=', $inbound_id)->get();
+        return $re;
+    }
+
     //庫存明細
     public static function getStockData($event, $depot_id, $style_id, $logFeature = null, $cond = null) {
         $logEventFeatureKey_delivery = [];

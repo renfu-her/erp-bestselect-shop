@@ -164,13 +164,7 @@
                                         <span>（{{ $zh_price }}）</span>
                                     </div>
                                 </td>
-                                <td class="text-end">
-                                    @if ($type === 'deposit')
-                                        {{ number_format($depositPaymentData->price) }}
-                                    @elseif($type === 'final')
-                                        {{ number_format($finalPaymentPrice) }}
-                                    @endif
-                                </td>
+                                <td class="text-end">{{ number_format($paying_order->price) }}</td>
                                 <td></td>
                                 <td></td>
                             </tr>

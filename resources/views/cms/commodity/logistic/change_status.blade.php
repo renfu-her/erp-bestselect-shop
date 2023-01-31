@@ -104,6 +104,7 @@
                         case '已回倉':
                         case '退回中':
                         case '已退回':
+                        case '缺貨':
                             type = 'danger';
                             break;
                         default:
