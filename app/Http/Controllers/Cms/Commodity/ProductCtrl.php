@@ -357,7 +357,7 @@ class ProductCtrl extends Controller
                 $itemIds = [];
                 for ($i = 1; $i <= $specCount; $i++) {
                     if (isset($d["nsk_spec$i"][$key])) {
-                        // $updateData["spec_item${i}_id"] = $d['nsk_spec' . $i][$key];
+                        $updateData["estimated_cost"] = $d['nsk_estimated_cost'][$key];
                         $itemIds[] = $d['nsk_spec' . $i][$key];
                     }
                 }
@@ -372,7 +372,6 @@ class ProductCtrl extends Controller
         if (isset($d['sk_style_id'])) {
             foreach ($d['sk_style_id'] as $key => $value) {
                 $updateData = [];
-                //  $updateData['sold_out_event'] = $d['sk_sold_out_event'][$key];
                 $updateData['estimated_cost'] = $d['sk_estimated_cost'][$key];
                 ProductStyle::where('id', $value)->whereNotNull('sku')->update($updateData);
                 SaleChannel::changePrice($sale_id, $value, $d['sk_dealer_price'][$key], $d['sk_price'][$key], $d['sk_origin_price'][$key], $d['sk_bonus'][$key], $d['sk_dividend'][$key]);
@@ -390,11 +389,12 @@ class ProductCtrl extends Controller
                 $updateData = [];
                 for ($j = 1; $j <= $specCount; $j++) {
                     if (isset($d["n_spec$j"][$i])) {
-                        $updateData["spec_item${j}_id"] = $d['n_spec' . $j][$i];
+                        $updateData["spec_item" . $j . "_id"] = $d['n_spec' . $j][$i];
+
                     }
                 }
-
-                $sid = ProductStyle::createStyle($id, $updateData);
+                //  dd($updateData);
+                $sid = ProductStyle::createStyle($id, $updateData, 1, $d['n_estimated_cost'][$i]);
                 SaleChannel::changePrice($sale_id, $sid, $d['n_dealer_price'][$i], $d['n_price'][$i], $d['n_origin_price'][$i], $d['n_bonus'][$i], $d['n_dividend'][$i]);
 
             }
@@ -1089,7 +1089,7 @@ class ProductCtrl extends Controller
             '公開狀態',
             '負責人',
         ];
-        $export= new ProductInforExport([
+        $export = new ProductInforExport([
             $column_name,
             $data,
         ]);
