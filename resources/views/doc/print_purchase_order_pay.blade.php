@@ -132,13 +132,7 @@
                         <tr height="24">
                             <td width="20%">合　　計：</td>
                             <td width="36%" style="text-align: right;">（{{ $zh_price }}）</td>
-                            <td width="10%" style="text-align: right;">
-                                @if ($type === 'deposit')
-                                    {{ number_format($depositPaymentData->price) }}
-                                @elseif($type === 'final')
-                                    {{ number_format($finalPaymentPrice) }}
-                                @endif
-                            </td>
+                            <td width="10%" style="text-align: right;">{{ number_format($paying_order->price) }}</td>
                             <td width="34%"></td>
                         </tr>
                     </thead>
