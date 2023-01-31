@@ -103,14 +103,22 @@ if (!function_exists('getErpOrderUrl')) {
                 break;
             case "MSG":
                 $ro = ReceivedOrder::find($order->order_id);
-                $order->url = ReceivedOrder::received_order_link($ro->source_type, $ro->source_id);
+                $url = '';
+                if ($ro) {
+                    $url = ReceivedOrder::received_order_link($ro->source_type, $ro->source_id);
+                }
+                $order->url = $url;
                 break;
             case "PSG":
                 $order->url = route('cms.stitute.show', ['id' => $order->order_id]);
                 break;
             case "ISG":
                 $po = PayingOrder::find($order->order_id);
-                $order->url = PayingOrder::paying_order_link($po->source_type, $po->source_id, $po->source_sub_id, $po->type);
+                $url = '';
+                if ($po) {
+                    $url = PayingOrder::paying_order_link($po->source_type, $po->source_id, $po->source_sub_id, $po->type);
+                }
+                $order->url = $url;
                 break;
             case "B":
                 $order->url = route('cms.purchase.edit', ['id' => $order->order_id]);

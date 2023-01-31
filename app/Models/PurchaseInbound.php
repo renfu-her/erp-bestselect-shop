@@ -246,6 +246,26 @@ class PurchaseInbound extends Model
                 return ['success' => 0, 'error_msg' => '已有報廢紀錄 無法刪除'];
             }
         }
+        $purchaseLogs = PurchaseLog::getDataWithInboundID($id);
+        if (null != $purchaseLogs) {
+            if (1 <= count($purchaseLogs)) {
+                // 尋找數量加減紀錄有幾筆
+                $calcQtyLog = 0;
+                foreach ($purchaseLogs as $val_log) {
+                    if (0 != $val_log->qty) {
+                        $calcQtyLog += 1;
+                    }
+                }
+                if (1 != $calcQtyLog) {
+                    return ['success' => 0, 'error_msg' => '已有修改紀錄 無法刪除'];
+                }
+            } else {
+                return ['success' => 0, 'error_msg' => '查無歷史紀錄1 無法刪除'];
+            }
+        } else {
+            return ['success' => 0, 'error_msg' => '查無歷史紀錄 無法刪除'];
+        }
+
         return IttmsDBB::transaction(function () use (
             $id,
             $user_id,

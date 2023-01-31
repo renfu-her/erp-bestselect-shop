@@ -82,6 +82,7 @@ class StockCtrl extends Controller
         }
 
         $depot_id = $depot_id;
+        $depot = Depot::where('id', '=', $depot_id)->first();
         $style_id = $id;
         $logFeature = null;
         $cond = [];
@@ -100,6 +101,7 @@ class StockCtrl extends Controller
 
         return view('cms.commodity.consignment_stock.stock_detail_log', [
             'id' => $id,
+            'depot' => $depot,
             'data_per_page' => $data_per_page,
             'productStyle' => $productStyle,
             'purchaseLog' => $log_purchase,

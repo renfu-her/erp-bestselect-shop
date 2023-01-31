@@ -152,7 +152,7 @@
                 <thead>
                 <tr>
                     @if(null == $purchaseData->close_date)
-                        {{-- <th scope="col" class="text-center">取消入庫</th>--}}
+                         <th scope="col" class="text-center">取消入庫</th>
                     @endif
                     <th scope="col">入庫單號</th>
                     <th scope="col">入庫日期</th>
@@ -168,22 +168,31 @@
                 <tbody>
                 @foreach ($inboundList as $inbound)
                     <tr>
-                        {{-- @if(null == $purchaseData->close_date)--}}
-                        {{--     <th class="text-center">--}}
-                        {{--         @if(null == $inbound->deleted_at)--}}
-                        {{--         <button type="button"--}}
-                        {{--                 data-href="{{ Route('cms.purchase.delete_inbound', ['id' => $inbound->inbound_id], true) }}"--}}
-                        {{--                 data-bs-toggle="modal" data-bs-target="#confirm-delete"--}}
-                        {{--                 class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">--}}
-                        {{--             <i class="bi bi-trash"></i>--}}
-                        {{--         </button>--}}
-                        {{--         @endif--}}
-                        {{--     </th>--}}
-                        {{-- @endif--}}
+                         @if(null == $purchaseData->close_date)
+                             <th class="text-center">
+                                 @if(null == $inbound->deleted_at)
+                                 <button type="button"
+                                         data-href="{{ Route('cms.purchase.delete_inbound', ['id' => $inbound->inbound_id], true) }}"
+                                         data-bs-toggle="modal" data-bs-target="#confirm-delete"
+                                         class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
+                                     <i class="bi bi-trash"></i>
+                                 </button>
+                                 @endif
+                             </th>
+                         @endif
                         <td>{{ $inbound->inbound_sn }}</td>
                         <td>{{ $inbound->inbound_date }}</td>
                         <td>{{ $inbound->product_title }}</td>
-                        <td>{{ $inbound->style_sku }}</td>
+                        <td>
+                            @if(isset($inbound->depot_id) && isset($inbound->product_style_id))
+                                <a href="{{ Route('cms.stock.stock_detail_log', ['depot_id' => $inbound->depot_id ?? -1, 'id' => $inbound->product_style_id], true) }}"
+                                   class="lh-lg" target="_blank">
+                                    {{ $inbound->style_sku }}
+                                </a>
+                            @else
+                                {{ $inbound->style_sku }}
+                            @endif
+                        </td>
                         <td>{{ $inbound->inbound_num }}</td>
                         <td>{{ $inbound->expiry_date }}</td>
                         @if(null != $inbound->deleted_at)

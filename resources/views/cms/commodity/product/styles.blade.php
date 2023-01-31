@@ -70,7 +70,7 @@
                                 <!-- <th scope="col">庫存不足</th> -->
                                 <th scope="col">鴻利抵扣
                                     <i class="bi bi-info-circle" data-bs-toggle="tooltip"
-                                        title="此設定顯示於顧客購買結帳頁面商品可使用之鴻利上限。預設：售價 × {{ $salechannel->dividend_limit/100 }}"></i>
+                                        title="此設定顯示於顧客購買結帳頁面商品可使用之鴻利上限。預設：售價 × {{ $salechannel->dividend_limit / 100 }}"></i>
                                 </th>
                             </tr>
                         </thead>
@@ -88,8 +88,8 @@
                                     </button>
                                 </td>
                                 <td>
-                                    <input type="text" class="form-control form-control-sm -l" value="" aria-label="SKU"
-                                        readonly />
+                                    <input type="text" class="form-control form-control-sm -l" value=""
+                                        aria-label="SKU" readonly />
                                 </td>
 
                                 @foreach ($specList as $specKey => $spec)
@@ -107,8 +107,8 @@
                                 <td>
                                     <div class="input-group input-group-sm flex-nowrap">
                                         <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                                        <input type="number" class="form-control form-control-sm" name="n_price[]" min="0"
-                                            value="0" required />
+                                        <input type="number" class="form-control form-control-sm" name="n_price[]"
+                                            min="0" value="0" required />
                                     </div>
                                 </td>
                                 <td>
@@ -128,9 +128,13 @@
                                 <td>
                                     <div class="input-group input-group-sm flex-nowrap">
                                         <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                                        <input type="number" class="form-control form-control-sm" name="n_bonus[]" min="0"
-                                            value="0" required />
+                                        <input type="number" class="form-control form-control-sm" name="n_bonus[]"
+                                            min="0" value="0" required />
                                     </div>
+                                </td>
+                                <td>
+                                    <input type="number" class="form-control form-control-sm" name="n_estimated_cost[]"
+                                        min="0" value="0" required>
                                 </td>
                                 <td>
                                     <a href="#" class="-text -stock">庫存管理</a>
@@ -139,19 +143,19 @@
                                     <a href="#" class="-text -stock">庫存管理</a>
                                 </td>
                                 <!--
-                                    <td>
-                                        <select name="n_sold_out_event[]" class="form-select form-select-sm">
-                                            <option value="繼續銷售" selected>繼續銷售</option>
-                                            <option value="停止銷售">停止銷售</option>
-                                            <option value="下架">下架</option>
-                                            <option value="預售">預售</option>
-                                        </select>
-                                    </td>
-                                -->
+                                        <td>
+                                            <select name="n_sold_out_event[]" class="form-select form-select-sm">
+                                                <option value="繼續銷售" selected>繼續銷售</option>
+                                                <option value="停止銷售">停止銷售</option>
+                                                <option value="下架">下架</option>
+                                                <option value="預售">預售</option>
+                                            </select>
+                                        </td>
+                                    -->
                                 <td>
                                     <input type="hidden" name="n_sold_out_event[]" value="0">
-                                    <input type="number" class="form-control form-control-sm" name="n_dividend[]" min="0"
-                                        value="0" required>
+                                    <input type="number" class="form-control form-control-sm" name="n_dividend[]"
+                                        min="0" value="0" required>
                                 </td>
                             </tr>
                             @foreach ($styles as $styleKey => $style)
@@ -161,8 +165,9 @@
                                 <tr class="-cloneElem">
                                     <td class="text-center">
                                         <div class="form-check form-switch form-switch-lg">
-                                            <input class="form-check-input" name="active_id[]" value="{{ $style->id }}"
-                                                type="checkbox" @if ($style->is_active) checked @endif>
+                                            <input class="form-check-input" name="active_id[]"
+                                                value="{{ $style->id }}" type="checkbox"
+                                                @if ($style->is_active) checked @endif>
                                         </div>
                                     </td>
                                     <td class="text-center">
@@ -201,8 +206,8 @@
                                         <div class="input-group input-group-sm flex-nowrap">
                                             <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
                                             <input type="number" class="form-control form-control-sm"
-                                                name="{{ $prefix }}price[]" min="0" value="{{ $style->price }}"
-                                                required />
+                                                name="{{ $prefix }}price[]" min="0"
+                                                value="{{ $style->price }}" required />
                                         </div>
                                     </td>
                                     <td>
@@ -225,14 +230,14 @@
                                         <div class="input-group input-group-sm flex-nowrap">
                                             <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
                                             <input type="number" class="form-control form-control-sm"
-                                                name="{{ $prefix }}bonus[]" min="0" value="{{ $style->bonus }}"
-                                                required />
+                                                name="{{ $prefix }}bonus[]" min="0"
+                                                value="{{ $style->bonus }}" required />
                                         </div>
                                     </td>
                                     <td>
                                         <input type="number" class="form-control form-control-sm"
-                                               name="{{ $prefix }}estimated_cost[]" min="0" value="{{ $style->estimated_cost }}"
-                                               required>
+                                            name="{{ $prefix }}estimated_cost[]" min="0"
+                                            value="{{ $style->estimated_cost }}" required>
                                     </td>
                                     <td>
                                         <a href="{{ Route('cms.product.edit-stock', ['id' => $data->id, 'sid' => $style->id]) }}"
@@ -243,20 +248,20 @@
                                             class="-text -stock">{{ $style->safety_stock }}</a>
                                     </td>
                                     <!--
-                                        <td>
-                                            <select name="{{ $prefix }}sold_out_event[]"
-                                                class="form-select form-select-sm">
-                                                <option value="繼續銷售">繼續銷售</option>
-                                                <option value="停止銷售">停止銷售</option>
-                                                <option value="下架">下架</option>
-                                                <option value="預售">預售</option>
-                                            </select>
-                                        </td>
-                                    -->
+                                            <td>
+                                                <select name="{{ $prefix }}sold_out_event[]"
+                                                    class="form-select form-select-sm">
+                                                    <option value="繼續銷售">繼續銷售</option>
+                                                    <option value="停止銷售">停止銷售</option>
+                                                    <option value="下架">下架</option>
+                                                    <option value="預售">預售</option>
+                                                </select>
+                                            </td>
+                                        -->
                                     <td>
                                         <input type="number" class="form-control form-control-sm"
-                                            name="{{ $prefix }}dividend[]" min="0" value="{{ $style->dividend }}"
-                                            required>
+                                            name="{{ $prefix }}dividend[]" min="0"
+                                            value="{{ $style->dividend }}" required>
                                     </td>
                                 </tr>
                             @endforeach
@@ -264,7 +269,8 @@
                     </table>
                 </div>
                 <div class="d-grid gap-2 mt-3">
-                    <button type="button" class="btn btn-outline-primary border-dashed -newClone" style="font-weight: 500;">
+                    <button type="button" class="btn btn-outline-primary border-dashed -newClone"
+                        style="font-weight: 500;">
                         <i class="bi bi-plus-circle"></i> 新增款式
                     </button>
                 </div>
@@ -287,7 +293,6 @@
                 font-size: .94rem;
                 font-weight: 400;
             }
-
         </style>
     @endpush
     @push('sub-scripts')
@@ -334,23 +339,24 @@
 
             function bindCalculate() {
                 // 獎金
-                $('input[name="sk_price[]"], input[name="nsk_price[]"], input[name="n_price[]"], input[name$="_dealer_price[]"]').off('change.bonus')
-                .on('change.bonus', function() {
-                    const $this = $(this);
-                    const prefix = $this.attr('name').split('_')[0];
-                    const price = $this.closest('tr').find(`input[name="${prefix}_price[]"]`).val() || 0;
-                    const dealer_price = $this.closest('tr').find('input[name$="_dealer_price[]"]').val() || 0;
-                    $this.closest('tr').find('input[name$="_bonus[]"]').val(Math.floor((price - dealer_price) *
-                        BonusRate));
-                });
+                $('input[name="sk_price[]"], input[name="nsk_price[]"], input[name="n_price[]"], input[name$="_dealer_price[]"]')
+                    .off('change.bonus')
+                    .on('change.bonus', function() {
+                        const $this = $(this);
+                        const prefix = $this.attr('name').split('_')[0];
+                        const price = $this.closest('tr').find(`input[name="${prefix}_price[]"]`).val() || 0;
+                        const dealer_price = $this.closest('tr').find('input[name$="_dealer_price[]"]').val() || 0;
+                        $this.closest('tr').find('input[name$="_bonus[]"]').val(Math.floor((price - dealer_price) *
+                            BonusRate));
+                    });
                 // 鴻利
                 $('input[name="sk_price[]"], input[name="nsk_price[]"], input[name="n_price[]"]').off('change.point')
-                .on('change.point', function () {
-                    const $this = $(this);
-                    const price = $this.val() || 0;
-                    const dividend = saleChannel.dividend_limit / 100;
-                    $this.closest('tr').find('input[name$="_dividend[]"]').val(Math.floor(price * dividend));
-                });
+                    .on('change.point', function() {
+                        const $this = $(this);
+                        const price = $this.val() || 0;
+                        const dividend = saleChannel.dividend_limit / 100;
+                        $this.closest('tr').find('input[name$="_dividend[]"]').val(Math.floor(price * dividend));
+                    });
             }
 
             // sku

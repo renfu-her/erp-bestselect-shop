@@ -111,4 +111,84 @@ class OrderInvoiceAllowance extends Model
 
         return $inv_result;
     }
+
+    public static function update_allowance($parm = [])
+    {
+        $inv_allowance = self::find($parm['allowance_id']);
+
+        $item_name_arr = [];
+        $item_count_arr = [];
+        $item_unit_arr = [];
+        $item_price_arr = [];
+        $item_amt_arr = [];
+        $item_tax_type_arr = [];
+        $item_tax_amt_arr = [];
+
+        foreach($parm['o_title'] as $key => $value){
+            $item_name_arr[] = trim(mb_substr(str_replace('|', '｜', preg_replace('/(\t|\r|\n|\r\n)+/', ' ', $parm['o_title'][$key])), 0, 30));
+            $item_count_arr[] = $parm['o_qty'][$key];
+            $item_unit_arr[] = '-';
+            $item_price_arr[] = $parm['o_price'][$key];
+            $item_amt_arr[] = $parm['o_total_price'][$key];
+            $item_tax_type_arr[] = $parm['o_taxation'][$key] == 1 ? 1 : 3;
+            $item_tax_amt_arr[] = $parm['o_tax_price'][$key];
+        }
+
+        $user_id = auth('user')->user() ? auth('user')->user()->id : null;
+        $buyer_email = isset($parm['buyer_email']) ? $parm['buyer_email'] : null;
+
+        if(count(array_unique($item_tax_type_arr)) == 1) {
+            if(array_unique($item_tax_type_arr)[0] == 1) {
+                $tax_type = 1;
+            } else if(array_unique($item_tax_type_arr)[0] == 3) {
+                $tax_type = 3;
+            } else {
+                $tax_type = 9;
+            }
+
+        } else {
+            $tax_type = 9;
+        }
+
+        $total_amt = array_sum($item_amt_arr) + array_sum($item_tax_amt_arr);
+
+        $item_name = implode('|', $item_name_arr);
+        $item_count = implode('|', $item_count_arr);
+        $item_unit = implode('|', $item_unit_arr);
+        $item_price = implode('|', $item_price_arr);
+        $item_amt = implode('|', $item_amt_arr);
+        $item_tax_type = implode('|', $item_tax_type_arr);
+        $item_tax_amt = implode('|', $item_tax_amt_arr);
+
+        DB::beginTransaction();
+
+        try {
+            $inv_result = tap($inv_allowance)->update([
+                'user_id' => $user_id,
+                'buyer_email' => $buyer_email,
+                'tax_type' => $tax_type,
+
+                'item_name' => $item_name,
+                'item_count' => $item_count,
+                'item_unit' => $item_unit,
+                'item_price' => $item_price,
+                'item_amt' => $item_amt,
+                'item_tax_type' => $item_tax_type,
+                'item_tax_amt' => $item_tax_amt,
+                'total_amt' => $total_amt,
+            ]);
+
+            wToast(__('發票折讓更新成功'));
+
+            DB::commit();
+
+        } catch (\Exception $e) {
+            $inv_result = null;
+            // $e->getMessage();
+            wToast(__('發票折讓更新失敗'), ['type'=>'danger']);
+            DB::rollback();
+        }
+
+        return $inv_result;
+    }
 }

@@ -67,7 +67,6 @@ class PurchaseCtrl extends Controller
         $inbound_sdate = Arr::get($query, 'inbound_sdate', '');
         $inbound_edate = Arr::get($query, 'inbound_edate', '');
         $expire_day = Arr::get($query, 'expire_day', '');
-        $type = Arr::get($query, 'type', '0'); //0:明細 1:總表
         $audit_status = Arr::get($query, 'audit_status', null);
         $has_error_num = Arr::get($query, 'has_error_num', 0);
 
@@ -76,46 +75,23 @@ class PurchaseCtrl extends Controller
             $inbound_status_arr = explode(',', $inbound_status);
         }
 
-        $dataList = null;
-        if ('0' === $type) {
-            $dataList = PurchaseItem::getPurchaseDetailList(
-                null
-                , null
-                , $purchase_sn
-                , $title
-                , $purchase_user_id
-                , $purchase_sdate
-                , $purchase_edate
-                , $supplier_id
-                , $estimated_depot_id
-                , $depot_id
-                , $inbound_user_id
-                , $inbound_status_arr
-                , $inbound_sdate
-                , $inbound_edate
-                , $expire_day
-                , $audit_status
-                , $has_error_num)
-                ->paginate($data_per_page)->appends($query);
-        } else {
-            $dataList = PurchaseItem::getPurchaseOverviewList(
-                $purchase_sn
-                , $title
-                , $purchase_user_id
-                , $purchase_sdate
-                , $purchase_edate
-                , $supplier_id
-                , $estimated_depot_id
-                , $depot_id
-                , $inbound_user_id
-                , $inbound_status_arr
-                , $inbound_sdate
-                , $inbound_edate
-                , $expire_day
-                , $audit_status
-                , $has_error_num)
-                ->paginate($data_per_page)->appends($query);
-        }
+        $dataList = PurchaseItem::getPurchaseOverviewList(
+            $purchase_sn
+            , $title
+            , $purchase_user_id
+            , $purchase_sdate
+            , $purchase_edate
+            , $supplier_id
+            , $estimated_depot_id
+            , $depot_id
+            , $inbound_user_id
+            , $inbound_status_arr
+            , $inbound_sdate
+            , $inbound_edate
+            , $expire_day
+            , $audit_status
+            , $has_error_num)
+            ->paginate($data_per_page)->appends($query);
 
         return view('cms.commodity.purchase.list', [
             'startDate' => $startDate,
@@ -140,7 +116,6 @@ class PurchaseCtrl extends Controller
             , 'inbound_sdate' => $inbound_sdate
             , 'inbound_edate' => $inbound_edate
             , 'expire_day' => $expire_day
-            , 'type' => $type
             , 'audit_status' => $audit_status
             , 'has_error_num' => $has_error_num
         ]);
@@ -599,7 +574,7 @@ class PurchaseCtrl extends Controller
         }
         $re = PurchaseInbound::delInbound($id, $request->user()->id);
         if ($re['success'] == 0) {
-            wToast($re['error_msg']);
+            wToast($re['error_msg'], ['type'=>'danger']);
         } else {
             wToast(__('Delete finished.'));
         }
@@ -738,11 +713,7 @@ class PurchaseCtrl extends Controller
                             ->name;
         }
 
-        if($validatedReq['type'] === '0'){
-            $zh_price = num_to_str($depositPaymentData->price);
-        } else {
-            $zh_price = num_to_str($paymentPrice['finalPaymentPrice']);
-        }
+        $zh_price = num_to_str($paying_order->price);
 
         $view = 'cms.commodity.purchase.pay_order';
         if (request('action') == 'print') {
@@ -763,7 +734,6 @@ class PurchaseCtrl extends Controller
             'productGradeName' => $productGradeName,
             'logisticsGradeName' => $logisticsGradeName,
             'depositPaymentData' => $depositPaymentData,
-            'finalPaymentPrice' => $paymentPrice['finalPaymentPrice'],
             'logisticsPrice' => $paymentPrice['logisticsPrice'],
             'purchaseItemData' => $purchaseItemData,
             'payable_data' => $payable_data,
@@ -772,6 +742,7 @@ class PurchaseCtrl extends Controller
             'undertaker' => $undertaker,
             'appliedCompanyData' => $appliedCompanyData,
             'zh_price' => $zh_price,
+            'paying_order' => $paying_order,
             'relation_order' => Petition::getBindedOrder($paying_order->id, 'ISG'),
         ]);
     }

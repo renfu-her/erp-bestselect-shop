@@ -43,7 +43,7 @@ class ProductStyle extends Model
      * @param int $is_active 上下架
      *
      */
-    public static function createStyle($product_id, $item_ids, $is_active = 1)
+    public static function createStyle($product_id, $item_ids, $is_active = 1, $estimated_cost = 0)
     {
 
         $product = Product::where('id', $product_id)->get()->first();
@@ -65,6 +65,7 @@ class ProductStyle extends Model
 
         $data['is_active'] = $is_active;
         $data['title'] = trim($title);
+        $data['estimated_cost'] = $estimated_cost;
 
         return self::create($data)->id;
 
@@ -361,8 +362,6 @@ class ProductStyle extends Model
             ->groupBy('sp.style_id')
             ->where('style.product_id', $product_id)
             ->whereNull('style.deleted_at');
-        
-
 
         if ($salechannel && is_array($salechannel)) {
             $sub->whereIn('sp.sale_channel_id', $salechannel);

@@ -1,5 +1,6 @@
 @extends('layouts.main')
 @section('sub-content')
+    <h4 class="mb-4">{{$depot->name ?? ''}}</h4>
     <h2 class="mb-4">{{$title}} ({{ $productStyle->sku }})</h2>
 
     <form id="search" action="" method="GET">
