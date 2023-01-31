@@ -16,7 +16,6 @@ class OrganizeCtrl extends Controller
      */
     public function index(Request $request)
     {
-        
         return view('cms.settings.organize.list', [
             'dataList' => UserOrganize::dataList(),
         ]);

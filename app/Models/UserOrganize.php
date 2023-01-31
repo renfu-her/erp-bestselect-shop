@@ -45,8 +45,9 @@ class UserOrganize extends Model
                 ];
 
             }
-
-            $output[$value->department_id]->group[] = $value;
+            if ($value->group_id) {
+                $output[$value->department_id]->group[] = $value;
+            }
         }
 
         return $output;
