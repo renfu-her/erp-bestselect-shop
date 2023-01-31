@@ -44,7 +44,7 @@ class ProductWithExitInboundCheckExport implements FromQuery, WithHeadings
                 ,'tb_tslwei.product_title'
                 , 'tb_tslwei.spec'
                 , 'tb_tslwei.sku'
-                , 'tb_tslwei.suppliers_name'
+                , 'tb_tslwei.user_name'
                 , 'tb_tslwei.depot_name'
                 , 'tb_tslwei.total_in_stock_num'
                 , 'tb_tslwei.total_in_stock_num_csn'
