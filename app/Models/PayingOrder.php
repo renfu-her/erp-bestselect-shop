@@ -285,8 +285,8 @@ class PayingOrder extends Model
                         "grade_name":"\', COALESCE(grade.name, ""), \'",
                         "price":"\', pcs_purchase_items.price, \'",
                         "num":"\', pcs_purchase_items.num, \'",
-                        "summary":"\', COALESCE(pcs_purchase_items.memo, ""), \'",
-                        "memo":"\', COALESCE(pcs_purchase_items.memo, ""), \'",
+                        "summary":"\', COALESCE(replace(pcs_purchase_items.memo, \'\"\', "\'"), ""), \'",
+                        "memo":"\', COALESCE(replace(pcs_purchase_items.memo, \'\"\', "\'"), ""), \'",
                         "po_note":"\', COALESCE(pcs_purchase_items.po_note, ""), \'"
                     }\' ORDER BY pcs_purchase_items.id), \']\') AS items
                 FROM pcs_purchase_items
