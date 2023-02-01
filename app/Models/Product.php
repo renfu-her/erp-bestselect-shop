@@ -1163,9 +1163,10 @@ class Product extends Model
 
         // start to check 產品的上下架時間
         $activeDateQuery = DB::table('prd_products as prd')
+            ->where('prd.public', '=', 1)
+            ->where('prd.online', '=', 1)
             ->where('prd.title', 'LIKE', "%$data%")
             ->orWhere('prd.sku', 'LIKE', "%$data%")
-            ->where('prd.public', '=', 1)
             ->select(
                 'active_sdate',
                 'active_edate',
