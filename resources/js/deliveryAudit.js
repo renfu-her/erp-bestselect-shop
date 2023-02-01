@@ -163,6 +163,7 @@ $(function () {
                     <input type="hidden" name="prd_type" value="${ib.prd_type}">
                 </th>
                 <td data-td="sn">${ib.inbound_sn}</td>
+                <td data-td="event_sn">${ib.event_sn}</td>
                 <td data-td="depot">${ib.depot_name}</td>
                 <td data-td="stock">${ib.qty}</td>
                 <td data-td="expiry">${moment(ib.expiry_date).format('YYYY/MM/DD')}</td>

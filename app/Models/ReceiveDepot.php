@@ -650,6 +650,17 @@ class ReceiveDepot extends Model
                 $join->on('rcv_depot_papa.id', '=', 'rcv_depot.combo_id')
                     ->whereNotNull('rcv_depot.combo_id');
             })
+            ->leftJoin(app(PurchaseInbound::class)->getTable() . ' as inbound', function ($join) {
+                $join->on('inbound.id', '=', 'rcv_depot.inbound_id');
+            })
+            ->leftJoin(app(Purchase::class)->getTable() . ' as pcs', function ($join) {
+                $join->on('pcs.id', '=', 'inbound.event_id')
+                    ->where('inbound.event', '=', Event::purchase()->value);
+            })
+            ->leftJoin(app(Consignment::class)->getTable() . ' as csn', function ($join) {
+                $join->on('csn.id', '=', 'inbound.event_id')
+                    ->where('inbound.event', '=', Event::consignment()->value);
+            })
             ->select('delivery.sn as delivery_sn'
                 , 'rcv_depot.delivery_id as delivery_id'
                 , 'rcv_depot.id as id'
@@ -667,6 +678,10 @@ class ReceiveDepot extends Model
                 , 'rcv_depot.back_qty as back_qty'
                 , 'rcv_depot.expiry_date as expiry_date'
                 , 'rcv_depot.audit_date as audit_date'
+                , DB::raw('case when "'. Event::purchase()->value. '" = inbound.event then pcs.sn'
+                    . ' when "'. Event::consignment()->value. '" = inbound.event then csn.sn'
+                    . ' else null end as event_sn'
+                )
             )
             ->whereNull('rcv_depot.deleted_at')
             ->whereNull('rcv_depot_papa.deleted_at');

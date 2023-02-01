@@ -53,6 +53,7 @@
                                             <tr class="border-top-0" style="border-bottom-color:var(--bs-secondary);">
                                                 <td class="text-center">刪除</td>
                                                 <td>入庫單</td>
+                                                <td>@if(\App\Enums\Delivery\Event::csn_order()->value == $event) 寄倉單 @else 採購單 @endif</td>
                                                 <td>倉庫</td>
                                                 <td class="text-center" style="width: 10%">數量</td>
                                                 <td>效期</td>
@@ -71,6 +72,7 @@
                                                         </button>
                                                     </td>
                                                     <td data-td="sn">{{ $rec->inbound_sn }}</td>
+                                                    <td data-td="event_sn">{{ $rec->event_sn }}</td>
                                                     <td data-td="depot">{{ $rec->depot_name }}</td>
                                                     <td class="text-center">
                                                         <input type="text" name="qty[]" value="{{ $rec->qty }}" class="form-control form-control-sm text-center" readonly>
@@ -147,6 +149,7 @@
                         <tr>
                             <th scope="col" class="text-center" style="width: 10%">選取</th>
                             <th scope="col">入庫單</th>
+                            <th scope="col">@if(\App\Enums\Delivery\Event::csn_order()->value == $event) 寄倉單 @else 採購單 @endif</th>
                             <th scope="col">倉庫</th>
                             <th scope="col">庫存</th>
                             <th scope="col">效期</th>
@@ -161,6 +164,7 @@
                                 <input type="hidden" name="prd_type" value="">
                             </th>
                             <td data-td="sn"></td>
+                            <td data-td="event_sn"></td>
                             <td data-td="depot"></td>
                             <td data-td="stock"></td>
                             <td data-td="expiry"></td>
