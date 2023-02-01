@@ -147,6 +147,7 @@
                         <tr>
                             <th scope="col" class="text-center" style="width: 10%">選取</th>
                             <th scope="col">入庫單</th>
+                            <th scope="col">@if(\App\Enums\Delivery\Event::csn_order()->value == $event) 寄倉單 @else 採購單 @endif</th>
                             <th scope="col">倉庫</th>
                             <th scope="col">庫存</th>
                             <th scope="col">效期</th>
@@ -161,6 +162,7 @@
                                 <input type="hidden" name="prd_type" value="">
                             </th>
                             <td data-td="sn"></td>
+                            <td data-td="event_sn"></td>
                             <td data-td="depot"></td>
                             <td data-td="stock"></td>
                             <td data-td="expiry"></td>

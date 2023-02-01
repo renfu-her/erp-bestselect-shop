@@ -982,6 +982,14 @@ class PurchaseInbound extends Model
             ->leftJoinSub($rdlcQuerySub, 'tb_rd', function ($join) {
                 $join->on('tb_rd.inbound_id', '=', 'inbound.id');
             })
+            ->leftJoin(app(Purchase::class)->getTable() . ' as pcs', function ($join) {
+                $join->on('pcs.id', '=', 'inbound.event_id')
+                    ->where('inbound.event', '=', Event::purchase()->value);
+            })
+            ->leftJoin(app(Consignment::class)->getTable() . ' as csn', function ($join) {
+                $join->on('csn.id', '=', 'inbound.event_id')
+                    ->where('inbound.event', '=', Event::consignment()->value);
+            })
             ->select(
                 'product.title as product_title' //商品名稱
                 , 'product.type as prd_type' //商品類別
@@ -1000,6 +1008,10 @@ class PurchaseInbound extends Model
                 , 'inbound.inbound_num as inbound_num'
                 , 'inbound.sale_num as sale_num'
                 , 'tb_rd.qty as tb_rd_qty'
+                , DB::raw('case when "'. Event::purchase()->value. '" = inbound.event then pcs.sn'
+                    . ' when "'. Event::consignment()->value. '" = inbound.event then csn.sn'
+                    . ' else null end as event_sn'
+                )
             )
             ->selectRaw($calc_qty . ' as qty') //可出庫數量
             ->selectRaw('DATE_FORMAT(inbound.expiry_date,"%Y-%m-%d") as expiry_date') //有效期限
