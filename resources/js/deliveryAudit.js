@@ -29,6 +29,7 @@ $(function () {
             </button>
         </td>
         <td data-td="sn"></td>
+        <td data-td="event_sn"></td>
         <td data-td="depot"></td>
         <td class="text-center">
             <input type="text" name="qty[]" value="" class="form-control form-control-sm text-center" readonly>
@@ -47,6 +48,7 @@ $(function () {
     // 加入入庫單視窗
     $('#Pord_list tbody tr.--rece button.-add').off('click').on('click', function(e) {
         addInboundModal.show(this);
+        $('#addInbound .btn-ok').prop('disabled', false);
     });
     // 開啟入庫列表視窗
     $('#addInbound').on('show.bs.modal', function(e) {
@@ -166,7 +168,7 @@ $(function () {
                 <td data-td="event_sn">${ib.event_sn}</td>
                 <td data-td="depot">${ib.depot_name}</td>
                 <td data-td="stock">${ib.qty}</td>
-                <td data-td="expiry">${moment(ib.expiry_date).format('YYYY/MM/DD')}</td>
+                <td data-td="expiry">${moment(ib.expiry_date).isValid() ? moment(ib.expiry_date).format('YYYY/MM/DD') : '-'}</td>
                 <td data-td="qty"><input type="number" value="${qty}" min="1" max="${max}" class="form-control form-control-sm text-center" disabled></td>
             </tr>`);
             $('#addInbound .-appendClone.--inbound').append($tr);
@@ -178,7 +180,7 @@ $(function () {
 
     // 加入出貨審核 API
     window.DvyCreateReceiveDepot = createReceiveDepot;
-    function createReceiveDepot($target, apiUrl, deliveryId) {
+    function createReceiveDepot($target, apiUrl, deliveryId, event_list = {}) {
         const _URL = apiUrl;
         let Data = {
             delivery_id: deliveryId,
@@ -234,9 +236,10 @@ $(function () {
                         'rid': recDep.id
                     });
                     cloneElem.find('td[data-td="sn"]').text(recDep.inbound_sn);
+                    cloneElem.find('td[data-td="event_sn"]').text(event_list[recDep.inbound_sn] || '');
                     cloneElem.find('td[data-td="depot"]').text(recDep.depot_name);
                     cloneElem.find('input[name="qty[]"]').val(recDep.qty);
-                    cloneElem.find('td[data-td="expiry"]').text(moment(recDep.expiry_date).format('YYYY/MM/DD'));
+                    cloneElem.find('td[data-td="expiry"]').text(moment(recDep.expiry_date).isValid() ? moment(recDep.expiry_date).format('YYYY/MM/DD') : '-');
                 }
             }, newItemOpt);
         }
