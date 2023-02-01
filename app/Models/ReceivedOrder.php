@@ -74,7 +74,7 @@ class ReceivedOrder extends Model
                         "grade_code":"\', grade.code, \'",
                         "grade_name":"\', grade.name, \'",
                         "tw_price":"\', acc_received.tw_price, \'",
-                        "summary":"\', COALESCE(acc_received.summary, ""),\'",
+                        "summary":"\', COALESCE(replace(acc_received.summary, \'\"\', \'\\\"\'), ""), \'",
                         "note":"\', COALESCE(acc_received.note, ""),\'",
                         "created_at":"\', acc_received.created_at,\'",
                         "cheque_ticket_number":"\', COALESCE(_cheque.ticket_number, ""),\'",

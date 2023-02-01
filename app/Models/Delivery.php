@@ -863,7 +863,7 @@ class Delivery extends Model
                         "grade_id":"\', COALESCE(grade.id, dlv_tmp.grade_id), \'",
                         "grade_code":"\', COALESCE(grade.code, ""), \'",
                         "grade_name":"\', COALESCE(grade.name, ""), \'",
-                        "memo":"\', COALESCE(dlv_tmp.memo, ""), \'",
+                        "memo":"\', COALESCE(replace(dlv_tmp.memo, \'\"\', \'\\\"\'), ""), \'",
                         "note":"\', COALESCE(ord_items.note, csn_consignment_items.memo, csn_order_items.memo, ""), \'",
                         "po_note":"\', COALESCE(dlv_tmp.po_note, ""), \'",
                         "taxation":"\', COALESCE(product.has_tax, 1), \'"

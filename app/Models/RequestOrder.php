@@ -66,8 +66,8 @@ class RequestOrder extends Model
                             "grade_id":"\', request_o_item.grade_id, \'",
                             "grade_code":"\', COALESCE(grade.code, ""), \'",
                             "grade_name":"\', COALESCE(grade.name, ""), \'",
-                            "summary":"\', COALESCE(request_o_item.summary, ""), \'",
-                            "memo":"\', COALESCE(request_o_item.memo, ""), \'",
+                            "summary":"\', COALESCE(replace(request_o_item.summary, \'\"\', \'\\\"\'), ""), \'",
+                            "memo":"\', COALESCE(replace(request_o_item.memo, \'\"\', \'\\\"\'), ""), \'",
                             "ro_note":"\', COALESCE(request_o_item.ro_note, ""), \'",
                             "taxation":"\', request_o_item.taxation,\'"
                         }\' ORDER BY request_o_item.id), \']\') AS items
