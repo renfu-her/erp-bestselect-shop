@@ -77,14 +77,14 @@
                                                     <td class="text-center">
                                                         <input type="text" name="qty[]" value="{{ $rec->qty }}" class="form-control form-control-sm text-center" readonly>
                                                     </td>
-                                                    <td data-td="expiry">{{ isset($rec->expiry_date)? date('Y/m/d', strtotime($rec->expiry_date)) : '' }}</td>
+                                                    <td data-td="expiry">{{ isset($rec->expiry_date)? date('Y/m/d', strtotime($rec->expiry_date)) : '-' }}</td>
                                                 </tr>
                                             @endforeach
                                             </tbody>
                                             @if (is_null($delivery->audit_date))
                                                 <tfoot class="border-top-0">
                                                 <tr>
-                                                    <td colspan="5">
+                                                    <td colspan="6">
                                                         <input type="hidden" class="-ord" value="{{ $ord->product_style_id }}" data-sku="{{ $ord->sku }}"
                                                                data-title="{{ $ord->product_title }}" @if($ord->combo_product_title) data-subtitle="{{$ord->combo_product_title}}" @endif
                                                                data-qty="{{ $ord->qty }}" data-item="{{ $ord->item_id }}">
@@ -204,7 +204,7 @@
 @endsection
 @once
     @push('sub-scripts')
-        <script src="{{ Asset('dist/js/deliveryAudit.js') }}"></script>
+        <script src="{{ Asset('dist/js/deliveryAudit.js') }}?2.0"></script>
         <script>
         $(function () {
             const CreateUrl = @json(Route('api.cms.delivery.create-receive-depot'));
@@ -234,8 +234,16 @@
                     alert('預計出貨數量不合，請檢查！');
                     return false;
                 }
+                let event_list = {};
+                $('#addInbound input[data-td="ib_id"]:checked').each(function (index, element) {
+                    // element == this
+                    const sn = $(element).closest('tr').find('[data-td="sn"]').text();
+                    const event_sn = $(element).closest('tr').find('[data-td="event_sn"]').text();
+                    event_list[sn] = event_sn;
+                });
                 // call API
-                DvyCreateReceiveDepot($okBtn, CreateUrl, DeliveryId);
+                DvyCreateReceiveDepot($okBtn, CreateUrl, DeliveryId, event_list);
+                $okBtn.prop('disabled', true);
             });
         });
         </script>

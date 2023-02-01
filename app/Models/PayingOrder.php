@@ -214,7 +214,7 @@ class PayingOrder extends Model
                         "tw_price":"\', tw_price, \'",
                         "payment_date":"\', acc_payable.payment_date, \'",
                         "accountant_id_fk":"\', accountant_id_fk, \'",
-                        "summary":"\', COALESCE(acc_payable.summary, ""), \'",
+                        "summary":"\', COALESCE(replace(acc_payable.summary, \'\"\', \'\\\"\'), ""), \'",
                         "note":"\', COALESCE(note, ""), \'",
                         "cheque_ticket_number":"\', COALESCE(_cheque.ticket_number, ""),\'",
                         "cheque_due_date":"\', COALESCE(_cheque.due_date, ""),\'"
@@ -248,7 +248,7 @@ class PayingOrder extends Model
                         "price":"\', price, \'",
                         "num":"\', 1, \'",
                         "summary":"\', CONCAT("訂金抵扣（訂金付款單號", sn, "）"), \'",
-                        "memo":"\', COALESCE(pcs_paying_orders.memo, ""), \'"
+                        "memo":"\', COALESCE(replace(pcs_paying_orders.memo, \'\"\', \'\\\"\'), ""), \'"
                     }\' ORDER BY pcs_paying_orders.id), \']\') AS items
                 FROM pcs_paying_orders
                 LEFT JOIN (' . $sq . ') AS grade ON grade.id = pcs_paying_orders.product_grade_id
@@ -285,8 +285,8 @@ class PayingOrder extends Model
                         "grade_name":"\', COALESCE(grade.name, ""), \'",
                         "price":"\', pcs_purchase_items.price, \'",
                         "num":"\', pcs_purchase_items.num, \'",
-                        "summary":"\', COALESCE(replace(pcs_purchase_items.memo, \'\"\', "\'"), ""), \'",
-                        "memo":"\', COALESCE(replace(pcs_purchase_items.memo, \'\"\', "\'"), ""), \'",
+                        "summary":"\', COALESCE(replace(pcs_purchase_items.memo, \'\"\', \'\\\"\'), ""), \'",
+                        "memo":"\', COALESCE(replace(pcs_purchase_items.memo, \'\"\', \'\\\"\'), ""), \'",
                         "po_note":"\', COALESCE(pcs_purchase_items.po_note, ""), \'"
                     }\' ORDER BY pcs_purchase_items.id), \']\') AS items
                 FROM pcs_purchase_items
@@ -371,8 +371,8 @@ class PayingOrder extends Model
                             "grade_name":"\', COALESCE(grade.name, ""), \'",
                             "price":"\', so_item.total_price, \'",
                             "num":"\', so_item.qty, \'",
-                            "summary":"\', COALESCE(so_item.summary, ""), \'",
-                            "memo":"\', COALESCE(so_item.memo, ""), \'",
+                            "summary":"\', COALESCE(replace(so_item.summary, \'\"\', \'\\\"\'), ""), \'",
+                            "memo":"\', COALESCE(replace(so_item.memo, \'\"\', \'\\\"\'), ""), \'",
                             "po_note":"\', COALESCE(so_item.po_note, ""), \'"
                         }\' ORDER BY so_item.id), \']\') AS items
                 FROM acc_stitute_order_items AS so_item
@@ -402,8 +402,8 @@ class PayingOrder extends Model
                         "grade_name":"\', COALESCE(grade.name, ""), \'",
                         "price":"\', ord_items.price * ord_items.qty, \'",
                         "num":"\', ord_items.qty, \'",
-                        "summary":"\', COALESCE(ord_items.note, ""), \'",
-                        "memo":"\', COALESCE(ord_items.note, ""), \'",
+                        "summary":"\', COALESCE(replace(ord_items.note, \'\"\', \'\\\"\'), ""), \'",
+                        "memo":"\', COALESCE(replace(ord_items.note, \'\"\', \'\\\"\'), ""), \'",
                         "po_note":"\', COALESCE(ord_items.po_note, ""), \'"
                     }\' ORDER BY ord_items.id), \']\') AS items
                 FROM ord_items
@@ -466,8 +466,8 @@ class PayingOrder extends Model
                         "grade_name":"\', COALESCE(grade.name, ""), \'",
                         "price":"\', dlv_back.price * dlv_back.qty, \'",
                         "num":"\', dlv_back.qty, \'",
-                        "summary":"\', COALESCE(dlv_back.memo, ""), \'",
-                        "memo":"\', COALESCE(dlv_back.memo, ""), \'",
+                        "summary":"\', COALESCE(replace(dlv_back.memo, \'\"\', \'\\\"\'), ""), \'",
+                        "memo":"\', COALESCE(replace(dlv_back.memo, \'\"\', \'\\\"\'), ""), \'",
                         "po_note":"\', COALESCE(dlv_back.po_note, ""), \'"
                     }\' ORDER BY dlv_back.id), \']\') AS items
                 FROM dlv_back
@@ -504,8 +504,8 @@ class PayingOrder extends Model
                         "price":"\', _account.amt_net, \'",
                         "num":"\', 1, \'",
                         "all_grades_id":"\', acc_payable.all_grades_id, \'",
-                        "summary":"\', COALESCE(acc_payable.summary, ""), \'",
-                        "memo":"\', COALESCE(acc_payable.note, ""), \'",
+                        "summary":"\', COALESCE(replace(acc_payable.summary, \'\"\', \'\\\"\'), ""), \'",
+                        "memo":"\', COALESCE(replace(acc_payable.note, \'\"\', \'\\\"\'), ""), \'",
                         "po_note":"\', "", \'"
                     }\' ORDER BY acc_payable.id), \']\') AS items
                 FROM acc_payable
@@ -573,8 +573,8 @@ class PayingOrder extends Model
                             "grade_name":"\', COALESCE(refund_item.grade_name, ""), \'",
                             "price":"\', refund_item.total_price, \'",
                             "num":"\', refund_item.qty, \'",
-                            "summary":"\', COALESCE(refund_item.summary, ""), \'",
-                            "memo":"\', COALESCE(refund_item.note, ""), \'",
+                            "summary":"\', COALESCE(replace(refund_item.summary, \'\"\', \'\\\"\'), ""), \'",
+                            "memo":"\', COALESCE(replace(refund_item.note, \'\"\', \'\\\"\'), ""), \'",
                             "po_note":"\', COALESCE(refund_item.po_note, ""), \'"
                         }\' ORDER BY refund_item.id), \']\') AS items
                 FROM acc_received_refund AS refund_item
@@ -605,8 +605,8 @@ class PayingOrder extends Model
                         "grade_name":"\', COALESCE(grade.name, ""), \'",
                         "price":"\', dlv_out_stock.price * dlv_out_stock.qty, \'",
                         "num":"\', dlv_out_stock.qty, \'",
-                        "summary":"\', COALESCE(dlv_out_stock.memo, ""), \'",
-                        "memo":"\', COALESCE(dlv_out_stock.memo, ""), \'",
+                        "summary":"\', COALESCE(replace(dlv_out_stock.memo, \'\"\', \'\\\"\'), ""), \'",
+                        "memo":"\', COALESCE(replace(dlv_out_stock.memo, \'\"\', \'\\\"\'), ""), \'",
                         "po_note":"\', COALESCE(dlv_out_stock.po_note, ""), \'"
                     }\' ORDER BY dlv_out_stock.id), \']\') AS items
                 FROM dlv_out_stock

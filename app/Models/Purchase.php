@@ -401,7 +401,7 @@ class Purchase extends Model
                         "price":"\', pcs_purchase_items.price / pcs_purchase_items.num, \'",
                         "qty":"\', pcs_purchase_items.num, \'",
                         "total_price":"\', pcs_purchase_items.price, \'",
-                        "memo":"\', COALESCE(pcs_purchase_items.memo, ""), \'",
+                        "memo":"\', COALESCE(replace(pcs_purchase_items.memo, \'"\', \'\\\"\'), ""), \'",
                         "ro_note":"\', COALESCE(pcs_purchase_items.ro_note, ""), \'",
                         "po_note":"\', COALESCE(pcs_purchase_items.po_note, ""), \'",
                         "taxation":"\', product.has_tax, \'"
