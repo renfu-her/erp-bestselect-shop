@@ -33,11 +33,13 @@
                    class="btn btn-dark btn-sm my-1 ms-1">編輯訂單</a>
             @endcan
 
-            @can('cms.collection_payment.edit')
+            @can('cms.collection_payment.edit_note')
                 <a href="{{ route('cms.collection_payment.edit_note', ['id' => $paying_order->id]) }}"
                     class="btn btn-dark btn-sm" role="button">編輯付款項目備註</a>
+            @endcan
 
-                <a href="{{ route('cms.ref_expenditure_petition.edit', ['current_sn' => $paying_order->sn]) }}" class="btn btn-sm btn-primary" role="button">相關單號</a>
+            @can('cms.collection_payment.edit')
+            <a href="{{ route('cms.ref_expenditure_petition.edit', ['current_sn' => $paying_order->sn]) }}" class="btn btn-sm btn-primary" role="button">相關單號</a>
             @endcan
             @if (count($relation_order) > 0)
                 @foreach ($relation_order as $value)

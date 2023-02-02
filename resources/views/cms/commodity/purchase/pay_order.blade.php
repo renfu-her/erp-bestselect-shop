@@ -46,10 +46,10 @@
             {{-- <button type="button" class="btn btn-primary">修改備註</button> --}}
             {{-- <button type="button" class="btn btn-primary">新增細項</button> --}}
             @if($type == 'final')
-            @can('cms.collection_payment.edit')
+                @can('cms.collection_payment.edit_note')
                 <a href="{{ route('cms.collection_payment.edit_note', ['id' => $payOrdId]) }}"
                     class="btn btn-dark btn-sm" role="button">編輯付款項目備註</a>
-            @endcan
+                @endcan
             @endif
 
             @can('cms.collection_payment.edit')
