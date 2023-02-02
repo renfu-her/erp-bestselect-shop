@@ -159,7 +159,7 @@ class ReceiveDepot extends Model
     }
 
     //將收貨資料變更為成立
-    public static function setUpShippingData($event, $event_id, $delivery_id, $user_id, $user_name) {
+    public static function setUpShippingData($event, $event_id, $delivery_id, $can_diff_depot = 0, $user_id, $user_name) {
         $delivery = Delivery::where('id', $delivery_id)->get()->first();
         $rcvDepotGet = null;
         if (null != $delivery_id) {
@@ -167,19 +167,22 @@ class ReceiveDepot extends Model
             $rcvDepotGet = $rcvDepot->get();
         }
         if (null != $delivery &&null != $rcvDepotGet && 0 < count($rcvDepotGet)) {
-            $result = IttmsDBB::transaction(function () use ($delivery, $rcvDepot, $rcvDepotGet, $event, $event_id, $delivery_id, $user_id, $user_name
+            $result = IttmsDBB::transaction(function () use ($delivery, $rcvDepot, $rcvDepotGet, $event, $event_id, $delivery_id, $can_diff_depot, $user_id, $user_name
             ) {
-                //判斷都需是同一個倉庫出貨
-                $first_rcv_depot_item = $rcvDepot->where('delivery_id', $delivery_id)->where('depot_id', '<>', 0)->first();
-                if (null == $first_rcv_depot_item) {
-                    DB::rollBack();
-                    return ['success' => 0, 'error_msg' => "資料有誤 請回報給工程師 並說明相關單號與情況"];
-                }
-                $curr_depot_id = $first_rcv_depot_item->depot_id;
-                foreach ($rcvDepotGet as $item) {
-                    if ($curr_depot_id != $item->depot_id && 0 != $item->depot_id) {
+                //開放不同倉庫出貨 預設為關
+                if (0 == $can_diff_depot) {
+                    //判斷都需是同一個倉庫出貨
+                    $first_rcv_depot_item = $rcvDepot->where('delivery_id', $delivery_id)->where('depot_id', '<>', 0)->first();
+                    if (null == $first_rcv_depot_item) {
                         DB::rollBack();
-                        return ['success' => 0, 'error_msg' => "請確認是否都是同一倉庫出貨"];
+                        return ['success' => 0, 'error_msg' => "資料有誤 請回報給工程師 並說明相關單號與情況"];
+                    }
+                    $curr_depot_id = $first_rcv_depot_item->depot_id;
+                    foreach ($rcvDepotGet as $item) {
+                        if ($curr_depot_id != $item->depot_id && 0 != $item->depot_id) {
+                            DB::rollBack();
+                            return ['success' => 0, 'error_msg' => "請確認是否都是同一倉庫出貨"];
+                        }
                     }
                 }
 

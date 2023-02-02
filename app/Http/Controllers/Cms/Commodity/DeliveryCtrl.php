@@ -253,12 +253,13 @@ class DeliveryCtrl extends Controller
 
     public function store(Request $request, int $delivery_id)
     {
+        $can_diff_depot = $request->input('can_diff_depot') ?? 0; //開放不同倉庫出貨 預設為關
         $errors = [];
         $delivery = Delivery::where('id', '=', $delivery_id)->get()->first();
         if (null != $delivery->audit_date) {
             $errors['error_msg'] = '不可重複送出審核';
         } else {
-            $re = ReceiveDepot::setUpShippingData($delivery->event, $delivery->event_id, $delivery_id, $request->user()->id, $request->user()->name);
+            $re = ReceiveDepot::setUpShippingData($delivery->event, $delivery->event_id, $delivery_id, $can_diff_depot, $request->user()->id, $request->user()->name);
             if ($re['success'] == '1') {
                 wToast('儲存成功');
                 return redirect(Route('cms.delivery.create', [
