@@ -287,7 +287,7 @@ class PayingOrder extends Model
                         "num":"\', pcs_purchase_items.num, \'",
                         "summary":"\', COALESCE(replace(pcs_purchase_items.memo, \'\"\', \'\\\"\'), ""), \'",
                         "memo":"\', COALESCE(replace(pcs_purchase_items.memo, \'\"\', \'\\\"\'), ""), \'",
-                        "po_note":"\', COALESCE(pcs_purchase_items.po_note, ""), \'"
+                        "po_note":"\', COALESCE(replace(pcs_purchase_items.po_note, \'\"\', \'\\\"\'), ""), \'"
                     }\' ORDER BY pcs_purchase_items.id), \']\') AS items
                 FROM pcs_purchase_items
                 LEFT JOIN (' . $sq . ') AS grade ON grade.name = "商品存貨"
@@ -373,7 +373,7 @@ class PayingOrder extends Model
                             "num":"\', so_item.qty, \'",
                             "summary":"\', COALESCE(replace(so_item.summary, \'\"\', \'\\\"\'), ""), \'",
                             "memo":"\', COALESCE(replace(so_item.memo, \'\"\', \'\\\"\'), ""), \'",
-                            "po_note":"\', COALESCE(so_item.po_note, ""), \'"
+                            "po_note":"\', COALESCE(replace(so_item.po_note, \'\"\', \'\\\"\'), ""), \'"
                         }\' ORDER BY so_item.id), \']\') AS items
                 FROM acc_stitute_order_items AS so_item
                 LEFT JOIN (' . $sq . ') AS grade ON grade.id = so_item.grade_id
@@ -404,7 +404,7 @@ class PayingOrder extends Model
                         "num":"\', ord_items.qty, \'",
                         "summary":"\', COALESCE(replace(ord_items.note, \'\"\', \'\\\"\'), ""), \'",
                         "memo":"\', COALESCE(replace(ord_items.note, \'\"\', \'\\\"\'), ""), \'",
-                        "po_note":"\', COALESCE(ord_items.po_note, ""), \'"
+                        "po_note":"\', COALESCE(replace(ord_items.po_note, \'\"\', \'\\\"\'), ""), \'"
                     }\' ORDER BY ord_items.id), \']\') AS items
                 FROM ord_items
                 LEFT JOIN (' . $sq . ') AS grade ON grade.name = "銷貨收入"
@@ -468,7 +468,7 @@ class PayingOrder extends Model
                         "num":"\', dlv_back.qty, \'",
                         "summary":"\', COALESCE(replace(dlv_back.memo, \'\"\', \'\\\"\'), ""), \'",
                         "memo":"\', COALESCE(replace(dlv_back.memo, \'\"\', \'\\\"\'), ""), \'",
-                        "po_note":"\', COALESCE(dlv_back.po_note, ""), \'"
+                        "po_note":"\', COALESCE(replace(dlv_back.po_note, \'\"\', \'\\\"\'), ""), \'"
                     }\' ORDER BY dlv_back.id), \']\') AS items
                 FROM dlv_back
                 LEFT JOIN (' . $sq . ') AS grade ON grade.id = dlv_back.grade_id
@@ -575,7 +575,7 @@ class PayingOrder extends Model
                             "num":"\', refund_item.qty, \'",
                             "summary":"\', COALESCE(replace(refund_item.summary, \'\"\', \'\\\"\'), ""), \'",
                             "memo":"\', COALESCE(replace(refund_item.note, \'\"\', \'\\\"\'), ""), \'",
-                            "po_note":"\', COALESCE(refund_item.po_note, ""), \'"
+                            "po_note":"\', COALESCE(replace(refund_item.po_note, \'\"\', \'\\\"\'), ""), \'"
                         }\' ORDER BY refund_item.id), \']\') AS items
                 FROM acc_received_refund AS refund_item
                 GROUP BY refund_item.source_ro_id, refund_item.append_po_id
@@ -607,7 +607,7 @@ class PayingOrder extends Model
                         "num":"\', dlv_out_stock.qty, \'",
                         "summary":"\', COALESCE(replace(dlv_out_stock.memo, \'\"\', \'\\\"\'), ""), \'",
                         "memo":"\', COALESCE(replace(dlv_out_stock.memo, \'\"\', \'\\\"\'), ""), \'",
-                        "po_note":"\', COALESCE(dlv_out_stock.po_note, ""), \'"
+                        "po_note":"\', COALESCE(replace(dlv_out_stock.po_note, \'\"\', \'\\\"\'), ""), \'"
                     }\' ORDER BY dlv_out_stock.id), \']\') AS items
                 FROM dlv_out_stock
                 LEFT JOIN (' . $sq . ') AS grade ON grade.id = dlv_out_stock.grade_id
