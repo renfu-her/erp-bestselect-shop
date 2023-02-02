@@ -357,6 +357,10 @@ return [
                 "cms.collection_payment.logistic-po-create",
                 "新增物流付款單",
             ],
+            [
+                "cms.collection_payment.edit_note",
+                "編輯付款項目備註",
+            ],
         ],
     ],
     [
