@@ -91,11 +91,16 @@ class CustomerCtrl extends Controller
 
         if (null == $customer
             || false == Hash::check($data['password'], $customer->password)
-            || AccountStatus::open()->value != $customer->acount_status
         ) {
             return response()->json([
                 ResponseParam::status()->key => 'E02',
                 ResponseParam::msg()->key => '帳號密碼錯誤',
+            ]);
+        }
+        if (AccountStatus::open()->value != $customer->acount_status) {
+            return response()->json([
+                ResponseParam::status()->key => 'E03',
+                ResponseParam::msg()->key => '帳號未開通',
             ]);
         }
 
