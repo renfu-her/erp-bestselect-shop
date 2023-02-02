@@ -7,6 +7,16 @@
             <h6>搜尋條件</h6>
             <div class="row">
                 <div class="col-12 col-sm-6 mb-3">
+                    <label class="form-label">出貨單號</label>
+                    <input class="form-control" value="{{ $searchParam['delivery_sn'] }}" type="text" name="delivery_sn"
+                           placeholder="輸入出貨單號">
+                </div>
+                <div class="col-12 col-sm-6 mb-3">
+                    <label class="form-label">單據編號</label>
+                    <input class="form-control" value="{{ $searchParam['event_sn'] }}" type="text" name="event_sn"
+                           placeholder="輸入訂購單、轉倉單號">
+                </div>
+                <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">廠商</label>
                     <select class="form-select -select2 -multiple" multiple name="search_supplier[]" aria-label="廠商"
                             data-placeholder="多選">

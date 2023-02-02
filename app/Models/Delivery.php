@@ -403,6 +403,12 @@ class Delivery extends Model
             ->orderByDesc('delivery.id')
             ;
 
+        if (isset($param['delivery_sn'])) {
+            $query_delivery->where('delivery.sn', 'like', "%" . $param['delivery_sn'] . "%");
+        }
+        if (isset($param['event_sn'])) {
+            $query_delivery->where('delivery.event_sn', 'like', "%" . $param['event_sn'] . "%");
+        }
         //商品管理-搜尋廠商條件
         if (!empty($param['search_supplier'])) {
             $query_delivery->leftJoin(app(ProductSupplier::class)->getTable(). ' as prd_prd_supplier', 'prd_prd_supplier.product_id', '=', 'prd.id')
