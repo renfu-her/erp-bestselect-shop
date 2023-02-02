@@ -184,6 +184,11 @@ return
                 "controller_name" => "OrganizeCtrl",
                 "route_name" => "cms.organize.index",
             ],
+            [
+                "title" => "企業網",
+                "controller_name" => "B2eCompanyCtrl",
+                "route_name" => "cms.b2e-company.index",
+            ],
         ],
     ],
     [
