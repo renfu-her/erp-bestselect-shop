@@ -103,6 +103,16 @@
                     </tbody>
                 </table>
             </div>
+            
+            @if(\App\Enums\Delivery\Event::order()->value == $delivery->event)
+            <div class="form-switch form-switch-lg">
+                <label class="form-check-label">
+                    <input class="form-check-input" type="checkbox" name="can_diff_depot" value="1" >
+                    開放不同倉庫出貨
+                </label>
+            </div>
+            @endif
+
             @error('error_msg')
                 <div class="alert alert-danger" role="alert">
                     {{ $message }}
