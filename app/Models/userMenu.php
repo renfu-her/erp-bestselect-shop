@@ -185,7 +185,7 @@ return
                 "route_name" => "cms.organize.index",
             ],
             [
-                "title" => "企業網",
+                "title" => "企業網管理",
                 "controller_name" => "B2eCompanyCtrl",
                 "route_name" => "cms.b2e-company.index",
             ],

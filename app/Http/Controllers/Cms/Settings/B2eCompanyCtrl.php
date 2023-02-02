@@ -14,7 +14,10 @@ class B2eCompanyCtrl extends Controller
      */
     public function index()
     {
-        //
+        return view('cms.settings.b2e.list', [
+            'dataList' => [],
+            'data_per_page' => 10
+        ]);
     }
 
     /**
@@ -25,6 +28,9 @@ class B2eCompanyCtrl extends Controller
     public function create()
     {
         //
+        return view('cms.settings.b2e.edit', [
+            'method' => 'create',
+        ]);
     }
 
     /**
