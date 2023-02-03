@@ -109,7 +109,7 @@ class User extends Authenticatable
     public static function getUserBySearch(array $query, int $per_page = 10)
     {
         $user_table = DB::table('usr_users')
-                        ->leftJoin('per_model_has_roles', 'usr_users.id', '=', 'per_model_has_roles.model_id');
+            ->leftJoin('per_model_has_roles', 'usr_users.id', '=', 'per_model_has_roles.model_id');
 
         if (isset($query['roleIds']) && $query['roleIds']) {
             foreach ($query['roleIds'] as $roleId) {
@@ -133,14 +133,37 @@ class User extends Authenticatable
             $user_table->where('account', 'like', "%{$query['account']}%");
         }
 
-        $users = $user_table
+        $user_table
             ->select([
                 'id',
                 'name',
                 'account',
                 'api_token',
                 'model_id',
-            ])
+            ]);
+
+        if (isset($query['profit'])) {
+            $profitSub = DB::table('usr_customers as customer')
+                ->select(['customer.id as customer_id', 'profit.status_title'])
+                ->join('usr_customer_profit as profit', 'customer.id', '=', 'profit.customer_id');
+
+            $user_table->leftJoinSub($profitSub, 'profit', 'usr_users.customer_id', '=', 'profit.customer_id')
+            //->addSelect('profit.status_title as profit_status_title');
+                ->selectRaw('IF(profit.status_title IS NULL,"尚未申請",profit.status_title) as profit_status_title');
+
+            switch ($query['profit']) {
+                case '1':
+                    $user_table->whereNotNull('profit.status_title');
+                    break;
+                case '0':
+                    $user_table->whereNull('profit.status_title');
+                    break;
+            }
+
+        }
+
+        $users = $user_table
+
             ->selectRaw('GROUP_CONCAT(DISTINCT role_id) as role_ids')
             ->groupBy('id')
             ->distinct()
@@ -180,7 +203,7 @@ class User extends Authenticatable
                     DB::table('usr_user_salechannel')->where([
                         'user_id' => $user_id,
                         'salechannel_id' => $saleChannel->id,
-                        ])->doesntExist()
+                    ])->doesntExist()
                 ) {
                     UserSalechannel::create([
                         'user_id' => $user_id,
@@ -192,13 +215,13 @@ class User extends Authenticatable
                     $NoBonusSaleChannel = SaleChannel::where('title', '經銷價販售(無獎金)')->get()->first();
                     if (
                         DB::table('usr_user_salechannel')->where([
-                                'user_id' => $user_id,
-                                'salechannel_id' => $NoBonusSaleChannel->id,
-                            ])->doesntExist()
+                            'user_id' => $user_id,
+                            'salechannel_id' => $NoBonusSaleChannel->id,
+                        ])->doesntExist()
                     ) {
                         UserSalechannel::create([
-                            'user_id'        => $user_id,
-                            'salechannel_id' => $NoBonusSaleChannel->id
+                            'user_id' => $user_id,
+                            'salechannel_id' => $NoBonusSaleChannel->id,
                         ]);
                     }
                 }
