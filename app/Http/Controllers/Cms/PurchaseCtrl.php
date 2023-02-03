@@ -285,13 +285,13 @@ class PurchaseCtrl extends Controller
                 if ($payingOrderItem->type === 0) {
                     $hasCreatedDepositPayment = true;
                     $depositPayData = $payingOrderItem;
-                    if ($payingOrderItem->balance_date) {
+                    if ($payingOrderItem->payment_date) {
                         $hasReceivedDepositPayment = true;
                     }
                 } elseif ($payingOrderItem->type === 1) {
                     $hasCreatedFinalPayment = true;
                     $finalPayData = $payingOrderItem;
-                    if ($payingOrderItem->balance_date) {
+                    if ($payingOrderItem->payment_date) {
                         $hasReceivedFinalPayment = true;
                     }
                 }
@@ -388,6 +388,19 @@ class PurchaseCtrl extends Controller
                     //有值則做更新
                     //itemId = null 代表新資料
                     if (null != $itemId) {
+                        $po = PayingOrder::where([
+                            'source_type' => app(Purchase::class)->getTable(),
+                            'source_id' => $id,
+                            'source_sub_id' => null,
+                            'type' => 1,
+                        ])->first();
+                        if($po && $po->payment_date){
+                            $purchaseItem = PurchaseItem::where('id', '=', $itemId)->first();
+                            if($purchaseItem){
+                                $purchaseItemReq['memo'][$key] = $purchaseItem->memo;
+                            }
+                        }
+
                         $result = PurchaseItem::checkToUpdatePurchaseItemData($itemId, $purchaseItemReq, $key, $request->user()->id, $request->user()->name, $purchasePayReq);
                         if ($result['success'] == 0) {
                             DB::rollBack();

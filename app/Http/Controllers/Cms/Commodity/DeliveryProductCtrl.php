@@ -122,6 +122,8 @@ class DeliveryProductCtrl extends Controller
 
     private function initIndexQueryParam($query) {
         $cond = [];
+        $cond['delivery_sn'] = Arr::get($query, 'delivery_sn', null);
+        $cond['event_sn'] = Arr::get($query, 'event_sn', null);
         $cond['search_supplier'] = Arr::get($query, 'search_supplier', []);
         $cond['keyword'] = Arr::get($query, 'keyword');
         $cond['order_sdate'] = Arr::get($query, 'order_sdate', null);

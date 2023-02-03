@@ -29,6 +29,17 @@ class ConsignmentOrderCtrl extends Controller
         $depot_id = Arr::get($query, 'depot_id', 1);
         $csnorder_sn = Arr::get($query, 'csnorder_sn', '');
 
+        $concatString = concatStr([
+            'product_style_id' => DB::raw('ifnull(items.product_style_id, "")'),
+            'prd_type' => DB::raw('ifnull(items.prd_type, "")'),
+            'title' => DB::raw('ifnull(items.title, "")'),
+            'sku' => DB::raw('ifnull(items.sku, "")'),
+            'price' => DB::raw('ifnull(round(items.price), "")'),
+            'num' => DB::raw('ifnull(items.num, "")'),
+            'total_price' => DB::raw('round(items.price * items.num, 0)'),
+            'item_memo' => DB::raw('ifnull(items.memo, "")'),
+        ]);
+
         $queryCsnOrd = DB::table('csn_orders as csnord')
             ->leftJoin('csn_order_items as items', 'items.csnord_id', '=', 'csnord.id')
             ->leftJoin('dlv_delivery as delivery', function ($join) {
@@ -45,18 +56,12 @@ class ConsignmentOrderCtrl extends Controller
                 , 'csnord.memo'
                 , 'csnord.created_at'
 
-                , 'items.product_style_id'
-                , 'items.prd_type'
-                , 'items.title'
-                , 'items.sku'
-                , DB::raw('round(items.price) as price')
-                , 'items.num'
-                , DB::raw('round(items.price * items.num, 0) as total_price')
-                , 'items.memo as item_memo'
                 , 'delivery.logistic_status as logistic_status'
                 , DB::raw('DATE_FORMAT(delivery.audit_date,"%Y-%m-%d") as audit_date')
                 , DB::raw('ifnull(DATE_FORMAT(csnord.dlv_audit_date,"%Y-%m-%d"), null) as dlv_audit_date')
+                , DB::raw($concatString . ' as groupConcat')
             )
+            ->groupBy('csnord.id')
             ->orderByDesc('csnord.id');
 
         if ($depot_id) {

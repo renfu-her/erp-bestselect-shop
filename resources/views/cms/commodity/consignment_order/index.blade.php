@@ -62,11 +62,6 @@
                         <th scope="col">倉庫名稱</th>
                         <th scope="col">訂購人</th>
                         <th scope="col">訂購日期</th>
-                        <th scope="col">商品名稱</th>
-                        <th scope="col">SKU碼</th>
-                        <th scope="col">單價</th>
-                        <th scope="col">數量</th>
-                        <th scope="col">小計</th>
                         <th scope="col">出貨日期</th>
                         <th scope="col">物態</th>
 
@@ -91,11 +86,6 @@
                                 <td>{{ $data->depot_name }}</td>
                                 <td>{{ $data->create_user_name }}</td>
                                 <td>{{ $data->scheduled_date }}</td>
-                                <td>{{ $data->title }}</td>
-                                <td>{{ $data->sku }}</td>
-                                <td>{{ $data->price }}</td>
-                                <td>{{ $data->num }}</td>
-                                <td>{{ $data->total_price }}</td>
                                 <td>{{ $data->audit_date }}</td>
                                 <td>{{ $data->logistic_status }}</td>
                                 <td class="text-center">
@@ -110,6 +100,38 @@
                                     @endcan
                                 </td>
 
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td colspan="9" class="pt-0 ps-0 wrap">
+                                    <table class="table table-bordered table-sm mb-0">
+                                        <thead class="small table-light">
+                                        <tr class="border-top-0" style="border-bottom-color:var(--bs-secondary);">
+                                            <th scope="col">商品名稱</th>
+                                            <th scope="col">SKU碼</th>
+                                            <th scope="col">單價</th>
+                                            <th scope="col">數量</th>
+                                            <th scope="col">小計</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody class="border-top-0">
+                                        @php
+                                            $order_items = (null != $data->groupConcat)? json_decode($data->groupConcat): null;
+                                        @endphp
+                                        @if(isset($order_items))
+                                            @foreach($order_items as $val_orditem)
+                                                <tr>
+                                                    <td>{{ $val_orditem->title }}</td>
+                                                    <td>{{ $val_orditem->sku }}</td>
+                                                    <td>{{ $val_orditem->price }}</td>
+                                                    <td>{{ $val_orditem->num }}</td>
+                                                    <td>{{ $val_orditem->total_price }}</td>
+                                                </tr>
+                                            @endforeach
+                                        @endif
+                                        </tbody>
+                                    </table>
+                                </td>
                             </tr>
                         @endforeach
                     @endif
