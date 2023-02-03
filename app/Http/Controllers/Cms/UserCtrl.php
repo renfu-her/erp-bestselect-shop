@@ -26,7 +26,11 @@ class UserCtrl extends Controller
     public function index(Request $request)
     {
         $query = $request->query();
+        if (!isset($query['profit'])) {
+            $query['profit'] = 'all';
+        }
         $user = User::getUserBySearch($query);
+
         $roleData = Role::whereNull('deleted_at')
             ->select([
                 'id',
@@ -38,6 +42,7 @@ class UserCtrl extends Controller
         return view('cms.admin.user.list', [
             "roleData" => $roleDataArray->all(),
             "dataList" => $user,
+            'profitStauts' => ['all' => '不限', '0' => '無', '1' => '有'],
         ]);
     }
 
@@ -142,10 +147,10 @@ class UserCtrl extends Controller
             return abort(404);
         }
         //正式機才做
-        if(env('APP_ENV') == 'rel') {
+        if (env('APP_ENV') == 'rel') {
             $user_lgt = User::getLogisticUserIsOpen($id);
         } else {
-            wToast('非正式環境 無法編輯物流權限', ['type'=>'danger']);
+            wToast('非正式環境 無法編輯物流權限', ['type' => 'danger']);
         }
 
         $role_ids = Role::getUserRoles($id, 'user', function ($arr) {
@@ -203,7 +208,7 @@ class UserCtrl extends Controller
         $lgt_user = $request->input('lgt_user');
 
         //正式機才做
-        if(env('APP_ENV') == 'rel'){
+        if (env('APP_ENV') == 'rel') {
             $logisticUserApiToken = User::getLogisticApiToken($request->user()->id)->user_token;
             $modifyLogisticUser = UserProjLogistics::modifyLogisticUser($logisticUserApiToken, $id, ['user' => $lgt_user]);
             if ($modifyLogisticUser['success'] == 0) {
