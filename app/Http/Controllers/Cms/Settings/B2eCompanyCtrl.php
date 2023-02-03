@@ -3,7 +3,12 @@
 namespace App\Http\Controllers\Cms\Settings;
 
 use App\Http\Controllers\Controller;
+use App\Models\B2eCompany;
+use App\Models\SaleChannel;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Storage;
 
 class B2eCompanyCtrl extends Controller
 {
@@ -12,11 +17,15 @@ class B2eCompanyCtrl extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
+        $query = $request->query();
+        $cond['keyword'] = Arr::get($query, 'keyword');
+
+        $dataList = B2eCompany::dataList($cond['keyword'])->paginate(100)->appends($query);
         return view('cms.settings.b2e.list', [
-            'dataList' => [],
-            'data_per_page' => 10
+            'dataList' => $dataList,
+            'data_per_page' => 10,
         ]);
     }
 
@@ -27,9 +36,10 @@ class B2eCompanyCtrl extends Controller
      */
     public function create()
     {
-        //
         return view('cms.settings.b2e.edit', [
             'method' => 'create',
+            'salechannels' => SaleChannel::get(),
+            'users' => User::get(),
         ]);
     }
 
@@ -42,6 +52,41 @@ class B2eCompanyCtrl extends Controller
     public function store(Request $request)
     {
         //
+        //   dd($_POST);
+        // B2eCompany
+        $request->validate([
+            'title' => 'required',
+            'short_title' => 'required',
+            'vat_no' => 'required',
+            'contact_person' => 'required',
+        ], $_POST);
+
+        $d = $request->all();
+
+        $imgData = null;
+        if ($request->hasfile('img')) {
+            $imgData = $request->file('img')->store('idx_banner/');
+        }
+
+        B2eCompany::create([
+            "title" => $d['title'],
+            "short_title" => $d['short_title'],
+            "vat_no" => $d['vat_no'],
+            "tel" => $d['tel'],
+            "ext" => $d['ext'],
+            "contact_person" => $d['contact_person'],
+            "contact_tel" => $d['contact_tel'],
+            "contact_email" => $d['contact_email'],
+            "contract_sdate" => $d['contract_sdate'],
+            "contract_edate" => $d['contract_edate'],
+            'salechannel_id' => $d['salechannel_id'],
+            'user_id' => $d['user_id'],
+            'img' => $imgData,
+        ]);
+
+        wToast('新增完成');
+
+        return redirect(route('cms.b2e-company.index'));
     }
 
     /**
@@ -64,6 +109,18 @@ class B2eCompanyCtrl extends Controller
     public function edit($id)
     {
         //
+        $data = B2eCompany::where('id', $id)->get()->first();
+        if (!$data) {
+            return abort(404);
+        }
+
+        return view('cms.settings.b2e.edit', [
+            'method' => 'edit',
+            'salechannels' => SaleChannel::get(),
+            'users' => User::get(),
+            'data' => $data,
+        ]);
+
     }
 
     /**
@@ -76,6 +133,37 @@ class B2eCompanyCtrl extends Controller
     public function update(Request $request, $id)
     {
         //
+        $request->validate([
+            'title' => 'required',
+            'short_title' => 'required',
+            'vat_no' => 'required',
+            'contact_person' => 'required',
+        ], $_POST);
+
+        $d = $request->all();
+        $imgData = null;
+        if ($request->hasfile('img')) {
+            $imgData = $request->file('img')->store('idx_banner/');
+        }
+        B2eCompany::where('id', $id)->update([
+            "title" => $d['title'],
+            "short_title" => $d['short_title'],
+            "vat_no" => $d['vat_no'],
+            "tel" => $d['tel'],
+            "ext" => $d['ext'],
+            "contact_person" => $d['contact_person'],
+            "contact_tel" => $d['contact_tel'],
+            "contact_email" => $d['contact_email'],
+            "contract_sdate" => $d['contract_sdate'],
+            "contract_edate" => $d['contract_edate'],
+            'salechannel_id' => $d['salechannel_id'],
+            'user_id' => $d['user_id'],
+            'img' => $imgData,
+        ]);
+
+        wToast('更新完成');
+
+        return redirect(route('cms.b2e-company.index'));
     }
 
     /**
