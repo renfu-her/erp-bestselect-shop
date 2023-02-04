@@ -55,16 +55,28 @@
     });
     $('button[data-prevDay], button[data-nextDay]').off('click.days').on('click.days', function () {
         const $this = $(this);
-        const prevN = Math.abs($this.attr('data-prevDay')) || 0;
-        const nextN = Math.abs($this.attr('data-nextDay')) || 0;
+        let prevN = $this.attr('data-prevDay');
+        let nextN = $this.attr('data-nextDay');
         const now = new moment($this.siblings('.-startDate').val());
         let newDay;
 
-        if (prevN > 0) {
-            newDay = moment(now).subtract(prevN, 'days');
-        }
-        if (nextN > 0) {
-            newDay = moment(now).add(nextN, 'days');
+        if (isNaN(prevN) && isNaN(nextN)) {
+            const Key = {years: 'y', quarters: 'Q', months: 'M', weeks: 'w', days: 'd', hours: 'h', minutes: 'm', seconds: 's', milliseconds: 'ms'};
+            if (Key[prevN]) {
+                newDay = moment(now).subtract(1, prevN);
+            }
+            if (Key[nextN]) {
+                newDay = moment(now).add(1, nextN);
+            }
+        } else {
+            prevN = Math.abs(prevN) || 0;
+            nextN = Math.abs(nextN) || 0;
+            if (prevN > 0) {
+                newDay = moment(now).subtract(prevN, 'days');
+            }
+            if (nextN > 0) {
+                newDay = moment(now).add(nextN, 'days');
+            }
         }
 
         $this.siblings('.-startDate').val(newDay.format('YYYY-MM-DD'));
