@@ -73,7 +73,7 @@
                     </select>
                 </x-b-form-group>
                 <x-b-form-group name="user_id" title="業務員" required="false" class="col-12 col-sm-6">
-                    <select class="form-select" name="user_id">
+                    <select class="form-select -select2 -single" name="user_id">
                         <option value="">無</option>
                         @foreach ($users as $value)
                             <option value="{{ $value->id }}" @if ($value->id == old('user_id', $data->user_id ?? '')) selected @endif>
@@ -107,9 +107,6 @@
 @once
     @push('sub-styles')
         <style>
-            label.form-check-label[data-type]::after {
-                content: attr(data-type)
-            }
         </style>
     @endpush
     @push('sub-scripts')
