@@ -11,7 +11,7 @@
             <div class="col-auto">
                 顯示
                 <select class="form-select d-inline-block w-auto" id="dataPerPageElem" aria-label="表格顯示筆數">
-                    @foreach (config('global.dataPerPage') as $value)
+                    @foreach (config('global.dataPerPage_big') as $value)
                         <option value="{{ $value }}" @if ($data_per_page == $value) selected @endif>{{ $value }}</option>
                     @endforeach
                 </select>

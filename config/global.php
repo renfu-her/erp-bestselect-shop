@@ -2,7 +2,7 @@
 
 return [
     'dataPerPage' => [100, 200, 300],
-    'dataPerPage_big' => [50, 100, 200, 500],
+    'dataPerPage_big' => [50, 100, 200, 500, 1000],
     'weekdays' => [
         'Mon' => '星期一',
         'Tue' => '星期二',

@@ -72,8 +72,8 @@ class StockCtrl extends Controller
 
     public function historyStockDetailLog(Request $request, $depot_id, $id) {
         $query = $request->query();
-        $data_per_page = Arr::get($query, 'data_per_page', 100);
-        $data_per_page = is_numeric($data_per_page) ? $data_per_page : 100;
+        $data_per_page = Arr::get($query, 'data_per_page', 1000);
+        $data_per_page = is_numeric($data_per_page) ? $data_per_page : 1000;
 
         $productStyle = ProductStyle::where('id', $id)->get()->first();
         $product = Product::where('id', $productStyle->product_id)->get()->first();
