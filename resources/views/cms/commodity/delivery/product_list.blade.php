@@ -140,6 +140,16 @@
     <div class="card shadow p-4 mb-4">
         <div class="row justify-content-end mb-4">
             <div class="col-auto">
+                <div class="btn-group">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button"
+                        data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                        顯示欄位
+                    </button>
+                    <ul id="selectField" class="dropdown-menu">
+                    </ul>
+                </div>
+            </div>
+            <div class="col-auto">
                 顯示
                 <select class="form-select d-inline-block w-auto" id="dataPerPageElem" aria-label="表格顯示筆數">
                     @foreach (config('global.dataPerPage') as $value)
@@ -154,26 +164,29 @@
         <div class="table-responsive tableOverBox">
             <table class="table table-striped tableList">
                 <thead class="small align-middle">
-                <tr>
-                    <th scope="col" style="width:40px">#</th>
-                    <th scope="col" style="width:40px" class="text-center">編輯</th>
-                    <th scope="col">商品名稱</th>
-                    <th scope="col">出貨數量</th>
-                    <th scope="col">採購單號</th>
-                    <th scope="col">訂單號</th>
-                    <th scope="col">出貨單號</th>
-                    <th scope="col">訂單狀態</th>
-                    <th scope="col">出貨狀態</th>
-                    <th scope="col">出貨日期</th>
-                    <th scope="col">商品負責人</th>
-                    @if(null != $searchParam['search_supplier'])
-                        <th scope="col">廠商</th>
-                    @endif
-                    <th scope="col">出貨人員</th>
-                    <th scope="col">退貨</th>
-                </tr>
+                    <tr>
+                        <th scope="col" style="width:40px">#</th>
+                        <th scope="col" style="width:40px" class="text-center">編輯</th>
+                        <th scope="col">商品名稱</th>
+                        <th scope="col">出貨數量</th>
+                        <th scope="col">採購單號</th>
+                        <th scope="col">訂單號</th>
+                        <th scope="col">出貨單號</th>
+                        <th scope="col">訂單狀態</th>
+                        <th scope="col">出貨狀態</th>
+                        <th scope="col">出貨日期</th>
+                        <th scope="col">商品負責人</th>
+                        @if(null != $searchParam['search_supplier'])
+                            <th scope="col">廠商</th>
+                        @endif
+                        <th scope="col">出貨人員</th>
+                        <th scope="col">退貨</th>
+                    </tr>
                 </thead>
                 <tbody>
+                @php
+                    $sum = 0;
+                @endphp
                 @foreach ($dataList as $key => $data)
                     <tr>
                         <th scope="row">{{ $key + 1 }}</th>
@@ -195,29 +208,32 @@
                             $rcv_depot_data = (null != $data->rcv_depot_data)? json_decode($data->rcv_depot_data): null;
                         @endphp
 
-                        <td class="py-0 lh-base">
+                        <td class="py-0 lh-1">
                             <ul class="list-group list-group-flush">
                                 @if(null != $rcv_depot_data && 0 < count($rcv_depot_data))
                                     @foreach ($rcv_depot_data as $item_data)
-                                        <li class="list-group-item bg-transparent pe-1">{{ $item_data->product_title }}</li>
+                                        <li class="list-group-item bg-transparent px-1">{{ $item_data->product_title }}</li>
                                     @endforeach
                                 @endif
                             </ul>
                         </td>
-                        <td class="py-0 lh-base">
+                        <td class="py-0 lh-1 text-center">
                             <ul class="list-group list-group-flush">
                                 @if(null != $rcv_depot_data && 0 < count($rcv_depot_data))
                                     @foreach ($rcv_depot_data as $item_data)
-                                        <li class="list-group-item bg-transparent pe-1">{{ $item_data->qty }}</li>
+                                        <li class="list-group-item bg-transparent px-1">{{ $item_data->qty }}</li>
+                                        @php
+                                            $sum += $item_data->qty;
+                                        @endphp
                                     @endforeach
                                 @endif
                             </ul>
                         </td>
-                        <td class="py-0 lh-base">
+                        <td class="py-0 lh-1">
                             <ul class="list-group list-group-flush">
                                 @if(null != $rcv_depot_data && 0 < count($rcv_depot_data))
                                     @foreach ($rcv_depot_data as $item_data)
-                                        <li class="list-group-item bg-transparent pe-1">{{ $item_data->ib_source_sn }}</li>
+                                        <li class="list-group-item bg-transparent px-1">{{ $item_data->ib_source_sn }}</li>
                                     @endforeach
                                 @endif
                             </ul>
@@ -229,22 +245,22 @@
                         <td>{{ $data->logistic_status }}</td>
                         <td>{{ $data->audit_date }}</td>
 
-                        <td class="py-0 lh-base">
+                        <td class="py-0 lh-1">
                             <ul class="list-group list-group-flush">
                                 @if(null != $rcv_depot_data && 0 < count($rcv_depot_data))
                                     @foreach ($rcv_depot_data as $item_data)
-                                        <li class="list-group-item bg-transparent pe-1">{{ $item_data->prd_user_name }}</li>
+                                        <li class="list-group-item bg-transparent px-1">{{ $item_data->prd_user_name }}</li>
                                     @endforeach
                                 @endif
                             </ul>
                         </td>
 
                         @if(null != $searchParam['search_supplier'])
-                        <td class="py-0 lh-base">
+                        <td class="py-0 lh-1">
                             <ul class="list-group list-group-flush">
                                 @if(null != $rcv_depot_data && 0 < count($rcv_depot_data))
                                     @foreach ($rcv_depot_data as $item_data)
-                                        <li class="list-group-item bg-transparent pe-1">{{ $item_data->supplier_name }}</li>
+                                        <li class="list-group-item bg-transparent px-1">{{ $item_data->supplier_name }}</li>
                                     @endforeach
                                 @endif
                             </ul>
@@ -266,6 +282,9 @@
                 </tbody>
             </table>
         </div>
+        <div class="pt-3 pe-5 fw-bold text-end fs-6">
+            出貨總數：{{ $sum }}
+        </div>
     </div>
     <div class="row flex-column-reverse flex-sm-row">
         <div class="col d-flex justify-content-end align-items-center mb-3 mb-sm-0">
@@ -284,6 +303,30 @@
             $('#dataPerPageElem').on('change', function(e) {
                 $('input[name=data_per_page]').val($(this).val());
                 $('#search').submit();
+            });
+            
+            // 選擇表格顯示欄位
+            let DefHide = {};
+            try {
+                DefHide = JSON.parse(localStorage.getItem('table-hide-field')) || {};
+            } catch (error) {}
+            const Key = location.pathname;
+
+            setPrintTrCheckbox($('table.tableList'), $('#selectField'),
+                { type: 'dropdown', defaultHide: DefHide[Key] || [] }
+            );
+            // 紀錄選項
+            $('#selectField').parent().on('hidden.bs.dropdown', function () {
+                let temp = [];
+                $('#selectField input[type="checkbox"][data-nth]').each((i, elem) => {
+                    if (!$(elem).prop('checked')) {
+                        temp.push(Number($(elem).data('nth')));
+                    }
+                });
+                localStorage.setItem('table-hide-field', JSON.stringify({
+                    ...DefHide,
+                    [Key]: temp
+                }));
             });
 
             function submitAction(route, method)
