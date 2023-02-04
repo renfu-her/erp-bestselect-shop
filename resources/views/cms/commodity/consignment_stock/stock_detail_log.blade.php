@@ -1,6 +1,6 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h4 class="mb-4">{{$depot->name ?? ''}}</h4>
+    <span class="badge bg-primary mb-2"><h4 class="mb-0">{{$depot->name ?? ''}}</h4></span>
     <h2 class="mb-4">{{$title}} ({{ $productStyle->sku }})</h2>
 
     <form id="search" action="" method="GET">
@@ -37,8 +37,11 @@
                     </tr>
                 </thead>
                 <tbody>
+                    @php
+                        $sum = 0;
+                    @endphp
                  @foreach ($purchaseLog as $key =>$data)
-                     <tr>
+                    <tr>
                         <td class="wrap">
                             <div>{{date('Y/m/d', strtotime($data->created_at))}}</div>
                             <div>{{date('H:i:s', strtotime($data->created_at))}}</div>
@@ -54,9 +57,25 @@
                         <td class="text-end">{{number_format($data->qty)}}</td>
                         <td>{{$data->user_name}}</td>
                         <td>{{$data->note}}</td>
-                     </tr>
+                    </tr>
+                    @php
+                        $sum += $data->qty;
+                    @endphp
                  @endforeach
                 </tbody>
+                <tfoot>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <th>總數</th>
+                        <td class="text-end">{{ $sum }}</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </tfoot>
             </table>
         </div>
     </div>
