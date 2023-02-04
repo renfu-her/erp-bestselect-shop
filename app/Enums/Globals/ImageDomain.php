@@ -11,6 +11,8 @@ use BenSampo\Enum\Enum;
  */
 final class ImageDomain extends Enum
 {
-    const CDN = 'https://besttour-img.ittms.com.tw/';
+    //遠傳CDN伺服器壞掉，暫時使用FTP 202.168.206.100
+//    const CDN = 'https://besttour-img.ittms.com.tw/';
+    const CDN = 'https://img.bestselection.com.tw/';
     const FTP = 'https://img.bestselection.com.tw/';
 }
