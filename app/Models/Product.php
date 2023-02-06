@@ -1166,6 +1166,7 @@ class Product extends Model
             ->where('prd.public', '=', 1)
             ->where('prd.online', '=', 1)
             ->where('prd.title', 'LIKE', "%$data%")
+            ->orWhere('prd.feature', 'LIKE', "%$data%")
             ->orWhere('prd.sku', 'LIKE', "%$data%")
             ->select(
                 'active_sdate',
@@ -1229,6 +1230,7 @@ class Product extends Model
 
         $productQueries = $productQueries
             ->where('prd.title', 'LIKE', "%$data%")
+            ->orWhere('prd.feature', 'LIKE', "%$data%")
             ->orWhere('prd.sku', 'LIKE', "%$data%")
             ->leftJoin('prd_product_styles as product_style', function ($join) {
                 $join->on('product_style.product_id', '=', 'prd.id')
