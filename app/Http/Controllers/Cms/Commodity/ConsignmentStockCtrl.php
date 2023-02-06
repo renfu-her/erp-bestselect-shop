@@ -50,7 +50,10 @@ class ConsignmentStockCtrl extends Controller
         $style_id = $id;
         $logFeature = null;
         $cond = [];
-        $log_purchase = PurchaseLog::getStockDataAndEventSn(app(Consignment::class)->getTable(), [Event::consignment()->value, Event::csn_order()->value], $depot_id, $style_id, $logFeature, $cond);
+        $log_purchase = PurchaseLog::getStockDataAndEventSn(app(Consignment::class)->getTable(), [Event::consignment()->value], $depot_id, $style_id, $logFeature, $cond);
+        $log_csn_order = PurchaseLog::getStockDataAndEventSn(app(CsnOrder::class)->getTable(), [Event::csn_order()->value], $depot_id, $style_id, $logFeature, $cond);
+        $log_purchase->union($log_csn_order);
+
         $log_purchase = $log_purchase->orderByDesc('id');
         $log_purchase = $log_purchase->paginate($data_per_page)->appends($query);
         $title = $product->title. '-'. $productStyle->title;

@@ -52,7 +52,7 @@
                         </td>
                         <td>{{$data->depot_name}}</td>
                         <td class="wrap">{{$data->title}}</td>
-                        <td>{{$data->event}}</td>
+                        <td>{{$data->event_str}}</td>
                         <td class="wrap">{{$data->feature}}</td>
                         <td class="text-end">{{number_format($data->qty)}}</td>
                         <td>{{$data->user_name}}</td>

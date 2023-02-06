@@ -67,7 +67,7 @@
                         <td>{{$data->qty}}</td>
                         <td>{{$data->user_name}}</td>
                         <td>{{$data->note}}</td>
-                        <td>{{$data->event}}</td>
+                        <td>{{$data->event_str}}</td>
                         <td>{{$data->feature}}</td>
                         <td class="wrap" style="min-width:80px;">{{$data->depot_name}}</td>
                     </tr>
