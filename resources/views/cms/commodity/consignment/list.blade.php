@@ -122,6 +122,7 @@
                         <th scope="col">寄倉單號</th>
                         <th scope="col" class="text-center">編輯</th>
                         <th scope="col">寄倉出貨單號</th>
+                        <th scope="col">配送狀態</th>
 
                         <th scope="col" class="text-center">刪除</th>
                     </tr>
@@ -142,6 +143,7 @@
                                     @endcan
                                 </td>
                                 <td>{{ $data->dlv_sn }}</td>
+                                <td>{{ $data->logistic_status }}</td>
                                 <td class="text-center">
                                     @can('cms.consignment.delete')
                                         @if(\App\Enums\Consignment\AuditStatus::approved()->value != $data->audit_status)

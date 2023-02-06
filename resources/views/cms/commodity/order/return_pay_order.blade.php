@@ -31,7 +31,9 @@
             @can('cms.order.edit-item')
                 <a href="{{ Route('cms.order.edit-item', ['id' => $order->id]) }}" role="button"
                    class="btn btn-dark btn-sm my-1 ms-1">編輯訂單</a>
+            @endcan
 
+            @can('cms.collection_payment.edit_note')
                 <a href="{{ route('cms.collection_payment.edit_note', ['id' => $paying_order->id]) }}"
                     class="btn btn-dark btn-sm" role="button">編輯付款項目備註</a>
             @endcan

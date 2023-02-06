@@ -9,12 +9,12 @@
                     <div class="px-1 pt-1">
                         <div class="form-check form-check-inline">
                             <input class="form-check-input" type="radio" name="roles" id="file1" value="1"
-                                   aria-label="角色篩選">
+                                aria-label="角色篩選">
                             <label class="form-check-label" for="file1">已設定角色</label>
                         </div>
                         <div class="form-check form-check-inline">
                             <input class="form-check-input" type="radio" name="roles" id="file2" value="0"
-                                   aria-label="角色篩選">
+                                aria-label="角色篩選">
                             <label class="form-check-label" for="file2">未設定角色</label>
                         </div>
                     </div>
@@ -22,8 +22,9 @@
 
                 <div class="col-12 mb-3">
                     <label class="form-label" for="select2-multiple">角色搜尋</label>
-                    <select name="roleIds[]" id="select2-multiple" multiple class="-select2 -multiple form-select" data-placeholder="請複選">
-                        @foreach($roleData as $roleDatum)
+                    <select name="roleIds[]" id="select2-multiple" multiple class="-select2 -multiple form-select"
+                        data-placeholder="請複選">
+                        @foreach ($roleData as $roleDatum)
                             <option value="{{ $roleDatum['id'] }}">{{ $roleDatum['title'] }}</option>
                         @endforeach
                     </select>
@@ -32,13 +33,25 @@
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">姓名</label>
                     <input class="form-control" type="text" name="name" placeholder="請輸入姓名" value=""
-                           aria-label="姓名">
+                        aria-label="姓名">
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">帳號</label>
                     <input class="form-control" type="text" name="account" placeholder="請輸入帳號" value=""
-                           aria-label="帳號">
+                        aria-label="帳號">
                 </div>
+                <fieldset class="col-12 mb-3">
+                    <legend class="col-form-label p-0 mb-2">分潤申請狀態</legend>
+                    <div class="px-1 pt-1">
+                        @foreach ($profitStauts as $key => $value)
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="profit" id="profit{{ $key }}"
+                                    value="{{ $key }}">
+                                <label class="form-check-label" for="profit{{ $key }}">{{ $value }}</label>
+                            </div>
+                        @endforeach
+                    </div>
+                </fieldset>
             </div>
             <div class="col">
                 <button type="submit" class="btn btn-primary px-4">搜尋</button>
@@ -62,9 +75,10 @@
                         <th scope="col" style="width:10%;">姓名</th>
                         <th scope="col">帳號</th>
                         <th scope="col">角色</th>
-                        <th scope="col">api_token</th>
+                        <th scope="col">分潤申請</th>
                         <th scope="col" style="width:10%;">角色設定狀況</th>
                         <th scope="col" class="text-center" style="width:40px;">通路權限</th>
+
                         @can('cms.user.edit')
                             <th scope="col" class="text-center" style="width:40px;">編輯</th>
                         @endcan
@@ -82,14 +96,14 @@
                             <td>
                                 @php
                                     $roleNames = \App\Models\User::getRoleTitleByUserId($data->id);
-								@endphp
-                                @if(count($roleNames ?? []) > 0)
+                                @endphp
+                                @if (count($roleNames ?? []) > 0)
                                     @php
                                         $i = count($roleNames);
                                     @endphp
-                                    @foreach($roleNames as $roleName)
-                                            {{ $roleName->title }}
-                                        @if($i > 1)
+                                    @foreach ($roleNames as $roleName)
+                                        {{ $roleName->title }}
+                                        @if ($i > 1)
                                             {{ ',' }}
                                         @endif
                                         @php
@@ -98,7 +112,7 @@
                                     @endforeach
                                 @endif
                             </td>
-                            <td class="text-truncate" style="max-width: 3em">{{ $data->api_token }}</td>
+                            <td class="text-truncate" >{{ $data->profit_status_title }}</td>
                             <td @class(['text-danger' => is_null($data->role_ids)])>
                                 @if (is_null($data->role_ids))
                                     未設定角色

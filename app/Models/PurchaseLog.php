@@ -251,7 +251,8 @@ class PurchaseLog extends Model
                 'log.id as id'
                 , 'log.event_parent_id as event_parent_id'
                 , 'log.product_style_id as product_style_id'
-                , DB::raw('(case '. $cmd_log_event. ' else log.event end) as event')
+                , 'log.event as event'
+                , DB::raw('(case '. $cmd_log_event. ' else log.event end) as event_str')
                 , 'log.event_id as event_id'
                 , DB::raw('(case '. $cmd_log_feature. ' else log.feature end) as feature')
                 , 'log.inbound_id as inbound_id'
@@ -297,7 +298,8 @@ class PurchaseLog extends Model
                     'log.id as id'
                     , 'log.event_parent_id as event_parent_id'
                     , 'log.product_style_id as product_style_id'
-                    , DB::raw('(case '. $cmd_log_event. ' else log.event end) as event')
+                    , 'log.event as event'
+                    , DB::raw('(case '. $cmd_log_event. ' else log.event end) as event_str')
                     , 'log.event_id as event_id'
                     , DB::raw('(case '. $cmd_log_feature. ' else log.feature end) as feature')
                     , 'log.inbound_id as inbound_id'

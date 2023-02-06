@@ -162,7 +162,7 @@
             const Download_Url = @json(route('cms.edm.download'));
             const loading = new bootstrap.Modal(document.getElementById('loading'), { 
                 backdrop: 'static',
-                // keyboard: false
+                keyboard: false
             });
 
             $('.-web').on('click', function(e) {

@@ -92,6 +92,7 @@ class DeliveryProductCtrl extends Controller
                     $dlv_product_title,
                     $dlv_qty,
                     $item->audit_date,
+                    $item->depot_names,
                 ];
             }
         }
@@ -110,6 +111,7 @@ class DeliveryProductCtrl extends Controller
             '實際出貨商品',
             '實際出貨數量',
             '出貨日期',
+            '出貨倉',
         ];
 
         $export= new DeliveryProductListExport([
@@ -122,6 +124,8 @@ class DeliveryProductCtrl extends Controller
 
     private function initIndexQueryParam($query) {
         $cond = [];
+        $cond['delivery_sn'] = Arr::get($query, 'delivery_sn', null);
+        $cond['event_sn'] = Arr::get($query, 'event_sn', null);
         $cond['search_supplier'] = Arr::get($query, 'search_supplier', []);
         $cond['keyword'] = Arr::get($query, 'keyword');
         $cond['order_sdate'] = Arr::get($query, 'order_sdate', null);
