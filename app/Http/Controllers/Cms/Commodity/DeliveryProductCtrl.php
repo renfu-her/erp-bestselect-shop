@@ -92,6 +92,7 @@ class DeliveryProductCtrl extends Controller
                     $dlv_product_title,
                     $dlv_qty,
                     $item->audit_date,
+                    $item->depot_names,
                 ];
             }
         }
@@ -110,6 +111,7 @@ class DeliveryProductCtrl extends Controller
             '實際出貨商品',
             '實際出貨數量',
             '出貨日期',
+            '出貨倉',
         ];
 
         $export= new DeliveryProductListExport([

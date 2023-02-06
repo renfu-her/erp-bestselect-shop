@@ -181,6 +181,7 @@
                         @endif
                         <th scope="col">出貨人員</th>
                         <th scope="col">退貨</th>
+                        <th scope="col">出貨倉</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -277,6 +278,7 @@
                                 }
                             @endphp
                         </td>
+                        <td>{{ $data->depot_names }}</td>
                     </tr>
                 @endforeach
                 </tbody>
@@ -304,7 +306,7 @@
                 $('input[name=data_per_page]').val($(this).val());
                 $('#search').submit();
             });
-            
+
             // 選擇表格顯示欄位
             let DefHide = {};
             try {
