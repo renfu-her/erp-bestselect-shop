@@ -185,9 +185,6 @@
                     </tr>
                 </thead>
                 <tbody>
-                @php
-                    $sum = 0;
-                @endphp
                 @foreach ($dataList as $key => $data)
                     <tr>
                         <th scope="row">{{ $key + 1 }}</th>
@@ -223,9 +220,6 @@
                                 @if(null != $rcv_depot_data && 0 < count($rcv_depot_data))
                                     @foreach ($rcv_depot_data as $item_data)
                                         <li class="list-group-item bg-transparent px-1">{{ $item_data->qty }}</li>
-                                        @php
-                                            $sum += $item_data->qty;
-                                        @endphp
                                     @endforeach
                                 @endif
                             </ul>
@@ -285,7 +279,7 @@
             </table>
         </div>
         <div class="pt-3 pe-5 fw-bold text-end fs-6">
-            出貨總數：{{ $sum }}
+            出貨總數：{{ $sum_of_qty }}
         </div>
     </div>
     <div class="row flex-column-reverse flex-sm-row">

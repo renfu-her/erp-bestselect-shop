@@ -396,6 +396,7 @@ class Delivery extends Model
                 , DB::raw('DATE_FORMAT(delivery.audit_date,"%Y-%m-%d %H:%i:%s") as audit_date')
                 , DB::raw('DATE_FORMAT(delivery.created_at,"%Y-%m-%d %H:%i:%s") as created_at')
                 , DB::raw('group_concat(distinct(inbound.depot_name)) as depot_names')
+                , DB::raw('sum(rcv_depot.qty) as rcv_depot_total_qty')
             )
 
             ->whereNull('delivery.deleted_at')
@@ -583,6 +584,7 @@ class Delivery extends Model
                 , 'dlv.audit_date'
                 , 'dlv.created_at'
                 , 'dlv.rcv_depot_data'
+                , 'dlv.rcv_depot_total_qty'
                 , 'dlv.logistic_status'
                 , 'dlv.depot_names'
 
