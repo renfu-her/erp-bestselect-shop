@@ -94,6 +94,7 @@ class StockCtrl extends Controller
         $log_purchase->union($log_order);
         $log_purchase->union($log_consignment);
         $log_purchase->union($log_csn_order);
+        $sum_of_qty = $log_purchase->get()->sum('qty');
 
         $log_purchase = $log_purchase->orderByDesc('id');
         $log_purchase = $log_purchase->paginate($data_per_page)->appends($query);
@@ -105,6 +106,7 @@ class StockCtrl extends Controller
             'data_per_page' => $data_per_page,
             'productStyle' => $productStyle,
             'purchaseLog' => $log_purchase,
+            'sum_of_qty' => $sum_of_qty,
             'returnAction' => Route('cms.stock.index', [], true),
             'title' => $title,
             'breadcrumb_data' => $title,
