@@ -1163,11 +1163,21 @@ class Product extends Model
 
         // start to check 產品的上下架時間
         $activeDateQuery = DB::table('prd_products as prd')
-            ->where('prd.public', '=', 1)
-            ->where('prd.online', '=', 1)
-            ->where('prd.title', 'LIKE', "%$data%")
-            ->orWhere('prd.feature', 'LIKE', "%$data%")
-            ->orWhere('prd.sku', 'LIKE', "%$data%")
+            ->where(function ($query) use ($data){
+                $query->where('prd.public', '=', 1)
+                    ->where('prd.online', '=', 1)
+                    ->where('prd.title', 'LIKE', "%$data%");
+            })
+            ->orWhere(function ($query) use ($data){
+                $query->where('prd.public', '=', 1)
+                    ->where('prd.online', '=', 1)
+                    ->where('prd.feature', 'LIKE', "%$data%");
+            })
+            ->orWhere(function ($query) use ($data){
+                $query->where('prd.public', '=', 1)
+                    ->where('prd.online', '=', 1)
+                    ->where('prd.sku', 'LIKE', "%$data%");
+            })
             ->select(
                 'active_sdate',
                 'active_edate',
@@ -1229,9 +1239,21 @@ class Product extends Model
         }
 
         $productQueries = $productQueries
-            ->where('prd.title', 'LIKE', "%$data%")
-            ->orWhere('prd.feature', 'LIKE', "%$data%")
-            ->orWhere('prd.sku', 'LIKE', "%$data%")
+            ->where(function ($query) use ($data){
+                $query->where('prd.public', '=', 1)
+                    ->where('prd.online', '=', 1)
+                    ->where('prd.title', 'LIKE', "%$data%");
+            })
+            ->orWhere(function ($query) use ($data){
+                $query->where('prd.public', '=', 1)
+                    ->where('prd.online', '=', 1)
+                    ->where('prd.feature', 'LIKE', "%$data%");
+            })
+            ->orWhere(function ($query) use ($data){
+                $query->where('prd.public', '=', 1)
+                    ->where('prd.online', '=', 1)
+                    ->where('prd.sku', 'LIKE', "%$data%");
+            })
             ->leftJoin('prd_product_styles as product_style', function ($join) {
                 $join->on('product_style.product_id', '=', 'prd.id')
                     ->where('product_style.is_active', '=', 1);
