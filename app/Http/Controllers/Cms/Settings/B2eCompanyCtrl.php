@@ -59,6 +59,7 @@ class B2eCompanyCtrl extends Controller
             'short_title' => 'required',
             'vat_no' => 'required',
             'contact_person' => 'required',
+            'code' => ['required', 'unique:App\Models\B2eCompany'],
         ], $_POST);
 
         $d = $request->all();
@@ -81,6 +82,7 @@ class B2eCompanyCtrl extends Controller
             "contract_edate" => $d['contract_edate'],
             'salechannel_id' => $d['salechannel_id'],
             'user_id' => $d['user_id'],
+            'code' => $d['code'],
             'img' => $imgData,
         ]);
 
@@ -138,6 +140,7 @@ class B2eCompanyCtrl extends Controller
             'short_title' => 'required',
             'vat_no' => 'required',
             'contact_person' => 'required',
+            'code' => ['required', 'unique:App\Models\B2eCompany,code,'.$id.',id'],
         ], $_POST);
 
         $d = $request->all();
@@ -158,6 +161,7 @@ class B2eCompanyCtrl extends Controller
             "contract_edate" => $d['contract_edate'],
             'salechannel_id' => $d['salechannel_id'],
             'user_id' => $d['user_id'],
+            'code' => $d['code'],
             'img' => $imgData,
         ]);
 
