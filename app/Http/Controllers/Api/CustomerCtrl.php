@@ -113,12 +113,14 @@ class CustomerCtrl extends Controller
         $customer['token'] = $token->plainTextToken;
         $customer['salechannel_id'] = '';
         $customer['b2e_img'] = '';
-        
+        $customer['b2e_title'] = '';
+
         if ($customer->b2e_company_id) {
             $b2eCompany = B2eCompany::where('id', $customer->b2e_company_id)->get()->first();
             if ($b2eCompany) {
                 $customer['salechannel_id'] = $b2eCompany->salechannel_id;
                 $customer['b2e_img'] = $b2eCompany->img;
+                $customer['b2e_title'] = $b2eCompany->title;
             }
         }
 
