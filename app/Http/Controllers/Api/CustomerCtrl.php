@@ -7,6 +7,7 @@ use App\Enums\Customer\Login;
 use App\Enums\Globals\ApiStatusMessage;
 use App\Enums\Globals\ResponseParam;
 use App\Http\Controllers\Controller;
+use App\Models\B2eCompany;
 use App\Models\CouponEvent;
 use App\Models\Customer;
 use App\Models\CustomerAddress;
@@ -87,6 +88,8 @@ class CustomerCtrl extends Controller
         $data = $request->only('email', 'password');
 
         $customer = Customer::where('email', $data['email'])->get()->first();
+        //  $customer = Customer::dataList()->where('user.email', $data['email'])->get()->first();
+        //  dd($customer);
         $customer = $this->setProfit($customer);
 
         if (null == $customer
@@ -106,7 +109,18 @@ class CustomerCtrl extends Controller
 
         $scope = []; //設定令牌能力
         $token = $customer->createToken($request->device_name ?? $customer->name, $scope);
+
         $customer['token'] = $token->plainTextToken;
+        $customer['salechannel_id'] = '';
+        $customer['b2e_img'] = '';
+        
+        if ($customer->b2e_company_id) {
+            $b2eCompany = B2eCompany::where('id', $customer->b2e_company_id)->get()->first();
+            if ($b2eCompany) {
+                $customer['salechannel_id'] = $b2eCompany->salechannel_id;
+                $customer['b2e_img'] = $b2eCompany->img;
+            }
+        }
 
         return response()->json([
             ResponseParam::status()->key => ApiStatusMessage::Succeed,
