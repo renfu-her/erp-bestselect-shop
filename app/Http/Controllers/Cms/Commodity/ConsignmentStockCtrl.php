@@ -53,6 +53,7 @@ class ConsignmentStockCtrl extends Controller
         $log_purchase = PurchaseLog::getStockDataAndEventSn(app(Consignment::class)->getTable(), [Event::consignment()->value], $depot_id, $style_id, $logFeature, $cond);
         $log_csn_order = PurchaseLog::getStockDataAndEventSn(app(CsnOrder::class)->getTable(), [Event::csn_order()->value], $depot_id, $style_id, $logFeature, $cond);
         $log_purchase->union($log_csn_order);
+        $sum_of_qty = $log_purchase->get()->sum('qty');
 
         $log_purchase = $log_purchase->orderByDesc('id');
         $log_purchase = $log_purchase->paginate($data_per_page)->appends($query);
@@ -63,6 +64,7 @@ class ConsignmentStockCtrl extends Controller
             'data_per_page' => $data_per_page,
             'productStyle' => $productStyle,
             'purchaseLog' => $log_purchase,
+            'sum_of_qty' => $sum_of_qty,
             'returnAction' => Route('cms.consignment-stock.index', [], true),
             'title' => $title,
             'breadcrumb_data' => $title . ' ' . $productStyle->sku,

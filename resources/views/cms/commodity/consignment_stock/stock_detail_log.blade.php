@@ -37,9 +37,6 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @php
-                        $sum = 0;
-                    @endphp
                  @foreach ($purchaseLog as $key =>$data)
                     <tr>
                         <td class="wrap">
@@ -58,9 +55,6 @@
                         <td>{{$data->user_name}}</td>
                         <td>{{$data->note}}</td>
                     </tr>
-                    @php
-                        $sum += $data->qty;
-                    @endphp
                  @endforeach
                 </tbody>
                 <tfoot>
@@ -71,7 +65,7 @@
                         <td></td>
                         <td></td>
                         <th>總數</th>
-                        <td class="text-end">{{ $sum }}</td>
+                        <td class="text-end">{{ $sum_of_qty }}</td>
                         <td></td>
                         <td></td>
                     </tr>
