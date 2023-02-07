@@ -22,6 +22,10 @@
                     <input class="form-control @error('short_title') is-invalid @enderror" name="short_title"
                         value="{{ old('short_title', $data->short_title ?? '') }}" required />
                 </x-b-form-group>
+                <x-b-form-group name="code" title="驗證碼" required="true" class="col-12 col-sm-6">
+                    <input class="form-control @error('code') is-invalid @enderror" name="code"
+                        value="{{ old('code', $data->code ?? '') }}" required />
+                </x-b-form-group>
                 <x-b-form-group name="vat_no" title="統一編號" required="true" class="col-12 col-sm-6">
                     <input class="form-control @error('vat_no') is-invalid @enderror" name="vat_no"
                         value="{{ old('vat_no', $data->vat_no ?? '') }}" required />
