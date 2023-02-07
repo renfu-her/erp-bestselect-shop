@@ -123,27 +123,31 @@
                         <th scope="col" class="text-center">編輯</th>
                         <th scope="col">寄倉出貨單號</th>
                         <th scope="col">配送狀態</th>
+                        <th scope="col">出貨倉庫</th>
+                        <th scope="col">入庫倉庫</th>
 
                         <th scope="col" class="text-center">刪除</th>
                     </tr>
                     </thead>
                     <tbody>
-                    @if($uniqueDataList)
-                        @foreach ($uniqueDataList as $key => $data)
+                    @if($dataList)
+                        @foreach ($dataList as $key => $data)
                             <tr>
                                 <th scope="row">{{ $key + 1 }}</th>
                                 <td>{{ $data->consignment_sn }}</td>
                                 <td class="text-center">
                                     @can('cms.consignment.edit')
-                                    <a href="{{ Route('cms.consignment.edit', ['id' => $data->consignment_id], true) }}"
-                                       data-bs-toggle="tooltip" title="編輯"
-                                       class="icon icon-btn fs-5 text-primary rounded-circle border-0">
-                                        <i class="bi bi-pencil-square"></i>
-                                    </a>
+                                        <a href="{{ Route('cms.consignment.edit', ['id' => $data->consignment_id], true) }}"
+                                           data-bs-toggle="tooltip" title="編輯"
+                                           class="icon icon-btn fs-5 text-primary rounded-circle border-0">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </a>
                                     @endcan
                                 </td>
                                 <td>{{ $data->dlv_sn }}</td>
                                 <td>{{ $data->logistic_status }}</td>
+                                <td>{{ $data->send_depot_name?? '' }}</td>
+                                <td>{{ $data->receive_depot_name?? '' }}</td>
                                 <td class="text-center">
                                     @can('cms.consignment.delete')
                                         @if(\App\Enums\Consignment\AuditStatus::approved()->value != $data->audit_status)
@@ -169,24 +173,25 @@
                                             <th scope="col">寄倉日期</th>
                                             <th scope="col">寄倉數量</th>
                                             <th scope="col">入倉狀態</th>
-                                            <th scope="col">出貨倉庫</th>
-                                            <th scope="col">入庫倉庫</th>
                                         </tr>
                                         </thead>
                                         <tbody class="border-top-0">
-                                            @foreach($data->subGroups as $subGroup)
+                                        @php
+                                            $groupConcat = (null != $data->groupConcat)? json_decode($data->groupConcat): null;
+                                        @endphp
+                                        @if(isset($groupConcat))
+                                            @foreach($groupConcat as $subGroup)
                                                 <tr>
                                                     <td>{{ $subGroup->origin_inbound_sn }}</td>
                                                     <td>{{ $subGroup->title }}</td>
                                                     <td>{{ $subGroup->sku }}</td>
-                                                    <td>{{ $subGroup->audit_status_str }}</td>
+                                                    <td>{{ $subGroup->audit_status_str?? '' }}</td>
                                                     <td>{{ $subGroup->created_at }}</td>
                                                     <td>{{ $subGroup->num }}</td>
                                                     <td>{{ $subGroup->inbound_type }}</td>
-                                                    <td>{{ $subGroup->send_depot_name }}</td>
-                                                    <td>{{ $subGroup->receive_depot_name }}</td>
                                                 </tr>
                                             @endforeach
+                                        @endif
                                         </tbody>
                                     </table>
                                 </td>
