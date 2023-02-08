@@ -890,7 +890,8 @@ class CustomerCtrl extends Controller
             ]);
         }
 
-        $request->user()->update(['b2e_comapny_id' => $company->id, 'join_b2e_at' => now()]);
+        $request->user()->update(['b2e_company_id' => $company->id, 'join_b2e_at' => now()]);
+
 
         return response()->json([
             'status' => '0',
