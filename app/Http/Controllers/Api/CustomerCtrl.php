@@ -851,4 +851,38 @@ class CustomerCtrl extends Controller
 
     }
 
+    public function bindB2eCompany(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'code' => ['required'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                ResponseParam::status => ApiStatusMessage::Fail,
+                ResponseParam::msg => $validator->errors(),
+                ResponseParam::data => [],
+            ]);
+        }
+
+        $code = $request->input('code');
+
+        $company = B2eCompany::where('code', $code)->get()->first();
+
+        if (!$company) {
+            return response()->json([
+                'status' => 'E12',
+                'msg' => '無效碼',
+            ]);
+        }
+
+        $request->user()->update(['b2e_comapny_id' => $company->id, 'join_b2e_at' => now()]);
+
+        return response()->json([
+            'status' => '0',
+            'data' => ['salechannel_id' => $company->salechannel_id],
+        ]);
+
+    }
+
 }
