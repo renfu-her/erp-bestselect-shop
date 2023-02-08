@@ -85,12 +85,17 @@
                         @endforeach
                     </select>
                 </x-b-form-group>
-                <x-b-form-group name="email" title="LOGO" required="false" class="col-12">
+                <x-b-form-group name="img" title="LOGO" required="false" class="col-12 col-sm-6">
                     <input class="form-control @error('file') is-invalid @enderror" type="file" name="img"
                         accept=".jpg,.jpeg,.png,.gif">
                 </x-b-form-group>
-                <img style="max-width:100px" src="@if (true == isset($data->img)) {{ asset($data->img) }} @endif" />
-
+                @if (true == isset($data->img))
+                    <x-b-form-group title="LOGO預覽" required="false" class="col-12 col-sm-6">
+                        <div>
+                            <img style="max-width:100%" src="{{ asset($data->img) }}" />
+                        </div>
+                    </x-b-form-group>
+                @endif
             </div>
             @if ($method === 'edit')
                 <input type='hidden' name='id' value="" />
