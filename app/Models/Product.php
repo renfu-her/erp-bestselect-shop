@@ -716,6 +716,7 @@ class Product extends Model
             ->selectRaw('IF(p.feature IS NULL,"",p.feature) as _feature')
             ->selectRaw('IF(p.logistic_desc IS NULL,"",p.logistic_desc) as _logistic_desc')
             ->selectRaw('IF(p.slogan IS NULL,"",p.slogan) as _slogan')
+            ->selectRaw('IF(p.meta IS NULL,"",p.meta) as _meta')
 
             ->mergeBindings($styleQuery)
             ->mergeBindings($imgQuery)
@@ -747,7 +748,7 @@ class Product extends Model
                 "image" => [],
             ],
             "desc" => $re->_desc,
-            "meta" => $re->meta,
+            "meta" => $re->_meta,
             "spec" => [],
             "logistic_desc" => $re->_logistic_desc,
             "styles" => json_decode($re->styles),
