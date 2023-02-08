@@ -1178,7 +1178,7 @@ class Product extends Model
             ->orWhere(function ($query) use ($data) {
                 $query->where('prd.public', '=', 1)
                     ->where('prd.online', '=', 1)
-                    ->where('prd.feature', 'LIKE', "%$data%");
+                    ->where('prd.meta', 'LIKE', "%$data%");
             })
             ->orWhere(function ($query) use ($data) {
                 $query->where('prd.public', '=', 1)
@@ -1254,7 +1254,7 @@ class Product extends Model
             ->orWhere(function ($query) use ($data) {
                 $query->where('prd.public', '=', 1)
                     ->where('prd.online', '=', 1)
-                    ->where('prd.feature', 'LIKE', "%$data%");
+                    ->where('prd.meta', 'LIKE', "%$data%");
             })
             ->orWhere(function ($query) use ($data) {
                 $query->where('prd.public', '=', 1)
