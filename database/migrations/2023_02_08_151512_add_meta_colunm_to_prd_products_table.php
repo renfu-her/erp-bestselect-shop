@@ -15,7 +15,7 @@ class AddMetaColunmToPrdProductsTable extends Migration
     {
         Schema::table('prd_products', function (Blueprint $table) {
             $table->after('slogan', function ($tb) {
-                $tb->text('meta')->nullable()->comment('meta');
+                $tb->text('meta')->nullable()->comment('傳給前端當中繼說明標記,meta name:description');
             });
         });
     }
