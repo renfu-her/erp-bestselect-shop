@@ -55,6 +55,9 @@ Route::group(['prefix' => 'customer', 'as' => 'customer.', 'middleware' => ['aut
     Route::post('/default-address', [CustomerCtrl::class, 'setDefaultAddress'])->name('default_address');
     Route::post('/order-list', [OrderCtrl::class, 'orderList'])->name('order_list');
 
+    Route::post('/bind-b2e-company', [CustomerCtrl::class, 'bindB2eCompany']);
+
+
     Route::get('/logout-all', [CustomerCtrl::class, 'tokensDeleteAll']);
     Route::get('/logout', [CustomerCtrl::class, 'tokensDeleteCurrent']);
 
