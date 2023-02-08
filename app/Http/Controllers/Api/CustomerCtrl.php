@@ -880,7 +880,11 @@ class CustomerCtrl extends Controller
 
         return response()->json([
             'status' => '0',
-            'data' => ['salechannel_id' => $company->salechannel_id],
+            'data' => [
+                'salechannel_id' => $company->salechannel_id,
+                'b2e_company_id' => $company->id,
+                'b2e_title' => $company->title,
+                'b2e_img' => $company->img ? $company->img : ''],
         ]);
 
     }
