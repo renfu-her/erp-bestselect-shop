@@ -18,6 +18,7 @@ class CreateB2eCompanyTable extends Migration
             $table->string('title')->comment('企業全名');
             $table->string('short_title')->comment('企業簡稱');
             $table->string('vat_no')->comment('統編');
+            $table->string('code')->comment('驗證碼');
             $table->string('tel')->nullable()->comment('企業電話');
             $table->string('ext')->nullable()->comment('分機號碼');
             $table->string('contact_person')->comment('窗口');
