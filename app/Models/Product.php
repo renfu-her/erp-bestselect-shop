@@ -747,6 +747,7 @@ class Product extends Model
                 "image" => [],
             ],
             "desc" => $re->_desc,
+            "meta" => $re->meta,
             "spec" => [],
             "logistic_desc" => $re->_logistic_desc,
             "styles" => json_decode($re->styles),
