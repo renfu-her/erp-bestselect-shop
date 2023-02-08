@@ -82,15 +82,16 @@
                     <textarea rows="3" name="feature" class="form-control" maxlength="255" placeholder="請輸入關於產品的描述" aria-label="商品簡述">{{ old('feature', $product->feature ?? '') }}</textarea>
                 </div>
                 <div class="col-12 mb-3">
-                    <label class="form-label">meta</label>
-                    <textarea rows="3" name="meta" class="form-control"  placeholder="meta" aria-label="meta">{{ old('meta', $product->meta ?? '') }}</textarea>
+                    <label class="form-label">關鍵字（商品搜尋）</label>
+                    <input class="form-control" value="{{ old('meta', $product->meta ?? '') }}" name="meta"
+                        type="text" placeholder="請輸入產品關鍵字" aria-label="關鍵字">
                 </div>
-                <div class="col-12 col-sm-6 mb-3">
+                <div class="col-12 mb-3">
                     <label class="form-label">商品標語</label>
                     <input class="form-control" value="{{ old('slogan', $product->slogan ?? '') }}" name="slogan"
                         type="text" placeholder="請輸入商品標語" aria-label="商品標語">
                 </div>
-                <div class="col-12 col-sm-6 mb-3">
+                <div class="col-12 mb-3">
                     <label class="form-label">採購備註</label>
                     <textarea class="form-control" name="purchase_note">{{ old('purchase_note', $product->purchase_note ?? '') }}</textarea>
                 </div>
