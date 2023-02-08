@@ -37,7 +37,8 @@ class Product extends Model
         if ($keyword) {
             $re->where(function ($q) use ($keyword) {
                 $q->where('product.title', 'like', "%$keyword%")
-                    ->orWhere('product.sku', 'like', "%$keyword%");
+                    ->orWhere('product.sku', 'like', "%$keyword%")
+                    ->orWhere('product.meta', 'like', "%$keyword%");
             });
         }
 
@@ -298,7 +299,7 @@ class Product extends Model
     public static function createProduct($title,
         $user_id, $category_id, $type = 'p',
         $feature = null, $url = null, $slogan = null, $active_sdate = null,
-        $active_edate = null, $supplier = null, $has_tax = 0, $consume = 0, $public = 1, $online = 0, $offline = 0, $purchase_note = null) {
+        $active_edate = null, $supplier = null, $has_tax = 0, $consume = 0, $public = 1, $online = 0, $offline = 0, $purchase_note = null, $meta = null) {
         return IttmsDBB::transaction(function () use ($title,
             $user_id,
             $category_id,
@@ -314,7 +315,8 @@ class Product extends Model
             $public,
             $online,
             $offline,
-            $purchase_note) {
+            $purchase_note,
+            $meta) {
 
             switch ($type) {
                 case 'p':
@@ -354,6 +356,7 @@ class Product extends Model
                 'online' => $online,
                 'offline' => $offline,
                 'purchase_note' => $purchase_note,
+                'meta' => $meta,
             ])->id;
 
             if ($supplier) {
@@ -380,7 +383,8 @@ class Product extends Model
         $public = 1,
         $online = null,
         $offline = null,
-        $purchase_note = null) {
+        $purchase_note = null,
+        $meta = null) {
 
         $url = $url ? $url : $title;
 
@@ -405,6 +409,7 @@ class Product extends Model
             'online' => $online,
             'offline' => $offline,
             'purchase_note' => $purchase_note,
+            'meta' => $meta,
         ]);
 
         Supplier::updateProductSupplier($id, $supplier);
@@ -704,7 +709,7 @@ class Product extends Model
             ->leftJoin(DB::raw("({$imgQuery->toSql()}) as i"), function ($join) {
                 $join->on('p.id', '=', 'i.product_id');
             })
-            ->select(['p.id', 'p.title',
+            ->select(['p.id', 'p.title', 'p.meta',
                 'p.sku', 's.styles', 'i.imgs',
             ])
             ->selectRaw('IF(p.desc IS NULL,"",p.desc) as _desc')
@@ -1163,17 +1168,17 @@ class Product extends Model
 
         // start to check 產品的上下架時間
         $activeDateQuery = DB::table('prd_products as prd')
-            ->where(function ($query) use ($data){
+            ->where(function ($query) use ($data) {
                 $query->where('prd.public', '=', 1)
                     ->where('prd.online', '=', 1)
                     ->where('prd.title', 'LIKE', "%$data%");
             })
-            ->orWhere(function ($query) use ($data){
+            ->orWhere(function ($query) use ($data) {
                 $query->where('prd.public', '=', 1)
                     ->where('prd.online', '=', 1)
                     ->where('prd.feature', 'LIKE', "%$data%");
             })
-            ->orWhere(function ($query) use ($data){
+            ->orWhere(function ($query) use ($data) {
                 $query->where('prd.public', '=', 1)
                     ->where('prd.online', '=', 1)
                     ->where('prd.sku', 'LIKE', "%$data%");
@@ -1239,17 +1244,17 @@ class Product extends Model
         }
 
         $productQueries = $productQueries
-            ->where(function ($query) use ($data){
+            ->where(function ($query) use ($data) {
                 $query->where('prd.public', '=', 1)
                     ->where('prd.online', '=', 1)
                     ->where('prd.title', 'LIKE', "%$data%");
             })
-            ->orWhere(function ($query) use ($data){
+            ->orWhere(function ($query) use ($data) {
                 $query->where('prd.public', '=', 1)
                     ->where('prd.online', '=', 1)
                     ->where('prd.feature', 'LIKE', "%$data%");
             })
-            ->orWhere(function ($query) use ($data){
+            ->orWhere(function ($query) use ($data) {
                 $query->where('prd.public', '=', 1)
                     ->where('prd.online', '=', 1)
                     ->where('prd.sku', 'LIKE', "%$data%");
