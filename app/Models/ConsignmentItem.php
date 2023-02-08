@@ -256,11 +256,35 @@ class ConsignmentItem extends Model
         , $inbound_status = null) {
 
         $consignmentItemData = ConsignmentItem::getOriginInboundDataList();
+
+        $concatString = concatStr([
+            'id' => DB::raw('ifnull(items.id, "")'),
+            'consignment_id' => DB::raw('ifnull(items.consignment_id, "")'),
+            'product_style_id' => DB::raw('ifnull(items.product_style_id, "")'),
+            'title' => DB::raw('ifnull(items.title, "")'),
+            'sku' => DB::raw('ifnull(items.sku, "")'),
+            'price' => DB::raw('ifnull(items.price, "")'),
+            'num' => DB::raw('ifnull(items.num, "")'),
+            'memo' => DB::raw('ifnull(items.memo, "")'),
+            'created_at' => DB::raw('ifnull(DATE_FORMAT(items.created_at,"%Y-%m-%d"), "")'),
+            'updated_at' => DB::raw('ifnull(DATE_FORMAT(items.updated_at,"%Y-%m-%d"), "")'),
+            'updated_at' => DB::raw('ifnull(DATE_FORMAT(items.updated_at,"%Y-%m-%d"), "")'),
+            'origin_rcv_depot_id' => DB::raw('ifnull(items.origin_rcv_depot_id, "")'),
+            'origin_inbound_id' => DB::raw('ifnull(items.origin_inbound_id, "")'),
+            'origin_inbound_sn' => DB::raw('ifnull(items.origin_inbound_sn, "")'),
+            'inbound_user_name' => DB::raw('ifnull(items.inbound_user_name, "")'),
+            'inbound_type' => DB::raw('ifnull(items.inbound_type, "")'),
+        ]);
+
         $consignmentData  = Consignment::getDeliveryData();
         $result = DB::query()->fromSub($consignmentData, 'consignment')
             ->leftJoinSub($consignmentItemData, 'items', function($join) {
                 $join->on('items.consignment_id', '=', 'consignment.consignment_id');
             })
+            ->select('consignment.*'
+                , DB::raw($concatString . ' as groupConcat')
+            )
+            ->groupBy('consignment.consignment_id')
         ;
         if ($consignment_sn) {
             $result->where('consignment.consignment_sn', $consignment_sn);
