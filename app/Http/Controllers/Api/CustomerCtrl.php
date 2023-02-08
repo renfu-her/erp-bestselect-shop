@@ -226,7 +226,21 @@ class CustomerCtrl extends Controller
         if (isset($user)) {
             $customerProfit = CustomerProfit::getProfitData($user['id']);
             $user['profit'] = $customerProfit;
+
+            $user['salechannel_id'] = '';
+            $user['b2e_img'] = '';
+            $user['b2e_title'] = '';
+    
+            if ($user->b2e_company_id) {
+                $b2eCompany = B2eCompany::where('id', $user->b2e_company_id)->get()->first();
+                if ($b2eCompany) {
+                    $user['salechannel_id'] = $b2eCompany->salechannel_id;
+                    $user['b2e_img'] = $b2eCompany->img;
+                    $user['b2e_title'] = $b2eCompany->title;
+                }
+            }
         }
+        
         $identity = CustomerIdentity::where('customer_id', $user['id'])->where('identity_code', '<>', 'customer')->get()->first();
         $user['identity_title'] = '';
         $user['identity_code'] = '';
