@@ -153,7 +153,8 @@ class ProductCtrl extends Controller
             isset($d['public']) ? $d['public'] : '0',
             isset($d['online']) ? $d['online'] : '0',
             isset($d['offline']) ? $d['offline'] : '0',
-            $d['purchase_note']);
+            $d['purchase_note'],
+            $d['meta']);
 
         if ($request->hasfile('files')) {
             foreach (array_reverse($request->file('files')) as $file) {
@@ -260,7 +261,8 @@ class ProductCtrl extends Controller
             isset($d['public']) ? $d['public'] : '0',
             isset($d['online']) ? $d['online'] : '0',
             isset($d['offline']) ? $d['offline'] : '0',
-            $d['purchase_note']);
+            $d['purchase_note'],
+            $d['meta']);
 
         if ($request->hasfile('files')) {
             foreach (array_reverse($request->file('files')) as $file) {
