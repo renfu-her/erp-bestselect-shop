@@ -20,7 +20,10 @@ class DeliveryProductCtrl extends Controller
         $query = $request->query();
         $cond = $this->initIndexQueryParam($query);
 
-        $data_list = Delivery::getListByProduct($cond)->paginate($cond['data_per_page'])->appends($query);
+        $data_list = Delivery::getListByProduct($cond);
+        $sum_of_qty = $data_list->get()->sum('rcv_depot_total_qty');
+
+        $data_list = $data_list->paginate($cond['data_per_page'])->appends($query);
 
         $order_status = [];
         foreach (OrderStatus::asArray() as $item) {
@@ -28,6 +31,7 @@ class DeliveryProductCtrl extends Controller
         }
         return view('cms.commodity.delivery.product_list', [
             'dataList' => $data_list,
+            'sum_of_qty' => $sum_of_qty,
             'searchParam' => $cond,
             'logisticStatus' => LogisticStatus::asArray(),
             'order_status' => $order_status,
@@ -92,6 +96,7 @@ class DeliveryProductCtrl extends Controller
                     $dlv_product_title,
                     $dlv_qty,
                     $item->audit_date,
+                    $item->depot_names,
                 ];
             }
         }
@@ -110,6 +115,7 @@ class DeliveryProductCtrl extends Controller
             '實際出貨商品',
             '實際出貨數量',
             '出貨日期',
+            '出貨倉',
         ];
 
         $export= new DeliveryProductListExport([
