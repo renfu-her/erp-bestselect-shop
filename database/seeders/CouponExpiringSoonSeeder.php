@@ -17,13 +17,10 @@ class CouponExpiringSoonSeeder extends Seeder
     public function run()
     {
         $result = DB::table('usr_customer_coupon as coupon')
-
             ->leftJoin('usr_customers as customer', 'customer.id', '=', 'coupon.customer_id')
             ->where('coupon.used', '=', 0)
             ->where('coupon.active_edate', '>', '2023-02-10')
-//            ->where('coupon.active_edate', '<', '2023-02-17')
-            ->where('coupon.active_edate', '<', '2023-02-21')
-            ->where('customer.id', '=', 5)
+            ->where('coupon.active_edate', '<', '2023-02-17')
             ->select(
                 'coupon.*'
                 , 'customer.email'
