@@ -79,9 +79,9 @@
                                 <i class="bi bi-info-circle" data-bs-toggle="tooltip"
                                     title="預設：(售價-經銷價) × {{ App\Enums\Customer\Bonus::bonus()->value }}"></i>
                             </th>
-                            <th class="text-end">鴻利抵扣
+                            <th class="text-end">購物金抵扣
                                 <i class="bi bi-info-circle" data-bs-toggle="tooltip"
-                                    title="此設定顯示於顧客購買結帳頁面商品可使用之鴻利上限。預設：售價 × 各通路可抵扣上限"></i>
+                                    title="此設定顯示於顧客購買結帳頁面商品可使用之購物金上限。預設：售價 × 各通路可抵扣上限"></i>
                             </th>
                         </thead>
                         <tbody>
