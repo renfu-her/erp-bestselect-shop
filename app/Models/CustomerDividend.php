@@ -54,7 +54,7 @@ class CustomerDividend extends Model
             'flag_title' => DividendFlag::NonActive()->description,
             'weight' => 0,
             'type' => 'get',
-            'note' => '由'.$order_sn.'訂單取得'
+            'note' => '由' . $order_sn . '訂單取得',
         ])->id;
 
         return $id;
@@ -165,9 +165,24 @@ class CustomerDividend extends Model
                 'error_status' => 'dividend'];
         }
 
+        /*
         $d = self::where('customer_id', $customer_id)
+        ->whereIn('flag', [DividendFlag::Active(), DividendFlag::Back()])
+        ->orderBy('weight', 'ASC')
+        ->get()->toArray();
+         */
+
+        $d = self::select(['*'])
+            ->selectRaw('CASE category
+                    WHEN "cyberbiz" THEN 2
+                    WHEN "order" THEN 3
+                    WHEN "m_b2e" THEN 1
+                    WHEN "m_b2c" THEN 0 END as w')
+            ->where('customer_id', $customer_id)
             ->whereIn('flag', [DividendFlag::Active(), DividendFlag::Back()])
-            ->orderBy('weight', 'ASC')
+            ->orderBy('w', 'ASC')
+            ->orderByRaw('CASE WHEN active_edate is null then 1 else 0 end ASC')
+            ->orderBy('active_edate', 'ASC')
             ->get()->toArray();
 
         $remain_dividend = $order['use_dividend'];
@@ -263,7 +278,7 @@ class CustomerDividend extends Model
             'flag_title' => DividendFlag::Discount()->description,
             'weight' => 0,
             'type' => 'used',
-            'note' => '由'.$order['order_sn']."訂單使用"
+            'note' => '由' . $order['order_sn'] . "訂單使用",
         ])->id;
         DB::commit();
         return ['success' => '1', 'id' => $id];
