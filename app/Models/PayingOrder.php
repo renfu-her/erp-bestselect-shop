@@ -240,7 +240,7 @@ class PayingOrder extends Model
                     pcs_paying_orders.source_id,
                     CONCAT(\'[\', GROUP_CONCAT(\'{
                         "product_owner":"\', "", \'",
-                        "title":"\', COALESCE(pcs_paying_orders.summary, ""), \'",
+                        "title":"\', COALESCE(replace(pcs_paying_orders.summary, \'\"\', \'\\\"\'), ""), \'",
                         "sku":"\', "", \'",
                         "all_grades_id":"\', pcs_paying_orders.product_grade_id, \'",
                         "grade_code":"\', COALESCE(grade.code, ""), \'",
@@ -364,7 +364,7 @@ class PayingOrder extends Model
                     so_item.stitute_order_id,
                     CONCAT(\'[\', GROUP_CONCAT(\'{
                             "product_owner":"\', "", \'",
-                            "title":"\', so_item.summary, \'",
+                            "title":"\', COALESCE(replace(so_item.summary, \'\"\', \'\\\"\'), ""), \'",
                             "sku":"\', "", \'",
                             "all_grades_id":"\', so_item.grade_id, \'",
                             "grade_code":"\', COALESCE(grade.code, ""), \'",
