@@ -547,7 +547,7 @@
                             <input class="form-check-input -auto-send" type="checkbox" name="" value=""
                                 @if ($order->auto_dividend == '1') checked @endif
                                 @if ($order->allotted_dividend) disabled @endif>
-                            鴻利、優惠劵自動發放
+                            購物金、優惠劵自動發放
                         </label>
                     </div>
                     @if ($order->allotted_dividend === 0)
@@ -561,7 +561,7 @@
                 <div class="table-responsive">
                     <table class="table table-bordered text-center align-middle d-sm-table d-none text-nowrap">
                         @if (!$order->allotted_dividend)
-                            <caption class="small text-end">鴻利預計發放時間：
+                            <caption class="small text-end">購物金預計發放時間：
                                 @if (isset($order->dividend_active_at))
                                     {{ date('Y/m/d H:i', strtotime($order->dividend_active_at)) }}
                                 @else
@@ -579,10 +579,10 @@
                                 <td class="col-2">總金額</td>
                                 <td class="col-2 lh-sm">
                                     @if ($order->allotted_dividend)
-                                        獲得<a href="{{ route('cms.sale_channel.index') }}" class="-text">鴻利</a>
+                                        獲得<a href="{{ route('cms.sale_channel.index') }}" class="-text">購物金</a>
                                     @else
                                         預計獲得<a href="{{ route('cms.sale_channel.index') }}"
-                                            class="-text d-block d-xxl-inline">鴻利點數</a>
+                                            class="-text d-block d-xxl-inline">購物金</a>
                                     @endif
                                 </td>
                             </tr>
@@ -604,7 +604,7 @@
                     </table>
                     <table class="table table-bordered table-sm text-center align-middle d-table d-sm-none">
                         @if (!$order->allotted_dividend)
-                            <caption class="small text-end">鴻利預計發放時間：
+                            <caption class="small text-end">購物金預計發放時間：
                                 @if (isset($order->dividend_active_at))
                                     {{ date('Y/m/d H:i', strtotime($order->dividend_active_at)) }}
                                 @else
@@ -637,9 +637,9 @@
                             <tr>
                                 <td class="col-7 table-light lh-sm">
                                     @if ($order->allotted_dividend)
-                                        獲得<a href="{{ route('cms.sale_channel.index') }}" class="-text">鴻利</a>
+                                        獲得<a href="{{ route('cms.sale_channel.index') }}" class="-text">購物金</a>
                                     @else
-                                        預計獲得<a href="{{ route('cms.sale_channel.index') }}" class="-text">鴻利點數</a>
+                                        預計獲得<a href="{{ route('cms.sale_channel.index') }}" class="-text">購物金</a>
                                     @endif
                                 </td>
                                 <td class="text-end pe-4">
@@ -852,9 +852,9 @@
                     if (result.data.status === '0') {
                         setAutoSend(active);
                         if (active) {
-                            toast.show('鴻利改為自動發放');
+                            toast.show('購物金改為自動發放');
                         } else {
-                            toast.show('鴻利改為手動發放', {
+                            toast.show('購物金改為手動發放', {
                                 type: 'warning'
                             });
                         }
@@ -885,7 +885,7 @@
                     }).then((result) => {
                         console.log(result.data);
                         if (result.data.status === '0') {
-                            toast.show('已發放鴻利、優惠劵');
+                            toast.show('已發放購物金、優惠劵');
                             $('.badge.bg-secondary').removeClass('bg-secondary')
                                 .addClass('bg-success').text('已發');
                             $('input.-auto-send').prop('disabled', true);

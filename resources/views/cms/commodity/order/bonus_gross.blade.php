@@ -49,7 +49,7 @@
             <div class="table-responsive">
                 <table class="table table-bordered text-center align-middle d-sm-table d-none text-nowrap mb-1 caption-top">
                     @if (!$order->allotted_dividend)
-                        <caption class="small text-end py-0">鴻利預計發放時間：
+                        <caption class="small text-end py-0">購物金預計發放時間：
                             @if (isset($order->dividend_active_at))
                                 {{ date('Y/m/d H:i', strtotime($order->dividend_active_at)) }}
                             @else
@@ -67,10 +67,10 @@
                             <td class="col-2">總金額</td>
                             <td class="col-2 lh-sm">
                                 @if ($order->allotted_dividend)
-                                    獲得<a href="{{ route('cms.sale_channel.index') }}" class="-text">鴻利</a>
+                                    獲得<a href="{{ route('cms.sale_channel.index') }}" class="-text">購物金</a>
                                 @else
                                     預計獲得<a href="{{ route('cms.sale_channel.index') }}"
-                                        class="-text d-block d-xxl-inline">鴻利點數</a>
+                                        class="-text d-block d-xxl-inline">購物金</a>
                                 @endif
                             </td>
                         </tr>
@@ -102,7 +102,7 @@
                 </table>
                 <table class="table table-bordered table-sm text-center align-middle d-table d-sm-none mb-0">
                     @if (!$order->allotted_dividend)
-                        <caption class="small text-end pb-0">鴻利預計發放時間：
+                        <caption class="small text-end pb-0">購物金預計發放時間：
                             @if (isset($order->dividend_active_at))
                                 {{ date('Y/m/d H:i', strtotime($order->dividend_active_at)) }}
                             @else
@@ -135,9 +135,9 @@
                         <tr>
                             <td class="col-7 table-warning lh-sm">
                                 @if ($order->allotted_dividend)
-                                    獲得<a href="{{ route('cms.sale_channel.index') }}" class="-text">鴻利</a>
+                                    獲得<a href="{{ route('cms.sale_channel.index') }}" class="-text">購物金</a>
                                 @else
-                                    預計獲得<a href="{{ route('cms.sale_channel.index') }}" class="-text">鴻利點數</a>
+                                    預計獲得<a href="{{ route('cms.sale_channel.index') }}" class="-text">購物金</a>
                                 @endif
                             </td>
                             <td class="text-end pe-4">

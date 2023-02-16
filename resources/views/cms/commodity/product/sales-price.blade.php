@@ -45,11 +45,12 @@
         <div class="card shadow p-4 mb-4">
             <h6 class="d-flex align-items-center">售價資訊
                 <button id="batch_price" type="button" class="ms-4 btn btn-sm btn-primary">一鍵產生價格</button>
-                <a class="ms-2" data-bs-toggle="popover" title="一鍵產生價格" data-bs-trigger="focus" tabindex="0"
+                <a class="ms-1" data-bs-toggle="popover" title="一鍵產生價格" data-bs-trigger="focus" tabindex="0" data-bs-placement="top"
                     data-bs-content="以黃底通路為基準，一次產生未設定價格 (已設定則不變)：售價=基準價*銷售通路折扣設定 / 經銷價、定價=基準價"><i class="bi bi-question-circle"></i>
                 </a>
-                <a href="{{ Route('cms.product.batch-product-style-price', ['id' => $style['product_id'], 'sid' => $style['id']]) }}" class="btn btn-outline-success">
-                    <i class="bi"></i> 同步所有通路（售價/經銷價/訂價/獎金/鴻利點數）
+                <a href="{{ Route('cms.product.batch-product-style-price', ['id' => $style['product_id'], 'sid' => $style['id']]) }}" 
+                    class="btn btn-outline-success btn-sm ms-4" data-bs-toggle="tooltip" title="售價/經銷價/定價/獎金/購物金抵扣" data-bs-placement="right">
+                    同步所有通路資料
                 </a>
             </h6>
             <div class="table-responsive tableOverBox">
@@ -65,9 +66,9 @@
                                 <i class="bi bi-info-circle" data-bs-toggle="tooltip"
                                     title="預設：(售價-經銷價) × {{ App\Enums\Customer\Bonus::bonus()->value }}"></i>
                             </th>
-                            <th scope="col">鴻利抵扣
+                            <th scope="col">購物金抵扣
                                 <i class="bi bi-info-circle" data-bs-toggle="tooltip" 
-                                    title="此設定顯示於顧客購買結帳頁面商品可使用之鴻利上限，若要調整上限請至【設定】→【銷售通路管理】編輯。預設：售價 × 各通路可抵扣上限"></i>
+                                    title="此設定顯示於顧客購買結帳頁面商品可使用之購物金上限，若要調整上限請至【設定】→【銷售通路管理】編輯。預設：售價 × 各通路可抵扣上限"></i>
                             </th>
                         </tr>
                     </thead>
@@ -159,7 +160,7 @@
                 const dealer_price = $target.closest('tr').find('input[name="dealer_price[]"]').val() || 0;
                 $target.closest('tr').find('input[name="bonus[]"]').val(Math.floor((price - dealer_price) * BonusRate));
             }
-            // 計算 鴻利
+            // 計算 購物金
             function sumPoints($target) {
                 const price = Number($target.val()) || 0;
                 let dividend = Number($target.closest('tr').find('input[name$="dividend[]"]').data('default')) || 0;
