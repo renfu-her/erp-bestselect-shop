@@ -13,7 +13,7 @@
         <div class="card shadow p-4 mb-4">
             <div class="col-12 mb-3">
                 <label class="form-label">組合包名稱 <span class="text-danger">*</span></label>
-                <input class="form-control @error('title')is-invalid @enderror" name="title" type="text" maxlength="30"
+                <input class="form-control @error('title')is-invalid @enderror" name="title" type="text" maxlength="100"
                     value="{{ old('title', $data->title ?? '') }}" aria-label="組合包名稱"
                     @if ($sku) disabled @else required @endif />
                 @error('title')

@@ -11,6 +11,6 @@ use BenSampo\Enum\Enum;
  */
 final class ImageDomain extends Enum
 {
-    const CDN = 'https://images-besttour.cdn.hinet.net/';
+    const CDN = 'https://edgio-cdn-pix.besttour.com.tw/';
     const FTP = 'https://img.bestselection.com.tw/';
 }

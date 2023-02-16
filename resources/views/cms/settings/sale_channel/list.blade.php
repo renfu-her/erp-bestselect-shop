@@ -11,7 +11,7 @@
                 @endcan
 {{--                @can('cms.sale_channel.edit')--}}
 {{--                    <a href="{{ Route('cms.sale_channel.batch-all-price') }}" class="btn btn-outline-success">--}}
-{{--                        <i class="bi"></i> 同步所有通路（官網售價/經銷價/訂價/獎金/鴻利點數）--}}
+{{--                        <i class="bi"></i> 同步所有通路（官網售價/經銷價/訂價/獎金/購物金）--}}
 {{--                    </a>--}}
 {{--                @endcan--}}
             </div>
@@ -25,7 +25,7 @@
                         <th scope="col">通路名稱</th>
                         <th scope="col">庫存類型</th>
                         <th scope="col">銷售類型</th>
-                        <th scope="col">鴻利點數</th>
+                        <th scope="col">購物金</th>
                         <th scope="col">折扣</th>
                         <th scope="col" class="text-center">同步價格</th>
                         <th scope="col" class="text-center">編輯</th>
@@ -89,14 +89,14 @@
     <div class="card shadow p-4 mb-4">
         <form action="{{ route('cms.sale_channel.update-dividend-setting') }}" method="post">
             @csrf
-            <h6>鴻利點數設定</h6>
+            <h6>購物金設定</h6>
             <div class="row g-1 align-items-center mb-4">
                 <div class="col-auto">
-                    <label class="col-form-label">每筆鴻利有效天數：</label>
+                    <label class="col-form-label">每筆購物金有效天數：</label>
                 </div>
                 <div class="col-auto">
                     <input type="number" name="limit_day" value="{{ $dividend_setting->limit_day }}"
-                        class="form-control short-input text-center" aria-describedby="鴻利有效天數">
+                        class="form-control short-input text-center" aria-describedby="購物金有效天數">
                 </div>
                 <div class="col-auto">
                     <label class="col-form-label">天</label>
@@ -105,7 +105,7 @@
                     <span class="form-text">（設 0 則為永久有效）</span>
                 </div>
             </div>
-            <h6>鴻利點數、優惠劵設定</h6>
+            <h6>購物金、優惠劵設定</h6>
             <div class="row g-1 align-items-center mb-4">
                 <div class="col-auto">
                     <label class="col-form-label">
@@ -114,7 +114,7 @@
                 </div>
                 <div class="col-auto">
                     <input type="number" name="auto_active_day" value="{{ $dividend_setting->auto_active_day }}"
-                        class="form-control short-input text-center" aria-describedby="自動發放鴻利天數">
+                        class="form-control short-input text-center" aria-describedby="自動發放購物金天數">
                 </div>
                 <div class="col-auto">
                     <label class="col-form-label">天</label>

@@ -220,6 +220,7 @@
     "Unable to proceed the transaction.": "無法處理的狀態",
     "The payment has been expired.": "付款時限已過",
     "The payment is expired.": "付款時限已過",
+    "Expired the payment date.": "付款時限已過",
     "The payment amount must be less than 0.": "付款金額不能小於 0",
     "The payment amount should be greater than 0.": "付款金額不能小於 0",
     "The payment amount exceeds requested amount.": "付款金額比付款申請時候的金額還大",

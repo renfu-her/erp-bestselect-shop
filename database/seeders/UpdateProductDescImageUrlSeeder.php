@@ -11,7 +11,7 @@ use simplehtmldom\HtmlDocument;
 class UpdateProductDescImageUrlSeeder extends Seeder
 {
     /**
-     * 把產品描述的圖片連結從CDN連結更新成使用FTP（202.168.206.100)img.bestselection.com.tw
+     * 把產品描述的圖片連結從images-besttour.cdn.hinet.net改成edgio-cdn-pix.besttour.com.tw
      * @return void
      */
     public function run()
@@ -28,10 +28,10 @@ class UpdateProductDescImageUrlSeeder extends Seeder
             if ($productDatum->desc){
                 print_r('id:' . ($prdKey + 1));
                 $descHTML = (new HtmlDocument())->load($productDatum->desc);
-                $descImages = $descHTML->find('img[src^="https://besttour-img.ittms.com.tw/"]');
+                $descImages = $descHTML->find('img[src^="https://images-besttour.cdn.hinet.net/"]');
                 foreach ($descImages as $key => $descImage) {
-                    preg_match('~^https://besttour-img.ittms.com.tw/(.*)~', $descImage->src, $matchSubUrl);
-                    $descImage->src = ImageDomain::FTP . $matchSubUrl[1];
+                    preg_match('~^https://images-besttour.cdn.hinet.net/(.*)~', $descImage->src, $matchSubUrl);
+                    $descImage->src = ImageDomain::CDN . $matchSubUrl[1];
                 }
                 Product::where('id', $productDatum->id)
                         ->update([

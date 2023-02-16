@@ -68,9 +68,9 @@
                                 <th scope="col">可售數量</th>
                                 <th scope="col">安全庫存</th>
                                 <!-- <th scope="col">庫存不足</th> -->
-                                <th scope="col">鴻利抵扣
+                                <th scope="col">購物金抵扣
                                     <i class="bi bi-info-circle" data-bs-toggle="tooltip"
-                                        title="此設定顯示於顧客購買結帳頁面商品可使用之鴻利上限。預設：售價 × {{ $salechannel->dividend_limit / 100 }}"></i>
+                                        title="此設定顯示於顧客購買結帳頁面商品可使用之購物金上限。預設：售價 × {{ $salechannel->dividend_limit / 100 }}"></i>
                                 </th>
                             </tr>
                         </thead>
@@ -333,7 +333,7 @@
             });
 
             // 計算 獎金 = (售價-經銷價) × BonusRate
-            // 計算 鴻利 = 售價 × (saleChannel.dividend_limit / 100)
+            // 計算 購物金 = 售價 × (saleChannel.dividend_limit / 100)
             // $prefix: sk_ | nsk_ | n_
             bindCalculate();
 
@@ -349,7 +349,7 @@
                         $this.closest('tr').find('input[name$="_bonus[]"]').val(Math.floor((price - dealer_price) *
                             BonusRate));
                     });
-                // 鴻利
+                // 購物金
                 $('input[name="sk_price[]"], input[name="nsk_price[]"], input[name="n_price[]"]').off('change.point')
                     .on('change.point', function() {
                         const $this = $(this);
