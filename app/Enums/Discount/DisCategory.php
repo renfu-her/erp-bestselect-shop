@@ -20,6 +20,7 @@ final class DisCategory extends Helper
     const m_b2e = 'm_b2e';
     const m_b2c = 'm_b2c';
     const m_b2b = 'm_b2b';
+    const m_b2ec = 'm_b2ec';
 
     public static function getDescription($value): string
     {
@@ -36,6 +37,9 @@ final class DisCategory extends Helper
                 break;
             case self::m_b2b:
                 $result = '旅遊同業紅利折扣';
+                break;
+            case self::m_b2ec:
+                $result = '旅遊企業個人紅利折扣';
                 break;
             case self::coupon:
                 $result = '優惠券';
