@@ -8,8 +8,10 @@ use Illuminate\Http\Request;
 
 class ErpTravelCtrl extends Controller
 {
+
+    private $radioOptions = ['0' => "關閉", '1' => "啟用"];
     /**
-     * Display a listing of the resource.
+     * Display a listing of the resource.Ｆ
      *
      * @return \Illuminate\Http\Response
      */
@@ -32,6 +34,11 @@ class ErpTravelCtrl extends Controller
     public function create()
     {
         //
+        return view('cms.settings.erp_travel.edit', [   
+            'method' => 'create',
+            'formAction' => route('cms.erp-travel.create'),
+            'radioOptions' => $this->radioOptions,
+        ]);
     }
 
     /**
@@ -43,6 +50,18 @@ class ErpTravelCtrl extends Controller
     public function store(Request $request)
     {
         //
+
+          //
+       $re =  ErpTravel::updateData($request->input('login_name'), $request->all());
+       //  dd($_POST);
+     
+       if($re['status']=='0'){
+           wToast('存擋完成');
+       }else{
+           wToast('失敗');
+       }
+
+       return redirect(route('cms.erp-travel.index'));
     }
 
     /**
@@ -65,14 +84,16 @@ class ErpTravelCtrl extends Controller
     public function edit($id)
     {
         $data = ErpTravel::getUsers($id);
+
         if (!$data) {
             return abort(400);
         }
-        dd($data);
+        //  dd($data);
         return view('cms.settings.erp_travel.edit', [
-            "data" => $data,
+            "data" => $data[0],
             'method' => 'edit',
             'formAction' => route('cms.erp-travel.edit', ['id' => $id]),
+            'radioOptions' => $this->radioOptions,
         ]);
 
     }
@@ -87,6 +108,16 @@ class ErpTravelCtrl extends Controller
     public function update(Request $request, $id)
     {
         //
+       $re =  ErpTravel::updateData($request->input('login_name'), $request->all());
+        //  dd($_POST);
+      
+        if($re['status']=='0'){
+            wToast('存擋完成');
+        }else{
+            wToast('失敗');
+        }
+
+        return redirect(route('cms.erp-travel.index'));
     }
 
     /**

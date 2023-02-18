@@ -29,8 +29,6 @@
                         <th scope="col">agt_flag</th>
                         <th scope="col">flag_package</th>
                         <th scope="col">flag_ship</th>
-                        <th scope="col">member_count</th>
-                        <th scope="col">flag_discount</th>
                         <th scope="col">flag_tax</th>
                         <th scope="col">sales_type</th>
                     </tr>
@@ -81,16 +79,7 @@
                                     {{ $data['flag_ship'] }}
                                 @endif
                             </td>
-                            <td>
-                                @if (isset($data['member_count']))
-                                    {{ $data['member_count'] }}
-                                @endif
-                            </td>
-                            <td>
-                                @if (isset($data['flag_discount']))
-                                    {{ $data['flag_discount'] }}
-                                @endif
-                            </td>
+                          
                             <td>
                                 @if (isset($data['flag_tax']))
                                     {{ $data['flag_tax'] }}
