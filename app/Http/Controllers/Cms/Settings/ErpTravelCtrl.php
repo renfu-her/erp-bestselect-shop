@@ -19,10 +19,13 @@ class ErpTravelCtrl extends Controller
     {
         //
 
-        //  dd(ErpTravel::getUsers());
+        $re = ErpTravel::getUsers();
+        if (isset($re['status'])) {{
+            dd($re);
+        }}
 
         return view('cms.settings.erp_travel.list', [
-            "dataList" => ErpTravel::getUsers(),
+            "dataList" => $re,
         ]);
     }
 
@@ -34,7 +37,7 @@ class ErpTravelCtrl extends Controller
     public function create()
     {
         //
-        return view('cms.settings.erp_travel.edit', [   
+        return view('cms.settings.erp_travel.edit', [
             'method' => 'create',
             'formAction' => route('cms.erp-travel.create'),
             'radioOptions' => $this->radioOptions,
@@ -51,17 +54,17 @@ class ErpTravelCtrl extends Controller
     {
         //
 
-          //
-       $re =  ErpTravel::updateData($request->input('login_name'), $request->all());
-       //  dd($_POST);
-     
-       if($re['status']=='0'){
-           wToast('存擋完成');
-       }else{
-           wToast('失敗');
-       }
+        //
+        $re = ErpTravel::updateData($request->input('login_name'), $request->all());
+        //  dd($_POST);
 
-       return redirect(route('cms.erp-travel.index'));
+        if ($re['status'] == '0') {
+            wToast('存擋完成');
+        } else {
+            wToast('失敗');
+        }
+
+        return redirect(route('cms.erp-travel.index'));
     }
 
     /**
@@ -108,12 +111,12 @@ class ErpTravelCtrl extends Controller
     public function update(Request $request, $id)
     {
         //
-       $re =  ErpTravel::updateData($request->input('login_name'), $request->all());
+        $re = ErpTravel::updateData($request->input('login_name'), $request->all());
         //  dd($_POST);
-      
-        if($re['status']=='0'){
+
+        if ($re['status'] == '0') {
             wToast('存擋完成');
-        }else{
+        } else {
             wToast('失敗');
         }
 
