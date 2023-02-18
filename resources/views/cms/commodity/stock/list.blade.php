@@ -170,7 +170,7 @@
                         <th scope="col">倉庫名稱</th>
                         <th scope="col" class="wrap lh-sm -sm text-center">理貨倉庫存</th>
                         <th scope="col" class="wrap lh-sm text-center" style="min-width:50px">寄倉庫存</th>
-                        <th scope="col" class="wrap lh-sm -sm text-center">官網可售數量(超賣)</th>
+                        <th scope="col" class="wrap lh-sm -sm text-center">官網可售數量<br>含(超賣)</th>
                         <th scope="col" class="wrap lh-sm -sm text-center">被組合數量</th>
                         <th scope="col" class="wrap lh-sm -sm text-center">待出貨</th>
                         <!--<th scope="col">預扣庫存</th>-->
