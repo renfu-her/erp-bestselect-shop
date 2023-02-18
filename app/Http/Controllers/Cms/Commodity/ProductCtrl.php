@@ -162,7 +162,7 @@ class ProductCtrl extends Controller
         if ($request->hasfile('files')) {
             foreach (array_reverse($request->file('files')) as $file) {
 
-                $img = self::imgResize($file->path(), $file->hashName());
+                $img = self::imgResize($file->path());
                 $filename = self::imgFilename($re['id'], $file->hashName());
 
                 if (App::environment(AppEnvClass::Release)) {
@@ -280,7 +280,7 @@ class ProductCtrl extends Controller
         if ($request->hasfile('files')) {
             foreach (array_reverse($request->file('files')) as $file) {
 
-                $img = self::imgResize($file->path(), $file->hashName());
+                $img = self::imgResize($file->path());
                 $filename = self::imgFilename($id, $file->hashName());
 
                 if (App::environment(AppEnvClass::Release)) {
@@ -1122,16 +1122,14 @@ class ProductCtrl extends Controller
         return Excel::download($export, 'product_infor.xlsx');
     }
 
-    private static function imgResize($path, $fileHashName)
+    private static function imgResize($path)
     {
-       dd($path);
         try {
             $asdf = Image::make($path)
                 ->resize(640, 640, function ($constraint) {
                     $constraint->aspectRatio();
                     $constraint->upsize();
-//                })->encode('webp', 90)->save($path);
-                })->encode('webp', 90)->save(public_path('temp/'. explode('.', $fileHashName)[0].'.webp'));
+                })->encode('webp', 90);
         } catch (\Exception $e) {
             dd($e);
             return false;
