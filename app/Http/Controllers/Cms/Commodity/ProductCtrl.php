@@ -1124,11 +1124,19 @@ class ProductCtrl extends Controller
 
     private static function imgResize($path)
     {
-        return Image::make($path)
-            ->resize(640, 640, function ($constraint) {
-                $constraint->aspectRatio();
-                $constraint->upsize();
-            })->encode('webp', 90)->save();
+//        dd($path);
+        try {
+            $asdf = Image::make($path)
+                ->resize(640, 640, function ($constraint) {
+                    $constraint->aspectRatio();
+                    $constraint->upsize();
+//                })->encode('webp', 90)->save($path);
+                })->encode('webp', 90)->save(public_path('temp/'. '12asdfas.webp'));
+        } catch (\Exception $e) {
+            dd($e);
+            return false;
+        }
+        return $asdf;
     }
 
     private static function imgFilename($product_id, $fileHashName)
