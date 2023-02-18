@@ -1124,7 +1124,7 @@ class ProductCtrl extends Controller
 
     private static function imgResize($path, $fileHashName)
     {
-       dd($path);
+      // dd($path);
         try {
             $asdf = Image::make($path)
                 ->resize(640, 640, function ($constraint) {
