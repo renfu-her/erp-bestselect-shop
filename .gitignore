@@ -8,7 +8,7 @@
 /public/idx_banner
 /public/edm
 /public/fonts/vendor
-/public/tmep
+/public/temp
 /storage/*.key
 /vendor
 .env
