@@ -16,6 +16,7 @@ final class DividendCategory extends Enum
     const M_b2e = 'm_b2e';
     const M_b2c = 'm_b2c';
     const M_b2b = 'm_b2b';
+    const M_b2ec = 'm_b2ec';
 
     public static function getDescription($value): string
     {
@@ -34,6 +35,9 @@ final class DividendCategory extends Enum
                 break;
             case self::M_b2b:
                 $result = '旅遊同業紅利折扣';
+                break;
+            case self::M_b2ec:
+                $result = '企業會員個人紅利折扣';
                 break;
             default:
                 return parent::getDescription($value);
