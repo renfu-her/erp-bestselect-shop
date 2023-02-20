@@ -31,7 +31,6 @@ use App\Models\GeneralLedger;
 use App\Models\Logistic;
 use App\Models\LogisticFlow;
 use App\Models\Order;
-use App\Models\OrderCart;
 use App\Models\OrderFlow;
 use App\Models\OrderInvoice;
 use App\Models\OrderInvoiceAllowance;
@@ -221,24 +220,26 @@ class OrderCtrl extends Controller
 
         $query = $request->query();
         $cart = null;
+        /*
         if (old('product_style_id')) {
-            $oldData = [];
-            foreach (old('product_style_id') as $key => $v) {
-                $oldData[] = [
-                    'product_id' => old('product_id')[$key],
-                    'product_style_id' => $v,
-                    'shipment_type' => old('shipment_type')[$key],
-                    'shipment_event_id' => old('shipment_event_id')[$key],
-                    'qty' => old('qty')[$key],
-                ];
-            }
+        $oldData = [];
+        foreach (old('product_style_id') as $key => $v) {
+        $oldData[] = [
+        'product_id' => old('product_id')[$key],
+        'product_style_id' => $v,
+        'shipment_type' => old('shipment_type')[$key],
+        'shipment_event_id' => old('shipment_event_id')[$key],
+        'qty' => old('qty')[$key],
+        ];
+        }
 
-            $cart = OrderCart::cartFormater($oldData, old('salechannel_id'), null, false);
-            if ($cart['success'] != 1) {
-                dd($cart);
-            }
+        $cart = OrderCart::cartFormater($oldData, old('salechannel_id'), null, false);
+        if ($cart['success'] != 1) {
+        dd($cart);
+        }
 
         }
+         */
 
         $overbought_id = old('overbought_id');
 
@@ -248,15 +249,18 @@ class OrderCtrl extends Controller
             'rec' => [],
         ];
 
+        /*
+
         if (old('sed_city_id')) {
-            $regions['sed'] = Addr::getRegions(old('sed_city_id'));
+        $regions['sed'] = Addr::getRegions(old('sed_city_id'));
         }
         if (old('ord_city_id')) {
-            $regions['ord'] = Addr::getRegions(old('ord_city_id'));
+        $regions['ord'] = Addr::getRegions(old('ord_city_id'));
         }
         if (old('rec_city_id')) {
-            $regions['rec'] = Addr::getRegions(old('rec_city_id'));
+        $regions['rec'] = Addr::getRegions(old('rec_city_id'));
         }
+         */
 
         $customer = $request->user();
         $customer_id = $customer->customer_id;
@@ -480,6 +484,9 @@ class OrderCtrl extends Controller
                         $errors['item'] = '購買超過上限';
                         $addInput['overbought_id'] = array_keys($re['error_msg'])[0];
                     }
+                    break;
+                case "total_price":
+                    $errors['total_price'] = $re['error_msg'];
                     break;
             }
         }
@@ -2692,9 +2699,9 @@ class OrderCtrl extends Controller
         }
         $inv_allowance = OrderInvoiceAllowance::where([
             'id' => $allowance_id,
-            'invoice_id' => $id
+            'invoice_id' => $id,
         ])->first();
-        if(! $inv_allowance){
+        if (!$inv_allowance) {
             return abort(404);
         }
 
