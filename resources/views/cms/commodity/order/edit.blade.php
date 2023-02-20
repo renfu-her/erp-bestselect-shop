@@ -403,6 +403,9 @@
                         </tbody>
                     </table>
                 </div>
+                <div id="overminAlert" class="alert alert-danger m-0" role="alert" hidden>
+                    實付金額不可低於10元，請調整購物金抵扣或優惠劵，謝謝
+                </div>
             </div>
             <div class="col-auto">
                 <a href="{{ Route('cms.order.index') }}" class="btn btn-outline-primary px-4" role="button">返回列表</a>
@@ -1036,7 +1039,7 @@
                 });
             });
             
-
+            const MIN_PAY_SUM = 10;
             let addProductModal = new bootstrap.Modal(document.getElementById('addProduct'));
             let setShipmentModal = new bootstrap.Modal(document.getElementById('setShipment'), {
                 backdrop: 'static',
@@ -1228,6 +1231,7 @@
                     if (!$('.-cloneElem.--selectedP').length) {
                         $('#STEP_1 .-next_step').prop('disabled', true);
                         $('#customer, #salechannel').prop('disabled', false);
+                        $('#overminAlert').prop('hidden', true);
                     }
                 }
             };
@@ -2342,7 +2346,7 @@
                 const $bonus = $(`#${ship_key} input.-bonus_point`);
                 let bonus = Number($bonus.val());
                 const max = calc_maxPoint(ship_key);
-                const totalUse = calc_AllUsePoint() + bonus;
+                const totalUse = calc_AllUsePoint() - myCart[ship_key].point + bonus;
                 let valid_cls = '';
                 $(`#${ship_key} input.-bonus_point`).removeClass('is-invalid is-valid');
 
@@ -2521,6 +2525,15 @@
                 $('#Total_price td[data-td="sum"]').text(`$${formatNumber(all_sum)}`);
                 appendDiscountOverview();
 
+                // 總金額 <10 不可訂購
+                if (all_sum < MIN_PAY_SUM) {
+                    $('#STEP_1 .-next_step').prop('disabled', true);
+                    $('#overminAlert').prop('hidden', false);
+                } else {
+                    $('#STEP_1 .-next_step').prop('disabled', false);
+                    $('#overminAlert').prop('hidden', true);
+                }
+
                 return {
                     all_total,
                     all_discount,
@@ -2572,6 +2585,7 @@
             if (!$('.-cloneElem.--selectedP').length) {
                 $('#STEP_1 .-next_step').prop('disabled', true);
                 $('#customer, #salechannel').prop('disabled', false);
+                $('#overminAlert').prop('hidden', true);
             }
 
             // 第一步-下一步
