@@ -1244,8 +1244,19 @@ return [
 
         ],
     ],
+    [
+        "unit" => "團控查詢帳號",
+        "permissions" => [
+            [
+                "cms.erp-travel.index",
+                "瀏覽",
+            ],
+            [
+                "cms.erp-travel.edit",
+                "編輯",
+            ],
 
-
-
+        ],
+    ],
 
 ];
