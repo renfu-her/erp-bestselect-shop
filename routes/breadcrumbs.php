@@ -1502,3 +1502,20 @@ Breadcrumbs::for('cms.onepage.edit', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.onepage.index');
     $trail->push('修改');
 });
+
+// 團控
+
+Breadcrumbs::for('cms.erp-travel.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('團控查詢帳號');
+});
+
+Breadcrumbs::for('cms.erp-travel.edit', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.erp-travel.index');
+    $trail->push('編輯');
+});
+
+Breadcrumbs::for('cms.erp-travel.create', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.erp-travel.index');
+    $trail->push('新增');
+});
