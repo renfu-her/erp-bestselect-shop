@@ -15,7 +15,9 @@ class ImgStroageCtrl extends Controller
     public function index(Request $request)
     {
         //
-        dd($request->user()->name);
+       // dd($request->user()->name);
+     //  resources\views\cms\settings\img_storage\index
+        view('cms.settings.img_storage.index');
     }
 
     /**
