@@ -198,7 +198,7 @@ class Discount extends Model
         // dd($re->get()->toArray());
     }
 
-    public static function createDiscount($title, $min_consume, DisMethod $method, $value, $start_date = null, $end_date = null, $is_grand_total = 0, $collection_ids = [])
+    public static function createDiscount($title, $min_consume, DisMethod $method, $value, $start_date = null, $end_date = null, $is_grand_total = 0, $collection_ids = [], $mail_subject = '', $mail_content = '')
     {
         if (count($collection_ids) > 0) {
             $is_global = 0;
@@ -212,6 +212,8 @@ class Discount extends Model
             'is_grand_total' => $is_grand_total,
             'min_consume' => $min_consume,
             'is_global' => $is_global,
+            'mail_subject' => $mail_subject,
+            'mail_content' => $mail_content,
         ]);
 
         $id = self::create($data)->id;
@@ -221,10 +223,9 @@ class Discount extends Model
 
     }
 
-    public static function createCoupon($title, $min_consume, DisMethod $method, $value, $is_grand_total = 0, $collection_ids = [], $life_cycle = 0)
+    public static function createCoupon($title, $min_consume, DisMethod $method, $value, $is_grand_total = 0, $collection_ids = [], $life_cycle = 0, $mail_subject = '', $mail_content = '')
     {
-
-        $result = IttmsDBB::transaction(function () use ($title, $min_consume, $method, $value, $is_grand_total, $collection_ids, $life_cycle) {
+        $result = IttmsDBB::transaction(function () use ($title, $min_consume, $method, $value, $is_grand_total, $collection_ids, $life_cycle, $mail_subject, $mail_content) {
             if (count($collection_ids) > 0) {
                 $is_global = 0;
             } else {
@@ -245,6 +246,8 @@ class Discount extends Model
                 'is_global' => $is_global,
                 'life_cycle' => $life_cycle,
                 'sn' => $sn,
+                'mail_subject' => $mail_subject,
+                'mail_content' => $mail_content,
             ]);
 
             $id = self::create($data)->id;
@@ -257,10 +260,10 @@ class Discount extends Model
 
     }
 
-    public static function createCode($sn, $title, $min_consume, DisMethod $method, $value, $start_date = null, $end_date = null, $is_grand_total = 1, $collection_ids = [], $max_usage = 0)
+    public static function createCode($sn, $title, $min_consume, DisMethod $method, $value, $start_date = null, $end_date = null, $is_grand_total = 1, $collection_ids = [], $max_usage = 0, $mail_subject = '', $mail_content = '')
     {
 
-        IttmsDBB::transaction(function () use ($sn, $title, $min_consume, $method, $value, $is_grand_total, $collection_ids, $start_date, $end_date, $max_usage) {
+        IttmsDBB::transaction(function () use ($sn, $title, $min_consume, $method, $value, $is_grand_total, $collection_ids, $start_date, $end_date, $max_usage, $mail_subject, $mail_content) {
             if (count($collection_ids) > 0) {
                 $is_global = 0;
             } else {
@@ -275,6 +278,8 @@ class Discount extends Model
                 'start_date' => $start_date,
                 'end_date' => $end_date,
                 'max_usage' => $max_usage,
+                'mail_subject' => $mail_subject,
+                'mail_content' => $mail_content,
             ]);
 
             $id = self::create($data)->id;
@@ -445,6 +450,12 @@ class Discount extends Model
         }
         if (isset($options['max_usage'])) {
             $data['max_usage'] = $options['max_usage'];
+        }
+        if (isset($options['mail_subject'])) {
+            $data['mail_subject'] = $options['mail_subject'];
+        }
+        if (isset($options['mail_content'])) {
+            $data['mail_content'] = $options['mail_content'];
         }
 
         return $data;
