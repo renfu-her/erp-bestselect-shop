@@ -97,14 +97,16 @@
                         </table>
                     </div>
                     <div style="margin-top: 10px;text-align: center;">
-                        <span style="margin-right: 20px;">
-                            總筆數：9（共 3 頁）
-                            <select name="">
-                                <option value="1">第 1 頁</option>
-                                <option value="2">第 2 頁</option>
-                                <option value="3">第 3 頁</option>
-                            </select>
-                        </span>
+                        {{-- @if (按查詢後) --}}
+                            <span style="margin-right: 20px;">
+                                總筆數：9（共 3 頁）
+                                <select name="">
+                                    <option value="1">第 1 頁</option>
+                                    <option value="2">第 2 頁</option>
+                                    <option value="3">第 3 頁</option>
+                                </select>
+                            </span>
+                        {{-- @endif --}}
                         <button type="submit" style="padding:1px 15px;">查詢</button>
                     </div>
                 </form>
