@@ -124,7 +124,7 @@ class DiscountExpiringCtrl extends Controller
                         $mail_content = $customer_coupon->mail_content;
 
                         $replace = [
-                            '{$active_edate}' => $customer_coupon->active_edate,
+                            '{$active_edate}' => date('Y-m-d', strtotime($customer_coupon->active_edate)),
                             '{$name}' => $customer->name,
                             '{$email}' => $customer->email,
                             '{$sn}' => $order_sn,
