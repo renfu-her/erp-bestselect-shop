@@ -121,17 +121,21 @@ class DiscountExpiringCtrl extends Controller
                         $customer = Customer::find($customer_coupon->customer_id);
                         $order_sn = $customer_coupon->from_order_id ? Order::find($customer_coupon->from_order_id)->sn : '';
 
-                        $mail_content = $customer_coupon->mail_content;
-
-                        $replace = [
-                            '{$active_edate}' => date('Y-m-d', strtotime($customer_coupon->active_edate)),
-                            '{$name}' => $customer->name,
-                            '{$email}' => $customer->email,
-                            '{$sn}' => $order_sn,
+                        $se = [
+                            '{$active_edate}',
+                            '{$name}',
+                            '{$email}',
+                            '{$sn}',
                         ];
-                        foreach($replace as $key => $value){
-                            $mail_content = str_replace($key, $value, $mail_content);
-                        }
+
+                        $re = [
+                            date('Y-m-d', strtotime($customer_coupon->active_edate)),
+                            $customer->name,
+                            $customer->email,
+                            $order_sn,
+                        ];
+
+                        $mail_content = str_replace($se, $re, $customer_coupon->mail_content);
 
                         Mail::send('emails.discount_expiring.notice', [
                             'mail_content' => $mail_content,
