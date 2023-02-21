@@ -115,6 +115,7 @@ Route::group(['prefix' => 'cms', 'as' => 'cms.', 'middleware' => 'auth:user'], f
     require base_path('routes/cms/Edm.php');
     require base_path('routes/cms/OnePage.php');
     
+    require base_path('routes/cms/ImgStorage.php');
 
     Route::get('reverse-bind-page/{sn}', [PetitionCtrl::class, 'reverseBindPage'])->name('reverse-bind-page');
     Route::post('reverse-bind-page/{sn}', [PetitionCtrl::class, 'reverseBindPageUpdate']);
