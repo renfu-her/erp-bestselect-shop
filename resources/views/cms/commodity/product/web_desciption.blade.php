@@ -10,7 +10,7 @@
             <div class="d-flex align-items-center mb-4">
                 <h6 class="mb-0">商品介紹（網頁）</h6>
                 <a href="{{  route('cms.img-storage.index') }}" 
-                    class="btn btn-outline-primary -in-header ms-4" target="_blank">
+                    class="btn btn-outline-success -in-header ms-4" target="_blank">
                     <i class="bi bi-upload"></i> 上傳圖片
                 </a>
             </div>
