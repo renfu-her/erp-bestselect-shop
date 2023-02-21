@@ -115,7 +115,7 @@ class DiscountExpiringCtrl extends Controller
         $compare = array_diff(request('selected'), request('id'));
         if(count($compare) == 0){
             try {
-                // if(env('APP_ENV') == 'rel'){
+                if(env('APP_ENV') == 'rel'){
                     foreach (request('id') as $key => $value) {
                         $customer_coupon = CustomerCoupon::find($value);
                         $customer = Customer::find($customer_coupon->customer_id);
@@ -144,7 +144,7 @@ class DiscountExpiringCtrl extends Controller
                             'mail_sended_at' => date('Y-m-d H:i:s'),
                         ]);
                     }
-                // }
+                }
 
                 wToast(__('到期通知信寄送成功'));
 
