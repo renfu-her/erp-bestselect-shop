@@ -225,6 +225,7 @@
                         <th scope="col">收件人姓名</th>
                         <th scope="col">收件人地址</th>
                         <th scope="col">產品名稱</th>
+                        <th scope="col">數量</th>
                         <th scope="col">退貨</th>
                     </tr>
                 </thead>
@@ -273,9 +274,16 @@
                             <td>{{ $data->rec_address }}</td>
                             <td class="py-0 lh-base">
                                 <ul class="list-group list-group-flush">
-                                @foreach($data->productTitles as $productTitle)
-                                    <li class="list-group-item bg-transparent pe-1">{{ $productTitle->product_title }}</li>
+                                @foreach($data->products as $product)
+                                    <li class="list-group-item bg-transparent pe-1">{{ $product->product_title }}</li>
                                 @endforeach
+                                </ul>
+                            </td>
+                            <td class="py-0 lh-base">
+                                <ul class="list-group list-group-flush">
+                                    @foreach($data->products as $product)
+                                        <li class="list-group-item bg-transparent pe-1">{{ $product->qty }}</li>
+                                    @endforeach
                                 </ul>
                             </td>
                             <td>

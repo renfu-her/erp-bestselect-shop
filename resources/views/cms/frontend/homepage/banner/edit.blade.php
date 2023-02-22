@@ -145,11 +145,11 @@
                             <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
                                 aria-valuenow="1" aria-valuemin="0" aria-valuemax="100" style="width: 1%"></div>
                         </div>
-                        <input type="file" name="img_pc" accept=".jpg,.jpeg,.png,.gif" hidden @if ($method === 'create') required @endif>
+                        <input type="file" name="img_pc" accept=".jpg,.jpeg,.png,.bmp" hidden @if ($method === 'create') required @endif>
                         <input type="hidden" name="del_img_pc">
                     </label>
                 </div>
-                <p><mark>圖片尺寸建議：1200x400px，不超過3000KB，可上傳JPG/ JPEG/ PNG/ GIF格式</mark></p>
+                <p><mark>圖片尺寸建議：1200x400px，不超過3000KB，可上傳JPG/ JPEG/ PNG/ BMP格式</mark></p>
                 @error('files')
                 <div class="alert alert-danger" role="alert">{{ $message }}</div>
                 @enderror

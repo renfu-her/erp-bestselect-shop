@@ -84,9 +84,9 @@ class DeliveryCtrl extends Controller
         foreach ($delivery as $deliveryDatum) {
             if (!in_array($deliveryDatum->sub_order_id, $subOrderIdArray)){
                 $subOrderIdArray[] = $deliveryDatum->sub_order_id;
-                $deliveryDatum->productTitles = DB::table('ord_items')
+                $deliveryDatum->products = DB::table('ord_items')
                     ->where('sub_order_id', $deliveryDatum->sub_order_id)
-                    ->select('product_title')
+                    ->select('product_title', 'qty')
                     ->get();
                 $uniqueSubOrderDataList[] = $deliveryDatum;
             }

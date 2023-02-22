@@ -24,10 +24,10 @@
                     <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
                         aria-valuenow="1" aria-valuemin="0" aria-valuemax="100" style="width: 1%"></div>
                 </div>
-                <input type="file" name="logo" accept=".jpg,.jpeg,.png,.gif" hidden>
+                <input type="file" name="logo" accept=".jpg,.jpeg,.png,.bmp" hidden>
             </label>
         </div>
-        <p><mark>圖片尺寸建議：165×50px，不超過1MB，可上傳JPG/ JPEG/ PNG/ GIF格式</mark></p>
+        <p><mark>圖片尺寸建議：165×50px，不超過1MB，可上傳JPG/ JPEG/ PNG/ BMP格式</mark></p>
         <!-- Logo end -->
 
         <!-- 關鍵字 -->
