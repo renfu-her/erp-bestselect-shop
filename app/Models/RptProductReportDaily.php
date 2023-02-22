@@ -73,6 +73,7 @@ class RptProductReportDaily extends Model
             ->selectRaw('SUM(item.qty * item.price - item.qty * style.estimated_cost) as gross_profit')
             ->whereNotNull('ro.receipt_date')
             ->whereBetween('ro.receipt_date', [$sdate, $edate])
+            ->where('ro.source_type', 'ord_orders')
             ->groupBy('date')
             ->groupBy('product.id')
             ->groupBy('style.id')

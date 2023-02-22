@@ -91,6 +91,7 @@ class RptUserReportMonthly extends Model
             ->leftJoin('ord_received_orders as ro', 'order.id', '=', 'ro.source_id')
             ->select('order.id')
             ->whereBetween('ro.receipt_date', [$sdate, $edate]) 
+            ->where('ro.source_type', 'ord_orders')
             ->get()
             ->toArray();
 
