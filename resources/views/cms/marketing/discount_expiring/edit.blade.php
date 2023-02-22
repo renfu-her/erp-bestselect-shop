@@ -78,8 +78,7 @@
                     selection.removeAllRanges();
                     selection.addRange(range);
                 }
-                document.execCommand('Copy');
-                toast.show('已複製至剪貼簿', { type: 'success' });
+                copyToClipboard(range.toString());
             })
         </script>
     @endpush
