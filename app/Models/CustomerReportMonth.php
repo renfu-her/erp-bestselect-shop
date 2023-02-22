@@ -33,6 +33,7 @@ class CustomerReportMonth extends Model
             ->where('order.payment_status', PaymentStatus::Received())
             ->whereBetween('ro.receipt_date', [$sdate, $edate])
             ->whereNotNull('order.mcode')
+            ->where('ro.source_type', 'ord_orders')
             ->groupBy('order.mcode')->get();
 
         $currentDate = Date("Y-m-1", strtotime($sdate));

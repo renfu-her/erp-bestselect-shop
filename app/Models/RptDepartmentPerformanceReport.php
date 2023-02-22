@@ -46,6 +46,7 @@ class RptDepartmentPerformanceReport extends Model
                 ->selectRaw('SUM(order.total_price) as total_price')
                 ->whereBetween('ro.receipt_date', [$sdate, $edate])
                 ->where('organize.id', "<>", 0)
+                ->where('ro.source_type', 'ord_orders')
                 ->groupBy('dd')
                 ->groupBy('organize.id');
 
