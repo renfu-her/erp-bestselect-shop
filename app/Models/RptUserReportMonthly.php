@@ -58,7 +58,8 @@ class RptUserReportMonthly extends Model
             ->leftJoin('prd_sale_channels as sale_channel', 'sale_channel.id', '=', 'order.sale_channel_id')
             ->select(['order.sn', 'order.id', 'order.origin_price', 'order.gross_profit', 'sale_channel.sales_type'])
             ->whereBetween('ro.receipt_date', [$sdate, $edate])
-            ->where('order.status_code', 'received');
+            ->where('order.status_code', 'received')
+            ->where('ro.source_type', 'ord_orders');
 
         if (isset($options['user_id'])) {
             $re->leftJoin('usr_customers as customer', 'order.mcode', '=', 'customer.sn')
