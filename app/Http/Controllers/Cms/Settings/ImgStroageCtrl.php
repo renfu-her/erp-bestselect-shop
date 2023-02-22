@@ -54,7 +54,7 @@ class ImgStroageCtrl extends Controller
     {
 
         $request->validate([
-            'file' => 'mimes:jpg,jpeg,png,bmp|required',
+            'file' => 'max:5000000|mimes:jpg,jpeg,png,bmp|required',
         ]);
         $img = self::imgResize($request->file('file')->path());
 
