@@ -93,7 +93,8 @@ class CustomerCoupon extends Model
         $is_global = null,
         $mail_sended = 'all',
         $start_date = null,
-        $end_date = null
+        $end_date = null,
+        $customer_coupon_id = null
     ) {
 
         $now = date('Y-m-d H:i:s');
@@ -214,6 +215,14 @@ class CustomerCoupon extends Model
 
         if ($end_date) {
             $query->where('u_coupon.active_edate', '<=', $end_date . ' 23:59:59');
+        }
+
+        if ($customer_coupon_id) {
+            if (is_array($customer_coupon_id)) {
+                $query->whereIn('u_coupon.id', $customer_coupon_id);
+            } else {
+                $query->where('u_coupon.id', $customer_coupon_id);
+            }
         }
 
         return $query;

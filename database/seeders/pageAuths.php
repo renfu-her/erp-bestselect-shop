@@ -959,6 +959,19 @@ return [
         ],
     ],
     [
+        "unit" => "優惠劵到期通知",
+        "permissions" => [
+            [
+                "cms.discount_expiring.index",
+                "瀏覽",
+            ],
+            [
+                "cms.discount_expiring.edit",
+                "編輯",
+            ],
+        ],
+    ],
+    [
         "unit" => "優惠劵/代碼",
         "permissions" => [
             [

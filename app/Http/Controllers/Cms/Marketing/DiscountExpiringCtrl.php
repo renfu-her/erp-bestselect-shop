@@ -12,9 +12,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 
-use App\Models\Customer;
 use App\Models\CustomerCoupon;
-use App\Models\Order;
 
 
 class DiscountExpiringCtrl extends Controller
@@ -45,6 +43,7 @@ class DiscountExpiringCtrl extends Controller
                 $cond['mail_sended'],
                 $cond['start_date'],
                 $cond['end_date'],
+                null
             )->paginate($data_per_page)->appends($query);
 
         $cond['method_code'] = $cond['method_code'] ? $cond['method_code'] : [];
@@ -116,37 +115,63 @@ class DiscountExpiringCtrl extends Controller
         if(count($compare) == 0){
             try {
                 if(env('APP_ENV') == 'rel'){
-                    foreach (request('id') as $key => $value) {
-                        $customer_coupon = CustomerCoupon::find($value);
-                        $customer = Customer::find($customer_coupon->customer_id);
-                        $order_sn = $customer_coupon->from_order_id ? Order::find($customer_coupon->from_order_id)->sn : '';
+                    $data_list = CustomerCoupon::discount_expiring(
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            'all',
+                            null,
+                            null,
+                            request('id')
+                        )->get();
 
-                        $se = [
-                            '{$active_edate}',
-                            '{$name}',
-                            '{$email}',
-                            '{$sn}',
-                        ];
+                    foreach ($data_list as $key => $value) {
+                        if($value->mail_subject && $value->mail_content){
+                            $customer_coupon = CustomerCoupon::find($value->id);
 
-                        $re = [
-                            date('Y-m-d', strtotime($customer_coupon->active_edate)),
-                            $customer->name,
-                            $customer->email,
-                            $order_sn,
-                        ];
+                            if ($value->method_code == 'cash') {
+                                $d_value = '$' . number_format($value->discount_value);
+                            } else if($value->method_code == 'percent') {
+                                $d_value = $value->discount_value . '%';
+                            } else if($value->method_code == 'coupon') {
+                                $d_value = $value->coupon_title;
+                            }
 
-                        $mail_content = str_replace($se, $re, $customer_coupon->mail_content);
+                            $search = [
+                                '{$active_edate}',
+                                '{$name}',
+                                '{$email}',
+                                '{$sn}',
+                                '{$title}',
+                                '{$c_title}',
+                                '{$d_value}',
+                            ];
 
-                        Mail::send('emails.discount_expiring.notice', [
-                            'mail_content' => $mail_content,
-                        ], function($mail) use ($customer_coupon, $customer) {
-                            $mail->to($customer->email);
-                            $mail->subject($customer_coupon->mail_subject);
-                        });
+                            $replace = [
+                                date('Y-m-d', strtotime($value->active_edate)),
+                                $value->name,
+                                $value->email,
+                                $value->from_order_sn,
+                                $value->title,
+                                $value->category_title,
+                                $d_value,
+                            ];
 
-                        $customer_coupon->update([
-                            'mail_sended_at' => date('Y-m-d H:i:s'),
-                        ]);
+                            $mail_content = str_replace($search, $replace, $value->mail_content);
+
+                            Mail::send('emails.discount_expiring.notice', [
+                                'mail_content' => $mail_content,
+                            ], function($mail) use ($value) {
+                                $mail->to($value->email);
+                                $mail->subject($value->mail_subject);
+                            });
+
+                            $customer_coupon->update([
+                                'mail_sended_at' => date('Y-m-d H:i:s'),
+                            ]);
+                        }
                     }
                 }
 
