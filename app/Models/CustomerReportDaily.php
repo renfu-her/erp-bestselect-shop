@@ -25,6 +25,7 @@ class CustomerReportDaily extends Model
             ->selectRaw('SUM(order.total_price) as price')
             ->where('order.payment_status', PaymentStatus::Received())
             ->whereBetween('ro.receipt_date', [$sdate, $edate])
+            ->where('ro.source_type', 'ord_orders')
             ->whereNotNull('order.mcode')
             ->groupBy('order.mcode')->get();
 
