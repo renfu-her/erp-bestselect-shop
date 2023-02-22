@@ -29,7 +29,16 @@
                             <li><code class="border border-secondary">{$email}</code> - 消費者Email</li>
                         </div>
                         <div class="col-12 col-sm-6">
-                            <li><code class="border border-secondary">{$sn}</code> - 訂單編號</li>
+                            <li><code class="border border-secondary">{$sn}</code> - 發送優專券訂單編號</li>
+                        </div>
+                        <div class="col-12 col-sm-6">
+                            <li><code class="border border-secondary">{$title}</code> - 優惠券活動名稱</li>
+                        </div>
+                        <div class="col-12 col-sm-6">
+                            <li><code class="border border-secondary">{$c_title}</code> - 優惠類型</li>
+                        </div>
+                        <div class="col-12 col-sm-6">
+                            <li><code class="border border-secondary">{$d_value}</code> - 優惠內容</li>
                         </div>
                     </div>
                 </div>
