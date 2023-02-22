@@ -647,6 +647,17 @@ Breadcrumbs::for('cms.delivery.roe-po-create', function (BreadcrumbTrail $trail,
  * 行銷設定
  **/
 
+// 優惠劵到期通知
+Breadcrumbs::for('cms.discount_expiring.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('優惠劵到期通知');
+});
+Breadcrumbs::for('cms.discount_expiring.edit', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('優惠劵到期通知', route('cms.discount_expiring.index'));
+    $trail->push('編輯優惠劵到期通知信');
+});
+
 // 全館優惠
 Breadcrumbs::for('cms.discount.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');

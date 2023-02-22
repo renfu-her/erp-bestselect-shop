@@ -103,6 +103,11 @@ return
         "menu_id" => "8",
         "child" => [
             [
+                "title" => "優惠劵到期通知",
+                "controller_name" => "DiscountExpiringCtrl",
+                "route_name" => "cms.discount_expiring.index",
+            ],
+            [
                 "title" => "優惠劵 / 代碼",
                 "controller_name" => "PromoCtrl",
                 "route_name" => "cms.promo.index",
