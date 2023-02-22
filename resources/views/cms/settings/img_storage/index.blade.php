@@ -57,7 +57,8 @@
         <div id="main">
             <div style="flex: 50%;min-width:390px;background-color: #fffde7;">
                 <h2>圖片上傳</h2>
-                <form action="" method="post">
+                <form action="{{ route("cms.img-storage.create") }}" method="post" enctype="multipart/form-data">
+                    @csrf
                     <div style="padding: 0 5px;">
                         <table style="width:700px; max-width:100%;margin:auto;" border="1" cellspacing="0">
                             <tr>
@@ -67,7 +68,7 @@
                             <tr>
                                 <td style="" class="title">選擇檔案</td>
                                 <td>
-                                    <input type="file" name="" accept=".jpg,.jpeg,.png,.gif" style="width:100%;">
+                                    <input type="file" name="file" accept=".jpg,.jpeg,.png,.gif" style="width:100%;">
                                 </td>
                             </tr>
                         </table>
@@ -79,19 +80,19 @@
             </div>
             <div style="flex: 50%;min-width:390px;">
                 <h2>圖片檢視</h2>
-                <form action="" method="post">
+                <form action="" method="get">
                     <div style="padding: 0 5px;">
                         <table style="width:700px; max-width:100%;margin:auto;" border="1" cellspacing="0">
                             <tr>
                                 <td style="" class="title">上傳人員</td>
                                 <td>
-                                    <input type="text" name="" value="{{ $user }}" style="width:calc(100% - 8px);">
+                                    <input type="text" name="user_name" value="{{ $user }}" style="width:calc(100% - 8px);">
                                 </td>
                             </tr>
                             <tr>
                                 <td style="" class="title">上傳日期</td>
                                 <td>
-                                    <input type="date" name="" value="">～<input type="date" name="" value="">
+                                    <input type="date" name="sDate" value="">～<input type="date" name="eDate" value="">
                                 </td>
                             </tr>
                         </table>
@@ -99,11 +100,11 @@
                     <div style="margin-top: 10px;text-align: center;">
                         {{-- @if (按查詢後) --}}
                             <span style="margin-right: 20px;">
-                                總筆數：9（共 3 頁）
-                                <select name="">
-                                    <option value="1">第 1 頁</option>
-                                    <option value="2">第 2 頁</option>
-                                    <option value="3">第 3 頁</option>
+                                總筆數：{{ $dataList->count() }}（共 {{ $dataList->lastPage() }}  頁）
+                                <select name="page">
+                                    @for($i=0;$i< $dataList->lastPage();$i++)
+                                    <option value="{{ $i+1 }}">第 {{ $i+1 }} 頁</option>
+                                    @endfor
                                 </select>
                             </span>
                         {{-- @endif --}}
@@ -116,19 +117,25 @@
     </div>
     <div id="search">
         <div style="display: flex;flex-wrap: wrap;justify-content: center;">
-            @for ($i = 0; $i < 9; $i++)
+         
+            @foreach($dataList as $key => $value)
+                @php
+                    $url = getImageUrl($value->url,true);
+
+                    
+                @endphp
                 <div class="item">
                     <table>
                         <tr>
-                            <td>{{ date('Y/m/d H:i:s', strtotime('2023-02-21 10:44:49')) }}</td>
-                            <td style="width: 70px;">上傳人員</td>
+                            <td>{{ date('Y/m/d H:i:s', strtotime($value->created_at)) }}</td>
+                            <td style="width: 70px;">{{ $value->user_name }}</td>
                         </tr>
                         <tr>
                             <td>
-                                <input type="text" id="url_{{ $i }}" value="https://img.bestselection.com.tw/2022PG01/20220914114543293.jpg" style="width:100%">
+                                <input type="text" id="url_{{ $key }}" value="{{  $url }}" style="width:100%">
                             </td>
                             <td>
-                                <button type="button" onclick="copyUrl('url_{{ $i }}');">複製</button>
+                                <button type="button" onclick="copyUrl('url_{{ $key }}');">複製</button>
                             </td>
                         </tr>
                         <tr>
@@ -136,8 +143,8 @@
                         </tr>
                         <tr>
                             <td colspan="2">
-                                <a href="https://img.bestselection.com.tw/2022PG01/20220914114543293.jpg" target="_blank">
-                                    <img src="https://img.bestselection.com.tw/2022PG01/20220914114543293.jpg" alt="">
+                                <a href="{{  $url }}" target="_blank">
+                                    <img src="{{  $url }}" alt="">
                                 </a>
                             </td>
                         </tr>
@@ -152,7 +159,7 @@
                     </table>
                     <hr>
                 </div>
-            @endfor
+            @endforeach
         </div>
     </div>
 </body>
