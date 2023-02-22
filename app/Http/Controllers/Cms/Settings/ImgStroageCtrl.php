@@ -30,7 +30,7 @@ class ImgStroageCtrl extends Controller
 
         return view('cms.settings.img_storage.index', [
             'user' => $request->user()->name,
-            'dataList' => $dataList->paginate(10)->appends($query),
+            'dataList' => $dataList->paginate(12)->appends($query),
         ]);
     }
 
