@@ -72,6 +72,9 @@
                                 </td>
                             </tr>
                         </table>
+                        @error('file')
+                            {{ $message }}
+                        @enderror
                     </div>
                     <div style="margin-top: 10px;text-align: center;">
                         <button type="submit" style="padding:1px 15px;">上傳</button>
@@ -162,6 +165,7 @@
             @endforeach
         </div>
     </div>
+
 </body>
 <script>
     function copyUrl(id) {
