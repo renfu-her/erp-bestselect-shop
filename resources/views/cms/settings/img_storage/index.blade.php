@@ -63,7 +63,7 @@
                         <table style="width:700px; max-width:100%;margin:auto;" border="1" cellspacing="0">
                             <tr>
                                 <td style="" class="title">上傳說明</td>
-                                <td style="padding: 2px;">檔案格式：JPG / JPEG / PNG / BMP</td>
+                                <td style="padding: 2px;">檔案格式：JPG/JPEG/PNG/BMP　大小限制：5MB</td>
                             </tr>
                             <tr>
                                 <td style="" class="title">選擇檔案</td>
