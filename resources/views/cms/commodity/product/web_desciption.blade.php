@@ -9,8 +9,8 @@
         <div class="card shadow p-4 mb-4">
             <div class="d-flex align-items-center mb-4">
                 <h6 class="mb-0">商品介紹（網頁）</h6>
-                <a href="https://img.bestselection.com.tw/fadd1.asp?name={{ $name }}" 
-                    class="btn btn-outline-primary -in-header ms-4" target="_blank">
+                <a href="{{  route('cms.img-storage.index') }}" 
+                    class="btn btn-outline-success -in-header ms-4" target="_blank">
                     <i class="bi bi-upload"></i> 上傳圖片
                 </a>
             </div>
