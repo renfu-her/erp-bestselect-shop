@@ -159,13 +159,14 @@ class DiscountExpiringCtrl extends Controller
                                 $d_value,
                             ];
 
+                            $mail_subject = str_replace($search, $replace, $value->mail_subject);
                             $mail_content = str_replace($search, $replace, $value->mail_content);
 
                             Mail::send('emails.discount_expiring.notice', [
                                 'mail_content' => $mail_content,
-                            ], function($mail) use ($value) {
+                            ], function($mail) use ($value, $mail_subject) {
                                 $mail->to($value->email);
-                                $mail->subject($value->mail_subject);
+                                $mail->subject($mail_subject);
                             });
 
                             $customer_coupon->update([
