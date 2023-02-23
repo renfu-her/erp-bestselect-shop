@@ -6,7 +6,7 @@
     <form action="{{ Route('cms.combo-purchase.edit', ['id' => $style->id], true) }}" method="POST">
         @csrf
         <div class="card shadow p-4 mb-4">
-            <p class="mb-4">當前庫存：<span class="text-decoration-underline fs-4">{{ $style->in_stock }}</span>（組）</p>
+            <p class="mb-4">當前可售數量：<span class="text-decoration-underline fs-4">{{ $style->in_stock }}</span>（組）</p>
             @php
                 $s_min = $style->in_stock > 0 ? -$style->in_stock : 0;
             @endphp
