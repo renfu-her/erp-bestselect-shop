@@ -43,6 +43,7 @@ class RptUserPerformanceReport extends Model
             ->selectRaw('SUM(order.total_price) as total_price')
             ->whereBetween('ro.receipt_date', [$sdate, $edate])
             ->where('order.status_code','received')
+            ->where('ro.source_type', 'ord_orders')
             ->groupBy('dd')
             ->groupBy('user.id');
 

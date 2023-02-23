@@ -24,6 +24,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Intervention\Image\Facades\Image;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ProductCtrl extends Controller
@@ -35,6 +37,7 @@ class ProductCtrl extends Controller
      */
     public function index(Request $request)
     {
+        // $imgFile = Image::blur();
 
         // dd(Product::productList(null, null, ['collection' => 1, 'price' => 1,'img'=>1])->get()->toArray());
 
@@ -158,14 +161,24 @@ class ProductCtrl extends Controller
 
         if ($request->hasfile('files')) {
             foreach (array_reverse($request->file('files')) as $file) {
+
+                $img = self::imgResize($file->path());
+                $filename = self::imgFilename($re['id'], $file->hashName());
+
                 if (App::environment(AppEnvClass::Release)) {
-                    $imgData[] = $file->store('product_imgs/' . $re['id'], 'ftp');
+                    if (Storage::disk('ftp')->put($filename, $img)) {
+                        $imgData[] = $filename;
+                    }
                 } else {
-                    $imgData[] = $file->store('product_imgs/' . $re['id']);
+                    if (Storage::disk('local')->put($filename, $img)) {
+                        $imgData[] = $filename;
+                    }
                 }
             }
+
             ProductImg::createImgs($re['id'], $imgData);
         }
+
         if ($d['type'] == 'p') {
             $url = 'cms.product.edit-style';
         } else {
@@ -266,10 +279,20 @@ class ProductCtrl extends Controller
 
         if ($request->hasfile('files')) {
             foreach (array_reverse($request->file('files')) as $file) {
+
+                $img = self::imgResize($file->path());
+                $filename = self::imgFilename($id, $file->hashName());
+
                 if (App::environment(AppEnvClass::Release)) {
-                    $imgData[] = $file->store('product_imgs/' . $id, 'ftp');
+                    if (Storage::disk('ftp')->put($filename, $img)) {
+                        $imgData[] = $filename;
+                    }
+                    // $imgData[] = $file->store('product_imgs/' . $id, 'ftp');
                 } else {
-                    $imgData[] = $file->store('product_imgs/' . $id);
+                    if (Storage::disk('local')->put($filename, $img)) {
+                        $imgData[] = $filename;
+                    }
+                    // $imgData[] = $file->store('product_imgs/' . $id);
                 }
             }
             ProductImg::createImgs($id, $imgData);
@@ -1098,4 +1121,26 @@ class ProductCtrl extends Controller
 
         return Excel::download($export, 'product_infor.xlsx');
     }
+
+    private static function imgResize($path)
+    {
+        try {
+            $asdf = Image::make($path)
+                ->resize(640, 640, function ($constraint) {
+                    $constraint->aspectRatio();
+                    $constraint->upsize();
+                })->encode('webp', 90);
+        } catch (\Exception $e) {
+            dd($e);
+            return false;
+        }
+        return $asdf;
+    }
+
+    private static function imgFilename($product_id, $fileHashName)
+    {
+        return 'product_imgs/' . $product_id . '/' . explode('.', $fileHashName)[0] . ".webp";
+
+    }
 }
+
