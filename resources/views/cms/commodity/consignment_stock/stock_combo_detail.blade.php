@@ -1,6 +1,6 @@
 @extends('layouts.main')
 @section('sub-content')
-    <span class="badge bg-primary mb-2"><h4 class="mb-0">被組合數量</h4></span>
+    <span class="badge bg-primary mb-2"><h4 class="mb-0">元素被組合可售數量</h4></span>
     <h2 class="mb-4">{{$title}} ({{ $style->sku }})</h2>
 
     <div class="card shadow p-4 mb-4">
@@ -12,9 +12,9 @@
                         <th scope="col">SKU</th>
                         <th scope="col">組合包名稱</th>
                         <th scope="col">款式</th>
-                        <th scope="col">內含元素數量</th>
                         <th scope="col">可售數量</th>
-                        <th scope="col">被組合數量</th>
+                        <th scope="col">內含元素可售數量</th>
+                        <th scope="col">元素被組合可售數量</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -30,8 +30,8 @@
                         <td><a href="{{ Route('cms.stock.index', ['keyword' => $data->sku], true) }}">{{$data->sku}}</a></td>
                         <td>{{$data->title}}</td>
                         <td>{{$data->spec}}</td>
-                        <td>{{$data->qty}}</td>
                         <td>{{$data->in_stock}}</td>
+                        <td>{{$data->qty}}</td>
                         <td>{{$data->total_stock}}</td>
                     </tr>
                  @endforeach
@@ -43,7 +43,7 @@
                         <td></td>
                         <td></td>
                         <td></td>
-                        <th>被組合總數量</th>
+                        <th>元素被組合總數量</th>
                         <td class="text-left">{{ $sum_of_qty }}</td>
                         <td></td>
                         <td></td>
