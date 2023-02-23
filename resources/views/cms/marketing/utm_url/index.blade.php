@@ -74,7 +74,7 @@
             const BESTSELECTION_REGEX = /(^https:\/\/.*\.bestselection\.com\.tw)/;
 
             //綁定在bit.ly帳號besttour2094@gmail.com
-            const BITLY_TOKEN = "13b7470ccac0b211df25fd8947bb3cb97b54daea";
+            const BITLY_TOKEN = "7d23e99d11d91b52bd3915bf809fe9bfd7e306bf";
             const PICSEE_TOKEN = {!! '"' . $PicSeeToken . '"' !!}
             $(document).ready(function(){
 
