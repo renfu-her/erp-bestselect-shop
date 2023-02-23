@@ -26,8 +26,9 @@
                             <th scope="col">商品名稱</th>
                             <th scope="col">款式</th>
                             <th scope="col">數量</th>
-                            <th scope="col" class="text-center border-start border-end">目前庫存</th>
-                            <th scope="col" class="text-center small wrap">剩餘庫存試算</th>
+                            <th scope="col" class="text-center">被組合可售數量</th>
+                            <th scope="col" class="text-center border-start border-end">目前可售數量</th>
+                            <th scope="col" class="text-center small wrap">剩餘可售數量試算</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -38,6 +39,7 @@
                                 <td class="wrap">{{ $combo->title }}</td>
                                 <td>{{ $combo->spec }}</td>
                                 <td data-td="qty" class="text-center">{{ $combo->qty }}</td>
+                                <td data-td="qty" class="text-center">{{ $combo->qty * $style->in_stock }}</td>
                                 <td data-td="stock" class="text-center border-start border-end fw-bold fs-5">{{ $combo->in_stock }}</td>
                                 <td data-td="count" class="text-center fs-5 pe-0">{{ $combo->in_stock }}</td>
                             </tr>
@@ -79,7 +81,7 @@
     @push('sub-scripts')
         <script>
             const min_stock = @json($s_min);
-            
+
             // 數量異動 input
             $('input[name="qty"]').on('change', function() {
                 countStock();
@@ -87,8 +89,8 @@
             // +/- btn
             $('button.-minus, button.-plus').on('click', function() {
                 const m_qty = Number($('input[name="qty"]').val());
-                if ($(this).hasClass('-minus') && 
-                    (!$('input[name="check_stock"]').prop('checked') || 
+                if ($(this).hasClass('-minus') &&
+                    (!$('input[name="check_stock"]').prop('checked') ||
                     m_qty > min_stock)) {
                     $('input[name="qty"]').val(m_qty - 1);
                 }
