@@ -9,7 +9,7 @@
             <h6 class="flex-grow-1 mb-0">商品資訊</h6>
             <a href="{{ Route('cms.product.edit-stock', ['id' => $style['product_id'], 'sid' => $style['id']]) }}"
                 class="btn btn-outline-primary px-4 -in-header">
-                <i class="bi bi-arrow-left-right"></i> 庫存管理
+                <i class="bi bi-arrow-left-right"></i> 可售數量管理
             </a>
         </div>
         <div class="row">
@@ -48,7 +48,7 @@
                 <a class="ms-1" data-bs-toggle="popover" title="一鍵產生價格" data-bs-trigger="focus" tabindex="0" data-bs-placement="top"
                     data-bs-content="以黃底通路為基準，一次產生未設定價格 (已設定則不變)：售價=基準價*銷售通路折扣設定 / 經銷價、定價=基準價"><i class="bi bi-question-circle"></i>
                 </a>
-                <a href="{{ Route('cms.product.batch-product-style-price', ['id' => $style['product_id'], 'sid' => $style['id']]) }}" 
+                <a href="{{ Route('cms.product.batch-product-style-price', ['id' => $style['product_id'], 'sid' => $style['id']]) }}"
                     class="btn btn-outline-success btn-sm ms-4" data-bs-toggle="tooltip" title="售價/經銷價/定價/獎金/購物金抵扣" data-bs-placement="right">
                     同步所有通路資料
                 </a>
@@ -67,7 +67,7 @@
                                     title="預設：(售價-經銷價) × {{ App\Enums\Customer\Bonus::bonus()->value }}"></i>
                             </th>
                             <th scope="col">購物金抵扣
-                                <i class="bi bi-info-circle" data-bs-toggle="tooltip" 
+                                <i class="bi bi-info-circle" data-bs-toggle="tooltip"
                                     title="此設定顯示於顧客購買結帳頁面商品可使用之購物金上限，若要調整上限請至【設定】→【銷售通路管理】編輯。預設：售價 × 各通路可抵扣上限"></i>
                             </th>
                         </tr>
