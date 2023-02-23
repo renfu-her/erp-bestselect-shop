@@ -10,7 +10,7 @@
             <table class="table tableList table-striped mb-1">
                 <thead>
                     <tr>
-                        <th scope="col" class="text-center">庫存管理</th>
+                        <th scope="col" class="text-center">可售數量管理</th>
 
                         <th scope="col" class="text-center">價格管理</th>
 
