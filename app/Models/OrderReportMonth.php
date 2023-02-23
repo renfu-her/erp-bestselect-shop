@@ -30,6 +30,7 @@ class OrderReportMonth extends Model
             ->selectRaw('COUNT(*) as qty')
             ->where('order.payment_status', PaymentStatus::Received())
             ->whereBetween('ro.receipt_date', [$sdate, $edate])
+            ->where('ro.source_type', 'ord_orders')
             ->groupBy()->get()->first();
         
           

@@ -213,7 +213,7 @@
                             <td class="text-center">{{ $data->total_in_stock_num }}</td>
                             <td class="text-center">{{ $data->total_in_stock_num_csn }}</td>
                             <td class="text-center">{{ $data->in_stock }}({{ $data->overbought }})</td>
-                            <td class="text-center">{{ $data->combo_qty }}</td>
+                            <td class="text-center"><a href="{{ Route('cms.stock.stock_combo_detail', ['style_id' => $data->id], true) }}">{{ $data->combo_qty }}</a></td>
                             <td class="text-center">
                                 <a href="{{ Route('cms.stock.dlv_qty', ['style_id' => $data->product_style_id], true) }}">{{ $data->total_stock_qty }}</a>
                             </td>

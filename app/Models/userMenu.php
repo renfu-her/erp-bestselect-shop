@@ -103,6 +103,11 @@ return
         "menu_id" => "8",
         "child" => [
             [
+                "title" => "優惠劵到期通知",
+                "controller_name" => "DiscountExpiringCtrl",
+                "route_name" => "cms.discount_expiring.index",
+            ],
+            [
                 "title" => "優惠劵 / 代碼",
                 "controller_name" => "PromoCtrl",
                 "route_name" => "cms.promo.index",
@@ -183,6 +188,11 @@ return
                 "title" => "組織架構",
                 "controller_name" => "OrganizeCtrl",
                 "route_name" => "cms.organize.index",
+            ],
+            [
+                "title" => "團控查詢帳號",
+                "controller_name" => "ErpTravelCtrl",
+                "route_name" => "cms.erp-travel.index",
             ],
         ],
     ],

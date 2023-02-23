@@ -270,11 +270,11 @@
                         <span class="browser_box -plusBtn">
                             <i class="bi bi-plus-circle text-secondary fs-4"></i>
                         </span>
-                        <input type="file" id="product_img_add" accept=".jpg,.jpeg,.png,.gif" multiple hidden>
+                        <input type="file" id="product_img_add" accept=".jpg,.jpeg,.png,.bmp" multiple hidden>
                     </label>
                 </div>
             </div>
-            <p><mark>圖片限制：不超過1MB，1000×1000px，可上傳JPG/ JPEG/ PNG/ GIF格式</mark></p>
+            <p><mark>圖片限制：不超過1MB，1000×1000px，可上傳JPG/ JPEG/ PNG/ BMP格式</mark></p>
             <input type="hidden" name="del_image">
             @error('files')
                 <div class="alert alert-danger" role="alert">{{ $message }}</div>

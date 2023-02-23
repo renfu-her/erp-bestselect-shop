@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
+use Intervention\Image\Facades\Image;
 
 class Banner extends Model
 {
@@ -35,8 +36,10 @@ class Banner extends Model
             ])->id;
 
             $imgData_Pc = null;
-            if ($request->hasfile('img_pc')) {
-                $imgData_Pc = $request->file('img_pc')->store(self::$path_banner.$id);
+            $img = self::imgResize($request->file('img_pc')->path());
+            $filename = self::imgFilename($id, $request->file('img_pc')->hashName());
+            if (Storage::disk('local')->put($filename, $img)) {
+                $imgData_Pc = $filename;
             }
 
             $imgData_Phone = null;
@@ -106,7 +109,13 @@ class Banner extends Model
                 $imgData_Pc = null;
                 if ($request->has('img_pc')) {
                     Storage::delete($bannerDataGet->img_pc);
-                    $imgData_Pc = $request->file('img_pc')->store(Banner::$path_banner.$id);
+
+                    $img = self::imgResize($request->file('img_pc')->path());
+                    $filename = self::imgFilename($id, $request->file('img_pc')->hashName());
+                    if (Storage::disk('local')->put($filename, $img)) {
+                        $imgData_Pc = $filename;
+                    }
+                  //  $imgData_Pc = $request->file('img_pc')->store(Banner::$path_banner.$id);
                 } else if (true == $is_del_old_img) {
                     Storage::delete($bannerDataGet->img_pc);
                 } else {
@@ -232,5 +241,19 @@ class Banner extends Model
             $result->where('banner.is_public', '=', $is_public);
         }
         return $result;
+    }
+
+    private static function imgResize($path)
+    {
+        return Image::make($path)
+            ->resize(1360, 453, function ($constraint) {
+
+            })->encode('webp', 50);
+    }
+
+    private static function imgFilename($banner_id, $fileHashName)
+    {
+        return Banner::$path_banner . $banner_id . '/' . explode('.', $fileHashName)[0] . ".webp";
+
     }
 }

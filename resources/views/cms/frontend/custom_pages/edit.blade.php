@@ -86,8 +86,8 @@
         <div id="content_1" class="card shadow p-4 mb-4 -content" @if(old('type', $dataList->type ?? 1) !== 1) hidden @endif>
             <div class="d-flex align-items-center mb-4">
                 <h6 class="mb-0">【一般】自訂內容</h6>
-                <a href="https://img.bestselection.com.tw/fadd1.asp?name={{ $userName->user_name ?? '' }}"
-                    class="btn btn-outline-primary -in-header ms-4" target="_blank">
+                <a href="{{  route('cms.img-storage.index') }}"
+                    class="btn btn-outline-success -in-header ms-4" target="_blank">
                     <i class="bi bi-upload"></i> 上傳圖片
                 </a>
             </div>
