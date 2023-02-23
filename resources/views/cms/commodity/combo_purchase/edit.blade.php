@@ -26,7 +26,7 @@
                             <th scope="col">商品名稱</th>
                             <th scope="col">款式</th>
                             <th scope="col">數量</th>
-                            <th scope="col" class="text-center">被組合可售數量</th>
+                            <th scope="col" class="text-center">元素被組合可售數量</th>
                             <th scope="col" class="text-center border-start border-end">目前可售數量</th>
                             <th scope="col" class="text-center small wrap">剩餘可售數量試算</th>
                         </tr>
