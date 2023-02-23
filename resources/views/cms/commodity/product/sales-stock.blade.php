@@ -55,8 +55,8 @@
                 <table class="table table-bordered border-dark align-middle mb-4">
                     <tbody>
                         <tr>
-                            <th scope="row" style="width:40%;">安全可售數量
-                                <i class="bi bi-info-circle" data-bs-toggle="tooltip" title="當庫存量少於等於此數量時會提示通知"></i>
+                            <th scope="row" style="width:40%;">安全庫存
+                                <i class="bi bi-info-circle" data-bs-toggle="tooltip" title="當可售數量少於等於此數量時會提示通知"></i>
                             </th>
                             <td>
                                 <input type="number" name="safety_stock" value="{{ $style->safety_stock }}" placeholder=""
@@ -65,7 +65,7 @@
                         </tr>
                         <tr>
                             <th scope="row">預購、超賣、廠商出貨數量
-                                <i class="bi bi-info-circle" data-bs-toggle="tooltip" title="當庫存不足時，尚可訂購的數量"></i>
+                                <i class="bi bi-info-circle" data-bs-toggle="tooltip" title="當可售數量不足時，尚可訂購的數量"></i>
                             </th>
                             <td>
                                 <input type="number" name="overbought" value="{{ $style->overbought }}" placeholder=""
