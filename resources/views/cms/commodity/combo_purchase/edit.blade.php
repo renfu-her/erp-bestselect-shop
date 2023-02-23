@@ -25,9 +25,9 @@
                             <th scope="col">SKU</th>
                             <th scope="col">商品名稱</th>
                             <th scope="col">款式</th>
-                            <th scope="col">數量</th>
-                            <th scope="col" class="text-center">元素被組合可售數量</th>
-                            <th scope="col" class="text-center border-start border-end">目前可售數量</th>
+                            <th scope="col" class="text-center border-end">數量</th>
+                            <th scope="col" class="text-center small wrap border-end">元素被組合可售數量</th>
+                            <th scope="col" class="text-center small wrap border-end">目前可售數量</th>
                             <th scope="col" class="text-center small wrap">剩餘可售數量試算</th>
                         </tr>
                     </thead>
@@ -38,9 +38,9 @@
                                 <td>{{ $combo->sku }}</td>
                                 <td class="wrap">{{ $combo->title }}</td>
                                 <td>{{ $combo->spec }}</td>
-                                <td data-td="qty" class="text-center">{{ $combo->qty }}</td>
-                                <td data-td="qty" class="text-center">{{ $combo->qty * $style->in_stock }}</td>
-                                <td data-td="stock" class="text-center border-start border-end fw-bold fs-5">{{ $combo->in_stock }}</td>
+                                <td data-td="qty" class="text-center border-end">{{ $combo->qty }}</td>
+                                <td data-td="qty" class="text-center border-end fs-5">{{ $combo->qty * $style->in_stock }}</td>
+                                <td data-td="stock" class="text-center border-end fw-bold fs-5">{{ $combo->in_stock }}</td>
                                 <td data-td="count" class="text-center fs-5 pe-0">{{ $combo->in_stock }}</td>
                             </tr>
                         @endforeach
@@ -71,7 +71,7 @@
 @once
     @push('sub-styles')
         <style>
-            .border-start.border-end {
+            .border-end {
                 border-left-color: black !important;
                 border-right-color: black !important;
             }
@@ -144,3 +144,4 @@
         </script>
     @endpush
 @endonce
+
