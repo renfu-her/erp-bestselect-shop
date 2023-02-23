@@ -117,6 +117,11 @@ Breadcrumbs::for('cms.stock.dlv_qty', function (BreadcrumbTrail $trail, $value) 
     $trail->parent('cms.stock.index');
     $trail->push('待出貨列表', route('cms.stock.index'));
 });
+// 庫存管理 - 被組合數量
+Breadcrumbs::for('cms.stock.stock_combo_detail', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.stock.index');
+    $trail->push('被組合數量', route('cms.stock.index'));
+});
 
 // 採購單庫存匯入
 Breadcrumbs::for('cms.inbound_import.index', function (BreadcrumbTrail $trail) {

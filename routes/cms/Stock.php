@@ -11,4 +11,6 @@ Route::group(['prefix' => 'stock', 'as' => 'stock.'], function () {
 
     Route::get('dlv_qty/{style_id?}', [StockCtrl::class, 'dlv_qty'])->name('dlv_qty')->middleware('permission:cms.stock.index');
     Route::get('dlv_detail/{delivery_id}', [StockCtrl::class, 'dlv_detail'])->name('dlv_detail')->middleware('permission:cms.stock.index');
+
+    Route::get('stock_combo_detail/{style_id}', [StockCtrl::class, 'stock_combo_detail'])->name('stock_combo_detail');
 });
