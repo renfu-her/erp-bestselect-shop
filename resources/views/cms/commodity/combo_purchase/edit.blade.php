@@ -25,7 +25,7 @@
                             <th scope="col">SKU</th>
                             <th scope="col">商品名稱</th>
                             <th scope="col">款式</th>
-                            <th scope="col">數量</th>
+                            <th scope="col" class="text-center">數量</th>
                             <th scope="col" class="text-center border-start border-end">目前庫存</th>
                             <th scope="col" class="text-center small wrap">剩餘庫存試算</th>
                         </tr>
