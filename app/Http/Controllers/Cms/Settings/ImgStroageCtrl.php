@@ -142,7 +142,7 @@ class ImgStroageCtrl extends Controller
 
     private static function imgFilename($product_id, $fileHashName)
     {
-        return 'product_imgs/content/' . $product_id . '/' . explode('.', $fileHashName)[0] . ".webp";
+        return 'product_intro/imgs' . $product_id . '/' . explode('.', $fileHashName)[0] . ".webp";
 
     }
 }
