@@ -43,7 +43,7 @@
                         <td></td>
                         <td></td>
                         <td></td>
-                        <th>元素被組合總數量</th>
+                        <th>元素被組合可售總數量</th>
                         <td class="text-left">{{ $sum_of_qty }}</td>
                         <td></td>
                         <td></td>
