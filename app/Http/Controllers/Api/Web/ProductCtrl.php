@@ -99,8 +99,8 @@ class ProductCtrl extends Controller
 
         $sale_channel_id = 1;
 
-        if (isset($d['sale_channel_id']) && $d['sale_channel_id']) {
-            $sale_channel_id = $d['sale_channel_id'];
+        if (isset($d['salechannel_id']) && $d['salechannel_id']) {
+            $sale_channel_id = $d['salechannel_id'];
         }
 
         $dataList = DB::table('prd_products as product')
