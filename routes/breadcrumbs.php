@@ -117,6 +117,11 @@ Breadcrumbs::for('cms.stock.dlv_qty', function (BreadcrumbTrail $trail, $value) 
     $trail->parent('cms.stock.index');
     $trail->push('待出貨列表', route('cms.stock.index'));
 });
+// 庫存管理 - 被組合數量
+Breadcrumbs::for('cms.stock.stock_combo_detail', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.stock.index');
+    $trail->push('元素被組合可售數量', route('cms.stock.index'));
+});
 
 // 採購單庫存匯入
 Breadcrumbs::for('cms.inbound_import.index', function (BreadcrumbTrail $trail) {
@@ -646,6 +651,17 @@ Breadcrumbs::for('cms.delivery.roe-po-create', function (BreadcrumbTrail $trail,
 /**
  * 行銷設定
  **/
+
+// 優惠劵到期通知
+Breadcrumbs::for('cms.discount_expiring.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('優惠劵到期通知');
+});
+Breadcrumbs::for('cms.discount_expiring.edit', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('優惠劵到期通知', route('cms.discount_expiring.index'));
+    $trail->push('編輯優惠劵到期通知信');
+});
 
 // 全館優惠
 Breadcrumbs::for('cms.discount.index', function (BreadcrumbTrail $trail) {
@@ -1517,4 +1533,21 @@ Breadcrumbs::for('cms.onepage.create', function (BreadcrumbTrail $trail) {
 Breadcrumbs::for('cms.onepage.edit', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.onepage.index');
     $trail->push('修改');
+});
+
+// 團控
+
+Breadcrumbs::for('cms.erp-travel.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('團控查詢帳號');
+});
+
+Breadcrumbs::for('cms.erp-travel.edit', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.erp-travel.index');
+    $trail->push('編輯');
+});
+
+Breadcrumbs::for('cms.erp-travel.create', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.erp-travel.index');
+    $trail->push('新增');
 });

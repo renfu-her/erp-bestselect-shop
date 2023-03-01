@@ -170,7 +170,7 @@
                         <th scope="col">倉庫名稱</th>
                         <th scope="col" class="wrap lh-sm -sm text-center">理貨倉庫存</th>
                         <th scope="col" class="wrap lh-sm text-center" style="min-width:50px">寄倉庫存</th>
-                        <th scope="col" class="wrap lh-sm -sm text-center">官網可售數量(超賣)</th>
+                        <th scope="col" class="wrap lh-sm -sm text-center">官網可售數量<br>含(超賣)</th>
                         <th scope="col" class="wrap lh-sm -sm text-center">被組合數量</th>
                         <th scope="col" class="wrap lh-sm -sm text-center">待出貨</th>
                         <!--<th scope="col">預扣庫存</th>-->
@@ -213,7 +213,7 @@
                             <td class="text-center">{{ $data->total_in_stock_num }}</td>
                             <td class="text-center">{{ $data->total_in_stock_num_csn }}</td>
                             <td class="text-center">{{ $data->in_stock }}({{ $data->overbought }})</td>
-                            <td class="text-center">{{ $data->combo_qty }}</td>
+                            <td class="text-center"><a href="{{ Route('cms.stock.stock_combo_detail', ['style_id' => $data->id], true) }}">{{ $data->combo_qty }}</a></td>
                             <td class="text-center">
                                 <a href="{{ Route('cms.stock.dlv_qty', ['style_id' => $data->product_style_id], true) }}">{{ $data->total_stock_qty }}</a>
                             </td>

@@ -13,6 +13,7 @@ use App\Models\Depot;
 use App\Models\DlvOutStock;
 use App\Models\Product;
 use App\Models\ProductStyle;
+use App\Models\ProductStyleCombo;
 use App\Models\Purchase;
 use App\Models\PurchaseInbound;
 use App\Models\PurchaseLog;
@@ -207,5 +208,23 @@ class StockCtrl extends Controller
         } else {
             dd($delivery);
         }
+    }
+
+    public function stock_combo_detail(Request $request, $style_id = null) {
+        $style = ProductStyle::where('id', $style_id)->get()->first();
+        if (!$style) {
+            return abort(404);
+        }
+        $dataList = ProductStyleCombo::getChildComboList($style_id)->get();
+        $product = Product::where('id', $style->product_id)->get()->first();
+        $title = $product->title . '-' . $style->title;
+
+//        dd($dataList->get());
+        return view('cms.commodity.consignment_stock.stock_combo_detail', [
+            'title' => $title,
+            'style' => $style,
+            'dataList' => $dataList,
+            'returnAction' => Route('cms.stock.index', [], true),
+        ]);
     }
 }

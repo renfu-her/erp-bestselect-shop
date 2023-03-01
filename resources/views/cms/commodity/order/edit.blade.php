@@ -98,13 +98,13 @@
                             </table>
                         </div>
                     </div>
-                    {{-- 使用鴻利 --}}
+                    {{-- 使用購物金 --}}
                     <div class="card-body px-4 py-2 border-top">
                         <div class="d-flex lh-lg flex-wrap">
-                            <div class="col-12 col-sm pe-2">鴻利
+                            <div class="col-12 col-sm pe-2">購物金
                                 <span class="small text-secondary">
-                                    （目前鴻利點數：<span class="-hasPoints">0</span>
-                                    點，可抵用鴻利上限：<span class="-maxPoints">0</span> 點）
+                                    （目前購物金：<span class="-hasPoints">0</span>
+                                    點，可抵用購物金上限：<span class="-maxPoints">0</span> 點）
                                 </span>
                             </div>
                             <div class="col-12 col-sm-auto">
@@ -402,6 +402,9 @@
                             </tr>
                         </tbody>
                     </table>
+                </div>
+                <div id="overminAlert" class="alert alert-danger m-0" role="alert" hidden>
+                    實付金額不可低於10元，請調整購物金抵扣或優惠劵，謝謝
                 </div>
             </div>
             <div class="col-auto">
@@ -1036,7 +1039,7 @@
                 });
             });
             
-
+            const MIN_PAY_SUM = 10;
             let addProductModal = new bootstrap.Modal(document.getElementById('addProduct'));
             let setShipmentModal = new bootstrap.Modal(document.getElementById('setShipment'), {
                 backdrop: 'static',
@@ -1062,11 +1065,11 @@
             console.log('全館優惠', GlobalDiscounts);
             // 優惠方式
             const DISC_METHOD = ['cash', 'percent', 'coupon'];
-            // 優惠類型 折扣順序：任選 > 全館 > 優惠券/序號 > 鴻利
+            // 優惠類型 折扣順序：任選 > 全館 > 優惠券/序號 > 購物金
             const DISC_PRIORITY = ['optional', 'global', 'coupon', 'code', 'bonus'];
             // 訂購會員持有優惠券
             let UserCoupons = {};
-            // 訂購會員持有鴻利
+            // 訂購會員持有購物金
             let UserPoints = 0;
             // 目前有效優惠
             let DiscountData = {
@@ -1125,7 +1128,7 @@
                 // sku: 'SKU',
                 // price: '單價',
                 // stock: '庫存',
-                // point: '鴻利上限',
+                // point: '購物金上限',
                 /* 變動值 */
                 // qty: 數量(預設1),
                 //_total: 小計(不含折扣)(price*qty),
@@ -1157,7 +1160,7 @@
                 //     temps: '溫層: 常溫|冷凍|冷藏'(deliver only),
                 //     rules: '[宅配價格]'(deliver only),
                 /* 變動值 */
-                //     point: 使用鴻利,
+                //     point: 使用購物金,
                 //     products: [商品sid],
                 //_____total: 此物流商品金額小計(不折扣、含運),
                 //     dis_total: 此物流商品折扣總金額,
@@ -1228,6 +1231,7 @@
                     if (!$('.-cloneElem.--selectedP').length) {
                         $('#STEP_1 .-next_step').prop('disabled', true);
                         $('#customer, #salechannel').prop('disabled', false);
+                        $('#overminAlert').prop('hidden', true);
                     }
                 }
             };
@@ -1278,7 +1282,7 @@
             bindAdjusterBtn();
             // 刪除商品
             Clone_bindDelElem($('.-cloneElem.--selectedP .-del'), cloneProductsOption);
-            // 鴻利
+            // 購物金
             getPointsAPI();
             bindPointUseBtn();
 
@@ -2080,7 +2084,7 @@
                             title = '使用優惠券';
                             break;
                         case 'bonus':
-                            title = '鴻利點數折抵';
+                            title = '購物金折抵';
                             break;
 
                         default:
@@ -2260,12 +2264,12 @@
                 );
             }
 
-            /*** 鴻利 fn -bonus_point ***/
+            /*** 購物金 fn -bonus_point ***/
             $('#customer').off('change.point').on('change.point', function() {
                 getPointsAPI();
             });
 
-            // #取得持有鴻利API
+            // #取得持有購物金API
             function getPointsAPI() {
                 const _URL = @json(route('api.cms.discount.get-dividend-point'));
                 const Data = {
@@ -2281,7 +2285,7 @@
                 if (!Data.customer_id) {
                     toast.show('請先選擇訂購客戶。', {
                         type: 'warning',
-                        title: '目前鴻利點數'
+                        title: '目前購物金'
                     });
                     return false;
                 }
@@ -2289,7 +2293,7 @@
                 axios.post(_URL, Data)
                     .then((result) => {
                         const res = result.data;
-                        console.log('持有鴻利', res);
+                        console.log('持有購物金', res);
                         if (res.status === '0') {
                             UserPoints = res.data || 0;
                             $('.-hasPoints').text(UserPoints);
@@ -2297,11 +2301,11 @@
                             $('input.-bonus_point').prop('max', UserPoints);
                         }
                     }).catch((err) => {
-                        console.log('取得鴻利錯誤', err);
+                        console.log('取得購物金錯誤', err);
                     });
             }
 
-            // #計算可用鴻利上限總計
+            // #計算可用購物金上限總計
             function calc_maxPoint(ship_key) {
                 let max = 0;
 
@@ -2314,7 +2318,7 @@
                 return max;
             }
 
-            // #設定鴻利上限總計
+            // #設定購物金上限總計
             function setMaxPoint(ship_key) {
                 const max = calc_maxPoint(ship_key);
 
@@ -2322,7 +2326,7 @@
                 $(`#${ship_key} input.-bonus_point`).prop('max', max > UserPoints ? UserPoints : max);
             }
 
-            // bind 使用鴻利按鈕 -bonus_point
+            // bind 使用購物金按鈕 -bonus_point
             function bindPointUseBtn() {
                 $('button.-bonus_point').off('click').on('click', function() {
                     const id = $(this).closest('.-detail').attr('id');
@@ -2333,16 +2337,16 @@
                     calc_set_AllAmount();
 
                     const sum = calc_AllUsePoint();
-                    toast.show(`總共已使用 ${sum} 點鴻利點數`);
+                    toast.show(`總共已使用 ${sum} 點購物金`);
                 });
             }
 
-            // 檢查鴻利使用
+            // 檢查購物金使用
             function check_BonusUse(ship_key) {
                 const $bonus = $(`#${ship_key} input.-bonus_point`);
                 let bonus = Number($bonus.val());
                 const max = calc_maxPoint(ship_key);
-                const totalUse = calc_AllUsePoint() + bonus;
+                const totalUse = calc_AllUsePoint() - myCart[ship_key].point + bonus;
                 let valid_cls = '';
                 $(`#${ship_key} input.-bonus_point`).removeClass('is-invalid is-valid');
 
@@ -2350,14 +2354,14 @@
                     valid_cls = 'invalid';
                     bonus = 0;
                     $bonus.val(0);
-                    toast.show('超過目前持有鴻利', {
+                    toast.show('超過目前持有購物金', {
                         type: 'danger'
                     });
                 } else if (totalUse > UserPoints) {
                     valid_cls = 'invalid';
                     bonus = 0;
                     $bonus.val(0);
-                    toast.show('總使用點數超過目前持有鴻利', {
+                    toast.show('總使用點數超過目前持有購物金', {
                         type: 'danger'
                     });
                 } else if (bonus > max) {
@@ -2382,7 +2386,7 @@
                 return valid_cls === 'valid' ? bonus : 0;
             }
 
-            // 計算總使用鴻利
+            // 計算總使用購物金
             function calc_AllUsePoint() {
                 let total_use = 0;
 
@@ -2521,6 +2525,15 @@
                 $('#Total_price td[data-td="sum"]').text(`$${formatNumber(all_sum)}`);
                 appendDiscountOverview();
 
+                // 總金額 <10 不可訂購
+                if (all_sum < MIN_PAY_SUM) {
+                    $('#STEP_1 .-next_step').prop('disabled', true);
+                    $('#overminAlert').prop('hidden', false);
+                } else {
+                    $('#STEP_1 .-next_step').prop('disabled', false);
+                    $('#overminAlert').prop('hidden', true);
+                }
+
                 return {
                     all_total,
                     all_discount,
@@ -2536,9 +2549,9 @@
 
                 for (const key in myCart) {
                     if (Object.hasOwnProperty.call(myCart, key)) {
-                        // 鴻利上限
+                        // 購物金上限
                         setMaxPoint(key);
-                        // 檢查鴻利
+                        // 檢查購物金
                         check_BonusUse(key);
                     }
                 }
@@ -2572,6 +2585,7 @@
             if (!$('.-cloneElem.--selectedP').length) {
                 $('#STEP_1 .-next_step').prop('disabled', true);
                 $('#customer, #salechannel').prop('disabled', false);
+                $('#overminAlert').prop('hidden', true);
             }
 
             // 第一步-下一步

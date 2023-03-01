@@ -24,6 +24,7 @@ class OrderReportDaily extends Model
             ->selectRaw('SUM(order.total_price) as price')
             ->selectRaw('COUNT(*) as qty')
             ->where('order.payment_status', PaymentStatus::Received())
+            ->where('ro.source_type', 'ord_orders')
             ->whereBetween('ro.receipt_date', [$sdate, $edate])
             ->groupBy()->get()->first();
 

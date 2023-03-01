@@ -1134,6 +1134,7 @@ class PurchaseInbound extends Model
                 , 'p.public'
                 , 'combo_qty.combo_qty as combo_qty'
                 , 'dlv_tb.total_stock_qty'
+                , 'p.online', 'p.offline', 'p.category_id'
             );
         if (null != $depot_id && 0 < count($depot_id)) {
             $products->whereIn('inbound.depot_id', $depot_id);

@@ -2,6 +2,13 @@
 /public/hot
 /public/storage
 /public/mix-manifest.json
+/public/dist
+/public/product_imgs
+/public/product_intro
+/public/idx_banner
+/public/edm
+/public/fonts/vendor
+/public/temp
 /storage/*.key
 /vendor
 .env
@@ -14,12 +21,6 @@ npm-debug.log
 yarn-error.log
 /.idea
 /.vscode
-/public/dist
-/public/product_imgs
-/public/product_intro
-/public/idx_banner
-/public/edm
-/public/fonts/vendor
 /yarn.lock
 /composer.lock
 /package-lock.json

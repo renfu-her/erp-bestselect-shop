@@ -29,10 +29,10 @@
                                 <i class="bi bi-info-circle" data-bs-toggle="tooltip" title="預設：(售價-經銷價) × 0.97"></i>
                             </th>
                             <th scope="col">預估成本</th>
-                            <th scope="col">庫存</th>
+                            <th scope="col">可售數量</th>
                             <th scope="col">安全庫存</th>
                             <!-- <th scope="col">庫存不足</th> -->
-                            <th scope="col">鴻利抵扣</th>
+                            <th scope="col">購物金抵扣</th>
                         </tr>
                     </thead>
                     <tbody class="-appendClone">

@@ -48,7 +48,7 @@
 
             <div class="row">
                 <fieldset class="col-12 col-sm-6 mb-3">
-                    <legend class="col-form-label p-0 mb-2">開立狀態</legend>
+                    <legend class="col-form-label p-0 mb-2">開立狀態 <i class="bi bi-info-circle" data-bs-toggle="tooltip" title="新增「合併發票」的選項時才選擇「暫不開立」"></i> <span class="text-danger">*</span></legend>
                     <div class="px-1 pt-1">
                         <div class="form-check form-check-inline">
                             <input class="form-check-input" name="status" value="1" type="radio" id="now" required {{ old('status', $invoice->status) == 1 ? 'checked' : '' }}>

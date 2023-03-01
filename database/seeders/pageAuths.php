@@ -959,6 +959,19 @@ return [
         ],
     ],
     [
+        "unit" => "優惠劵到期通知",
+        "permissions" => [
+            [
+                "cms.discount_expiring.index",
+                "瀏覽",
+            ],
+            [
+                "cms.discount_expiring.edit",
+                "編輯",
+            ],
+        ],
+    ],
+    [
         "unit" => "優惠劵/代碼",
         "permissions" => [
             [
@@ -1244,8 +1257,19 @@ return [
 
         ],
     ],
+    [
+        "unit" => "團控查詢帳號",
+        "permissions" => [
+            [
+                "cms.erp-travel.index",
+                "瀏覽",
+            ],
+            [
+                "cms.erp-travel.edit",
+                "編輯",
+            ],
 
-
-
+        ],
+    ],
 
 ];
