@@ -48,7 +48,13 @@ class ProductCtrl extends Controller
                 ]);
             }
         }
-        $re = Product::singleProduct($d['sku']);
+        
+        $sale_channel_id = 1;
+        if (isset($d['salechannel_id']) && $d['salechannel_id']) {
+            $sale_channel_id = $d['salechannel_id'];
+        }
+
+        $re = Product::singleProduct($d['sku'], $sale_channel_id);
 
         if ($re) {
             return response()->json(['status' => '0', 'data' => $re]);
