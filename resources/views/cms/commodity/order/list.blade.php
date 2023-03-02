@@ -49,10 +49,10 @@
                         <button class="btn px-2" data-daysBefore="6" type="button">近7日</button>
                         <button class="btn" data-daysBefore="month" type="button">本月</button>
                         <div class="invalid-feedback">
-                            @error('_sdate')
+                            @error('order_sdate')
                                 {{ $message }}
                             @enderror
-                            @error('_edate')
+                            @error('order_edate')
                                 {{ $message }}
                             @enderror
                         </div>

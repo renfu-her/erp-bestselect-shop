@@ -48,7 +48,13 @@ class ProductCtrl extends Controller
                 ]);
             }
         }
-        $re = Product::singleProduct($d['sku']);
+
+        $sale_channel_id = 1;
+        if (isset($d['salechannel_id']) && $d['salechannel_id']) {
+            $sale_channel_id = $d['salechannel_id'];
+        }
+
+        $re = Product::singleProduct($d['sku'], $sale_channel_id);
 
         if ($re) {
             return response()->json(['status' => '0', 'data' => $re]);
@@ -98,6 +104,11 @@ class ProductCtrl extends Controller
         }
 
         $sale_channel_id = 1;
+
+        if (isset($d['salechannel_id']) && $d['salechannel_id']) {
+            $sale_channel_id = $d['salechannel_id'];
+        }
+
         $dataList = DB::table('prd_products as product')
             ->select('product.id as id',
                 'product.title as title',
@@ -133,7 +144,7 @@ class ProductCtrl extends Controller
         $dataList = $dataList->leftJoin('collection_prd as cprd', 'product.id', '=', 'cprd.product_id_fk')
             ->leftJoin('collection as colc', 'colc.id', '=', 'cprd.collection_id_fk')
             ->where('cprd.collection_id_fk', '=', $d['collection_id'])
-            ->addSelect(['colc.name as collection_name', 'collection_id_fk','cprd.sort'])
+            ->addSelect(['colc.name as collection_name', 'collection_id_fk', 'cprd.sort'])
             ->orderBy('cprd.sort')
             ->get()
             ->toArray();
@@ -179,6 +190,13 @@ class ProductCtrl extends Controller
             ]);
         }
 
+        $d = $request->all();
+        $sale_channel_id = 1;
+
+        if (isset($d['salechannel_id']) && $d['salechannel_id']) {
+            $sale_channel_id = $d['salechannel_id'];
+        }
+
         return Product::searchProduct(
             $request['data'],
             $request['page_size'] ?? '',
@@ -186,6 +204,7 @@ class ProductCtrl extends Controller
             $request['sort']['is_price_desc'] ?? true,
             'customer',
             $request['type'] ?? '0',
+            $sale_channel_id
         );
     }
 }

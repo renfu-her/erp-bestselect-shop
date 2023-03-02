@@ -116,15 +116,19 @@ class HomeCtrl extends Controller
             ->leftJoin('collection as colc', 'colc.id', '=', 'cprd.collection_id_fk')
             ->where('cprd.collection_id_fk', '=', $d['collection_id'])
             ->where('colc.is_liquor', '=', 0)
-            ->orderBy('cprd.sort','ASC')
-            ->addSelect(['colc.name as collection_name', 'collection_id_fk','cprd.sort']);
-            
-       
+            ->orderBy('cprd.sort', 'ASC')
+            ->addSelect(['colc.name as collection_name', 'collection_id_fk', 'cprd.sort']);
+
         $dataList = IttmsUtils::setPager($dataList, $request);
         $dataList = $dataList->get()->toArray();
-        Product::getMinPriceProducts(1, null, $dataList);
 
-        
+        $sale_channel_id = 1;
+
+        if (isset($d['salechannel_id']) && $d['salechannel_id']) {
+            $sale_channel_id = $d['salechannel_id'];
+        }
+
+        Product::getMinPriceProducts($sale_channel_id, null, $dataList);
 
         $data = [];
         if ($dataList) {
@@ -215,7 +219,14 @@ class HomeCtrl extends Controller
             ->groupBy('id');
         $dataList = IttmsUtils::setPager($dataList, $request);
         $dataList = $dataList->get()->toArray();
-        Product::getMinPriceProducts(1, null, $dataList);
+
+        $sale_channel_id = 1;
+
+        if (isset($d['salechannel_id']) && $d['salechannel_id']) {
+            $sale_channel_id = $d['salechannel_id'];
+        }
+
+        Product::getMinPriceProducts($sale_channel_id, null, $dataList);
         $data = $this->getImgUrl($dataList);
 
         $re = [];
@@ -322,7 +333,14 @@ class HomeCtrl extends Controller
             ->groupBy('id');
         $dataList = IttmsUtils::setPager($dataList, $request);
         $dataList = $dataList->get()->toArray();
-        Product::getMinPriceProducts(1, null, $dataList);
+
+        $sale_channel_id = 1;
+
+        if (isset($d['salechannel_id']) && $d['salechannel_id']) {
+            $sale_channel_id = $d['salechannel_id'];
+        }
+
+        Product::getMinPriceProducts($sale_channel_id, null, $dataList);
         $data = $this->getImgUrl($dataList);
 
         $re = [];
@@ -373,26 +391,26 @@ class HomeCtrl extends Controller
         ];
 
         $dataList = DB::table('prd_product_shipment')
-                        ->join('prd_products', function ($join){
-                            $join->on('prd_product_shipment.product_id', '=', 'prd_products.id')
-                                ->where('prd_products.public', '=', 1)
-                                ->where('prd_products.online', '=', 1);
-                        })
-                        ->leftJoin('collection_prd', 'prd_products.id', '=', 'collection_prd.product_id_fk')
-                        ->leftJoin('collection', 'collection_prd.collection_id_fk', '=', 'collection.id')
-                        ->where('collection.is_liquor', '=', 0)
-                        ->leftJoin('shi_group', 'prd_product_shipment.group_id', '=', 'shi_group.id')
-                        ->where('shi_group.id', '=', $tempShipIds[$shiTempId])
-                        ->where('shi_group.method_fk', '=', $shipMethodId)
-                        ->leftJoin('shi_temps', 'shi_group.temps_fk', '=', 'shi_temps.id')
-                        ->where('shi_temps.id', $shiTempId)
-                        ->leftJoin('prd_categorys', 'prd_products.category_id', '=', 'prd_categorys.id')
-                        ->select([
-                            'prd_categorys.id AS category_id',
-                            'prd_categorys.category',
-                        ])
-                        ->groupBy('category_id')
-                        ->orderBy('category_id');
+            ->join('prd_products', function ($join) {
+                $join->on('prd_product_shipment.product_id', '=', 'prd_products.id')
+                    ->where('prd_products.public', '=', 1)
+                    ->where('prd_products.online', '=', 1);
+            })
+            ->leftJoin('collection_prd', 'prd_products.id', '=', 'collection_prd.product_id_fk')
+            ->leftJoin('collection', 'collection_prd.collection_id_fk', '=', 'collection.id')
+            ->where('collection.is_liquor', '=', 0)
+            ->leftJoin('shi_group', 'prd_product_shipment.group_id', '=', 'shi_group.id')
+            ->where('shi_group.id', '=', $tempShipIds[$shiTempId])
+            ->where('shi_group.method_fk', '=', $shipMethodId)
+            ->leftJoin('shi_temps', 'shi_group.temps_fk', '=', 'shi_temps.id')
+            ->where('shi_temps.id', $shiTempId)
+            ->leftJoin('prd_categorys', 'prd_products.category_id', '=', 'prd_categorys.id')
+            ->select([
+                'prd_categorys.id AS category_id',
+                'prd_categorys.category',
+            ])
+            ->groupBy('category_id')
+            ->orderBy('category_id');
 
         $dataList = IttmsUtils::setPager($dataList, $request);
         $dataList = $dataList->get()->toArray();
@@ -453,7 +471,7 @@ class HomeCtrl extends Controller
 
         //找同物流商品
         $prd_shipment_1 = DB::table('prd_product_shipment as prd_shipment')
-            ->join('prd_products', function ($join){
+            ->join('prd_products', function ($join) {
                 $join->on('prd_shipment.product_id', '=', 'prd_products.id');
             })
             ->leftJoin('collection_prd', 'prd_products.id', '=', 'collection_prd.product_id_fk')
@@ -516,20 +534,27 @@ class HomeCtrl extends Controller
             ->where('shi_temps.id', '=', $shiTempId)
             ->leftJoin('prd_categorys', 'product.category_id', '=', 'prd_categorys.id');
 
-        if ($categoryIds){
+        if ($categoryIds) {
             $dataList->whereIn('prd_categorys.id', $categoryIds);
         }
 
         $dataList->groupBy('id')
-                ->orderBy('id')
-                ->addSelect([
-                    'shi_temps.temps',
-                    'prd_categorys.category',
-                ]);
+            ->orderBy('id')
+            ->addSelect([
+                'shi_temps.temps',
+                'prd_categorys.category',
+            ]);
 
         $dataList = IttmsUtils::setPager($dataList, $request);
         $dataList = $dataList->get()->toArray();
-        Product::getMinPriceProducts(1, null, $dataList);
+
+        $sale_channel_id = 1;
+
+        if (isset($req['salechannel_id']) && $req['salechannel_id']) {
+            $sale_channel_id = $req['salechannel_id'];
+        }
+
+        Product::getMinPriceProducts($sale_channel_id, null, $dataList);
         $data = $this->getImgUrl($dataList);
 
         return response()->json([

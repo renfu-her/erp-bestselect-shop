@@ -115,6 +115,8 @@ Route::group(['prefix' => 'cms', 'as' => 'cms.', 'middleware' => 'auth:user'], f
 
     require base_path('routes/cms/Edm.php');
     require base_path('routes/cms/OnePage.php');
+    require base_path('routes/cms/B2eCompany.php');
+
 
     require base_path('routes/cms/ErpTravel.php');
 
