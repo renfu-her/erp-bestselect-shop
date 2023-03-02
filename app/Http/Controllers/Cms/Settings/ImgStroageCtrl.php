@@ -132,7 +132,7 @@ class ImgStroageCtrl extends Controller
                 ->resize(1000, 1000, function ($constraint) {
                     $constraint->aspectRatio();
                     $constraint->upsize();
-                })->encode('webp', 90);
+                })->encode('webp', 50);
         } catch (\Exception $e) {
             dd($e);
             return false;
