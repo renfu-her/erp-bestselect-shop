@@ -62,6 +62,7 @@
                 <input class="form-control" name="title" value="{{old('title', $data->title ?? '')}}"
                     type="text" placeholder="請輸入大標題" aria-label="大標題" maxlength="12" required>
             </div>
+            {{-- t1, t2 --}}
             <div class="col-12 col-sm-6 mb-3">
                 <div class="event_type">
                     <label class="form-label">商品群組<span class="text-danger">*</span></label>
@@ -71,6 +72,52 @@
                             <option value="{{$collection->id}}" @if($collection->id == old('group_id', $data->group_id ?? '')) selected @endif>{{$collection->name}}</option>
                         @endforeach
                     </select>
+                </div>
+            </div>
+            {{-- t3 --}}
+            <div class="col-12">
+                <label class="form-label">圖片-群組（最多3個） <span class="text-danger">*</span></label>
+                <div class="row pb-1 mb-2 border-bottom">
+                    <div class="col-12 col-sm-6 mb-1">
+                        <input class="form-control" name="" value=""
+                            type="file" placeholder="" aria-label="" required>
+                    </div>
+                    <div class="col-12 col-sm-6 mb-1">
+                        <select name="" class="form-select" required>
+                            <option value="" @if('' == old('group_id', $data->group_id ?? '')) selected @endif disabled>請選擇</option>
+                            @foreach($collectionList as $key => $collection)
+                                <option value="{{$collection->id}}" @if($collection->id == old('group_id', $data->group_id ?? '')) selected @endif>{{$collection->name}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="row pb-1 mb-2 border-bottom">
+                    <div class="col-12 col-sm-6 mb-1">
+                        <input class="form-control" name="" value=""
+                            type="file" placeholder="" aria-label="" required>
+                    </div>
+                    <div class="col-12 col-sm-6 mb-1">
+                        <select name="" class="form-select" required>
+                            <option value="" @if('' == old('group_id', $data->group_id ?? '')) selected @endif disabled>請選擇</option>
+                            @foreach($collectionList as $key => $collection)
+                                <option value="{{$collection->id}}" @if($collection->id == old('group_id', $data->group_id ?? '')) selected @endif>{{$collection->name}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="row pb-1 mb-2 border-bottom">
+                    <div class="col-12 col-sm-6 mb-1">
+                        <input class="form-control" name="" value=""
+                            type="file" placeholder="" aria-label="" required>
+                    </div>
+                    <div class="col-12 col-sm-6 mb-1">
+                        <select name="" class="form-select" required>
+                            <option value="" @if('' == old('group_id', $data->group_id ?? '')) selected @endif disabled>請選擇</option>
+                            @foreach($collectionList as $key => $collection)
+                                <option value="{{$collection->id}}" @if($collection->id == old('group_id', $data->group_id ?? '')) selected @endif>{{$collection->name}}</option>
+                            @endforeach
+                        </select>
+                    </div>
                 </div>
             </div>
         </div>
