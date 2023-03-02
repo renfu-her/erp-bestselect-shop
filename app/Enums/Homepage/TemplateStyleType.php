@@ -10,6 +10,7 @@ class TemplateStyleType extends Enum
     const style_2 = '2';
     // const style_3 = '3';
     // const style_4 = '4';
+    const style_5 = '5';
 
     public static function getDescription($value): string
     {
@@ -27,6 +28,9 @@ class TemplateStyleType extends Enum
             // case self::style_4:
             //     $result = '樣式四（二維選單）';
             //     break;
+            case self::style_5:
+                $result = '樣式三（群組連結）';
+                break;
             default:
                 $result = parent::getDescription($value);
                 break;
@@ -50,6 +54,9 @@ class TemplateStyleType extends Enum
             // case self::style_4:
             //     $result = 'images/frontend/template_4.svg';
             //     break;
+            case self::style_5:
+                $result = 'images/frontend/template_5.svg';
+                break;
             default:
                 $result = '';
                 break;
