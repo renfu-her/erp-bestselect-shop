@@ -13,7 +13,7 @@
         @endif
     </div>
 
-    <form method="POST" action="{{ $formAction }}" enctype="multipart/form-data" novalidate>
+    <form method="POST" action="{{ $formAction }}" class="-banRedo" enctype="multipart/form-data" novalidate>
         @csrf
         <div class="card shadow p-4 mb-4">
             <h6>基本設定</h6>
