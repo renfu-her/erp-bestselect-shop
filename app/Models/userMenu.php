@@ -193,6 +193,8 @@ return
                 "title" => "企業網管理",
                 "controller_name" => "B2eCompanyCtrl",
                 "route_name" => "cms.b2e-company.index",
+            ],
+            [  
                 "title" => "團控查詢帳號",
                 "controller_name" => "ErpTravelCtrl",
                 "route_name" => "cms.erp-travel.index",
