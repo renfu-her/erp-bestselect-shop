@@ -22,14 +22,14 @@ class ImgStroageCtrl extends Controller
     {
         //
         $query = $request->query();
-        $user_name = Arr::get($query, 'user_name');
+        $user_name = Arr::get($query, 'user_name', $request->user()->name);
         $sDate = Arr::get($query, 'sDate');
         $eDate = Arr::get($query, 'eDate');
 
         $dataList = ImgStorage::dataList($user_name, $sDate, $eDate);
 
         return view('cms.settings.img_storage.index', [
-            'user' => $request->user()->name,
+            'user' => $user_name,
             'dataList' => $dataList->paginate(12)->appends($query),
         ]);
     }
