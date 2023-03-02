@@ -48,7 +48,7 @@ class ProductCtrl extends Controller
                 ]);
             }
         }
-        
+
         $sale_channel_id = 1;
         if (isset($d['salechannel_id']) && $d['salechannel_id']) {
             $sale_channel_id = $d['salechannel_id'];
@@ -190,6 +190,13 @@ class ProductCtrl extends Controller
             ]);
         }
 
+
+        $sale_channel_id = 1;
+
+        if (isset($d['salechannel_id']) && $d['salechannel_id']) {
+            $sale_channel_id = $d['salechannel_id'];
+        }
+
         return Product::searchProduct(
             $request['data'],
             $request['page_size'] ?? '',
@@ -197,6 +204,7 @@ class ProductCtrl extends Controller
             $request['sort']['is_price_desc'] ?? true,
             'customer',
             $request['type'] ?? '0',
+            $sale_channel_id
         );
     }
 }
