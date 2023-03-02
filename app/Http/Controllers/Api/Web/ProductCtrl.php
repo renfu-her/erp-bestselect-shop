@@ -190,7 +190,7 @@ class ProductCtrl extends Controller
             ]);
         }
 
-
+        $d = $request->all();
         $sale_channel_id = 1;
 
         if (isset($d['salechannel_id']) && $d['salechannel_id']) {
