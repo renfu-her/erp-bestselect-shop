@@ -67,8 +67,8 @@ class DiscountExpiringCtrl extends Controller
 
             $request->validate([
                 'id' => 'required|exists:usr_customer_coupon,id',
-                'mail_subject' => 'string|nullable',
-                'mail_content' => 'string|nullable',
+                'mail_subject' => 'required|string',
+                'mail_content' => 'required|string',
             ]);
 
             DB::beginTransaction();
