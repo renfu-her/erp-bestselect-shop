@@ -23,13 +23,15 @@ class UpdateProductTableImageUrlSeeder extends Seeder
             ->get();
 
         foreach ($productImageData as $productImageDatum) {
+            $match = preg_match('~^(.*).(jpg|jpeg|png)~', $productImageDatum->url, $matchSubUrl);
+            if ($match === 1) {
                 print_r('id:' . $productImageDatum->id . '-' . $productImageDatum->url);
-                preg_match('~^(.*).(jpg|jpeg|png)~', $productImageDatum->url, $matchSubUrl);
-//                dd($matchSubUrl);
-                Product::where('id', $productImageDatum->id)
-                        ->update([
-                            'url' => $matchSubUrl[1] . '.webp',
-                        ]);
+                DB::table('prd_product_images')
+                    ->where('id', $productImageDatum->id)
+                    ->update([
+                        'url' => $matchSubUrl[1].'.webp',
+                    ]);
+            }
         }
     }
 }
