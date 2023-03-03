@@ -26,7 +26,8 @@ class UpdateProductTableImageUrlSeeder extends Seeder
                 print_r('id:' . $productImageDatum->id . '-' . $productImageDatum->url);
                 preg_match('~^(.*).(jpg|jpeg|png)~', $productImageDatum->url, $matchSubUrl);
 //                dd($matchSubUrl);
-                Product::where('id', $productImageDatum->id)
+                DB::table('prd_product_images')
+                        ->where('id', $productImageDatum->id)
                         ->update([
                             'url' => $matchSubUrl[1] . '.webp',
                         ]);
