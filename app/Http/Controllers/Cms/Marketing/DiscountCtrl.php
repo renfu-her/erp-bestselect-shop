@@ -93,8 +93,6 @@ class DiscountCtrl extends Controller
             //  'end_date' => 'required|date',
             'discount_value' => 'required|numeric',
             'min_consume' => 'required|numeric',
-            'mail_subject' => 'string|nullable',
-            'mail_content' => 'string|nullable',
         ]);
 
         $d = $request->all();
@@ -108,10 +106,7 @@ class DiscountCtrl extends Controller
             $d['start_date'],
             $d['end_date'],
             $is_grand_total,
-            isset($d['collection_id']) ? $d['collection_id'] : [],
-            $d['mail_subject'],
-            $d['mail_content'],
-        );
+            isset($d['collection_id']) ? $d['collection_id'] : []);
 
         wToast('新增完成');
         return redirect(route('cms.discount.index'));
@@ -177,8 +172,6 @@ class DiscountCtrl extends Controller
         $request->validate([
             'start_date' => 'date|nullable',
             'end_date' => 'date|nullable',
-            'mail_subject' => 'string|nullable',
-            'mail_content' => 'string|nullable',
         ]);
 
         $d = request()->all();
@@ -192,8 +185,6 @@ class DiscountCtrl extends Controller
                 'start_date' => $start_date,
                 'end_date' => $end_date,
                 'is_global' => $is_global,
-                'mail_subject' => $d['mail_subject'],
-                'mail_content' => $d['mail_content'],
             ]
         );
 
