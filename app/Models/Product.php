@@ -1153,8 +1153,13 @@ class Product extends Model
         int $currentPageNumber = 1,
         bool $isPriceDescend = true,
         string $m_class = 'customer',
-        string $type = '0'
+        string $type = '0',
+        $sale_channel_id = 1
+
     ) {
+
+        $sale_channel = SaleChannel::where('id',$sale_channel_id)->get()->first();
+        /*
         $sale_channel = DB::table('usr_identity')
             ->where('usr_identity.code', '=', $m_class)
             ->leftJoin('usr_identity_salechannel', 'usr_identity.id', '=', 'usr_identity_salechannel.identity_id')
@@ -1162,7 +1167,7 @@ class Product extends Model
             ->select('sale_channel_id', 'sale_channel.sales_type')
             ->get()
             ->first();
-
+*/
         if ($sale_channel->sales_type == '1') {
             $sales_type = 'prd.online';
         } else {
@@ -1267,9 +1272,9 @@ class Product extends Model
                     ->where('product_style.is_active', '=', 1);
             })
             ->leftJoin('prd_salechannel_style_price
-             as sale_channel', function ($join) use ($sale_channel) {
+             as sale_channel', function ($join) use ($sale_channel_id) {
                 $join->on('sale_channel.style_id', '=', 'product_style.id')
-                    ->where('sale_channel.sale_channel_id', '=', $sale_channel->sale_channel_id);
+                    ->where('sale_channel.sale_channel_id', '=', $sale_channel_id);
             })
             ->leftJoin('prd_product_images as images', 'images.product_id', '=', 'prd.id')
             ->whereNull('prd.deleted_at')

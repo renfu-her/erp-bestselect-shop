@@ -1497,6 +1497,22 @@ Breadcrumbs::for('cms.organize.edit', function (BreadcrumbTrail $trail) {
     $trail->push('編輯');
 });
 
+// 企業網管理
+Breadcrumbs::for('cms.b2e-company.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('企業網管理', route('cms.b2e-company.index'));
+});
+
+Breadcrumbs::for('cms.b2e-company.create', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.b2e-company.index');
+    $trail->push('新增');
+});
+
+Breadcrumbs::for('cms.b2e-company.edit', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.b2e-company.index');
+    $trail->push('編輯');
+});
+
 // 單據綁定
 Breadcrumbs::for('cms.reverse-bind-page', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');

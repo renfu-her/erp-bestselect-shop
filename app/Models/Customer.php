@@ -42,6 +42,8 @@ class Customer extends Authenticatable
         'newsletter',
         'password',
         'sn',
+        'join_b2e_at',
+        'b2e_company_id'
     ];
 
     /**

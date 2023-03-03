@@ -24,11 +24,11 @@ class DashboardCtrl extends Controller
 
         $reportMonth = OrderReportMonth::where('date', Date('Y-m-1'))->get()->first();
         // 這個月總天數
-        $days = date('t');
-        $reportPrevMonth = OrderReportMonth::where('date', Date('Y-m-1', strtotime("-$days days")))->get()->first();
+        // $days = date('t');
+        $reportPrevMonth = OrderReportMonth::where('date', Date('Y-m-1', strtotime("-1 months")))->get()->first();
 
         $customerMonth = CustomerReportMonth::dataList()->where('month.date', Date('Y-m-1'))->limit(20)->get()->toArray();
-        $customerPrevMonth = CustomerReportMonth::dataList()->where('month.date', Date('Y-m-1', strtotime("-$days days")))->limit(20)->get()->toArray();
+        $customerPrevMonth = CustomerReportMonth::dataList()->where('month.date', Date('Y-m-1', strtotime("-1 months")))->limit(20)->get()->toArray();
 
         $reportUpdatedTime = now();
         $topCollections = Collection::where('erp_top', 1)->get()->toArray();
