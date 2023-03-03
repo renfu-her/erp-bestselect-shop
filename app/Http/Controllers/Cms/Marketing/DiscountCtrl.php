@@ -93,8 +93,8 @@ class DiscountCtrl extends Controller
             //  'end_date' => 'required|date',
             'discount_value' => 'required|numeric',
             'min_consume' => 'required|numeric',
-            'mail_subject' => 'required|string',
-            'mail_content' => 'required|string',
+            'mail_subject' => 'string|nullable',
+            'mail_content' => 'string|nullable',
         ]);
 
         $d = $request->all();
@@ -177,8 +177,8 @@ class DiscountCtrl extends Controller
         $request->validate([
             'start_date' => 'date|nullable',
             'end_date' => 'date|nullable',
-            'mail_subject' => 'required|string',
-            'mail_content' => 'required|string',
+            'mail_subject' => 'string|nullable',
+            'mail_content' => 'string|nullable',
         ]);
 
         $d = request()->all();

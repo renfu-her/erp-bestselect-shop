@@ -90,8 +90,8 @@ class PromoCtrl extends Controller
             'method_code' => ['required', Rule::in(array_keys(DisMethod::getValueWithDesc()))],
             'discount_value' => 'required|numeric',
             'min_consume' => 'required|numeric',
-            'mail_subject' => 'required|string',
-            'mail_content' => 'required|string',
+            'mail_subject' => 'string|nullable',
+            'mail_content' => 'string|nullable',
         ];
 
         switch ($_POST['category']) {
