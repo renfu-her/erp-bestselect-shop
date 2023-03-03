@@ -198,7 +198,7 @@ class Discount extends Model
         // dd($re->get()->toArray());
     }
 
-    public static function createDiscount($title, $min_consume, DisMethod $method, $value, $start_date = null, $end_date = null, $is_grand_total = 0, $collection_ids = [], $mail_subject = '', $mail_content = '')
+    public static function createDiscount($title, $min_consume, DisMethod $method, $value, $start_date = null, $end_date = null, $is_grand_total = 0, $collection_ids = [], $mail_subject = null, $mail_content = null)
     {
         if (count($collection_ids) > 0) {
             $is_global = 0;
@@ -223,7 +223,7 @@ class Discount extends Model
 
     }
 
-    public static function createCoupon($title, $min_consume, DisMethod $method, $value, $is_grand_total = 0, $collection_ids = [], $life_cycle = 0, $mail_subject = '', $mail_content = '')
+    public static function createCoupon($title, $min_consume, DisMethod $method, $value, $is_grand_total = 0, $collection_ids = [], $life_cycle = 0, $mail_subject = null, $mail_content = null)
     {
         $result = IttmsDBB::transaction(function () use ($title, $min_consume, $method, $value, $is_grand_total, $collection_ids, $life_cycle, $mail_subject, $mail_content) {
             if (count($collection_ids) > 0) {
@@ -260,7 +260,7 @@ class Discount extends Model
 
     }
 
-    public static function createCode($sn, $title, $min_consume, DisMethod $method, $value, $start_date = null, $end_date = null, $is_grand_total = 1, $collection_ids = [], $max_usage = 0, $mail_subject = '', $mail_content = '')
+    public static function createCode($sn, $title, $min_consume, DisMethod $method, $value, $start_date = null, $end_date = null, $is_grand_total = 1, $collection_ids = [], $max_usage = 0, $mail_subject = null, $mail_content = null)
     {
 
         IttmsDBB::transaction(function () use ($sn, $title, $min_consume, $method, $value, $is_grand_total, $collection_ids, $start_date, $end_date, $max_usage, $mail_subject, $mail_content) {

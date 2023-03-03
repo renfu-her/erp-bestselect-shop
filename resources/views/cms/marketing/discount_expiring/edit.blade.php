@@ -7,15 +7,15 @@
         @csrf
         <div class="card shadow p-4 mb-4">
             <div class="col-12 mb-3">
-                <label class="form-label">主旨 <span class="text-danger">*</span></label>
-                <input class="form-control @error('mail_subject') is-invalid @enderror" name="mail_subject" type="text" placeholder="到期通知信主旨" maxlength="255" value="{{ old('mail_subject', $customer_coupon->mail_subject) }}" aria-label="到期通知信主旨" required>
+                <label class="form-label">主旨</label>
+                <input class="form-control @error('mail_subject') is-invalid @enderror" name="mail_subject" type="text" placeholder="到期通知信主旨" maxlength="255" value="{{ old('mail_subject', $customer_coupon->mail_subject) }}" aria-label="到期通知信主旨">
                 @error('mail_subject')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
             </div>
 
             <div class="col-12 mb-3">
-                <label class="form-label">內容 <span class="text-danger">*</span></label>
+                <label class="form-label">內容</label>
                 <div class="alert alert-primary" role="alert">
                     <i class="bi bi-info-circle-fill"></i> 參數使用說明：（點選框中文字可自動複製）
                     <div class="d-flex flex-wrap" style="list-style-type: none;">

@@ -870,6 +870,13 @@
                         return false;
                     }
                 });
+
+
+                $("#postpone").on('change', function () {
+                    if ($(this).is(':checked')) {
+                        alert('若確定需要新增「合併發票」欄位的「選項」時才選擇「暫不開立」!!');
+                    }
+                });
             });
         </script>
     @endpush
