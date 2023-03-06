@@ -213,8 +213,14 @@ class OrderCtrl extends Controller
         } else {
             $payment = null;
         }
-        
-        $re = Order::createOrder($customer->email, 1, $address, $payLoad['products'], $payLoad['mcode'] ?? null, $payLoad['note'], $couponObj, $payinfo, $payment, $dividend, $request->user());
+
+        $sale_channel_id = 1;
+
+        if (isset($payLoad['salechannel_id']) && $payLoad['salechannel_id']) {
+            $sale_channel_id = $payLoad['salechannel_id'];
+        }
+
+        $re = Order::createOrder($customer->email, $sale_channel_id, $address, $payLoad['products'], $payLoad['mcode'] ?? null, $payLoad['note'], $couponObj, $payinfo, $payment, $dividend, $request->user());
 
         if ($re['success'] == '1') {
             DB::commit();

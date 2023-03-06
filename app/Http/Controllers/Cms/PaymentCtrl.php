@@ -379,7 +379,7 @@ class PaymentCtrl extends Controller
     }
 
 
-    public function line_pay(Request $request, $source_type, $source_id, $unique_id)
+    public function line_pay(Request $request, $source_type, $source_id, $unique_id = null)
     {
         $request->merge([
             'id' => $source_id,
@@ -518,7 +518,7 @@ class PaymentCtrl extends Controller
     }
 
 
-    public function line_pay_confirm(Request $request, $source_type, $source_id, $unique_id)
+    public function line_pay_confirm(Request $request, $source_type, $source_id, $unique_id = null)
     {
         $request->merge([
             'id' => $source_id,

@@ -38,7 +38,8 @@ class DayEndCtrl extends Controller
             }
         }
 
-        $year_range = range(date('Y', strtotime('-2 year')), date('Y', strtotime('+2 year')));
+        // $year_range = range(date('Y', strtotime('-2 year')), date('Y', strtotime('+2 year')));
+        $year_range = range('2022', date('Y'));
 
         $month_rage = [];
         for($i = 1; $i <= 12; $i++){
@@ -149,7 +150,8 @@ class DayEndCtrl extends Controller
                 grade_name
             ')->get();
 
-        $year_range = range(date('Y', strtotime('-2 year')), date('Y', strtotime('+2 year')));
+        // $year_range = range(date('Y', strtotime('-2 year')), date('Y', strtotime('+2 year')));
+        $year_range = range('2022', date('Y'));
 
         $month_rage = [];
         for($i = 1; $i <= 12; $i++){
