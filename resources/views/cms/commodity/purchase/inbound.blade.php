@@ -81,7 +81,7 @@
                             <th scope="col">入庫日期</th>
                             <th scope="col">商品款式</th>
                             <th scope="col">SKU</th>
-                            <th scope="col">應進數量</th>
+                            <th scope="col" class="small lh-1 text-end">應進<br>數量</th>
                             <th scope="col">實進數量</th>
                             <th scope="col">有效期限
                                 <button type="button" data-bs-toggle="tooltip" title="一鍵複製(同第一行資料)"
@@ -111,9 +111,9 @@
                                            name="inbound_date[]"
                                            value="{{ old('inbound_date.'. $styleKey, date('Y-m-d')) }}" required/>
                                 </td>
-                                <td data-td="title">{{ $styleVal->title ?? '' }}</td>
-                                <td data-td="sku">{{ $styleVal->sku ?? '' }}</td>
-                                <td data-td="should_enter_num">{{ $styleVal->should_enter_num ?? '' }}</td>
+                                <td data-td="title" class="wrap">{{ $styleVal->title ?? '' }}</td>
+                                <td data-td="sku" class="wrap">{{ $styleVal->sku ?? '' }}</td>
+                                <td data-td="should_enter_num" class="text-end">{{ $styleVal->should_enter_num ?? '' }}</td>
                                 <td>
                                     <input type="number"
                                            class="form-control form-control-sm @error('inbound_num.' . $styleKey) is-invalid @enderror"
@@ -121,10 +121,17 @@
                                            required/>
                                 </td>
                                 <td>
-                                    <input type="date"
-                                           class="form-control form-control-sm @error('expiry_date.' . $styleKey) is-invalid @enderror"
+                                    <div class="input-group has-validation flex-nowrap">
+                                        <input type="date"
+                                           class="form-control form-control-sm -startDate @error('expiry_date.' . $styleKey) is-invalid @enderror"
                                            name="expiry_date[]" value="{{ old('expiry_date.'. $styleKey, '') }}"
                                            required/>
+                                        <button class="btn btn-sm fw-bold" data-nextDay="years" data-shiftQty="10" type="button" 
+                                            data-bs-toggle="tooltip" title="無期限">∞</button>
+                                        <div class="invalid-feedback">
+                                            @error('expiry_date[]') {{ $message }} @enderror
+                                        </div>
+                                    </div>
                                 </td>
                                 <td>
                                     <input type="text" class="form-control form-control-sm @error('inbound_memo.' . $styleKey) is-invalid @enderror" name="inbound_memo[]"

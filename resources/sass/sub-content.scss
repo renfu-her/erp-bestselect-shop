@@ -293,12 +293,15 @@ nav ul.pagination .page-link {
 /*
  * 日期快速鍵 
  */
-button[data-daysBefore] {
+button[data-daysBefore],
+button[data-prevDay], button[data-nextDay] {
   color: #212529;
   border-color: #ced4da;
   background-color: #f8fafc;
 }
-button[data-daysBefore]:hover {
+button[data-daysBefore]:hover,
+button[data-prevDay]:hover, 
+button[data-nextDay]:hover {
   color: $color-white;
   border-color: $primary;
   background-color: $primary;

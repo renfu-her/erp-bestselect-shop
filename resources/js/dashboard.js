@@ -57,16 +57,17 @@
         const $this = $(this);
         let prevN = $this.attr('data-prevDay');
         let nextN = $this.attr('data-nextDay');
-        const now = new moment($this.siblings('.-startDate').val());
+        const shiftQty = Number($this.attr('data-shiftQty')) || 1;
+        const now = new moment($this.siblings('.-startDate').val() || new Date());
         let newDay;
 
         if (isNaN(prevN) && isNaN(nextN)) {
             const Key = {years: 'y', quarters: 'Q', months: 'M', weeks: 'w', days: 'd', hours: 'h', minutes: 'm', seconds: 's', milliseconds: 'ms'};
             if (Key[prevN]) {
-                newDay = moment(now).subtract(1, prevN);
+                newDay = moment(now).subtract(shiftQty, prevN);
             }
             if (Key[nextN]) {
-                newDay = moment(now).add(1, nextN);
+                newDay = moment(now).add(shiftQty, nextN);
             }
         } else {
             prevN = Math.abs(prevN) || 0;
