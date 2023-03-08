@@ -90,8 +90,8 @@ class PromoCtrl extends Controller
             'method_code' => ['required', Rule::in(array_keys(DisMethod::getValueWithDesc()))],
             'discount_value' => 'required|numeric',
             'min_consume' => 'required|numeric',
-            'mail_subject' => 'required|string',
-            'mail_content' => 'required|string',
+            'mail_subject' => 'string|nullable',
+            'mail_content' => 'string|nullable',
         ];
 
         switch ($_POST['category']) {
@@ -128,9 +128,7 @@ class PromoCtrl extends Controller
                     $d['end_date'],
                     $is_grand_total,
                     isset($d['collection_id']) ? $d['collection_id'] : [],
-                    $d['max_usage'],
-                    $d['mail_subject'],
-                    $d['mail_content']);
+                    $d['max_usage']);
                 break;
 
         }
@@ -223,6 +221,8 @@ class PromoCtrl extends Controller
         switch ($d['category']) {
             case DisCategory::coupon()->value:
                 $updateData['life_cycle'] = $d['life_cycle'];
+                $updateData['mail_subject'] = $d['mail_subject'];
+                $updateData['mail_content'] = $d['mail_content'];
                 Discount::where('id', $id)->update($updateData);
                 break;
             case DisCategory::code()->value:
@@ -231,8 +231,6 @@ class PromoCtrl extends Controller
                 $updateData['start_date'] = $start_date;
                 $updateData['end_date'] = $end_date;
                 $updateData['max_usage'] = $d['max_usage'];
-                $updateData['mail_subject'] = $d['mail_subject'];
-                $updateData['mail_content'] = $d['mail_content'];
                 Discount::where('id', $id)->update($updateData);
                 break;
 

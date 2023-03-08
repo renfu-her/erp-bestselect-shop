@@ -196,14 +196,14 @@
                     </div>
                 </div>
 
-                <div class="row mb-3 border rounded mx-0 px-0 pt-2">
+                <div class="row mb-3 border rounded mx-0 px-0 pt-2" data-category="coupon" hidden>
                     <fieldset class="col-12 mb-1">
                         <legend class="col-form-label p-0 mb-2">預設優惠券到期通知信 </legend>
                     </fieldset>
 
                     <div class="col-12 mb-3">
                         <label class="form-label">主旨 <span class="text-danger">*</span></label>
-                        <input class="form-control @error('mail_subject') is-invalid @enderror" name="mail_subject" type="text" placeholder="到期通知信主旨" maxlength="255" value="{{ old('mail_subject', $data->mail_subject ?? '') }}" aria-label="到期通知信主旨" required>
+                        <input class="form-control @error('mail_subject') is-invalid @enderror" name="mail_subject" type="text" placeholder="到期通知信主旨" maxlength="255" value="{{ old('mail_subject', $data->mail_subject ?? '') }}" aria-label="到期通知信主旨" editable>
                         @error('mail_subject')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -237,7 +237,7 @@
                                 </div>
                             </div>
                         </div>
-                        <textarea id="editor" name="mail_content" hidden></textarea>
+                        <textarea id="editor" name="mail_content" hidden editable></textarea>
                     </div>
                 </div>
             </div>

@@ -7,6 +7,7 @@ use App\Enums\Customer\Login;
 use App\Enums\Globals\ApiStatusMessage;
 use App\Enums\Globals\ResponseParam;
 use App\Http\Controllers\Controller;
+use App\Models\B2eCompany;
 use App\Models\CouponEvent;
 use App\Models\Customer;
 use App\Models\CustomerAddress;
@@ -87,6 +88,8 @@ class CustomerCtrl extends Controller
         $data = $request->only('email', 'password');
 
         $customer = Customer::where('email', $data['email'])->get()->first();
+        //  $customer = Customer::dataList()->where('user.email', $data['email'])->get()->first();
+        //  dd($customer);
         $customer = $this->setProfit($customer);
 
         if (null == $customer
@@ -106,7 +109,20 @@ class CustomerCtrl extends Controller
 
         $scope = []; //設定令牌能力
         $token = $customer->createToken($request->device_name ?? $customer->name, $scope);
+
         $customer['token'] = $token->plainTextToken;
+        $customer['salechannel_id'] = '';
+        $customer['b2e_img'] = '';
+        $customer['b2e_title'] = '';
+
+        if ($customer->b2e_company_id) {
+            $b2eCompany = B2eCompany::where('id', $customer->b2e_company_id)->get()->first();
+            if ($b2eCompany) {
+                $customer['salechannel_id'] = $b2eCompany->salechannel_id;
+                $customer['b2e_img'] = $b2eCompany->img;
+                $customer['b2e_title'] = $b2eCompany->title;
+            }
+        }
 
         return response()->json([
             ResponseParam::status()->key => ApiStatusMessage::Succeed,
@@ -210,7 +226,21 @@ class CustomerCtrl extends Controller
         if (isset($user)) {
             $customerProfit = CustomerProfit::getProfitData($user['id']);
             $user['profit'] = $customerProfit;
+
+            $user['salechannel_id'] = '';
+            $user['b2e_img'] = '';
+            $user['b2e_title'] = '';
+    
+            if ($user['b2e_company_id']) {
+                $b2eCompany = B2eCompany::where('id', $user['b2e_company_id'])->get()->first();
+                if ($b2eCompany) {
+                    $user['salechannel_id'] = $b2eCompany->salechannel_id;
+                    $user['b2e_img'] = $b2eCompany->img;
+                    $user['b2e_title'] = $b2eCompany->title;
+                }
+            }
         }
+
         $identity = CustomerIdentity::where('customer_id', $user['id'])->where('identity_code', '<>', 'customer')->get()->first();
         $user['identity_title'] = '';
         $user['identity_code'] = '';
@@ -831,6 +861,45 @@ class CustomerCtrl extends Controller
 
         return response()->json([
             'status' => '0',
+        ]);
+
+    }
+
+    public function bindB2eCompany(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'code' => ['required'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                ResponseParam::status => ApiStatusMessage::Fail,
+                ResponseParam::msg => $validator->errors(),
+                ResponseParam::data => [],
+            ]);
+        }
+
+        $code = $request->input('code');
+
+        $company = B2eCompany::where('code', $code)->get()->first();
+
+        if (!$company) {
+            return response()->json([
+                'status' => 'E12',
+                'msg' => '無效碼',
+            ]);
+        }
+
+        $request->user()->update(['b2e_company_id' => $company->id, 'join_b2e_at' => now()]);
+
+
+        return response()->json([
+            'status' => '0',
+            'data' => [
+                'salechannel_id' => $company->salechannel_id,
+                'b2e_company_id' => $company->id,
+                'b2e_title' => $company->title,
+                'b2e_img' => $company->img ? $company->img : ''],
         ]);
 
     }

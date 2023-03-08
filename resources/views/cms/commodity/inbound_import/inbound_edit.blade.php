@@ -28,18 +28,25 @@
                 <dd>{{ $inboundData->remaining_qty ? number_format($inboundData->remaining_qty) : '' }}</dd>
             </div>
 
-            <x-b-form-group name="remaining_qty" title="調整數量" required="false" class="col-12 col-sm-6">
+            <x-b-form-group name="remaining_qty" title="調整數量" required="true" class="col-12 col-sm-6">
                 <input type="number"
                         class="form-control @error('update_num') is-invalid @enderror"
                         name="update_num" value="0" min="{{ $inboundData->remaining_qty ? $inboundData->remaining_qty * -1 : 0 }}"
                         required/>
             </x-b-form-group>
-            <x-b-form-group name="remaining_qty" title="調整效期" required="false" class="col-12 col-sm-6">
-                <input type="date"
-                        class="form-control @error('expiry_date') is-invalid @enderror"
-                        name="expiry_date" value="{{ $inboundData->expiry_date ?? '' }}"
-                        required/>
-            </x-b-form-group>
+            <div class="form-group mb-2 col-12 col-sm-6">
+                <label class="form-label">調整效期 <span class="text-danger">*</span></label>
+                <div class="input-group has-validation">
+                    <input type="date"
+                            class="form-control -startDate @error('expiry_date') is-invalid @enderror"
+                            name="expiry_date" value="{{ $inboundData->expiry_date ?? '' }}"
+                            required/>
+                    <button id="noLimit" class="btn" data-nextDay="years" data-shiftQty="10" type="button">無期限</button>
+                    <div class="invalid-feedback">
+                        @error('expiry_date') {{ $message }} @enderror
+                    </div>
+                </div>
+            </div>
             <x-b-form-group name="note" title="備註" required="false">
                 <input class="form-control @error('memo') is-invalid @enderror"
                         name="memo"
@@ -86,5 +93,12 @@
             margin-bottom: 0.5rem;
         }
     </style>
+    @endpush
+    @push('sub-scripts')
+    <script>
+        $('#noLimit').on('click.memo', function () {
+            $('input[name="memo"]').val('調整效期');
+        });
+    </script>
     @endpush
 @endonce
