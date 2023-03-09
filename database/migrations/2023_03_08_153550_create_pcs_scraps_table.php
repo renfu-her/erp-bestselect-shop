@@ -24,18 +24,20 @@ class CreatePcsScrapsTable extends Migration
             $table->string('memo')->nullable()->comment('備註');
             $table->string('status', 20)->nullable()->comment('報廢單狀態');
             $table->timestamps();
+            $table->softDeletes();
         });
         Schema::create('pcs_scrap_item', function (Blueprint $table) {
             $table->id()->comment('報廢商品款式ID');
             $table->unsignedBigInteger('scrap_id')->comment('報廢單ID');
             $table->unsignedBigInteger('inbound_id')->nullable()->comment('入庫單ID');
             $table->integer('product_style_id')->nullable()->comment('款式ID');
-            $table->string('sku', 20)->comment('商品sku');
+            $table->string('sku', 20)->nullable()->comment('商品sku');
             $table->string('product_title', 40)->comment('商品名稱');
-            $table->integer('price')->comment('單價');
-            $table->integer('qty')->comment('數量');
+            $table->integer('price')->nullable()->comment('單價');
+            $table->integer('qty')->nullable()->comment('數量');
             $table->string('memo')->nullable()->comment('備註');
             $table->timestamps();
+            $table->softDeletes();
             $table->tinyInteger('type')->default(0)->comment('類別 0:商品 1:物流 2:銷貨收入');
             $table->unsignedBigInteger('grade_id')->comment('會計科目id');
         });

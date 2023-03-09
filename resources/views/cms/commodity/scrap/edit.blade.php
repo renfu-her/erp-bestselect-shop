@@ -33,6 +33,27 @@
                     </tr>
                     </thead>
                     <tbody>
+                        <tr class="--prod">
+                            <th scope="row">1
+                                <input type="hidden" name="item_id[]" value="item_id" />
+                                <input type="hidden" name="inbound_id[]" value="inbound_id" />
+                                <input type="hidden" name="product_style_id[]" value="product_style_id" />
+                                <input type="hidden" name="sku[]" value="sku" />
+                                <input type="hidden" name="product_title[]" value="product_title" />
+                            </th>
+                            <td>event_sn</td>
+                            <td>product_title</td>
+                            <td>style_sku</td>
+                            <td>expiry_date</td>
+                            <td>depot_name</td>
+                            <td>inbound_event_name</td>
+                            <td>qty</td>
+                            <td class="text-center">
+                                <input type="hidden" name="to_scrap_qty[]" value="0" />0
+                            </td>
+                            <td>in_stock</td>
+                            <td>memo</td>
+                        </tr>
                     </tbody>
                 </table>
                 <div class="d-grid mt-3">
@@ -127,6 +148,7 @@
         <div id="submitDiv">
             <div class="col-auto">
                 <input type="hidden" name="method" value="{{ $method }}" />
+                <input type="hidden" name="del_item_id">
                 <button type="submit" class="btn btn-primary px-4" >送出</button>
                 <a href="{{ Route('cms.scrap.index', []) }}" class="btn btn-outline-primary px-4" role="button">返回明細</a>
             </div>
