@@ -4,14 +4,29 @@ namespace App\Http\Controllers\Cms\Commodity;
 
 use App\Http\Controllers\Controller;
 use App\Models\GeneralLedger;
+use App\Models\PcsScrapItem;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 
 class ScrapCtrl extends Controller
 {
     public function index(Request $request)
     {
-        return view('cms.commodity.scrap.list');
+        $searchParam = [];
+        $query = $request->query();
+        $searchParam['scrap_sn'] = Arr::get($query, 'scrap_sn', null);
+
+        $data_per_page = Arr::get($query, 'data_per_page', 100);
+        $searchParam['data_per_page'] = getPageCount(Arr::get($query, 'data_per_page', 100));
+        $dataList = PcsScrapItem::getDataList($searchParam)
+            ->paginate($searchParam['data_per_page'])->appends($query);
+
+        return view('cms.commodity.scrap.list', [
+            'dataList' => $dataList,
+            'data_per_page' => $data_per_page,
+            'searchParam' => $searchParam
+        ]);
     }
 
     public function create(Request $request)
@@ -43,10 +58,11 @@ class ScrapCtrl extends Controller
 
     public function destroy(Request $request, $id)
     {
-
+        dd('destroy', $id);
     }
 
-    public function printScrap(Request $request, $id) {
+    public function printScrap(Request $request, $id)
+    {
 
     }
 }
