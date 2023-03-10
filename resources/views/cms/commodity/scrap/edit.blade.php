@@ -26,9 +26,9 @@
                         <th>效期</th>
                         <th>倉庫</th>
                         <th>事件</th>
+                        <th>目前可售數量</th>
                         <th>現有數量</th>
                         <th class="text-center" style="width: 10%">報廢數量</th>
-                        <th>目前可售數量</th>
                         <th>備註</th>
                     </tr>
                     </thead>
@@ -47,11 +47,11 @@
                             <td>expiry_date</td>
                             <td>depot_name</td>
                             <td>inbound_event_name</td>
+                            <td>in_stock</td>
                             <td>qty</td>
                             <td class="text-center">
                                 <input type="number" name="to_scrap_qty[]" value="0" min="1" />
                             </td>
-                            <td>in_stock</td>
                             <td class="text-center">
                                 <input type="text" name="memo[]" value="memo" />
                             </td>
