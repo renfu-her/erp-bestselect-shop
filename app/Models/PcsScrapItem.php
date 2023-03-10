@@ -4,16 +4,16 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 
 class PcsScrapItem extends Model
 {
-    use HasFactory;
-
+    use HasFactory,SoftDeletes;
     protected $table = 'pcs_scrap_item';
     protected $guarded = [];
 
-    public static function getDataList($searchParam)
+    public static function getProductItemList($searchParam)
     {
         $concatString = concatStr([
             'id' => DB::raw('ifnull(scrapitem.id, "")'),
@@ -32,7 +32,6 @@ class PcsScrapItem extends Model
             ->where('scraps.deleted_at', null)
             ->where('scraps.type', 'scrap')
             ->where('scrapitem.deleted_at', null)
-            ->where('scrapitem.type', 0)
             ->groupBy('scraps.id')
             ->select(
                 'scraps.id',
@@ -42,7 +41,8 @@ class PcsScrapItem extends Model
                 'scraps.memo',
                 'scraps.audit_status',
                 DB::raw('DATE_FORMAT(scraps.created_at,"%Y-%m-%d %H:%i:%s") as created_at'),
-                DB::raw($concatString . ' as groupConcat'));
+                DB::raw($concatString . ' as groupConcat')
+            );
 
         if ($searchParam['scrap_sn']) {
             $query->where('scraps.sn', 'like', "%{$searchParam['scrap_sn']}%");

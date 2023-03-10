@@ -10,10 +10,13 @@ use App\Http\Controllers\Controller;
 use App\Models\GeneralLedger;
 use App\Models\PcsScrapItem;
 use App\Models\PcsScraps;
+use App\Models\PurchaseInbound;
+use App\Models\ReceivedDefault;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class ScrapCtrl extends Controller
 {
@@ -25,7 +28,7 @@ class ScrapCtrl extends Controller
 
         $data_per_page = Arr::get($query, 'data_per_page', 100);
         $searchParam['data_per_page'] = getPageCount(Arr::get($query, 'data_per_page', 100));
-        $dataList = PcsScrapItem::getDataList($searchParam)
+        $dataList = PcsScrapItem::getProductItemList($searchParam)
             ->paginate($searchParam['data_per_page'])->appends($query);
 
         return view('cms.commodity.scrap.list', [
@@ -50,9 +53,8 @@ class ScrapCtrl extends Controller
     public function store(Request $request)
     {
         $this->validInputValue($request);
-        dd('store', $request->all(), Auth::user());
 
-        $msg = IttmsDBB::transaction(function () use ($request, $delivery) {
+        $msg = IttmsDBB::transaction(function () use ($request) {
             $scrap_memo = $request->input('scrap_memo', null);
 
             $rePSCD = PcsScraps::createData(PcsScrapType::scrap(), $scrap_memo);
@@ -130,7 +132,6 @@ class ScrapCtrl extends Controller
     public function update(Request $request, $id)
     {
         $this->validInputValue($request);
-        dd('update', $request->all(), Auth::user());
 
         $scrapData = PcsScraps::find($id);
         $msg = IttmsDBB::transaction(function () use ($request, $id, $scrapData) {
@@ -172,8 +173,8 @@ class ScrapCtrl extends Controller
     private function do_scrap_store(Request $request, $scrap_id) {
         $msg = IttmsDBB::transaction(function () use ($request, $scrap_id) {
             $input_items = $request->only('item_id', 'inbound_id', 'product_style_id', 'product_title', 'sku', 'price', 'to_scrap_qty', 'memo', 'show');
-            if (isset($input_items['id']) && 0 < count($input_items['id'])) {
-                if(true == isset($input_items['id'][0])) {
+            if (isset($input_items['item_id']) && 0 < count($input_items['item_id'])) {
+                if(true == isset($input_items['item_id'][0])) {
                     //已有資料 做編輯
                     for($i = 0; $i < count($input_items['item_id']); $i++) {
                         PcsScrapItem::where('id', '=', $input_items['item_id'][$i])->update([
@@ -185,12 +186,12 @@ class ScrapCtrl extends Controller
                     $data = [];
                     $default_grade_id = ReceivedDefault::where('name', '=', 'product')->first()->default_grade_id;
                     $curr_date = date('Y-m-d H:i:s');
-                    for($i = 0; $i < count($input_items['id']); $i++) {
+                    for($i = 0; $i < count($input_items['item_id']); $i++) {
                         if (0 == $input_items['to_scrap_qty'][$i]) {
                             //判斷數量零的就跳過
                             continue;
                         }
-                        $inbound = PcsInbound::findorfail($input_items['inbound_id'][$i]);
+                        $inbound = PurchaseInbound::findorfail($input_items['inbound_id'][$i]);
 
                         if (!$inbound) {
                             return ['success' => 0, 'error_msg' => '找不到入庫單 '. $input_items['inbound_id'][$i]];
@@ -258,16 +259,14 @@ class ScrapCtrl extends Controller
 
     public function destroy(Request $request, $id)
     {
-        dd('destroy', $id);
-
         $scrapData = PcsScraps::where('id', '=', $id)->first();
         if(null != $scrapData && AuditStatus::approved()->value == $scrapData->audit_status) {
             wToast('已核可 無法刪除', ['type' => 'danger']);
             return redirect()->back();
         }
 
-        PcsScraps::where('bac_papa_id', $bac_papa_id)->delete();
-        PcsScrapItem::where('id', $bac_papa_id)->delete();
+        PcsScraps::where('id', $id)->delete();
+        PcsScrapItem::where('scrap_id', $id)->delete();
 
         wToast('刪除成功');
         return redirect()->back();

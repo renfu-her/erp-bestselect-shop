@@ -146,6 +146,9 @@
                 {{ $message }}
             </div>
             @enderror
+            @error('item_error')
+            <div class="alert alert-danger mt-3">{{ $message }}</div>
+            @enderror
             @if($errors->any())
                 {{ implode('', $errors->all('<div>:message</div>')) }}
             @endif

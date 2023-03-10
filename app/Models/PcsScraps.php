@@ -7,10 +7,12 @@ use App\Enums\PcsScrap\PcsScrapType;
 use App\Helpers\IttmsDBB;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Auth;
 
 class PcsScraps extends Model
 {
-    use HasFactory;
+    use HasFactory,SoftDeletes;
     protected $table = 'pcs_scraps';
     protected $guarded = [];
 
