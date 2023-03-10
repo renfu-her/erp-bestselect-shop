@@ -12,7 +12,7 @@
     </a>
     @if(\App\Enums\Consignment\AuditStatus::approved()->value != $purchaseData->audit_status)
         <a href="javascript:void(0)" data-href="{{ Route('cms.purchase.delete', ['id' => $id], true) }}"
-           data-bs-toggle="modal" data-bs-target="#confirm-delete-purchase" class="nav-link">
+           data-bs-toggle="modal" data-bs-target="#confirm-delete-purchase" class="nav-link text-danger">
             <span class="icon"><i class="bi bi-trash"></i></span>
             <span class="label">刪除採購單</span>
         </a>
