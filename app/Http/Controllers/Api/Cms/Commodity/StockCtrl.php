@@ -15,7 +15,7 @@ class StockCtrl extends Controller
 {
     public static function inboundlist(Request $request) {
         $cond = [];
-        $cond['data_per_page'] = getPageCount($request->input('purchase_sn')?? 5);
+        $cond['data_per_page'] = getPageCount($request->input('data_per_page')?? 50);
 
         $cond['event'] = $request->input('event')?? null;
         $cond['purchase_sn'] = $request->input('purchase_sn')?? null;
