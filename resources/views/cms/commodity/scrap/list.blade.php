@@ -79,13 +79,13 @@
                                 <td>{{ date('Y/m/d', strtotime($data->created_at)) }}</td>
                                 <td>{{ $data->user_name }}</td>
                                 <td>{{ $data->audit_user_name }}</td>
-                                <td>{{ \App\Enums\Consignment\AuditStatus::getDescription($data->status) }}</td>
+                                <td>{{ \App\Enums\Consignment\AuditStatus::getDescription($data->audit_status) }}</td>
                                 <td>{{ $data->memo }}</td>
                                 <td></td>
 
                                 <td class="text-center">
                                     @can('cms.scrap.delete')
-                                        @if(\App\Enums\Consignment\AuditStatus::getDescription(\App\Enums\Consignment\AuditStatus::approved()) != $data->status)
+                                        @if(\App\Enums\Consignment\AuditStatus::getDescription(\App\Enums\Consignment\AuditStatus::approved()) != $data->audit_status)
                                             <a href="javascript:void(0)"
                                                data-href="{{ Route('cms.scrap.delete', ['id' => $data->id], true) }}"
                                                data-bs-toggle="modal" data-bs-target="#confirm-delete"

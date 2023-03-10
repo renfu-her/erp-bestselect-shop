@@ -40,7 +40,7 @@ class PcsScrapItem extends Model
                 'scraps.user_name',
                 'scraps.audit_user_name',
                 'scraps.memo',
-                'scraps.status',
+                'scraps.audit_status',
                 DB::raw('DATE_FORMAT(scraps.created_at,"%Y-%m-%d %H:%i:%s") as created_at'),
                 DB::raw($concatString . ' as groupConcat'));
 

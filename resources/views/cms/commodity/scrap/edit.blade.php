@@ -1,7 +1,7 @@
 @extends('layouts.main')
 @section('sub-content')
     @if ($method === 'edit')
-        <h2 class="mb-3"># 報廢單</h2>
+        <h2 class="mb-3">#{{$scrapData->sn}} 報廢單</h2>
     @else
         <h2 class="mb-3">新增報廢單</h2>
     @endif
@@ -13,7 +13,7 @@
             <h6>報廢單內容</h6>
             <div class="col-12">
                 <label class="form-label">報廢單備註</label>
-                <input class="form-control" type="text" value="{{$bacPapa->memo ?? ''}}" name="scrap_memo" placeholder="報廢單備註">
+                <input class="form-control" type="text" value="{{$scrapData->memo ?? ''}}" name="scrap_memo" placeholder="報廢單備註">
             </div>
             <div class="table-responsive tableOverBox mb-3">
                 <table id="Pord_list" class="table table-striped tableList">
@@ -35,9 +35,9 @@
                     <tbody>
                         <tr class="--prod">
                             <th scope="row">1
-                                <input type="hidden" name="item_id[]" value="item_id" />
-                                <input type="hidden" name="inbound_id[]" value="inbound_id" />
-                                <input type="hidden" name="product_style_id[]" value="product_style_id" />
+                                <input type="hidden" name="item_id[]" value="" />
+                                <input type="hidden" name="inbound_id[]" value="1" />
+                                <input type="hidden" name="product_style_id[]" value="3561" />
                                 <input type="hidden" name="sku[]" value="sku" />
                                 <input type="hidden" name="product_title[]" value="product_title" />
                             </th>
@@ -49,10 +49,12 @@
                             <td>inbound_event_name</td>
                             <td>qty</td>
                             <td class="text-center">
-                                <input type="hidden" name="to_scrap_qty[]" value="0" />0
+                                <input type="number" name="to_scrap_qty[]" value="0" min="1" />
                             </td>
                             <td>in_stock</td>
-                            <td>memo</td>
+                            <td class="text-center">
+                                <input type="text" name="memo[]" value="memo" />
+                            </td>
                         </tr>
                     </tbody>
                 </table>
@@ -144,6 +146,9 @@
                 {{ $message }}
             </div>
             @enderror
+            @if($errors->any())
+                {{ implode('', $errors->all('<div>:message</div>')) }}
+            @endif
         </div>
         <div id="submitDiv">
             <div class="col-auto">
