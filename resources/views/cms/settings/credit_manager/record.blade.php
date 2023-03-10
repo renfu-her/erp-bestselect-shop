@@ -4,15 +4,14 @@
     <h2 class="mb-4">信用卡刷卡記錄</h2>
 
     <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
-        <div class="p-1 pe-2">
+        <div class="p-1 pb-0">
         @if($record->credit_card_status_code != 0)
             <form method="POST" action="{{ $form_action }}" style="display: inline-block;">
                 @csrf
-                <button type="submit" class="btn btn-danger btn-sm">取消{{ $record->credit_card_status_code == 1 ? '請款' : '入款' }}</button>
+                <button type="submit" class="btn btn-outline-danger btn-sm mb-1">取消{{ $record->credit_card_status_code == 1 ? '請款' : '入款' }}</button>
             </form>
         @else
-
-            <a href="{{ route('cms.credit_manager.record-edit', ['id'=>$record->credit_card_received_id]) }}" class="btn btn-primary btn-sm px-3" role="button">編輯</a>
+            <a href="{{ route('cms.credit_manager.record-edit', ['id'=>$record->credit_card_received_id]) }}" class="btn btn-primary btn-sm px-3 mb-1" role="button">編輯</a>
         @endif
         </div>
     </nav>

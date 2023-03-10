@@ -3,9 +3,9 @@
     <h2 class="mb-4">申議書</h2>
 
     <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
-        <div class="p-1 pe-2">
+        <div class="p-1 pb-0">
             <a href="{{ Route('cms.petition.print', ['id' => $data->id]) }}" target="_blank"
-                class="btn btn-sm btn-warning px-4">列印</a>
+                class="btn btn-sm btn-warning px-3 mb-1">列印</a>
         </div>
     </nav>
     @php

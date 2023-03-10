@@ -3,14 +3,14 @@
     <h2 class="mb-4">#{{ $sn }} 訂單明細</h2>
 
     <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
-        <div class="p-1 pe-2">
+        <div class="p-1 pb-0">
             @if ((!$receivable && in_array($order->status, ['建立'])) || !($received_order || !in_array($order->status, ['建立'])))
-                <button type="button" class="btn btn-success btn-sm my-1 ms-1"
+                <button type="button" class="btn btn-success btn-sm mb-1"
                     data-bs-toggle="modal" data-bs-target="#pay-win">我要付款</button>
             @endif
 
             @if (!$receivable && in_array($order->status, ['收款單未平']))
-                <a href="{{ Route('cms.order.ro-edit', ['id' => $order->id]) }}" class="btn btn-primary btn-sm my-1 ms-1"
+                <a href="{{ Route('cms.order.ro-edit', ['id' => $order->id]) }}" class="btn btn-primary btn-sm mb-1"
                     role="button">新增收款單</a>
             @endif
 
@@ -18,41 +18,41 @@
                 @if ($receivable || in_array($order->status, ['已付款', '已入款', '結案']))
                     @if ($received_credit_card_log)
                         <a href="{{ Route('payment.credit-card-checkout', ['id' => $order->id, 'unique_id' => $order->unique_id]) }}"
-                            class="btn btn-primary btn-sm my-1 ms-1" role="button" target="_blank">線上刷卡結果</a>
+                            class="btn btn-primary btn-sm mb-1" role="button" target="_blank">線上刷卡結果</a>
                     @endif
 
                     @can('cms.collection_received.edit')
                         @if ($line_pay_balance_price > 0)
                             <a href="{{ route('cms.order.line-pay-refund', ['source_type' => 'ord_orders', 'source_id' => $order->id]) }}"
-                                class="btn btn-outline-danger btn-sm" role="button">LINE Pay 付款取消</a>
+                                class="btn btn-outline-danger btn-sm mb-1" role="button">LINE Pay 付款取消</a>
                         @endif
                     @endcan
                 @endif
             @endif
             @can('cms.order.bonus-gross')
-                <a href="{{ Route('cms.order.bonus-gross', ['id' => $order->id]) }}" class="btn btn-warning btn-sm my-1 ms-1"
+                <a href="{{ Route('cms.order.bonus-gross', ['id' => $order->id]) }}" class="btn btn-warning btn-sm mb-1 "
                     role="button">獎金毛利</a>
             @endcan
-            <a href="{{ Route('cms.order.personal-bonus', ['id' => $order->id]) }}" class="btn btn-warning btn-sm my-1 ms-1"
+            <a href="{{ Route('cms.order.personal-bonus', ['id' => $order->id]) }}" class="btn btn-warning btn-sm mb-1 "
                 role="button">個人獎金</a>
 
 
             @can('cms.order.edit-item')
                 <a href="{{ Route('cms.order.edit-item', ['id' => $order->id]) }}" role="button"
-                    class="btn btn-dark btn-sm my-1 ms-1">編輯訂單</a>
+                    class="btn btn-dark btn-sm mb-1">編輯訂單</a>
             @endcan
 
             @if ($canSplit)
                 @can('cms.order.split_order')
                     <a href="{{ Route('cms.order.split-order', ['id' => $order->id]) }}" role="button"
-                        class="btn btn-dark btn-sm my-1 ms-1">分割訂單</a>
+                        class="btn btn-dark btn-sm mb-1">分割訂單</a>
                 @endcan
             @endif
 
             @can('cms.order_invoice_manager.index')
                 @if ($received_order && !$order->invoice_number)
                     <a href="{{ Route('cms.order.create-invoice', ['id' => $order->id]) }}" role="button"
-                        class="btn btn-success btn-sm my-1 ms-1">開立發票</a>
+                        class="btn btn-success btn-sm mb-1">開立發票</a>
                 @endif
             @endcan
 
@@ -60,19 +60,19 @@
                 @can('cms.order.cancel_order')
                     <button data-href="{{ Route('cms.order.cancel-order', ['id' => $order->id]) }}" type="button"
                         data-bs-toggle="modal" data-bs-target="#confirm-delete-back" data-title="取消"
-                        class="btn btn-outline-danger btn-sm my-1 ms-1">取消訂單</button>
+                        class="btn btn-outline-danger btn-sm mb-1">取消訂單</button>
                 @endcan
             @endif
             <a href="{{ Route('cms.order.order-flow', ['id' => $order->id]) }}" role="button"
-                class="btn btn-primary btn-sm my-1 ms-1">訂單紀錄</a>
+                class="btn btn-primary btn-sm mb-1">訂單紀錄</a>
 
             @if (!$order->return_pay_order_id && in_array($order->status, ['取消']) && $po_check)
                 <a href="{{ Route('cms.order.return-pay-order', ['id' => $order->id]) }}" role="button"
-                    class="btn btn-primary btn-sm my-1 ms-1">新增退貨付款單</a>
+                    class="btn btn-primary btn-sm mb-1">新增退貨付款單</a>
             @endif
 
             <a href="{{ Route('cms.reverse-bind-page', ['sn' => $order->sn]) }}" role="button"
-                class="btn btn-primary btn-sm my-1 ms-1">相關單號綁定</a>
+                class="btn btn-primary btn-sm mb-1">相關單號綁定</a>
         </div>
     </nav>
 
@@ -377,6 +377,7 @@
                                 </tr>
                             </thead>
                             <tbody>
+                                @if ($subOrder->items !== null)
                                 @foreach ($subOrder->items as $item)
                                     <tr>
                                         <td class="wrap lh-sm">
@@ -390,6 +391,7 @@
                                         <td class="wrap lh-sm">{{ $item->note }}</td>
                                     </tr>
                                 @endforeach
+                                @endif
                             </tbody>
                         </table>
                     </div>

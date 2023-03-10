@@ -19,16 +19,16 @@
     @enderror
 
     <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
-        <div class="p-1 pe-2">
+        <div class="p-1 pb-0">
             @if(! $items->po_sn && $po_check)
-                <a class="btn btn-primary btn-sm my-1 ms-1"
+                <a class="btn btn-primary btn-sm mb-1"
                     href="{{ Route('cms.delivery.roe-po', ['id' => $delivery->id, 'behavior' => 'out']) }}">新增缺貨付款單</a>
             @endif
-            @if (false == $has_payable_data_back)
-{{--                <a class="btn btn-primary btn-sm my-1 ms-1"--}}
-{{--                   href="{{ Route('cms.delivery.out_stock_edit', ['event' => $delivery->event, 'eventId' => $delivery->event_id]) }}">編輯缺貨</a>--}}
-            @endif
-            <a target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm my-1 ms-1"
+            {{-- @if (false == $has_payable_data_back)
+                <a class="btn btn-primary btn-sm mb-1"
+                    href="{{ Route('cms.delivery.out_stock_edit', ['event' => $delivery->event, 'eventId' => $delivery->event_id]) }}">編輯缺貨</a>
+            @endif --}}
+            <a target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm mb-1"
                href="{{ Route('cms.delivery.print_out_stock', ['event' => $delivery->event, 'eventId' => $delivery->event_id]) }}">
                 列印缺貨單
             </a>

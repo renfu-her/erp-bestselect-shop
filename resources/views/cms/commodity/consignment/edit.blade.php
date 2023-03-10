@@ -14,16 +14,16 @@
 
     @if ($consignmentData->audit_status == App\Enums\Consignment\AuditStatus::approved()->value)
         <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
-            <div class="p-1 pe-2">
-                <a target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-warning"
+            <div class="p-1 pb-0">
+                <a target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-warning mb-1"
                    href="{{ Route('cms.consignment.print_order_ship', ['id' => $id]) . '?type=M1' }}">
                     列印出貨單-中一刀
                 </a>
-                <a target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-warning"
+                <a target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-warning mb-1"
                    href="{{ Route('cms.consignment.print_order_ship', ['id' => $id]) . '?type=A4' }}">
                     列印出貨單-A4
                 </a>
-                <a class="btn btn-sm btn-outline-danger"
+                <a class="btn btn-sm btn-outline-danger mb-1"
                    href="{{ Route('cms.delivery.back_list', ['deliveryId' => $delivery->id], true) }}">退貨列表</a>
             </div>
 

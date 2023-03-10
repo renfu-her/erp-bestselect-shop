@@ -4,10 +4,10 @@
 
     <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
         @can('cms.note_receivable.edit')
-        <div class="p-1 pe-2">
-            <a href="{{ Route('cms.note_receivable.ask', ['type'=>'collection']) }}" class="btn btn-sm btn-primary" role="button">整批託收</a>
-            <a href="{{ Route('cms.note_receivable.ask', ['type'=>'nd']) }}" class="btn btn-sm btn-primary" role="button">整批次交票</a>
-            <a href="{{ Route('cms.note_receivable.ask', ['type'=>'cashed']) }}" class="btn btn-sm btn-primary cc_date" role="button">整批兌現</a>
+        <div class="p-1 pb-0">
+            <a href="{{ Route('cms.note_receivable.ask', ['type'=>'collection']) }}" class="btn btn-sm btn-primary mb-1" role="button">整批託收</a>
+            <a href="{{ Route('cms.note_receivable.ask', ['type'=>'nd']) }}" class="btn btn-sm btn-primary mb-1" role="button">整批次交票</a>
+            <a href="{{ Route('cms.note_receivable.ask', ['type'=>'cashed']) }}" class="btn btn-sm btn-primary mb-1 cc_date" role="button">整批兌現</a>
         </div>
         @endcan
     </nav>

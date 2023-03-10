@@ -19,16 +19,16 @@
     @enderror
 
     <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
-        <div class="p-1 pe-2">
+        <div class="p-1 pb-0">
             @if(! $items->po_sn && $po_check)
-                <a class="btn btn-primary btn-sm my-1 ms-1"
+                <a class="btn btn-primary btn-sm mb-1"
                     href="{{ Route('cms.delivery.roe-po', ['id' => $delivery->id, 'behavior' => 'return', 'bac_papa_id' => $bacPapa->id]) }}">新增退貨付款單</a>
             @endif
             @if (! $items->po_sn)
-                <a class="btn btn-primary btn-sm my-1 ms-1"
+                <a class="btn btn-primary btn-sm mb-1"
                    href="{{ Route('cms.delivery.back_edit', ['bac_papa_id' => $bacPapa->id]) }}">編輯退貨</a>
             @endif
-            <a target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm my-1 ms-1"
+            <a target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm mb-1"
                href="{{ Route('cms.delivery.print_back', ['bac_papa_id' => $bacPapa->id]) }}">
                 列印退貨單
             </a>

@@ -4,9 +4,9 @@
 
     <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
         @can('cms.note_payable.edit')
-        <div class="p-1 pe-2">
-            <a href="{{ Route('cms.note_payable.ask', ['type'=>'cashed']) }}" class="btn btn-sm btn-primary cc_date" role="button">整批兌現</a>
-            <a href="{{ Route('cms.note_payable.checkbook') }}" class="btn btn-sm btn-warning" role="button">列印支票本</a>
+        <div class="p-1 pb-0">
+            <a href="{{ Route('cms.note_payable.ask', ['type'=>'cashed']) }}" class="btn btn-sm btn-primary mb-1 cc_date" role="button">整批兌現</a>
+            <a href="{{ Route('cms.note_payable.checkbook') }}" class="btn btn-sm btn-warning mb-1" role="button">列印支票本</a>
         </div>
         @endcan
     </nav>
