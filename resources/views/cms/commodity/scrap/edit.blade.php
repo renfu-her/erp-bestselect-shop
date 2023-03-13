@@ -15,55 +15,66 @@
                 <label class="form-label">報廢單備註</label>
                 <input class="form-control" type="text" value="{{$scrapData->memo ?? ''}}" name="scrap_memo" placeholder="報廢單備註">
             </div>
-            <div class="table-responsive tableOverBox mb-3">
-                <table id="Pord_list" class="table table-striped tableList">
-                    <thead class="small">
-                    <tr>
-                        <th style="width:3rem;">#</th>
-                        <th class="text-center">採購單號</th>
-                        <th>商品名稱</th>
-                        <th>SKU</th>
-                        <th>效期</th>
-                        <th>倉庫</th>
-                        <th>事件</th>
-                        <th>目前可售數量</th>
-                        <th>現有數量</th>
-                        <th class="text-center" style="width: 10%">報廢數量</th>
-                        <th>備註</th>
-                    </tr>
+            <div class="table-responsive tableOverBox">
+                <table id="inbound_list" class="table table-striped tableList mb-1">
+                    <thead>
+                        <tr class="align-middle">
+                            <th style="width:40px;" class="text-center">#</th>
+                            <th style="width:40px;" class="text-center">刪除</th>
+                            <th>採購單號</th>
+                            <th>商品</th>
+                            <th class="lh-base"><span class="bg-warning text-dark lh-1">事件</span><br>倉庫</th>
+                            <th class="lh-1 small text-end">可售<br>數量</th>
+                            <th class="lh-1 small text-end">現有<br>數量</th>
+                            <th>報廢數量</th>
+                            <th>備註</th>
+                        </tr>
                     </thead>
-                    <tbody>
-                        <tr class="--prod">
-                            <th scope="row">1
-                                <input type="hidden" name="item_id[]" value="" />
-                                <input type="hidden" name="inbound_id[]" value="1" />
-                                <input type="hidden" name="product_style_id[]" value="3561" />
-                                <input type="hidden" name="sku[]" value="sku" />
-                                <input type="hidden" name="product_title[]" value="product_title" />
-                            </th>
-                            <td>event_sn</td>
-                            <td>product_title</td>
-                            <td>style_sku</td>
-                            <td>expiry_date</td>
-                            <td>depot_name</td>
-                            <td>inbound_event_name</td>
-                            <td>in_stock</td>
-                            <td>qty</td>
+                    <tbody class="-appendClone --selectedIB -serial-number">
+                        <tr class="-cloneElem --selectedIB d-none">
+                            <th scope="row" class="text-center"><span class="-serial-title -after"></span></th>
                             <td class="text-center">
-                                <input type="number" name="to_scrap_qty[]" value="0" min="1" />
+                                <button type="button" item_id=""
+                                    class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                                <input type="hidden" name="item_id[]" value="" />
+                                <input type="hidden" name="inbound_id[]" value="" />
+                                <input type="hidden" name="product_style_id[]" value="" />
+                                <input type="hidden" name="sku[]" value="" />
+                                <input type="hidden" name="product_title[]" value="" />
+                            </td>
+                            <td data-td="event_sn"></td>
+                            <td class="wrap">
+                                <div class="lh-1 small text-secondary" data-td="sku"></div>
+                                <div class="lh-base" data-td="product_title"></div>
+                                <div class="lh-1 small fw-light">
+                                    <span class="bg-secondary text-white px-1" data-td="expiry_date">效期：</span>
+                                </div>
+                            </td>
+                            <td class="wrap">
+                                <div class="lh-base text-nowrap">
+                                    <span class="bg-warning text-dark px-1" data-td="inbound_event_name"></span>
+                                </div>
+                                <div class="lh-1" data-td="depot_name"></div>
+                            </td>
+                            <td class="text-end" data-td="in_stock"></td>
+                            <td class="text-end" data-td="qty"></td>
+                            <td class="text-center">
+                                <input type="number" name="to_scrap_qty[]" value="0" min="1" class="form-control form-control-sm" />
                             </td>
                             <td class="text-center">
-                                <input type="text" name="memo[]" value="memo" />
+                                <input type="text" name="memo[]" value="" class="form-control form-control-sm -l" />
                             </td>
                         </tr>
                     </tbody>
                 </table>
-                <div class="d-grid mt-3">
-                    <button id="addProductBtn" type="button"
-                            class="btn btn-outline-primary border-dashed" style="font-weight: 500;">
-                        <i class="bi bi-plus-circle bold"></i> 加入商品
-                    </button>
-                </div>
+            </div>
+            <div class="mb-3">
+                <button id="addInboundBtn" type="button"
+                        class="btn btn-outline-primary btn-sm border-dashed w-100" style="font-weight: 500;">
+                    <i class="bi bi-plus-circle bold"></i> 新增入庫單
+                </button>
             </div>
 
             <h6 class="mb-1">其他項目</h6>
@@ -162,43 +173,301 @@
             </div>
         </div>
     </form>
+
+
+    {{-- 入庫清單 Modal --}}
+    <x-b-modal id="addInbound" cancelBtn="false" size="modal-xl modal-fullscreen-xl-down modal-dialog-scrollable">
+        <x-slot name="title">選擇過期入庫單</x-slot>
+        <x-slot name="body">
+            <div class="input-group pb-3 -searchBar position-sticky top-0 bg-white">
+                <input type="text" name="title" class="form-control" placeholder="請輸入商品名或SKU" aria-label="搜尋條件1">
+                <input type="text" name="sn" class="form-control" placeholder="請輸入採購單號" aria-label="搜尋條件2">
+                <button class="btn btn-primary" type="button">搜尋入庫單</button>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover tableList mb-1">
+                    <thead>
+                        <tr class="align-middle">
+                            <th scope="col" class="text-center" style="width: 40px">選取</th>
+                            <th scope="col">採購單號</th>
+                            <th scope="col">商品</th>
+                            <th scope="col" class="lh-base"><span class="bg-warning text-dark lh-1">事件</span><br>倉庫</th>
+                            <th scope="col" class="small lh-1 text-end">可售<br>數量</th>
+                            <th scope="col" class="small lh-1 text-end">現有<br>數量</th>
+                        </tr>
+                    </thead>
+                    <tbody class="-appendClone --inbound">
+                        <tr class="-cloneElem --inbound">
+                            <th class="text-center">
+                                <input class="form-check-input" type="checkbox" 
+                                    value="idx" aria-label="選取入庫單">
+                            </th>
+                            <td>event_sn</td>
+                            <td class="wrap">
+                                <div class="lh-1 small text-secondary">style_sku</div>
+                                <div class="lh-base">product_title</div>
+                                <div class="lh-1 small fw-light">
+                                    <span class="bg-secondary text-white px-1">效期：expiry_date</span>
+                                </div>
+                            </td>
+                            <td class="wrap">
+                                <div class="lh-base text-nowrap">
+                                    <span class="bg-warning text-dark px-1">inbound_event_name</span>
+                                </div>
+                                <div class="lh-1">depot_name</div>
+                            </td>
+                            <td class="text-end">in_stock</td>
+                            <td class="text-end">qty</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="alert alert-secondary mx-3 mb-0 -emptyData" style="display: none;" role="alert">
+                查無入庫紀錄！
+            </div>
+        </x-slot>
+        <x-slot name="foot">
+            <div class="col d-flex justify-content-end align-items-center flex-wrap -pages"></div>
+            <span class="me-3 -checkedNum">已選擇 0 筆入庫單</span>
+            <button type="button" class="btn btn-primary px-4 btn-ok">加入</button>
+        </x-slot>
+    </x-b-modal>
 @endsection
 @once
     @push('sub-scripts')
-        <script>
-            // +/- btn
-            $('button.-minus, button.-plus').on('click', function() {
-                const $input = $(this).siblings('input[type="number"]');
-                const max = $input.attr('max') !== '' ? Number($input.attr('max')) : null;
-                const min = $input.attr('min') !== '' ? Number($input.attr('min')) : null;
-                const m_qty = Number($input.val());
-                if ($(this).hasClass('-minus') && (min !== null && m_qty > min)) {
-                    $input.val(m_qty - 1);
+    <script>
+        const addInboundModal = new bootstrap.Modal(document.getElementById('addInbound'));
+        const consPages = new Pagination($('#addInbound .-pages'));
+        
+        /*** 選取 ***/
+        // 入庫單
+        let selectedInbound = [
+            // {
+            // inbound_id: 入庫單號,
+            // product_style_id: 款式ID,
+            // sku: style_sku,
+            // product_title: 商品名稱,
+            // event_sn: 採購單號,
+            // expiry_date: 效期,
+            // depot_name: 倉庫,
+            // inbound_event_name: 事件,
+            // in_stock: 可售數量,
+            // qty: 現有數量
+            // }
+        ];
+        let selectedInboundID = [
+            // {入庫單}
+        ];
+        // clone
+        const $selectedClone = $('.-cloneElem.--selectedIB:first-child').clone().removeClass('d-none');
+        $('.-cloneElem.--selectedIB.d-none').remove();
+        /*** 刪除 ***/
+        let del_item_id = [];
+        const delItemOption = {
+            appendClone: '.-appendClone.--selectedIB',
+            cloneElem: '.-cloneElem.--selectedIB',
+            beforeDelFn: function ({$this}) {
+                const item_id = $this.attr('item_id');
+                if (item_id) {
+                    del_item_id.push(item_id);
+                    $('input[name="del_item_id"]').val(del_item_id.toString());
                 }
-                if ($(this).hasClass('-plus') && (max != null && m_qty < max)) {
-                    $input.val(m_qty + 1);
-                }
+            }
+        };
+        Clone_bindDelElem($('.-cloneElem.--selectedIB .-del'), delItemOption);
+        /********/
+        
+        // 新增入庫單 btn
+        $('#addInboundBtn').off('click').on('click', function(e) {
+            selectedInbound = [];
+            selectedInboundID = [];
+            $('.-cloneElem.--selectedIB input[name="inbound_id[]"]').each(function(index, element) {
+                const inbound_id = Number($(element).val());
+                selectedInboundID.push(inbound_id);
+                selectedInbound.push({inbound_id});
             });
-            $(document).on('change', 'select.select-check', function() {
-                if(this.value){
-                    $(this).parents('tr').find('.d-target').prop('disabled', false);
-                    $(this).parents('tr').find('.r-target').prop('required', true);
-                } else {
-                    $(this).parents('tr').find('.d-target').prop('disabled', true);
-                    $(this).parents('tr').find('.r-target').prop('required', false);
-                }
-            });
+            if ($(this).attr('id') === 'addInboundBtn') {
+                addInboundModal.show();
+            }
+            getInboundList(1);
+        });
+        
+        // 過期入庫單 API
+        function getInboundList(page) {
+            const _URL = `${Laravel.apiUrl.expiredInboundList}?page=${page}`;
+            const Data = {
+                title: $('.-searchBar input[name="title"]').val() || '',
+                purchase_sn: $('.-searchBar input[name="sn"]').val() || '',
+                expire_day: -1
+            };
+            resetAddInboundModal();
 
-            $.each($('select.select-check'), function(i, ele) {
-                if(ele.value){
-                    $(ele).parents('tr').find('.d-target').prop('disabled', false);
-                    $(ele).parents('tr').find('.r-target').prop('required', true);
-                } else {
-                    $(ele).parents('tr').find('.d-target').prop('disabled', true);
-                    $(ele).parents('tr').find('.r-target').prop('required', false);
+            axios.post(_URL, Data)
+                .then((result) => {
+                    const res = result.data;console.log(res.data);
+                    if (res.status === '0') {
+                        const inboData = res.data;
+                        inboData.forEach((inbo, i) => {
+                            createOneInbound(inbo, i);
+                        });
+
+                        // bind event
+                        // -- 選取
+                        $('#addInbound .-appendClone.--inbound input[type="checkbox"]:not(:disabled)')
+                        .off('change').on('change', function () {
+                            catchCheckedInbound($(this), inboData);
+                            $('#addInbound .-checkedNum').text(`已選擇 ${selectedInboundID.length} 筆入庫單`);
+                        });
+                        // -- 加入
+                        $('#addInbound form').off('submit').submit(function () {
+                            if (!$('#addInbound .-appendClone input[type="checkbox"]:checked').length) {
+                                toast.show('請選擇至少 1 筆入庫單', { type: 'warning' });
+                                return false;
+                            }
+                        });
+                        
+                        // 產生分頁
+                        consPages.create(res.current_page, {
+                            totalData: res.total,
+                            totalPages: res.last_page,
+                            changePageFn: getInboundList
+                        });
+                    } else {
+                        toast.show(res.msg, { title: '發生錯誤', type: 'danger' });
+                    }
+
+                }).catch((err) => {
+                    console.error(err);
+                    toast.show('發生錯誤', { type: 'danger' });
+                });
+
+            // 入庫列表
+            function createOneInbound(ib, i) {
+                const checked = selectedInboundID.indexOf(ib.inbound_id) < 0 ? '' : 'checked disabled';
+                let $tr = $(`<tr class="-cloneElem --inbound">
+                    <th class="text-center">
+                        <input class="form-check-input" type="checkbox" ${checked}
+                            value="${i}" aria-label="選取入庫單">
+                    </th>
+                    <td>${ib.event_sn}</td>
+                    <td class="wrap">
+                        <div class="lh-1 small text-secondary">${ib.style_sku}</div>
+                        <div class="lh-base">${ib.product_title}</div>
+                        <div class="lh-1 small fw-light">
+                            <span class="bg-secondary text-white px-1">效期：${ib.expiry_date ? moment(ib.expiry_date).format('YYYY/MM/DD') : ''}</span>
+                        </div>
+                    </td>
+                    <td class="wrap">
+                        <div class="lh-base text-nowrap">
+                            <span class="bg-warning text-dark px-1">${ib.inbound_event_name}</span>
+                        </div>
+                        <div class="lh-1">${ib.depot_name}</div>
+                    </td>
+                    <td class="text-end">${ib.in_stock}</td>
+                    <td class="text-end">${ib.qty}</td>
+                </tr>`);
+                $('#addInbound .-appendClone.--inbound').append($tr);
+            }
+
+            // 紀錄
+            function catchCheckedInbound($checkbox, list) {
+                const item = list[$checkbox.val()];
+                const ib_id = item.inbound_id;
+                const idx = selectedInboundID.indexOf(ib_id);
+                if ($checkbox.prop('checked') && idx < 0) {
+                    selectedInboundID.push(ib_id);
+                    selectedInbound.push({
+                        inbound_id: ib_id,
+                        product_style_id: item.product_style_id,
+                        sku: item.style_sku,
+                        product_title: item.product_title,
+                        event_sn: item.event_sn,
+                        expiry_date: moment(item.expiry_date).isValid() ? moment(item.expiry_date).format('YYYY/MM/DD') : '',
+                        depot_name: item.depot_name,
+                        inbound_event_name: item.inbound_event_name,
+                        in_stock: item.in_stock,
+                        qty: item.qty
+                    });
+                } else if (!$checkbox.prop('checked') && idx >= 0) {
+                    selectedInbound.splice(idx, 1);
+                    selectedInboundID.splice(idx, 1);
+                }
+            }
+        }
+
+        $('#addInbound .btn-ok').off('click').on('click', function () {
+            selectedInbound.forEach(item => {
+                if ($(`tr.-cloneElem.--selectedIB input[name="inbound_id[]"][value="${item.inbound_id}"]`).length === 0) {
+                    createOneSelected(item);
                 }
             });
-        </script>
+            
+            // 關閉懸浮視窗
+            addInboundModal.hide();
+
+            // 加入入庫單
+            function createOneSelected(item) {
+                Clone_bindCloneBtn($selectedClone, function (cloneElem) {
+                    cloneElem.find('input').val('');
+                    cloneElem.find('.-del').attr({
+                        'item_id': null
+                    });
+                    cloneElem.find('td[data-td]').text('');
+                    if (item) {
+                        cloneElem.find('input[name="inbound_id[]"]').val(item.inbound_id);
+                        cloneElem.find('input[name="product_style_id[]"]').val(item.product_style_id);
+                        cloneElem.find('input[name="sku[]"]').val(item.sku);
+                        cloneElem.find('input[name="product_title[]"]').val(item.product_title);
+                        cloneElem.find('td[data-td="event_sn"]').text(item.event_sn);
+                        cloneElem.find('td [data-td="sku"]').text(item.sku);
+                        cloneElem.find('td [data-td="product_title"]').text(item.product_title);
+                        cloneElem.find('td [data-td="expiry_date"]').text(`效期：${item.expiry_date}`);
+                        cloneElem.find('td [data-td="inbound_event_name"]').text(item.inbound_event_name);
+                        cloneElem.find('td [data-td="depot_name"]').text(item.depot_name);
+                        cloneElem.find('td[data-td="in_stock"]').text(item.in_stock);
+                        cloneElem.find('td[data-td="qty"]').text(item.qty);
+                    }
+                }, delItemOption);
+            }
+        });
+        
+        // 清空入庫 Modal
+        function resetAddInboundModal() {
+            $('#addInbound .-searchBar input').val('');
+            $('#addInbound tbody.-appendClone.--inbound').empty();
+            $('#addInbound #pageSum').text('');
+            $('#addInbound .page-item:not(:first-child, :last-child)').remove();
+            $('#addInbound nav').hide();
+            $('#addInbound .-checkedNum').text(`已選擇 ${selectedInboundID.length} 筆入庫單`);
+            $('#addInbound .-emptyData').hide();
+        }
+
+        // 關閉Modal時，清空值
+        $('#addInbound').on('hidden.bs.modal', function () {
+            resetAddInboundModal();
+        });
+    </script>
+    <script>
+        $(document).on('change', 'select.select-check', function() {
+            if(this.value){
+                $(this).parents('tr').find('.d-target').prop('disabled', false);
+                $(this).parents('tr').find('.r-target').prop('required', true);
+            } else {
+                $(this).parents('tr').find('.d-target').prop('disabled', true);
+                $(this).parents('tr').find('.r-target').prop('required', false);
+            }
+        });
+
+        $.each($('select.select-check'), function(i, ele) {
+            if(ele.value){
+                $(ele).parents('tr').find('.d-target').prop('disabled', false);
+                $(ele).parents('tr').find('.r-target').prop('required', true);
+            } else {
+                $(ele).parents('tr').find('.d-target').prop('disabled', true);
+                $(ele).parents('tr').find('.r-target').prop('required', false);
+            }
+        });
+    </script>
     @endpush
 @endonce
 
