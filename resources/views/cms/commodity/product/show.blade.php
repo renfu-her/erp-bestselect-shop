@@ -86,7 +86,7 @@
                         </thead>
                         <tbody>
                             @foreach ($styles as $style)
-                                @if ( isset($style->prices) && is_object($style->prices))
+                                @if ( isset($style->prices))
                                     @foreach ($style->prices as $i => $price)
                                         <tr>
                                             @if ($i === 0)
