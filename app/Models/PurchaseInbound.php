@@ -467,6 +467,13 @@ class PurchaseInbound extends Model
         });
     }
 
+    public static function willBeScrapped($inbound_id, $qty)
+    {
+        self::where('id', $inbound_id)->update([
+            'scrap_num' => DB::raw('scrap_num +' . $qty),
+        ]);
+    }
+
     //歷史入庫
     public static function getInboundList($param)
     {

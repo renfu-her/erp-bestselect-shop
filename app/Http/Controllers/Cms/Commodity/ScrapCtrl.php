@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Cms\Commodity;
 
 use App\Enums\Consignment\AuditStatus;
+use App\Enums\Delivery\Event;
 use App\Enums\DlvBack\DlvBackType;
 use App\Enums\PcsScrap\PcsScrapType;
 use App\Helpers\IttmsDBB;
@@ -10,6 +11,7 @@ use App\Http\Controllers\Controller;
 use App\Models\GeneralLedger;
 use App\Models\PcsScrapItem;
 use App\Models\PcsScraps;
+use App\Models\ProductStock;
 use App\Models\PurchaseInbound;
 use App\Models\ReceivedDefault;
 use Illuminate\Http\Request;
@@ -137,26 +139,60 @@ class ScrapCtrl extends Controller
         $msg = IttmsDBB::transaction(function () use ($request, $id, $scrapData) {
             $scrap_memo = $request->input('scrap_memo', null);
             $audit_status = $request->input('scrap_memo', AuditStatus::unreviewed()->value);
+
             PcsScraps::where('id', $id)->update([
                 'memo' => $scrap_memo,
                 'audit_user_id' => Auth::user()->id,
                 'audit_user_name' => Auth::user()->name,
                 'audit_status' => $audit_status,
             ]);
+            if (AuditStatus::approved()->value == $scrapData->audit_status && AuditStatus::approved()->value == $audit_status) {
+                DB::rollBack();
+                return ['success' => 0, 'error_msg' => '請先改為其他狀態才可編輯'];
+            }
+            //判斷audit_status變成核可，則須扣除數量
+            else if(AuditStatus::approved()->value != $scrapData->audit_status && AuditStatus::approved()->value == $audit_status) {
+                //inbound若為採購 需扣除可售數量；若庫存和可售數量小於扣除數量 則回傳錯誤
+                $input_items = $request->only('item_id', 'inbound_id', 'product_style_id', 'product_title', 'sku', 'to_scrap_qty', 'memo');
+                if (isset($input_items['item_id']) && 0 < count($input_items['item_id'])) {
+                    for($i = 0; $i < count($input_items['item_id']); $i++) {
+                        $inbound = PurchaseInbound::find($input_items['inbound_id']);
+                        PurchaseInbound::willBeScrapped($input_items['inbound_id'], $input_items['to_scrap_qty']);
+                        if ($inbound->type == Event::purchase()->value) {
+                            //寫入ProductStock
+                            $rePSSC = ProductStock::stockChange($input_items['product_style_id'], $input_items['to_scrap_qty'], 'scrap', $input_items['inbound_id'], $scrapData->sn. ' 報廢', false, true);
+                            if ($rePSSC['success'] == 0) {
+                                DB::rollBack();
+                                return $rePSSC;
+                            }
+                        }
+                    }
+                }
+            }
+            //判斷audit_status從核可變成其他狀態，則須加回數量
+            else if (AuditStatus::approved()->value == $scrapData->audit_status && AuditStatus::approved()->value != $audit_status) {
+                //inbound若為採購 需加回可售數量
+                $scrap_items = PcsScrapItem::where('scrap_id', $scrapData->id)->where('type', '=', 0)->whereNull('inbound_id')->whereNull('deleted_at')->get();
+                if (0 < $scrap_items->count()) {
+                    foreach ($scrap_items as $scrap_item) {
+                        $inbound = PurchaseInbound::find($scrap_item->inbound_id);
+                        PurchaseInbound::willBeScrapped($scrap_item->inbound_id, $scrap_item->to_scrap_qty * -1);
+                        if ($inbound->type == Event::purchase()->value) {
+                            //寫入ProductStock
+                            $rePSSC = ProductStock::stockChange($scrap_item->product_style_id, $scrap_item->to_scrap_qty * -1, 'scrap', $scrap_item->inbound_id, $scrapData->sn. ' 報廢取消', false, true);
+                            if ($rePSSC['success'] == 0) {
+                                DB::rollBack();
+                                return $rePSSC;
+                            }
+                        }
+                    }
+                }
+            }
 
             $reSS = $this->do_scrap_store($request, $scrapData->id);
             if ($reSS['success'] == 0) {
                 DB::rollBack();
                 return $reSS;
-            }
-
-            //判斷audit_status變成核可，則須扣除數量
-            if(AuditStatus::approved()->value != $scrapData->audit_status && AuditStatus::approved()->value == $audit_status) {
-                //inbound若為採購 需扣除可售數量；若庫存和可售數量小於扣除數量 則回傳錯誤
-            }
-            //判斷audit_status從核可變成其他狀態，則須加回數量
-            else if (AuditStatus::approved()->value == $scrapData->audit_status && AuditStatus::approved()->value != $audit_status) {
-                //inbound若為採購 需加回可售數量
             }
 
             return ['success' => 1];
@@ -172,21 +208,25 @@ class ScrapCtrl extends Controller
 
     private function do_scrap_store(Request $request, $scrap_id) {
         $msg = IttmsDBB::transaction(function () use ($request, $scrap_id) {
-            $input_items = $request->only('item_id', 'inbound_id', 'product_style_id', 'product_title', 'sku', 'price', 'to_scrap_qty', 'memo', 'show');
+            $del_items = $request->input('del_items', '');
+            $del_item_id_arr = explode(",", $del_items);
+            if (isset($del_item_id_arr) && 0 < count($del_item_id_arr)) {
+                PcsScrapItem::whereIn('id', $del_item_id_arr)->delete();
+            }
+            $input_items = $request->only('item_id', 'inbound_id', 'product_style_id', 'product_title', 'sku', 'to_scrap_qty', 'memo');
             if (isset($input_items['item_id']) && 0 < count($input_items['item_id'])) {
-                if(true == isset($input_items['item_id'][0])) {
-                    //已有資料 做編輯
-                    for($i = 0; $i < count($input_items['item_id']); $i++) {
+                $default_grade_id = ReceivedDefault::where('name', '=', 'product')->first()->default_grade_id;
+                $curr_date = date('Y-m-d H:i:s');
+                for($i = 0; $i < count($input_items['item_id']); $i++) {
+                    if(true == isset($input_items['item_id'][0])) {
+                        //已有資料 做編輯
                         PcsScrapItem::where('id', '=', $input_items['item_id'][$i])->update([
                             'qty' => $input_items['to_scrap_qty'][$i],
                             'memo' => $input_items['memo'][$i],
                         ]);
-                    }
-                } else {
-                    $data = [];
-                    $default_grade_id = ReceivedDefault::where('name', '=', 'product')->first()->default_grade_id;
-                    $curr_date = date('Y-m-d H:i:s');
-                    for($i = 0; $i < count($input_items['item_id']); $i++) {
+                    } else {
+                        $data = [];
+
                         if (0 == $input_items['to_scrap_qty'][$i]) {
                             //判斷數量零的就跳過
                             continue;
@@ -211,8 +251,8 @@ class ScrapCtrl extends Controller
                             'updated_at' => $curr_date,
                         ];
                         $data[] = $addItem;
+                        PcsScrapItem::insert($data);
                     }
-                    PcsScrapItem::insert($data);
                 }
             }
 
