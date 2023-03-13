@@ -3,37 +3,35 @@
     <h2 class="mb-4">請款單</h2>
 
     <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
-        <div class="p-1 pe-2">
+        <div class="p-1 pb-0">
             @can('cms.request.edit')
             @if(! $request_order->ro_id)
-            <a href="{{ route('cms.request.edit', ['id' => $request_order->request_o_id]) }}" class="btn btn-sm btn-success px-3" role="button">修改</a>
+            <a href="{{ route('cms.request.edit', ['id' => $request_order->request_o_id]) }}" class="btn btn-sm btn-success px-3 mb-1" role="button">修改</a>
             @endif
             @endcan
 
             @if(! $request_order->ro_receipt_date)
-            <a href="{{ route('cms.request.ro-edit', ['id' => $request_order->request_o_id]) }}" class="btn btn-sm btn-primary px-3" 
+            <a href="{{ route('cms.request.ro-edit', ['id' => $request_order->request_o_id]) }}" class="btn btn-sm btn-primary px-3 mb-1" 
                 role="button">入款</a>
             @endif
-            {{--
-            <button type="submit" class="btn btn-danger">A4列印畫面</button>
-            --}}
+            
             @can('cms.request.delete')
             @if(! $request_order->ro_id)
-            <a href="javascript:void(0)" role="button" class="btn btn-outline-danger btn-sm"
+            <a href="javascript:void(0)" role="button" class="btn btn-outline-danger btn-sm mb-1"
                 data-bs-toggle="modal" data-bs-target="#confirm-delete"
                 data-href="{{ Route('cms.request.delete', ['id' => $request_order->request_o_id]) }}">刪除請款單</a>
             @endif
             @endcan
 
             <a href="{{ url()->full() . '?action=print' }}" target="_blank" 
-                class="btn btn-sm btn-warning" rel="noopener noreferrer">中一刀列印畫面</a>
+                class="btn btn-sm btn-warning mb-1" rel="noopener noreferrer">中一刀列印畫面</a>
 
             @can('cms.request.edit')
-            <a href="{{ route('cms.ref_expenditure_petition.edit', ['current_sn' => $request_order->request_o_sn]) }}" class="btn btn-sm btn-primary" role="button">相關單號</a>
+            <a href="{{ route('cms.ref_expenditure_petition.edit', ['current_sn' => $request_order->request_o_sn]) }}" class="btn btn-sm btn-primary mb-1" role="button">相關單號</a>
             @endcan
             @if (count($relation_order) > 0)
                 @foreach ($relation_order as $value)
-                    <a href="{{ $value->url }}" class="btn btn-sm btn-primary" role="button">{{ $value->sn }}</a>
+                    <a href="{{ $value->url }}" class="btn btn-sm btn-primary mb-1" role="button">{{ $value->sn }}</a>
                 @endforeach
             @endif
         </div>

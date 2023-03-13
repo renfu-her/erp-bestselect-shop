@@ -4,35 +4,35 @@
     <h2 class="mb-4">發票資訊</h2>
 
     <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
-        <div class="p-1 pe-2">
+        <div class="p-1 pb-0">
             @can('cms.order_invoice_manager.index')
                 {{-- @if($invoice->status == 1 && is_null($invoice->r_status)) --}}
                 @if($invoice->status == 1 && $invoice->r_status != 'SUCCESS')
-                    <a href="javascript:void(0)" role="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" 
+                    <a href="javascript:void(0)" role="button" class="btn btn-sm btn-primary mb-1" data-bs-toggle="modal" 
                         data-bs-target="#confirm-issue-invoice" data-href="{{ Route('cms.order.send-invoice', ['id' => $invoice->id, 'action' => 'issue']) }}">
                         開立發票
                     </a>
 
-                    <a href="{{ Route('cms.order.edit-invoice', ['id' => $invoice->id]) }}" class="btn btn-sm btn-primary" role="button">編輯發票</a>
+                    <a href="{{ Route('cms.order.edit-invoice', ['id' => $invoice->id]) }}" class="btn btn-sm btn-primary mb-1" role="button">編輯發票</a>
 
                 @elseif($invoice->status == 1 && $invoice->r_status == 'SUCCESS')
                     @if($invoice->print_flag == 'Y')
                         <a href="{{ url()->full() . '?action=print_inv_a4' }}" target="_blank" 
-                            class="btn btn-sm btn-warning">發票列印(單張)</a>
+                            class="btn btn-sm btn-warning mb-1">發票列印(單張)</a>
 
                         @if($invoice->category == 'B2B')
                         <a href="{{ url()->full() . '?action=print_inv_B2B' }}" target="_blank" 
-                            class="btn btn-sm btn-warning">發票列印(B2B)</a>
+                            class="btn btn-sm btn-warning mb-1">發票列印(B2B)</a>
                         @endif
                     @endif
 
                     @if($invoice->r_invalid_status != 'SUCCESS')
                         @if($check_inv_allowance)
-                            <a href="{{ Route('cms.order.allowance-invoice', ['id' => $invoice->id]) }}" class="btn btn-sm btn-success" role="button">發票折讓</a>
+                            <a href="{{ Route('cms.order.allowance-invoice', ['id' => $invoice->id]) }}" class="btn btn-sm btn-success mb-1" role="button">發票折讓</a>
                         @endif
 
                         @if($check_invoice_invalid)
-                            <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#confirm-invalid-invoice">發票作廢</button>
+                            <button type="button" class="btn btn-sm btn-outline-danger mb-1" data-bs-toggle="modal" data-bs-target="#confirm-invalid-invoice">發票作廢</button>
                         @endif
                     @endif
                 @endif

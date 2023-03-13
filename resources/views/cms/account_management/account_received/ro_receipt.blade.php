@@ -3,46 +3,42 @@
     <h2 class="mb-4">收款單</h2>
 
     <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
-        <div class="p-1 pe-2">
+        <div class="p-1 pb-0">
             @can('cms.collection_received.edit')
                 <a href="{{ route('cms.collection_received.edit', ['id' => $received_order->id]) }}" 
-                    class="btn btn-sm btn-success px-3" role="button">修改</a>
+                    class="btn btn-sm btn-success px-3 mb-1" role="button">修改</a>
 
                 @if(! $received_order->receipt_date)
                 <a href="{{ route('cms.account_received.ro-review', ['id' => $received_order->source_id]) }}" 
-                    class="btn btn-sm btn-primary" role="button">收款單入款審核</a>
+                    class="btn btn-sm btn-primary mb-1" role="button">收款單入款審核</a>
                 @else
                     @if(! $data_status_check)
                     <a href="{{ route('cms.account_received.ro-review', ['id' => $received_order->source_id]) }}" 
-                        class="btn btn-sm btn-outline-danger" role="button">取消入帳</a>
+                        class="btn btn-sm btn-outline-danger mb-1" role="button">取消入帳</a>
                     @endif
                 @endif
                 <a href="{{ route('cms.account_received.ro-taxation', ['id' => $received_order->source_id]) }}" 
-                    class="btn btn-sm btn-dark" role="button">修改摘要/稅別</a>
+                    class="btn btn-sm btn-dark mb-1" role="button">修改摘要/稅別</a>
             @endcan
 
             <a href="{{ url()->full() . '?action=print' }}" target="_blank" 
-                class="btn btn-sm btn-warning">中一刀列印畫面</a>
-            {{--
-            <button type="submit" class="btn btn-danger">A4列印畫面</button>
-            <button type="submit" class="btn btn-danger">修改記錄</button>
-            <button type="submit" class="btn btn-danger">明細修改記錄</button>
-            --}}
+                class="btn btn-sm btn-warning mb-1">中一刀列印畫面</a>
 
             @can('cms.collection_received.delete')
             @if(!$received_order->receipt_date && !$data_status_check)
                 <a href="javascript:void(0)" role="button" data-bs-toggle="modal" data-bs-target="#confirm-delete"
                     data-href="{{ Route('cms.collection_received.delete', ['id' => $received_order->id], true) }}"
-                    class="btn btn-sm btn-outline-danger">刪除收款單</a>
+                    class="btn btn-sm btn-outline-danger mb-1">刪除收款單</a>
             @endif
             @endcan
 
             @can('cms.collection_received.edit')
-            <a href="{{ route('cms.ref_expenditure_petition.edit', ['current_sn' => $received_order->sn]) }}" class="btn btn-sm btn-primary" role="button">相關單號</a>
+            <a href="{{ route('cms.ref_expenditure_petition.edit', ['current_sn' => $received_order->sn]) }}" 
+                class="btn btn-sm btn-primary mb-1" role="button">相關單號</a>
             @endcan
             @if (count($relation_order) > 0)
                 @foreach ($relation_order as $value)
-                    <a href="{{ $value->url }}" class="btn btn-sm btn-primary" role="button">{{ $value->sn }}</a>
+                    <a href="{{ $value->url }}" class="btn btn-sm btn-primary mb-1" role="button">{{ $value->sn }}</a>
                 @endforeach
             @endif
         </div>

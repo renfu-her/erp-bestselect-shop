@@ -4,8 +4,8 @@
     <h2 class="mb-4">付款單查詢</h2>
 
     <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
-        <div class="p-1 pe-2">
-            <a href="{{ Route('cms.collection_payment.claim') }}" class="btn btn-sm btn-primary" role="button">合併付款</a>
+        <div class="p-1 pb-0">
+            <a href="{{ Route('cms.collection_payment.claim') }}" class="btn btn-sm btn-primary mb-1" role="button">合併付款</a>
         </div>
     </nav>
 

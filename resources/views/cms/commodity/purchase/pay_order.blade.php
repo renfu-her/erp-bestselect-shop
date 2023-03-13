@@ -1,20 +1,11 @@
 @extends('layouts.main')
 @section('sub-content')
-    {{--    @if ($method === 'edit')--}}
-    <h2 class="mb-4">{{ $type === 'deposit' ? '訂金' : '尾款'}}付款單
-        {{--            {{ $purchaseData->purchase_sn }}--}}
-    </h2>
-    {{--
-    <x-b-pch-navi :id="$id" :purchaseData="$purchase"></x-b-pch-navi>
-    --}}
-    {{--    @else--}}
-    {{--        <h2 class="mb-3">新增採購單</h2>--}}
-    {{--    @endif--}}
+    <h2 class="mb-4">{{ $type === 'deposit' ? '訂金' : '尾款'}}付款單</h2>
 
     <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
-        <div class="p-1 pe-2">
+        <div class="p-1 pb-0">
             @can('cms.collection_payment.edit')
-            <a href="{{ route('cms.collection_payment.edit', ['id' => $payOrdId]) }}" class="btn btn-sm btn-success px-3" role="button">修改</a>
+            <a href="{{ route('cms.collection_payment.edit', ['id' => $payOrdId]) }}" class="btn btn-sm btn-success px-3 mb-1" role="button">修改</a>
             @endcan
 
             @if(! $payingOrderData->payment_date)
@@ -23,41 +14,37 @@
                     'payOrdType' => 'pcs',
                     'isFinalPay' => ($type === 'final' ? 1 : 0),
                     'purchaseId' => $id
-                ], true) }}" class="btn btn-sm btn-primary px-3" role="button">付款</a>
+                ], true) }}" class="btn btn-sm btn-primary px-3 mb-1" role="button">付款</a>
             @endif
 
             @can('cms.collection_payment.delete')
             @if(! $data_status_check)
-            @if(! ($payingOrderData->payment_date && $payingOrderData->append_po_id))
-                <a href="{{ route('cms.collection_payment.payable_list', ['id' => $payOrdId]) }}" class="btn btn-sm btn-primary" role="button">付款記錄</a>
+                @if(! ($payingOrderData->payment_date && $payingOrderData->append_po_id))
+                    <a href="{{ route('cms.collection_payment.payable_list', ['id' => $payOrdId]) }}" class="btn btn-sm btn-primary mb-1" role="button">付款記錄</a>
 
-                <a href="javascript:void(0)" role="button" class="btn btn-outline-danger btn-sm"
-                    data-bs-toggle="modal" data-bs-target="#confirm-delete"
-                    data-href="{{ Route('cms.collection_payment.delete', ['id' => $payOrdId]) }}">刪除付款單</a>
-            @endif
+                    <a href="javascript:void(0)" role="button" class="btn btn-outline-danger btn-sm mb-1"
+                        data-bs-toggle="modal" data-bs-target="#confirm-delete"
+                        data-href="{{ Route('cms.collection_payment.delete', ['id' => $payOrdId]) }}">刪除付款單</a>
+                @endif
             @endif
             @endcan
 
-            {{-- <button type="button" class="btn btn-sm btn-primary">圖片管理</button> --}}
             <a href="{{ url()->full() . '&action=print' }}" target="_blank"
-                class="btn btn-sm btn-warning" rel="noopener noreferrer">中一刀列印畫面</a>
+                class="btn btn-sm btn-warning mb-1" rel="noopener noreferrer">中一刀列印畫面</a>
 
-            {{-- <button type="button" class="btn btn-primary">修改</button> --}}
-            {{-- <button type="button" class="btn btn-primary">修改備註</button> --}}
-            {{-- <button type="button" class="btn btn-primary">新增細項</button> --}}
             @if($type == 'final')
                 @can('cms.collection_payment.edit_note')
                 <a href="{{ route('cms.collection_payment.edit_note', ['id' => $payOrdId]) }}"
-                    class="btn btn-dark btn-sm" role="button">編輯付款項目備註</a>
+                    class="btn btn-dark btn-sm mb-1" role="button">編輯付款項目備註</a>
                 @endcan
             @endif
 
             @can('cms.collection_payment.edit')
-            <a href="{{ route('cms.ref_expenditure_petition.edit', ['current_sn' => $payingOrderData->sn]) }}" class="btn btn-sm btn-primary" role="button">相關單號</a>
+            <a href="{{ route('cms.ref_expenditure_petition.edit', ['current_sn' => $payingOrderData->sn]) }}" class="btn btn-sm btn-primary mb-1" role="button">相關單號</a>
             @endcan
             @if (count($relation_order) > 0)
                 @foreach ($relation_order as $value)
-                    <a href="{{ $value->url }}" class="btn btn-sm btn-primary" role="button">{{ $value->sn }}</a>
+                    <a href="{{ $value->url }}" class="btn btn-sm btn-primary mb-1" role="button">{{ $value->sn }}</a>
                 @endforeach
             @endif
         </div>

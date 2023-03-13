@@ -19,15 +19,15 @@
 
     @if ($method === 'edit')
     <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
-        <div class="p-1 pe-2">
+        <div class="p-1 pb-0">
         @if (!$receivable)
-            <a href="{{ Route('cms.ar_csnorder.create', ['id' => $id]) }}" class="btn btn-sm btn-primary" role="button">新增收款單</a>
+            <a href="{{ Route('cms.ar_csnorder.create', ['id' => $id]) }}" class="btn btn-sm btn-primary mb-1" role="button">新增收款單</a>
         @endif
-            <a target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-warning"
+            <a target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-warning mb-1"
                 href="{{ Route('cms.consignment-order.print_order_ship', ['id' => $id]) . '?type=M1' }}">
                 列印出貨單-中一刀
             </a>
-            <a target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-warning"
+            <a target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-warning mb-1"
                 href="{{ Route('cms.consignment-order.print_order_ship', ['id' => $id]) . '?type=A4' }}">
                 列印出貨單-A4
             </a>

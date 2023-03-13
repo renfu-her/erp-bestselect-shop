@@ -3,43 +3,43 @@
     <h2 class="mb-4">{{ $behavior == 'return' ? '退貨' : ($behavior == 'out' ? '缺貨' : '換貨') }}付款單</h2>
 
     <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
-        <div class="p-1 pe-2">
+        <div class="p-1 pb-0">
             @can('cms.collection_payment.edit')
             <a href="{{ route('cms.collection_payment.edit', ['id' => $delivery->po_id]) }}"
-                class="btn btn-sm btn-success px-3" role="button">修改</a>
+                class="btn btn-sm btn-success px-3 mb-1" role="button">修改</a>
             @endcan
 
             @if(! $paying_order->payment_date)
                 <a href="{{ Route('cms.delivery.roe-po-create', ['id' => $delivery->delivery_id, 'behavior' => $behavior, 'bac_papa_id' => $delivery->delivery_bac_papa_id]) }}"
-                    class="btn btn-sm btn-primary px-3" role="button">付款</a>
+                    class="btn btn-sm btn-primary px-3 mb-1" role="button">付款</a>
             @endif
 
             @can('cms.collection_payment.delete')
             @if(! $data_status_check)
-            @if(! ($paying_order->payment_date && $paying_order->append_po_id))
-                <a href="{{ route('cms.collection_payment.payable_list', ['id' => $delivery->po_id]) }}" class="btn btn-sm btn-primary" role="button">付款記錄</a>
+                @if(! ($paying_order->payment_date && $paying_order->append_po_id))
+                    <a href="{{ route('cms.collection_payment.payable_list', ['id' => $delivery->po_id]) }}" class="btn btn-sm btn-primary mb-1" role="button">付款記錄</a>
 
-                <a href="javascript:void(0)" role="button" class="btn btn-outline-danger btn-sm"
-                    data-bs-toggle="modal" data-bs-target="#confirm-delete"
-                    data-href="{{ Route('cms.collection_payment.delete', ['id' => $delivery->po_id]) }}">刪除付款單</a>
-            @endif
+                    <a href="javascript:void(0)" role="button" class="btn btn-outline-danger btn-sm mb-1"
+                        data-bs-toggle="modal" data-bs-target="#confirm-delete"
+                        data-href="{{ Route('cms.collection_payment.delete', ['id' => $delivery->po_id]) }}">刪除付款單</a>
+                @endif
             @endif
             @endcan
 
             <a href="{{ url()->full() . '?action=print' }}" target="_blank"
-                class="btn btn-sm btn-warning" rel="noopener noreferrer">中一刀列印畫面</a>
+                class="btn btn-sm btn-warning mb-1" rel="noopener noreferrer">中一刀列印畫面</a>
 
             @can('cms.collection_payment.edit_note')
             <a href="{{ route('cms.collection_payment.edit_note', ['id' => $paying_order->id]) }}"
-                class="btn btn-sm btn-dark" role="button">編輯付款項目備註</a>
+                class="btn btn-sm btn-dark mb-1" role="button">編輯付款項目備註</a>
             @endcan
 
             @can('cms.collection_payment.edit')
-            <a href="{{ route('cms.ref_expenditure_petition.edit', ['current_sn' => $paying_order->sn]) }}" class="btn btn-sm btn-primary" role="button">相關單號</a>
+            <a href="{{ route('cms.ref_expenditure_petition.edit', ['current_sn' => $paying_order->sn]) }}" class="btn btn-sm btn-primary mb-1" role="button">相關單號</a>
             @endcan
             @if (count($relation_order) > 0)
                 @foreach ($relation_order as $value)
-                    <a href="{{ $value->url }}" class="btn btn-sm btn-primary" role="button">{{ $value->sn }}</a>
+                    <a href="{{ $value->url }}" class="btn btn-sm btn-primary mb-1" role="button">{{ $value->sn }}</a>
                 @endforeach
             @endif
         </div>

@@ -5,11 +5,11 @@
 
     <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
         @can('cms.note_receivable.edit')
-        <div class="p-1 pe-2">
+        <div class="p-1 pb-0">
             @if($cheque->cheque_status_code == 'cashed')
-            <a href="javascript:void(0)" role="button" class="btn btn-outline-danger btn-sm"
-            data-bs-toggle="modal" data-bs-target="#confirm-reverse"
-            data-href="{{ Route('cms.note_receivable.reverse', ['id' => $cheque->cheque_received_id]) }}">取消兌現</a>
+            <a href="javascript:void(0)" role="button" class="btn btn-outline-danger btn-sm mb-1"
+                data-bs-toggle="modal" data-bs-target="#confirm-reverse"
+                data-href="{{ Route('cms.note_receivable.reverse', ['id' => $cheque->cheque_received_id]) }}">取消兌現</a>
             @endif
         </div>
         @endcan

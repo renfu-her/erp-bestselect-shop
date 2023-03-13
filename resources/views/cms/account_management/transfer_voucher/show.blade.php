@@ -3,20 +3,20 @@
     <h2 class="mb-4">轉帳傳票</h2>
 
     <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
-        <div class="p-1 pe-2">
+        <div class="p-1 pb-0">
             @can('cms.transfer_voucher.edit')
             <a href="{{ route('cms.transfer_voucher.edit', ['id' => $voucher->tv_id]) }}" 
-                class="btn btn-sm btn-success px-3" role="button">修改</a>
+                class="btn btn-sm btn-success px-3 mb-1" role="button">修改</a>
             @endcan
 
             @can('cms.transfer_voucher.delete')
-            <a href="javascript:void(0)" role="button" class="btn btn-sm btn-outline-danger" 
+            <a href="javascript:void(0)" role="button" class="btn btn-sm btn-outline-danger mb-1" 
                 data-bs-toggle="modal" data-bs-target="#confirm-delete" 
                 data-href="{{ Route('cms.transfer_voucher.delete', ['id' => $voucher->tv_id]) }}">刪除傳票</a>
             @endcan
 
             <a href="{{ url()->full() . '?action=print' }}" target="_blank" 
-                class="btn btn-sm btn-warning" rel="noopener noreferrer">中一刀列印畫面</a>
+                class="btn btn-sm btn-warning mb-1" rel="noopener noreferrer">中一刀列印畫面</a>
         </div>
     </nav>
 
