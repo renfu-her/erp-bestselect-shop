@@ -30,10 +30,12 @@ class Template extends Model
             ])->id;
             $d = $request->all();
             for ($i = 0; $i < 3; $i++) {
+                $file = self::uploadFile($request, 'file' . $i, $id);
                 if (isset($d['group_id' . $i])) {
                     DB::table('idx_template_child')->insert([
                         'template_id' => $id,
                         'group_id' => $d['group_id' . $i],
+                        'file' => $file,
                     ]);
                 }
             }
@@ -72,18 +74,18 @@ class Template extends Model
                     ->update($updateData);
 
                 $d = $request->all();
-                
+
                 for ($i = 0; $i < 3; $i++) {
                     $file = self::uploadFile($request, 'file' . $i, $id);
-                  
+
                     $uploadData = [];
                     if ($file) {
                         $uploadData['file'] = $file;
                     }
                     if ($d['id' . $i]) {
-                        
+
                         $uploadData['group_id'] = $d['group_id' . $i];
-                    
+
                         DB::table('idx_template_child')->where('id', $d['id' . $i])
                             ->update($uploadData);
                     } else {
@@ -165,11 +167,11 @@ class Template extends Model
     private static function uploadFile($request, $filename, $id)
     {
         if (!$request->hasfile($filename)) {
-            return false;
+            return null;
         }
 
-        $re = false;
-       
+        $re = null;
+
         $img = Image::make($request->file($filename)->path())
             ->resize(1360, 453)->encode('webp', 50);
 
@@ -180,7 +182,7 @@ class Template extends Model
             $re = $filename;
         }
 
-        return $filename;
+        return $re;
     }
 
 }

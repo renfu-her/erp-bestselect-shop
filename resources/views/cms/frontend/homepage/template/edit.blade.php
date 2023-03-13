@@ -103,6 +103,10 @@
                             <div class="col-12 col-sm-6 mb-1">
                                 <input class="form-control" name="file{{ $key }}" value="" type="file"
                                     placeholder="" aria-label="">
+                                @if (isset($value->file))
+                                    {{ $value->file }}
+                                @endif
+
                             </div>
                             <div class="col-12 col-sm-6 mb-1">
                                 <select name="group_id{{ $key }}" class="form-select">
