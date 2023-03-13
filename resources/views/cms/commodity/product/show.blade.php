@@ -47,9 +47,9 @@
                 <div class="accordion-body pb-0 pe-0" style="overflow-x: auto">
                     <div class="upload_image_block" style="width: max-content">
                         @foreach ($images as $img)
-                            <a href="{{ getImageUrl($img['url'],true) }}" target="_blank">
+                            <a href="{{ getImageUrl($img['url'], true) }}" target="_blank">
                                 <span class="browser_box rounded-0 border">
-                                    <img src="{{ getImageUrl($img['url'],true) }}" alt="{{ '圖片' . $img['id'] }}">
+                                    <img src="{{ getImageUrl($img['url'], true) }}" alt="{{ '圖片' . $img['id'] }}">
                                 </span>
                             </a>
                         @endforeach
@@ -86,22 +86,25 @@
                         </thead>
                         <tbody>
                             @foreach ($styles as $style)
-                                @foreach ($style->prices as $i => $price)
-                                    <tr>
-                                        @if ($i === 0)
-                                            <th rowspan="{{ count($style->prices) }}" class="text-center table-warning">
-                                                {{ $style->title }}
-                                                <div class="text-secondary small fw-light">{{ $style->sku }}</div>
-                                            </th>
-                                        @endif
-                                        <td>{{ $price->salechannel_title }}</td>
-                                        <td class="text-end">${{ number_format($price->price) }}</td>
-                                        <td class="text-end">${{ number_format($price->dealer_price) }}</td>
-                                        <td class="text-end">${{ number_format($price->origin_price) }}</td>
-                                        <td class="text-end">${{ number_format($price->bonus) }}</td>
-                                        <td class="text-end">${{ number_format($price->dividend) }}</td>
-                                    </tr>
-                                @endforeach
+                                @if (is_object($style->prices))
+                                    @foreach ($style->prices as $i => $price)
+                                        <tr>
+                                            @if ($i === 0)
+                                                <th rowspan="{{ count($style->prices) }}"
+                                                    class="text-center table-warning">
+                                                    {{ $style->title }}
+                                                    <div class="text-secondary small fw-light">{{ $style->sku }}</div>
+                                                </th>
+                                            @endif
+                                            <td>{{ $price->salechannel_title }}</td>
+                                            <td class="text-end">${{ number_format($price->price) }}</td>
+                                            <td class="text-end">${{ number_format($price->dealer_price) }}</td>
+                                            <td class="text-end">${{ number_format($price->origin_price) }}</td>
+                                            <td class="text-end">${{ number_format($price->bonus) }}</td>
+                                            <td class="text-end">${{ number_format($price->dividend) }}</td>
+                                        </tr>
+                                    @endforeach
+                                @endif
                             @endforeach
                             <tr></tr>
                         </tbody>
