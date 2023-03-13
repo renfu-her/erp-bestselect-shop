@@ -373,8 +373,11 @@ class ProductStyle extends Model
             if (isset($v->prices[0])) {
                 $v->title = $v->prices[0]->style_title;
                 $v->sku = $v->prices[0]->sku;
+                return $v;
+            }else{
+                return [];
             }
-            return $v;
+          
 
         }, $sub->get()->toArray());
 
