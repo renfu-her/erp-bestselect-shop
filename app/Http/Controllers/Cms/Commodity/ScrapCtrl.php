@@ -9,10 +9,13 @@ use App\Enums\PcsScrap\PcsScrapType;
 use App\Enums\Purchase\LogEventFeature;
 use App\Helpers\IttmsDBB;
 use App\Http\Controllers\Controller;
+use App\Models\Consignment;
 use App\Models\GeneralLedger;
 use App\Models\PcsScrapItem;
 use App\Models\PcsScraps;
 use App\Models\ProductStock;
+use App\Models\ProductStyle;
+use App\Models\Purchase;
 use App\Models\PurchaseInbound;
 use App\Models\PurchaseLog;
 use App\Models\ReceivedDefault;
@@ -89,7 +92,42 @@ class ScrapCtrl extends Controller
     public function edit(Request $request, $id)
     {
         $scrapData = PcsScraps::find($id);
-        $scrapItemData = PcsScrapItem::where('scrap_id', $id)->where('type', '=', 0)->whereNull('deleted_at')->get();
+        $scrapItemData = DB::table(app(PcsScrapItem::class)->getTable() . ' as scrap_items')
+            ->leftJoin(app(PurchaseInbound::class)->getTable() . ' as inbound', 'scrap_items.inbound_id', '=', 'inbound.id')
+            ->leftJoin(app(ProductStyle::class)->getTable() . ' as product_style', 'scrap_items.product_style_id', '=', 'product_style.id')
+
+            ->leftJoin(app(Purchase::class)->getTable() . ' as pcs', function ($join) {
+                $join->on('pcs.id', '=', 'inbound.event_id')
+                    ->where('inbound.event', '=', Event::purchase()->value);
+            })
+            ->leftJoin(app(Consignment::class)->getTable() . ' as csn', function ($join) {
+                $join->on('csn.id', '=', 'inbound.event_id')
+                    ->where('inbound.event', '=', Event::consignment()->value);
+            })
+            ->select(
+                'scrap_items.id as item_id',
+                'scrap_items.inbound_id',
+                'scrap_items.product_style_id',
+                'scrap_items.product_title',
+                'scrap_items.sku',
+                'scrap_items.qty as to_scrap_qty',
+                'scrap_items.memo',
+                DB::raw('case when "'. Event::purchase()->value. '" = inbound.event then "'. Event::purchase()->description. '"'
+                    . ' when "'. Event::consignment()->value. '" = inbound.event then "'. Event::consignment()->description. '"'
+                    . ' else null end as event_name'),
+                DB::raw('case when "'. Event::purchase()->value. '" = inbound.event then pcs.sn'
+                    . ' when "'. Event::consignment()->value. '" = inbound.event then csn.sn'
+                    . ' else null end as event_sn'),
+                DB::raw('(inbound.inbound_num - inbound.sale_num - inbound.csn_num - inbound.consume_num - inbound.back_num - inbound.scrap_num) as remaining_qty'), //庫存剩餘數量
+
+                'inbound.depot_name',
+                DB::raw('DATE_FORMAT(inbound.expiry_date,"%Y-%m-%d") as expiry_date'),
+                'product_style.in_stock',
+            )
+            ->where('scrap_items.scrap_id', $id)
+            ->where('scrap_items.type', '=', 0)
+            ->whereNull('scrap_items.deleted_at')
+            ->get();
         $dlv_other_items = PcsScrapItem::where('scrap_id', $id)->where('type', '<>', 0)->whereNull('deleted_at')->get();
         if (!$scrapData) {
             return abort(404);

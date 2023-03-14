@@ -38,8 +38,8 @@
                         </tr>
                     </thead>
                     <tbody class="-appendClone --selectedIB -serial-number">
-                        {{-- 舊資料填這
-                        @foreach ($collection as $item)
+                        @if(isset($scrapItemData) && 0 < count($scrapItemData))
+                        @foreach ($scrapItemData as $item)
                             <tr class="-cloneElem --selectedIB">
                                 <th scope="row" class="text-center"><span class="-serial-title -after"></span></th>
                                 <td class="text-center">
@@ -47,36 +47,37 @@
                                         class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
                                         <i class="bi bi-trash"></i>
                                     </button>
-                                    <input type="hidden" name="item_id[]" value="" />
-                                    <input type="hidden" name="inbound_id[]" value="" />
-                                    <input type="hidden" name="product_style_id[]" value="" />
-                                    <input type="hidden" name="sku[]" value="" />
-                                    <input type="hidden" name="product_title[]" value="" />
+                                    <input type="hidden" name="item_id[]" value="{{$item->item_id}}" />
+                                    <input type="hidden" name="inbound_id[]" value="{{$item->inbound_id}}" />
+                                    <input type="hidden" name="product_style_id[]" value="{{$item->product_style_id}}" />
+                                    <input type="hidden" name="sku[]" value="{{$item->sku}}" />
+                                    <input type="hidden" name="product_title[]" value="{{$item->product_title}}" />
                                 </td>
-                                <td data-td="event_sn"></td>
+                                <td data-td="event_sn">{{$item->event_sn}}</td>
                                 <td class="wrap">
-                                    <div class="lh-1 small text-secondary" data-td="sku"></div>
-                                    <div class="lh-base" data-td="product_title"></div>
+                                    <div class="lh-1 small text-secondary" data-td="sku">{{$item->sku}}</div>
+                                    <div class="lh-base" data-td="product_title">{{$item->product_title}}</div>
                                     <div class="lh-1 small fw-light">
-                                        <span class="bg-secondary text-white px-1" data-td="expiry_date">效期：</span>
+                                        <span class="bg-secondary text-white px-1" data-td="expiry_date">效期：{{$item->expiry_date}}</span>
                                     </div>
                                 </td>
                                 <td class="wrap">
                                     <div class="lh-base text-nowrap">
-                                        <span class="bg-warning text-dark px-1" data-td="inbound_event_name"></span>
+                                        <span class="bg-warning text-dark px-1" data-td="inbound_event_name">{{$item->event_name}}</span>
                                     </div>
-                                    <div class="lh-1" data-td="depot_name"></div>
+                                    <div class="lh-1" data-td="depot_name">{{$item->depot_name}}</div>
                                 </td>
-                                <td class="text-end" data-td="in_stock"></td>
-                                <td class="text-end" data-td="qty"></td>
+                                <td class="text-end" data-td="in_stock">{{$item->in_stock}}</td>
+                                <td class="text-end" data-td="qty">{{$item->remaining_qty}}</td>
                                 <td class="text-center">
-                                    <input type="number" name="to_scrap_qty[]" value="0" min="1" class="form-control form-control-sm -sm" required />
+                                    <input type="number" name="to_scrap_qty[]" value="{{$item->to_scrap_qty}}" min="1" class="form-control form-control-sm -sm" required />
                                 </td>
                                 <td class="text-center">
-                                    <input type="text" name="memo[]" value="" class="form-control form-control-sm -l" />
+                                    <input type="text" name="memo[]" value="{{$item->memo}}" class="form-control form-control-sm -l" />
                                 </td>
                             </tr>
-                        @endforeach --}}
+                        @endforeach
+                        @endif
 
                         <tr class="-cloneElem --selectedIB d-none">
                             <th scope="row" class="text-center"><span class="-serial-title -after"></span></th>
@@ -246,7 +247,7 @@
                     <tbody class="-appendClone --inbound">
                         <tr class="-cloneElem --inbound">
                             <th class="text-center">
-                                <input class="form-check-input" type="checkbox" 
+                                <input class="form-check-input" type="checkbox"
                                     value="idx" aria-label="選取入庫單">
                             </th>
                             <td>event_sn</td>
@@ -285,7 +286,7 @@
     <script>
         const addInboundModal = new bootstrap.Modal(document.getElementById('addInbound'));
         const consPages = new Pagination($('#addInbound .-pages'));
-        
+
         /*** 選取 ***/
         // 入庫單
         let selectedInbound = [
@@ -323,7 +324,7 @@
         };
         Clone_bindDelElem($('.-cloneElem.--selectedIB .-del'), delItemOption);
         /********/
-        
+
         // 新增入庫單 btn
         $('#addInboundBtn, #addInbound .-searchBar button').off('click').on('click', function(e) {
             selectedInbound = [];
@@ -338,7 +339,7 @@
             }
             getInboundList(1);
         });
-        
+
         // 過期入庫單 API
         function getInboundList(page) {
             const _URL = `${Laravel.apiUrl.expiredInboundList}?page=${page}`;
@@ -372,7 +373,7 @@
                                 return false;
                             }
                         });
-                        
+
                         // 產生分頁
                         consPages.create(res.current_page, {
                             totalData: res.total,
@@ -453,7 +454,7 @@
                     createOneSelected(item);
                 }
             });
-            
+
             // 關閉懸浮視窗
             addInboundModal.hide();
 
@@ -470,7 +471,7 @@
                         cloneElem.find('input[name="product_style_id[]"]').val(item.product_style_id);
                         cloneElem.find('input[name="sku[]"]').val(item.sku);
                         cloneElem.find('input[name="product_title[]"]').val(item.product_title);
-                        
+
                         cloneElem.find('td[data-td="event_sn"]').text(item.event_sn);
                         cloneElem.find('td [data-td="sku"]').text(item.sku);
                         cloneElem.find('td [data-td="product_title"]').text(item.product_title);
@@ -493,7 +494,7 @@
                 }, delItemOption);
             }
         });
-        
+
         // 清空入庫 Modal
         function resetAddInboundModal() {
             $('#addInbound .-searchBar input').val('');
