@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Delivery\Event;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -49,5 +50,54 @@ class PcsScrapItem extends Model
         }
         return $query;
     }
+
+    public static function getDataWithInboundQtyList($searchParam)
+    {
+
+        $query = DB::table(app(PcsScrapItem::class)->getTable() . ' as scrap_items')
+            ->leftJoin(app(PurchaseInbound::class)->getTable() . ' as inbound', 'scrap_items.inbound_id', '=', 'inbound.id')
+            ->leftJoin(app(ProductStyle::class)->getTable() . ' as style', 'scrap_items.product_style_id', '=', 'style.id')
+
+            ->leftJoin(app(Purchase::class)->getTable() . ' as pcs', function ($join) {
+                $join->on('pcs.id', '=', 'inbound.event_id')
+                    ->where('inbound.event', '=', Event::purchase()->value);
+            })
+            ->leftJoin(app(Consignment::class)->getTable() . ' as csn', function ($join) {
+                $join->on('csn.id', '=', 'inbound.event_id')
+                    ->where('inbound.event', '=', Event::consignment()->value);
+            })
+            ->select(
+                'scrap_items.id as item_id',
+                'scrap_items.inbound_id',
+                'scrap_items.product_style_id',
+                'scrap_items.product_title',
+                'scrap_items.sku',
+                'scrap_items.qty as to_scrap_qty',
+                'scrap_items.memo',
+                DB::raw('case when "'. Event::purchase()->value. '" = inbound.event then "'. Event::purchase()->description. '"'
+                    . ' when "'. Event::consignment()->value. '" = inbound.event then "'. Event::consignment()->description. '"'
+                    . ' else null end as event_name'),
+                DB::raw('case when "'. Event::purchase()->value. '" = inbound.event then pcs.sn'
+                    . ' when "'. Event::consignment()->value. '" = inbound.event then csn.sn'
+                    . ' else null end as event_sn'),
+                DB::raw('(inbound.inbound_num - inbound.sale_num - inbound.csn_num - inbound.consume_num - inbound.back_num - inbound.scrap_num) as remaining_qty'), //庫存剩餘數量
+
+                'inbound.depot_name',
+                DB::raw('DATE_FORMAT(inbound.expiry_date,"%Y-%m-%d") as expiry_date'),
+                'style.in_stock',
+            )
+            ->where('scrap_items.type', '=', 0)
+            ->whereNull('scrap_items.deleted_at');
+
+        if (isset($searchParam['scrap_id'])) {
+            $query->where('scrap_items.scrap_id', $searchParam['scrap_id']);
+        }
+        if (isset($searchParam['inbound_ids'])) {
+            $query->whereIn('inbound.id', $searchParam['inbound_ids']);
+        }
+        return $query;
+    }
+
+
 
 }

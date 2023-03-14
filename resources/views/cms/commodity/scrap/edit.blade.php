@@ -200,6 +200,35 @@
                     </tbody>
                 </table>
             </div>
+
+
+            @if(isset($scrapData))
+                <fieldset class="p-4 col-12 mb-3">
+                    <legend class="col-form-label p-0 mb-2">審核狀態 <span class="text-danger">*</span></legend>
+                    <div class="px-1 pt-1">
+                        @foreach (App\Enums\Consignment\AuditStatus::asArray() as $key => $val)
+                            <div class="form-check form-check-inline @error('audit_status')is-invalid @enderror">
+                                <label class="form-check-label">
+                                    <input class="form-check-input @error('audit_status')is-invalid @enderror" name="audit_status"
+                                           value="{{ $val }}" type="radio" required
+                                           @if (old('audit_status', $scrapData->audit_status ?? '') == $val) checked @endif>
+                                    {{ App\Enums\Consignment\AuditStatus::getDescription($val) }}
+                                </label>
+                            </div>
+                        @endforeach
+                        @error('audit_status')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                        <div class="col">
+                            <mark class="fw-light small">
+                                <i class="bi bi-exclamation-diamond-fill mx-2 text-warning">
+                                </i>審核狀態改為<b> 核可 或 否決 </b>就不能再修改 除非再改回尚未審核！
+                            </mark>
+                        </div>
+                    </div>
+                </fieldset>
+            @endif
+
             @error('error_msg')
             <div class="alert alert-danger" role="alert">
                 {{ $message }}

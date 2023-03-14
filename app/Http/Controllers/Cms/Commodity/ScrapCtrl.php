@@ -92,42 +92,7 @@ class ScrapCtrl extends Controller
     public function edit(Request $request, $id)
     {
         $scrapData = PcsScraps::find($id);
-        $scrapItemData = DB::table(app(PcsScrapItem::class)->getTable() . ' as scrap_items')
-            ->leftJoin(app(PurchaseInbound::class)->getTable() . ' as inbound', 'scrap_items.inbound_id', '=', 'inbound.id')
-            ->leftJoin(app(ProductStyle::class)->getTable() . ' as product_style', 'scrap_items.product_style_id', '=', 'product_style.id')
-
-            ->leftJoin(app(Purchase::class)->getTable() . ' as pcs', function ($join) {
-                $join->on('pcs.id', '=', 'inbound.event_id')
-                    ->where('inbound.event', '=', Event::purchase()->value);
-            })
-            ->leftJoin(app(Consignment::class)->getTable() . ' as csn', function ($join) {
-                $join->on('csn.id', '=', 'inbound.event_id')
-                    ->where('inbound.event', '=', Event::consignment()->value);
-            })
-            ->select(
-                'scrap_items.id as item_id',
-                'scrap_items.inbound_id',
-                'scrap_items.product_style_id',
-                'scrap_items.product_title',
-                'scrap_items.sku',
-                'scrap_items.qty as to_scrap_qty',
-                'scrap_items.memo',
-                DB::raw('case when "'. Event::purchase()->value. '" = inbound.event then "'. Event::purchase()->description. '"'
-                    . ' when "'. Event::consignment()->value. '" = inbound.event then "'. Event::consignment()->description. '"'
-                    . ' else null end as event_name'),
-                DB::raw('case when "'. Event::purchase()->value. '" = inbound.event then pcs.sn'
-                    . ' when "'. Event::consignment()->value. '" = inbound.event then csn.sn'
-                    . ' else null end as event_sn'),
-                DB::raw('(inbound.inbound_num - inbound.sale_num - inbound.csn_num - inbound.consume_num - inbound.back_num - inbound.scrap_num) as remaining_qty'), //庫存剩餘數量
-
-                'inbound.depot_name',
-                DB::raw('DATE_FORMAT(inbound.expiry_date,"%Y-%m-%d") as expiry_date'),
-                'product_style.in_stock',
-            )
-            ->where('scrap_items.scrap_id', $id)
-            ->where('scrap_items.type', '=', 0)
-            ->whereNull('scrap_items.deleted_at')
-            ->get();
+        $scrapItemData = PcsScrapItem::getDataWithInboundQtyList(['scrap_id' => $id])->get();
         $dlv_other_items = PcsScrapItem::where('scrap_id', $id)->where('type', '<>', 0)->whereNull('deleted_at')->get();
         if (!$scrapData) {
             return abort(404);
@@ -145,7 +110,6 @@ class ScrapCtrl extends Controller
         $rsp_arr['total_grades'] = $total_grades;
         $rsp_arr['breadcrumb_data'] = ['id' => $id, 'sn' => $scrapData->sn];
 
-//        dd($rsp_arr);
         return view('cms.commodity.scrap.edit', $rsp_arr);
     }
 
@@ -173,6 +137,7 @@ class ScrapCtrl extends Controller
 
     public function update(Request $request, $id)
     {
+        //dd($request->all());
         $this->validInputValue($request);
 
         $scrapData = PcsScraps::find($id);
@@ -180,12 +145,6 @@ class ScrapCtrl extends Controller
             $scrap_memo = $request->input('scrap_memo', null);
             $audit_status = $request->input('scrap_memo', AuditStatus::unreviewed()->value);
 
-            PcsScraps::where('id', $id)->update([
-                'memo' => $scrap_memo,
-                'audit_user_id' => Auth::user()->id,
-                'audit_user_name' => Auth::user()->name,
-                'audit_status' => $audit_status,
-            ]);
             if (AuditStatus::approved()->value == $scrapData->audit_status && AuditStatus::approved()->value == $audit_status) {
                 DB::rollBack();
                 return ['success' => 0, 'error_msg' => '請先改為其他狀態才可編輯'];
@@ -195,8 +154,40 @@ class ScrapCtrl extends Controller
                 //inbound若為採購 需扣除可售數量；若庫存和可售數量小於扣除數量 則回傳錯誤
                 $input_items = $request->only('item_id', 'inbound_id', 'product_style_id', 'product_title', 'sku', 'to_scrap_qty', 'memo');
                 if (isset($input_items['item_id']) && 0 < count($input_items['item_id'])) {
+                    //先將inbound_id寫入一陣列
+                    $inbound_ids = [];
                     for($i = 0; $i < count($input_items['item_id']); $i++) {
-                        $inbound = PurchaseInbound::find($input_items['inbound_id']);
+                        $inbound_ids[] = $input_items['inbound_id'][$i];
+                    }
+                    //取得inbound_id的資料
+                    $inbounds = DB::table(app(PurchaseInbound::class)->getTable() . ' as inbound')
+                        ->leftJoin(app(ProductStyle::class)->getTable() . ' as style', 'scrap_items.product_style_id', '=', 'style.id')
+                        ->select(
+                            'inbound.id',
+                            'inbound.event',
+                            DB::raw('(inbound.inbound_num - inbound.sale_num - inbound.csn_num - inbound.consume_num - inbound.back_num - inbound.scrap_num) as remaining_qty'), //庫存剩餘數量
+                            'style.in_stock'
+                        )
+                        ->whereIn('inbound.id', $inbound_ids)
+                        ->get();
+                    //檢查庫存和可售數量是否大於等於預計報廢的庫存
+                    if(isset($inbounds) && 0 < count($inbounds)) {
+                        foreach ($inbounds as $inbound) {
+                            if($inbound->remaining_qty < $input_items['to_scrap_qty'][$i]) {
+                                DB::rollBack();
+                                return ['success' => 0, 'error_msg' => '庫存不足'];
+                            }
+                            if($inbound->in_stock < $input_items['to_scrap_qty'][$i]) {
+                                DB::rollBack();
+                                return ['success' => 0, 'error_msg' => '可售數量不足'];
+                            }
+                        }
+                    }
+
+
+
+                    for($i = 0; $i < count($input_items['item_id']); $i++) {
+                        $inbound = PurchaseInbound::findorfail($input_items['inbound_id']);
                         PurchaseInbound::willBeScrapped($input_items['inbound_id'], $input_items['to_scrap_qty']);
 
                         $rePcsLSC = PurchaseLog::stockChange($inbound->event_id, $inbound->product_style_id, $inbound->event, $inbound->event_item_id
@@ -224,7 +215,7 @@ class ScrapCtrl extends Controller
                 $scrap_items = PcsScrapItem::where('scrap_id', $scrapData->id)->where('type', '=', 0)->whereNull('inbound_id')->whereNull('deleted_at')->get();
                 if (0 < $scrap_items->count()) {
                     foreach ($scrap_items as $scrap_item) {
-                        $inbound = PurchaseInbound::find($scrap_item->inbound_id);
+                        $inbound = PurchaseInbound::findorfail($scrap_item->inbound_id);
                         PurchaseInbound::willBeScrapped($scrap_item->inbound_id, $scrap_item->to_scrap_qty * -1);
                         $rePcsLSC = PurchaseLog::stockChange($inbound->event_id, $inbound->product_style_id, $inbound->event, $inbound->event_item_id
                             , LogEventFeature::scrap_del()->value, $inbound->inbound_id, $scrap_item->to_scrap_qty * -1, $scrapData->sn. ' 報廢取消'
@@ -246,6 +237,12 @@ class ScrapCtrl extends Controller
                 }
             }
 
+            PcsScraps::where('id', $id)->update([
+                'memo' => $scrap_memo,
+                'audit_user_id' => Auth::user()->id,
+                'audit_user_name' => Auth::user()->name,
+                'audit_status' => $audit_status,
+            ]);
             $reSS = $this->do_scrap_store($request, $scrapData->id);
             if ($reSS['success'] == 0) {
                 DB::rollBack();
