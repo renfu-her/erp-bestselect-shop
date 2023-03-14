@@ -15,9 +15,6 @@
                     編輯
                 @endif 版型區塊
             </h6>
-            @if ($errors->any())
-                {{ implode('', $errors->all('<div>:message</div>')) }}
-            @endif
             <div class="row">
                 <fieldset class="col-12 col-sm-6 mb-3">
                     <legend class="col-form-label p-0 mb-2">顯示版型區塊 <span class="text-danger">*</span></legend>
@@ -72,13 +69,13 @@
                 <div class="col-12 col-sm-6 mb-3 -title">
                     <label class="form-label">大標題 <span class="text-danger">*</span></label>
                     <input class="form-control" name="title" value="{{ old('title', $data->title ?? '') }}" type="text"
-                        placeholder="請輸入大標題" aria-label="大標題" maxlength="12">
+                        placeholder="請輸入大標題" aria-label="大標題" maxlength="12" required>
                 </div>
                 {{-- t1, t2 --}}
                 <div class="col-12 col-sm-6 mb-3 style_type -stype1 -stype2"
                     @if ($old_type !== 1 && $old_type !== 2) hidden @endif>
                     <label class="form-label">商品群組 <span class="text-danger">*</span></label>
-                    <select name="group_id" class="form-select" required>
+                    <select name="group_id" class="form-select" @if ($old_type !== 5) required @endif>
                         <option value="" @if ('' == old('group_id', $data->group_id ?? '')) selected @endif disabled>請選擇</option>
                         @foreach ($collectionList as $key => $collection)
                             <option value="{{ $collection->id }}" @if ($collection->id == old('group_id', $data->group_id ?? '')) selected @endif>
@@ -108,9 +105,6 @@
                             <div class="col-12 col-sm-6 mb-1">
                                 <input class="form-control" name="file{{ $key }}" value="" type="file"
                                     placeholder="" aria-label="">
-                                @if (isset($value->file))
-                                    {{ $value->file }}
-                                @endif
                             </div>
                             <div class="col-12 col-sm-6 mb-1">
                                 <select name="group_id{{ $key }}" class="form-select">
@@ -123,12 +117,23 @@
                                     @endforeach
                                 </select>
                             </div>
+                            @if (isset($value->file))
+                                <div class="col-12 col-sm-6 mb-1 text-sm-end">預覽：</div>
+                                <div class="col-12 col-sm-6 mb-1">
+                                    <img src="{{ asset($value->file) }}" alt="">
+                                </div>
+                            @endif
                         </div>
                     @endforeach
                 </div>
             </div>
         </div>
 
+        @if ($errors->any())
+            <div class="alert alert-danger" role="alert">
+                {{ implode('', $errors->all(':message')) }}
+            </div>
+        @endif
         <div class="col-auto">
             <button type="submit" class="btn btn-primary px-4">儲存</button>
             <a href="{{ Route('cms.homepage.template.index', [], true) }}" class="btn btn-outline-primary px-4"
@@ -154,7 +159,7 @@
                 /* max-width: 320px; */
             }
 
-            .-preview img {
+            .-preview img, .-stype5 img {
                 width: 100%;
                 height: auto;
             }
