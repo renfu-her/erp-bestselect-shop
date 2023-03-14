@@ -27,7 +27,7 @@ class StockCtrl extends Controller
         $cond['inbound_user_id'] = $request->input('inbound_user_id')?? null;
         $cond['inbound_sdate'] = $request->input('inbound_sdate')?? null;
         $cond['inbound_edate'] = $request->input('inbound_edate')?? null;
-        $cond['expire_day'] = -1;
+        $cond['expire_day'] = $request->input('expire_day')?? null;
         $cond['prd_user_id'] = $request->input('prd_user_id')?? [];
 
         if (count($cond['prd_user_id']) == 0) {
