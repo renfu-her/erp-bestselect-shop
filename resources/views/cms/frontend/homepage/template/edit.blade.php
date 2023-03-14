@@ -15,7 +15,9 @@
                     編輯
                 @endif 版型區塊
             </h6>
-
+            @if ($errors->any())
+                {{ implode('', $errors->all('<div>:message</div>')) }}
+            @endif
             <div class="row">
                 <fieldset class="col-12 col-sm-6 mb-3">
                     <legend class="col-form-label p-0 mb-2">顯示版型區塊 <span class="text-danger">*</span></legend>
@@ -23,7 +25,8 @@
                         <div class="form-check form-check-inline @error('is_public')is-invalid @enderror">
                             <label class="form-check-label">
                                 <input class="form-check-input @error('is_public')is-invalid @enderror" name="is_public"
-                                    value="1" type="radio" required @if (old('is_public', $data->is_public ?? '1') == '1') checked @endif>
+                                    value="1" type="radio" required
+                                    @if (old('is_public', $data->is_public ?? '1') == '1') checked @endif>
                                 開啟
                             </label>
                         </div>
@@ -72,7 +75,8 @@
                         placeholder="請輸入大標題" aria-label="大標題" maxlength="12">
                 </div>
                 {{-- t1, t2 --}}
-                <div class="col-12 col-sm-6 mb-3 style_type -stype1 -stype2" @if ($old_type !== 1 && $old_type !== 2) hidden @endif>
+                <div class="col-12 col-sm-6 mb-3 style_type -stype1 -stype2"
+                    @if ($old_type !== 1 && $old_type !== 2) hidden @endif>
                     <label class="form-label">商品群組 <span class="text-danger">*</span></label>
                     <select name="group_id" class="form-select" required>
                         <option value="" @if ('' == old('group_id', $data->group_id ?? '')) selected @endif disabled>請選擇</option>
@@ -83,7 +87,7 @@
                     </select>
                 </div>
                 {{-- t5 --}}
-                <div class="col-12 style_type -stype5"  @if ($old_type !== 5) hidden @endif>
+                <div class="col-12 style_type -stype5" @if ($old_type !== 5) hidden @endif>
                     <label class="form-label">圖片-群組（最多3個） <span class="text-danger">*</span></label>
                     @php
                         if ($method == 'create') {

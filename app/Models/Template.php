@@ -47,11 +47,19 @@ class Template extends Model
 
     public static function validInputValue(Request $request)
     {
+
         $request->validate([
             'title' => 'required|string'
-            , 'group_id' => 'required|numeric'
             , 'style_type' => 'required|numeric',
         ]);
+
+        $style_type = $request->input('style_type');
+        if ($style_type != 5) {
+            $request->validate([
+                'group_id' => 'required|numeric',
+            ]);
+        }
+
         return $request;
     }
 
