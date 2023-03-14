@@ -177,7 +177,8 @@ class ScrapCtrl extends Controller
                                         DB::rollBack();
                                         return ['success' => 0, 'error_msg' => '庫存不足'];
                                     }
-                                    if($inbound->in_stock < $input_items['to_scrap_qty'][$i]) {
+                                    //採購的話 需判斷可售數量
+                                    if($inbound->in_stock < $input_items['to_scrap_qty'][$i] && Event::purchase()->value == $inbound->event) {
                                         DB::rollBack();
                                         return ['success' => 0, 'error_msg' => '可售數量不足'];
                                     }
@@ -200,7 +201,7 @@ class ScrapCtrl extends Controller
                         }
                         if ($inbound->event == Event::purchase()->value) {
                             //寫入ProductStock
-                            $rePSSC = ProductStock::stockChange($input_items['product_style_id'][$i], $input_items['to_scrap_qty'][$i] * -1, 'scrap', $input_items['inbound_id'][$i], $scrapData->sn. ' 報廢', false, true);
+                            $rePSSC = ProductStock::stockChange($input_items['product_style_id'][$i], $input_items['to_scrap_qty'][$i] * -1, 'scrap', $scrapData->id, $scrapData->sn. ' 報廢', false, true);
                             if ($rePSSC['success'] == 0) {
                                 DB::rollBack();
                                 return $rePSSC;
@@ -227,7 +228,7 @@ class ScrapCtrl extends Controller
                         }
                         if ($inbound->event == Event::purchase()->value) {
                             //寫入ProductStock
-                            $rePSSC = ProductStock::stockChange($scrap_item->product_style_id, $scrap_item->qty, 'scrap', $scrap_item->inbound_id, $scrapData->sn. ' 報廢取消', false, true);
+                            $rePSSC = ProductStock::stockChange($scrap_item->product_style_id, $scrap_item->qty, 'scrap', $scrapData->id, $scrapData->sn. ' 報廢取消', false, true);
                             if ($rePSSC['success'] == 0) {
                                 DB::rollBack();
                                 return $rePSSC;
