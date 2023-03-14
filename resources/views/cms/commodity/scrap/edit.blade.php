@@ -325,7 +325,7 @@
         /********/
         
         // 新增入庫單 btn
-        $('#addInboundBtn').off('click').on('click', function(e) {
+        $('#addInboundBtn, #addInbound .-searchBar button').off('click').on('click', function(e) {
             selectedInbound = [];
             selectedInboundID = [];
             $('.-cloneElem.--selectedIB input[name="inbound_id[]"]').each(function(index, element) {
