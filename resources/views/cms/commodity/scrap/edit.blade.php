@@ -228,16 +228,8 @@
                 </fieldset>
             @endif
 
-            @error('error_msg')
-            <div class="alert alert-danger" role="alert">
-                {{ $message }}
-            </div>
-            @enderror
-            @error('item_error')
-            <div class="alert alert-danger mt-3">{{ $message }}</div>
-            @enderror
             @if($errors->any())
-                {{ implode('', $errors->all('<div>:message</div>')) }}
+                <div class="alert alert-danger mt-3">{!! implode('', $errors->all('<div>:message</div>')) !!}</div>
             @endif
         </div>
         <div id="submitDiv">

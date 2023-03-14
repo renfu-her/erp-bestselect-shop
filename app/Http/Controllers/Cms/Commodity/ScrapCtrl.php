@@ -158,7 +158,7 @@ class ScrapCtrl extends Controller
                     }
                     //取得inbound_id的資料
                     $inbounds = DB::table(app(PurchaseInbound::class)->getTable() . ' as inbound')
-                        ->leftJoin(app(ProductStyle::class)->getTable() . ' as style', 'scrap_items.product_style_id', '=', 'style.id')
+                        ->leftJoin(app(ProductStyle::class)->getTable() . ' as style', 'inbound.product_style_id', '=', 'style.id')
                         ->select(
                             'inbound.id',
                             'inbound.event',
@@ -170,34 +170,37 @@ class ScrapCtrl extends Controller
                     //檢查庫存和可售數量是否大於等於預計報廢的庫存
                     if(isset($inbounds) && 0 < count($inbounds)) {
                         foreach ($inbounds as $inbound) {
-                            if($inbound->remaining_qty < $input_items['to_scrap_qty'][$i]) {
-                                DB::rollBack();
-                                return ['success' => 0, 'error_msg' => '庫存不足'];
-                            }
-                            if($inbound->in_stock < $input_items['to_scrap_qty'][$i]) {
-                                DB::rollBack();
-                                return ['success' => 0, 'error_msg' => '可售數量不足'];
+                            for($i = 0; $i < count($input_items['item_id']); $i++) {
+                                //找到inbound_id 相同 判斷數量
+                                if ($input_items['inbound_id'][$i] == $inbound->id) {
+                                    if($inbound->remaining_qty < $input_items['to_scrap_qty'][$i]) {
+                                        DB::rollBack();
+                                        return ['success' => 0, 'error_msg' => '庫存不足'];
+                                    }
+                                    if($inbound->in_stock < $input_items['to_scrap_qty'][$i]) {
+                                        DB::rollBack();
+                                        return ['success' => 0, 'error_msg' => '可售數量不足'];
+                                    }
+                                }
                             }
                         }
                     }
 
-
-
                     for($i = 0; $i < count($input_items['item_id']); $i++) {
-                        $inbound = PurchaseInbound::findorfail($input_items['inbound_id']);
-                        PurchaseInbound::willBeScrapped($input_items['inbound_id'], $input_items['to_scrap_qty']);
+                        $inbound = PurchaseInbound::findorfail($input_items['inbound_id'][$i]);
+                        PurchaseInbound::willBeScrapped($input_items['inbound_id'][$i], $input_items['to_scrap_qty'][$i]);
 
                         $rePcsLSC = PurchaseLog::stockChange($inbound->event_id, $inbound->product_style_id, $inbound->event, $inbound->event_item_id
-                            , LogEventFeature::scrapped()->value, $inbound->inbound_id, $input_items['to_scrap_qty'], $scrapData->sn. ' 報廢'
+                            , LogEventFeature::scrapped()->value, $inbound->inbound_id, $input_items['to_scrap_qty'][$i] * -1, $scrapData->sn. ' 報廢'
                             , $inbound->product_title, $inbound->prd_type
                             , Auth::user()->id, Auth::user()->name, $scrapData->id);
                         if ($rePcsLSC['success'] == 0) {
                             DB::rollBack();
                             return $rePcsLSC;
                         }
-                        if ($inbound->type == Event::purchase()->value) {
+                        if ($inbound->event == Event::purchase()->value) {
                             //寫入ProductStock
-                            $rePSSC = ProductStock::stockChange($input_items['product_style_id'], $input_items['to_scrap_qty'], 'scrap', $input_items['inbound_id'], $scrapData->sn. ' 報廢', false, true);
+                            $rePSSC = ProductStock::stockChange($input_items['product_style_id'][$i], $input_items['to_scrap_qty'][$i] * -1, 'scrap', $input_items['inbound_id'][$i], $scrapData->sn. ' 報廢', false, true);
                             if ($rePSSC['success'] == 0) {
                                 DB::rollBack();
                                 return $rePSSC;
@@ -209,22 +212,22 @@ class ScrapCtrl extends Controller
             //判斷audit_status從核可變成其他狀態，則須加回數量
             else if (AuditStatus::approved()->value == $scrapData->audit_status && AuditStatus::approved()->value != $audit_status) {
                 //inbound若為採購 需加回可售數量
-                $scrap_items = PcsScrapItem::where('scrap_id', $scrapData->id)->where('type', '=', 0)->whereNull('inbound_id')->whereNull('deleted_at')->get();
+                $scrap_items = PcsScrapItem::where('scrap_id', $scrapData->id)->where('type', '=', DlvBackType::product()->value)->whereNotNull('inbound_id')->whereNull('deleted_at')->get();
                 if (0 < $scrap_items->count()) {
                     foreach ($scrap_items as $scrap_item) {
                         $inbound = PurchaseInbound::findorfail($scrap_item->inbound_id);
-                        PurchaseInbound::willBeScrapped($scrap_item->inbound_id, $scrap_item->to_scrap_qty * -1);
+                        PurchaseInbound::willBeScrapped($scrap_item->inbound_id, $scrap_item->qty * -1);
                         $rePcsLSC = PurchaseLog::stockChange($inbound->event_id, $inbound->product_style_id, $inbound->event, $inbound->event_item_id
-                            , LogEventFeature::scrap_del()->value, $inbound->inbound_id, $scrap_item->to_scrap_qty * -1, $scrapData->sn. ' 報廢取消'
+                            , LogEventFeature::scrap_del()->value, $inbound->inbound_id, $scrap_item->qty, $scrapData->sn. ' 報廢取消'
                             , $inbound->product_title, $inbound->prd_type
                             , Auth::user()->id, Auth::user()->name, $scrapData->id);
                         if ($rePcsLSC['success'] == 0) {
                             DB::rollBack();
                             return $rePcsLSC;
                         }
-                        if ($inbound->type == Event::purchase()->value) {
+                        if ($inbound->event == Event::purchase()->value) {
                             //寫入ProductStock
-                            $rePSSC = ProductStock::stockChange($scrap_item->product_style_id, $scrap_item->to_scrap_qty * -1, 'scrap', $scrap_item->inbound_id, $scrapData->sn. ' 報廢取消', false, true);
+                            $rePSSC = ProductStock::stockChange($scrap_item->product_style_id, $scrap_item->qty, 'scrap', $scrap_item->inbound_id, $scrapData->sn. ' 報廢取消', false, true);
                             if ($rePSSC['success'] == 0) {
                                 DB::rollBack();
                                 return $rePSSC;
