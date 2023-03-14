@@ -47,13 +47,16 @@ class PcsScrapItem extends Model
                 DB::raw($concatString . ' as groupConcat')
             );
 
-        if ($searchParam['scrap_sn']) {
+        if (isset($searchParam['scrap_sn'])) {
             $query->where('scraps.sn', 'like', "%{$searchParam['scrap_sn']}%");
+        }
+        if (isset($searchParam['audit_status'])) {
+            $query->where('scraps.audit_status', '=', "{$searchParam['audit_status']}");
         }
         return $query;
     }
 
-    public static function getDataWithInboundQtyList($searchParam)
+    public static function getItemWithInboundQtyList($searchParam)
     {
 
         $query = DB::table(app(PcsScrapItem::class)->getTable() . ' as scrap_items')
@@ -88,7 +91,7 @@ class PcsScrapItem extends Model
                 DB::raw('DATE_FORMAT(inbound.expiry_date,"%Y-%m-%d") as expiry_date'),
                 'style.in_stock',
             )
-            ->where('scrap_items.type', '=', 0)
+            ->where('scrap_items.type', '=', DlvBackType::product()->value)
             ->whereNull('scrap_items.deleted_at');
 
         if (isset($searchParam['scrap_id'])) {

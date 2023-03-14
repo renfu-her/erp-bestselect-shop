@@ -14,6 +14,20 @@
                            aria-label="報廢單號">
                 </div>
             </div>
+            <fieldset class="col-12 col-sm-6 mb-3">
+                <legend class="col-form-label p-0 mb-2">審核狀態</legend>
+                <div class="px-1 pt-1">
+                    @foreach (App\Enums\Consignment\AuditStatus::asArray() as $key => $val)
+                        <div class="form-check form-check-inline">
+                            <label class="form-check-label">
+                                <input class="form-check-input" name="audit_status" type="radio"
+                                       value="{{ $val }}" @if (old('audit_status', $searchParam['audit_status'] ?? null) == $val) checked @endif>
+                                {{ App\Enums\Consignment\AuditStatus::getDescription($val) }}
+                            </label>
+                        </div>
+                    @endforeach
+                </div>
+            </fieldset>
 
             <div class="col">
                 <input type="hidden" name="data_per_page" value="{{ $data_per_page }}" />
@@ -85,7 +99,7 @@
 
                                 <td class="text-center">
                                     @can('cms.scrap.delete')
-                                        @if(\App\Enums\Consignment\AuditStatus::getDescription(\App\Enums\Consignment\AuditStatus::approved()) != $data->audit_status)
+                                        @if(\App\Enums\Consignment\AuditStatus::approved() != $data->audit_status)
                                             <a href="javascript:void(0)"
                                                data-href="{{ Route('cms.scrap.delete', ['id' => $data->id], true) }}"
                                                data-bs-toggle="modal" data-bs-target="#confirm-delete"

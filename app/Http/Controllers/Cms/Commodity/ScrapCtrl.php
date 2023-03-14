@@ -30,6 +30,7 @@ class ScrapCtrl extends Controller
         $searchParam = [];
         $query = $request->query();
         $searchParam['scrap_sn'] = Arr::get($query, 'scrap_sn', null);
+        $searchParam['audit_status'] = Arr::get($query, 'audit_status', null);
 
         $data_per_page = Arr::get($query, 'data_per_page', 100);
         $searchParam['data_per_page'] = getPageCount(Arr::get($query, 'data_per_page', 100));
@@ -90,7 +91,7 @@ class ScrapCtrl extends Controller
     public function edit(Request $request, $id)
     {
         $scrapData = PcsScraps::find($id);
-        $scrapItemData = PcsScrapItem::getDataWithInboundQtyList(['scrap_id' => $id])->get();
+        $scrapItemData = PcsScrapItem::getItemWithInboundQtyList(['scrap_id' => $id])->get();
         $dlv_other_items = PcsScrapItem::where('scrap_id', $id)->where('type', '<>', 0)->whereNull('deleted_at')->get();
         if (!$scrapData) {
             return abort(404);
