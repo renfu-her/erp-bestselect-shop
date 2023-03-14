@@ -9,13 +9,11 @@ use App\Enums\PcsScrap\PcsScrapType;
 use App\Enums\Purchase\LogEventFeature;
 use App\Helpers\IttmsDBB;
 use App\Http\Controllers\Controller;
-use App\Models\Consignment;
 use App\Models\GeneralLedger;
 use App\Models\PcsScrapItem;
 use App\Models\PcsScraps;
 use App\Models\ProductStock;
 use App\Models\ProductStyle;
-use App\Models\Purchase;
 use App\Models\PurchaseInbound;
 use App\Models\PurchaseLog;
 use App\Models\ReceivedDefault;
@@ -71,10 +69,10 @@ class ScrapCtrl extends Controller
             }
             $scrap_id = $rePSCD['id'];
 
-            $reDBS = $this->do_scrap_store($request, $scrap_id);
-            if ($reDBS['success'] == 0) {
+            $reSS = $this->do_scrap_store($request, $scrap_id);
+            if ($reSS['success'] == 0) {
                 DB::rollBack();
-                return $reDBS;
+                return $reSS;
             }
 
             return ['success' => 1, 'scrap_id' => $scrap_id];
@@ -137,13 +135,12 @@ class ScrapCtrl extends Controller
 
     public function update(Request $request, $id)
     {
-        //dd($request->all());
         $this->validInputValue($request);
 
         $scrapData = PcsScraps::find($id);
         $msg = IttmsDBB::transaction(function () use ($request, $id, $scrapData) {
             $scrap_memo = $request->input('scrap_memo', null);
-            $audit_status = $request->input('scrap_memo', AuditStatus::unreviewed()->value);
+            $audit_status = $request->input('audit_status', AuditStatus::unreviewed()->value);
 
             if (AuditStatus::approved()->value == $scrapData->audit_status && AuditStatus::approved()->value == $audit_status) {
                 DB::rollBack();
@@ -255,14 +252,15 @@ class ScrapCtrl extends Controller
             throw ValidationException::withMessages(['item_error' => $msg['error_msg']]);
         } else {
             wToast('儲存成功');
-            return redirect(Route('cms.scrap.index', [
+            return redirect(Route('cms.scrap.edit', [
+                'id' => $id,
             ], true));
         }
     }
 
     private function do_scrap_store(Request $request, $scrap_id) {
         $msg = IttmsDBB::transaction(function () use ($request, $scrap_id) {
-            $del_items = $request->input('del_items', '');
+            $del_items = $request->input('del_item_id', '');
             $del_item_id_arr = explode(",", $del_items);
             if (isset($del_item_id_arr) && 0 < count($del_item_id_arr)) {
                 PcsScrapItem::whereIn('id', $del_item_id_arr)->delete();
@@ -272,7 +270,7 @@ class ScrapCtrl extends Controller
                 $default_grade_id = ReceivedDefault::where('name', '=', 'product')->first()->default_grade_id;
                 $curr_date = date('Y-m-d H:i:s');
                 for($i = 0; $i < count($input_items['item_id']); $i++) {
-                    if(true == isset($input_items['item_id'][0])) {
+                    if(true == isset($input_items['item_id'][$i])) {
                         //已有資料 做編輯
                         PcsScrapItem::where('id', '=', $input_items['item_id'][$i])->update([
                             'qty' => $input_items['to_scrap_qty'][$i],

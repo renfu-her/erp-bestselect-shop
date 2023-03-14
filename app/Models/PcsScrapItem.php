@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\Delivery\Event;
+use App\Enums\DlvBack\DlvBackType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -30,8 +31,9 @@ class PcsScrapItem extends Model
         $query = DB::table(app(PcsScraps::class)->getTable() . ' as scraps')
             ->leftJoin(app(PcsScrapItem::class)->getTable() . ' as scrapitem', 'scrapitem.scrap_id', '=', 'scraps.id')
             ->leftJoin(app(PurchaseInbound::class)->getTable() . ' as inbound', 'inbound.id', '=', 'scrapitem.inbound_id')
-            ->where('scraps.deleted_at', null)
             ->where('scraps.type', 'scrap')
+            ->where('scraps.deleted_at', null)
+            ->where('scrapitem.type', DlvBackType::product()->value)
             ->where('scrapitem.deleted_at', null)
             ->groupBy('scraps.id')
             ->select(
