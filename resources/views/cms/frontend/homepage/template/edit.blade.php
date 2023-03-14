@@ -69,7 +69,7 @@
                 <div class="col-12 col-sm-6 mb-3 -title">
                     <label class="form-label">大標題 <span class="text-danger">*</span></label>
                     <input class="form-control" name="title" value="{{ old('title', $data->title ?? '') }}" type="text"
-                        placeholder="請輸入大標題" aria-label="大標題" maxlength="12" @if ($old_type !== 5) required @endif>
+                        placeholder="請輸入大標題" aria-label="大標題" maxlength="12">
                 </div>
                 {{-- t1, t2 --}}
                 <div class="col-12 col-sm-6 mb-3 style_type -stype1 -stype2" @if ($old_type !== 1 && $old_type !== 2) hidden @endif>
@@ -210,11 +210,9 @@
 
                 // 樣式三(5) 標題非必填
                 if (val === '5') {
-                    $('.-title label').html('大標題');
-                    $('.-title input').prop('required', false);
+                    $('.-title label').html('大標題（前台不顯示） <span class="text-danger">*</span>');
                 } else {
                     $('.-title label').html('大標題 <span class="text-danger">*</span>');
-                    $('.-title input').prop('required', true);
                 }
             });
         </script>
