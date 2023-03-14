@@ -11,9 +11,14 @@
         @csrf
         <div class="card shadow p-4 mb-4">
             <h6>報廢單內容</h6>
-            <div class="col-12">
+            <div class="col-12 mb-3">
                 <label class="form-label">報廢單備註</label>
                 <input class="form-control" type="text" value="{{$scrapData->memo ?? ''}}" name="scrap_memo" placeholder="報廢單備註">
+            </div>
+            <div class="mark">
+                <i class="bi bi-exclamation-diamond-fill mx-1 text-warning"></i>
+                <span class="bg-warning text-dark lh-1 px-1">採購</span>：報廢數量<span class="text-danger">不可大於</span>可售數量、現有庫存。
+                <span class="bg-warning text-dark lh-1 px-1 ms-2">寄倉</span>：報廢數量<span class="text-danger">不可大於</span>現有庫存。
             </div>
             <div class="table-responsive tableOverBox">
                 <table id="inbound_list" class="table table-striped tableList mb-1">
@@ -23,10 +28,12 @@
                             <th style="width:40px;" class="text-center">刪除</th>
                             <th>採購單號</th>
                             <th>商品</th>
-                            <th class="lh-base"><span class="bg-warning text-dark lh-1">事件</span><br>倉庫</th>
+                            <th class="lh-base"><span class="bg-warning text-dark lh-1">事件</span><i class="bi bi-exclamation-diamond-fill text-warning ms-1"></i>
+                                <br>倉庫
+                            </th>
                             <th class="lh-1 small text-end">可售<br>數量</th>
-                            <th class="lh-1 small text-end">現有<br>數量</th>
-                            <th>報廢數量</th>
+                            <th class="lh-1 small text-end">現有<br>庫存</th>
+                            <th>報廢數量 <span class="text-danger">*</span></th>
                             <th>備註</th>
                         </tr>
                     </thead>
@@ -61,7 +68,7 @@
                             <td class="text-end" data-td="in_stock"></td>
                             <td class="text-end" data-td="qty"></td>
                             <td class="text-center">
-                                <input type="number" name="to_scrap_qty[]" value="0" min="1" class="form-control form-control-sm" />
+                                <input type="number" name="to_scrap_qty[]" value="0" min="1" class="form-control form-control-sm -sm" required />
                             </td>
                             <td class="text-center">
                                 <input type="text" name="memo[]" value="" class="form-control form-control-sm -l" />
@@ -179,7 +186,7 @@
     <x-b-modal id="addInbound" cancelBtn="false" size="modal-xl modal-fullscreen-xl-down modal-dialog-scrollable">
         <x-slot name="title">選擇過期入庫單</x-slot>
         <x-slot name="body">
-            <div class="input-group pb-3 -searchBar position-sticky top-0 bg-white">
+            <div class="input-group p-3 -searchBar position-sticky bg-light" style="top:-16px;margin:-16px 0 0;">
                 <input type="text" name="title" class="form-control" placeholder="請輸入商品名或SKU" aria-label="搜尋條件1">
                 <input type="text" name="sn" class="form-control" placeholder="請輸入採購單號" aria-label="搜尋條件2">
                 <button class="btn btn-primary" type="button">搜尋入庫單</button>
@@ -193,7 +200,7 @@
                             <th scope="col">商品</th>
                             <th scope="col" class="lh-base"><span class="bg-warning text-dark lh-1">事件</span><br>倉庫</th>
                             <th scope="col" class="small lh-1 text-end">可售<br>數量</th>
-                            <th scope="col" class="small lh-1 text-end">現有<br>數量</th>
+                            <th scope="col" class="small lh-1 text-end">現有<br>庫存</th>
                         </tr>
                     </thead>
                     <tbody class="-appendClone --inbound">
@@ -343,7 +350,12 @@
 
             // 入庫列表
             function createOneInbound(ib, i) {
-                const checked = selectedInboundID.indexOf(ib.inbound_id) < 0 ? '' : 'checked disabled';
+                let checked = selectedInboundID.indexOf(ib.inbound_id) < 0 ? '' : 'checked disabled';
+                if ((ib.inbound_event_name === '採購' && Math.min(ib.in_stock, ib.qty) <= 0) ||
+                    (ib.inbound_event_name === '寄倉' && ib.qty <= 0)) {
+                    checked = checked === '' ? 'disabled' : checked;
+                }
+
                 let $tr = $(`<tr class="-cloneElem --inbound">
                     <th class="text-center">
                         <input class="form-check-input" type="checkbox" ${checked}
@@ -418,6 +430,7 @@
                         cloneElem.find('input[name="product_style_id[]"]').val(item.product_style_id);
                         cloneElem.find('input[name="sku[]"]').val(item.sku);
                         cloneElem.find('input[name="product_title[]"]').val(item.product_title);
+                        
                         cloneElem.find('td[data-td="event_sn"]').text(item.event_sn);
                         cloneElem.find('td [data-td="sku"]').text(item.sku);
                         cloneElem.find('td [data-td="product_title"]').text(item.product_title);
@@ -426,6 +439,16 @@
                         cloneElem.find('td [data-td="depot_name"]').text(item.depot_name);
                         cloneElem.find('td[data-td="in_stock"]').text(item.in_stock);
                         cloneElem.find('td[data-td="qty"]').text(item.qty);
+                        switch (item.inbound_event_name) {
+                            case '採購':
+                                cloneElem.find('input[name="to_scrap_qty[]"]').attr('max', Math.min(item.in_stock, item.qty));
+                                break;
+                            case '寄倉':
+                                cloneElem.find('input[name="to_scrap_qty[]"]').attr('max', item.qty);
+                                break;
+                            default:
+                                break;
+                        }
                     }
                 }, delItemOption);
             }
@@ -466,6 +489,22 @@
                 $(ele).parents('tr').find('.d-target').prop('disabled', true);
                 $(ele).parents('tr').find('.r-target').prop('required', false);
             }
+        });
+
+        // submit
+        $('#form1').on('submit', function () {
+            let chk = true;
+            let repeat = [];
+            $('.-cloneElem.--selectedIB input[name="inbound_id[]"]').each(function(index, element) {
+                const inbound_id = Number($(element).val());
+                if (repeat.indexOf(inbound_id) < 0) {
+                    repeat.push(inbound_id);
+                } else {
+                    chk = false;
+                    return false;
+                }
+            });
+            return chk;
         });
     </script>
     @endpush
