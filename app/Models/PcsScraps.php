@@ -21,7 +21,7 @@ class PcsScraps extends Model
             if (!PcsScrapType::hasKey($type)) {
                 return ['success' => 0, 'error_msg' => 'type error'];
             }
-            $sn = Sn::createSn(app(PcsScraps::class)->getTable(), 'PCS', 'ymd', 4);
+            $sn = Sn::createSn(app(PcsScraps::class)->getTable(), 'SCP', 'ymd', 4);
             $id = self::create([
                 "type" => $type,
                 "sn" => $sn,
