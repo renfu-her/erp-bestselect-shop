@@ -38,6 +38,46 @@
                         </tr>
                     </thead>
                     <tbody class="-appendClone --selectedIB -serial-number">
+                        {{-- 舊資料填這
+                        @foreach ($collection as $item)
+                            <tr class="-cloneElem --selectedIB">
+                                <th scope="row" class="text-center"><span class="-serial-title -after"></span></th>
+                                <td class="text-center">
+                                    <button type="button" item_id=""
+                                        class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                    <input type="hidden" name="item_id[]" value="" />
+                                    <input type="hidden" name="inbound_id[]" value="" />
+                                    <input type="hidden" name="product_style_id[]" value="" />
+                                    <input type="hidden" name="sku[]" value="" />
+                                    <input type="hidden" name="product_title[]" value="" />
+                                </td>
+                                <td data-td="event_sn"></td>
+                                <td class="wrap">
+                                    <div class="lh-1 small text-secondary" data-td="sku"></div>
+                                    <div class="lh-base" data-td="product_title"></div>
+                                    <div class="lh-1 small fw-light">
+                                        <span class="bg-secondary text-white px-1" data-td="expiry_date">效期：</span>
+                                    </div>
+                                </td>
+                                <td class="wrap">
+                                    <div class="lh-base text-nowrap">
+                                        <span class="bg-warning text-dark px-1" data-td="inbound_event_name"></span>
+                                    </div>
+                                    <div class="lh-1" data-td="depot_name"></div>
+                                </td>
+                                <td class="text-end" data-td="in_stock"></td>
+                                <td class="text-end" data-td="qty"></td>
+                                <td class="text-center">
+                                    <input type="number" name="to_scrap_qty[]" value="0" min="1" class="form-control form-control-sm -sm" required />
+                                </td>
+                                <td class="text-center">
+                                    <input type="text" name="memo[]" value="" class="form-control form-control-sm -l" />
+                                </td>
+                            </tr>
+                        @endforeach --}}
+
                         <tr class="-cloneElem --selectedIB d-none">
                             <th scope="row" class="text-center"><span class="-serial-title -after"></span></th>
                             <td class="text-center">
