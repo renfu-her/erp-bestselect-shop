@@ -59,6 +59,35 @@ class HomeCtrl extends Controller
         return response()->json($re);
     }
 
+    public function getTemplateChildList(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'template_id' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            $re = [];
+            $re[ResponseParam::status()->key] = 'E01';
+            $re[ResponseParam::msg()->key] = $validator->errors();
+
+            return response()->json($re);
+        }
+
+        $dataList = Template::childList($request->input('template_id'))->get()->toArray();
+      
+        $dataList = array_map(function ($n) {
+            if ($n->file) {
+                $n->file = asset($n->file);
+            }
+            return $n;
+        }, $dataList);
+        $re = [];
+        $re[ResponseParam::status()->key] = '0';
+        $re[ResponseParam::msg()->key] = '';
+        $re[ResponseParam::data()->key] = $dataList;
+        return response()->json($re);
+    }
+
     public function getType1(Request $request)
     {
         $validator = Validator::make($request->all(), [

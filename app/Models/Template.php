@@ -155,6 +155,7 @@ class Template extends Model
     {
         $result = DB::table('idx_template as template')
             ->select(
+                'template.id',
                 'template.title',
                 //    DB::raw('concat("' . FrontendApiUrl::collection() . '") as event'),
                 'template.group_id as collection_id',
