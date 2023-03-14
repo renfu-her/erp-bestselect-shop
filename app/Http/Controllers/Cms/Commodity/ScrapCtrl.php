@@ -6,6 +6,7 @@ use App\Enums\Consignment\AuditStatus;
 use App\Enums\Delivery\Event;
 use App\Enums\DlvBack\DlvBackType;
 use App\Enums\PcsScrap\PcsScrapType;
+use App\Enums\Purchase\LogEventFeature;
 use App\Helpers\IttmsDBB;
 use App\Http\Controllers\Controller;
 use App\Models\GeneralLedger;
@@ -13,6 +14,7 @@ use App\Models\PcsScrapItem;
 use App\Models\PcsScraps;
 use App\Models\ProductStock;
 use App\Models\PurchaseInbound;
+use App\Models\PurchaseLog;
 use App\Models\ReceivedDefault;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -158,6 +160,15 @@ class ScrapCtrl extends Controller
                     for($i = 0; $i < count($input_items['item_id']); $i++) {
                         $inbound = PurchaseInbound::find($input_items['inbound_id']);
                         PurchaseInbound::willBeScrapped($input_items['inbound_id'], $input_items['to_scrap_qty']);
+
+                        $rePcsLSC = PurchaseLog::stockChange($inbound->event_id, $inbound->product_style_id, $inbound->event, $inbound->event_item_id
+                            , LogEventFeature::scrapped()->value, $inbound->inbound_id, $input_items['to_scrap_qty'], $scrapData->sn. ' 報廢'
+                            , $inbound->product_title, $inbound->prd_type
+                            , Auth::user()->id, Auth::user()->name, $scrapData->id);
+                        if ($rePcsLSC['success'] == 0) {
+                            DB::rollBack();
+                            return $rePcsLSC;
+                        }
                         if ($inbound->type == Event::purchase()->value) {
                             //寫入ProductStock
                             $rePSSC = ProductStock::stockChange($input_items['product_style_id'], $input_items['to_scrap_qty'], 'scrap', $input_items['inbound_id'], $scrapData->sn. ' 報廢', false, true);
@@ -177,6 +188,14 @@ class ScrapCtrl extends Controller
                     foreach ($scrap_items as $scrap_item) {
                         $inbound = PurchaseInbound::find($scrap_item->inbound_id);
                         PurchaseInbound::willBeScrapped($scrap_item->inbound_id, $scrap_item->to_scrap_qty * -1);
+                        $rePcsLSC = PurchaseLog::stockChange($inbound->event_id, $inbound->product_style_id, $inbound->event, $inbound->event_item_id
+                            , LogEventFeature::scrap_del()->value, $inbound->inbound_id, $scrap_item->to_scrap_qty * -1, $scrapData->sn. ' 報廢取消'
+                            , $inbound->product_title, $inbound->prd_type
+                            , Auth::user()->id, Auth::user()->name, $scrapData->id);
+                        if ($rePcsLSC['success'] == 0) {
+                            DB::rollBack();
+                            return $rePcsLSC;
+                        }
                         if ($inbound->type == Event::purchase()->value) {
                             //寫入ProductStock
                             $rePSSC = ProductStock::stockChange($scrap_item->product_style_id, $scrap_item->to_scrap_qty * -1, 'scrap', $scrap_item->inbound_id, $scrapData->sn. ' 報廢取消', false, true);
