@@ -43,7 +43,7 @@
                             <tr class="-cloneElem --selectedIB">
                                 <th scope="row" class="text-center"><span class="-serial-title -after"></span></th>
                                 <td class="text-center">
-                                    <button type="button" item_id=""
+                                    <button type="button" item_id="{{$item->item_id}}"
                                         class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
                                         <i class="bi bi-trash"></i>
                                     </button>
@@ -127,7 +127,7 @@
 
             <h6 class="mb-1">其他項目</h6>
 
-            <div class="table-responsive tableOverBox">
+            <div class="table-responsive tableOverBox mb-3">
                 <table class="table table-sm table-hover tableList mb-1">
                     <thead class="small">
                     <tr>
@@ -201,11 +201,10 @@
                 </table>
             </div>
 
-
             @if(isset($scrapData))
-                <fieldset class="p-4 col-12 mb-3">
-                    <legend class="col-form-label p-0 mb-2">審核狀態 <span class="text-danger">*</span></legend>
-                    <div class="px-1 pt-1">
+                <fieldset class="col-12 mb-3">
+                    <legend class="col-form-label">審核狀態 <span class="text-danger">*</span></legend>
+                    <div class="px-1">
                         @foreach (App\Enums\Consignment\AuditStatus::asArray() as $key => $val)
                             <div class="form-check form-check-inline @error('audit_status')is-invalid @enderror">
                                 <label class="form-check-label">
