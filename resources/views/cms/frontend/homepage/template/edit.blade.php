@@ -101,14 +101,14 @@
                             @endphp
                             <input type="hidden" name="id{{ $key }}" value="{{ $cid }}">
                         @endif
-                        <div class="row pb-1 mb-2 border-bottom">
+                        <div class="row pb-1 mb-2 border-bottom -group">
                             <div class="col-12 col-sm-6 mb-1">
                                 <input class="form-control" name="file{{ $key }}" value="" type="file"
                                     placeholder="" aria-label="">
                             </div>
                             <div class="col-12 col-sm-6 mb-1">
                                 <select name="group_id{{ $key }}" class="form-select">
-                                    <option value="" @if ('' == $old_group_id) selected @endif disabled>請選擇
+                                    <option value="0" @if ('' == $old_group_id) selected @endif >請選擇
                                     </option>
                                     @foreach ($collectionList as $key => $collection)
                                         <option value="{{ $collection->id }}"
@@ -118,7 +118,10 @@
                                 </select>
                             </div>
                             @if (isset($value->file))
-                                <div class="col-12 col-sm-6 mb-1 text-sm-end">預覽：</div>
+                                <div class="col-12 col-sm-6 mb-1 text-sm-end">
+                                    <button type="button" class="btn btn-outline-danger btn-sm me-2 -del">刪除</button>
+                                    預覽：
+                                </div>
                                 <div class="col-12 col-sm-6 mb-1">
                                     <img src="{{ asset($value->file) }}" alt="">
                                 </div>
@@ -223,6 +226,13 @@
                 } else {
                     $('.-title label').html('大標題 <span class="text-danger">*</span>');
                 }
+            });
+
+            // 刪除
+            $('.-stype5 .-del').on('click', function () {
+                const $this = $(this);
+                $this.closest('.-group').find('img').attr('src', '');
+                $this.closest('.-group').find('select[name^="group_id"]').val(0);
             });
         </script>
     @endpush
