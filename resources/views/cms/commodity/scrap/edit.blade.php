@@ -27,6 +27,7 @@
                             <th style="width:40px;" class="text-center">#</th>
                             <th style="width:40px;" class="text-center">刪除</th>
                             <th>採購單號</th>
+                            <th>入庫單號</th>
                             <th>商品</th>
                             <th class="lh-base"><span class="bg-warning text-dark lh-1">事件</span><i class="bi bi-exclamation-diamond-fill text-warning ms-1"></i>
                                 <br>倉庫
@@ -54,6 +55,7 @@
                                     <input type="hidden" name="product_title[]" value="{{$item->product_title}}" />
                                 </td>
                                 <td data-td="event_sn">{{$item->event_sn}}</td>
+                                <td data-td="inbound_sn">{{$item->inbound_sn}}</td>
                                 <td class="wrap">
                                     <div class="lh-1 small text-secondary" data-td="sku">{{$item->sku}}</div>
                                     <div class="lh-base" data-td="product_title">{{$item->product_title}}</div>
@@ -93,6 +95,7 @@
                                 <input type="hidden" name="product_title[]" value="" />
                             </td>
                             <td data-td="event_sn"></td>
+                            <td data-td="inbound_sn"></td>
                             <td class="wrap">
                                 <div class="lh-1 small text-secondary" data-td="sku"></div>
                                 <div class="lh-base" data-td="product_title"></div>
@@ -258,6 +261,7 @@
                         <tr class="align-middle">
                             <th scope="col" class="text-center" style="width: 40px">選取</th>
                             <th scope="col">採購單號</th>
+                            <th scope="col">入庫單號</th>
                             <th scope="col">商品</th>
                             <th scope="col" class="lh-base"><span class="bg-warning text-dark lh-1">事件</span><br>倉庫</th>
                             <th scope="col" class="small lh-1 text-end">可售<br>數量</th>
@@ -423,6 +427,7 @@
                             value="${i}" aria-label="選取入庫單">
                     </th>
                     <td>${ib.event_sn}</td>
+                    <td>${ib.inbound_sn}</td>
                     <td class="wrap">
                         <div class="lh-1 small text-secondary">${ib.style_sku}</div>
                         <div class="lh-base">${ib.product_title}</div>
@@ -451,6 +456,7 @@
                     selectedInboundID.push(ib_id);
                     selectedInbound.push({
                         inbound_id: ib_id,
+                        inbound_sn: item.inbound_sn,
                         product_style_id: item.product_style_id,
                         sku: item.style_sku,
                         product_title: item.product_title,
@@ -493,6 +499,7 @@
                         cloneElem.find('input[name="product_title[]"]').val(item.product_title);
 
                         cloneElem.find('td[data-td="event_sn"]').text(item.event_sn);
+                        cloneElem.find('td[data-td="inbound_sn"]').text(item.inbound_sn);
                         cloneElem.find('td [data-td="sku"]').text(item.sku);
                         cloneElem.find('td [data-td="product_title"]').text(item.product_title);
                         cloneElem.find('td [data-td="expiry_date"]').text(`效期：${item.expiry_date}`);
