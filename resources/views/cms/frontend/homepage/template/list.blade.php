@@ -55,7 +55,7 @@
     <div>
         <div class="col-auto">
             @can('cms.homepage.edit')
-            <button type="submit" class="btn btn-primary px-4"
+            <button type="submit" class="btn btn-success"
                 @if(!isset($dataList) || 0 >= count($dataList)) disabled @endif
             >儲存排序</button>
             @endcan

@@ -3,19 +3,21 @@
 namespace App\Http\Controllers\Cms\Frontend\Homepage;
 
 use App\Http\Controllers\Controller;
-use App\Models\Template;
 use App\Models\Collection;
+use App\Models\Template;
 use Illuminate\Http\Request;
+
 class TemplateCtrl extends Controller
 {
     public function index(Request $request)
     {
+
         $query = $request->query();
         $dataList = Template::getList()->orderBy('sort')->get();
 
         return view('cms.frontend.homepage.template.list', [
             'dataList' => $dataList,
-            'formAction' => Route('cms.homepage.template.sort')
+            'formAction' => Route('cms.homepage.template.sort'),
         ]);
     }
 
@@ -29,6 +31,7 @@ class TemplateCtrl extends Controller
 
     public function create(Request $request)
     {
+
         return view('cms.frontend.homepage.template.edit', [
             'method' => 'create',
             'collectionList' => Collection::all(),
@@ -38,7 +41,8 @@ class TemplateCtrl extends Controller
 
     public function store(Request $request)
     {
-        $query = $request->query();
+
+        //   $query = $request->query();
         $templateID = Template::storeNew($request);
         wToast(__('Add finished.'));
         return redirect(Route('cms.homepage.template.index'));
@@ -50,10 +54,16 @@ class TemplateCtrl extends Controller
         if (!$data) {
             return abort(404);
         }
+
+        $child = Template::childList($id)->get()->toArray();
+        $child = array_merge($child, [(object) [], (object) [], (object) []]);
+        $child = array_splice($child, 0, 3);
+       
         return view('cms.frontend.homepage.template.edit', [
             'id' => $id,
             'data' => $data,
             'method' => 'edit',
+            'child' => $child,
             'collectionList' => Collection::all(),
             'formAction' => Route('cms.homepage.template.edit', ['id' => $id]),
             'breadcrumb_data' => $data->title,
@@ -62,7 +72,9 @@ class TemplateCtrl extends Controller
 
     public function update(Request $request, $id)
     {
+       
         $query = $request->query();
+
         Template::updateData($request, $id);
         wToast(__('Edit finished.'));
         return redirect(Route('cms.homepage.template.index'));

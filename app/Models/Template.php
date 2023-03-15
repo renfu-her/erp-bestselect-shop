@@ -2,18 +2,20 @@
 
 namespace App\Models;
 
-use App\Enums\Globals\FrontendApiUrl;
 use App\Helpers\IttmsDBB;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Intervention\Image\Facades\Image;
 
 class Template extends Model
 {
     use HasFactory;
     protected $table = 'idx_template';
     protected $guarded = [];
+    protected static $path_banner = 'idx_banner/';
 
     public static function storeNew(Request $request)
     {
@@ -26,6 +28,18 @@ class Template extends Model
                 , 'style_type' => $request->input('style_type')
                 , 'is_public' => $request->input('is_public') ?? 1,
             ])->id;
+            $d = $request->all();
+            for ($i = 0; $i < 3; $i++) {
+                $file = self::uploadFile($request, 'file' . $i, $id);
+                if (isset($d['group_id' . $i]) && $d['group_id' . $i] > 0) {
+                    DB::table('idx_template_child')->insert([
+                        'template_id' => $id,
+                        'group_id' => $d['group_id' . $i],
+                        'file' => $file,
+                    ]);
+                }
+            }
+
             return ['success' => 1, 'id' => $id];
         });
         return $result['id'] ?? null;
@@ -33,11 +47,19 @@ class Template extends Model
 
     public static function validInputValue(Request $request)
     {
+
         $request->validate([
             'title' => 'required|string'
-            , 'group_id' => 'required|numeric'
             , 'style_type' => 'required|numeric',
         ]);
+
+        $style_type = $request->input('style_type');
+        if ($style_type != 5) {
+            $request->validate([
+                'group_id' => 'required|numeric',
+            ]);
+        }
+
         return $request;
     }
 
@@ -58,6 +80,36 @@ class Template extends Model
 
                 Template::where('id', '=', $id)
                     ->update($updateData);
+
+                $d = $request->all();
+
+                for ($i = 0; $i < 3; $i++) {
+                    $file = self::uploadFile($request, 'file' . $i, $id);
+
+                    $uploadData = [];
+                    if ($file) {
+                        $uploadData['file'] = $file;
+                    }
+                    if ($d['id' . $i]) {
+
+                        $uploadData['group_id'] = $d['group_id' . $i];
+                        if ($uploadData['group_id'] == 0) {
+                            $uploadData['file'] = null;
+                        }
+
+                        DB::table('idx_template_child')->where('id', $d['id' . $i])
+                            ->update($uploadData);
+
+                    } else {
+                        if (isset($d['group_id' . $i]) && $d['group_id' . $i] > 0) {
+                            $uploadData['group_id'] = $d['group_id' . $i];
+                            $uploadData['template_id'] = $id;
+                            DB::table('idx_template_child')
+                                ->insert($uploadData);
+                        }
+                    }
+                }
+
             }
 
             return ['success' => 1, 'id' => $id];
@@ -107,8 +159,9 @@ class Template extends Model
     {
         $result = DB::table('idx_template as template')
             ->select(
+                'template.id',
                 'template.title',
-            //    DB::raw('concat("' . FrontendApiUrl::collection() . '") as event'),
+                //    DB::raw('concat("' . FrontendApiUrl::collection() . '") as event'),
                 'template.group_id as collection_id',
                 'template.style_type as type',
                 // 'template.sort',
@@ -118,4 +171,32 @@ class Template extends Model
         }
         return $result;
     }
+
+    public static function childList($template_id)
+    {
+        return DB::table('idx_template_child')->where('template_id', $template_id)
+            ->where('group_id', '<>', 0);
+    }
+
+    private static function uploadFile($request, $filename, $id)
+    {
+        if (!$request->hasfile($filename)) {
+            return null;
+        }
+
+        $re = null;
+
+        $img = Image::make($request->file($filename)->path())
+            ->resize(1200, 400)->encode('webp', 50);
+
+        $fileHashName = $request->file($filename)->hashName();
+        $filename = self::$path_banner . $id . '/' . explode('.', $fileHashName)[0] . ".webp";
+
+        if (Storage::disk('local')->put($filename, $img)) {
+            $re = $filename;
+        }
+
+        return $re;
+    }
+
 }
