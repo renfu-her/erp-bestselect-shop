@@ -6,6 +6,10 @@
         <h2 class="mb-3">新增報廢單</h2>
     @endif
 
+    @php
+        $canEdit = App\Enums\Consignment\AuditStatus::approved() === $scrapData->audit_status;
+    @endphp
+
     <form id="form1" method="post" action="{{ $formAction }}" class="-banRedo">
         @method('POST')
         @csrf
@@ -206,7 +210,7 @@
 
             @if(isset($scrapData))
                 <fieldset class="col-12 mb-3">
-                    <legend class="col-form-label">審核狀態 <span class="text-danger">*</span></legend>
+                    <legend class="col-form-label">審核狀態 {{App\Enums\Consignment\AuditStatus::approved()}}<span class="text-danger">*</span></legend>
                     <div class="px-1">
                         @foreach (App\Enums\Consignment\AuditStatus::asArray() as $key => $val)
                             <div class="form-check form-check-inline @error('audit_status')is-invalid @enderror">
