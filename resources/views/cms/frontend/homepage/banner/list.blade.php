@@ -19,6 +19,7 @@
             <div class="col-auto px-2" style="width: 50px;">#</div>
             <div class="col px-2">橫幅廣告主標題</div>
             <div class="col-auto text-center" style="width: 100px;">預覽圖</div>
+            <div class="col-auto text-center" style="width: 40px;">顯示</div>
             <div class="col-auto text-center" style="width: 40px;">編輯</div>
             <div class="col-auto text-center" style="width: 40px;">排序</div>
             <div class="col-auto text-center" style="width: 40px;">刪除</div>
@@ -26,7 +27,7 @@
 
         <div class="sortabled col-12">
             @foreach ($dataList as $key => $data)
-            <div class="d-flex col-12 mb-3 sortabled_box">
+            <div class="d-flex col-12 mb-3 align-items-sm-stretch sortabled_box">
                 <div class="input-group col">
                     <span class="input-group-text" style="width: 50px;">{{ $key + 1 }}</span>
                     <input type="hidden" name="banner_id[]" value="{{$data->id}}">
@@ -37,6 +38,13 @@
                 <div class="input-group col-auto ms-1" @if(false == isset($data->img_pc)) hidden @endif>
                     <img style="max-width:100px" src="@if(true == isset($data->img_pc)) {{asset($data->img_pc)}} @endif" />
                 </div>
+                <span class="col-auto text-center fs-5 align-self-center" style="width: 40px;">
+                    @if ($data->is_public == '1')
+                        <i class="bi bi-eye-fill fs-5"></i>
+                    @else
+                        <i class="bi bi-eye-slash text-secondary fs-5"></i>
+                    @endif
+                </span>
                 @can('cms.homepage.edit')
                 <a href="{{ Route('cms.homepage.banner.edit', ['id' => $data->id], true) }}"
                     data-bs-toggle="tooltip" title="編輯"
