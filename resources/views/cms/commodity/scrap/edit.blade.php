@@ -210,7 +210,7 @@
 
             @if(isset($scrapData))
                 <fieldset class="col-12 mb-3">
-                    <legend class="col-form-label">審核狀態 {{App\Enums\Consignment\AuditStatus::approved()}}<span class="text-danger">*</span></legend>
+                    <legend class="col-form-label">審核狀態<span class="text-danger">*</span></legend>
                     <div class="px-1">
                         @foreach (App\Enums\Consignment\AuditStatus::asArray() as $key => $val)
                             <div class="form-check form-check-inline @error('audit_status')is-invalid @enderror">
