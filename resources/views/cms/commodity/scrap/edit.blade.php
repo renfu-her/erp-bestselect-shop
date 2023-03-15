@@ -16,7 +16,9 @@
             <h6>報廢單內容</h6>
             <div class="col-12 mb-3">
                 <label class="form-label">報廢單備註</label>
-                <input class="form-control" type="text" value="{{$scrapData->memo ?? ''}}" name="scrap_memo" placeholder="報廢單備註">
+                <input class="form-control" type="text" value="{{$scrapData->memo ?? ''}}" 
+                    name="scrap_memo" placeholder="報廢單備註"
+                    @if ($isAuditStatusApproved) readonly @endif>
             </div>
             <div class="mark">
                 <i class="bi bi-exclamation-diamond-fill mx-1 text-warning"></i>
@@ -75,10 +77,12 @@
                                 <td class="text-end" data-td="in_stock">{{$item->in_stock}}</td>
                                 <td class="text-end" data-td="qty">{{$item->remaining_qty}}</td>
                                 <td class="text-center">
-                                    <input type="number" name="to_scrap_qty[]" value="{{$item->to_scrap_qty}}" min="1" class="form-control form-control-sm -sm" required />
+                                    <input type="number" name="to_scrap_qty[]" value="{{$item->to_scrap_qty}}" min="1" 
+                                        class="form-control form-control-sm -sm" required @if ($isAuditStatusApproved) readonly @endif />
                                 </td>
                                 <td class="text-center">
-                                    <input type="text" name="memo[]" value="{{$item->memo}}" class="form-control form-control-sm -l" />
+                                    <input type="text" name="memo[]" value="{{$item->memo}}" class="form-control form-control-sm -l"
+                                        @if ($isAuditStatusApproved) readonly @endif />
                                 </td>
                             </tr>
                         @endforeach
@@ -124,7 +128,7 @@
                     </tbody>
                 </table>
             </div>
-            @if(false == $isAuditStatusApproved)
+            @if(!$isAuditStatusApproved)
                 <div class="mb-3">
                     <button id="addInboundBtn" type="button"
                             class="btn btn-outline-primary btn-sm border-dashed w-100" style="font-weight: 500;">
@@ -155,53 +159,70 @@
 
                     @for ($i = 0; $i < 5; $i++)
                         <tr>
-                            <td>{{ $i + 1 }}<input type="hidden" name="back_item_id[{{ $i }}]" value="{{ $items[$i]->id ?? '' }}"></td>
+                            <td>{{ $i + 1 }}
+                                <input type="hidden" name="back_item_id[{{ $i }}]" value="{{ $items[$i]->id ?? '' }}">
+                            </td>
 
                             <td>
-                                <select class="select-check form-select form-select-sm -select2 -single @error('bgrade_id.' . $i) is-invalid @enderror" name="bgrade_id[{{ $i }}]" data-placeholder="請選擇會計科目">
-                                    <option value="" selected disabled>請選擇會計科目</option>
-                                    @foreach($total_grades as $g_value)
-                                        <option value="{{ $g_value['primary_id'] }}" {{ $g_value['primary_id'] == old('bgrade_id.' . $i, $items[$i]->grade_id ?? '') ? 'selected' : '' }}
-                                        @if($g_value['grade_num'] === 1)
-                                            class="grade_1"
-                                                @elseif($g_value['grade_num'] === 2)
-                                                    class="grade_2"
-                                                @elseif($g_value['grade_num'] === 3)
-                                                    class="grade_3"
-                                                @elseif($g_value['grade_num'] === 4)
-                                                    class="grade_4"
+                                @if ($isAuditStatusApproved)
+                                    @if (isset($items[$i]))
+                                        @foreach($total_grades as $g_value)
+                                            @if ($g_value['primary_id'] == old('bgrade_id.' . $i, $items[$i]->grade_id ?? ''))
+                                                <input type="text" value="{{ $g_value['code'] . ' ' . $g_value['name'] }}" 
+                                                    name="bgrade_id[{{ $i }}]" class="form-control form-control-sm w-auto" readonly>
                                             @endif
-                                        >{{ $g_value['code'] . ' ' . $g_value['name'] }}</option>
-                                    @endforeach
-                                </select>
+                                        @endforeach
+                                    @else
+                                        <input type="text" value="" name="bgrade_id[{{ $i }}]" 
+                                            class="form-control form-control-sm w-auto" readonly>
+                                    @endif
+                                @else
+                                    <select class="select-check form-select form-select-sm -select2 -single @error('bgrade_id.' . $i) is-invalid @enderror" 
+                                        name="bgrade_id[{{ $i }}]" data-placeholder="請選擇會計科目">
+                                        <option value="" selected disabled>請選擇會計科目</option>
+                                        @foreach($total_grades as $g_value)
+                                            <option value="{{ $g_value['primary_id'] }}" {{ $g_value['primary_id'] == old('bgrade_id.' . $i, $items[$i]->grade_id ?? '') ? 'selected' : '' }}
+                                            @if($g_value['grade_num'] === 1)
+                                                class="grade_1"
+                                                    @elseif($g_value['grade_num'] === 2)
+                                                        class="grade_2"
+                                                    @elseif($g_value['grade_num'] === 3)
+                                                        class="grade_3"
+                                                    @elseif($g_value['grade_num'] === 4)
+                                                        class="grade_4"
+                                                @endif
+                                            >{{ $g_value['code'] . ' ' . $g_value['name'] }}</option>
+                                        @endforeach
+                                    </select>
+                                @endif
                             </td>
 
                             <td>
                                 <input type="text" name="btitle[{{ $i }}]"
                                        value="{{ old('btitle.' . $i, $items[$i]->product_title ?? '') }}"
                                        class="d-target form-control form-control-sm @error('btitle.' . $i) is-invalid @enderror"
-                                       aria-label="項目" placeholder="請輸入項目" disabled>
+                                       aria-label="項目" placeholder="請輸入項目" disabled @if ($isAuditStatusApproved) readonly @endif>
                             </td>
 
                             <td>
                                 <input type="number" name="bprice[{{ $i }}]"
                                        value="{{ old('bprice.' . $i, $items[$i]->price ?? '') }}"
                                        class="d-target r-target form-control form-control-sm @error('bprice.' . $i) is-invalid @enderror"
-                                       aria-label="金額" placeholder="請輸入金額" disabled>
+                                       aria-label="金額" placeholder="請輸入金額" disabled @if ($isAuditStatusApproved) readonly @endif>
                             </td>
 
                             <td>
                                 <input type="number" name="bqty[{{ $i }}]"
                                        value="{{ old('bqty.' . $i, $items[$i]->qty ?? '') }}" min="0"
                                        class="d-target r-target form-control form-control-sm @error('bqty.' . $i) is-invalid @enderror"
-                                       aria-label="數量" placeholder="請輸入數量" disabled>
+                                       aria-label="數量" placeholder="請輸入數量" disabled @if ($isAuditStatusApproved) readonly @endif>
                             </td>
 
                             <td>
                                 <input type="text" name="bmemo[{{ $i }}]"
                                        value="{{ old('bmemo.' . $i, $items[$i]->memo ?? '') }}"
                                        class="d-target form-control form-control-sm @error('bmemo.' . $i) is-invalid @enderror"
-                                       aria-label="備註" placeholder="請輸入備註" disabled>
+                                       aria-label="備註" placeholder="請輸入備註" disabled @if ($isAuditStatusApproved) readonly @endif>
                             </td>
                         </tr>
                     @endfor
