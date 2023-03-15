@@ -254,6 +254,7 @@ class ScrapCtrl extends Controller
             return ['success' => 1];
         });
         if ($msg['success'] == 0) {
+            wToast($msg['error_msg'], ['type' => 'danger']);
             throw ValidationException::withMessages(['item_error' => $msg['error_msg']]);
         } else {
             wToast('儲存成功');
