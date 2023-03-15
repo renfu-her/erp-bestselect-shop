@@ -204,28 +204,32 @@
                                 <input type="text" name="btitle[{{ $i }}]"
                                        value="{{ old('btitle.' . $i, $items[$i]->product_title ?? '') }}"
                                        class="d-target form-control form-control-sm @error('btitle.' . $i) is-invalid @enderror"
-                                       aria-label="項目" placeholder="請輸入項目" disabled @if ($isAuditStatusApproved) readonly @endif>
+                                       aria-label="項目" placeholder="請輸入項目"
+                                       @if ($isAuditStatusApproved && isset($items[$i])) readonly @else disabled @endif >
                             </td>
 
                             <td>
                                 <input type="number" name="bprice[{{ $i }}]"
                                        value="{{ old('bprice.' . $i, $items[$i]->price ?? '') }}"
                                        class="d-target r-target form-control form-control-sm @error('bprice.' . $i) is-invalid @enderror"
-                                       aria-label="金額" placeholder="請輸入金額" disabled @if ($isAuditStatusApproved) readonly @endif>
+                                       aria-label="金額" placeholder="請輸入金額" 
+                                       @if ($isAuditStatusApproved && isset($items[$i])) readonly @else disabled @endif >
                             </td>
 
                             <td>
                                 <input type="number" name="bqty[{{ $i }}]"
                                        value="{{ old('bqty.' . $i, $items[$i]->qty ?? '') }}" min="0"
                                        class="d-target r-target form-control form-control-sm @error('bqty.' . $i) is-invalid @enderror"
-                                       aria-label="數量" placeholder="請輸入數量" disabled @if ($isAuditStatusApproved) readonly @endif>
+                                       aria-label="數量" placeholder="請輸入數量" 
+                                       @if ($isAuditStatusApproved && isset($items[$i])) readonly @else disabled @endif >
                             </td>
 
                             <td>
                                 <input type="text" name="bmemo[{{ $i }}]"
                                        value="{{ old('bmemo.' . $i, $items[$i]->memo ?? '') }}"
                                        class="d-target form-control form-control-sm @error('bmemo.' . $i) is-invalid @enderror"
-                                       aria-label="備註" placeholder="請輸入備註" disabled @if ($isAuditStatusApproved) readonly @endif>
+                                       aria-label="備註" placeholder="請輸入備註" 
+                                       @if ($isAuditStatusApproved && isset($items[$i])) readonly @else disabled @endif >
                             </td>
                         </tr>
                     @endfor
