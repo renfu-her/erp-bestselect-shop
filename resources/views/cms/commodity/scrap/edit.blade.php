@@ -1,13 +1,12 @@
 @extends('layouts.main')
 @section('sub-content')
     @if ($method === 'edit')
-        <h2 class="mb-3">#{{$scrapData->sn}} 報廢單</h2>
+        <h2 class="mb-3">#{{$scrapData->sn??''}} 報廢單</h2>
     @else
         <h2 class="mb-3">新增報廢單</h2>
     @endif
-
     @php
-        $canEdit = App\Enums\Consignment\AuditStatus::approved() == $scrapData->audit_status;
+        $isAuditStatusApproved = App\Enums\Consignment\AuditStatus::approved() == ($scrapData->audit_status??null);
     @endphp
 
     <form id="form1" method="post" action="{{ $formAction }}" class="-banRedo">
@@ -125,7 +124,7 @@
                     </tbody>
                 </table>
             </div>
-            @if(false == $canEdit)
+            @if(false == $isAuditStatusApproved)
                 <div class="mb-3">
                     <button id="addInboundBtn" type="button"
                             class="btn btn-outline-primary btn-sm border-dashed w-100" style="font-weight: 500;">
