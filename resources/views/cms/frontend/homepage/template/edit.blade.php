@@ -128,6 +128,7 @@
                             @endif
                         </div>
                     @endforeach
+                    <p><mark>圖片尺寸建議：1200x400px，不超過3000KB，可上傳JPG/ JPEG/ PNG/ BMP格式</mark></p>
                 </div>
             </div>
         </div>
