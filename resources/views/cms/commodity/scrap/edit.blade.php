@@ -49,10 +49,12 @@
                             <tr class="-cloneElem --selectedIB">
                                 <th scope="row" class="text-center"><span class="-serial-title -after"></span></th>
                                 <td class="text-center">
-                                    <button type="button" item_id="{{$item->item_id}}"
-                                        class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
+                                    @if (!$isAuditStatusApproved)
+                                        <button type="button" item_id="{{$item->item_id}}"
+                                            class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    @endif
                                     <input type="hidden" name="item_id[]" value="{{$item->item_id}}" />
                                     <input type="hidden" name="inbound_id[]" value="{{$item->inbound_id}}" />
                                     <input type="hidden" name="product_style_id[]" value="{{$item->product_style_id}}" />
