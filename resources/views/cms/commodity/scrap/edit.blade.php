@@ -171,7 +171,9 @@
                                         @foreach($total_grades as $g_value)
                                             @if ($g_value['primary_id'] == old('bgrade_id.' . $i, $items[$i]->grade_id ?? ''))
                                                 <input type="text" value="{{ $g_value['code'] . ' ' . $g_value['name'] }}" 
-                                                    name="bgrade_id[{{ $i }}]" class="form-control form-control-sm w-auto" readonly>
+                                                    class="form-control form-control-sm w-auto" readonly>
+                                                <input type="hidden" value="{{ $g_value['primary_id'] }}" 
+                                                    name="bgrade_id[{{ $i }}]">
                                             @endif
                                         @endforeach
                                     @else
