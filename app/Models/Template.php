@@ -31,7 +31,7 @@ class Template extends Model
             $d = $request->all();
             for ($i = 0; $i < 3; $i++) {
                 $file = self::uploadFile($request, 'file' . $i, $id);
-                if (isset($d['group_id' . $i])) {
+                if (isset($d['group_id' . $i]) && $d['group_id' . $i] > 0) {
                     DB::table('idx_template_child')->insert([
                         'template_id' => $id,
                         'group_id' => $d['group_id' . $i],
@@ -93,11 +93,15 @@ class Template extends Model
                     if ($d['id' . $i]) {
 
                         $uploadData['group_id'] = $d['group_id' . $i];
+                        if ($uploadData['group_id'] == 0) {
+                            $uploadData['file'] = null;
+                        }
 
                         DB::table('idx_template_child')->where('id', $d['id' . $i])
                             ->update($uploadData);
+
                     } else {
-                        if (isset($d['group_id' . $i])) {
+                        if (isset($d['group_id' . $i]) && $d['group_id' . $i] > 0) {
                             $uploadData['group_id'] = $d['group_id' . $i];
                             $uploadData['template_id'] = $id;
                             DB::table('idx_template_child')
@@ -170,7 +174,8 @@ class Template extends Model
 
     public static function childList($template_id)
     {
-        return DB::table('idx_template_child')->where('template_id', $template_id);
+        return DB::table('idx_template_child')->where('template_id', $template_id)
+            ->where('group_id', '<>', 0);
     }
 
     private static function uploadFile($request, $filename, $id)
