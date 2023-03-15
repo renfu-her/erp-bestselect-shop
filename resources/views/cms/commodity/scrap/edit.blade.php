@@ -7,7 +7,7 @@
     @endif
 
     @php
-        $canEdit = App\Enums\Consignment\AuditStatus::approved() === $scrapData->audit_status;
+        $canEdit = App\Enums\Consignment\AuditStatus::approved() == $scrapData->audit_status;
     @endphp
 
     <form id="form1" method="post" action="{{ $formAction }}" class="-banRedo">
@@ -125,12 +125,14 @@
                     </tbody>
                 </table>
             </div>
-            <div class="mb-3">
-                <button id="addInboundBtn" type="button"
-                        class="btn btn-outline-primary btn-sm border-dashed w-100" style="font-weight: 500;">
-                    <i class="bi bi-plus-circle bold"></i> 新增入庫單
-                </button>
-            </div>
+            @if(false == $canEdit)
+                <div class="mb-3">
+                    <button id="addInboundBtn" type="button"
+                            class="btn btn-outline-primary btn-sm border-dashed w-100" style="font-weight: 500;">
+                        <i class="bi bi-plus-circle bold"></i> 新增入庫單
+                    </button>
+                </div>
+            @endif
 
             <h6 class="mb-1">其他項目</h6>
 
