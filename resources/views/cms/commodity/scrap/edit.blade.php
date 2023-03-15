@@ -177,8 +177,7 @@
                                             @endif
                                         @endforeach
                                     @else
-                                        <input type="text" value="" name="bgrade_id[{{ $i }}]" 
-                                            class="form-control form-control-sm w-auto" readonly>
+                                        <input type="text" value="" class="form-control form-control-sm w-auto" readonly>
                                     @endif
                                 @else
                                     <select class="select-check form-select form-select-sm -select2 -single @error('bgrade_id.' . $i) is-invalid @enderror" 
