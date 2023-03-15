@@ -20,6 +20,7 @@ class PcsScrapItem extends Model
         $concatString = concatStr([
             'id' => DB::raw('ifnull(scrapitem.id, "")'),
             'inbound_id' => DB::raw('ifnull(scrapitem.inbound_id, "")'),
+            'inbound_sn' => DB::raw('ifnull(inbound.sn, "")'),
             'product_style_id' => DB::raw('ifnull(scrapitem.product_style_id, "")'),
             'sku' => DB::raw('ifnull(scrapitem.sku, "")'),
             'product_title' => DB::raw('ifnull(scrapitem.product_title, "")'),
@@ -36,6 +37,7 @@ class PcsScrapItem extends Model
             ->where('scrapitem.type', DlvBackType::product()->value)
             ->where('scrapitem.deleted_at', null)
             ->groupBy('scraps.id')
+            ->orderBy('scraps.id', 'desc')
             ->select(
                 'scraps.id',
                 'scraps.sn',

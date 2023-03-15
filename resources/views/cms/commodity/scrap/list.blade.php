@@ -116,6 +116,7 @@
                                     <table class="table table-bordered table-sm mb-0">
                                         <thead class="small table-light">
                                         <tr class="border-top-0" style="border-bottom-color:var(--bs-secondary);">
+                                            <th scope="col">入庫單號</th>
                                             <th scope="col">SKU</th>
                                             <th scope="col">商品名稱</th>
                                             <th scope="col">報廢數量</th>
@@ -130,6 +131,7 @@
                                         @if(null != $itemsConcat && 0 < count($itemsConcat))
                                             @foreach ($itemsConcat as $item_data)
                                                 <tr>
+                                                    <td>{{ $item_data->inbound_sn }}</td>
                                                     <td>{{ $item_data->sku }}</td>
                                                     <td>{{ $item_data->product_title }}</td>
                                                     <td>{{ number_format($item_data->qty) }}</td>
