@@ -13,21 +13,53 @@
                            value="{{$searchParam['scrap_sn'] ?? ''}}"
                            aria-label="報廢單號">
                 </div>
-            </div>
-            <fieldset class="col-12 col-sm-6 mb-3">
-                <legend class="col-form-label p-0 mb-2">審核狀態</legend>
-                <div class="px-1 pt-1">
-                    @foreach (App\Enums\Consignment\AuditStatus::asArray() as $key => $val)
+                <div class="col-12 col-sm-6 mb-3">
+                    <label class="form-label">採購單號</label>
+                    <input class="form-control" value="{{ $searchParam['purchase_sn'] ?? '' }}" type="text" name="purchase_sn"
+                           placeholder="輸入採購單號">
+                </div>
+                <div class="col-12 col-sm-6 mb-3">
+                    <label class="form-label">入庫單號</label>
+                    <input class="form-control" value="{{ $searchParam['inbound_sn'] ?? '' }}" type="text" name="inbound_sn"
+                           placeholder="輸入入庫單號">
+                </div>
+                <div class="col-12 col-sm-6 mb-3">
+                    <label class="form-label">搜尋商品</label>
+                    <input class="form-control" value="{{ $searchParam['keyword'] ?? '' }}" type="text" name="keyword"
+                           placeholder="輸入商品名稱">
+                </div>
+                <div class="col-12 col-sm-6 mb-3">
+                    <label class="form-label">倉庫</label>
+                    <select class="form-select -select2 -multiple" multiple name="inbound_depot_id[]" aria-label="倉庫"
+                            data-placeholder="多選">
+                        @foreach ($depotList as $key => $data)
+                            <option value="{{ $data->id }}" @if (in_array($data->id, $searchParam['inbound_depot_id'] ?? [])) selected @endif>
+                                {{ $data->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-12 col-sm-6 mb-3">
+                    <legend class="col-form-label p-0 mb-2">盤點狀態</legend>
+                    <div class="px-1 pt-1">
                         <div class="form-check form-check-inline">
                             <label class="form-check-label">
                                 <input class="form-check-input" name="audit_status" type="radio"
-                                       value="{{ $val }}" @if (old('audit_status', $searchParam['audit_status'] ?? null) == $val) checked @endif>
-                                {{ App\Enums\Consignment\AuditStatus::getDescription($val) }}
+                                       value="all" @if ($searchParam['audit_status'] == 'all') checked @endif>
+                                全部
                             </label>
                         </div>
-                    @endforeach
+                        @foreach (App\Enums\Consignment\AuditStatus::asArray() as $key => $val)
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label">
+                                    <input class="form-check-input" name="audit_status" type="radio"
+                                           value="{{ $val }}" @if ($searchParam['audit_status'] == $val) checked @endif>
+                                    {{ App\Enums\Consignment\AuditStatus::getDescription($val) }}
+                                </label>
+                            </div>
+                        @endforeach
+                    </div>
                 </div>
-            </fieldset>
+            </div>
 
             <div class="col">
                 <input type="hidden" name="data_per_page" value="{{ $data_per_page }}" />
@@ -116,11 +148,16 @@
                                     <table class="table table-bordered table-sm mb-0">
                                         <thead class="small table-light">
                                         <tr class="border-top-0" style="border-bottom-color:var(--bs-secondary);">
-                                            <th scope="col">入庫單號</th>
-                                            <th scope="col">SKU</th>
+                                            <td scope="col" class="wrap">
+                                                <div class="fw-bold">採購單號</div>
+                                                <div>入庫單</div>
+                                            </td>
                                             <th scope="col">商品名稱</th>
+                                            <td scope="col" class="wrap">
+                                                <div class="fw-bold">事件</div>
+                                                <div>倉庫</div>
+                                            </td>
                                             <th scope="col">報廢數量</th>
-                                            <th scope="col">效期</th>
                                             <th scope="col">備註</th>
                                         </tr>
                                         </thead>
@@ -131,11 +168,25 @@
                                         @if(null != $itemsConcat && 0 < count($itemsConcat))
                                             @foreach ($itemsConcat as $item_data)
                                                 <tr>
-                                                    <td>{{ $item_data->inbound_sn }}</td>
-                                                    <td>{{ $item_data->sku }}</td>
-                                                    <td>{{ $item_data->product_title }}</td>
+                                                    <td class="wrap">
+                                                        <div class="fw-bold">{{ $item_data->event_sn }}</div>
+                                                        <div>{{ $item_data->inbound_sn ?? '-' }}</div>
+                                                    </td>
+                                                    <td class="wrap">
+                                                        <div class="lh-1 small text-secondary" data-td="sku">{{ $item_data->sku }}</div>
+                                                        <div class="lh-base" data-td="product_title">{{$item_data->product_title}}</div>
+                                                        <div class="lh-1 small fw-light">
+                                                            <span class="bg-secondary text-white px-1" data-td="expiry_date">效期：{{date('Y/m/d', strtotime($item_data->expiry_date))}}</span>
+                                                        </div>
+                                                    </td>
+
+                                                    <td class="wrap">
+                                                        <div class="lh-base text-nowrap">
+                                                            <span class="fw-bold">{{$item_data->event_name}}</span>
+                                                        </div>
+                                                        <div class="lh-1" data-td="depot_name">{{$item_data->depot_name}}</div>
+                                                    </td>
                                                     <td>{{ number_format($item_data->qty) }}</td>
-                                                    <td>{{ $item_data->expiry_date }}</td>
                                                     <td>{{ $item_data->memo }}</td>
                                                 </tr>
                                             @endforeach

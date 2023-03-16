@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Consignment\AuditStatus;
 use App\Enums\Delivery\Event;
 use App\Enums\DlvBack\DlvBackType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -21,6 +22,13 @@ class PcsScrapItem extends Model
             'id' => DB::raw('ifnull(scrapitem.id, "")'),
             'inbound_id' => DB::raw('ifnull(scrapitem.inbound_id, "")'),
             'inbound_sn' => DB::raw('ifnull(inbound.sn, "")'),
+            'depot_name' => DB::raw('ifnull(inbound.depot_name, "")'),
+            'event_name' => DB::raw('case when "'. Event::purchase()->value. '" = inbound.event then "'. Event::purchase()->description. '"'
+                . ' when "'. Event::consignment()->value. '" = inbound.event then "'. Event::consignment()->description. '"'
+                . ' else null end'),
+            'event_sn' => DB::raw('case when "'. Event::purchase()->value. '" = inbound.event then pcs.sn'
+                . ' when "'. Event::consignment()->value. '" = inbound.event then csn.sn'
+                . ' else null end'),
             'product_style_id' => DB::raw('ifnull(scrapitem.product_style_id, "")'),
             'sku' => DB::raw('ifnull(scrapitem.sku, "")'),
             'product_title' => DB::raw('ifnull(scrapitem.product_title, "")'),
@@ -32,10 +40,19 @@ class PcsScrapItem extends Model
         $query = DB::table(app(PcsScraps::class)->getTable() . ' as scraps')
             ->leftJoin(app(PcsScrapItem::class)->getTable() . ' as scrapitem', 'scrapitem.scrap_id', '=', 'scraps.id')
             ->leftJoin(app(PurchaseInbound::class)->getTable() . ' as inbound', 'inbound.id', '=', 'scrapitem.inbound_id')
+
+            ->leftJoin(app(Purchase::class)->getTable() . ' as pcs', function ($join) {
+                $join->on('pcs.id', '=', 'inbound.event_id')
+                    ->where('inbound.event', '=', Event::purchase()->value);
+            })
+            ->leftJoin(app(Consignment::class)->getTable() . ' as csn', function ($join) {
+                $join->on('csn.id', '=', 'inbound.event_id')
+                    ->where('inbound.event', '=', Event::consignment()->value);
+            })
             ->where('scraps.type', 'scrap')
-            ->where('scraps.deleted_at', null)
+            ->whereNull('scraps.deleted_at')
             ->where('scrapitem.type', DlvBackType::product()->value)
-            ->where('scrapitem.deleted_at', null)
+            ->whereNull('scrapitem.deleted_at')
             ->groupBy('scraps.id')
             ->orderBy('scraps.id', 'desc')
             ->select(
@@ -52,8 +69,36 @@ class PcsScrapItem extends Model
         if (isset($searchParam['scrap_sn'])) {
             $query->where('scraps.sn', 'like', "%{$searchParam['scrap_sn']}%");
         }
-        if (isset($searchParam['audit_status'])) {
-            $query->where('scraps.audit_status', '=', "{$searchParam['audit_status']}");
+        if (isset($searchParam['keyword'])) {
+            $keyword = $searchParam['keyword'];
+            $query->where(function ($q) use ($keyword) {
+                if ($keyword) {
+                    $q->where('inbound.title', 'like', "%$keyword%");
+                    $q->orWhere('inbound.sku', 'like', "%$keyword%");
+                }
+            });
+        }
+        if (isset($searchParam['purchase_sn'])) {
+            $query->where('pcs.sn', 'LIKE', "%{$searchParam['purchase_sn']}%")
+                ->orwhere('csn.sn', 'LIKE', "%{$searchParam['purchase_sn']}%")
+            ;
+        }
+        if (isset($searchParam['inbound_sn'])) {
+            $query->where('inbound.sn', '=', $searchParam['inbound_sn']);
+        }
+        if (isset($searchParam['audit_status']) && 'all' != $searchParam['audit_status']) {
+            //若篩選尚未審核資料 有可能是未建立資料
+            if (AuditStatus::unreviewed()->value == $searchParam['audit_status']) {
+                $query->where(function ($que) use ($searchParam) {
+                    $que->whereNull('scraps.audit_status')
+                        ->orWhere('scraps.audit_status', '=', $searchParam['audit_status']);
+                });
+            } else {
+                $query->where('scraps.audit_status', '=', $searchParam['audit_status']);
+            }
+        }
+        if (isset($searchParam['inbound_depot_id']) && 0 < count($searchParam['inbound_depot_id'])) {
+            $query->whereIn('inbound.depot_id', $searchParam['inbound_depot_id']);
         }
         return $query;
     }
