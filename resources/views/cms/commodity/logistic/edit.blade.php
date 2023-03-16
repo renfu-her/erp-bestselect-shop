@@ -204,7 +204,7 @@
                     <form id="form_store" action="{{ Route('cms.logistic.createLogisticOrder', [], true) }}" method="post" class="-banRedo">
                         @method('POST')
                         @csrf
-                        <h7>新增喜鴻托運單</h7>
+                        <h6>新增喜鴻托運單</h6>
                         <div class="row">
                             <div>
                                 <fieldset class="col-12 col-sm-6 mb-3">
