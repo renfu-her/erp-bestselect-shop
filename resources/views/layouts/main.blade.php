@@ -44,6 +44,7 @@
                     'productList' => Route('api.cms.product.get-products'),
                     'productShipments' => Route('api.cms.product.get-products-shipment'),
                     'inboundList' => Route('api.cms.delivery.get-select-inbound'),
+                    'expiredInboundList' => Route('api.cms.stock.inboundlist'),
                     'selectProductList' => Route('api.cms.depot.get-select-product'),
                     'selectCsnProductList' => Route('api.cms.depot.get-select-csn-product'),
                 ],

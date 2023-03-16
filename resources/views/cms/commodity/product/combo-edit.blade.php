@@ -169,8 +169,8 @@
             })
         </script>
         <script>
-            let addProductModal = new bootstrap.Modal(document.getElementById('addProduct'));
-            let prodPages = new Pagination($('#addProduct .-pages'));
+            const addProductModal = new bootstrap.Modal(document.getElementById('addProduct'));
+            const prodPages = new Pagination($('#addProduct .-pages'));
             /*** 選取商品 ***/
             let selectedProductSku = [];
             let selectedProduct = [];
@@ -179,7 +179,7 @@
             $('.-cloneElem.--selectedP.d-none').remove();
             /*** 刪除商品 ***/
             let del_item_id = [];
-            let delItemOption = {
+            const delItemOption = {
                 appendClone: '.-appendClone.--selectedP',
                 cloneElem: '.-cloneElem.--selectedP',
                 beforeDelFn: function({
@@ -200,7 +200,9 @@
                     selectedProductSku = [];
                     selectedProduct = [];
                     $('.-cloneElem.--selectedP button.-del').each(function(index, element) {
-                        selectedProductSku.push($(element).attr('data-sku'));
+                        const sku = $(element).attr('data-sku');
+                        selectedProductSku.push(sku);
+                        selectedProduct.push({sku});
                     });
                     if (getProductList(1) && $(this).attr('id') === 'addProductBtn') {
                         addProductModal.show();

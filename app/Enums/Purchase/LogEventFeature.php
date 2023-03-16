@@ -32,6 +32,7 @@ final class LogEventFeature extends Enum
     const combo = 'combo'; //組成組合包
     const decompose = 'decompose'; //組合包分解
     const scrapped = 'scrapped'; //報廢
+    const scrap_del = 'scrap_del'; //報廢取消
     const combo_del = 'combo_del'; //刪除組合包
 
     const delivery = 'delivery';

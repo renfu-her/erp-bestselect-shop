@@ -17,6 +17,11 @@ return
                 "route_name" => "cms.stock.index",
             ],
             [
+                "title" => "報廢管理",
+                "controller_name" => "ScrapCtrl",
+                "route_name" => "cms.scrap.index",
+            ],
+            [
                 "title" => "採購單庫存匯入",
                 "controller_name" => "InboundImportCtrl",
                 "route_name" => "cms.inbound_import.index",
@@ -194,7 +199,7 @@ return
                 "controller_name" => "B2eCompanyCtrl",
                 "route_name" => "cms.b2e-company.index",
             ],
-            [  
+            [
                 "title" => "團控查詢帳號",
                 "controller_name" => "ErpTravelCtrl",
                 "route_name" => "cms.erp-travel.index",

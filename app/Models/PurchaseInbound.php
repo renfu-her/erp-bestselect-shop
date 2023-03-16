@@ -467,6 +467,13 @@ class PurchaseInbound extends Model
         });
     }
 
+    public static function willBeScrapped($inbound_id, $qty)
+    {
+        self::where('id', $inbound_id)->update([
+            'scrap_num' => DB::raw('scrap_num +' . $qty),
+        ]);
+    }
+
     //歷史入庫
     public static function getInboundList($param)
     {
@@ -543,6 +550,7 @@ class PurchaseInbound extends Model
             ->leftJoin(app(User::class)->getTable() . ' as user', 'user.id', '=', 'prd.user_id')
             ->select('inbound.event_id as event_id' //採購ID
                 , 'event.sn as event_sn'
+                , 'style.in_stock as in_stock'
                 , 'inbound.event as event'
                 , DB::raw('(case ' . $inbound_event . ' else inbound.event end) as inbound_event_name')
                 , 'inbound.event_item_id as event_item_id'
@@ -617,7 +625,7 @@ class PurchaseInbound extends Model
             $result->where('inbound.id', '=', $param['inbound_id']);
         }
         if (isset($param['purchase_sn'])) {
-            $result->where('event.sn', '=', $param['purchase_sn']);
+            $result->where('event.sn', 'LIKE', "%{$param['purchase_sn']}%");
         }
         if (isset($param['inbound_sn'])) {
             $result->where('inbound.sn', '=', $param['inbound_sn']);

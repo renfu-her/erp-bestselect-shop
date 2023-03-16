@@ -49,6 +49,7 @@ Route::group(['prefix' => 'cms', 'as' => 'cms.', 'middleware' => 'auth:user'], f
     require base_path('routes/cms/Depot.php');
     require base_path('routes/cms/Spec.php');
     require base_path('routes/cms/Stock.php');
+    require base_path('routes/cms/Scrap.php');
     require base_path('routes/cms/Homepage.php');
     require base_path('routes/cms/NaviNode.php');
     require base_path('routes/cms/Order.php');
@@ -120,7 +121,7 @@ Route::group(['prefix' => 'cms', 'as' => 'cms.', 'middleware' => 'auth:user'], f
 
     require base_path('routes/cms/ErpTravel.php');
 
-    
+
     require base_path('routes/cms/ImgStorage.php');
 
     Route::get('reverse-bind-page/{sn}', [PetitionCtrl::class, 'reverseBindPage'])->name('reverse-bind-page');

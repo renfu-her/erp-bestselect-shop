@@ -122,6 +122,21 @@ Breadcrumbs::for('cms.stock.stock_combo_detail', function (BreadcrumbTrail $trai
     $trail->parent('cms.stock.index');
     $trail->push('元素被組合可售數量', route('cms.stock.index'));
 });
+// 報廢管理
+Breadcrumbs::for('cms.scrap.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('報廢管理', route('cms.scrap.index'));
+});
+// 新增報廢單
+Breadcrumbs::for('cms.scrap.create', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.scrap.index');
+    $trail->push('新增報廢單');
+});
+// 編輯 - 報廢單資訊
+Breadcrumbs::for('cms.scrap.edit', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.scrap.index');
+    $trail->push('#' . $value['sn'] . ' 報廢單資訊', route('cms.scrap.edit', ['id' => $value['id']]));
+});
 
 // 採購單庫存匯入
 Breadcrumbs::for('cms.inbound_import.index', function (BreadcrumbTrail $trail) {
