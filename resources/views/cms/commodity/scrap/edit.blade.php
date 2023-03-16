@@ -67,7 +67,7 @@
                                     <div class="lh-1 small text-secondary" data-td="sku">{{$item->sku}}</div>
                                     <div class="lh-base" data-td="product_title">{{$item->product_title}}</div>
                                     <div class="lh-1 small fw-light">
-                                        <span class="bg-secondary text-white px-1" data-td="expiry_date">效期：{{$item->expiry_date}}</span>
+                                        <span class="bg-secondary text-white px-1" data-td="expiry_date">效期：{{date('Y/m/d', strtotime($item->expiry_date))}}</span>
                                     </div>
                                 </td>
                                 <td class="wrap">
