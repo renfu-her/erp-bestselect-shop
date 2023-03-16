@@ -5,6 +5,7 @@ namespace App\Exports\Stock;
 use App\Models\Category;
 use App\Models\ProductStyle;
 use App\Models\PurchaseInbound;
+use App\Models\ShipmentGroup;
 use Illuminate\Support\Facades\DB;
 
 use Maatwebsite\Excel\Concerns\Exportable;
@@ -46,6 +47,7 @@ class ProductWithExitInboundDetailExport implements FromQuery, WithHeadings
             , '線下是否開啟'
             , '類別'
             , '可售數量'
+            , '宅配'
         ];
     }
 
@@ -56,6 +58,12 @@ class ProductWithExitInboundDetailExport implements FromQuery, WithHeadings
                 $join->on('channelSub.style_id', 'tb_tslwei.id');
             })
             ->leftJoin(app(Category::class)->getTable() . ' as category', 'category.id', '=', 'tb_tslwei.category_id')
+            ->leftJoin('prd_product_shipment as shipment', function ($join) {
+                $join->on('tb_tslwei.product_id', '=', 'shipment.product_id');
+                $join->where('shipment.category_id', '=', 1);
+            })
+            ->leftJoin(app(ShipmentGroup::class)->getTable() . ' as shipmentGroup', 'shipmentGroup.id', '=', 'shipment.group_id')
+
             ->select('tb_tslwei.type_title'
                 ,'tb_tslwei.product_title'
                 , 'tb_tslwei.spec'
@@ -74,6 +82,7 @@ class ProductWithExitInboundDetailExport implements FromQuery, WithHeadings
                 , DB::raw('IF(tb_tslwei.offline = 1, "是", "否") as offline')
                 , 'category.category'
                 , 'tb_tslwei.in_stock_original'
+                , 'shipmentGroup.name as shipment_group_name'
             )
             ->orderBy('tb_tslwei.product_id')
             ->orderBy('tb_tslwei.id')
