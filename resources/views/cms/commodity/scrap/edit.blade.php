@@ -23,12 +23,12 @@
                 </dl>
                 <dl class="row">
                     <div class="col">
-                        <dt>建單時間</dt>
-                        <dd>{{ date('Y/m/d', strtotime($scrapData->created_at)) }}</dd>
-                    </div>
-                    <div class="col">
                         <dt>建單人員</dt>
                         <dd>{{ $scrapData->user_name }}</dd>
+                    </div>
+                    <div class="col">
+                        <dt>建單時間</dt>
+                        <dd>{{ date('Y/m/d', strtotime($scrapData->created_at)) }}</dd>
                     </div>
                     <div class="col">
                         <dt>審核人員</dt>
@@ -57,8 +57,10 @@
                         <tr class="align-middle">
                             <th style="width:40px;" class="text-center">#</th>
                             <th style="width:40px;" class="text-center">刪除</th>
-                            <th>採購單號</th>
-                            <th>入庫單號</th>
+                            <td scope="col" class="wrap">
+                                <div class="fw-bold">採購單號</div>
+                                <div>入庫單</div>
+                            </td>
                             <th>商品</th>
                             <th class="lh-base"><span class="bg-warning text-dark lh-1">事件</span><i class="bi bi-exclamation-diamond-fill text-warning ms-1"></i>
                                 <br>倉庫
@@ -87,16 +89,18 @@
                                     <input type="hidden" name="sku[]" value="{{$item->sku}}" />
                                     <input type="hidden" name="product_title[]" value="{{$item->product_title}}" />
                                 </td>
-                                <td data-td="event_sn">
-                                    <a href="@if(\App\Enums\Delivery\Event::purchase()->value == $item->event)
-                                    {{ route('cms.purchase.edit', ['id' => $item->event_id]) }}
-                                    @elseif(\App\Enums\Delivery\Event::ord_pickup()->value == $item->event)
-                                    {{ route('cms.order.detail', ['id' => $item->event_id]) }}
-                                    @elseif(\App\Enums\Delivery\Event::consignment()->value == $item->event)
-                                    {{ route('cms.consignment.edit', ['id' => $item->event_id]) }}
-                                    @endif" target="_blank">{{ $item->event_sn }}</a>
+                                <td class="wrap">
+                                    <div data-td="event_sn">
+                                        <a href="@if(\App\Enums\Delivery\Event::purchase()->value == $item->event)
+                                        {{ route('cms.purchase.edit', ['id' => $item->event_id]) }}
+                                        @elseif(\App\Enums\Delivery\Event::ord_pickup()->value == $item->event)
+                                        {{ route('cms.order.detail', ['id' => $item->event_id]) }}
+                                        @elseif(\App\Enums\Delivery\Event::consignment()->value == $item->event)
+                                        {{ route('cms.consignment.edit', ['id' => $item->event_id]) }}
+                                        @endif" target="_blank">{{ $item->event_sn }}</a>
+                                    </div>
+                                    <div data-td="inbound_sn">{{ $item->inbound_sn ?? '-' }}</div>
                                 </td>
-                                <td data-td="inbound_sn">{{$item->inbound_sn}}</td>
                                 <td class="wrap">
                                     <div class="lh-1 small text-secondary" data-td="sku">
                                         @if(isset($item->depot_id) && isset($item->product_style_id))
@@ -155,8 +159,10 @@
                                 <input type="hidden" name="sku[]" value="" />
                                 <input type="hidden" name="product_title[]" value="" />
                             </td>
-                            <td data-td="event_sn"></td>
-                            <td data-td="inbound_sn"></td>
+                            <td class="wrap">
+                                <div data-td="event_sn"></div>
+                                <div data-td="inbound_sn"></div>
+                            </td>
                             <td class="wrap">
                                 <div class="lh-1 small text-secondary" data-td="sku"></div>
                                 <div class="lh-base" data-td="product_title"></div>
@@ -583,8 +589,8 @@
                         cloneElem.find('input[name="sku[]"]').val(item.sku);
                         cloneElem.find('input[name="product_title[]"]').val(item.product_title);
 
-                        cloneElem.find('td[data-td="event_sn"]').text(item.event_sn);
-                        cloneElem.find('td[data-td="inbound_sn"]').text(item.inbound_sn);
+                        cloneElem.find('td div[data-td="event_sn"]').text(item.event_sn);
+                        cloneElem.find('td div[data-td="inbound_sn"]').text(item.inbound_sn);
                         cloneElem.find('td [data-td="sku"]').text(item.sku);
                         cloneElem.find('td [data-td="product_title"]').text(item.product_title);
                         cloneElem.find('td [data-td="expiry_date"]').text(`效期：${item.expiry_date}`);
