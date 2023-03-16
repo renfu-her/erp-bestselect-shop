@@ -239,10 +239,12 @@ class ScrapCtrl extends Controller
                 }
             }
 
+            $curr_date = date('Y-m-d H:i:s');
             PcsScraps::where('id', $id)->update([
                 'memo' => $scrap_memo,
                 'audit_user_id' => Auth::user()->id,
                 'audit_user_name' => Auth::user()->name,
+                'audit_date' => $curr_date,
                 'audit_status' => $audit_status,
             ]);
             $reSS = $this->do_scrap_store($request, $scrapData->id);

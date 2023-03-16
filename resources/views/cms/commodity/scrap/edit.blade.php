@@ -14,9 +14,35 @@
         @csrf
         <div class="card shadow p-4 mb-4">
             <h6>報廢單內容</h6>
+            @if ($method === 'edit')
+                <dl class="row">
+                    <div class="col-sm-5">
+                        <dt>報廢單編號</dt>
+                        <dd>{{ $scrapData->sn }}</dd>
+                    </div>
+                </dl>
+                <dl class="row">
+                    <div class="col">
+                        <dt>建單時間</dt>
+                        <dd>{{ date('Y/m/d', strtotime($scrapData->created_at)) }}</dd>
+                    </div>
+                    <div class="col">
+                        <dt>建單人員</dt>
+                        <dd>{{ $scrapData->user_name }}</dd>
+                    </div>
+                    <div class="col">
+                        <dt>審核人員</dt>
+                        <dd>{{ $scrapData->audit_user_name ?? '-' }}</dd>
+                    </div>
+                    <div class="col-sm-5">
+                        <dt>審核日期</dt>
+                        <dd>{{ $scrapData->audit_date? (date('Y/m/d', strtotime($scrapData->audit_date)) ?? '-'): '-' }}</dd>
+                    </div>
+                </dl>
+            @endif
             <div class="col-12 mb-3">
                 <label class="form-label">報廢單備註</label>
-                <input class="form-control" type="text" value="{{$scrapData->memo ?? ''}}" 
+                <input class="form-control" type="text" value="{{$scrapData->memo ?? ''}}"
                     name="scrap_memo" placeholder="報廢單備註"
                     @if ($isAuditStatusApproved) readonly @endif>
             </div>
@@ -79,7 +105,7 @@
                                 <td class="text-end" data-td="in_stock">{{$item->in_stock}}</td>
                                 <td class="text-end" data-td="qty">{{$item->remaining_qty}}</td>
                                 <td class="text-center">
-                                    <input type="number" name="to_scrap_qty[]" value="{{$item->to_scrap_qty}}" min="1" 
+                                    <input type="number" name="to_scrap_qty[]" value="{{$item->to_scrap_qty}}" min="1"
                                         class="form-control form-control-sm -sm" required @if ($isAuditStatusApproved) readonly @endif />
                                 </td>
                                 <td class="text-center">
@@ -170,9 +196,9 @@
                                     @if (isset($items[$i]))
                                         @foreach($total_grades as $g_value)
                                             @if ($g_value['primary_id'] == old('bgrade_id.' . $i, $items[$i]->grade_id ?? ''))
-                                                <input type="text" value="{{ $g_value['code'] . ' ' . $g_value['name'] }}" 
+                                                <input type="text" value="{{ $g_value['code'] . ' ' . $g_value['name'] }}"
                                                     class="form-control form-control-sm w-auto" readonly>
-                                                <input type="hidden" value="{{ $g_value['primary_id'] }}" 
+                                                <input type="hidden" value="{{ $g_value['primary_id'] }}"
                                                     name="bgrade_id[{{ $i }}]">
                                             @endif
                                         @endforeach
@@ -180,7 +206,7 @@
                                         <input type="text" value="" class="form-control form-control-sm w-auto" readonly>
                                     @endif
                                 @else
-                                    <select class="select-check form-select form-select-sm -select2 -single @error('bgrade_id.' . $i) is-invalid @enderror" 
+                                    <select class="select-check form-select form-select-sm -select2 -single @error('bgrade_id.' . $i) is-invalid @enderror"
                                         name="bgrade_id[{{ $i }}]" data-placeholder="請選擇會計科目">
                                         <option value="" selected disabled>請選擇會計科目</option>
                                         @foreach($total_grades as $g_value)
@@ -212,7 +238,7 @@
                                 <input type="number" name="bprice[{{ $i }}]"
                                        value="{{ old('bprice.' . $i, $items[$i]->price ?? '') }}"
                                        class="d-target r-target form-control form-control-sm @error('bprice.' . $i) is-invalid @enderror"
-                                       aria-label="金額" placeholder="請輸入金額" 
+                                       aria-label="金額" placeholder="請輸入金額"
                                        @if ($isAuditStatusApproved && isset($items[$i])) readonly @else disabled @endif >
                             </td>
 
@@ -220,7 +246,7 @@
                                 <input type="number" name="bqty[{{ $i }}]"
                                        value="{{ old('bqty.' . $i, $items[$i]->qty ?? '') }}" min="0"
                                        class="d-target r-target form-control form-control-sm @error('bqty.' . $i) is-invalid @enderror"
-                                       aria-label="數量" placeholder="請輸入數量" 
+                                       aria-label="數量" placeholder="請輸入數量"
                                        @if ($isAuditStatusApproved && isset($items[$i])) readonly @else disabled @endif >
                             </td>
 
@@ -228,7 +254,7 @@
                                 <input type="text" name="bmemo[{{ $i }}]"
                                        value="{{ old('bmemo.' . $i, $items[$i]->memo ?? '') }}"
                                        class="d-target form-control form-control-sm @error('bmemo.' . $i) is-invalid @enderror"
-                                       aria-label="備註" placeholder="請輸入備註" 
+                                       aria-label="備註" placeholder="請輸入備註"
                                        @if ($isAuditStatusApproved && isset($items[$i])) readonly @else disabled @endif >
                             </td>
                         </tr>
