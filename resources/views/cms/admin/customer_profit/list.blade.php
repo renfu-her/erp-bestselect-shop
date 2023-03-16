@@ -61,12 +61,12 @@
                     @foreach ($dataList as $key => $data)
                         <tr>
                             <th scope="row">{{ $key + 1 }}</th>
-                            <td>{{ $data->name }}</td>
+                            <td>{!! nl2br($data->name) !!}</td>
                             <td>{{ $data->sn }}</td>
                             <td>{{ $data->status_title }}</td>
                             <td>
                             @if(!is_null($data->usr_users_id))
-                                {{ '是（' . $data->employeeName . ',' . $data->employeeId . '）' }}
+                                {!! '是（' . nl2br($data->employeeName) . ',' . $data->employeeId . '）' !!}
                             @endif
                             </td>
                             <td class="text-center">

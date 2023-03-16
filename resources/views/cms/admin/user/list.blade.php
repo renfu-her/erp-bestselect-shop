@@ -91,7 +91,7 @@
                     @foreach ($dataList as $key => $data)
                         <tr>
                             <th scope="row">{{ $key + 1 }}</th>
-                            <td>{{ $data->name }}</td>
+                            <td>{!! nl2br($data->name) !!}</td>
                             <td>{{ $data->account }}</td>
                             <td>
                                 @php
