@@ -625,7 +625,7 @@ class PurchaseInbound extends Model
             $result->where('inbound.id', '=', $param['inbound_id']);
         }
         if (isset($param['purchase_sn'])) {
-            $result->where('event.sn', '=', $param['purchase_sn']);
+            $result->where('event.sn', 'LIKE', "%{$param['purchase_sn']}%");
         }
         if (isset($param['inbound_sn'])) {
             $result->where('inbound.sn', '=', $param['inbound_sn']);
