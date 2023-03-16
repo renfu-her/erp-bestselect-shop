@@ -9,6 +9,7 @@ use App\Enums\PcsScrap\PcsScrapType;
 use App\Enums\Purchase\LogEventFeature;
 use App\Helpers\IttmsDBB;
 use App\Http\Controllers\Controller;
+use App\Models\Depot;
 use App\Models\GeneralLedger;
 use App\Models\PcsScrapItem;
 use App\Models\PcsScraps;
@@ -30,17 +31,24 @@ class ScrapCtrl extends Controller
         $searchParam = [];
         $query = $request->query();
         $searchParam['scrap_sn'] = Arr::get($query, 'scrap_sn', null);
-        $searchParam['audit_status'] = Arr::get($query, 'audit_status', null);
+        $searchParam['purchase_sn'] = Arr::get($query, 'purchase_sn', null);
+        $searchParam['inbound_sn'] = Arr::get($query, 'inbound_sn', null);
+        $searchParam['keyword'] = Arr::get($query, 'keyword', null);
+
+        $searchParam['audit_status'] = Arr::get($query, 'audit_status', 'all');
+        $searchParam['inbound_depot_id'] = Arr::get($query, 'inbound_depot_id', []);
 
         $data_per_page = Arr::get($query, 'data_per_page', 100);
         $searchParam['data_per_page'] = getPageCount(Arr::get($query, 'data_per_page', 100));
         $dataList = PcsScrapItem::getProductItemList($searchParam)
             ->paginate($searchParam['data_per_page'])->appends($query);
 
+        $depotList = Depot::all();
         return view('cms.commodity.scrap.list', [
             'dataList' => $dataList,
             'data_per_page' => $data_per_page,
-            'searchParam' => $searchParam
+            'searchParam' => $searchParam,
+            'depotList' => $depotList,
         ]);
     }
 
