@@ -87,10 +87,27 @@
                                     <input type="hidden" name="sku[]" value="{{$item->sku}}" />
                                     <input type="hidden" name="product_title[]" value="{{$item->product_title}}" />
                                 </td>
-                                <td data-td="event_sn">{{$item->event_sn}}</td>
+                                <td data-td="event_sn">
+                                    <a href="@if(\App\Enums\Delivery\Event::purchase()->value == $item->event)
+                                    {{ route('cms.purchase.edit', ['id' => $item->event_id]) }}
+                                    @elseif(\App\Enums\Delivery\Event::ord_pickup()->value == $item->event)
+                                    {{ route('cms.order.detail', ['id' => $item->event_id]) }}
+                                    @elseif(\App\Enums\Delivery\Event::consignment()->value == $item->event)
+                                    {{ route('cms.consignment.edit', ['id' => $item->event_id]) }}
+                                    @endif" target="_blank">{{ $item->event_sn }}</a>
+                                </td>
                                 <td data-td="inbound_sn">{{$item->inbound_sn}}</td>
                                 <td class="wrap">
-                                    <div class="lh-1 small text-secondary" data-td="sku">{{$item->sku}}</div>
+                                    <div class="lh-1 small text-secondary" data-td="sku">
+                                        @if(isset($item->depot_id) && isset($item->product_style_id))
+                                            <a href="{{ Route('cms.stock.stock_detail_log', ['depot_id' => $item->depot_id ?? -1, 'id' => $item->product_style_id], true) }}"
+                                               class="lh-lg" target="_blank">
+                                                {{ $item->sku }}
+                                            </a>
+                                        @else
+                                            {{ $item->sku }}
+                                        @endif
+                                    </div>
                                     <div class="lh-base" data-td="product_title">{{$item->product_title}}</div>
                                     <div class="lh-1 small fw-light">
                                         <span class="bg-secondary text-white px-1" data-td="expiry_date">效期：{{date('Y/m/d', strtotime($item->expiry_date))}}</span>

@@ -76,7 +76,11 @@ class PcsScrapItem extends Model
             ->select(
                 'scrap_items.id as item_id',
                 'scrap_items.inbound_id',
+                'inbound.event as event',
+                'inbound.event_id as event_id',
                 'inbound.sn as inbound_sn',
+                'inbound.depot_id',
+                'inbound.product_style_id',
                 'scrap_items.product_style_id',
                 'scrap_items.product_title',
                 'scrap_items.sku',
