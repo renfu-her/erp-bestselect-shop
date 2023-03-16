@@ -93,7 +93,7 @@
                                     <div class="lh-1 small text-secondary" data-td="sku">{{$item->sku}}</div>
                                     <div class="lh-base" data-td="product_title">{{$item->product_title}}</div>
                                     <div class="lh-1 small fw-light">
-                                        <span class="bg-secondary text-white px-1" data-td="expiry_date">效期：{{$item->expiry_date}}</span>
+                                        <span class="bg-secondary text-white px-1" data-td="expiry_date">效期：{{date('Y/m/d', strtotime($item->expiry_date))}}</span>
                                     </div>
                                 </td>
                                 <td class="wrap">
@@ -106,6 +106,15 @@
                                 <td class="text-end" data-td="qty">{{$item->remaining_qty}}</td>
                                 <td class="text-center">
                                     <input type="number" name="to_scrap_qty[]" value="{{$item->to_scrap_qty}}" min="1"
+                                        @switch($item->event_name)
+                                            @case('採購')
+                                                max="{{ min($item->in_stock, $item->remaining_qty) }}"
+                                                @break
+                                            @case('寄倉')
+                                                max="{{ $item->remaining_qty }}"
+                                                @break
+                                            @default
+                                        @endswitch
                                         class="form-control form-control-sm -sm" required @if ($isAuditStatusApproved) readonly @endif />
                                 </td>
                                 <td class="text-center">
@@ -636,4 +645,5 @@
     </script>
     @endpush
 @endonce
+
 
