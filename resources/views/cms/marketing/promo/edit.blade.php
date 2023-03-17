@@ -203,7 +203,7 @@
 
                     <div class="col-12 mb-3">
                         <label class="form-label">主旨 <span class="text-danger">*</span></label>
-                        <input class="form-control @error('mail_subject') is-invalid @enderror" name="mail_subject" type="text" placeholder="到期通知信主旨" maxlength="255" value="{{ old('mail_subject', $data->mail_subject ?? '') }}" aria-label="到期通知信主旨" editable>
+                        <input class="form-control @error('mail_subject') is-invalid @enderror" name="mail_subject" type="text" placeholder="到期通知信主旨" maxlength="255" value="{{ old('mail_subject', $data->mail_subject ?? '優惠劵到期通知') }}" aria-label="到期通知信主旨" editable>
                         @error('mail_subject')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -433,7 +433,7 @@
             }
 
 
-            let mail_content = @json(old('mail_content', $data->mail_content ?? ''));
+            let mail_content = @json(old('mail_content', $data->mail_content ?? '<p>親愛的客戶您好</p><p></p><p>您的優惠劵即將到期 {$active_edate}，請不要錯過。</p><p><a href="https://www.bestselection.com.tw/">https://www.bestselection.com.tw/</a></p>'));
 
             tinymce.init({
                 selector: '#editor',
