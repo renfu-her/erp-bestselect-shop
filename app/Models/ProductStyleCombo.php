@@ -114,7 +114,8 @@ class ProductStyleCombo extends Model
             ->leftJoin('prd_products as product', 'product.id', '=', 'style.product_id')
             ->select('combo.id', 'combo.qty', 'style.sku', 'style.title as spec', 'style.in_stock', 'product.title as title')
             ->addSelect(DB::raw('ifnull(style.in_stock, 0) * ifnull(combo.qty, 0) as total_stock')) // 總庫存
-            ->where('combo.product_style_child_id', $style_id);
+            ->where('combo.product_style_child_id', $style_id)
+            ->whereNull('style.deleted_at');
     }
 
 }
