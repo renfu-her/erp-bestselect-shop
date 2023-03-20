@@ -220,7 +220,7 @@
                     @for ($i = 0; $i < 5; $i++)
                         <tr>
                             <td>{{ $i + 1 }}
-                                <input type="hidden" name="back_item_id[{{ $i }}]" value="{{ $items[$i]->id ?? '' }}">
+                                <input type="hidden" name="back_item_id[{{ $i }}]" value="{{ $items[$i]->id ?? '' }}" class="d-target">
                             </td>
 
                             <td>
