@@ -1125,8 +1125,8 @@ class DeliveryCtrl extends Controller
             }
             $input_other_items = $request->only('back_item_id', 'bgrade_id', 'btitle', 'bprice', 'bqty', 'bmemo');
 
-            $dArray = array_diff(DlvBack::where('bac_papa_id', $delivery->id)->where('type', '<>', DlvBackType::product()->value)->pluck('id')->toArray()
-                , array_intersect_key($input_other_items['back_item_id'], $input_other_items['bgrade_id']?? [] )
+            $dArray = array_diff(DlvBack::where('bac_papa_id', $bac_papa_id)->where('type', '<>', DlvBackType::product()->value)->pluck('id')->toArray()
+                , array_intersect_key($input_other_items['back_item_id']?? [], $input_other_items['bgrade_id']?? [] )
             );
             if($dArray) DlvBack::destroy($dArray);
 
