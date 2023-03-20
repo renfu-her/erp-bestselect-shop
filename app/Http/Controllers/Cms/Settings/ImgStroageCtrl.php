@@ -129,7 +129,10 @@ class ImgStroageCtrl extends Controller
     {
         try {
             $asdf = Image::make($path)
-                ->encode('webp', 100);
+                ->resize(1000, 1000, function ($constraint) {
+                    $constraint->aspectRatio();
+                    $constraint->upsize();
+                })->encode('webp', 50);
         } catch (\Exception $e) {
             dd($e);
             return false;
