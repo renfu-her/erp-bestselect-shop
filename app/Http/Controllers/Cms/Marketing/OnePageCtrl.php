@@ -6,8 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\Collection;
 use App\Models\OnePage;
 use App\Models\SaleChannel;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class OnePageCtrl extends Controller
@@ -193,4 +195,7 @@ class OnePageCtrl extends Controller
 
         return response()->json(['status' => 'success']);
     }
+
+ 
+
 }

@@ -112,5 +112,4 @@ require base_path('routes/api/Bank.php');
 Route::group(['prefix' => 'erp', 'as' => 'erp.'], function () {
     Route::post('user', [UserCtrl::class, 'erpUser']);
 
-
 });
