@@ -34,7 +34,7 @@ class EDM20230320 extends Seeder
 
         for($i = 0; $i < count($customer); $i++) {
             //每兩秒執行下一個
-            dispatch(new EDM20230320Job($customer[$i]->email))->delay($i * 2);
+            dispatch(new EDM20230320Job($customer[$i]->email))->delay(now()->addSeconds($i * 3));
         }
         echo "已全部寫入queue";
     }
