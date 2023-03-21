@@ -3,10 +3,11 @@
 namespace Database\Seeders;
 
 use App\Enums\Customer\Newsletter;
-use App\Mail\EDM\EDM20230317;
+use App\Jobs\EDM20230320Job;
 use App\Models\Customer;
+use App\Models\MailSendRecord;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\DB;
 
 class EDM20230320 extends Seeder
 {
@@ -19,16 +20,20 @@ class EDM20230320 extends Seeder
     {
         // 發郵件EDM
         // 先檢查會員是否有訂閱
-        $customer = Customer::where('newsletter', Newsletter::subscribe()->value)
+        $customer = DB::table(app(Customer::class)->getTable(). ' as customers')
+            ->leftJoin(app(MailSendRecord::class)->getTable(), function ($join) {
+                $join->on('customers.email', '=', 'mail_send_record.email')
+                    ->where('mail_send_record.event', '=', 'EDM20230320');
+            })
+            ->where('newsletter', Newsletter::subscribe()->value)
+            ->whereNull('mail_send_record.id')
             ->get();
         echo "共有" . count($customer) . "筆資料";
-        foreach ($customer as $item) {
-            $data = [
-                'hrefToGo' => 'https://bit.ly/3ZVwtue',
-                'image' => "https://images-besttour.cdn.hinet.net/product_intro/imgs/137/5nJefdygvssWLG6eLzKFpcSk9BRQOs8FE1gC8qLP.webp"
-            ];
-            Mail::to($item->email)->queue(new EDM20230317($data));
+
+        for($i = 0; $i < count($customer); $i++) {
+            //每兩秒執行下一個
+            dispatch(new EDM20230320Job($customer[$i]->email))->delay($i * 2);
         }
-        echo "發送完畢";
+        echo "已全部寫入queue";
     }
 }
