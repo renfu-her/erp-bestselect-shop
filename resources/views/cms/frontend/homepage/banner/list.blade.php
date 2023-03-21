@@ -18,7 +18,7 @@
         <div class="d-flex col-12 mb-3 border-bottom border-2 border-dark fw-bold">
             <div class="col-auto px-2" style="width: 50px;">#</div>
             <div class="col px-2">橫幅廣告主標題</div>
-            <div class="col-auto text-center" style="width: 100px;">預覽圖</div>
+            <div class="col-auto text-center" style="width: 100px;">預覽圖 <i class="bi bi-box-arrow-up-right small"></i></div>
             <div class="col-auto text-center" style="width: 40px;">顯示</div>
             <div class="col-auto text-center" style="width: 40px;">編輯</div>
             <div class="col-auto text-center" style="width: 40px;">排序</div>
@@ -35,9 +35,14 @@
                 </div>
 
                 <!-- 預覽圖 -->
-                <div class="input-group col-auto ms-1" @if(false == isset($data->img_pc)) hidden @endif>
-                    <img style="max-width:100px" src="@if(true == isset($data->img_pc)) {{asset($data->img_pc)}} @endif" />
-                </div>
+                @if (true == isset($data->img_pc))
+                    <div class="input-group col-auto ms-1">
+                        <a href="{{asset($data->img_pc)}}" target="_blank">
+                            <img style="max-width:100px" src="{{asset($data->img_pc)}}" />
+                        </a>
+                    </div>
+                @endif
+                
                 <span class="col-auto text-center fs-5 align-self-center" style="width: 40px;">
                     @if ($data->is_public == '1')
                         <i class="bi bi-eye-fill fs-5"></i>

@@ -246,9 +246,7 @@ class Banner extends Model
     private static function imgResize($path)
     {
         return Image::make($path)
-            ->resize(1360, 453, function ($constraint) {
-
-            })->encode('webp', 50);
+            ->resize(1360, 453)->encode('webp', 90);
     }
 
     private static function imgFilename($banner_id, $fileHashName)
