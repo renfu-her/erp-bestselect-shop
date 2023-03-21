@@ -27,6 +27,8 @@ class EDM20230320 extends Seeder
             })
             ->where('newsletter', Newsletter::subscribe()->value)
             ->whereNull('mail_send_record.id')
+            ->whereNull('customers.deleted_at')
+            ->select('customers.email')
             ->get();
         echo "共有" . count($customer) . "筆資料";
 
