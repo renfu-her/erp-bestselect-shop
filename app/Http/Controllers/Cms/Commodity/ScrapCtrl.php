@@ -71,7 +71,7 @@ class ScrapCtrl extends Controller
         $msg = IttmsDBB::transaction(function () use ($request) {
             $scrap_memo = $request->input('scrap_memo', null);
 
-            $rePSCD = PcsScraps::createData(PcsScrapType::scrap(), $scrap_memo);
+            $rePSCD = PcsScraps::createData(PcsScrapType::scrap()->key, $scrap_memo);
             if ($rePSCD['success'] == 0) {
                 DB::rollBack();
                 return $rePSCD;

@@ -5,8 +5,8 @@ namespace App\Enums\Globals;
 use BenSampo\Enum\Enum;
 
 /**
- * @method static static close()
- * @method static static open()
+ * @method static static fail()
+ * @method static static success()
  */
 final class Status extends Enum
 {
