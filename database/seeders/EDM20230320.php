@@ -18,24 +18,26 @@ class EDM20230320 extends Seeder
      */
     public function run()
     {
-        // 發郵件EDM
-        // 先檢查會員是否有訂閱
-        $customer = DB::table(app(Customer::class)->getTable(). ' as customers')
-            ->leftJoin(app(MailSendRecord::class)->getTable(), function ($join) {
-                $join->on('customers.email', '=', 'mail_send_record.email')
-                    ->where('mail_send_record.event', '=', 'EDM20230320');
-            })
-            ->where('newsletter', Newsletter::subscribe()->value)
-            ->whereNull('mail_send_record.id')
-            ->whereNull('customers.deleted_at')
-            ->select('customers.email')
-            ->get();
-        echo "共有" . count($customer) . "筆資料";
-
-        for($i = 0; $i < count($customer); $i++) {
-            //每兩秒執行下一個
-            dispatch(new EDM20230320Job($customer[$i]->email))->delay(now()->addSeconds($i * 3));
-        }
-        echo "已全部寫入queue";
+        dispatch(new EDM20230320Job("ittmsapp@gmail.com"))->delay(now()->addSeconds(1 * 3));
+        echo "ok";
+//        // 發郵件EDM
+//        // 先檢查會員是否有訂閱
+//        $customer = DB::table(app(Customer::class)->getTable(). ' as customers')
+//            ->leftJoin(app(MailSendRecord::class)->getTable(), function ($join) {
+//                $join->on('customers.email', '=', 'mail_send_record.email')
+//                    ->where('mail_send_record.event', '=', 'EDM20230320');
+//            })
+//            ->where('newsletter', Newsletter::subscribe()->value)
+//            ->whereNull('mail_send_record.id')
+//            ->whereNull('customers.deleted_at')
+//            ->select('customers.email')
+//            ->get();
+//        echo "共有" . count($customer) . "筆資料";
+//
+//        for($i = 0; $i < count($customer); $i++) {
+//            //每兩秒執行下一個
+//            dispatch(new EDM20230320Job($customer[$i]->email))->delay(now()->addSeconds($i * 3));
+//        }
+//        echo "已全部寫入queue";
     }
 }
