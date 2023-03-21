@@ -1369,7 +1369,7 @@ class Order extends Model
                 , 'sn' => $order->sn ?? ''
                 , 'link_url' => $link_url,
             ];
-//            Mail::to($email)->queue(new OrderEstablished($data));
+            Mail::to($email)->queue(new OrderEstablished($data));
         }
     }
 
@@ -1393,7 +1393,7 @@ class Order extends Model
                 'order_name' => $orderer->name ?? ''
                 , 'sn' => $order->sn ?? '',
             ];
-//            Mail::to($email)->queue(new OrderPaid($data));
+            Mail::to($email)->queue(new OrderPaid($data));
         }
     }
 
@@ -1429,7 +1429,7 @@ class Order extends Model
                 , 'order_items' => $order_items ?? null
                 , 'sub_order' => $sub_order ?? null
             ];
-//            Mail::to($email)->queue(new OrderShipped($data));
+            Mail::to($email)->queue(new OrderShipped($data));
         }
     }
 
