@@ -187,7 +187,7 @@ class Template extends Model
         $re = null;
 
         $img = Image::make($request->file($filename)->path())
-            ->resize(1200, 400)->encode('webp', 50);
+            ->resize(1200, 400)->encode('webp', 90);
 
         $fileHashName = $request->file($filename)->hashName();
         $filename = self::$path_banner . $id . '/' . explode('.', $fileHashName)[0] . ".webp";
