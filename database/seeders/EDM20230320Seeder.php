@@ -21,8 +21,9 @@ class EDM20230320Seeder extends Seeder
      */
     public function run()
     {
-        Mail::to("ittmsapp@gmail.com")->send(new EDM20230320());
+        $asdf = Mail::to("ittmsapp@gmail.com")->send(new EDM20230320());
 //        dispatch(new EDM20230320Job("ittmsapp@gmail.com"))->delay(now()->addSeconds(1 * 3));
+        dd($asdf);
         echo "ok";
 //        // 發郵件EDM
 //        // 先檢查會員是否有訂閱
