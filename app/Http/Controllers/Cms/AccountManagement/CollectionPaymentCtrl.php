@@ -452,12 +452,14 @@ class CollectionPaymentCtrl extends Controller
                             unset($o_value['po_note']);
 
                             $delivery = Delivery::find($paying_order->source_id);
-                            if($delivery->event == 'order'){
-                                OrderItem::update_order_item($o_value);
-                            } else if($delivery->event == 'consignment'){
-                                ConsignmentItem::update_item($o_value);
-                            } else if($delivery->event == 'csn_order'){
-                                CsnOrderItem::update_csn_order_item($o_value);
+                            if($arr_key[1] != 'none'){
+                                if($delivery->event == 'order'){
+                                    OrderItem::update_order_item($o_value);
+                                } else if($delivery->event == 'consignment'){
+                                    ConsignmentItem::update_item($o_value);
+                                } else if($delivery->event == 'csn_order'){
+                                    CsnOrderItem::update_csn_order_item($o_value);
+                                }
                             }
 
                             Delivery::update_item($value);
@@ -595,17 +597,16 @@ class CollectionPaymentCtrl extends Controller
                 $delivery = $delivery->first();
 
                 foreach($delivery->delivery_items as $value){
-                    if($value->event_item_id){
-                        $item_data[] = (object)[
-                            'item_id' => $value->id . '|' . $value->event_item_id,
-                            'title' => $value->product_title,
-                            'price' => $value->price,
-                            'qty' => $value->qty,
-                            'total_price' => $value->total_price,
-                            'note' => $value->note,
-                            'po_note' => $value->po_note,
-                        ];
-                    }
+                    $item_data[] = (object)[
+                        'item_id' => $value->id . '|' . ($value->event_item_id ? $value->event_item_id : 'none'),
+                        'title' => $value->product_title,
+                        'price' => $value->price,
+                        'qty' => $value->qty,
+                        'total_price' => $value->total_price,
+                        'note' => $value->note,
+                        'po_note' => $value->po_note,
+                        'read_only' => ($value->event_item_id ? '' : true),
+                    ];
                 }
 
             } else if($paying_order->source_type == 'ord_received_orders'){

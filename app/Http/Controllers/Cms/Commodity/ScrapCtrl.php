@@ -17,7 +17,7 @@ use App\Models\ProductStock;
 use App\Models\ProductStyle;
 use App\Models\PurchaseInbound;
 use App\Models\PurchaseLog;
-use App\Models\ReceivedDefault;
+use App\Models\PayableDefault;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
@@ -283,7 +283,8 @@ class ScrapCtrl extends Controller
             }
             $input_items = $request->only('item_id', 'inbound_id', 'product_style_id', 'product_title', 'sku', 'to_scrap_qty', 'memo');
             if (isset($input_items['item_id']) && 0 < count($input_items['item_id'])) {
-                $default_grade_id = ReceivedDefault::where('name', '=', 'product')->first()->default_grade_id;
+                $default_grade_id = PayableDefault::where('name', '=', 'product')->first()->default_grade_id;
+
                 $curr_date = date('Y-m-d H:i:s');
                 for($i = 0; $i < count($input_items['item_id']); $i++) {
                     if(true == isset($input_items['item_id'][$i])) {
