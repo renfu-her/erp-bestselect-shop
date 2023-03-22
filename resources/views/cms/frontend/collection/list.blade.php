@@ -37,7 +37,8 @@
                     <tr>
                         <th scope="col" style="width:10%">#</th>
                         <th scope="col">商品群組</th>
-                        <th scope="col" class="text-center">公開上架</th>
+                        <th scope="col">主圖</th>
+                        <th scope="col" class="text-center">公開</th>
                         <th scope="col" class="text-center">EDM</th>
                         <th scope="col" class="text-center">酒類</th>
                         <th scope="col" class="text-center lh-1 small">複製<br>連結</th>
@@ -50,6 +51,15 @@
                     <tr>
                         <th scope="row">{{ $key + 1 }}</th>
                         <td>{{ $data->name }}</td>
+                        <td class="text-center text-secondary">
+                            @if (isset($data->img))
+                                <a href="{{asset($data->img)}}" target="_blank">
+                                    <img style="max-width:100px" src="{{asset($data->img)}}" />
+                                </a>
+                            @else
+                                -
+                            @endif
+                        </td>
 
                         <td class="text-center">
                             <div class="form-check form-switch form-switch-lg">
