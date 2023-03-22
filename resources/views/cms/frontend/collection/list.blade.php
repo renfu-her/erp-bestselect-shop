@@ -54,7 +54,7 @@
                         <td class="text-center text-secondary">
                             @if (isset($data->img))
                                 <a href="{{asset($data->img)}}" target="_blank">
-                                    <img style="max-width:100px" src="{{asset($data->img)}}" />
+                                    <img style="max-width:100px;height:100%;" src="{{asset($data->img)}}" />
                                 </a>
                             @else
                                 -
