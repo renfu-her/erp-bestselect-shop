@@ -16,11 +16,11 @@ return
                 "controller_name" => "StockCtrl",
                 "route_name" => "cms.stock.index",
             ],
-            [
-                "title" => "報廢管理",
-                "controller_name" => "ScrapCtrl",
-                "route_name" => "cms.scrap.index",
-            ],
+//            [
+//                "title" => "報廢管理",
+//                "controller_name" => "ScrapCtrl",
+//                "route_name" => "cms.scrap.index",
+//            ],
             [
                 "title" => "採購單庫存匯入",
                 "controller_name" => "InboundImportCtrl",

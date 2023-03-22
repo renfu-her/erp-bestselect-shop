@@ -74,27 +74,27 @@ return [
             ],
         ],
     ],
-    [
-        "unit" => "報廢管理",
-        "permissions" => [
-            [
-                "cms.scrap.index",
-                "瀏覽",
-            ],
-            [
-                "cms.scrap.create",
-                "新增",
-            ],
-            [
-                "cms.scrap.edit",
-                "修改",
-            ],
-            [
-                "cms.scrap.delete",
-                "刪除",
-            ],
-        ],
-    ],
+//    [
+//        "unit" => "報廢管理",
+//        "permissions" => [
+//            [
+//                "cms.scrap.index",
+//                "瀏覽",
+//            ],
+//            [
+//                "cms.scrap.create",
+//                "新增",
+//            ],
+//            [
+//                "cms.scrap.edit",
+//                "修改",
+//            ],
+//            [
+//                "cms.scrap.delete",
+//                "刪除",
+//            ],
+//        ],
+//    ],
     [
         "unit" => "採購單庫存匯入",
         "permissions" => [
