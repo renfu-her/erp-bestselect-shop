@@ -33,17 +33,17 @@
 
         <div class="table-responsive tableOverBox">
             <table class="table table-striped tableList">
-                <thead>
-                <tr>
-                    <th scope="col" style="width:10%">#</th>
-                    <th scope="col">商品群組</th>
-                    <th scope="col" class="text-center">公開上架</th>
-                    <th scope="col" class="text-center">EDM</th>
-                    <th scope="col" class="text-center">酒類</th>
-                    <th scope="col" class="text-center">複製連結</th>
-                    <th scope="col" class="text-center">編輯</th>
-                    <th scope="col" class="text-center">刪除</th>
-                </tr>
+                <thead class="align-middle">
+                    <tr>
+                        <th scope="col" style="width:10%">#</th>
+                        <th scope="col">商品群組</th>
+                        <th scope="col" class="text-center">公開上架</th>
+                        <th scope="col" class="text-center">EDM</th>
+                        <th scope="col" class="text-center">酒類</th>
+                        <th scope="col" class="text-center lh-1 small">複製<br>連結</th>
+                        <th scope="col" class="text-center">編輯</th>
+                        <th scope="col" class="text-center">刪除</th>
+                    </tr>
                 </thead>
                 <tbody>
                 @foreach ($dataList as $key => $data)

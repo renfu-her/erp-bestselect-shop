@@ -18,7 +18,7 @@
                         id="collection_name" name="collection_name"
                         value="{{ old('collection_name', $collectionData->name ?? '') }}" required aria-label="商品群組名稱" />
                 </x-b-form-group>
-                <p class="mark m-0"><i class="bi bi-exclamation-diamond-fill mx-2 text-warning"></i>
+                <p class="mark m-0 mb-2"><i class="bi bi-exclamation-diamond-fill mx-2 text-warning"></i>
                     系統會自動將「商品群組名稱」代入網頁連結、標題、描述中
                     ，如需調整搜尋引擎SEO成效，可自行修改
                 </p>
@@ -54,6 +54,33 @@
                         </div>
                     </div>
                 </x-b-form-group>
+                <div class="col-12">
+                    <label class="form-label">群組主圖（可將檔案拖拉至框中上傳）</label>
+                    <div class="upload_image_block">
+                        <label>
+                            <!-- 按鈕 -->
+                            <span class="browser_box -plusBtn" @if(isset($collectionData->img)) hidden @endif>
+                                <i class="bi bi-plus-circle text-secondary fs-4"></i>
+                            </span>
+                            <!-- 預覽圖 -->
+                            <span class="browser_box box" @if(false == isset($collectionData->img)) hidden @endif>
+                                <span class="icon -x"><i class="bi bi-x"></i></span>
+                                <img src="@if(true == isset($collectionData->img)) {{asset($collectionData->img)}} @endif" />
+                            </span>
+                            <!-- 進度條 -->
+                            <div class="progress" hidden>
+                                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
+                                    aria-valuenow="1" aria-valuemin="0" aria-valuemax="100" style="width: 1%"></div>
+                            </div>
+                            <input type="file" name="img" accept=".jpg,.jpeg,.png,.bmp" hidden>
+                            <input type="hidden" name="del_img">
+                        </label>
+                    </div>
+                    <p><mark>圖片尺寸建議：1200x400px，不超過5MB，可上傳JPG/ JPEG/ PNG/ BMP格式</mark></p>
+                    @error('img')
+                    <div class="alert alert-danger" role="alert">{{ $message }}</div>
+                    @enderror
+                </div>
             </div>
             @if ($errors->any())
                 <div class="alert alert-danger">
@@ -240,7 +267,22 @@
         </style>
     @endpush
     @push('sub-scripts')
-        <script>
+        <script>            
+            /*** 圖片 ***/
+            bindReadImageFile($('input[name="img"]'), {
+                num: 'single',
+                fileInputName: 'img',
+                maxSize: 1024 * 5,
+                delFn: function ($x) {
+                    $x.siblings('img').attr('src', '');
+                    let img_box = $x.closest('.box');
+                    img_box.prop('hidden', true);
+                    img_box.siblings('.browser_box.-plusBtn').prop('hidden', false);
+                    img_box.siblings('input[name="img"]').val('');
+                    img_box.siblings('input[name="del_img"]').val('del');
+                }
+            });
+
             let addProductModal = new bootstrap.Modal(document.getElementById('addProduct'));
             let prodPages = new Pagination($('#addProduct .-pages'));
 
@@ -388,7 +430,7 @@
                 });
             }
 
-            // btn - 加入採購清單
+            // btn - 加入商品
             $('#addProduct .btn-ok').off('click').on('click', function() {
                 selectedProduct.forEach(p => {
                     if (!$(`tr.-cloneElem.--selectedP button[data-id="${p.id}"]`).length) {
