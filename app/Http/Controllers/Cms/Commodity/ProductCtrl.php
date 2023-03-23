@@ -126,7 +126,7 @@ class ProductCtrl extends Controller
     {
 
         $request->validate([
-            'files.*' => 'max:10000|mimes:jpg,jpeg,png,bmp',
+            'files.*' => 'max:5000|mimes:jpg,jpeg,png,bmp',
             'title' => 'required',
             'has_tax' => 'required',
             'active_sdate' => 'date|nullable',
@@ -1067,8 +1067,8 @@ class ProductCtrl extends Controller
     }
 
     /**
-     *  EXCEL匯出:欄位
-    商品名稱 / 廠商名稱 / 物流名稱 /物流方式 / 公開狀態/ 負責人
+     * EXCEL匯出:欄位
+     * 商品名稱 / 廠商名稱 / 物流名稱 /物流方式 / 公開狀態/ 負責人
      * 物流方式為 喜鴻出貨或廠商出貨唷
      * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
      */

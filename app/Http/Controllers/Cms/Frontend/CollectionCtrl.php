@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\Cms\Frontend;
 
 use App\Http\Controllers\Controller;
+use App\Models\Banner;
 use App\Models\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
@@ -51,7 +54,7 @@ class CollectionCtrl extends Controller
      */
     public function store(Request $request, Collection $collection)
     {
-       
+
         $request->validate([
             'collection_name' => [
                 'required',
@@ -65,14 +68,15 @@ class CollectionCtrl extends Controller
             'is_liquor' => ['required', 'int', 'min:0', 'max:1'],
             'id.*' => 'required|int|min:0',
             'sort.*' => 'required|int',
+            'img' => 'max:5000|mimes:jpg,jpeg,png,bmp',
         ]);
 
         $req = $request->all();
         if (!isset($req['url'])) {
             $req['url'] = $req['collection_name'];
         }
-
-        $collection->storeCollectionData(
+        DB::beginTransaction();
+        $id = $collection->storeCollectionData(
             $req['collection_name'],
             $req['url'],
             $req['meta_title'],
@@ -81,6 +85,17 @@ class CollectionCtrl extends Controller
             $req['is_liquor'],
             $req['id'],
             $req['sort']);
+
+        if ($request->hasfile('img')) {
+            $img = Banner::imgResize($request->file('img')->path());
+
+            $filename = Banner::imgFilename($id, $request->file('img')->hashName());
+            if (Storage::disk('local')->put($filename, $img)) {
+                $collection->where('id', $id)->update(['img_path' => $filename]);
+            }
+        }
+
+        DB::commit();
 
         return redirect(Route('cms.collection.index'));
     }
@@ -105,7 +120,7 @@ class CollectionCtrl extends Controller
      * @return \Illuminate\Http\Response
      */
     public function edit(Collection $collection, int $id)
-    {   
+    {
 
         $dataList = $collection->getCollectionDataById($id);
 
@@ -125,6 +140,7 @@ class CollectionCtrl extends Controller
      */
     public function update(Request $request, Collection $collection, int $id)
     {
+
         $ignoreId = $collection->where('id', $id)
             ->get()
             ->first()
@@ -141,9 +157,9 @@ class CollectionCtrl extends Controller
             'is_liquor' => 'required|int|min:0',
             'id.*' => 'required|int|min:0',
             'sort.*' => 'required|int',
+            'img' => 'max:5000|mimes:jpg,jpeg,png,bmp',
         ]);
 
-       
         $req = $request->all();
         if (!isset($req['url'])) {
             $req['url'] = $req['collection_name'];
@@ -155,6 +171,8 @@ class CollectionCtrl extends Controller
             $req['meta_description'] = '';
         }
 
+        DB::beginTransaction();
+
         $collection->updateCollectionData(
             $id,
             $req['collection_name'],
@@ -165,6 +183,21 @@ class CollectionCtrl extends Controller
             $req['id'],
             $req['sort'],
         );
+
+        if ($request->hasfile('img')) {
+            $img = Banner::imgResize($request->file('img')->path());
+
+            $filename = Banner::imgFilename($id, $request->file('img')->hashName());
+            if (Storage::disk('local')->put($filename, $img)) {
+                $collection->where('id', $id)->update(['img_path' => $filename]);
+            }
+        }
+       
+        if (isset($req['del_img']) && $req['del_img'] == 'del') {
+            $collection->where('id', $id)->update(['img_path' => null]);
+        }
+
+        DB::commit();
 
         return redirect(Route('cms.collection.index'));
     }

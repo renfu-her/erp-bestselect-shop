@@ -274,7 +274,7 @@
                     </label>
                 </div>
             </div>
-            <p><mark>圖片限制：不超過1MB，1000×1000px，可上傳JPG/ JPEG/ PNG/ BMP格式</mark></p>
+            <p><mark>圖片限制：不超過3MB，1000×1000px，可上傳JPG/ JPEG/ PNG/ BMP格式</mark></p>
             <input type="hidden" name="del_image">
             @error('files')
                 <div class="alert alert-danger" role="alert">{{ $message }}</div>
@@ -326,6 +326,7 @@
             bindReadImageFile($('#mediaSettings .upload_image_block label #product_img_add'), {
                 num: 'multiple',
                 fileInputName: 'files[]',
+                maxSize: 1024 * 3,
                 delFn: delImage,
                 movable: false, // 暫時無法排序
                 moveOpt: moveOpt
