@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Cms\Settings;
 use App\Enums\Globals\AppEnvClass;
 use App\Http\Controllers\Controller;
 use App\Models\ImgStorage;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\App;
@@ -26,10 +27,19 @@ class ImgStroageCtrl extends Controller
         $sDate = Arr::get($query, 'sDate');
         $eDate = Arr::get($query, 'eDate');
 
+        $userRoleTitle = User::getRoleTitleByUserId($request->user()->id);
+        $is_SA = false;
+        foreach ($userRoleTitle as $role) {
+            if ($role->title === '超級管理員') {
+                $is_SA = true;
+            }
+        }
+
         $dataList = ImgStorage::dataList($user_name, $sDate, $eDate);
 
         return view('cms.settings.img_storage.index', [
             'user' => $user_name,
+            'is_SA' => $is_SA,
             'dataList' => $dataList->paginate(12)->appends($query),
         ]);
     }
@@ -56,7 +66,10 @@ class ImgStroageCtrl extends Controller
         $request->validate([
             'file' => 'max:5000000|mimes:jpg,jpeg,png,bmp|required',
         ]);
-        $img = self::imgResize($request->file('file')->path());
+        $compress = $request->input('no_compress') ? false : true;
+        $w = $request->input('sa_w');
+        $h = $request->input('sa_h');
+        $img = self::imgResize($request->file('file')->path(), $compress, $w, $h);
 
         $filename = self::imgFilename($request->user()->id, $request->file('file')->hashName());
 
@@ -125,14 +138,25 @@ class ImgStroageCtrl extends Controller
         //
     }
 
-    private static function imgResize($path)
+    private static function imgResize($path, $compress, $w, $h)
     {
         try {
-            $asdf = Image::make($path)
-                ->resize(1000, 1000, function ($constraint) {
+            $asdf = Image::make($path);
+
+            if ($compress) {    // 要壓縮
+                $asdf = $asdf->resize(1000, 1000, function ($constraint) {
                     $constraint->aspectRatio();
                     $constraint->upsize();
-                })->encode('webp', 100);
+                })->encode('webp', 70);
+            } else {    // 不壓縮
+                if ($w !== null || $h !== null) {
+                    $asdf = $asdf->resize($w, $h, function ($constraint) {
+                        $constraint->aspectRatio();
+                        $constraint->upsize();
+                    });
+                }
+                $asdf = $asdf->encode('webp');
+            }
         } catch (\Exception $e) {
             dd($e);
             return false;
