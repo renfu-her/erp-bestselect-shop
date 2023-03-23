@@ -71,6 +71,21 @@
                                     <input type="file" name="file" accept=".jpg,.jpeg,.png,.bmp" style="width:100%;">
                                 </td>
                             </tr>
+                            @if ($is_SA)
+                                <tr>
+                                    <td class="title">進階設定</td>
+                                    <td>
+                                        <label>
+                                            <input name="no_compress" type="checkbox" onchange="compressChange(this)">
+                                            不壓縮
+                                        </label>
+                                        　
+                                        指定尺寸：<input name="sa_w" type="number" style="width:50px;" max="9999" disabled>
+                                        ×
+                                        <input name="sa_h" type="number" style="width:50px;" max="9999" disabled>
+                                    </td>
+                                </tr>
+                            @endif
                         </table>
                     </div>
                     @error('file')
@@ -162,6 +177,11 @@
         let input = document.getElementById(id);
         input.select();
         document.execCommand('Copy');
+    }
+    function compressChange(e) {
+        console.log(e.checked);
+        document.querySelectorAll('[name="sa_w"], [name="sa_h"]')
+        .forEach(el => el.disabled = !e.checked);
     }
 </script>
 </html>
