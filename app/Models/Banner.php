@@ -243,13 +243,13 @@ class Banner extends Model
         return $result;
     }
 
-    private static function imgResize($path)
+    public static function imgResize($path)
     {
         return Image::make($path)
             ->resize(1360, 453)->encode('webp', 90);
     }
 
-    private static function imgFilename($banner_id, $fileHashName)
+    public static function imgFilename($banner_id, $fileHashName)
     {
         return Banner::$path_banner . $banner_id . '/' . explode('.', $fileHashName)[0] . ".webp";
 

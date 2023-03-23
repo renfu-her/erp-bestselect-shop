@@ -79,6 +79,10 @@ if (!function_exists('getImageUrl')) {
      */
     function getImageUrl($subImageUrl, $cdn = false)
     {
+        if(!$subImageUrl){
+            return '';
+        }
+
         if (preg_match('/.*\/(cyberbiz|liquor)\/.*/', $subImageUrl) === 1) {
             return ImageDomain::CDN . $subImageUrl;
         }
