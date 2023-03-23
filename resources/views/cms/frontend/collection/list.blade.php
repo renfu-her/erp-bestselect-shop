@@ -37,7 +37,7 @@
                     <tr>
                         <th scope="col" style="width:10%">#</th>
                         <th scope="col">商品群組</th>
-                        <th scope="col">主圖</th>
+                        <th scope="col" class="text-center">主圖</th>
                         <th scope="col" class="text-center">公開</th>
                         <th scope="col" class="text-center">EDM</th>
                         <th scope="col" class="text-center">酒類</th>
@@ -52,9 +52,9 @@
                         <th scope="row">{{ $key + 1 }}</th>
                         <td>{{ $data->name }}</td>
                         <td class="text-center text-secondary">
-                            @if (isset($data->img))
-                                <a href="{{asset($data->img)}}" target="_blank">
-                                    <img style="max-width:100px;height:100%;" src="{{asset($data->img)}}" />
+                            @if (isset($data->img_path))
+                                <a href="{{asset($data->img_path)}}" target="_blank">
+                                    <img style="max-width:100px;height:100%;" src="{{asset($data->img_path)}}" />
                                 </a>
                             @else
                                 -
