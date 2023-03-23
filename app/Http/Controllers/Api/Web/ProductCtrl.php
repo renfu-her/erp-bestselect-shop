@@ -83,7 +83,7 @@ class ProductCtrl extends Controller
         $d = $request->all();
 
         $collection = Collection::where('id', $d['collection_id'])
-            ->select(['id', 'name', 'meta_title', 'meta_description', 'url'])
+            ->select(['id', 'name', 'meta_title', 'meta_description', 'url','img_path'])
             ->where('is_public', '1');
 
         if (isset($d['type'])) {
@@ -94,7 +94,7 @@ class ProductCtrl extends Controller
             $collection->where('is_liquor', '=', 0);
         }
         $collection = $collection->get()->first();
-
+        
         if (!$collection) {
             $re = [];
             $re[ResponseParam::status()->key] = 'E02';
@@ -102,6 +102,7 @@ class ProductCtrl extends Controller
 
             return response()->json($re);
         }
+        $collection->img_path = getImageUrl($collection->img_path);
 
         $sale_channel_id = 1;
 

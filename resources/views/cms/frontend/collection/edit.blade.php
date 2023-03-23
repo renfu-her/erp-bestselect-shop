@@ -7,7 +7,7 @@
             編輯
         @endif 商品群組
     </h2>
-    <form method="post" action="{{ $formAction }}">
+    <form method="post" action="{{ $formAction }}" enctype="multipart/form-data">
         @method('POST')
         @csrf
 
@@ -59,13 +59,13 @@
                     <div class="upload_image_block">
                         <label>
                             <!-- 按鈕 -->
-                            <span class="browser_box -plusBtn" @if(isset($collectionData->img)) hidden @endif>
+                            <span class="browser_box -plusBtn" @if(isset($collectionData->img_path)) hidden @endif>
                                 <i class="bi bi-plus-circle text-secondary fs-4"></i>
                             </span>
                             <!-- 預覽圖 -->
-                            <span class="browser_box box" @if(false == isset($collectionData->img)) hidden @endif>
+                            <span class="browser_box box" @if(false == isset($collectionData->img_path)) hidden @endif>
                                 <span class="icon -x"><i class="bi bi-x"></i></span>
-                                <img src="@if(true == isset($collectionData->img)) {{asset($collectionData->img)}} @endif" />
+                                <img src="@if(true == isset($collectionData->img_path)) {{asset($collectionData->img_path)}} @endif" />
                             </span>
                             <!-- 進度條 -->
                             <div class="progress" hidden>
