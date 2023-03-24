@@ -50,7 +50,7 @@
                 @foreach ($dataList as $key => $data)
                     <tr>
                         <th scope="row">{{ $key + 1 }}</th>
-                        <td>{{ $data->name }}</td>
+                        <td class="wrap">{{ $data->name }}</td>
                         <td class="text-center text-secondary">
                             @if (isset($data->img_path))
                                 <a href="{{asset($data->img_path)}}" target="_blank">
