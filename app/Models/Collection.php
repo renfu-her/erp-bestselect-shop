@@ -255,7 +255,7 @@ class Collection extends Model
             $result->where('name', 'like', "%$name%");
         }
 
-        return $result->paginate(10)
+        return $result->orderBy('created_at','DESC')->paginate(10)
             ->appends($query);
     }
 
