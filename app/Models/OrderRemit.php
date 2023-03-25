@@ -48,7 +48,11 @@ class OrderRemit extends Model
                 $email = 'eve1717@hotmail.com.tw';
                 $order = Order::where('id', '=', $order_id)->first();
                 $data = [ 'sn' => $order->sn ?? ''];
-                Mail::to($email)->queue(new CustomerOrderRemit($data));
+                try {
+                    Mail::to($email)->send(new CustomerOrderRemit($data));
+                } catch (\Exception $e) {
+                    echo '信件未寄出 '. $e->getMessage();
+                }
             }
 
             return ['success' => '1', 'id' => $id->id];

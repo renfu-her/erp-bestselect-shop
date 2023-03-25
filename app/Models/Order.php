@@ -1369,7 +1369,11 @@ class Order extends Model
                 , 'sn' => $order->sn ?? ''
                 , 'link_url' => $link_url,
             ];
-            Mail::to($email)->queue(new OrderEstablished($data));
+            try {
+                Mail::to($email)->queue(new OrderEstablished($data));
+            } catch (\Exception $e) {
+                echo '信件未寄出 '. $e->getMessage();
+            }
         }
     }
 
@@ -1393,7 +1397,11 @@ class Order extends Model
                 'order_name' => $orderer->name ?? ''
                 , 'sn' => $order->sn ?? '',
             ];
-            Mail::to($email)->queue(new OrderPaid($data));
+            try {
+                Mail::to($email)->queue(new OrderPaid($data));
+            } catch (\Exception $e) {
+                echo '信件未寄出 '. $e->getMessage();
+            }
         }
     }
 
@@ -1429,7 +1437,11 @@ class Order extends Model
                 , 'order_items' => $order_items ?? null
                 , 'sub_order' => $sub_order ?? null
             ];
-            Mail::to($email)->queue(new OrderShipped($data));
+            try {
+                Mail::to($email)->queue(new OrderShipped($data));
+            } catch (\Exception $e) {
+                echo '信件未寄出 '. $e->getMessage();
+            }
         }
     }
 
