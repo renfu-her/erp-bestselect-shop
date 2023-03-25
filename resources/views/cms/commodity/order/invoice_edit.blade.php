@@ -196,7 +196,7 @@
                 </div>
             </div>
 
-            <div class="row carrier{{ old('invoice_method') == 'e_inv' ? '' : ( (!old('invoice_method') && $invoice->print_flag == 'N') ? '' : ' d-none') }}">
+            <div class="row carrier{{ old('invoice_method') == 'e_inv' ? '' : ( (!old('invoice_method') && $invoice->print_flag == 'N') ? '' : ' d-none ') }}">
                 <fieldset class="col-12 col-sm-6 mb-3">
                     <legend class="col-form-label p-0 mb-2">載具類型 <span class="text-danger">*</span></legend>
                     <div class="px-1 pt-1">
