@@ -129,7 +129,7 @@
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label l_buyer_email">買受人E-mail{!! $order->carrier_type == '會員載具' ? ' <span class="text-danger">*</span>' : '' !!}</label>
                     <input type="email" name="buyer_email" class="form-control @error('buyer_email') is-invalid @enderror" placeholder="請輸入買受人E-mail" aria-label="買受人E-mail"
-                           value="{{ old('buyer_email', $order->buyer_email ? $order->buyer_email : ( $order->carrier_type == '會員載具' ? $order->carrier_num : $order->email) ) }}" {{ $order->carrier_num == '會員載具' ? 'required' : '' }}>
+                           value="{{ old('buyer_email', $order->buyer_email ? $order->buyer_email : ( $order->carrier_type == '會員載具' ? $order->carrier_num : $order->email) ) }}" {{ $order->carrier_type == '會員載具' ? 'required' : '' }}>
                     <div class="invalid-feedback">
                         @error('buyer_email')
                         {{ $message }}
@@ -205,7 +205,7 @@
                 </div>
             </div>
 
-            <div class="row carrier{{ old('invoice_method') == 'e_inv' ? '' : ( (!old('invoice_method') && $order->invoice_category == '電子發票') ? '' : ' d-none') }}">
+            <div class="row carrier{{ old('invoice_method') == 'e_inv' ? '' : ( (!old('invoice_method') && $order->invoice_category == '電子發票') ? '' : ' d-none' ) }}">
                 <fieldset class="col-12 col-sm-6 mb-3">
                     <legend class="col-form-label p-0 mb-2">載具類型 <span class="text-danger">*</span></legend>
                     <div class="px-1 pt-1">
