@@ -34,6 +34,10 @@
                         @if($check_invoice_invalid)
                             <button type="button" class="btn btn-sm btn-outline-danger mb-1" data-bs-toggle="modal" data-bs-target="#confirm-invalid-invoice">發票作廢</button>
                         @endif
+
+                        @if($check_inv_cancel)
+                            <button type="button" class="btn btn-sm btn-outline-danger mb-1" data-bs-toggle="modal" data-bs-target="#confirm-cancel-invoice">發票取消</button>
+                        @endif
                     @endif
                 @endif
             @endcan
@@ -168,7 +172,7 @@
 
                                     <a href="{{ Route('cms.order.edit-allowance', ['id' => $value->invoice_id, 'allowance_id' => $value->id]) }}" class="btn btn-sm btn-success" role="button">編輯折讓</a>
 
-                                @elseif($value->r_status == 'SUCCESS')
+                                @elseif($value->r_status == 'SUCCESS' && $value->r_invalid_status != 'SUCCESS')
                                     <button type="button" class="btn btn-sm btn-outline-danger allowance-invalid" data-bs-toggle="modal" data-bs-target="#confirm-allowance-invalid" data-action="{{ route('cms.order.send-invoice', ['id' => $value->invoice_id, 'action' => 'allowanceInvalid', 'allowance_id' => $value->id]) }}">作廢折讓</button>
                                 @endif
                             </td>
@@ -246,6 +250,22 @@
         </x-slot>
     </x-b-modal>
 
+    <x-b-modal id="confirm-cancel-invoice">
+        <x-slot name="title">發票取消</x-slot>
+
+        <x-slot name="body">
+            <form action="{{ Route('cms.order.send-invoice', ['id' => $invoice->id, 'action' => 'cancel']) }}" method="POST">
+                @csrf
+                <p>確認要取消此發票？</p>
+
+                <div class="col-auto float-end">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-danger">確認</button>
+                </div>
+            </form>
+        </x-slot>
+    </x-b-modal>
+
     <x-b-modal id="confirm-invalid-invoice">
         <x-slot name="title">發票作廢</x-slot>
 
@@ -303,6 +323,9 @@
         <script>
             // Modal Control
             $('#confirm-issue-invoice').on('show.bs.modal', function(e) {
+                $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
+            });
+            $('#confirm-cancel-invoice').on('show.bs.modal', function(e) {
                 $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
             });
             $('#confirm-invalid-invoice').on('show.bs.modal', function(e) {

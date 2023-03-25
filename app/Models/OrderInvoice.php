@@ -837,6 +837,22 @@ class OrderInvoice extends Model
     }
 
 
+    public static function invoice_cancel($id)
+    {
+        $target = self::findOrFail($id);
+
+        $target->update([
+            'deleted_at'=>date('Y-m-d H:i:s'),
+        ]);
+
+        self::where('invoice_id', $target->id)->update([
+            'invoice_id' => null,
+        ]);
+
+        return $target;
+    }
+
+
     public static function getData($param)
     {
         $query = DB::table(app(OrderInvoice::class)->getTable(). ' as ord_invoice')
