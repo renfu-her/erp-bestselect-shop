@@ -21,6 +21,7 @@
                             @foreach ($unit['child'] as $unit2)
                                 <li class="{{ isActive($unit2['controller_name'], $controllerName) }}">
                                     <a href="{{ Route($unit2['route_name']) }}"
+                                        @if (isset($unit2['target'])) target="{{ $unit2['target'] }}" @endif
                                         class="link-dark nav-link">{{ $unit2['title'] }}</a>
                                 </li>
                             @endforeach

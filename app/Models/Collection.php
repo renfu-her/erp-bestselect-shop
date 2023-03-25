@@ -138,6 +138,8 @@ class Collection extends Model
                     'product_id_fk' => $productIdArray[$i],
                 ]);
         }
+
+        return $collectionId;
     }
 
     public function getCollectionDataById(int $id)
@@ -153,6 +155,7 @@ class Collection extends Model
                 'collection.meta_title',
                 'collection.meta_description',
                 'collection.is_liquor',
+                'collection.img_path',
                 'prd_products.id',
                 'prd_products.title',
                 'prd_products.sku',
@@ -252,7 +255,7 @@ class Collection extends Model
             $result->where('name', 'like', "%$name%");
         }
 
-        return $result->paginate(10)
+        return $result->orderBy('created_at','DESC')->paginate(10)
             ->appends($query);
     }
 

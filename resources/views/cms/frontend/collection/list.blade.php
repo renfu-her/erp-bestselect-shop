@@ -33,23 +33,33 @@
 
         <div class="table-responsive tableOverBox">
             <table class="table table-striped tableList">
-                <thead>
-                <tr>
-                    <th scope="col" style="width:10%">#</th>
-                    <th scope="col">商品群組</th>
-                    <th scope="col" class="text-center">公開上架</th>
-                    <th scope="col" class="text-center">EDM</th>
-                    <th scope="col" class="text-center">酒類</th>
-                    <th scope="col" class="text-center">複製連結</th>
-                    <th scope="col" class="text-center">編輯</th>
-                    <th scope="col" class="text-center">刪除</th>
-                </tr>
+                <thead class="align-middle">
+                    <tr>
+                        <th scope="col" style="width:10%">#</th>
+                        <th scope="col">商品群組</th>
+                        <th scope="col" class="text-center">主圖</th>
+                        <th scope="col" class="text-center">公開</th>
+                        <th scope="col" class="text-center">EDM</th>
+                        <th scope="col" class="text-center">酒類</th>
+                        <th scope="col" class="text-center lh-1 small">複製<br>連結</th>
+                        <th scope="col" class="text-center">編輯</th>
+                        <th scope="col" class="text-center">刪除</th>
+                    </tr>
                 </thead>
                 <tbody>
                 @foreach ($dataList as $key => $data)
                     <tr>
                         <th scope="row">{{ $key + 1 }}</th>
-                        <td>{{ $data->name }}</td>
+                        <td class="wrap">{{ $data->name }}</td>
+                        <td class="text-center text-secondary">
+                            @if (isset($data->img_path))
+                                <a href="{{asset($data->img_path)}}" target="_blank">
+                                    <img style="max-width:100px;height:100%;" src="{{asset($data->img_path)}}" />
+                                </a>
+                            @else
+                                -
+                            @endif
+                        </td>
 
                         <td class="text-center">
                             <div class="form-check form-switch form-switch-lg">

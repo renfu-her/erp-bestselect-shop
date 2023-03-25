@@ -413,16 +413,22 @@ return
             ],
         ],
     ],
-        [
-            "title" => "修正",
-            "icon" => "bi-wrench-adjustable-circle",
-            "menu_id" => "9",
-            "child" => [
-                [
-                    "title" => "採購單庫存比較0917匯入",
-                    "controller_name" => "InboundFix0917ImportCtrl",
-                    "route_name" => "cms.inbound_fix0917_import.index",
-                ],
+    [
+        "title" => "修正",
+        "icon" => "bi-wrench-adjustable-circle",
+        "menu_id" => "9",
+        "child" => [
+            [
+                "title" => "採購單庫存比較0917匯入",
+                "controller_name" => "InboundFix0917ImportCtrl",
+                "route_name" => "cms.inbound_fix0917_import.index",
             ],
+            [
+                "title" => "上傳圖片",
+                "controller_name" => "ImgStroageCtrl",
+                "route_name" => "cms.img-storage.index",
+                "target" => "_blank"
+            ]
         ],
+    ],
 ];

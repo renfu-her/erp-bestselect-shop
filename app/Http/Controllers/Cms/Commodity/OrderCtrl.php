@@ -2476,8 +2476,13 @@ class OrderCtrl extends Controller
         $inv_allowance = OrderInvoiceAllowance::where('invoice_id', $invoice->id)->orderBy('id', 'desc')->withTrashed()->get();
         $inv_allowance_total_amt_sum = OrderInvoiceAllowance::where('invoice_id', $invoice->id)->get()->sum('total_amt');
         $check_inv_allowance = true;
+        $check_inv_cancel = false;
         if ($invoice->total_amt <= $inv_allowance_total_amt_sum) {
             $check_inv_allowance = false;
+
+            if($invoice->total_amt <= OrderInvoiceAllowance::where('invoice_id', $invoice->id)->where('r_status', 'SUCCESS')->get()->sum('total_amt')) {
+                $check_inv_cancel = true;
+            }
         }
 
         return view($view, [
@@ -2488,6 +2493,7 @@ class OrderCtrl extends Controller
             'handler' => $handler,
             'check_invoice_invalid' => $check_invoice_invalid,
             'check_inv_allowance' => $check_inv_allowance,
+            'check_inv_cancel' => $check_inv_cancel,
             // 'order' => $order,
             // 'sub_order' => $sub_order,
         ]);
@@ -2795,7 +2801,7 @@ class OrderCtrl extends Controller
         ]);
         $request->validate([
             'id' => 'required|exists:ord_order_invoice,id',
-            'action' => 'required|in:issue,invalid,allowance_issue,allowanceInvalid',
+            'action' => 'required|in:issue,invalid,allowance_issue,allowanceInvalid,cancel',
             'allowance_id' => 'nullable|exists:ord_order_invoice_allowance,id',
         ]);
 
@@ -2856,6 +2862,22 @@ class OrderCtrl extends Controller
             $inv_result = OrderInvoice::allowance_invalid_api($allowance_id, request('invalid_reason'));
 
             wToast(__($inv_result->r_invalid_msg));
+        } else if ($action == 'cancel') {
+            $inv_result = OrderInvoice::invoice_cancel($id);
+
+            if ($inv_result->source_type == app(Order::class)->getTable()) {
+                $parm = [
+                    'order_id' => $inv_result->source_id,
+                    'invoice_number' => null,
+                ];
+                Order::update_invoice_info($parm);
+            }
+
+            wToast(__('發票取消成功'));
+
+            return redirect()->route('cms.order.detail', [
+                'id' => $inv_result->source_id,
+            ]);
         }
 
         if (!$inv_result) {

@@ -38,7 +38,7 @@
                 @if (true == isset($data->img_pc))
                     <div class="input-group col-auto ms-1">
                         <a href="{{asset($data->img_pc)}}" target="_blank">
-                            <img style="max-width:100px" src="{{asset($data->img_pc)}}" />
+                            <img style="max-width:100px;height:100%;" src="{{asset($data->img_pc)}}" />
                         </a>
                     </div>
                 @endif
