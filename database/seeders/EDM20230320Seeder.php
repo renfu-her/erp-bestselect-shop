@@ -23,12 +23,12 @@ class EDM20230320Seeder extends Seeder
     {
         try{
             $asdf = Mail::to("ittmsapp@gmail.com")->send(new EDM20230320());
-            $asdfg = Mail::to("jadson.lin@wingwill.com.tw")->send(new EDM20230320());
+//            $asdfg = Mail::to("jadson.lin@wingwill.com.tw")->send(new EDM20230320());
         } catch (\Exception $e) {
             dd($e);
         }
 //        dispatch(new EDM20230320Job("ittmsapp@gmail.com"))->delay(now()->addSeconds(1 * 3));
-        dd($asdf, $asdfg);
+        dd($asdf);
         echo "ok";
 //        // 發郵件EDM
 //        // 先檢查會員是否有訂閱
