@@ -17,7 +17,8 @@
 </head>
 <body>
 <div class="container">
-    hi there 20230327 02
+    <a href="{{$hrefToGo}}"></a>
+    <img src="{{$image}}">
 </div>
 </body>
 </html>
