@@ -508,6 +508,7 @@ class CollectionPaymentCtrl extends Controller
                         'total_price' => $value->total_price,
                         'note' => $value->memo,
                         'po_note' => $value->po_note,
+                        'read_only' => false,
                     ];
                 }
 
@@ -561,6 +562,7 @@ class CollectionPaymentCtrl extends Controller
                         'total_price' =>$value->total_price,
                         'note' =>$value->memo,
                         'po_note' =>$value->po_note,
+                        'read_only' => false,
                     ];
                 }
 
@@ -576,6 +578,7 @@ class CollectionPaymentCtrl extends Controller
                         'total_price' =>$value->product_origin_price,
                         'note' =>$value->product_note,
                         'po_note' =>$value->product_po_note,
+                        'read_only' => false,
                     ];
                 }
 
@@ -605,7 +608,7 @@ class CollectionPaymentCtrl extends Controller
                         'total_price' => $value->total_price,
                         'note' => $value->note,
                         'po_note' => $value->po_note,
-                        'read_only' => ($value->event_item_id ? '' : true),
+                        'read_only' => ($value->event_item_id ? false : true),
                     ];
                 }
 
@@ -622,6 +625,7 @@ class CollectionPaymentCtrl extends Controller
                         'total_price' => $value->refund_total_price,
                         'note' => $value->refund_note,
                         'po_note' => $value->refund_po_note,
+                        'read_only' => false,
                     ];
                 }
             }
