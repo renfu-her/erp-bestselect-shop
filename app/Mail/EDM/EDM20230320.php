@@ -27,7 +27,7 @@ class EDM20230320 extends Mailable
     public function build()
     {
         $data = [
-            'hrefToGo' => 'https://bit.ly/3ZVwtue',
+            'hrefToGo' => 'https://www.bestselection.com.tw/collection/165?openExternalBrowser=1&utm_source=dm&utm_medium=email&utm_campaign=Chiayi&utm_term=2023-03-17',
             'image' => "https://images-besttour.cdn.hinet.net/product_intro/imgs/137/5nJefdygvssWLG6eLzKFpcSk9BRQOs8FE1gC8qLP.webp"
         ];
         return $this
