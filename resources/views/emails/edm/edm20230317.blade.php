@@ -17,7 +17,7 @@
 </head>
 <body>
 <div class="container">
-    <img src="{{$image}}">
+    <a href="{{$hrefToGo}}">點我到購物站台</a>
 </div>
 </body>
 </html>
