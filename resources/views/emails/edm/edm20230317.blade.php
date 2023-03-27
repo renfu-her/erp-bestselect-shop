@@ -17,7 +17,6 @@
 </head>
 <body>
 <div class="container">
-    <a href="{{$hrefToGo}}"></a>
     <img src="{{$image}}">
 </div>
 </body>
