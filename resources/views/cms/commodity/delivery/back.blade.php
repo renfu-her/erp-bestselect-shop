@@ -37,6 +37,7 @@
                             <th>SKU</th>
                             <th>價格</th>
                             <th>扣除獎金</th>
+                            <th>扣除購物金</th>
                             <th>原數量</th>
                             <th class="text-center" style="width: 10%">欲退數量</th>
                             <th>說明</th>
@@ -69,7 +70,11 @@
                                     </td>
                                     <td>
                                         <input type="number" value="{{ $item->bonus ?? '' }}" name="bonus[]"
-                                            class="form-control form-control-sm -sm" min="0" step="0.01" required>
+                                               class="form-control form-control-sm -sm" min="0" step="0.01" required>
+                                    </td>
+                                    <td>
+                                        <input type="number" value="{{ $item->dividend ?? 0 }}" name="dividend[]"
+                                               class="form-control form-control-sm -sm" min="0" step="1" required>
                                     </td>
                                     <td class="text-center">{{ $item->origin_qty ? number_format($item->origin_qty) : 0 }}</td>
                                     @if('create' == $method || isset($bacPapa) && null == $bacPapa->inbound_date)

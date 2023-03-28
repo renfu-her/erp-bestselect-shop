@@ -30,6 +30,7 @@ class DlvBack extends Model
                 , 'dlv_back.origin_qty'
                 , 'dlv_back.qty as back_qty'
                 , DB::raw('ifnull(dlv_back.bonus, "") as bonus')
+                , 'dlv_back.dividend'
                 , 'dlv_back.memo'
                 , 'dlv_back.show'
             );
