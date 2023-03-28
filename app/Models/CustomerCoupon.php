@@ -65,13 +65,9 @@ class CustomerCoupon extends Model
                 $edate = date('Y-m-d 23:59:59', strtotime($date . " + $counpon->limit_day days"));
             }
 
-            $discount = Discount::find($counpon->discount_id);
-
             self::where('id', $counpon->id)->update([
                 'active_sdate' => $sdate,
                 'active_edate' => $edate,
-                'mail_subject' => $discount->mail_subject,
-                'mail_content' => $discount->mail_content,
             ]);
         }
 

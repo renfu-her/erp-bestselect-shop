@@ -414,6 +414,7 @@ class DeliveryCtrl extends Controller
             'sku.*' => 'required|string',
             'price.*' => 'required|numeric',
             'bonus.*' => 'required|numeric',
+            'dividend.*' => 'required|numeric',
             'origin_qty.*' => 'required|numeric',
             'back_qty.*' => 'required|numeric',
             'memo.*' => 'nullable|string',
@@ -448,7 +449,7 @@ class DeliveryCtrl extends Controller
             $sub_order = SubOrders::where('id', '=', $delivery->event_id)->first();
             $order = Order::where('id', '=', $sub_order->order_id)->first();
 
-            $input_items = $request->only('id', 'event_item_id', 'product_style_id', 'product_title', 'sku', 'price', 'bonus', 'origin_qty', 'back_qty', 'memo', 'show');
+            $input_items = $request->only('id', 'event_item_id', 'product_style_id', 'product_title', 'sku', 'price', 'bonus', 'dividend', 'origin_qty', 'back_qty', 'memo', 'show');
 
             if (isset($input_items['id']) && 0 < count($input_items['id'])) {
                 if(true == isset($input_items['id'][0])) {
@@ -460,6 +461,7 @@ class DeliveryCtrl extends Controller
                             'product_title' => $input_items['product_title'][$i],
                             'price' => $input_items['price'][$i],
                             'bonus' => $input_items['bonus'][$i],
+                            'dividend' => $input_items['dividend'][$i],
                             'qty' => $input_items['back_qty'][$i],
                             'memo' => $input_items['memo'][$i],
                             'show' => $input_items['show'][$i] ?? false,
@@ -478,6 +480,7 @@ class DeliveryCtrl extends Controller
                             'product_title' => $input_items['product_title'][$i],
                             'price' => $input_items['price'][$i],
                             'bonus' => $input_items['bonus'][$i],
+                            'dividend' => $input_items['dividend'][$i],
                             'origin_qty' => $input_items['origin_qty'][$i],
                             'qty' => $input_items['back_qty'][$i],
                             'memo' => $input_items['memo'][$i],
@@ -536,6 +539,7 @@ class DeliveryCtrl extends Controller
                                 'sku' => '',
                                 'origin_qty' => 0,
                                 'bonus' => '',
+                                'dividend' => 0,
                                 'show' => 1,
                             ]);
                         }
@@ -923,6 +927,7 @@ class DeliveryCtrl extends Controller
             'sku.*' => 'required|string',
             'price.*' => 'required|numeric',
             'bonus.*' => 'required|numeric',
+            'dividend.*' => 'required|numeric',
             'origin_qty.*' => 'required|numeric',
             'back_qty.*' => 'required|numeric',
             'memo.*' => 'nullable|string',
@@ -1027,6 +1032,7 @@ class DeliveryCtrl extends Controller
             'sku.*' => 'required|string',
             'price.*' => 'required|numeric',
             'bonus.*' => 'required|numeric',
+            'dividend.*' => 'required|numeric',
             'origin_qty.*' => 'required|numeric',
             'back_qty.*' => 'required|numeric',
             'memo.*' => 'nullable|string',
@@ -1066,7 +1072,7 @@ class DeliveryCtrl extends Controller
 
     private function do_back_store(Request $request, $delivery, $bac_papa_id) {
         $msg = IttmsDBB::transaction(function () use ($request, $delivery, $bac_papa_id) {
-            $input_items = $request->only('id', 'event_item_id', 'product_style_id', 'product_title', 'sku', 'price', 'bonus', 'origin_qty', 'back_qty', 'memo', 'show');
+            $input_items = $request->only('id', 'event_item_id', 'product_style_id', 'product_title', 'sku', 'price', 'bonus', 'dividend', 'origin_qty', 'back_qty', 'memo', 'show');
             if (isset($input_items['id']) && 0 < count($input_items['id'])) {
                 if(true == isset($input_items['id'][0])) {
                     //已有資料 做編輯
@@ -1075,6 +1081,7 @@ class DeliveryCtrl extends Controller
                             'product_title' => $input_items['product_title'][$i],
                             'price' => $input_items['price'][$i],
                             'bonus' => $input_items['bonus'][$i],
+                            'dividend' => $input_items['dividend'][$i],
                             'qty' => $input_items['back_qty'][$i],
                             'memo' => $input_items['memo'][$i],
                             'show' => $input_items['show'][$i] ?? false,
@@ -1099,6 +1106,7 @@ class DeliveryCtrl extends Controller
                             'product_title' => $input_items['product_title'][$i],
                             'price' => $input_items['price'][$i],
                             'bonus' => $input_items['bonus'][$i],
+                            'dividend' => $input_items['dividend'][$i],
                             'origin_qty' => $input_items['origin_qty'][$i],
                             'qty' => $input_items['back_qty'][$i],
                             'memo' => $input_items['memo'][$i],
@@ -1158,6 +1166,7 @@ class DeliveryCtrl extends Controller
                                 'sku' => '',
                                 'origin_qty' => 0,
                                 'bonus' => '',
+                                'dividend' => 0,
                                 'show' => 1,
                             ]);
                         }

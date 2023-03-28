@@ -143,6 +143,7 @@
                         <th scope="col" class="text-end">退款<br class="d-block d-lg-none">金額</th>
 {{--                        <th scope="col" class="text-end">經銷價</th>--}}
                         <th scope="col" class="text-end">扣除<br class="d-block d-lg-none">獎金</th>
+                        <th scope="col" class="text-end">扣除<br class="d-block d-lg-none">購物金</th>
                         <th scope="col" class="text-center">退回<br class="d-block d-lg-none">數量</th>
                         <th scope="col" class="text-end">小計</th>
                         <th scope="col">說明</th>
@@ -164,6 +165,7 @@
                             <td class="text-end">${{ number_format($item->price, 2) }}</td>
 {{--                            <td class="text-end">${{ number_format(450) }}</td>--}}
                             <td class="text-end">${{ number_format($item->bonus, 2) }}</td>
+                            <td class="text-end">${{ number_format($item->dividend, 0) }}</td>
                             <td class="text-center">{{ number_format($item->back_qty) }}</td>
                             <td class="text-end">${{ number_format($subtotal) }}</td>
                             <td>{{ $item->memo ?? '' }}</td>
