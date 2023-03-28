@@ -538,6 +538,8 @@ class Discount extends Model
                             'limit_day' => $_coupon->life_cycle,
                             'customer_id' => $customer->id,
                             'discount_id' => $n->coupon_id,
+                            'mail_subject' => $_coupon->mail_subject,
+                            'mail_content' => $_coupon->mail_content,
                         ]);
                     }
                     break;
