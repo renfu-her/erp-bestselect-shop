@@ -35,7 +35,7 @@
                             <th class="text-center">退貨</th>
                             <th>商品名稱</th>
                             <th>SKU</th>
-                            <th>價格</th>
+                            <th>退款金額</th>
                             <th>扣除獎金</th>
                             <th>扣除購物金</th>
                             <th>原數量</th>
