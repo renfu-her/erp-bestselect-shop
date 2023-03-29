@@ -23,7 +23,7 @@ class OrderInvoiceManagerCtrl extends Controller
 
         $cond['data_per_page'] = getPageCount(Arr::get($query, 'data_per_page', 100)) > 0 ? getPageCount(Arr::get($query, 'data_per_page', 100)) : 100;;
 
-        $data_list = OrderInvoice::getData($cond)->paginate($cond['data_per_page'])->appends($query);
+        $data_list = OrderInvoice::getData($cond, true)->paginate($cond['data_per_page'])->appends($query);
 
         return view('cms.account_management.order_invoice_manager.list', [
             'data_per_page' => $cond['data_per_page'],
