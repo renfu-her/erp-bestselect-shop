@@ -122,6 +122,7 @@
                         <th scope="col">寄倉單號</th>
                         <th scope="col" class="text-center">編輯</th>
                         <th scope="col">寄倉出貨單號</th>
+                        <th scope="col">審核狀態</th>
                         <th scope="col">配送狀態</th>
                         <th scope="col">出貨倉庫</th>
                         <th scope="col">入庫倉庫</th>
@@ -145,6 +146,7 @@
                                     @endcan
                                 </td>
                                 <td>{{ $data->dlv_sn }}</td>
+                                <td>{{ $data->audit_status_str?? '' }}</td>
                                 <td>{{ $data->logistic_status }}</td>
                                 <td>{{ $data->send_depot_name?? '' }}</td>
                                 <td>{{ $data->receive_depot_name?? '' }}</td>
@@ -169,7 +171,6 @@
                                             <th scope="col">採購入庫單號</th>
                                             <th scope="col">商品名稱</th>
                                             <th scope="col">SKU碼</th>
-                                            <th scope="col">審核狀態</th>
                                             <th scope="col">寄倉日期</th>
                                             <th scope="col">寄倉數量</th>
                                             <th scope="col">入倉狀態</th>
@@ -185,7 +186,6 @@
                                                     <td>{{ $subGroup->origin_inbound_sn }}</td>
                                                     <td>{{ $subGroup->title }}</td>
                                                     <td>{{ $subGroup->sku }}</td>
-                                                    <td>{{ $subGroup->audit_status_str?? '' }}</td>
                                                     <td>{{ $subGroup->created_at }}</td>
                                                     <td>{{ $subGroup->num }}</td>
                                                     <td>{{ $subGroup->inbound_type }}</td>
