@@ -2414,10 +2414,14 @@ class OrderCtrl extends Controller
         ]);
 
         $source_type = app(Order::class)->getTable();
-        $invoice = OrderInvoice::where([
-            'source_type' => $source_type,
-            'source_id' => $id,
-        ])->firstOrFail();
+        if(request('sid')){
+            $invoice = OrderInvoice::withTrashed()->findOrFail(request('sid'));
+        } else {
+            $invoice = OrderInvoice::where([
+                'source_type' => $source_type,
+                'source_id' => $id,
+            ])->firstOrFail();
+        }
 
         $handler = User::find($invoice->user_id);
 
