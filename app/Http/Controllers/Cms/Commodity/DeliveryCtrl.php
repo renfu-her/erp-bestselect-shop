@@ -449,6 +449,17 @@ class DeliveryCtrl extends Controller
             $sub_order = SubOrders::where('id', '=', $delivery->event_id)->first();
             $order = Order::where('id', '=', $sub_order->order_id)->first();
 
+            $event = null;
+            $event_id = null;
+            $sub_event_id = null;
+            if (Event::order() == $delivery->event) {
+                $event = $delivery->event;
+                $event_id = $sub_order->order_id;
+                $sub_event_id = $delivery->event_id;
+            } else {
+                $event = $delivery->event;
+                $event_id = $delivery->event_id;
+            }
             $input_items = $request->only('id', 'event_item_id', 'product_style_id', 'product_title', 'sku', 'price', 'bonus', 'dividend', 'origin_qty', 'back_qty', 'memo', 'show');
 
             if (isset($input_items['id']) && 0 < count($input_items['id'])) {
@@ -474,6 +485,9 @@ class DeliveryCtrl extends Controller
                     for($i = 0; $i < count($input_items['id']); $i++) {
                         $addItem = [
                             'delivery_id' => $delivery_id,
+                            'event' => $event,
+                            'event_id' => $event_id,
+                            'sub_event_id' => $sub_event_id,
                             'event_item_id' => $input_items['event_item_id'][$i],
                             'product_style_id' => $input_items['product_style_id'][$i],
                             'sku' => $input_items['sku'][$i],
@@ -530,6 +544,9 @@ class DeliveryCtrl extends Controller
                             }
                             DlvOutStock::create([
                                 'delivery_id' => $delivery_id,
+                                'event' => $event,
+                                'event_id' => $event_id,
+                                'sub_event_id' => $sub_event_id,
                                 'grade_id' => $input_other_items['bgrade_id'][$key],
                                 'type' => DlvOutStockType::other()->value,
                                 'product_title' => $input_other_items['btitle'][$key],
@@ -1072,6 +1089,19 @@ class DeliveryCtrl extends Controller
 
     private function do_back_store(Request $request, $delivery, $bac_papa_id) {
         $msg = IttmsDBB::transaction(function () use ($request, $delivery, $bac_papa_id) {
+            $event = null;
+            $event_id = null;
+            $sub_event_id = null;
+            if (Event::order() == $delivery->event) {
+                $event = $delivery->event;
+                $sub_order = SubOrders::where('id', '=', $delivery->event_id)->first();
+                $event_id = $sub_order->order_id;
+                $sub_event_id = $delivery->event_id;
+            } else {
+                $event = $delivery->event;
+                $event_id = $delivery->event_id;
+            }
+
             $input_items = $request->only('id', 'event_item_id', 'product_style_id', 'product_title', 'sku', 'price', 'bonus', 'dividend', 'origin_qty', 'back_qty', 'memo', 'show');
             if (isset($input_items['id']) && 0 < count($input_items['id'])) {
                 if(true == isset($input_items['id'][0])) {
@@ -1100,6 +1130,9 @@ class DeliveryCtrl extends Controller
                         $addItem = [
                             'bac_papa_id' => $bac_papa_id,
                             'delivery_id' => $delivery->id,
+                            'event' => $event,
+                            'event_id' => $event_id,
+                            'sub_event_id' => $sub_event_id,
                             'event_item_id' => $input_items['event_item_id'][$i],
                             'product_style_id' => $input_items['product_style_id'][$i],
                             'sku' => $input_items['sku'][$i],
@@ -1157,6 +1190,9 @@ class DeliveryCtrl extends Controller
                             DlvBack::create([
                                 'bac_papa_id' => $bac_papa_id,
                                 'delivery_id' => $delivery->id,
+                                'event' => $event,
+                                'event_id' => $event_id,
+                                'sub_event_id' => $sub_event_id,
                                 'grade_id' => $input_other_items['bgrade_id'][$key],
                                 'type' => DlvBackType::other()->value,
                                 'product_title' => $input_other_items['btitle'][$key],
