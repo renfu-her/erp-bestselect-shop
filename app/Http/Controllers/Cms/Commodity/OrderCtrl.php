@@ -557,12 +557,14 @@ class OrderCtrl extends Controller
             'source_type' => $source_type,
             'source_id' => $id,
             'action' => 'confirm',
+            'return_code' => '0000',
         ])->where('authamt', '>', 0)->orderBy('id', 'DESC')->first();
 
         $pay_out_log = OrderPayLinePay::where([
             'source_type' => $source_type,
             'source_id' => $id,
             'action' => 'refund',
+            'return_code' => '0000',
         ])->where('authamt', '>', 0)->get();
 
         $pay_in = $pay_in_log ? $pay_in_log->authamt : 0;
@@ -2901,12 +2903,14 @@ class OrderCtrl extends Controller
             'source_type' => $source_type,
             'source_id' => $source_id,
             'action' => 'confirm',
+            'return_code' => '0000',
         ])->where('authamt', '>', 0)->orderBy('id', 'DESC')->first();
 
         $pay_out_log = OrderPayLinePay::where([
             'source_type' => $source_type,
             'source_id' => $source_id,
             'action' => 'refund',
+            'return_code' => '0000',
         ])->where('authamt', '>', 0)->get();
 
         $pay_in = $pay_in_log ? $pay_in_log->authamt : 0;
