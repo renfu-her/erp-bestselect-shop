@@ -91,7 +91,11 @@
                         <tr>
                             <td>{{ $key + 1 }}</td>
                             @if(app(\App\Models\Order::class)->getTable() == $data->source_type)
-                                <td><a href="{{ route('cms.order.show-invoice', ['id' => $data->source_id, 'unique_id' => $data->unique_id]) }}">{{ $data->invoice_number }}</a></td>
+                                @if(! $data->deleted_at)
+                                    <td><a href="{{ route('cms.order.show-invoice', ['id' => $data->source_id, 'unique_id' => $data->unique_id]) }}">{{ $data->invoice_number }}</a></td>
+                                @else
+                                    <td><a href="{{ route('cms.order.show-invoice', ['id' => $data->source_id, 'unique_id' => $data->unique_id, 'sid' => $data->id]) }}">{{ $data->invoice_number }}</a></td>
+                                @endif
                             @else
                                 <td>{{ $data->invoice_number }}</td>
                             @endif
