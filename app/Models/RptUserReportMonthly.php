@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Helpers\IttmsUtils;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -56,9 +57,19 @@ class RptUserReportMonthly extends Model
         $re = DB::table('ord_orders as order')
             ->leftJoin('ord_received_orders as ro', 'order.id', '=', 'ro.source_id')
             ->leftJoin('prd_sale_channels as sale_channel', 'sale_channel.id', '=', 'order.sale_channel_id')
+            ->leftJoin('dlv_back', function ($join) {
+                $join->on('dlv_back.event_id', '=', 'order.id')
+                    ->where('dlv_back.event', "order");
+            })
+            ->leftJoin('dlv_out_stock', function ($join) {
+                $join->on('dlv_out_stock.event_id', '=', 'order.id')
+                    ->where('dlv_out_stock.event', "order");
+            })
             ->select(['order.sn', 'order.id', 'order.origin_price', 'order.gross_profit', 'sale_channel.sales_type'])
+            ->selectRaw('order.origin_price - IF(dlv_back.price IS NULL,0,dlv_back.price) - IF(dlv_out_stock.price IS NULL,0,dlv_out_stock.price) as origin_price')
+
             ->whereBetween('ro.receipt_date', [$sdate, $edate])
-            ->where('order.status_code', 'received')
+            ->whereIn('order.status_code', ['received', 'back_processing', 'cancle_back', 'backed'])
             ->where('ro.source_type', 'ord_orders');
 
         if (isset($options['user_id'])) {
@@ -73,24 +84,24 @@ class RptUserReportMonthly extends Model
     // 毛利計算
     public static function grossProfit($date = null, $type = "date")
     {
-         // 算商品毛利淨利
-         $date = $date ? $date : date("Y-m-d 00:00:00", strtotime(now() . " -1 days"));
+        // 算商品毛利淨利
+        $date = $date ? $date : date("Y-m-d 00:00:00", strtotime(now() . " -1 days"));
 
-         switch ($type) {
-             case 'date':
-                 $sdate = date("Y-m-d 00:00:00", strtotime($date));
-                 $edate = date("Y-m-d 23:59:59", strtotime($date));
-                 break;
-             case 'month':
-                 $sdate = date("Y-m-01 00:00:00", strtotime($date));
-                 $edate = date("Y-m-t 23:59:59", strtotime($date));
-                 break;
-         }
+        switch ($type) {
+            case 'date':
+                $sdate = date("Y-m-d 00:00:00", strtotime($date));
+                $edate = date("Y-m-d 23:59:59", strtotime($date));
+                break;
+            case 'month':
+                $sdate = date("Y-m-01 00:00:00", strtotime($date));
+                $edate = date("Y-m-t 23:59:59", strtotime($date));
+                break;
+        }
 
         $order = DB::table('ord_orders as order')
             ->leftJoin('ord_received_orders as ro', 'order.id', '=', 'ro.source_id')
             ->select('order.id')
-            ->whereBetween('ro.receipt_date', [$sdate, $edate]) 
+            ->whereBetween('ro.receipt_date', [$sdate, $edate])
             ->where('ro.source_type', 'ord_orders')
             ->get()
             ->toArray();
@@ -139,20 +150,37 @@ class RptUserReportMonthly extends Model
 
         $atomic = RptReport::atomic();
 
-        $re = DB::table(DB::raw("({$atomic->toSql()}) as atomic"))
-            ->mergeBindings($atomic)
+        $subBack = DB::table('dlv_back')->select('event_id', 'price','event')
+            ->where('event', 'order')
+            ->union(DB::table('dlv_out_stock')->select('event_id', 'price','event')
+            ->where('event', 'order'));
+    
+                   
+        $backUnion = DB::query()->fromSub($subBack, 'back')
+        ->select('back.event_id')
+        ->selectRaw('SUM(back.price) as price')->groupBy('back.event_id');
+
+        $re = DB::query()->fromSub($atomic, 'atomic')
             ->leftJoin('prd_sale_channels as sh', 'atomic.sale_channel_id', '=', 'sh.id')
             ->leftJoin('usr_customers as customer', 'customer.sn', '=', 'atomic.mcode')
+            ->leftJoinSub($backUnion, 'back', 'back.event_id', '=', 'atomic.order_id')
+            ->leftJoin('dlv_back', 'dlv_back.event_id', '=', 'atomic.order_id')
+            ->leftJoin('dlv_out_stock', 'dlv_out_stock.event_id', '=', 'atomic.order_id')
             ->join('usr_users as user', 'user.customer_id', '=', 'customer.id')
             ->select(['atomic.mcode', 'user.id as user_id', 'sh.sales_type'])
-            ->selectRaw('SUM(atomic.total_price) as total_price')
             ->selectRaw('SUM(atomic.gross_profit) as gross_profit')
+            ->selectRaw('SUM(atomic.total_price) - IF(SUM(back.price) IS NULL,0,SUM(back.price))  as total_price')
             ->selectRaw('DATE_FORMAT(atomic.receipt_date, "%Y-%m-%d") as dd')
             ->whereBetween('atomic.receipt_date', [$sdate, $edate])
+         //   ->where('user.id', 211)
             ->groupBy('dd')
             ->groupBy('atomic.mcode')
             ->groupBy('sh.sales_type')->get();
 
+        // dd(IttmsUtils::getEloquentSqlWithBindings($re));
+
+      //  dd($re->get()->toArray());
+     //   dd(DB::getQueryLog());
         $user = [];
         foreach ($re as $value) {
             if (!isset($user[$value->user_id])) {
@@ -195,7 +223,6 @@ class RptUserReportMonthly extends Model
         }
 
         self::insert($insertData);
-        
 
         CustomerReportMonth::report($sdate);
 
