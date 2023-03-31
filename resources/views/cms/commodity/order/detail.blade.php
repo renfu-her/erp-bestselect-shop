@@ -506,6 +506,73 @@
             </div>
         @endforeach
 
+        @if (isset($dlvOutStock))
+            <div class="card-body px-4 py-0">
+                <span>缺貨商品</span>
+                <div class="table-responsive tableOverBox">
+                    <table class="table tableList table-sm mb-0">
+                        <thead class="table-light text-secondary">
+                        <tr>
+                            <th>商品名稱</th>
+                            <th>SKU</th>
+                            <th>退款金額</th>
+                            <th>扣除獎金</th>
+                            <th>扣除購物金</th>
+                            <th>數量</th>
+                            <th>說明</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @foreach ($dlvOutStock as $item)
+                            <tr>
+                                <td>{{ $item->product_title }}</td>
+                                <td>{{ $item->sku }}</td>
+                                <td>${{ number_format($item->price) }}</td>
+                                <td>${{ number_format($item->bonus) }}</td>
+                                <td>${{ number_format($item->dividend) }}</td>
+                                <td>{{ $item->qty }}</td>
+                                <td class="wrap lh-sm">{{ $item->memo }}</td>
+                            </tr>
+                        @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        @endif
+
+        @if (isset($dlvBack))
+            <div class="card-body px-4 py-0">
+                <span>退貨商品</span>
+                <div class="table-responsive tableOverBox">
+                    <table class="table tableList table-sm mb-0">
+                        <thead class="table-light text-secondary">
+                        <tr>
+                            <th>商品名稱</th>
+                            <th>SKU</th>
+                            <th>退款金額</th>
+                            <th>扣除獎金</th>
+                            <th>扣除購物金</th>
+                            <th>數量</th>
+                            <th>說明</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @foreach ($dlvBack as $item)
+                            <tr>
+                                <td>{{ $item->product_title }}</td>
+                                <td>{{ $item->sku }}</td>
+                                <td>${{ number_format($item->price) }}</td>
+                                <td>${{ number_format($item->bonus) }}</td>
+                                <td>${{ number_format($item->dividend) }}</td>
+                                <td>{{ $item->qty }}</td>
+                                <td class="wrap lh-sm">{{ $item->memo }}</td>
+                            </tr>
+                        @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        @endif
 
         @if (false == isset($subOrderId))
             <div class="card shadow p-4 mb-4">
