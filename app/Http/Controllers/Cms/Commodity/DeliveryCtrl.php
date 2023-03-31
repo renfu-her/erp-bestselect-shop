@@ -452,7 +452,7 @@ class DeliveryCtrl extends Controller
             $event = null;
             $event_id = null;
             $sub_event_id = null;
-            if (Event::order() == $delivery->event) {
+            if (Event::order()->value == $delivery->event) {
                 $event = $delivery->event;
                 $event_id = $sub_order->order_id;
                 $sub_event_id = $delivery->event_id;
@@ -468,11 +468,14 @@ class DeliveryCtrl extends Controller
                     return ['success' => 0, 'error_msg' => '不提供缺貨編輯功能'];
                     //已有資料 做編輯
                     for($i = 0; $i < count($input_items['id']); $i++) {
+                        //計算毛利
+                        $gross_profit = $this->calc_gross_profit($delivery->event, $input_items['product_style_id'][$i], $input_items['event_item_id'][$i], $input_items['back_qty'][$i]);
                         DlvOutStock::where('id', '=', $input_items['id'][$i])->update([
                             'product_title' => $input_items['product_title'][$i],
                             'price' => $input_items['price'][$i],
                             'bonus' => $input_items['bonus'][$i],
                             'dividend' => $input_items['dividend'][$i],
+                            'gross_profit' => $gross_profit,
                             'qty' => $input_items['back_qty'][$i],
                             'memo' => $input_items['memo'][$i],
                             'show' => $input_items['show'][$i] ?? false,
@@ -483,6 +486,7 @@ class DeliveryCtrl extends Controller
                     $default_grade_id = ReceivedDefault::where('name', '=', 'product')->first()->default_grade_id;
                     $curr_date = date('Y-m-d H:i:s');
                     for($i = 0; $i < count($input_items['id']); $i++) {
+                        $gross_profit = $this->calc_gross_profit($delivery->event, $input_items['product_style_id'][$i], $input_items['event_item_id'][$i], $input_items['back_qty'][$i]);
                         $addItem = [
                             'delivery_id' => $delivery_id,
                             'event' => $event,
@@ -495,6 +499,7 @@ class DeliveryCtrl extends Controller
                             'price' => $input_items['price'][$i],
                             'bonus' => $input_items['bonus'][$i],
                             'dividend' => $input_items['dividend'][$i],
+                            'gross_profit' => $gross_profit,
                             'origin_qty' => $input_items['origin_qty'][$i],
                             'qty' => $input_items['back_qty'][$i],
                             'memo' => $input_items['memo'][$i],
@@ -1087,12 +1092,28 @@ class DeliveryCtrl extends Controller
         }
     }
 
+    //計算毛利
+    private function calc_gross_profit($event, $product_style_id, $event_item_id, $back_qty) {
+        $gross_profit = 0;
+        if ($product_style_id) {
+            $style = ProductStyle::where('id', '=', $product_style_id)->first();
+            if (Event::order()->value == $event) {
+                $ordItem = OrderItem::where('id', '=', $event_item_id)->first();
+                $gross_profit = $ordItem->price * $back_qty - $style->estimated_cost * $back_qty;
+            } else if (Event::consignment()->value == $event) {
+                $csnItem = ConsignmentItem::where('id', '=', $event_item_id)->first();
+                $gross_profit = $csnItem->price * $back_qty - $style->estimated_cost * $back_qty;
+            }
+        }
+        return $gross_profit;
+    }
+
     private function do_back_store(Request $request, $delivery, $bac_papa_id) {
         $msg = IttmsDBB::transaction(function () use ($request, $delivery, $bac_papa_id) {
             $event = null;
             $event_id = null;
             $sub_event_id = null;
-            if (Event::order() == $delivery->event) {
+            if (Event::order()->value == $delivery->event) {
                 $event = $delivery->event;
                 $sub_order = SubOrders::where('id', '=', $delivery->event_id)->first();
                 $event_id = $sub_order->order_id;
@@ -1107,11 +1128,13 @@ class DeliveryCtrl extends Controller
                 if(true == isset($input_items['id'][0])) {
                     //已有資料 做編輯
                     for($i = 0; $i < count($input_items['id']); $i++) {
+                        $gross_profit = $this->calc_gross_profit($delivery->event, $input_items['product_style_id'][$i], $input_items['event_item_id'][$i], $input_items['back_qty'][$i]);
                         DlvBack::where('id', '=', $input_items['id'][$i])->update([
                             'product_title' => $input_items['product_title'][$i],
                             'price' => $input_items['price'][$i],
                             'bonus' => $input_items['bonus'][$i],
                             'dividend' => $input_items['dividend'][$i],
+                            'gross_profit' => $gross_profit,
                             'qty' => $input_items['back_qty'][$i],
                             'memo' => $input_items['memo'][$i],
                             'show' => $input_items['show'][$i] ?? false,
@@ -1127,6 +1150,7 @@ class DeliveryCtrl extends Controller
 //                            //20221228 不跳過 就算數字為零 可能還是會編輯資料
 //                            continue;
 //                        }
+                        $gross_profit = $this->calc_gross_profit($delivery->event, $input_items['product_style_id'][$i], $input_items['event_item_id'][$i], $input_items['back_qty'][$i]);
                         $addItem = [
                             'bac_papa_id' => $bac_papa_id,
                             'delivery_id' => $delivery->id,
@@ -1140,6 +1164,7 @@ class DeliveryCtrl extends Controller
                             'price' => $input_items['price'][$i],
                             'bonus' => $input_items['bonus'][$i],
                             'dividend' => $input_items['dividend'][$i],
+                            'gross_profit' => $gross_profit,
                             'origin_qty' => $input_items['origin_qty'][$i],
                             'qty' => $input_items['back_qty'][$i],
                             'memo' => $input_items['memo'][$i],
