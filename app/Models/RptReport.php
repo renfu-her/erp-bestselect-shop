@@ -36,7 +36,7 @@ class RptReport extends Model
             ->whereNotNull('order.mcode')
             ->where('ro.source_type', 'ord_orders')
             ->where('order.payment_status', PaymentStatus::Received())
-            ->where('order.status_code','received')
+            ->whereIn('order.status_code', ['received', 'back_processing', 'cancle_back', 'backed'])
             ->whereNotNull('ro.receipt_date')
             ->whereNull('style.deleted_at');
 
@@ -105,7 +105,7 @@ class RptReport extends Model
             ->selectRaw('SUM(atomic.gross_profit) as gross_profit')
             ->selectRaw('DATE_FORMAT(atomic.receipt_date, "%Y-%m-01") as dd')
             ->whereBetween('atomic.receipt_date', [$sdate, $edate])
-            ->where('atomic.email', 'p0931700502@gmail.com')
+        //    ->where('atomic.email', 'p0931700502@gmail.com')
             ->groupBy('dd')
             ->groupBy('atomic.email')
             ->groupBy('sh.sales_type')->get();

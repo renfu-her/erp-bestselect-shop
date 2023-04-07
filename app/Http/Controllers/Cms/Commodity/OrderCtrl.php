@@ -7,6 +7,7 @@ use App\Enums\Customer\ProfitStatus;
 use App\Enums\Delivery\Event;
 use App\Enums\Delivery\LogisticStatus;
 use App\Enums\Discount\DividendCategory;
+use App\Enums\DlvBack\DlvBackType;
 use App\Enums\Order\OrderStatus;
 use App\Enums\Order\UserAddrType;
 use App\Enums\Payable\ChequeStatus as PayableChequeStatus;
@@ -27,6 +28,8 @@ use App\Models\DayEnd;
 use App\Models\Delivery;
 use App\Models\Depot;
 use App\Models\Discount;
+use App\Models\DlvBack;
+use App\Models\DlvOutStock;
 use App\Models\GeneralLedger;
 use App\Models\Logistic;
 use App\Models\LogisticFlow;
@@ -510,6 +513,31 @@ class OrderCtrl extends Controller
         //
     }
 
+    private function getbackBonusData($table, $order_id, $sub_order_id) {
+        $query = DB::table($table)
+            ->select('delivery_id'
+                , 'event'
+                , 'event_id'
+                , 'sub_event_id'
+                , 'event_item_id'
+                , 'product_style_id'
+                , 'sku'
+                , 'product_title'
+                , 'price'
+                , 'qty'
+                , 'bonus'
+                , 'dividend'
+                , 'gross_profit'
+                , 'memo')
+            ->where('type', DlvBackType::product()->value)
+            ->where('event', Event::order()->value)
+            ->where('event_id', $order_id);
+        if ($sub_order_id) {
+            $query->where('sub_event_id', $sub_order_id);
+        }
+        return $query;
+    }
+
     /**
      * Show the data for order detail.
      *
@@ -524,6 +552,10 @@ class OrderCtrl extends Controller
         if (!$order) {
             return abort(404);
         }
+        //找缺貨、退貨商品
+        $dlvOutStock = $this->getbackBonusData(app(DlvOutStock::class)->getTable(), $id, $subOrderId)->get();
+        $dlvBack = $this->getbackBonusData(app(DlvBack::class)->getTable(), $id, $subOrderId)->get();
+
         $remit = OrderRemit::getData($order->id)->get()->first();
 
         $delivery = null;
@@ -618,6 +650,8 @@ class OrderCtrl extends Controller
             'sn' => $sn,
             'order' => $order,
             'subOrders' => $subOrder,
+            'dlvOutStock' => $dlvOutStock,
+            'dlvBack' => $dlvBack,
             'remit' => $remit,
             'breadcrumb_data' => $sn,
             'subOrderId' => $subOrderId,
