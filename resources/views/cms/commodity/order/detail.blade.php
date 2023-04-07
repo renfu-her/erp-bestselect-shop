@@ -506,7 +506,7 @@
             </div>
         @endforeach
 
-        @if (isset($dlvOutStock))
+        @if (isset($dlvOutStock) && 0 < count($dlvOutStock))
             <div class="card shadow p-0 mb-4">
                 <div class="card-header px-4 d-flex align-items-center bg-white flex-wrap justify-content-end">
                     <strong class="flex-grow-1 mb-0">缺貨商品</strong>
@@ -544,7 +544,7 @@
             </div>
         @endif
 
-        @if (isset($dlvBack))
+        @if (isset($dlvBack) && 0 < count($dlvBack))
             <div class="card shadow p-0 mb-4">
                 <div class="card-header px-4 d-flex align-items-center bg-white flex-wrap justify-content-end">
                     <strong class="flex-grow-1 mb-0">退貨商品</strong>
