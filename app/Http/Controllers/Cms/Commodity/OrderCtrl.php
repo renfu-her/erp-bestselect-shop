@@ -531,7 +531,8 @@ class OrderCtrl extends Controller
                 , 'memo')
             ->where('type', DlvBackType::product()->value)
             ->where('event', Event::order()->value)
-            ->where('event_id', $order_id);
+            ->where('event_id', $order_id)
+            ->where('qty', '>', 0);
         if ($sub_order_id) {
             $query->where('sub_event_id', $sub_order_id);
         }
