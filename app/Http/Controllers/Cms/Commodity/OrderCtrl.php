@@ -29,6 +29,7 @@ use App\Models\Delivery;
 use App\Models\Depot;
 use App\Models\Discount;
 use App\Models\DlvBack;
+use App\Models\DlvBacPapa;
 use App\Models\DlvOutStock;
 use App\Models\GeneralLedger;
 use App\Models\Logistic;
@@ -514,27 +515,27 @@ class OrderCtrl extends Controller
     }
 
     private function getbackBonusData($table, $order_id, $sub_order_id) {
-        $query = DB::table($table)
-            ->select('delivery_id'
-                , 'event'
-                , 'event_id'
-                , 'sub_event_id'
-                , 'event_item_id'
-                , 'product_style_id'
-                , 'sku'
-                , 'product_title'
-                , 'price'
-                , 'qty'
-                , 'bonus'
-                , 'dividend'
-                , 'gross_profit'
-                , 'memo')
-            ->where('type', DlvBackType::product()->value)
-            ->where('event', Event::order()->value)
-            ->where('event_id', $order_id)
-            ->where('qty', '>', 0);
+        $query = DB::table($table. ' as tb')
+            ->select('tb.delivery_id'
+                , 'tb.event'
+                , 'tb.event_id'
+                , 'tb.sub_event_id'
+                , 'tb.event_item_id'
+                , 'tb.product_style_id'
+                , 'tb.sku'
+                , 'tb.product_title'
+                , 'tb.price'
+                , 'tb.qty'
+                , 'tb.bonus'
+                , 'tb.dividend'
+                , 'tb.gross_profit'
+                , 'tb.memo')
+            ->where('tb.type', DlvBackType::product()->value)
+            ->where('tb.event', Event::order()->value)
+            ->where('tb.event_id', $order_id)
+            ->where('tb.qty', '>', 0);
         if ($sub_order_id) {
-            $query->where('sub_event_id', $sub_order_id);
+            $query->where('tb.sub_event_id', $sub_order_id);
         }
         return $query;
     }
@@ -554,16 +555,21 @@ class OrderCtrl extends Controller
             return abort(404);
         }
         //找缺貨、退貨商品
-        $dlvOutStock = $this->getbackBonusData(app(DlvOutStock::class)->getTable(), $id, $subOrderId)->get();
-        $dlvBack = $this->getbackBonusData(app(DlvBack::class)->getTable(), $id, $subOrderId)->get();
+        $dlvOutStock = $this->getbackBonusData(app(DlvOutStock::class)->getTable(), $id, $subOrderId)
+            ->leftJoin(app(Delivery::class)->getTable(). ' as dlv_delivery', 'dlv_delivery.id', '=', 'tb.delivery_id')
+            ->addSelect('dlv_delivery.out_sn as out_sn')
+            ->get();
+        $dlvBack = $this->getbackBonusData(app(DlvBack::class)->getTable(), $id, $subOrderId)
+            ->leftJoin(app(DlvBacPapa::class)->getTable(). ' as dlv_bac_papa', 'dlv_bac_papa.id', '=', 'tb.bac_papa_id')
+            ->addSelect('dlv_bac_papa.sn as bac_sn')
+            ->addSelect('dlv_bac_papa.id as bac_papa_id')
+            ->get();
 
         $remit = OrderRemit::getData($order->id)->get()->first();
 
         $delivery = null;
-        $has_already_pay_delivery_back = false; //有退貨付款單
         if (isset($subOrderId)) {
             $delivery = Delivery::where('event', Event::order()->value)->where('event_id', $subOrderId)->first();
-            $has_already_pay_delivery_back = PayingOrder::hasDeliveryBack($delivery->id);
         }
 
         $sn = $order->sn;
@@ -666,7 +672,6 @@ class OrderCtrl extends Controller
             'delivery' => $delivery,
             'canSplit' => Order::checkCanSplit($id),
             'po_check' => $po_check,
-            'has_already_pay_delivery_back' => $has_already_pay_delivery_back,
             'dividendList' => $dividendList,
             'relation_order' => Petition::getBindedOrder($id, 'O'),
             'relation_invoice' => $relation_invoice,
