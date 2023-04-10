@@ -516,6 +516,7 @@
                         <table class="table tableList table-sm mb-0">
                             <thead class="table-light text-secondary">
                             <tr>
+                                <th scope="col">單號</th>
                                 <th scope="col">商品名稱</th>
                                 <th scope="col">SKU</th>
                                 <th scope="col">退款金額</th>
@@ -528,6 +529,12 @@
                             <tbody>
                             @foreach ($dlvOutStock as $item)
                                 <tr>
+                                    <td>@if(isset($subOrderId))
+                                        <a href="{{ Route('cms.delivery.out_stock_detail', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">{{ $item->out_sn }}</a>
+                                        @else
+                                            {{ $item->out_sn }}
+                                        @endif
+                                    </td>
                                     <td>{{ $item->product_title }}</td>
                                     <td>{{ $item->sku }}</td>
                                     <td>${{ number_format($item->price) }}</td>
@@ -554,6 +561,7 @@
                         <table class="table tableList table-sm mb-0">
                             <thead class="table-light text-secondary">
                             <tr>
+                                <th>單號</th>
                                 <th>商品名稱</th>
                                 <th>SKU</th>
                                 <th>退款金額</th>
@@ -566,6 +574,12 @@
                             <tbody>
                             @foreach ($dlvBack as $item)
                                 <tr>
+                                    <td>@if(isset($item->bac_papa_id))
+                                            <a href="{{ Route('cms.delivery.back_detail', ['bac_papa_id' => $item->bac_papa_id], true) }}">{{ $item->bac_sn }}</a>
+                                        @else
+                                            {{ $item->bac_sn }}
+                                        @endif
+                                    </td>
                                     <td>{{ $item->product_title }}</td>
                                     <td>{{ $item->sku }}</td>
                                     <td>${{ number_format($item->price) }}</td>
