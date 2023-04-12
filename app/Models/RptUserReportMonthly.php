@@ -141,42 +141,16 @@ class RptUserReportMonthly extends Model
         self::where('month', 'like', "%$currentMonth%")->delete();
 
         $atomic = RptReport::atomic();
-/*
-        $subBack = DB::table('dlv_back')->select('event_id', 'gross_profit', 'event')
-            ->selectRaw('price * qty as price')
-            ->where('event', 'order')
-            ->where('qty', '>', 0)
-            ->union(DB::table('dlv_out_stock')->select('event_id', 'gross_profit', 'event')
-                    ->selectRaw('price * qty as price')
-                    ->where('event', 'order')
-                    ->where('qty', '>', 0));
-
-        $backUnion = DB::query()->fromSub($subBack, 'back')
-            ->select('back.event_id')
-            ->selectRaw('SUM(back.price) as price')
-            ->selectRaw('SUM(back.gross_profit) as gross_profit')->groupBy('back.event_id');
-            */
-
-        // dd($backUnion->where('event_id',2278)->get()->toArray());
 
         $main = DB::query()->fromSub($atomic, 'atomic')
             ->leftJoin('prd_sale_channels as sh', 'atomic.sale_channel_id', '=', 'sh.id')
             ->leftJoin('usr_customers as customer', 'customer.sn', '=', 'atomic.mcode')
-        // ->leftJoinSub($backUnion, 'back2', 'back2.event_id', '=', 'atomic.order_id')
             ->join('usr_users as user', 'user.customer_id', '=', 'customer.id')
             ->select(['user.id as user_id', 'sh.sales_type', 'atomic.order_id'])
-        //  ->selectRaw('SUM(back2.gross_profit) as back_gross_profit')
             ->selectRaw('SUM(atomic.total_price) as atomic_total_price')
             ->selectRaw('SUM(atomic.gross_profit) as atomic_gross_profit')
-
-        // ->selectRaw('SUM(back2.price) as back_price')
-        //  ->selectRaw('SUM(atomic.gross_profit - IF(back2.gross_profit IS NULL,0,back2.gross_profit) ) as gross_profit')
-
-        //  ->selectRaw('SUM(atomic.gross_profit)  - IF(SUM(back.gross_profit) IS NULL,0,SUM(back.gross_profit))  as gross_profit')
-        // ->selectRaw('SUM(atomic.total_price) - IF(SUM(back.price) IS NULL,0,SUM(back.price))  as total_price')
             ->selectRaw('DATE_FORMAT(atomic.receipt_date, "%Y-%m-%d") as dd')
             ->whereBetween('atomic.receipt_date', [$sdate, $edate])
-        //  ->where('user.id', 61)
             ->groupBy('atomic.order_id')
             ->groupBy('dd')
             ->groupBy('user.id')
