@@ -514,32 +514,6 @@ class OrderCtrl extends Controller
         //
     }
 
-    private function getbackBonusData($table, $order_id, $sub_order_id) {
-        $query = DB::table($table. ' as tb')
-            ->select('tb.delivery_id'
-                , 'tb.event'
-                , 'tb.event_id'
-                , 'tb.sub_event_id'
-                , 'tb.event_item_id'
-                , 'tb.product_style_id'
-                , 'tb.sku'
-                , 'tb.product_title'
-                , 'tb.price'
-                , 'tb.qty'
-                , 'tb.bonus'
-                , 'tb.dividend'
-                , 'tb.gross_profit'
-                , 'tb.memo')
-            ->where('tb.type', DlvBackType::product()->value)
-            ->where('tb.event', Event::order()->value)
-            ->where('tb.event_id', $order_id)
-            ->where('tb.qty', '>', 0);
-        if ($sub_order_id) {
-            $query->where('tb.sub_event_id', $sub_order_id);
-        }
-        return $query;
-    }
-
     /**
      * Show the data for order detail.
      *
@@ -555,11 +529,11 @@ class OrderCtrl extends Controller
             return abort(404);
         }
         //找缺貨、退貨商品
-        $dlvOutStock = $this->getbackBonusData(app(DlvOutStock::class)->getTable(), $id, $subOrderId)
+        $dlvOutStock = DlvBack::getbackBonusData(app(DlvOutStock::class)->getTable(), $id, $subOrderId, Event::order()->value)
             ->leftJoin(app(Delivery::class)->getTable(). ' as dlv_delivery', 'dlv_delivery.id', '=', 'tb.delivery_id')
             ->addSelect('dlv_delivery.out_sn as out_sn')
             ->get();
-        $dlvBack = $this->getbackBonusData(app(DlvBack::class)->getTable(), $id, $subOrderId)
+        $dlvBack = DlvBack::getbackBonusData(app(DlvBack::class)->getTable(), $id, $subOrderId, Event::order()->value)
             ->leftJoin(app(DlvBacPapa::class)->getTable(). ' as dlv_bac_papa', 'dlv_bac_papa.id', '=', 'tb.bac_papa_id')
             ->addSelect('dlv_bac_papa.sn as bac_sn')
             ->addSelect('dlv_bac_papa.id as bac_papa_id')

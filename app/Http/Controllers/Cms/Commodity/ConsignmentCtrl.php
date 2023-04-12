@@ -20,6 +20,8 @@ use App\Models\Consum;
 use App\Models\DayEnd;
 use App\Models\Delivery;
 use App\Models\Depot;
+use App\Models\DlvBack;
+use App\Models\DlvBacPapa;
 use App\Models\ProductStock;
 use App\Models\ProductStyle;
 use App\Models\PurchaseInbound;
@@ -206,6 +208,12 @@ class ConsignmentCtrl extends Controller
             return abort(404);
         }
 
+        $dlvBack = DlvBack::getbackBonusData(app(DlvBack::class)->getTable(), $id, null, Event::consignment()->value)
+            ->leftJoin(app(DlvBacPapa::class)->getTable(). ' as dlv_bac_papa', 'dlv_bac_papa.id', '=', 'tb.bac_papa_id')
+            ->addSelect('dlv_bac_papa.sn as bac_sn')
+            ->addSelect('dlv_bac_papa.id as bac_papa_id')
+            ->get();
+
         $delivery = DB::table('dlv_delivery')
             ->where('dlv_delivery.event_id', '=', $consignmentData->consignment_id)
             ->where('dlv_delivery.event', '=', Event::consignment()->value)
@@ -225,6 +233,7 @@ class ConsignmentCtrl extends Controller
             'query' => $query,
             'consignmentData' => $consignmentData,
             'consignmentItemData' => $consignmentItemData,
+            'dlvBack' => $dlvBack,
             'delivery' => $delivery,
             'consume_items' => $consumeItems,
             'rcv_depot' => $rcv_depot,
