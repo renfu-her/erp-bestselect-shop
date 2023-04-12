@@ -508,7 +508,7 @@
 
         @if (isset($dlvOutStock) && 0 < count($dlvOutStock))
             <div class="card shadow p-0 mb-4">
-                <div class="card-header px-4 d-flex align-items-center bg-white flex-wrap justify-content-end">
+                <div class="card-header px-4 alert-danger border-bottom-0">
                     <strong class="flex-grow-1 mb-0">缺貨商品</strong>
                 </div>
                 <div class="card-body px-4 py-0">
@@ -529,13 +529,13 @@
                             <tbody>
                             @foreach ($dlvOutStock as $item)
                                 <tr>
-                                    <td>@if(isset($subOrderId))
-                                        <a href="{{ Route('cms.delivery.out_stock_detail', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">{{ $item->out_sn }}</a>
+                                    <td>@if(isset($item->sub_event_id))
+                                        <a href="{{ Route('cms.delivery.out_stock_detail', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $item->sub_event_id], true) }}">{{ $item->out_sn }}</a>
                                         @else
                                             {{ $item->out_sn }}
                                         @endif
                                     </td>
-                                    <td>{{ $item->product_title }}</td>
+                                    <td class="wrap lh-sm">{{ $item->product_title }}</td>
                                     <td>{{ $item->sku }}</td>
                                     <td>${{ number_format($item->price) }}</td>
                                     <td>${{ number_format($item->bonus) }}</td>
@@ -553,7 +553,7 @@
 
         @if (isset($dlvBack) && 0 < count($dlvBack))
             <div class="card shadow p-0 mb-4">
-                <div class="card-header px-4 d-flex align-items-center bg-white flex-wrap justify-content-end">
+                <div class="card-header px-4 alert-danger border-bottom-0">
                     <strong class="flex-grow-1 mb-0">退貨商品</strong>
                 </div>
                 <div class="card-body px-4 py-0">
@@ -580,7 +580,7 @@
                                             {{ $item->bac_sn }}
                                         @endif
                                     </td>
-                                    <td>{{ $item->product_title }}</td>
+                                    <td class="wrap lh-sm">{{ $item->product_title }}</td>
                                     <td>{{ $item->sku }}</td>
                                     <td>${{ number_format($item->price) }}</td>
                                     <td>${{ number_format($item->bonus) }}</td>
