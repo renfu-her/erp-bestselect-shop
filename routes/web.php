@@ -5,7 +5,6 @@ use App\Http\Controllers\Cms\AuthCtrl;
 use App\Http\Controllers\Cms\CustomerResetCtrl;
 use App\Http\Controllers\Cms\DashboardCtrl;
 use App\Http\Controllers\Cms\Marketing\EdmCtrl;
-use App\Http\Controllers\Cms\PaymentCtrl;
 use App\Http\Controllers\Cms\StyleDemo;
 use Illuminate\Support\Facades\Route;
 
@@ -138,15 +137,6 @@ Route::group(['prefix' => 'customer', 'as' => 'customer.', 'middleware' => 'gues
     Route::post('/reset-password', [CustomerResetCtrl::class, 'resetPasswordStore'])->name('password.update');
 
     Route::get('/login-reset-status', [CustomerResetCtrl::class, 'loginResetStatus'])->name('login-reset-status');
-});
-
-Route::group(['prefix' => 'payment', 'as' => 'payment.'], function () {
-    Route::get('credit_card/{id}/{unique_id}', [PaymentCtrl::class, 'credit_card'])->name('credit-card');
-    Route::match(['get', 'post'], 'credit_card_checkout/{id}/{unique_id}', [PaymentCtrl::class, 'credit_card_checkout'])->name('credit-card-checkout');
-    Route::post('credit_card_result/{id}', [PaymentCtrl::class, 'credit_card_result'])->name('credit-card-result');
-
-    Route::get('line_pay/{source_type}/{source_id}/{unique_id?}', [PaymentCtrl::class, 'line_pay'])->name('line-pay');
-    Route::get('line_pay_confirm/{source_type}/{source_id}/{unique_id?}', [PaymentCtrl::class, 'line_pay_confirm'])->name('line-pay-confirm');
 });
 
 Route::get('edm/{id}/{type}/{mcode}', [EdmCtrl::class, 'print'])->name('print-edm');
