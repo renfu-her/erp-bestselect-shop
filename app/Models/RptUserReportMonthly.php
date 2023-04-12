@@ -175,7 +175,7 @@ class RptUserReportMonthly extends Model
             ->selectRaw('SUM(atomic.total_price) - IF(SUM(back.price) IS NULL,0,SUM(back.price))  as total_price')
             ->selectRaw('DATE_FORMAT(atomic.receipt_date, "%Y-%m-%d") as dd')
             ->whereBetween('atomic.receipt_date', [$sdate, $edate])
-            ->where('user.id', 211)
+          //  ->where('user.id', 211)
             ->groupBy('dd')
             ->groupBy('atomic.mcode')
             ->groupBy('sh.sales_type')->get();
