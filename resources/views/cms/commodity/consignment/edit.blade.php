@@ -343,6 +343,51 @@
         <input type="hidden" name="receive_depot_id" value="{{ $consignmentData->receive_depot_id ?? '' }}">
 
 
+        @if (isset($dlvBack) && 0 < count($dlvBack))
+            <div class="card shadow p-0 mb-4">
+                <div class="card-header px-4 d-flex align-items-center bg-white flex-wrap justify-content-end">
+                    <strong class="flex-grow-1 mb-0">退貨商品</strong>
+                </div>
+                <div class="card-body px-4 py-0">
+                    <div class="table-responsive tableOverBox">
+                        <table class="table tableList table-sm mb-0">
+                            <thead class="table-light text-secondary">
+                            <tr>
+                                <th>單號</th>
+                                <th>商品名稱</th>
+                                <th>SKU</th>
+                                <th>退款金額</th>
+                                <th>扣除獎金</th>
+                                <th>扣除購物金</th>
+                                <th>數量</th>
+                                <th>說明</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            @foreach ($dlvBack as $item)
+                                <tr>
+                                    <td>@if(isset($item->bac_papa_id))
+                                            <a href="{{ Route('cms.delivery.back_detail', ['bac_papa_id' => $item->bac_papa_id], true) }}">{{ $item->bac_sn }}</a>
+                                        @else
+                                            {{ $item->bac_sn }}
+                                        @endif
+                                    </td>
+                                    <td>{{ $item->product_title }}</td>
+                                    <td>{{ $item->sku }}</td>
+                                    <td>${{ number_format($item->price) }}</td>
+                                    <td>${{ number_format($item->bonus) }}</td>
+                                    <td>${{ number_format($item->dividend) }}</td>
+                                    <td>{{ $item->qty }}</td>
+                                    <td class="wrap lh-sm">{{ $item->memo }}</td>
+                                </tr>
+                            @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        @endif
+
         <div class="card shadow p-4 mb-4">
             <h6>訂單總覽</h6>
             <div class="table-responsive">

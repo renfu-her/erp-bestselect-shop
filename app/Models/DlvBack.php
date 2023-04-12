@@ -59,4 +59,30 @@ class DlvBack extends Model
         return $result;
     }
 
+    
+    public static function getbackBonusData($table, $order_id, $sub_order_id, $event) {
+        $query = DB::table($table. ' as tb')
+            ->select('tb.delivery_id'
+                , 'tb.event'
+                , 'tb.event_id'
+                , 'tb.sub_event_id'
+                , 'tb.event_item_id'
+                , 'tb.product_style_id'
+                , 'tb.sku'
+                , 'tb.product_title'
+                , 'tb.price'
+                , 'tb.qty'
+                , 'tb.bonus'
+                , 'tb.dividend'
+                , 'tb.gross_profit'
+                , 'tb.memo')
+            ->where('tb.type', DlvBackType::product()->value)
+            ->where('tb.event', $event)
+            ->where('tb.event_id', $order_id)
+            ->where('tb.qty', '>', 0);
+        if ($sub_order_id) {
+            $query->where('tb.sub_event_id', $sub_order_id);
+        }
+        return $query;
+    }
 }
