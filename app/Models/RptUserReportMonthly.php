@@ -52,20 +52,11 @@ class RptUserReportMonthly extends Model
 
     public static function userOrder($sdate = null, $edate = null, $options = [])
     {
-        $subBack = DB::table('dlv_back')->select('event_id', 'price', 'gross_profit', 'event')
-            ->where('event', 'order')
-            ->union(DB::table('dlv_out_stock')->select('event_id', 'price', 'gross_profit', 'event')
-                    ->where('event', 'order'));
-
-        $backUnion = DB::query()->fromSub($subBack, 'back')
-            ->select('back.event_id')
-            ->selectRaw('SUM(back.price) as price')
-            ->selectRaw('SUM(back.gross_profit) as gross_profit')->groupBy('back.event_id');
-
+        
         $re = DB::table('ord_orders as order')
             ->leftJoin('ord_received_orders as ro', 'order.id', '=', 'ro.source_id')
             ->leftJoin('prd_sale_channels as sale_channel', 'sale_channel.id', '=', 'order.sale_channel_id')
-            ->leftJoinSub($backUnion,'back','back.event_id','=','order.id')
+            ->leftJoinSub(self::backUnion(), 'back', 'back.event_id', '=', 'order.id')
             ->select(['order.sn', 'order.id', 'order.origin_price', 'order.gross_profit', 'sale_channel.sales_type'])
             ->selectRaw('order.origin_price - IF(back.price IS NULL,0,back.price) as origin_price')
             ->selectRaw('order.gross_profit - IF(back.gross_profit IS NULL,0,back.gross_profit) as gross_profit')
@@ -151,37 +142,33 @@ class RptUserReportMonthly extends Model
 
         $atomic = RptReport::atomic();
 
-        $subBack = DB::table('dlv_back')->select('event_id', 'price', 'gross_profit', 'event')
-            ->where('event', 'order')
-            ->union(DB::table('dlv_out_stock')->select('event_id', 'price', 'gross_profit', 'event')
-                    ->where('event', 'order'));
-
-        $backUnion = DB::query()->fromSub($subBack, 'back')
-            ->select('back.event_id')
-            ->selectRaw('SUM(back.price) as price')
-            ->selectRaw('SUM(back.gross_profit) as gross_profit')->groupBy('back.event_id');
-
-//        dd($backUnion->get()->toArray());
-
-        $re = DB::query()->fromSub($atomic, 'atomic')
+        $main = DB::query()->fromSub($atomic, 'atomic')
             ->leftJoin('prd_sale_channels as sh', 'atomic.sale_channel_id', '=', 'sh.id')
             ->leftJoin('usr_customers as customer', 'customer.sn', '=', 'atomic.mcode')
-            ->leftJoinSub($backUnion, 'back', 'back.event_id', '=', 'atomic.order_id')
-            ->leftJoin('dlv_back', 'dlv_back.event_id', '=', 'atomic.order_id')
-            ->leftJoin('dlv_out_stock', 'dlv_out_stock.event_id', '=', 'atomic.order_id')
             ->join('usr_users as user', 'user.customer_id', '=', 'customer.id')
-            ->select(['atomic.mcode', 'user.id as user_id', 'sh.sales_type'])
-            ->selectRaw('SUM(atomic.gross_profit)  - IF(SUM(back.gross_profit) IS NULL,0,SUM(back.gross_profit))  as gross_profit')
-            ->selectRaw('SUM(atomic.total_price) - IF(SUM(back.price) IS NULL,0,SUM(back.price))  as total_price')
+            ->select(['user.id as user_id', 'sh.sales_type', 'atomic.order_id'])
+            ->selectRaw('SUM(atomic.total_price) as atomic_total_price')
+            ->selectRaw('SUM(atomic.gross_profit) as atomic_gross_profit')
             ->selectRaw('DATE_FORMAT(atomic.receipt_date, "%Y-%m-%d") as dd')
             ->whereBetween('atomic.receipt_date', [$sdate, $edate])
-          //  ->where('user.id', 211)
+            ->groupBy('atomic.order_id')
             ->groupBy('dd')
-            ->groupBy('atomic.mcode')
-            ->groupBy('sh.sales_type')->get();
+            ->groupBy('user.id')
+            ->groupBy('sh.sales_type');
+
+        $re = DB::query()->fromSub($main, 'main')
+            ->leftJoinSub(self::backUnion(), 'back', 'back.event_id', '=', 'main.order_id')
+            ->select(['dd', 'main.user_id', 'main.sales_type', 'main.order_id', 'main.atomic_total_price', 'back.price'])
+            ->selectRaw('SUM(main.atomic_gross_profit - IF(back.gross_profit IS NULL,0,back.gross_profit) ) as gross_profit')
+            ->selectRaw('SUM(main.atomic_total_price - IF(back.price IS NULL,0,back.price) ) as total_price')
+            ->groupBy('main.order_id')
+            ->groupBy('dd')
+            ->groupBy('main.user_id')
+            ->groupBy('main.sales_type')
+            ->get();
 
         // dd(IttmsUtils::getEloquentSqlWithBindings($re));
-
+        //    dd($re->toArray());
         //   dd(DB::getQueryLog());
         $user = [];
         foreach ($re as $value) {
@@ -224,12 +211,31 @@ class RptUserReportMonthly extends Model
                 $insertData[] = $d;
             }
         }
-        // dd($insertData);
+        //  dd($insertData);
 
         self::insert($insertData);
 
         CustomerReportMonth::report($sdate);
 
+    }
+
+    private static function backUnion()
+    {
+        $subBack = DB::table('dlv_back')->select('event_id', 'gross_profit', 'event')
+            ->selectRaw('price * qty as price')
+            ->where('event', 'order')
+            ->where('qty', '>', 0)
+            ->union(DB::table('dlv_out_stock')->select('event_id', 'gross_profit', 'event')
+                    ->selectRaw('price * qty as price')
+                    ->where('event', 'order')
+                    ->where('qty', '>', 0));
+
+        $backUnion = DB::query()->fromSub($subBack, 'back')
+            ->select('back.event_id')
+            ->selectRaw('SUM(back.price) as price')
+            ->selectRaw('SUM(back.gross_profit) as gross_profit')->groupBy('back.event_id');
+
+        return $backUnion;
     }
 
     private static function subCacu(&$data, $d, $prefix)
