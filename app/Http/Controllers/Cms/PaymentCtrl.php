@@ -238,7 +238,7 @@ class PaymentCtrl extends Controller
 
         if ($request->isMethod('post')) {
             // avoid f5 reload
-            if ($log) {
+            if ($received_order_collection->first() && $log) {
                 return redirect()->route('payment.credit-card-checkout', ['id' => $id, 'unique_id' => $unique_id]);
             }
 
