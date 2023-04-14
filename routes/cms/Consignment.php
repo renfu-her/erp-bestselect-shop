@@ -19,7 +19,7 @@ Route::group(['prefix' => 'consignment', 'as' => 'consignment.'], function () {
 //
     Route::get('inbound/{id}', [ConsignmentCtrl::class, 'inbound'])->name('inbound')->middleware('permission:cms.consignment.inbound');
     Route::post('store_inbound/{id}', [ConsignmentCtrl::class, 'storeInbound'])->name('store_inbound');
-    Route::get('delete_inbound/{id}', [ConsignmentCtrl::class, 'deleteInbound'])->name('delete_inbound')->middleware('permission:cms.consignment.inbound');
+    Route::get('delete_inbound/{id}', [ConsignmentCtrl::class, 'deleteInbound'])->name('delete_inbound')->middleware('permission:cms.consignment.delete');
 //
     Route::get('log/{id}', [ConsignmentCtrl::class, 'historyLog'])->name('log')->middleware('permission:cms.consignment.index');
 
