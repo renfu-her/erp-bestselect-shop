@@ -236,7 +236,9 @@ class SaleChannel extends Model
 
             $p = $product->price;
             if ($currentSale->basis_on_estimated_cost == '1') {
-                $p = ProductStyle::where('id', $product->style_id)->get()->first()->estimated_cost;
+           
+                $p = ProductStyle::where('id', $product->style_id)->withTrashed()->get()->first()->estimated_cost;
+              
             }
 
             if ($currentSale->has_bonus === 1) {

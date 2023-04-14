@@ -515,16 +515,16 @@
                     <div class="table-responsive tableOverBox">
                         <table class="table tableList table-sm mb-0">
                             <thead class="table-light text-secondary">
-                            <tr>
-                                <th scope="col">單號</th>
-                                <th scope="col">商品名稱</th>
-                                <th scope="col">SKU</th>
-                                <th scope="col">退款金額</th>
-                                <th scope="col">扣除獎金</th>
-                                <th scope="col">扣除購物金</th>
-                                <th scope="col">數量</th>
-                                <th scope="col">說明</th>
-                            </tr>
+                                <tr>
+                                    <th scope="col">單號</th>
+                                    <th scope="col">商品名稱</th>
+                                    <th scope="col">SKU</th>
+                                    <th scope="col">退款金額</th>
+                                    <th scope="col">扣除獎金</th>
+                                    <th scope="col">扣除購物金</th>
+                                    <th scope="col">數量</th>
+                                    <th scope="col">說明</th>
+                                </tr>
                             </thead>
                             <tbody>
                             @foreach ($dlvOutStock as $item)
@@ -560,16 +560,16 @@
                     <div class="table-responsive tableOverBox">
                         <table class="table tableList table-sm mb-0">
                             <thead class="table-light text-secondary">
-                            <tr>
-                                <th>單號</th>
-                                <th>商品名稱</th>
-                                <th>SKU</th>
-                                <th>退款金額</th>
-                                <th>扣除獎金</th>
-                                <th>扣除購物金</th>
-                                <th>數量</th>
-                                <th>說明</th>
-                            </tr>
+                                <tr>
+                                    <th>單號</th>
+                                    <th>商品名稱</th>
+                                    <th>SKU</th>
+                                    <th>退款金額</th>
+                                    <th>扣除獎金</th>
+                                    <th>扣除購物金</th>
+                                    <th>數量</th>
+                                    <th>說明</th>
+                                </tr>
                             </thead>
                             <tbody>
                             @foreach ($dlvBack as $item)

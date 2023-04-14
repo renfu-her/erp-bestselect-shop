@@ -152,13 +152,13 @@
                                 @endif
                                 <th scope="col">商品名稱</th>
                                 <th scope="col">SKU</th>
-                                <th scope="col" style="width: 10%">寄倉數量</th>
-                                <th scope="col" class="wrap lh-1">目前可售數量</th>
+                                <th scope="col" class="wrap lh-1">寄倉數量</th>
+                                <th scope="col" class="wrap lh-1">可售數量</th>
                                 <th scope="col" style="width: 12%" class="text-end">寄倉價錢</th>
                                 <th scope="col" style="width: 12%" class="text-end">小計</th>
-                                <th scope="col">採購入庫單號</th>
+                                <th scope="col" class="wrap lh-1">採購入庫單號</th>
                                 <th scope="col">狀態</th>
-                                <th scope="col">入庫人員</th>
+                                <th scope="col" class="wrap lh-1">入庫人員</th>
                             </tr>
                         </thead>
                         <tbody class="-appendClone --selectedP">
@@ -345,23 +345,23 @@
 
         @if (isset($dlvBack) && 0 < count($dlvBack))
             <div class="card shadow p-0 mb-4">
-                <div class="card-header px-4 d-flex align-items-center bg-white flex-wrap justify-content-end">
+                <div class="card-header px-4 alert-danger border-bottom-0">
                     <strong class="flex-grow-1 mb-0">退貨商品</strong>
                 </div>
                 <div class="card-body px-4 py-0">
                     <div class="table-responsive tableOverBox">
                         <table class="table tableList table-sm mb-0">
                             <thead class="table-light text-secondary">
-                            <tr>
-                                <th>單號</th>
-                                <th>商品名稱</th>
-                                <th>SKU</th>
-                                <th>退款金額</th>
-                                <th>扣除獎金</th>
-                                <th>扣除購物金</th>
-                                <th>數量</th>
-                                <th>說明</th>
-                            </tr>
+                                <tr>
+                                    <th>單號</th>
+                                    <th>商品名稱</th>
+                                    <th>SKU</th>
+                                    <th>退款金額</th>
+                                    <th>扣除獎金</th>
+                                    <th>扣除購物金</th>
+                                    <th>數量</th>
+                                    <th>說明</th>
+                                </tr>
                             </thead>
                             <tbody>
                             @foreach ($dlvBack as $item)
@@ -372,7 +372,7 @@
                                             {{ $item->bac_sn }}
                                         @endif
                                     </td>
-                                    <td>{{ $item->product_title }}</td>
+                                    <td class="wrap lh-sm">{{ $item->product_title }}</td>
                                     <td>{{ $item->sku }}</td>
                                     <td>${{ number_format($item->price) }}</td>
                                     <td>${{ number_format($item->bonus) }}</td>
@@ -522,6 +522,9 @@
     </x-b-modal>
 @endsection
 @once
+    @push('sub-styles')
+        <link rel="stylesheet" href="{{ Asset('dist/css/order.css') }}">
+    @endpush
     @push('sub-scripts')
         <script>
             $('#confirm-delete-back').on('show.bs.modal', function(e) {
