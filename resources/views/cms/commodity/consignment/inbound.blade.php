@@ -152,8 +152,8 @@
             <table class="table table-striped tableList mb-1">
                 <thead>
                 <tr>
-                    @if(null == $purchaseData->audit_date)
-{{--                        <th scope="col" class="text-center">取消入庫</th>--}}
+                    @if(null == $purchaseData->close_date)
+                        <th scope="col" class="text-center">刪除入庫</th>
                     @endif
                     <th scope="col">入庫單號</th>
                     <th scope="col">入庫日期</th>
