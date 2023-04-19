@@ -152,8 +152,8 @@
             <table class="table table-striped tableList mb-1">
                 <thead>
                 <tr>
-                    @if(null == $purchaseData->audit_date)
-{{--                        <th scope="col" class="text-center">取消入庫</th>--}}
+                    @if(null == $purchaseData->close_date)
+                        <th scope="col" class="text-center">刪除入庫</th>
                     @endif
                     <th scope="col">入庫單號</th>
                     <th scope="col">入庫日期</th>
@@ -169,17 +169,17 @@
                 <tbody>
                 @foreach ($inboundList as $inbound)
                     <tr>
-                        @if(null == $purchaseData->audit_date)
-{{--                            <th class="text-center">--}}
-{{--                                @if(null == $inbound->deleted_at)--}}
-{{--                                <button type="button"--}}
-{{--                                        data-href="{{ Route('cms.consignment.delete_inbound', ['id' => $inbound->inbound_id], true) }}"--}}
-{{--                                        data-bs-toggle="modal" data-bs-target="#confirm-delete"--}}
-{{--                                        class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">--}}
-{{--                                    <i class="bi bi-trash"></i>--}}
-{{--                                </button>--}}
-{{--                                @endif--}}
-{{--                            </th>--}}
+                        @if(null == $purchaseData->close_date)
+                            <th class="text-center">
+                                @if(null == $inbound->deleted_at)
+                                <button type="button"
+                                        data-href="{{ Route('cms.consignment.delete_inbound', ['id' => $inbound->inbound_id], true) }}"
+                                        data-bs-toggle="modal" data-bs-target="#confirm-delete"
+                                        class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                                @endif
+                            </th>
                         @endif
                         <td>{{ $inbound->inbound_sn }}</td>
                         <td>{{ $inbound->inbound_date }}</td>
