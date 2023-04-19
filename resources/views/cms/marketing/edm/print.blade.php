@@ -132,7 +132,9 @@
                             <div>
                                 <div class="qrcode" data-size="55" data-url="https://www.bestselection.com.tw{{ $mc === '1' ? '?mcode='.$mcode : '' }}"></div>
                             </div>
-                            <div style="flex: 1;text-align: right;padding-right: {{ 20 * $x }}px;">請洽{{ $name }}</div>
+                            @if ($mc === '1')
+                                <div style="flex: 1;text-align: right;padding-right: {{ 20 * $x }}px;">請洽{{ $name }}</div>
+                            @endif
                         </div>
                     </th>
                 </tr>

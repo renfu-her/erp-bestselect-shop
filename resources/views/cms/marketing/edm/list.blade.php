@@ -40,7 +40,7 @@
                 </div>
             </fieldset>
             <fieldset class="col">
-                <legend class="form-label p-0 mb-2 small">含推薦碼</legend>
+                <legend class="form-label p-0 mb-2 small">含推薦碼/業務</legend>
                 <div class="px-1">
                     <div class="form-check form-check-inline form-switch form-switch-lg">
                         <input name="has_mcode" class="form-check-input" type="checkbox" value="1" checked>
