@@ -106,6 +106,7 @@ class EdmCtrl extends Controller
         $qr = Arr::get($query, 'qr', '1');
         $mc = Arr::get($query, 'mc', '1');
         $a4 = Arr::get($query, 'a4', '0');
+        $ch = Arr::get($query, 'ch', '1');
         $btn = Arr::get($query, 'btn', '0');
         $x = Arr::get($query, 'x', 1);
         $x = intval($x) < 1 ? 1 : intval($x);
