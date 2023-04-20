@@ -835,7 +835,7 @@
             
             getSaleChannel();
             $('#customer').off('change.channel').on('change.channel', function() {
-                // getSaleChannel();
+                getSaleChannel();
                 if ($('input[name="coupon_type"]:checked').val() === 'coupon') {
                     getCouponsAPI();
                 }
