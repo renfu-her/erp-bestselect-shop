@@ -20,7 +20,7 @@
     </form>
 
     <div class="card shadow p-4 mb-4">
-        <div class="row justify-content-end mb-2">
+        <div class="row justify-content-end mb-1">
             <div class="col">
                 <label class="form-label small">標頭底色</label>
                 <select name="header_color" class="form-select form-select-sm">
@@ -32,7 +32,7 @@
                 </select>
             </div>
             <fieldset class="col">
-                <legend class="form-label p-0 mb-2 small">顯示QR code</legend>
+                <legend class="form-label p-0 small">顯示QR code</legend>
                 <div class="px-1">
                     <div class="form-check form-check-inline form-switch form-switch-lg">
                         <input name="qr_show" class="form-check-input" type="checkbox" value="1" checked>
@@ -40,7 +40,7 @@
                 </div>
             </fieldset>
             <fieldset class="col">
-                <legend class="form-label p-0 mb-2 small">含推薦碼/業務</legend>
+                <legend class="form-label p-0 small">含推薦碼/業務</legend>
                 <div class="px-1">
                     <div class="form-check form-check-inline form-switch form-switch-lg">
                         <input name="has_mcode" class="form-check-input" type="checkbox" value="1" checked>
@@ -48,13 +48,20 @@
                 </div>
             </fieldset>
             <fieldset class="col">
-                <legend class="form-label p-0 mb-2 small">A4滿版</legend>
+                <legend class="form-label p-0 small">A4滿版</legend>
                 <div class="px-1">
                     <div class="form-check form-check-inline form-switch form-switch-lg">
                         <input name="a4" class="form-check-input" type="checkbox" value="1">
                     </div>
                 </div>
             </fieldset>
+        </div>
+        <div class="row justify-content-end mb-2">
+            <div class="col col-sm-6 d-flex align-items-center">
+                <label class="text-nowrap small me-2">通路價格</label>
+                <select name="sale_channel_id" class="form-select form-select-sm">
+                </select>
+            </div>
         </div>
 
         <div class="table-responsive tableOverBox">
@@ -170,7 +177,8 @@
                 const qr = $('input[name="qr_show"]').prop('checked') ? '1' : '0';
                 const mcode = $('input[name="has_mcode"]').prop('checked') ? '1' : '0';
                 const a4 = $('input[name="a4"]').prop('checked') ? '1' : '0';
-                const url = $(this).data('href') + `?bg=${bg}&qr=${qr}&mc=${mcode}&a4=${a4}&paginate=0&x=1`;
+                const channel = $('select[name="sale_channel_id"]').val();
+                const url = $(this).data('href') + `?bg=${bg}&qr=${qr}&mc=${mcode}&a4=${a4}&ch=${channel}&paginate=0&x=1`;
                 window.open(url, '_blank');
             });
             $('.-toImg').on('click', function(e) {
@@ -178,7 +186,8 @@
                 const qr = $('input[name="qr_show"]').prop('checked') ? '1' : '0';
                 const mcode = $('input[name="has_mcode"]').prop('checked') ? '1' : '0';
                 const a4 = $('input[name="a4"]').prop('checked') ? '1' : '0';
-                const url = $(this).data('href') + `?bg=${bg}&qr=${qr}&mc=${mcode}&a4=${a4}&paginate=1&btn=0&x=2`;
+                const channel = $('select[name="sale_channel_id"]').val();
+                const url = $(this).data('href') + `?bg=${bg}&qr=${qr}&mc=${mcode}&a4=${a4}&ch=${channel}&paginate=1&btn=0&x=2`;
                 const qty = Number($(this).data('qty')) || 0;
                 // window.open(url, '_blank');
                 const $bar = $('#loading .progress-bar');
