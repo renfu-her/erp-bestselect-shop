@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Cms\Marketing;
 use App\Http\Controllers\Controller;
 use App\Models\Collection;
 use App\Models\Customer;
+use App\Models\SaleChannel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Response;
@@ -19,7 +20,6 @@ class EdmCtrl extends Controller
     public function index(Request $request, Collection $collection)
     {
         $mcode = $request->user()->getUserCustomer($request->user()->id)->sn;
-
         $query = $request->query();
         $name = Arr::get($query, 'name');
         $dataList = $collection::dataList()->where('edm', 1);
@@ -29,11 +29,14 @@ class EdmCtrl extends Controller
         $data_per_page = Arr::get($query, 'data_per_page', 10);
         $data_per_page = is_numeric($data_per_page) ? $data_per_page : 10;
 
+        $salechannels = SaleChannel::select(['id', 'title'])->get()->toArray();
+
         return view('cms.marketing.edm.list', [
             'dataList' => $dataList->paginate(100)->appends($query),
             'data_per_page' => $data_per_page,
             'topList' => Collection::where('is_liquor', 0)->get(),
             'mcode' => $mcode,
+            'salechannels' => $salechannels,
         ]);
     }
 
@@ -111,7 +114,7 @@ class EdmCtrl extends Controller
         $x = Arr::get($query, 'x', 1);
         $x = intval($x) < 1 ? 1 : intval($x);
 
-        $re = Collection::getProductsEdmVer($id, $type, $paginate ? true : false);
+        $re = Collection::getProductsEdmVer($id, $type, $paginate ? true : false, $ch);
         if (!$re) {
             return abort(404);
         }

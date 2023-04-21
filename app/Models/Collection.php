@@ -255,7 +255,7 @@ class Collection extends Model
             $result->where('name', 'like', "%$name%");
         }
 
-        return $result->orderBy('created_at','DESC')->paginate(10)
+        return $result->orderBy('created_at', 'DESC')->paginate(10)
             ->appends($query);
     }
 
@@ -337,7 +337,7 @@ class Collection extends Model
         }, $collection_ids));
     }
 
-    public static function getProductsEdmVer($collection_id, $price_type = 'normal', $paginate = false)
+    public static function getProductsEdmVer($collection_id, $price_type = 'normal', $paginate = false, $salechannel_id = 1)
     {
         switch ($price_type) {
             case 'dealer':
@@ -370,7 +370,7 @@ class Collection extends Model
             ->join('prd_salechannel_style_price as sp', 'style.id', '=', 'sp.style_id')
             ->select('style.product_id')
             ->selectRaw("min($field) as price")
-            ->where('sale_channel_id', 1)
+            ->where('sale_channel_id', $salechannel_id)
             ->groupBy('style.product_id');
 
         $minPrice = DB::table('prd_product_styles as style')
@@ -380,7 +380,7 @@ class Collection extends Model
                     ->on('mp.price', '=', "sp.$field");
             })
             ->select('style.product_id', 'mp.price', 'sp.origin_price')
-            ->where('sp.sale_channel_id', 1)
+            ->where('sp.sale_channel_id', $salechannel_id)
             ->distinct();
 
         $stylesConcatString = concatStr([
