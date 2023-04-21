@@ -60,6 +60,9 @@
             <div class="col col-sm-6 d-flex align-items-center">
                 <label class="text-nowrap small me-2">通路價格</label>
                 <select name="sale_channel_id" class="form-select form-select-sm">
+                    @foreach ($salechannels as $key => $value)
+                        <option value="{{ $value['id'] }}">{{ $value['title'] }}</option>
+                    @endforeach
                 </select>
             </div>
         </div>
@@ -93,18 +96,18 @@
 
                             <td class="text-center">
                                 <button type="button" data-bs-toggle="tooltip" title="複製連結"
-                                    data-url="{{ route('print-edm', ['id' => $data->id, 'type' => 'normal','mcode'=>$mcode]) }}"
+                                    data-url="{{ route('print-edm', ['id' => $data->id, 'type' => 'normal', 'mcode' => $mcode]) }}"
                                     class="icon -copy icon-btn fs-5 text-success rounded-circle border-0">
                                     <i class="bi bi-clipboard2-check"></i>
                                 </button>
-                                <button  type="button" 
-                                    data-href="{{ route('print-edm', ['id' => $data->id, 'type' => 'normal','mcode'=>$mcode]) }}"
+                                <button type="button"
+                                    data-href="{{ route('print-edm', ['id' => $data->id, 'type' => 'normal', 'mcode' => $mcode]) }}"
                                     data-bs-toggle="tooltip" title="網頁預覽"
                                     class="-web icon icon-btn fs-5 text-success rounded-circle border-0">
                                     <i class="bi bi-file-earmark-break-fill"></i>
                                 </button>
-                                <button type="button" 
-                                    data-href="{{ route('print-edm', ['id' => $data->id, 'type' => 'normal','mcode'=>$mcode]) }}"
+                                <button type="button"
+                                    data-href="{{ route('print-edm', ['id' => $data->id, 'type' => 'normal', 'mcode' => $mcode]) }}"
                                     data-bs-toggle="tooltip" title="圖片下載" data-qty="{{ $data->qty }}"
                                     class="-toImg icon icon-btn fs-5 text-success rounded-circle border-0">
                                     <i class="bi bi-download"></i>
@@ -112,18 +115,18 @@
                             </td>
                             <td class="text-center">
                                 <button type="button" data-bs-toggle="tooltip" title="複製連結"
-                                    data-url="{{ route('print-edm', ['id' => $data->id, 'type' => 'dealer','mcode'=>$mcode]) }}"
+                                    data-url="{{ route('print-edm', ['id' => $data->id, 'type' => 'dealer', 'mcode' => $mcode]) }}"
                                     class="icon -copy icon-btn fs-5 text-primary rounded-circle border-0">
                                     <i class="bi bi-clipboard2-check"></i>
                                 </button>
-                                <button  type="button" 
-                                    data-href="{{ route('print-edm', ['id' => $data->id, 'type' => 'dealer','mcode'=>$mcode]) }}" 
+                                <button type="button"
+                                    data-href="{{ route('print-edm', ['id' => $data->id, 'type' => 'dealer', 'mcode' => $mcode]) }}"
                                     data-bs-toggle="tooltip" title="網頁預覽"
                                     class="-web icon icon-btn fs-5 text-primary rounded-circle border-0">
                                     <i class="bi bi-file-earmark-break-fill"></i>
                                 </button>
-                                <button type="button" 
-                                    data-href="{{ route('print-edm', ['id' => $data->id, 'type' => 'dealer','mcode'=>$mcode]) }}"
+                                <button type="button"
+                                    data-href="{{ route('print-edm', ['id' => $data->id, 'type' => 'dealer', 'mcode' => $mcode]) }}"
                                     data-bs-toggle="tooltip" title="圖片下載" data-qty="{{ $data->qty }}"
                                     class="-toImg icon icon-btn fs-5 text-primary rounded-circle border-0">
                                     <i class="bi bi-download"></i>
@@ -149,7 +152,7 @@
         <x-slot name="body">
             <p class="-title text-center">圖片生產中，請稍後...</p>
             <div class="progress">
-                <div class="progress-bar progress-bar-striped progress-bar-animated bg-info" role="progressbar" 
+                <div class="progress-bar progress-bar-striped progress-bar-animated bg-info" role="progressbar"
                     style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
                     0%
                 </div>
@@ -167,7 +170,7 @@
         <script src="{{ Asset('dist/js/screenshot.js') }}"></script>
         <script>
             const Download_Url = @json(route('cms.edm.download'));
-            const loading = new bootstrap.Modal(document.getElementById('loading'), { 
+            const loading = new bootstrap.Modal(document.getElementById('loading'), {
                 backdrop: 'static',
                 keyboard: false
             });
@@ -178,7 +181,8 @@
                 const mcode = $('input[name="has_mcode"]').prop('checked') ? '1' : '0';
                 const a4 = $('input[name="a4"]').prop('checked') ? '1' : '0';
                 const channel = $('select[name="sale_channel_id"]').val();
-                const url = $(this).data('href') + `?bg=${bg}&qr=${qr}&mc=${mcode}&a4=${a4}&ch=${channel}&paginate=0&x=1`;
+                const url = $(this).data('href') +
+                    `?bg=${bg}&qr=${qr}&mc=${mcode}&a4=${a4}&ch=${channel}&paginate=0&x=1`;
                 window.open(url, '_blank');
             });
             $('.-toImg').on('click', function(e) {
@@ -187,7 +191,8 @@
                 const mcode = $('input[name="has_mcode"]').prop('checked') ? '1' : '0';
                 const a4 = $('input[name="a4"]').prop('checked') ? '1' : '0';
                 const channel = $('select[name="sale_channel_id"]').val();
-                const url = $(this).data('href') + `?bg=${bg}&qr=${qr}&mc=${mcode}&a4=${a4}&ch=${channel}&paginate=1&btn=0&x=2`;
+                const url = $(this).data('href') +
+                    `?bg=${bg}&qr=${qr}&mc=${mcode}&a4=${a4}&ch=${channel}&paginate=1&btn=0&x=2`;
                 const qty = Number($(this).data('qty')) || 0;
                 // window.open(url, '_blank');
                 const $bar = $('#loading .progress-bar');
@@ -195,7 +200,7 @@
                 const $note = $('#loading .-note');
                 const $footer = $('#loading .modal-footer');
                 // loading.show();
-                
+
                 console.log(url);
                 Screenshot(url, {
                     pages: Math.ceil(qty / 9),
@@ -207,7 +212,8 @@
                         loading.show();
                     },
                     process: (data) => {
-                        $bar.css('width', `${data.rate}%`).attr('aria-valuenow', data.rate).text(`${data.rate}%`);
+                        $bar.css('width', `${data.rate}%`).attr('aria-valuenow', data.rate).text(
+                            `${data.rate}%`);
                         $note.text(`（${data.task}/${data.totalTask}）${data.name}`);
                         if (data.rate === 100 && RegExp('.zip').test(data.name)) {
                             $title.text('圖片生產完成：' + data.name);
@@ -228,7 +234,7 @@
                             case 'connecting':
                                 $note.text('連線中...');
                                 break;
-                        
+
                             default:
                                 $note.text('發生錯誤：', msg);
                                 break;
