@@ -1446,15 +1446,11 @@
                             if (shipData.deliver) {
                                 $('#setShipment fieldset > div').append(`
                                     <div class="form-check mb-3">
-                                        <label class="form-check-label">
+                                        <label class="form-check-label w-100">
                                             <input class="form-check-input" name="temp_type" type="radio" value="${shipData.deliver.category}">
                                             ${shipData.deliver.category_name}
+                                            <div class="form-control" readonly>${shipData.deliver.group_name}</div>
                                         </label>
-                                        <div class="row">
-                                            <div class="col-12">
-                                                <div class="form-control" readonly>${shipData.deliver.group_name}</div>
-                                            </div>
-                                        </div>
                                     </div>
                                 `);
                             }
@@ -1462,20 +1458,20 @@
                             if (shipData.pickup) {
                                 $('#setShipment fieldset > div').append(`
                                     <div class="form-check mb-3">
-                                        <label class="form-check-label">
+                                        <label class="form-check-label w-100">
                                             <input class="form-check-input" name="temp_type" type="radio" value="${shipData.pickup.category}">
                                             ${shipData.pickup.category_name}
+                                            <select name="temp_depots" class="form-select">
+                                                <option value="">請選擇</option>
+                                                ${depotsOpts(shipData.pickup.depots)}
+                                            </select>
                                         </label>
-                                        <div class="row">
-                                            <div class="col-12">
-                                                <select name="temp_depots" class="form-select">
-                                                    <option value="">請選擇</option>
-                                                    ${depotsOpts(shipData.pickup.depots)}
-                                                </select>
-                                            </div>
-                                        </div>
                                     </div>
                                 `);
+
+                                $('#setShipment select[name="temp_depots"]').on('change', function () {
+                                    $(this).siblings('input[name="temp_type"]').prop('checked', true);
+                                });
 
                                 function depotsOpts(depots) {
                                     let opts = '';
