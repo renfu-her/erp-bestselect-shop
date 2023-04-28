@@ -24,8 +24,8 @@ class DepotCtrl extends Controller
     public function index(Request $request)
     {
         $query = $request->query();
-        $data_per_page = Arr::get($query, 'data_per_page', 10);
-        $data_per_page = is_numeric($data_per_page) ? $data_per_page : 10;
+        $data_per_page = Arr::get($query, 'data_per_page', 50);
+        $data_per_page = is_numeric($data_per_page) ? $data_per_page : 50;
         $dataList = Depot::dataList()->orderBy('sort')->paginate($data_per_page)->appends($query);
 
         return view('cms.settings.depot.list', [

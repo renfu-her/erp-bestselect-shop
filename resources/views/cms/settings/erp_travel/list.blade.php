@@ -19,7 +19,7 @@
                 <thead>
                     <tr>
                         <th scope="col" style="width:10%">#</th>
-                        <th scope="col">編輯</th>
+                        <th scope="col" class="text-center">編輯</th>
                         <th scope="col">login_name</th>
                         <th scope="col">login_pw</th>
                         <th scope="col">login_ip</th>
@@ -37,7 +37,7 @@
                     @foreach ($dataList as $key => $data)
                         <tr>
                             <th scope="row">{{ $key + 1 }}</th>
-                            <td>
+                            <td class="text-center">
                                 @can('cms.erp-travel.edit')
                                     <a href="{{ Route('cms.erp-travel.edit', ['id' => $data['login_name']]) }}"
                                         data-bs-toggle="tooltip" title="編輯"
