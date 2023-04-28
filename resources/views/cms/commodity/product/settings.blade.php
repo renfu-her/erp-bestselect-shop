@@ -72,7 +72,7 @@
                         <div class="col-12 col-sm-6 mb-3">
                             <input type="hidden" name="category_id[]" value={{ $value->id }}>
                             <label class="form-label">{{ $value->category }}</label>
-                            <select name="group_id[]" class="form-select">
+                            <select name="group_id[]" class="form-select -select2 -single">
                                 <option value="0">無</option>
                                 @if(isset($value->groupConcat))
                                 @foreach ($value->groupConcat as $key2 => $group)
