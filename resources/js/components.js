@@ -189,6 +189,44 @@
      *  fileInputName: 'logo',
      *  delFn: function ($that) {}
      * });
+     * 
+     * *** Single template
+     * <label>
+            <!-- 按鈕 -->
+            <span class="browser_box -plusBtn">
+                <i class="bi bi-plus-circle text-secondary fs-4"></i>
+            </span>
+            <!-- 預覽圖 -->
+            <span class="browser_box box" hidden>
+                <span class="icon -x"><i class="bi bi-x"></i></span>
+                <img src="" />
+            </span>
+            <!-- 進度條 -->
+            <div class="progress" hidden>
+                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
+                    aria-valuenow="1" aria-valuemin="0" aria-valuemax="100" style="width: 1%"></div>
+            </div>
+            <input type="file" name="" accept=".jpg,.jpeg,.png,.gif" hidden>
+        </label>
+     * 
+     * *** Multiple template
+     * <div class="sortabled">
+            <!-- 新增圖Box -->
+            <div class="sortabled_box" hidden>
+                <!-- 預覽圖 -->
+                <span class="browser_box box">
+                    <span class="icon -x"><i class="bi bi-x"></i></span>
+                    <img src="" />
+                </span>
+                <!-- 進度條 -->
+                <div class="progress" hidden>
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
+                        aria-valuenow="1" aria-valuemin="0" aria-valuemax="100" style="width: 1%"></div>
+                </div>
+                <input type="file" name="" accept=".jpg,.jpeg,.png,.gif" multiple hidden>
+            </div>
+        </div>
+     * 
      */
     function bindReadImageFile($elems, {
         num = 'single',     // 多檔 multiple
