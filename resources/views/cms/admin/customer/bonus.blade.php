@@ -36,7 +36,7 @@
             </div>
         </form>
         <div class="table-responsive tableOverBox">
-            <table class="table tableList table-striped mb-1">
+            <table class="table tableList table-striped mb-1 small">
                 <thead>
                     <tr>
                         <th scope="col" style="width:40px">#</th>
@@ -61,8 +61,8 @@
                         @endphp
                         <tr>
                             <th scope="row">{{ $key + 1 }}</th>
-                            <td>{{ $item->sub_order_sn }}</td>
-                            <td>{{ $item->product_title }}</td>
+                            <td class="wrap">{{ $item->sub_order_sn }}</td>
+                            <td class="wrap">{{ $item->product_title }}</td>
                             <td class="text-center">$ {{ number_format($item->price) }}</td>
                             <td class="text-center">{{ number_format($item->qty) }}</td>
                             <td class="text-center">$ {{ number_format($item->origin_price) }}</td>
@@ -72,12 +72,15 @@
                             <td>{{ $item->product_user }}</td>
                         </tr>
                     @endforeach
-                        <tr>
-                            <td colspan="6"></td>
-                            <td class="text-center">$ {{ $bonus }}</td>
-                            <td colspan="3"></td>
-                        </tr>
                 </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="5"></td>
+                        <td class="text-end">小計</td>
+                        <td class="text-center">$ {{ $bonus }}</td>
+                        <td colspan="3"></td>
+                    </tr>
+                </tfoot>
             </table>
         </div>
     </div>

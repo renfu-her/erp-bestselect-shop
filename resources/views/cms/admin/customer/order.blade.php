@@ -5,25 +5,31 @@
     </div>
     <div class="card shadow p-4 mb-4">
         <div class="table-responsive tableOverBox">
-            <table class="table table-striped tableList">
-                <thead class="small align-middle">
+            <table class="table table-striped tableList small">
+                <thead class="align-middle">
                     <tr>
                         <th scope="col" style="width:40px">#</th>
                         <th scope="col" style="width:40px" class="text-center">明細</th>
                         <th scope="col">訂單編號</th>
-                        <th scope="col" class="wrap lh-sm">
-                            <span class="text-nowrap">訂單狀態 /</span>
+                        <th scope="col" class="wrap">
+                            <span class="text-nowrap">訂單狀態</span>
                             <span class="text-nowrap">物流狀態</span>
                         </th>
-                        <th scope="col">出貨單號</th>
+                        <th scope="col" class="wrap">
+                            <span class="text-nowrap">出貨單號</span>
+                            <span class="text-nowrap">收款單號</span>
+                        </th>
                         <th scope="col">訂購日期</th>
-                        <th scope="col">購買人</th>
-                        <th scope="col">購買人電話</th>
+                        <th scope="col" class="wrap">
+                            <div class="text-nowrap">購買人</div>
+                            <div class="text-nowrap">電話</div>
+                        </th>
                         <th scope="col">銷售通路</th>
-                        <th scope="col">收款單號</th>
                         <th scope="col">客戶物流</th>
-                        <th scope="col">實際物流</th>
-                        <th scope="col">包裹編號</th>
+                        <th scope="col" class="wrap">
+                            <span class="text-nowrap">實際物流</span>
+                            <span class="text-nowrap">包裹編號</span>
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -38,35 +44,45 @@
                                     </a>
                                 @endcan
                             </td>
-                            <td>{{ $data->order_sn }}</td>
+                            <td class="wrap">{{ $data->order_sn }}</td>
                             <td class="wrap">
-                                <div class="text-nowrap lh-sm @if ($data->order_status === '取消') text-danger @endif">
-                                    {{ $data->order_status ?? '-' }} /</div>
-                                <div class="text-nowrap lh-base">{{ $data->logistic_status }}</div>
+                                <div class="text-nowrap @if ($data->order_status === '取消') text-danger @endif">
+                                    {{ $data->order_status ?? '-' }}</div>
+                                <div class="text-nowrap">{{ $data->logistic_status }}</div>
                             </td>
-                            <td>
+                            <td class="wrap">
+                                <div class="text-nowrap">
                                 @if ($data->projlgt_order_sn)
                                     <a href="{{ env('LOGISTIC_URL') . 'guest/order-flow/' . $data->projlgt_order_sn }}"
-                                       target="_blank" class="btn btn-link">
+                                       target="_blank">
                                         {{ $data->projlgt_order_sn }}
                                     </a>
                                 @else
                                     {{ $data->package_sn }}
                                 @endif
+                                </div>
+                                <div class="text-nowrap">{{ $data->or_sn }}</div>
                             </td>
                             <td>{{ date('Y/m/d', strtotime($data->order_date)) }}</td>
-                            <td>{{ $data->name }}</td>
-                            <td>{{ $data->ord_phone }}</td>
-                            <td>{{ $data->sale_title }}</td>
-                            <td>{{ $data->or_sn }}</td>
                             <td class="wrap">
-                                <div class="lh-1 small text-nowrap">
-                                    <span>{{ $data->ship_category_name }}</span>
-                                </div>
-                                <div class="lh-base text-nowrap">{{ $data->ship_event }}</div>
+                                <div class="text-nowrap">{{ $data->name }}</div>
+                                <div class="text-nowrap">{{ $data->ord_phone }}</div>
                             </td>
-                            <td>{{ $data->ship_group_name }}</td>
-                            <td>{{ $data->package_sn }}</td>
+                            <td class="wrap">{{ $data->sale_title }}</td>
+                            <td class="wrap">
+                                <div class="lh-1 text-nowrap">
+                                    <span @class([
+                                        'badge -badge',
+                                        '-primary' => $data->ship_category_name === '宅配',
+                                        '-warning' => $data->ship_category_name === '自取',
+                                    ])>{{ $data->ship_category_name }}</span>
+                                </div>
+                                <div class="lh-base">{{ $data->ship_event }}</div>
+                            </td>
+                            <td class="wrap">
+                                <div class="text-nowrap">{{ $data->ship_group_name }}</div>
+                                <div class="text-nowrap">{{ $data->package_sn }}</div>
+                            </td>
                         </tr>
                     @endforeach
                 </tbody>
@@ -83,3 +99,18 @@
         </div>
     </div>
 @endsection
+@push('sub-styles')
+    <style>
+        .badge.-badge {
+            color: #484848;
+        }
+
+        .badge.-badge.-primary {
+            background-color: #cfe2ff;
+        }
+
+        .badge.-badge.-warning {
+            background-color: #fff3cd;
+        }
+    </style>
+@endpush
