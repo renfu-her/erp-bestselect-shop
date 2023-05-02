@@ -23,15 +23,16 @@
                             <option value="Birdsflyaway-Youtube">鳥事少一點-YouTube</option>
                             <option value="Besttour-Youtube-CG">誠貫-喜鴻假期YouTube廣告</option>
                             <option value="FB-CG">誠貫-FB廣告</option>
+                            <option value="Mcode">分潤代碼</option>
                         @endcan
                     </select>
                 </div>
                 <div class="col-12 mb-3">
                     <label class="form-label">原始網址</label>
-                    <input class="form-control" type="text" name="input_url" id="ori_url" 
+                    <input class="form-control" type="text" name="input_url" id="ori_url"
                         value="" placeholder="輸入原始網址">
                 </div>
-                
+
                 <div class="col">
                     <button type="submit" class="btn btn-primary">產生短網址</button>
                 </div>
@@ -54,7 +55,7 @@
                 <button type="button" name="short_url" class="btn btn-outline-success btn-sm copyBtn">點我複製短網址</button>
                 <p id="short_url">xxx</p>
             </div>
-            
+
             <div class="mb-3">
                 <label class="form-label">長網址：</label>
                 <button type="button" name="long_url" class="btn btn-outline-success btn-sm copyBtn">點我複製長網址</button>
@@ -227,6 +228,9 @@
                         case "Besttour-Banner":
                             utmPath = toUtmPath(url, "besttour", "banner", "banner-" + dat, today, "photo");
                             break;
+                        case "Mcode":
+                            utmPath = reserveMcode(url);
+                            break;
                         default:
                             console.log('Sorry, the platform setting is wrong:' + platform );
                     }
@@ -256,6 +260,23 @@
                         newUrl.searchParams.delete(key);
                     })
                     newUrl.searchParams.set('openExternalBrowser', '1');
+                    return newUrl;
+                }
+
+                /**
+                 * 保留Mcode參數
+                 * @param url
+                 */
+                function reserveMcode(url) {
+                    let newUrl = new URL(url);
+                    let urlParams = new URLSearchParams(newUrl.search);
+                    let params = Object.fromEntries(urlParams.entries());
+                    let paramArray = Object.keys(params);
+                    paramArray.forEach((key) => {
+                        if (key !== 'mcode') {
+                            newUrl.searchParams.delete(key);
+                        }
+                    })
                     return newUrl;
                 }
 
