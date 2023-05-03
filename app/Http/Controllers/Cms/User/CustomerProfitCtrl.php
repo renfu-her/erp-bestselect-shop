@@ -33,7 +33,7 @@ class CustomerProfitCtrl extends Controller
             $search['sn'],
             $search['status'],
             'profit'
-        )->paginate(10)
+        )->paginate(30)
         ->appends($query);
 
         //  $customer = Customer::getCustomerBySearch($name)->paginate(10)->appends($query);

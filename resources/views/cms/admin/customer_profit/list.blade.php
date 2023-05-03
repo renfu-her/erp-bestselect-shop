@@ -49,7 +49,7 @@
             <table class="table table-striped tableList">
                 <thead class="small">
                     <tr>
-                        <th scope="col" style="width:10%">#</th>
+                        <th scope="col">#</th>
                         <th scope="col">姓名</th>
                         <th scope="col">會員編號</th>
                         <th scope="col">審核狀態</th>
