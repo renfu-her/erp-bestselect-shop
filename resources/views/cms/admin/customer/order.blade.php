@@ -15,7 +15,7 @@
                             <span class="text-nowrap">訂單狀態</span>
                             <span class="text-nowrap">物流狀態</span>
                         </th>
-                        <th scope="col" class="wrap">
+                        <th scope="col" class="wrap text-center">
                             <span class="text-nowrap">出貨單號</span>
                             <span class="text-nowrap">收款單號</span>
                         </th>
@@ -50,7 +50,7 @@
                                     {{ $data->order_status ?? '-' }}</div>
                                 <div class="text-nowrap">{{ $data->logistic_status }}</div>
                             </td>
-                            <td class="wrap">
+                            <td class="wrap text-center">
                                 <div class="text-nowrap">
                                 @if ($data->projlgt_order_sn)
                                     <a href="{{ env('LOGISTIC_URL') . 'guest/order-flow/' . $data->projlgt_order_sn }}"
@@ -58,7 +58,7 @@
                                         {{ $data->projlgt_order_sn }}
                                     </a>
                                 @else
-                                    {{ $data->package_sn }}
+                                    {{ $data->package_sn ?? '-' }}
                                 @endif
                                 </div>
                                 <div class="text-nowrap">{{ $data->or_sn }}</div>
