@@ -47,13 +47,13 @@
 
         <div class="table-responsive tableOverBox">
             <table class="table table-striped tableList">
-                <thead>
+                <thead class="small">
                     <tr>
-                        <th scope="col" style="width:10%">#</th>
+                        <th scope="col">#</th>
                         <th scope="col">姓名</th>
                         <th scope="col">會員編號</th>
                         <th scope="col">審核狀態</th>
-                        <th scope="col">是否綁定員工帳號？（員工姓名,編號）</th>
+                        <th scope="col" class="wrap text-center">綁定的員工帳號<br>(員工姓名, 編號)</th>
                         <th scope="col" class="text-center">編輯</th>
                     </tr>
                 </thead>
@@ -64,9 +64,11 @@
                             <td>{!! nl2br($data->name) !!}</td>
                             <td>{{ $data->sn }}</td>
                             <td>{{ $data->status_title }}</td>
-                            <td>
+                            <td class="text-center">
                             @if(!is_null($data->usr_users_id))
-                                {!! '是（' . nl2br($data->employeeName) . ',' . $data->employeeId . '）' !!}
+                                {!! nl2br($data->employeeName) . ', ' . $data->employeeId !!}
+                                @else
+                                -
                             @endif
                             </td>
                             <td class="text-center">

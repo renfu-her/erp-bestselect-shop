@@ -69,31 +69,28 @@
 
         <div class="table-responsive tableOverBox">
             <table class="table table-striped tableList">
-                <thead>
+                <thead class="small">
                     <tr>
-                        <th scope="col" style="width:40px;">#</th>
+                        <th scope="col" style="width:10px">#</th>
                         <th scope="col" style="width:10%;">姓名</th>
                         <th scope="col">帳號</th>
                         <th scope="col">角色</th>
                         <th scope="col">分潤申請</th>
                         <th scope="col" style="width:10%;">角色設定狀況</th>
-                        <th scope="col" class="text-center" style="width:40px;">通路權限</th>
 
-                        @can('cms.user.edit')
-                            <th scope="col" class="text-center" style="width:40px;">編輯</th>
-                        @endcan
-                        @can('cms.user.delete')
-                            <th scope="col" class="text-center" style="width:40px;">刪除</th>
-                        @endcan
+                        <th scope="col" class="text-center" style="width:40px;">編輯</th>
+                        <th scope="col" class="text-center wrap lh-sm" style="width:40px;">通路<br>權限</th>
+                        <th scope="col" class="text-center" style="width:40px;">刪除</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($dataList as $key => $data)
                         <tr>
                             <th scope="row">{{ $key + 1 }}</th>
+
                             <td>{!! nl2br($data->name) !!}</td>
                             <td>{{ $data->account }}</td>
-                            <td>
+                            <td class="wrap">
                                 @php
                                     $roleNames = \App\Models\User::getRoleTitleByUserId($data->id);
                                 @endphp
@@ -112,7 +109,7 @@
                                     @endforeach
                                 @endif
                             </td>
-                            <td class="text-truncate" >{{ $data->profit_status_title }}</td>
+                            <td @class(['text-truncate', 'text-danger' => $data->profit_status_title === '尚未申請'])>{{ $data->profit_status_title }}</td>
                             <td @class(['text-danger' => is_null($data->role_ids)])>
                                 @if (is_null($data->role_ids))
                                     未設定角色
@@ -120,21 +117,22 @@
                                     已設定角色
                                 @endif
                             </td>
-                            <td class="text-center">
-                                @can('cms.user.salechannel')
-                                    <a href="{{ Route('cms.user.salechannel', ['id' => $data->id], true) }}"
-                                        data-bs-toggle="tooltip" title="通路權限"
-                                        class="icon icon-btn fs-5 text-primary rounded-circle border-0">
-                                        <i class="bi bi-key"></i>
-                                    </a>
-                                @endcan
-                            </td>
+
                             <td class="text-center">
                                 @can('cms.user.edit')
                                     <a href="{{ Route('cms.user.edit', ['id' => $data->id], true) }}"
                                         data-bs-toggle="tooltip" title="編輯"
                                         class="icon icon-btn fs-5 text-primary rounded-circle border-0">
                                         <i class="bi bi-pencil-square"></i>
+                                    </a>
+                                @endcan
+                            </td>
+                            <td class="text-center">
+                                @can('cms.user.salechannel')
+                                    <a href="{{ Route('cms.user.salechannel', ['id' => $data->id], true) }}"
+                                        data-bs-toggle="tooltip" title="通路權限"
+                                        class="icon icon-btn fs-5 text-primary rounded-circle border-0">
+                                        <i class="bi bi-key"></i>
                                     </a>
                                 @endcan
                             </td>

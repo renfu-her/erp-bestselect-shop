@@ -29,7 +29,7 @@ class UserCtrl extends Controller
         if (!isset($query['profit'])) {
             $query['profit'] = 'all';
         }
-        $user = User::getUserBySearch($query);
+        $user = User::getUserBySearch($query, 30);
 
         $roleData = Role::whereNull('deleted_at')
             ->select([

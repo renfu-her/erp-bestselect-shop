@@ -7,14 +7,14 @@
         <h6>獲得紀錄</h6>
         <div class="table-responsive tableOverBox">
             <table class="table table-striped tableList">
-                <thead>
-                <tr>
-                    <th scope="col">訂單編號</th>
-                    <th scope="col">訂單日期</th>
-                    <th scope="col">獲得點數</th>
-                    <th scope="col">使用期限</th>
-                    <th scope="col">來源類型</th>
-                </tr>
+                <thead class="small">
+                    <tr>
+                        <th scope="col">訂單編號</th>
+                        <th scope="col">訂單日期</th>
+                        <th scope="col">獲得點數</th>
+                        <th scope="col">使用期限</th>
+                        <th scope="col">來源類型</th>
+                    </tr>
                 </thead>
                 <tbody>
                 @php
@@ -23,13 +23,13 @@
                 @foreach ($get_record as $key => $data)
                     <tr>
                         <td>{{ $data->category_sn }}</td>
-                        @if($data->category !== DividendCategory::Cyberbiz)
-                            <td>{{ $data->created_at }}</td>
-                        @else
-                            <td></td>
-                        @endif
-                        <td>{{ $data->dividend }}</td>
-                        <td>{{ $data->active_edate }}</td>
+                        <td class="wrap">
+                            @if($data->category !== DividendCategory::Cyberbiz)
+                                {{ date('Y/m/d H:i:s', strtotime($data->created_at)) }}
+                            @endif
+                        </td>
+                        <td>{{ number_format($data->dividend) }}</td>
+                        <td class="wrap">{{ date('Y/m/d H:i:s', strtotime($data->active_edate)) }}</td>
                         <td>{{ DividendCategory::getDescription($data->category) }}</td>
                     </tr>
                 @endforeach
@@ -41,18 +41,18 @@
         <h6>使用紀錄</h6>
         <div class="table-responsive tableOverBox">
             <table class="table table-striped tableList">
-                <thead>
-                <tr>
-                    <th scope="col">訂單編號</th>
-                    <th scope="col">訂單日期</th>
-                    <th scope="col">使用點數</th>
-                </tr>
+                <thead class="small">
+                    <tr>
+                        <th scope="col">訂單編號</th>
+                        <th scope="col">訂單日期</th>
+                        <th scope="col">使用點數</th>
+                    </tr>
                 </thead>
                 <tbody>
                 @foreach ($use_record as $key => $data)
                     <tr>
                         <td>{{ $data->category_sn }}</td>
-                        <td>{{ $data->created_at }}</td>
+                        <td>{{ date('Y/m/d H:i:s', strtotime($data->created_at)) }}</td>
                         <td>{{ $data->dividend }}</td>
                     </tr>
                 @endforeach

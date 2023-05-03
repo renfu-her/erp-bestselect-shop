@@ -45,31 +45,33 @@
 
         <div class="table-responsive tableOverBox">
             <table class="table table-striped tableList">
-                <thead>
+                <thead class="small">
                     <tr>
+                        <th scope="col" style="width:10px">#</th>
                         <th scope="col">會員編號</th>
                         <th scope="col">姓名</th>
                         <th scope="col">帳號</th>
-                        <th scope="col">是否綁定員工帳號？（員工姓名,編號）</th>
-                        @can('cms.customer.address')
-                            <th scope="col" class="text-center">會員專區</th>
-                        @endcan
-                        @can('cms.customer.edit')
-                            <th scope="col" class="text-center">編輯</th>
-                        @endcan
+                        <th scope="col" class="wrap text-center">綁定的員工帳號<br>(員工姓名, 編號)</th>
+                        <th scope="col" class="text-center wrap lh-sm" style="width:40px;">會員<br>專區</th>
+                        <th scope="col" class="text-center" style="width:40px;">編輯</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($dataList as $key => $data)
                         <tr>
+                            <th scope="row">{{ $key + 1 }}</th>
+
                             <td>{{ $data->sn }}</td>
                             <td>{!! nl2br($data->name) !!}</td>
                             <td>{{ $data->email }}</td>
-                            <td>
+                            <td class="text-center">
                                 @if(!is_null($data->isEmployee))
-                                    {!! '是（' . nl2br($data->employeeName) . ',' . $data->employeeId . '）' !!}
+                                    {!! nl2br($data->employeeName) . ', ' . $data->employeeId !!}
+                                @else
+                                    -
                                 @endif
                             </td>
+                            
                             <td class="text-center">
                                 @can('cms.customer.address')
                                     <a href="{{ Route('cms.customer.order', ['id' => $data->id], true) }}"

@@ -17,19 +17,19 @@ class addDiscountSeeder extends Seeder
     {
         //
 
-        for ($i = 0; $i < 130;) {
+        for ($i = 0; $i < 50;) {
             $sn = self::createCode(12);
 
             if (!Discount::where('sn', $sn)->first()) {
                 $i++;
                 echo $sn . "\n";
                 Discount::createCode($sn,
-                    '歡慶旅展 優惠獎不完',
+                    '國貿暨電商人才就業媒合會',
                     0,
                     DisMethod::cash(),
-                    100,
-                    '2023/04/26',
-                    '2023/12/31',
+                    50,
+                    '2023/05/03',
+                    '2023/05/31',
                     1,
                     [],
                     1);
