@@ -109,12 +109,14 @@
         </div>
 
         <div class="table-responsive tableOverBox">
-            <table class="table table-striped tableList">
+            <table class="table border-bottom tableList mb-0">
                 <thead class="small">
                     <tr>
                         <th scope="col">#</th>
-                        <th scope="col">代墊單號</th>
-                        <th scope="col">付款單號</th>
+                        <th scope="col" class="wrap">
+                            <div>代墊單號</div>
+                            <div>付款單號</div>
+                        </th>
                         <th scope="col">代墊對象</th>
                         <th scope="col">科目</th>
                         <th scope="col">摘要</th>
@@ -126,33 +128,52 @@
                 <tbody>
                     @foreach ($dataList as $key => $data)
                         @php
-                            $data->accounting = null;
-                            $data->summary = null;
-
-                            if($data->so_items){
-                                $so_items = json_decode($data->so_items);
-                                $str = '';
-                                foreach ($so_items as $i_value){
-                                    $str .= $i_value->grade_code . ' ' . $i_value->grade_name . '<br>';
-                                }
-
-                                $data->accounting = rtrim($str, '<br>');
-                                $data->summary = rtrim(implode('<br>', collect($so_items)->pluck('summary')->toArray()), '<br>');
-                            }
+                            $rows = $data->so_items ? count(json_decode($data->so_items)) + 1 : 2;
                         @endphp
                         <tr>
-                            <td>{{ $key + 1 }}</td>
-                            <td><a href="{{ route('cms.stitute.show', ['id' => $data->so_id]) }}">{{ $data->so_sn }}</a></td>
-                            <td><a href="{{ route('cms.stitute.po-show', ['id' => $data->so_id]) }}">{{ $data->po_sn }}</a></td>
-                            <td>{{ $data->so_client_name }}</td>
+                            <th rowspan="{{ $rows }}">{{ $key + 1 }}</th>
+                            <td rowspan="{{ $rows }}" class="wrap">
+                                <div>
+                                    @if ($data->so_sn)
+                                        <a href="{{ route('cms.stitute.show', ['id' => $data->so_id]) }}">{{ $data->so_sn }}</a>
+                                    @else
+                                        -
+                                    @endif
+                                </div>
+                                <div>
+                                    @if ($data->po_sn)
+                                        <a href="{{ route('cms.stitute.po-show', ['id' => $data->so_id]) }}">{{ $data->po_sn }}</a>
+                                    @else
+                                        -
+                                    @endif
+                                </div>
+                            </td>
+                            <td rowspan="{{ $rows }}" class="wrap">{{ $data->so_client_name }}</td>
 
-                            <td>{!! $data->accounting !!}</td>
-                            <td>{!! $data->summary !!}</td>
+                            <td class="p-0 border-bottom-0" height="0"></td>
+                            <td class="p-0 border-bottom-0" height="0"></td>
 
-                            <td class="text-end">${{ number_format($data->so_price) }}</td>
-                            <td>{{ $data->creator_name }}</td>
-                            <td>{{ $data->creator_department }}</td>
+                            <td rowspan="{{ $rows }}" class="text-end">${{ number_format($data->so_price) }}</td>
+                            <td rowspan="{{ $rows }}">{{ $data->creator_name }}</td>
+                            <td rowspan="{{ $rows }}">{{ $data->creator_department }}</td>
                         </tr>
+                        @if ($data->so_items)
+                            @foreach (json_decode($data->so_items) as $i_value)
+                                <tr>
+                                    <td class="wrap table-light ps-2">
+                                        {{ $i_value->grade_code }} {{ $i_value->grade_name }}
+                                    </td>
+                                    <td class="wrap table-light pe-2">
+                                        {{ $i_value->summary }}
+                                    </td>
+                                </tr>
+                            @endforeach
+                        @else
+                            <tr>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        @endif
                     @endforeach
                 </tbody>
             </table>

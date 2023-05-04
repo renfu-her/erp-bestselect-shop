@@ -109,7 +109,7 @@
         </div>
 
         <div class="table-responsive tableOverBox">
-            <table class="table tableList border-bottom">
+            <table class="table tableList border-bottom mb-0">
                 <thead class="small align-middle">
                     <tr>
                         <th scope="col" style="width:40px">#</th>
@@ -125,7 +125,7 @@
                 <tbody>
                     @foreach ($dataList as $key => $data)
                         @php
-                            $rows = count($data->debit) + count($data->credit) + 1;
+                            $rows = count($data->debit) + count($data->credit) > 0 ? count($data->debit) + count($data->credit) + 1 : 2;
                         @endphp
                         <tr>
                             <td rowspan="{{ $rows }}">{{ $key + 1 }}</td>
@@ -153,44 +153,53 @@
 
                             <td rowspan="{{ $rows }}">{{ $data->payment_date ? date('Y/m/d', strtotime($data->payment_date)) : '-' }}</td>
                         </tr>
-                        @foreach ($data->debit as $d_value)
+                        @if (count($data->debit) + count($data->credit) > 0)
+                            @foreach ($data->debit as $d_value)
+                                <tr>
+                                    <td class="table-warning wrap ps-2">
+                                        {{$d_value->account_code}} {{$d_value->account_name}}
+                                    </td>
+                                    <td class="table-warning wrap">
+                                        @if($d_value->d_type == 'logistics')
+                                            {{ $d_value->summary ?? $d_value->account_name }} {{ $data->source_sn }}
+                                        @elseif($d_value->d_type == 'discount')
+                                            {{$d_value->discount_title}} - {{$data->source_sn}}
+                                        @else
+                                            {{$d_value->product_title}}({{ $d_value->product_price }} * {{$d_value->product_qty}}){{ $d_value->product_owner ? '(' . $d_value->product_owner . ')' : '' }} - {{$data->source_sn}}
+                                        @endif
+                                    </td>
+                                    <td class="table-warning wrap text-end">
+                                        {{ number_format($d_value->price) }}
+                                    </td>
+                                    <td class="table-warning wrap pe-2 text-end"></td>
+                                </tr>
+                            @endforeach
+                            @foreach ($data->credit as $c_value)
+                                <tr>
+                                    <td class="wrap ps-2">
+                                        {{$c_value->account_code}} {{$c_value->account_name}}
+                                    </td>
+                                    <td class="wrap">
+                                        @if($c_value->payable_type == 0)
+                                        {{$c_value->method_name}}{{$c_value->summary ? ' - ' . $c_value->summary : ''}}{{$c_value->note ? ' - ' . $c_value->note : ''}} - {{ $data->source_sn }} - {{ $po_sn[0] }}
+                                        @else
+                                        {{$c_value->method_name}}{{$c_value->summary ? ' - ' . $c_value->summary : ''}}{{$c_value->note ? ' - ' . $c_value->note : ''}} - {{ $data->source_sn }} - {{ count($po_sn) > 1 ? $po_sn[1] : $po_sn[0]  }}
+                                        @endif
+                                    </td>
+                                    <td class="wrap text-end"></td>
+                                    <td class="wrap pe-2 text-end">
+                                        {{ number_format($c_value->price) }}
+                                    </td>
+                                </tr>
+                            @endforeach
+                        @else
                             <tr>
-                                <td class="table-warning wrap ps-2">
-                                    {{$d_value->account_code}} {{$d_value->account_name}}
-                                </td>
-                                <td class="table-warning wrap">
-                                    @if($d_value->d_type == 'logistics')
-                                        {{ $d_value->summary ?? $d_value->account_name }} {{ $data->source_sn }}
-                                    @elseif($d_value->d_type == 'discount')
-                                        {{$d_value->discount_title}} - {{$data->source_sn}}
-                                    @else
-                                        {{$d_value->product_title}}({{ $d_value->product_price }} * {{$d_value->product_qty}}){{ $d_value->product_owner ? '(' . $d_value->product_owner . ')' : '' }} - {{$data->source_sn}}
-                                    @endif
-                                </td>
-                                <td class="table-warning wrap text-end">
-                                    {{ number_format($d_value->price) }}
-                                </td>
-                                <td class="table-warning wrap pe-2 text-end"></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
                             </tr>
-                        @endforeach
-                        @foreach ($data->credit as $c_value)
-                            <tr>
-                                <td class="wrap ps-2">
-                                    {{$c_value->account_code}} {{$c_value->account_name}}
-                                </td>
-                                <td class="wrap">
-                                    @if($c_value->payable_type == 0)
-                                    {{$c_value->method_name}}{{$c_value->summary ? ' - ' . $c_value->summary : ''}}{{$c_value->note ? ' - ' . $c_value->note : ''}} - {{ $data->source_sn }} - {{ $po_sn[0] }}
-                                    @else
-                                    {{$c_value->method_name}}{{$c_value->summary ? ' - ' . $c_value->summary : ''}}{{$c_value->note ? ' - ' . $c_value->note : ''}} - {{ $data->source_sn }} - {{ count($po_sn) > 1 ? $po_sn[1] : $po_sn[0]  }}
-                                    @endif
-                                </td>
-                                <td class="wrap text-end"></td>
-                                <td class="wrap pe-2 text-end">
-                                    {{ number_format($c_value->price) }}
-                                </td>
-                            </tr>
-                        @endforeach
+                        @endif
                     @endforeach
                 </tbody>
             </table>

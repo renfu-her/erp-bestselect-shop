@@ -87,7 +87,7 @@
         </div>
 
         <div class="table-responsive tableOverBox">
-            <table class="table tableList border-bottom">
+            <table class="table tableList border-bottom mb-0">
                 <thead class="small align-middle">
                     <tr>
                         <th scope="col" style="width:40px">#</th>
@@ -103,10 +103,10 @@
                 <tbody>
                     @foreach ($dataList as $key => $data)
                         @php
-                            $rows = count(json_decode($data->tv_items)) + 1;
+                            $rows = $data->tv_items ? count(json_decode($data->tv_items)) + 1 : 2;
                         @endphp
                         <tr>
-                            <td rowspan="{{ $rows }}">{{ $key + 1 }}</td>
+                            <th rowspan="{{ $rows }}">{{ $key + 1 }}</th>
                             <td rowspan="{{ $rows }}">
                                 <a href="{{ route('cms.transfer_voucher.show', ['id' => $data->tv_id]) }}">
                                     {{ $data->tv_sn }}
@@ -133,13 +133,18 @@
                                         {{ $i_value->summary }}
                                     </td>
                                     <td @class(['wrap text-end', 'table-warning' => $i_value->debit_credit_code == 'debit'])>
-                                        {{ number_format($i_value->final_price) }}
+                                        ${{ number_format($i_value->final_price) }}
                                     </td>
                                     <td @class(['wrap pe-2', 'table-warning' => $i_value->debit_credit_code == 'debit'])>
                                         {{ $i_value->department }}
                                     </td>
                                 </tr>
                             @endforeach
+                        @else
+                            <tr>
+                                <td></td>
+                                <td></td>
+                            </tr>
                         @endif
                     @endforeach
                 </tbody>

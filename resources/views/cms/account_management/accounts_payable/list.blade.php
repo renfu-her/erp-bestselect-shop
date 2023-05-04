@@ -114,7 +114,7 @@
                 <tbody>
                     @foreach ($data_list as $key => $data)
                         <tr>
-                            <td>{{ $key + 1 }}</td>
+                            <th>{{ $key + 1 }}</th>
                             <td><a href="{{ route('cms.accounts_payable.claim', ['type'=>'t', 'id'=>$data->po_target_id, 'key'=>$data->po_target_name])}}">{{ $data->po_target_name }}</a></td>
                             <td><a href="{{ route('cms.accounts_payable.claim', ['type'=>'g', 'id'=>$data->po_payable_grade_id, 'key'=>$data->po_payable_grade_name])}}">{{ $data->po_payable_grade_code }} {{ $data->po_payable_grade_name }}</a></td>
                             <td>{{ $data->summary }}</td>

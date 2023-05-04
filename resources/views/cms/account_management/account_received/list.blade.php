@@ -100,34 +100,40 @@
                 <thead>
                     <tr>
                         <th scope="col">#</th>
-                        <th scope="col">對象</th>
+                        <th scope="col">對象　</th>
                         <th scope="col">會計科目</th>
                         <th scope="col">摘要</th>
                         <th scope="col">金額</th>
                         <th scope="col">狀態</th>
                         <th scope="col">日期</th>
-                        <th scope="col">銷帳單號</th>
-                        <th scope="col">單據編號</th>
+                        <th scope="col" class="wrap">
+                            <div>銷帳單號</div>
+                            <div>單據編號</div>
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($data_list as $key => $data)
                         <tr>
-                            <td>{{ $key + 1 }}</td>
-                            <td><a href="{{ route('cms.account_received.claim', ['type'=>'t', 'id'=>0, 'key'=>$data->ro_target_name])}}">{{ $data->ro_target_name }}</a></td>
-                            <td><a href="{{ route('cms.account_received.claim', ['type'=>'g', 'id'=>$data->ro_received_grade_id, 'key'=>$data->ro_received_grade_name])}}">{{ $data->ro_received_grade_code }} {{ $data->ro_received_grade_name }}</a></td>
-                            <td>{{ $data->summary }}</td>
-                            <td>{{ number_format($data->tw_price) }}</td>
+                            <th>{{ $key + 1 }}</th>
+                            <td class="wrap"><a href="{{ route('cms.account_received.claim', ['type'=>'t', 'id'=>0, 'key'=>$data->ro_target_name])}}">{{ $data->ro_target_name }}</a></td>
+                            <td class="wrap"><a href="{{ route('cms.account_received.claim', ['type'=>'g', 'id'=>$data->ro_received_grade_id, 'key'=>$data->ro_received_grade_name])}}">{{ $data->ro_received_grade_code }} {{ $data->ro_received_grade_name }}</a></td>
+                            <td class="wrap">{{ $data->summary }}</td>
+                            <td>${{ number_format($data->tw_price) }}</td>
                             <td>{!! $data->account_status_code == 0 ? '<span class="text-danger">未入款</span>' : '已入款' !!}</td>
                             <td>{{ $data->ro_created ? date('Y/m/d', strtotime($data->ro_created)) : '' }}</td>
-                            <td>
-                                @if($data->append_ro_source_type == 'ord_received_orders' && $data->account_status_code == 0)
-                                <a href="{{ route('cms.account_received.ro-edit', ['id' => $data->append_ro_source_id]) }}">{{ $data->append_ro_sn }}</a>
-                                @elseif($data->append_ro_source_type == 'ord_received_orders' && $data->account_status_code == 1)
-                                <a href="{{ route('cms.account_received.ro-receipt', ['id' => $data->append_ro_source_id]) }}">{{ $data->append_ro_sn }}</a>
-                                @endif
+                            <td class="wrap">
+                                <div>
+                                    @if($data->append_ro_source_type == 'ord_received_orders' && $data->account_status_code == 0)
+                                    <a href="{{ route('cms.account_received.ro-edit', ['id' => $data->append_ro_source_id]) }}">{{ $data->append_ro_sn }}</a>
+                                    @elseif($data->append_ro_source_type == 'ord_received_orders' && $data->account_status_code == 1)
+                                    <a href="{{ route('cms.account_received.ro-receipt', ['id' => $data->append_ro_source_id]) }}">{{ $data->append_ro_sn }}</a>
+                                    @else
+                                    -
+                                    @endif
+                                </div>
+                                <div><a href="{{ $data->link }}">{{ $data->ro_sn }}</a></div>
                             </td>
-                            <td><a href="{{ $data->link }}">{{ $data->ro_sn }}</a></td>
                         </tr>
                     @endforeach
                 </tbody>
