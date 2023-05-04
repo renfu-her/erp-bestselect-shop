@@ -11,6 +11,7 @@
                     <select name="select_platform" id="select_source" class="form-select -select2 -single" required>
                         <option value="Bestselect-Internal-Link">一般分享（會刪除分潤、廣告等參數）</option>
                         @can('cms.utm-url.whole')
+                            <option value="Bestselect-Fb-Ads">喜鴻購物-臉書廣告</option>
                             <option value="Bestselect-Page">喜鴻購物-臉書粉絲團</option>
                             <option value="Facebook-Bestselection-Group">喜鴻購物-臉書社團</option>
                             <option value="Bestselection-Line-Text">喜鴻購物-Line文字</option>
@@ -212,6 +213,9 @@
                             break;
                         case "Bestselect-Page":
                             utmPath = toUtmPath(url, "fb", "page", "bestselect_page-" + dat, today, "text");
+                            break;
+                        case "Bestselect-Fb-Ads":
+                            utmPath = toUtmPath(url, "fb", "paid", "mkt_bestselect-" + dat, today, "all");
                             break;
                         case "FB-CG":
                             utmPath = toUtmPath(url, "fb", "paid", "cg_bestselect-" + dat, today, "all");
