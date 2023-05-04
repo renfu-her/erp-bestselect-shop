@@ -80,7 +80,7 @@
         </div>
 
         <div class="table-responsive tableOverBox">
-            <table class="table tableList border-bottom">
+            <table class="table tableList border-bottom mb-0">
                 <thead class="small align-middle">
                     <tr>
                         <th scope="col" style="width:40px">#</th>
@@ -97,11 +97,10 @@
                 <tbody>
                     @foreach ($dataList as $key => $data)
                         @php
-                            // $rows = count($data->debit) + count($data->credit) + 1;
-                            $rows = count($data->debit) + 1;
+                            $rows = count($data->debit) > 0 ? count($data->debit) + 1 : 2;
                         @endphp
                         <tr>
-                            <td rowspan="{{ $rows }}">{{ $key + 1 }}</td>
+                            <th rowspan="{{ $rows }}">{{ $key + 1 }}</th>
                             <td rowspan="{{ $rows }}">{{ $data->po_target_name }}</td>
 
                             <td rowspan="{{ $rows }}">
@@ -130,25 +129,33 @@
                             <td rowspan="{{ $rows }}">{{ $data->payment_date ? date('Y/m/d', strtotime($data->payment_date)) : '-' }}</td>
                         </tr>
 
-                        @foreach ($data->debit as $d_value)
+                        @if (count($data->debit) > 0)
+                            @foreach ($data->debit as $d_value)
+                                <tr>
+                                    <td class="table-warning wrap ps-2">
+                                        {{$d_value->account_code}} {{$d_value->account_name}}
+                                    </td>
+                                    <td class="table-warning wrap">
+                                        @if($d_value->d_type == 'logistics')
+                                            {{ $d_value->summary ?? $d_value->account_name }} {{ $data->source_sn }}
+                                        @elseif($d_value->d_type == 'discount')
+                                            {{$d_value->discount_title}} - {{$data->source_sn}}
+                                        @else
+                                            {{$d_value->product_title}}({{ $d_value->product_price }} * {{$d_value->product_qty}})({{ $d_value->product_owner }}) - {{$data->source_sn}}
+                                        @endif
+                                    </td>
+                                    <td class="table-warning wrap text-end">
+                                        ${{ number_format($d_value->price) }}
+                                    </td>
+                                </tr>
+                            @endforeach
+                        @else
                             <tr>
-                                <td class="table-warning wrap ps-2">
-                                    {{$d_value->account_code}} {{$d_value->account_name}}
-                                </td>
-                                <td class="table-warning wrap">
-                                    @if($d_value->d_type == 'logistics')
-                                        {{ $d_value->summary ?? $d_value->account_name }} {{ $data->source_sn }}
-                                    @elseif($d_value->d_type == 'discount')
-                                        {{$d_value->discount_title}} - {{$data->source_sn}}
-                                    @else
-                                        {{$d_value->product_title}}({{ $d_value->product_price }} * {{$d_value->product_qty}})({{ $d_value->product_owner }}) - {{$data->source_sn}}
-                                    @endif
-                                </td>
-                                <td class="table-warning wrap text-end">
-                                    {{ number_format($d_value->price) }}
-                                </td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
                             </tr>
-                        @endforeach
+                        @endif
                     @endforeach
                 </tbody>
             </table>

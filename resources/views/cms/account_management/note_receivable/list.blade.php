@@ -191,25 +191,29 @@
         </div>
 
         <div class="table-responsive tableOverBox">
-            <table class="table table-striped tableList">
-                <thead>
+            <table class="table table-striped tableList mb-0">
+                <thead class="small align-middle">
                     <tr>
                         <th scope="col">#</th>
                         <th scope="col">支票號碼</th>
                         <th scope="col">金額</th>
                         <th scope="col">狀態</th>
                         <th scope="col">收款單號</th>
-                        <th scope="col">收票日期</th>
-                        <th scope="col">託收次交日期</th>
-                        <th scope="col">到期日</th>
-                        <th scope="col">兌現日期</th>
-                        <th scope="col">抽票日期</th>
+                        <th scope="col" class="wrap">
+                            <div>收票日期</div>
+                            <div>託收次交日期</div>
+                            <div>到期日</div>
+                        </th>
+                        <th scope="col" class="wrap">
+                            <div>兌現日期</div>
+                            <div>抽票日期</div>
+                        </th>
                         <th scope="col">業務員</th>
                         <th scope="col">發票人</th>
                         <th scope="col">託收銀行</th>
                         <th scope="col">應付帳號</th>
-                        <th scope="col">付款行別</th>
-                        <th scope="col">存入地區</th>
+                        <th scope="col" class="wrap lh-1">付款行別</th>
+                        <th scope="col" class="wrap lh-sm">存入地區</th>
                         <th scope="col">備註</th>
                     </tr>
                 </thead>
@@ -217,19 +221,23 @@
                 <tbody>
                     @foreach ($data_list as $key => $data)
                         <tr>
-                            <td>{{ $key + 1 }}</td>
+                            <th>{{ $key + 1 }}</th>
                             <td><a href="{{ route('cms.note_receivable.record', ['id'=>$data->cheque_received_id]) }}">{{ $data->cheque_ticket_number }}</a></td>
-                            <td>{{ number_format($data->tw_price) }}</td>
+                            <td>${{ number_format($data->tw_price) }}</td>
                             <td>{{ $data->cheque_status }}</td>
                             <td>{{ $data->ro_sn }}</td>
-                            <td>{{ $data->ro_receipt_date ? date('Y/m/d', strtotime($data->ro_receipt_date)) : '' }}</td>
-                            <td>{{ $data->cheque_c_n_date ? date('Y/m/d', strtotime($data->cheque_c_n_date)) : '' }}</td>
-                            <td>{{ $data->cheque_due_date ? date('Y/m/d', strtotime($data->cheque_due_date)) : '' }}</td>
-                            <td>{{ $data->cheque_cashing_date ? date('Y/m/d', strtotime($data->cheque_cashing_date)) : '' }}</td>
-                            <td>{{ $data->cheque_draw_date ? date('Y/m/d', strtotime($data->cheque_draw_date)) : '' }}</td>
+                            <td class="wrap">
+                                <div>{{ $data->ro_receipt_date ? date('Y/m/d', strtotime($data->ro_receipt_date)) : '-' }}</div>
+                                <div>{{ $data->cheque_c_n_date ? date('Y/m/d', strtotime($data->cheque_c_n_date)) : '-' }}</div>
+                                <div>{{ $data->cheque_due_date ? date('Y/m/d', strtotime($data->cheque_due_date)) : '-' }}</div>
+                            </td>
+                            <td class="wrap">
+                                <div>{{ $data->cheque_cashing_date ? date('Y/m/d', strtotime($data->cheque_cashing_date)) : '-' }}</div>
+                                <div>{{ $data->cheque_draw_date ? date('Y/m/d', strtotime($data->cheque_draw_date)) : '-' }}</div>
+                            </td>
                             <td>{{ $data->ro_undertaker }}</td>
-                            <td>{{ $data->cheque_drawer }}</td>
-                            <td>{{ $data->cheque_banks }}</td>
+                            <td class="wrap lh-sm">{{ $data->cheque_drawer }}</td>
+                            <td class="wrap lh-sm">{{ $data->cheque_banks }}</td>
                             <td>{{ $data->cheque_accounts }}</td>
                             <td></td>
                             <td>{{ $data->cheque_deposited_area }}</td>
@@ -237,29 +245,10 @@
                         </tr>
                     @endforeach
                 </tbody>
-
-                <tfoot class="table-warning">
-                    <tr>
-                        <th></th>
-                        <th>合計：{{ count($data_list) }} 張</th>
-                        <th class="text-end">合計：${{ number_format($data_list->sum('tw_price')) }}</th>
-                        <th></th>
-                        <th></th>
-                        <th></th>
-                        <th></th>
-                        <th></th>
-                        <th></th>
-                        <th></th>
-                        <th></th>
-                        <th></th>
-                        <th></th>
-                        <th></th>
-                        <th></th>
-                        <th></th>
-                        <th></th>
-                    </tr>
-                </tfoot>
             </table>
+        </div>
+        <div class="mark tableOverBox px-4 py-2 fw-bold">
+            合計：${{ number_format($data_list->sum('tw_price')) }}（{{ count($data_list) }} 張）
         </div>
     </div>
 

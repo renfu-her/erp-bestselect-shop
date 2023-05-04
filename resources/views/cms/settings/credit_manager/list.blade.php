@@ -178,7 +178,7 @@
 
         <div class="table-responsive tableOverBox">
             <table class="table table-striped tableList">
-                <thead>
+                <thead class="small">
                     <tr>
                         <th scope="col">#</th>
                         <th scope="col">持卡人</th>
@@ -188,7 +188,7 @@
                         <th scope="col">刷卡日期</th>
                         <th scope="col">卡別</th>
                         <th scope="col">收款單號</th>
-                        <th scope="col">線上交易</th>
+                        <th scope="col" class="lh-sm">線上<br>交易</th>
                         <th scope="col">入款日期</th>
                         <th scope="col">入款單號</th>
                         <th scope="col">結帳地區</th>
@@ -198,16 +198,16 @@
                 <tbody>
                     @foreach ($data_list as $key => $data)
                         <tr>
-                            <td>{{ $key + 1 }}</td>
+                            <th>{{ $key + 1 }}</th>
                             <td>{{ $data->credit_card_owner_name }}</td>
                             <td><a href="{{ route('cms.credit_manager.record', ['id'=>$data->credit_card_received_id])}}">{{ $data->credit_card_number }}</a></td>
-                            <td>{{ number_format($data->credit_card_price) }}</td>
+                            <td>${{ number_format($data->credit_card_price) }}</td>
                             <td>{{ $data->credit_card_status_code == 0 ? '刷卡' : ($data->credit_card_status_code == 1 ? '請款' : '入款') }}</td>
-                            <td>{{ $data->credit_card_checkout_date ? date('Y/m/d', strtotime($data->credit_card_checkout_date)) : '' }}</td>
+                            <td>{{ $data->credit_card_checkout_date ? date('Y/m/d', strtotime($data->credit_card_checkout_date)) : '-' }}</td>
                             <td>{{ $data->credit_card_type }}</td>
                             <td><a href="{{ $data->link }}">{{ $data->ro_sn }}</a></td>
                             <td>{!! $data->credit_card_checkout_mode == 'online' ? '<i class="bi bi-check-lg"></i>' : '<i class="bi bi-x-lg"></i>' !!}</td>
-                            <td>{{ $data->credit_card_posting_date ? date('Y/m/d', strtotime($data->credit_card_posting_date)) : '' }}</td>
+                            <td>{{ $data->credit_card_posting_date ? date('Y/m/d', strtotime($data->credit_card_posting_date)) : '-' }}</td>
                             <td><a href="{{ $data->io_id ? route('cms.credit_manager.income-detail', ['id' => $data->io_id]) : 'javascript:void(0);'}}">{{ $data->io_sn }}</a></td>
                             <td>{{ $data->credit_card_area }}</td>
                             <td>{{ $data->bank_name }}</td>

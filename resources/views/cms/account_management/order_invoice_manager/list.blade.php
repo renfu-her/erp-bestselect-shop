@@ -82,14 +82,13 @@
                         <th scope="col">發票日期</th>
                         <th scope="col">類型</th>
                         <th scope="col">買受人</th>
-                        <th scope="col">金額</th>
-{{--                        <th scope="col">是否作廢</th>--}}
+                        <th scope="col" class="text-end">金額</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($data_list as $key => $data)
                         <tr>
-                            <td>{{ $key + 1 }}</td>
+                            <th>{{ $key + 1 }}</th>
                             @if(app(\App\Models\Order::class)->getTable() == $data->source_type)
                                 @if(! $data->deleted_at)
                                     <td><a href="{{ route('cms.order.show-invoice', ['id' => $data->source_id, 'unique_id' => $data->unique_id]) }}">{{ $data->invoice_number }}</a></td>
@@ -104,11 +103,10 @@
                             @else
                                 <td>{{ $data->merchant_order_no }}</td>
                             @endif
-                            <td>{{ $data->invoice_date }}</td>
+                            <td>{{ date('Y/m/d', strtotime($data->invoice_date)) }}</td>
                             <td>{{ $data->category }}</td>
                             <td>{{ $data->buyer_name }}</td>
-                            <td>{{ number_format($data->total_amt, 2) }}</td>
-{{--                            <td>是否作廢</td>--}}
+                            <td class="text-end">${{ number_format($data->total_amt) }}</td>
                         </tr>
                     @endforeach
                 </tbody>

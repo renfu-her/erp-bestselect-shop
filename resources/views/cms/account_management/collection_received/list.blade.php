@@ -125,7 +125,7 @@
         </div>
 
         <div class="table-responsive tableOverBox">
-            <table class="table tableList border-bottom">
+            <table class="table tableList border-bottom mb-0">
                 <thead class="small align-middle">
                     <tr>
                         <th scope="col" style="width:40px">#</th>

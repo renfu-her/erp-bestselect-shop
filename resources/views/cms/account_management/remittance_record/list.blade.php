@@ -72,7 +72,7 @@
                         <th scope="col">類別</th>
                         <th scope="col">單號</th>
                         <th scope="col">匯款日期</th>
-                        <th scope="col">金額</th>
+                        <th scope="col" class="text-end">金額</th>
                         <th scope="col">會計代碼</th>
                         <th scope="col">會計科目</th>
                     </tr>
@@ -80,13 +80,13 @@
                 <tbody>
                     @foreach ($data_list as $key => $data)
                         <tr>
-                            <td>{{ $key + 1 }}</td>
+                            <th>{{ $key + 1 }}</th>
                             <td>{{ $data->type }}</td>
                             <td><a href="{{ Route('cms.remittance_record.detail', ['remit_id' => $data->remit_id, 'sn' => $data->sn], true) }}">{{ $data->sn }}</a></td>
-                            <td>{{ $data->remit_date }}</td>
-                            <td>{{ number_format($data->tw_price, 2) }}</td>
+                            <td>{{ date('Y/m/d', strtotime($data->remit_date)) }}</td>
+                            <td class="text-end">${{ number_format($data->tw_price) }}</td>
                             <td>{{ $data->code }}</td>
-                            <td>{{ $data->name }}</td>
+                            <td class="wrap">{{ $data->name }}</td>
                         </tr>
                     @endforeach
                 </tbody>
