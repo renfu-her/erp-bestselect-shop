@@ -394,4 +394,37 @@ class CustomerDividend extends Model
         }
     }
 
+    public static function totalList($keyword = null)
+    {
+        $getDividendSub = self::select(['customer_id', 'type'])
+            ->selectRaw('SUM(dividend) as dividend')
+            ->where('type', 'get')
+            ->groupBy('customer_id');
+
+        $usedDividendSub = self::select(['customer_id', 'type'])
+            ->selectRaw('ABS(SUM(dividend)) as dividend')
+            ->where('type', 'used')
+            ->groupBy('customer_id');
+
+        $re = DB::table('usr_customers as customer')
+            ->select(['customer.name',
+                'customer.email',
+                'customer.sn'])
+            ->selectRaw('IF(getd.dividend IS NULL,0,getd.dividend) as get_dividend')
+            ->selectRaw('IF(used.dividend IS NULL,0,used.dividend) as used_dividend')
+
+            ->leftJoinSub($getDividendSub, 'getd', 'customer.id', '=', 'getd.customer_id')
+            ->leftJoinSub($usedDividendSub, 'used', 'customer.id', '=', 'used.customer_id');
+
+        if ($keyword) {
+            $re->where(function ($query) use ($keyword) {
+                $query->where('name', 'like', '%' . $keyword . '%')
+                    ->orWhere('email', 'like', '%' . $keyword . '%')
+                    ->orWhere('sn', 'like', '%' . $keyword . '%');
+            });
+        }
+        return $re;
+
+    }
+
 }
