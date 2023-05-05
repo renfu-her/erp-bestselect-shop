@@ -31,7 +31,7 @@
                                         <td>付款摘要</td>
                                         <td>
                                             <div class="table-responsive">
-                                                <table class="table table-bordered text-center align-middle d-sm-table d-none text-nowrap">
+                                                <table class="table table-bordered text-center align-middle">
                                                     <tbody class="border-top-0 m_row">
                                                     <tr class="table-light">
                                                         <td class="col-2">產品名稱</td>
