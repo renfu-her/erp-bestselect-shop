@@ -412,7 +412,7 @@ return
                 "route_name" => "cms.permission.index",
             ],
             [
-                "title" => "紅利列表",
+                "title" => "消費者紅利點數",
                 "controller_name" => "DividendCtrl",
                 "route_name" => "cms.user-dividend.index",
             ],
