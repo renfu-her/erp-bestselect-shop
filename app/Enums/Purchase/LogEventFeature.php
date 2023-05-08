@@ -17,6 +17,8 @@ final class LogEventFeature extends Enum
     const close = 'close';
     const change_data = 'change_data';
     const recovery = 'recovery';
+    const add_return_inbound = 'add_return_inbound';
+    const del_return_inbound = 'del_return_inbound';
 
     //款式
     const style_add = 'style_add';
@@ -74,6 +76,12 @@ final class LogEventFeature extends Enum
                 break;
             case self::recovery:
                 $result = '恢復採購單';
+                break;
+            case self::add_return_inbound:
+                $result = '退出入庫';
+                break;
+            case self::del_return_inbound:
+                $result = '取消退出入庫';
                 break;
 
             case self::style_add:

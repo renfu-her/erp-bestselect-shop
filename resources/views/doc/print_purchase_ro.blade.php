@@ -73,7 +73,7 @@
                             <td width="50%">製表日期：{{ date('Y-m-d', strtotime($received_order->created_at)) }}</td>
                         </tr>
                         <tr>
-                            <td>訂單流水號：{{ $order->sn }}</td>
+                            <td>訂單流水號：{{ $return->sn }}</td>
                             <td>入帳日期：{{ $received_order->receipt_date ? date('Y-m-d', strtotime($received_order->receipt_date)) : '' }}</td>
                         </tr>
                     </tbody>
@@ -91,36 +91,15 @@
                         </tr>
                     </thead>
                     <tbody style="text-align: left;">
-                        @foreach($order_list_data as $value)
+                        @foreach($return_item as $value)
                             <tr>
-                                <td>{{ $product_grade_name }} {{ $value->product_title }}{{'（' . ($value->del_even ?? null) . ' - ' . ($value->del_category_name ?? null) . '）'}}{{'（' . $value->product_price . ' * ' . $value->product_qty . '）'}}</td>
-                                <td style="text-align: right;">{{ number_format($value->product_qty) }}</td>
-                                <td style="text-align: right;">{{ number_format($value->product_price, 2) }}</td>
-                                <td style="text-align: right;">{{ number_format($value->product_origin_price) }}</td>
-                                <td>{{ $received_order->memo }} {{ $order->sn }} {{ $value->product_taxation == 1 ? '應稅' : '免稅' }} {{ $value->product_note ?? '' }} {{ $value->product_ro_note }}{{-- $order->note --}}</td>
+                                <td>{{ $value->grade_code . ' ' . $value->grade_name }} {{ $value->product_title }}{{'（' . $value->price . ' * ' . $value->qty . '）'}}</td>
+                                <td class="text-align: right;">{{ number_format($value->qty) }}</td>
+                                <td class="text-align: right;">{{ number_format($value->price, 2) }}</td>
+                                <td class="text-align: right;">{{ number_format($value->sub_total) }}</td>
+                                <td>{{ $received_order->memo }} {{ $return->sn }} {{ $value->type == 0 ? ($value->product_taxation == 1 ? '應稅' : '免稅') : '' }} {{ $value->memo ?? '' }} {{ $value->ro_note }}</td>
                             </tr>
                         @endforeach
-                        @if($order->dlv_fee > 0)
-                            <tr>
-                                <td>{{ $logistics_grade_name }}</td>
-                                <td style="text-align: right;">1</td>
-                                <td style="text-align: right;">{{ number_format($order->dlv_fee, 2) }}</td>
-                                <td style="text-align: right;">{{ number_format($order->dlv_fee) }}</td>
-                                <td>{{ $received_order->memo }} {{ $order->sn }} {{ $order->dlv_taxation == 1 ? '應稅' : '免稅' }}</td>
-                            </tr>
-                        @endif
-
-                        @if($order->discount_value > 0)
-                            @foreach($order_discount ?? [] as $d_value)
-                                <tr>
-                                    <td>{{ $d_value->account_code }} {{ $d_value->account_name }} - {{ $d_value->title }}</td>
-                                    <td style="text-align: right;">1</td>
-                                    <td style="text-align: right;">-{{ number_format($d_value->discount_value, 2) }}</td>
-                                    <td style="text-align: right;">-{{ number_format($d_value->discount_value) }}</td>
-                                    <td>{{ $received_order->memo }} {{ $order->sn }} {{ $d_value->discount_taxation == 1 ? '應稅' : '免稅' }}</td>
-                                </tr>
-                            @endforeach
-                        @endif
                     </tbody>
                 </table>
                 <hr width="710" style="margin: .5rem auto;">

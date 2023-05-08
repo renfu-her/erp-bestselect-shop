@@ -41,10 +41,10 @@
 {{--        <a href="#"--}}
 {{--            class="nav-link disabled">結單管理</a>--}}
 {{--    </li>--}}
-{{--    <li class="nav-item">--}}
-{{--        <a href="#"--}}
-{{--            class="nav-link disabled">退貨</a>--}}
-{{--    </li>--}}
+    <li class="nav-item">
+        <a href="{{ route('cms.purchase.return_list', ['purchase_id' => $id], true) }}"
+            class="nav-link {{ isActive('return_list', $route_name) }}">退出列表</a>
+    </li>
 </ul>
 <hr class="narbarBottomLine mb-3">
 

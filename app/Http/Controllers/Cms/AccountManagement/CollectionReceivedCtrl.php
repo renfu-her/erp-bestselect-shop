@@ -147,7 +147,7 @@ class CollectionReceivedCtrl extends Controller
                         $product_title = $o_value->product_title;
 
                         // if(in_array($value->ro_source_type, ['ord_received_orders', 'acc_request_orders'])) {
-                        if(in_array($value->ro_source_type, ['acc_request_orders'])) {
+                        if(in_array($value->ro_source_type, ['acc_request_orders', 'pcs_purchase_return'])) {
                             $product_account = AllGrade::find($o_value->all_grades_id) ? AllGrade::find($o_value->all_grades_id)->eachGrade : null;
                             $account_code = $product_account ? $product_account->code : '4000';
                             $account_name = $product_account ? $product_account->name : '無設定會計科目';
@@ -155,6 +155,9 @@ class CollectionReceivedCtrl extends Controller
 
                             if($value->ro_source_type == 'acc_request_orders'){
                                 $product_title = $account_name . ' ' . $o_value->product_title;
+
+                            } else if($value->ro_source_type == 'pcs_purchase_return'){
+                                $product_title = $o_value->product_title;
                             }
                         }
 
