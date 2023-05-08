@@ -41,6 +41,8 @@
                                      @elseif($data->feature == App\Enums\Purchase\LogEventFeature::send_back()->value)@if(isset($data->qty)) 數量:{{$data->qty}} @endif
                                      @elseif($data->feature == App\Enums\Purchase\LogEventFeature::consume_delivery()->value)@if(isset($data->qty)) 數量:{{$data->qty}} @endif
                                      @elseif($data->feature == App\Enums\Purchase\LogEventFeature::consume_send_back()->value)@if(isset($data->qty)) 數量:{{$data->qty}} @endif
+                                     @elseif($data->feature == App\Enums\Purchase\LogEventFeature::add_return_inbound()->value)@if(isset($data->qty)) 數量:{{$data->qty}} @endif
+                                     @elseif($data->feature == App\Enums\Purchase\LogEventFeature::del_return_inbound()->value)@if(isset($data->qty)) 數量:{{$data->qty}} @endif
                                      @else    @endif
                                  @endif
 {{--                             @endif--}}

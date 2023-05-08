@@ -115,7 +115,7 @@
                     <tbody>
                         @foreach($order_list_data as $value)
                             <tr>
-                                <td>{{ $product_grade_name }} --- {{ $value->product_title }}{{'（' . ($value->del_even ?? null) . ' - ' . ($value->del_category_name ?? null) . '）'}}{{'（' . $value->product_price . ' * ' . $value->product_qty . '）'}}</td>
+                                <td>{{ $product_grade_name }} {{ $value->product_title }}{{'（' . ($value->del_even ?? null) . ' - ' . ($value->del_category_name ?? null) . '）'}}{{'（' . $value->product_price . ' * ' . $value->product_qty . '）'}}</td>
                                 <td class="text-end">{{ number_format($value->product_qty) }}</td>
                                 <td class="text-end">{{ number_format($value->product_price, 2) }}</td>
                                 <td class="text-end">{{ number_format($value->product_origin_price) }}</td>
@@ -125,7 +125,7 @@
 
                         @foreach($order_refund_data as $re_value)
                             <tr>
-                                <td>{{ $re_value->refund_grade_code . ' ' . $re_value->refund_grade_name }} --- {{ $re_value->refund_title }} 退出付款單號 <a href="{{ $re_value->po_url }}">{{ $re_value->po_sn }}</a></td>
+                                <td>{{ $re_value->refund_grade_code . ' ' . $re_value->refund_grade_name }} {{ $re_value->refund_title }} 退出付款單號 <a href="{{ $re_value->po_url }}">{{ $re_value->po_sn }}</a></td>
                                 <td class="text-end">{{ number_format($re_value->refund_qty) }}</td>
                                 <td class="text-end">{{ number_format($re_value->refund_price, 2) }}</td>
                                 <td class="text-end">{{ number_format($re_value->refund_total_price) }}</td>

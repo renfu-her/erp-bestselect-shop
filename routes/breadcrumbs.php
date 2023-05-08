@@ -218,6 +218,67 @@ Breadcrumbs::for('cms.purchase.inbound', function (BreadcrumbTrail $trail, $valu
     $trail->parent('cms.purchase.index');
     $trail->push('#' . $value . ' 入庫審核');
 });
+// 採購退出
+Breadcrumbs::for('cms.purchase.return_list', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.purchase.index');
+    $trail->push($value ? '#' . $value . ' 退出列表' : '退出列表');
+});
+// 新增採購退出單
+Breadcrumbs::for('cms.purchase.return_create', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.purchase.index');
+    $trail->push('#' . $value['purchase_sn'] . ' 退出列表', route('cms.purchase.return_list', ['purchase_id' => $value['purchase_id']]));
+    $trail->push('新增退出單');
+});
+// 編輯採購退出單
+Breadcrumbs::for('cms.purchase.return_edit', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.purchase.index');
+    $trail->push('#' . $value['purchase_sn'] . ' 退出列表', route('cms.purchase.return_list', ['purchase_id' => $value['purchase_id']]));
+    $trail->push('編輯退出單');
+});
+// 採購退出單明細
+Breadcrumbs::for('cms.purchase.return_detail', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.purchase.index');
+    $trail->push('#' . $value['purchase_sn'] . ' 退出列表', route('cms.purchase.return_list', ['purchase_id' => $value['purchase_id']]));
+    $trail->push('採購退出單資訊');
+});
+// 採購退出單審核
+Breadcrumbs::for('cms.purchase.return_inbound', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.purchase.index');
+    $trail->push('#' . $value['purchase_sn'] . ' 退出列表', route('cms.purchase.return_list', ['purchase_id' => $value['purchase_id']]));
+    $trail->push('採購退出單審核');
+});
+
+// 新增收款單
+Breadcrumbs::for('cms.purchase.ro-edit', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.purchase.index');
+    $trail->push('#' . $value['purchase_sn'] . ' 退出列表', route('cms.purchase.return_list', ['purchase_id' => $value['purchase_id']]));
+    $trail->push('採購退出單資訊', route('cms.purchase.return_detail', ['return_id' => $value['return_id']]));
+    $trail->push('新增收款單');
+});
+//顯示訂單收款單
+Breadcrumbs::for('cms.purchase.ro-receipt', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.purchase.index');
+    $trail->push('#' . $value['purchase_sn'] . ' 退出列表', route('cms.purchase.return_list', ['purchase_id' => $value['purchase_id']]));
+    $trail->push('採購退出單資訊', route('cms.purchase.return_detail', ['return_id' => $value['return_id']]));
+    $trail->push('收款單');
+});
+//編輯收款單入帳日期
+Breadcrumbs::for('cms.purchase.ro-review', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.purchase.index');
+    $trail->push('#' . $value['purchase_sn'] . ' 退出列表', route('cms.purchase.return_list', ['purchase_id' => $value['purchase_id']]));
+    $trail->push('採購退出單資訊', route('cms.purchase.return_detail', ['return_id' => $value['return_id']]));
+    $trail->push('收款單', route('cms.purchase.ro-receipt', ['return_id' => $value['return_id']]));
+    $trail->push('入款審核');
+});
+//編輯收款單稅別/摘要/備註
+Breadcrumbs::for('cms.purchase.ro-taxation', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.purchase.index');
+    $trail->push('#' . $value['purchase_sn'] . ' 退出列表', route('cms.purchase.return_list', ['purchase_id' => $value['purchase_id']]));
+    $trail->push('採購退出單資訊', route('cms.purchase.return_detail', ['return_id' => $value['return_id']]));
+    $trail->push('收款單', route('cms.purchase.ro-receipt', ['return_id' => $value['return_id']]));
+    $trail->push('修改摘要/稅別');
+});
+
 
 //公佈欄
 Breadcrumbs::for('cms.bulletin_board.index', function (BreadcrumbTrail $trail) {

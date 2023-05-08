@@ -9,15 +9,15 @@
                     class="btn btn-sm btn-success px-3 mb-1" role="button">修改</a>
 
                 @if(! $received_order->receipt_date)
-                    <a href="{{ route('cms.ar_csnorder.review', ['id' => $received_order->source_id]) }}" 
+                    <a href="{{ route('cms.purchase.ro-review', ['return_id' => $received_order->source_id]) }}" 
                         class="btn btn-sm btn-primary mb-1" role="button">收款單入款審核</a>
                 @else
                     @if(! $data_status_check)
-                    <a href="{{ route('cms.ar_csnorder.review', ['id' => $received_order->source_id]) }}" 
+                    <a href="{{ route('cms.purchase.ro-review', ['return_id' => $received_order->source_id]) }}" 
                         class="btn btn-sm btn-outline-danger mb-1" role="button">取消入帳</a>
                     @endif
                 @endif
-                <a href="{{ route('cms.ar_csnorder.taxation', ['id' => $received_order->source_id]) }}" 
+                <a href="{{ route('cms.purchase.ro-taxation', ['return_id' => $received_order->source_id]) }}" 
                     class="btn btn-sm btn-dark mb-1" role="button">修改摘要/稅別</a>
             @endcan
 
@@ -57,7 +57,6 @@
             </div>
             <h4 class="text-center">收　款　單</h4>
             <hr>
-
             <dl class="row mb-0">
                 <div class="col">
                     <dd>客戶：{{ $received_order->drawee_name }}</dd>
@@ -86,14 +85,14 @@
             </dl>
             <dl class="row mb-0">
                 <div class="col">
-                    <dd>訂單流水號：<a href="{{ Route('cms.consignment-order.edit', ['id' => $order->id], true) }}">{{ $order->sn }}</a></dd>
+                    <dd>訂單流水號：<a href="{{ route('cms.purchase.return_detail', ['return_id' => $return->id]) }}">{{ $return->sn }}</a></dd>
                 </div>
                 <div class="col">
                     <dd>入帳日期：{{ $received_order->receipt_date ? date('Y-m-d', strtotime($received_order->receipt_date)) : '' }}</dd>
                 </div>
             </dl>
         </div>
-        
+
         <div class="mb-2">
             <div class="table-responsive tableoverbox">
                 <table class="table tablelist table-sm mb-0 align-middle">
@@ -107,37 +106,15 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($order_list_data as $value)
+                        @foreach($return_item as $value)
                             <tr>
-                                <td>{{ $product_grade_name }} {{ $value->product_title }}{{'（' . $value->product_price . ' * ' . $value->product_qty . '）'}}</td>
-                                <td class="text-end">{{ number_format($value->product_qty) }}</td>
-                                <td class="text-end">{{ number_format($value->product_price, 2) }}</td>
-                                <td class="text-end">{{ number_format($value->product_origin_price) }}</td>
-                                <td>{{ $received_order->memo }} <a href="{{ Route('cms.consignment-order.edit', ['id' => $order->id], true) }}">{{ $order->sn }}</a> {{ $value->product_taxation == 1 ? '應稅' : '免稅' }} {{ $value->product_note ?? '' }} {{ $value->product_ro_note }}{{-- $order->note --}}</td>
+                                <td>{{ $value->grade_code . ' ' . $value->grade_name }} {{ $value->product_title }}{{'（' . $value->price . ' * ' . $value->qty . '）'}}</td>
+                                <td class="text-end">{{ number_format($value->qty) }}</td>
+                                <td class="text-end">{{ number_format($value->price, 2) }}</td>
+                                <td class="text-end">{{ number_format($value->sub_total) }}</td>
+                                <td>{{ $received_order->memo }} <a href="{{ route('cms.purchase.return_detail', ['return_id' => $return->id]) }}">{{ $return->sn }}</a> {{ $value->type == 0 ? ($value->product_taxation == 1 ? '應稅' : '免稅') : '' }} {{ $value->memo ?? '' }} {{ $value->ro_note }}</td>
                             </tr>
                         @endforeach
-
-                        @if($order->dlv_fee > 0)
-                            <tr>
-                                <td>{{ $logistics_grade_name }}</td>
-                                <td class="text-end">1</td>
-                                <td class="text-end">{{ number_format($order->dlv_fee, 2) }}</td>
-                                <td class="text-end">{{ number_format($order->dlv_fee) }}</td>
-                                <td>{{ $received_order->memo }} <a href="{{ Route('cms.consignment-order.edit', ['id' => $order->id], true) }}">{{ $order->sn }}</a> {{ $order->dlv_taxation == 1 ? '應稅' : '免稅' }}</td>
-                            </tr>
-                        @endif
-
-                        @if($order->discount_value > 0)
-                        @foreach($order_discount ?? [] as $d_value)
-                            <tr>
-                                <td>{{ $d_value->account_code }} {{ $d_value->account_name }} - {{ $d_value->title }}</td>
-                                <td class="text-end">1</td>
-                                <td class="text-end">-{{ number_format($d_value->discount_value, 2) }}</td>
-                                <td class="text-end">-{{ number_format($d_value->discount_value) }}</td>
-                                <td>{{ $received_order->memo }} <a href="{{ Route('cms.consignment-order.edit', ['id' => $order->id], true) }}">{{ $order->sn }}</a> {{ $d_value->discount_taxation == 1 ? '應稅' : '免稅' }}</td>
-                            </tr>
-                        @endforeach
-                        @endif
                     </tbody>
                     <tfoot>
                         <tr class="table-light">
@@ -197,8 +174,10 @@
 
     <div class="col-auto">
         {{--
-        <a href="{{ Route('cms.consignment-order.edit', ['id' => $received_order->source_id]) }}" 
-            class="btn btn-outline-primary px-4" role="button">返回 寄倉訂購單</a>
+        <a href="{{ Route('cms.purchase.return_detail', ['return_id' => $received_order->source_id]) }}" 
+            class="btn btn-outline-primary px-4" role="button">
+            返回明細
+        </a>
         --}}
         @can('cms.collection_received.index')
         <a href="javascript:void(0);" class="btn btn-outline-primary px-4 keep_ro_url" role="button">

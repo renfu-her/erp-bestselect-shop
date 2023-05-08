@@ -262,6 +262,37 @@ class ReceivedOrder extends Model
                     $join->on('request_items_table.request_order_id', '=', 'request_o.id');
             })
 
+            // purchase return
+            ->leftJoin('pcs_purchase_return AS return', function ($join) {
+                $join->on('ro.source_id', '=', 'return.id');
+                $join->where([
+                    'ro.source_type'=>app(PurchaseReturn::class)->getTable(),
+                    'ro.deleted_at'=>null,
+                ]);
+            })
+            ->leftJoin(DB::raw('(
+                SELECT
+                    r_item.return_id,
+                    CONCAT(\'[\', GROUP_CONCAT(\'{
+                        "product_title":"\', COALESCE(r_item.product_title, ""), \'",
+                        "all_grades_id":"\', r_item.grade_id, \'",
+                        "grade_code":"\', COALESCE(grade.code, ""), \'",
+                        "grade_name":"\', COALESCE(grade.name, ""), \'",
+                        "price":"\', r_item.price, \'",
+                        "qty":"\', r_item.qty, \'",
+                        "origin_price":"\', (COALESCE(r_item.price, 0) * COALESCE(r_item.qty, 0)), \'"
+                    }\' ORDER BY r_item.id), \']\') AS items
+                FROM pcs_purchase_return_items AS r_item
+                LEFT JOIN (' . $sq . ') AS grade ON grade.id = r_item.grade_id
+                LEFT JOIN prd_product_styles ON prd_product_styles.id = r_item.product_style_id
+                LEFT JOIN prd_products AS product ON product.id = prd_product_styles.product_id
+                LEFT JOIN usr_users AS p_owner ON p_owner.id = product.user_id
+                WHERE (product.deleted_at IS NULL AND r_item.qty > 0 AND r_item.show = 1)
+                GROUP BY r_item.return_id
+                ) AS return_item'), function ($join){
+                    $join->on('return_item.return_id', '=', 'return.id');
+            })
+
             ->whereNull('ro.deleted_at')
             ->whereColumn([
                 ['ro.price', '=', 'received_table.received_price'],
@@ -305,6 +336,7 @@ class ReceivedOrder extends Model
                     WHEN ro.source_type = "' . app(CsnOrder::class)->getTable() . '" THEN csn_order.sn
                     WHEN ro.source_type = "' . app(self::class)->getTable() . '" THEN _account_ro.sn
                     WHEN ro.source_type = "' . app(RequestOrder::class)->getTable() . '" THEN request_o.sn
+                    WHEN ro.source_type = "' . app(PurchaseReturn::class)->getTable() . '" THEN return.sn
                     ELSE NULL
                 END AS source_sn
             ')
@@ -315,6 +347,7 @@ class ReceivedOrder extends Model
                     WHEN ro.source_type = "' . app(CsnOrder::class)->getTable() . '" THEN csn_order_item_table.items
                     WHEN ro.source_type = "' . app(self::class)->getTable() . '" THEN received_account_table.items
                     WHEN ro.source_type = "' . app(RequestOrder::class)->getTable() . '" THEN request_items_table.items
+                    WHEN ro.source_type = "' . app(PurchaseReturn::class)->getTable() . '" THEN return_item.items
                     ELSE NULL
                 END AS order_items
             ');
@@ -339,7 +372,8 @@ class ReceivedOrder extends Model
                 $query->where('order.sn', 'like', "%{$source_sn}%")
                     ->orWhere('csn_order.sn', 'like', "%{$source_sn}%")
                     ->orWhere('_account_ro.sn', 'like', "%{$source_sn}%")
-                    ->orWhere('request_o.sn', 'like', "%{$source_sn}%");
+                    ->orWhere('request_o.sn', 'like', "%{$source_sn}%")
+                    ->orWhere('return_item.sn', 'like', "%{$source_sn}%");
             });
         }
 
@@ -506,6 +540,41 @@ class ReceivedOrder extends Model
                 'drawee_name'=>$purchaser->drawee_name,
                 'drawee_phone'=>$purchaser->drawee_phone,
                 'drawee_address'=>$purchaser->drawee_address,
+            ]);
+
+            return $re;
+        } else if($source_type == app(PurchaseReturn::class)->getTable()){
+
+            $return = PurchaseReturn::findOrFail($source_id);
+            $return_item = PurchaseReturnItem::return_item_list($source_id, 1, null)->get();
+
+            $purchaseData = Purchase::getPurchase($return->purchase_id)->first();
+            if (!$purchaseData) {
+                return abort(404);
+            }
+
+            $contact_tel = null;
+            $contact_address = null;
+            if($purchaseData->supplier_id){
+                $supplier = Supplier::find($purchaseData->supplier_id);
+                if($supplier) {
+                    $contact_tel = $supplier->contact_tel . ($supplier->extension ? ' # ' . $supplier->extension : '');
+                    $contact_address = $supplier->contact_address;
+                }
+            }
+
+            $re = self::create([
+                'source_type'=>$source_type,
+                'source_id'=>$source_id,
+                'usr_users_id'=>auth('user')->user() ? auth('user')->user()->id : null,
+                'sn'=>'MSG' . date('ymd') . str_pad( count(self::whereDate('created_at', '=', date('Y-m-d'))->withTrashed()->get()) + 1, 4, '0', STR_PAD_LEFT),
+                'price'=>$return_item->sum('sub_total'),
+                'logistics_grade_id'=>$logistics_grade_id,
+                'product_grade_id'=>$product_grade_id,
+                'drawee_id'=>$purchaseData->supplier_id,
+                'drawee_name'=>$purchaseData->supplier_name,
+                'drawee_phone'=>$contact_tel,
+                'drawee_address'=>$contact_address,
             ]);
 
             return $re;
@@ -1255,6 +1324,9 @@ class ReceivedOrder extends Model
 
         } else if($source_type == 'acc_request_orders'){
             $link = route('cms.request.ro-receipt', ['id' => $source_id]);
+
+        } else if($source_type == 'pcs_purchase_return'){
+            $link = route('cms.purchase.ro-receipt', ['return_id' => $source_id]);
         }
 
         return $link;
@@ -1280,6 +1352,9 @@ class ReceivedOrder extends Model
 
         } else if($source_type == 'acc_request_orders'){
             $link = route('cms.request.show', ['id' => $source_id]);
+
+        } else if($source_type == 'pcs_purchase_return'){
+            $link = route('cms.purchase.return_detail', ['return_id' => $source_id]);
 
         }
 

@@ -6,6 +6,10 @@ use App\Enums\Consignment\AuditStatus;
 use App\Enums\Delivery\Event;
 use App\Enums\Supplier\Payment;
 use App\Enums\Payable\ChequeStatus;
+use App\Enums\Purchase\ReturnStatus;
+use App\Enums\Received\ReceivedMethod;
+use App\Enums\Area\Area;
+
 use App\Helpers\IttmsDBB;
 use App\Http\Controllers\Controller;
 
@@ -24,6 +28,9 @@ use App\Models\PayableOther;
 use App\Models\PurchaseInbound;
 use App\Models\PurchaseItem;
 use App\Models\PurchaseLog;
+use App\Models\PurchaseReturn;
+use App\Models\PurchaseReturnItem;
+use App\Models\PurchaseElementReturn;
 use App\Models\Supplier;
 use App\Models\User;
 use App\Models\GeneralLedger;
@@ -31,11 +38,17 @@ use App\Models\PayableDefault;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use App\Enums\Purchase\InboundStatus;
 
 use App\Models\AccountPayable;
+use App\Models\Sn;
+use App\Models\CrdCreditCard;
+use App\Models\ReceivedOrder;
+use App\Models\OrderPayCreditCard;
+use App\Models\Product;
 
 class PurchaseCtrl extends Controller
 {
@@ -1035,6 +1048,1265 @@ class PurchaseCtrl extends Controller
             'purchaseData' => $purchaseData,
             'purchaseItemData' => $purchaseItemData,
         ]);
+    }
+
+
+    public function return_list($purchase_id = null)
+    {
+        if($purchase_id){
+            $purchaseData = Purchase::getPurchase($purchase_id)->first();
+            // $purchaseItemData = PurchaseItem::getPurchaseDetailList($purchase_id)->get()->toArray();
+
+            if (!$purchaseData) {
+                return abort(404);
+            }
+
+            $data_list = PurchaseReturn::return_list($purchase_id)->get();
+
+            return view('cms.commodity.purchase.return_list', [
+                'breadcrumb_data' => $purchaseData->purchase_sn,
+                'id' => $purchase_id,
+                'purchaseData' => $purchaseData,
+                'data_list' => $data_list,
+            ]);
+
+        } else {
+            // show all purchase return list index view
+        }
+    }
+
+    public function return_create(Request $request, $purchase_id)
+    {
+        if($request->isMethod('post')){
+            $request->validate([
+                'method' => 'nullable|string',
+                'memo' => 'nullable|string',
+
+                'm_item_id' => 'nullable|array',
+                'm_item_id.*' => 'nullable|numeric',
+                'purchase_item_id.*' => 'nullable|numeric',
+                'product_style_id.*' => 'required|string',
+                'sku.*' => 'required|string',
+                'show.*' => 'filled|bool',
+                'product_title.*' => 'required|string',
+                'price.*' => 'required|numeric',
+                'back_qty.*' => 'required|numeric',
+                'mmemo.*' => 'nullable|string',
+
+                'o_item_id' => 'nullable|array',
+                'o_item_id.*' => 'nullable|numeric',
+                'rgrade_id.*' => 'required_with:btype|numeric',
+                'rtitle.*' => 'required|string',
+                'rprice.*' => 'required|numeric',
+                'rqty.*' => 'required|numeric',
+                'rmemo.*' => 'nullable|string',
+            ]);
+
+            $data = $request->except('_token');
+
+            $msg = IttmsDBB::transaction(function () use ($data, $purchase_id) {
+                $result = PurchaseReturn::create([
+                    'sn' => Sn::createSn('pcs_purchase_return', 'BR', 'ymd', 4),
+                    'purchase_id' => $purchase_id,
+                    'user_id' => Auth::user()->id,
+                    'user_name' => Auth::user()->name,
+                    'memo' => $data['memo'],
+                    'status' => ReturnStatus::add_return()->value
+                ]);
+
+                if($result->id){
+                    $default_grade_id = PayableDefault::where('name', '=', 'product')->first()->default_grade_id;
+                    $time = date('Y-m-d H:i:s');
+                    $items = [];
+
+                    // main
+                    foreach($data['purchase_item_id'] as $key => $value){
+                        $items[] = [
+                            'return_id' => $result->id,
+                            'purchase_item_id' => $data['purchase_item_id'][$key],
+                            'product_style_id' => $data['product_style_id'][$key],
+                            'sku' => $data['sku'][$key],
+                            'product_title' => $data['product_title'][$key],
+                            'price' => $data['price'][$key],
+                            'qty' => $data['back_qty'][$key],
+                            'memo' => $data['mmemo'][$key],
+                            'ro_note' => null,
+                            'po_note' => null,
+                            'show' => $data['show'][$key],
+                            'type' => 0,
+                            'grade_id' => $default_grade_id,
+                            'created_at' => $time,
+                            'updated_at' => $time
+                        ];
+                    }
+
+                    // other
+                    if (array_key_exists('o_item_id', $data)){
+                        foreach($data['o_item_id'] as $key => $value){
+                            $items[] = [
+                                'return_id' => $result->id,
+                                'purchase_item_id' => null,
+                                'product_style_id' => null,
+                                'sku' => null,
+                                'product_title' => $data['rtitle'][$key],
+                                'price' => $data['rprice'][$key],
+                                'qty' => $data['rqty'][$key],
+                                'memo' => $data['rmemo'][$key],
+                                'ro_note' => null,
+                                'po_note' => null,
+                                'show' => 1,
+                                'type' => 1,
+                                'grade_id' => $data['rgrade_id'][$key],
+                                'created_at' => $time,
+                                'updated_at' => $time
+                            ];
+                        }
+                    }
+
+                    PurchaseReturnItem::insert($items);
+
+                } else {
+                    return ['success' => 0, 'error_msg' => '退出單新增失敗'];
+                }
+
+                return ['success' => 1, 'return_id' => $result['id']];
+            });
+
+            if ($msg['success'] == 0) {
+                throw ValidationException::withMessages(['item_error' => $msg['error_msg']]);
+            } else {
+                wToast('儲存成功');
+                return redirect(route('cms.purchase.return_detail', [
+                    'return_id' => $msg['return_id'],
+                ], true));
+            }
+
+        } else {
+            $purchaseData = Purchase::getPurchase($purchase_id)->first();
+            $purchaseItemData = PurchaseItem::getPurchaseDetailList($purchase_id)->get()->toArray();
+            if (!$purchaseData) {
+                return abort(404);
+            }
+
+            $total_grades = GeneralLedger::total_grade_list();
+
+            return view('cms.commodity.purchase.return_edit', [
+                'breadcrumb_data' => ['purchase_id' => $purchase_id, 'purchase_sn' => $purchaseData->purchase_sn],
+                'method' => 'create',
+                'form_action' => route('cms.purchase.return_create', ['purchase_id' => $purchase_id]),
+                'back_url' => route('cms.purchase.return_list', ['purchase_id' => $purchase_id]),
+                'main_items' => $purchaseItemData,
+                'other_items' => [],
+                'total_grades' => $total_grades,
+            ]);
+        }
+    }
+
+    public function return_edit(Request $request, $return_id)
+    {
+        if($request->isMethod('post')){
+            $request->validate([
+                'method' => 'nullable|string',
+                'memo' => 'nullable|string',
+
+                'm_item_id' => 'nullable|array',
+                'm_item_id.*' => 'nullable|numeric',
+                'purchase_item_id.*' => 'nullable|numeric',
+                'product_style_id.*' => 'required|string',
+                'sku.*' => 'required|string',
+                'show.*' => 'filled|bool',
+                'product_title.*' => 'required|string',
+                'price.*' => 'required|numeric',
+                'back_qty.*' => 'required|numeric',
+                'mmemo.*' => 'nullable|string',
+
+                'o_item_id' => 'nullable|array',
+                'o_item_id.*' => 'nullable|numeric',
+                'rgrade_id.*' => 'required_with:btype|numeric',
+                'rtitle.*' => 'required|string',
+                'rprice.*' => 'required|numeric',
+                'rqty.*' => 'required|numeric',
+                'rmemo.*' => 'nullable|string',
+            ]);
+
+            $data = $request->except('_token');
+
+            $msg = IttmsDBB::transaction(function () use ($data, $return_id) {
+                $result = PurchaseReturn::where('id', '=', $return_id)->update([
+                    'memo' => $data['memo'],
+                ]);
+
+                if($result){
+                    $default_grade_id = PayableDefault::where('name', '=', 'product')->first()->default_grade_id;
+                    $time = date('Y-m-d H:i:s');
+                    $items = [];
+
+                    // main
+                    foreach($data['purchase_item_id'] as $key => $value){
+                        PurchaseReturnItem::where('id', '=', $data['m_item_id'][$key])->update([
+                            'product_title' => $data['product_title'][$key],
+                            'price' => $data['price'][$key],
+                            'qty' => $data['back_qty'][$key],
+                            'memo' => $data['mmemo'][$key],
+                            'show' => $data['show'][$key],
+                        ]);
+                    }
+
+                    // other
+                    $dArray = array_diff(
+                        PurchaseReturnItem::where([
+                            'return_id' => $return_id,
+                            'type' => 1,
+                        ])->pluck('id')->toArray(),
+                        array_intersect_key(request('o_item_id'), request('rgrade_id'))
+                    );
+                    if($dArray) PurchaseReturnItem::destroy($dArray);
+
+                    foreach(request('rgrade_id') as $key => $value){
+                        if(request('o_item_id')[$key]){
+                            PurchaseReturnItem::find(request('o_item_id')[$key])->update([
+                                'product_title' => $data['rtitle'][$key],
+                                'price' => $data['rprice'][$key],
+                                'qty' => $data['rqty'][$key],
+                                'memo' => $data['rmemo'][$key],
+                            ]);
+
+                        } else {
+                            PurchaseReturnItem::create([
+                                'return_id' => $return_id,
+                                'purchase_item_id' => null,
+                                'product_style_id' => null,
+                                'sku' => null,
+                                'product_title' => $data['rtitle'][$key],
+                                'price' => $data['rprice'][$key],
+                                'qty' => $data['rqty'][$key],
+                                'memo' => $data['rmemo'][$key],
+                                'ro_note' => null,
+                                'po_note' => null,
+                                'show' => 1,
+                                'type' => 1,
+                                'grade_id' => $data['rgrade_id'][$key],
+                            ]);
+                        }
+                    }
+
+                } else {
+                    return ['success' => 0, 'error_msg' => '退出單更新失敗'];
+                }
+
+                return ['success' => 1, 'return_id' => $return_id];
+            });
+
+            if ($msg['success'] == 0) {
+                throw ValidationException::withMessages(['item_error' => $msg['error_msg']]);
+            } else {
+                wToast('儲存成功');
+                return redirect(route('cms.purchase.return_detail', [
+                    'return_id' => $msg['return_id'],
+                ], true));
+            }
+
+        } else {
+            $return = PurchaseReturn::findOrFail($return_id);
+            $return_main_item = PurchaseReturnItem::return_item_list($return_id, null, 0)->get()->toArray();
+            $return_other_item = PurchaseReturnItem::return_item_list($return_id, null, 1)->get()->toArray();
+
+            $purchaseData = Purchase::getPurchase($return->purchase_id)->first();
+            if (!$purchaseData) {
+                return abort(404);
+            }
+
+            $total_grades = GeneralLedger::total_grade_list();
+
+            return view('cms.commodity.purchase.return_edit', [
+                'breadcrumb_data' => ['purchase_id' => $return->purchase_id, 'purchase_sn' => $purchaseData->purchase_sn],
+                'method' => 'edit',
+                'form_action' => route('cms.purchase.return_edit', ['return_id' => $return_id]),
+                'back_url' => route('cms.purchase.return_list', ['purchase_id' => $return->purchase_id]),
+                'return' => $return,
+                'main_items' => $return_main_item,
+                'other_items' => $return_other_item,
+                'total_grades' => $total_grades,
+            ]);
+        }
+    }
+
+    public function return_detail($return_id)
+    {
+        $return = PurchaseReturn::findOrFail($return_id);
+        $return_main_item = PurchaseReturnItem::return_item_list($return_id, 1, 0)->get();
+        $return_other_item = PurchaseReturnItem::return_item_list($return_id, 1, 1)->get()->toArray();
+
+        $purchaseData = Purchase::getPurchase($return->purchase_id)->first();
+        if (!$purchaseData) {
+            return abort(404);
+        }
+
+        $contact_tel = null;
+        $contact_address = null;
+        if($purchaseData->supplier_id){
+            $supplier = Supplier::find($purchaseData->supplier_id);
+            if($supplier) {
+                $contact_tel = $supplier->contact_tel . ($supplier->extension ? ' # ' . $supplier->extension : '');
+                $contact_address = $supplier->contact_address;
+            }
+        }
+
+        // audited
+        $audited_item = [];
+        if($return->inbound_date){
+            foreach($return_main_item as $r_value){
+                $audited_item[] = (object)[
+                    'product_title' => $r_value->product_title,
+                    'sku' => $r_value->sku,
+                    'audited_items' => PurchaseElementReturn::audited_item_list(null, null, null, $return_id, $r_value->id)->get()->toArray(),
+                ];
+            }
+        }
+
+        $edit_check = in_array($return->status, ['add_return', 'del_return_inbound']) ? true : false;
+
+        //判斷是否有收款單
+        $received_order = ReceivedOrder::where([
+            'source_type'=>app(PurchaseReturn::class)->getTable(),
+            'source_id'=>$return->id,
+        ])->first();
+
+        $breadcrumb_data = [
+            'purchase_sn' => $purchaseData->purchase_sn,
+            'purchase_id' => $return->purchase_id,
+        ];
+
+        return view('cms.commodity.purchase.return_detail', [
+            'breadcrumb_data' => $breadcrumb_data,
+            'return' => $return,
+            'return_main_item' => $return_main_item->toArray(),
+            'return_other_item' => $return_other_item,
+            'purchaseData' => $purchaseData,
+            'contact_tel' => $contact_tel,
+            'contact_address' => $contact_address,
+            'audited_item' => $audited_item,
+            'edit_check' => $edit_check,
+            'received_order' => $received_order,
+        ]);
+    }
+
+    public function return_delete($return_id)
+    {
+        //判斷是否有收款單
+        $received_order = ReceivedOrder::where([
+            'source_type'=>app(PurchaseReturn::class)->getTable(),
+            'source_id'=>$return_id,
+        ])->first();
+        if($received_order) {
+            wToast('已有收款單 無法刪除', ['type' => 'danger']);
+            return redirect()->back();
+        }
+
+        $return = PurchaseReturn::findOrFail($return_id);
+        if($return->inbound_date){
+            wToast('退出入庫已審核 無法刪除', ['type' => 'danger']);
+            return redirect()->back();
+        }
+
+        $target = PurchaseReturn::delete_return($return_id);
+
+        if($target){
+            wToast('刪除完成');
+        } else {
+            wToast('刪除失敗', ['type'=>'danger']);
+        }
+
+        return redirect()->back();
+    }
+
+    public function print_return($return_id)
+    {
+        $return = PurchaseReturn::findOrFail($return_id);
+        $return_main_item = PurchaseReturnItem::return_item_list($return_id, 1, 0)->get();
+        $return_other_item = PurchaseReturnItem::return_item_list($return_id, 1, 1)->get()->toArray();
+
+        $purchaseData = Purchase::getPurchase($return->purchase_id)->first();
+        if (!$purchaseData) {
+            return abort(404);
+        }
+
+        $contact_tel = null;
+        $contact_address = null;
+        if($purchaseData->supplier_id){
+            $supplier = Supplier::find($purchaseData->supplier_id);
+            if($supplier) {
+                $contact_tel = $supplier->contact_tel . ($supplier->extension ? ' # ' . $supplier->extension : '');
+                $contact_address = $supplier->contact_address;
+            }
+        }
+
+        return view('doc.print_purchase_return', [
+            'user_name' => Auth::user()->name,
+            'return' => $return,
+            'return_main_item' => $return_main_item->toArray(),
+            'return_other_item' => $return_other_item,
+            'purchaseData' => $purchaseData,
+            'contact_tel' => $contact_tel,
+            'contact_address' => $contact_address,
+        ]);
+    }
+
+    public function return_inbound(Request $request, $return_id)
+    {
+        if($request->isMethod('post')){
+            $request->validate([
+                'inbound_id.*' => 'nullable|numeric',
+                'purchase_id.*' => 'nullable|numeric',
+                'purchase_item_id.*' => 'nullable|numeric',
+                'return_item_id.*' => 'nullable|numeric',
+                'product_style_id.*' => 'nullable|numeric',
+                'product_title.*' => 'nullable|string',
+                'real_rq.*' => 'nullable|numeric',
+                'sub_rq.*' => 'nullable|numeric',
+                'return_qty.*' => 'nullable|numeric',
+                'memo.*' => 'nullable|string',
+            ]);
+
+            $data = $request->except('_token');
+
+            $msg = IttmsDBB::transaction(function () use ($data, $return_id) {
+                foreach($data['inbound_id'] as $key => $value){
+                    $parm = [
+                        'inbound_id' => $data['inbound_id'][$key],
+                    ];
+                    $inbound = PurchaseInbound::getInboundList($parm)->get()->first();
+                    if($data['return_qty'][$key] > ($inbound->inbound_num - $inbound->shipped_num)){
+                        return ['success' => 0, 'error_msg' => '退出入庫審核失敗，' . $inbound->product_title . ' 目前庫存小於退出數量'];
+                    }
+                    if($data['real_rq'][$key] != $data['sub_rq'][$key]){
+                        return ['success' => 0, 'error_msg' => '退出入庫審核失敗，' . $inbound->product_title . ' 審核退出數量加總後不等於退出單數量'];
+                    }
+                }
+
+                $time = date('Y-m-d H:i:s');
+                $items = [];
+                $log_items = [];
+                foreach($data['inbound_id'] as $key => $value){
+                    $items[] = [
+                        'inbound_id' => $data['inbound_id'][$key],
+                        'purchase_id' => $data['purchase_id'][$key],
+                        'purchase_item_id' => $data['purchase_item_id'][$key],
+                        'return_id' => $return_id,
+                        'return_item_id' => $data['return_item_id'][$key],
+                        'qty' => $data['return_qty'][$key],
+                        'memo' => $data['memo'][$key],
+                        'created_at' => $time,
+                        'updated_at' => $time
+                    ];
+
+                    $log_items[] = [
+                        'event_parent_id' => $data['purchase_id'][$key],
+                        'product_style_id' => $data['product_style_id'][$key],
+                        'event' => 'purchase',
+                        'event_id' => $data['purchase_item_id'][$key],
+                        'extra_id' => 0,
+                        'feature' => ReturnStatus::add_return_inbound()->value,
+                        'inbound_id' => $data['inbound_id'][$key],
+                        'product_title' => $data['product_title'][$key],
+                        'prd_type' => 'p',
+                        'qty' => $data['return_qty'][$key],
+                        'user_id' => Auth::user()->id,
+                        'user_name' => Auth::user()->name,
+                        'note' => $data['memo'][$key],
+                        'created_at' => $time,
+                        'updated_at' => $time
+                    ];
+
+                    // PurchaseInbound::where('id', $data['inbound_id'][$key])->update([
+                    //     'scrap_num' => DB::raw('scrap_num + ' . $data['return_qty'][$key])
+                    // ]);
+                    PurchaseInbound::where('id', $data['inbound_id'][$key])->increment('scrap_num', $data['return_qty'][$key]);
+                }
+
+                $i_res = PurchaseElementReturn::insert($items);
+
+                if($i_res){
+                    $u_res = PurchaseReturn::where('id', '=', $return_id)->update([
+                        'inbound_user_id' => Auth::user()->id,
+                        'inbound_user_name' => Auth::user()->name,
+                        'inbound_date' => $time,
+                        'status' => ReturnStatus::add_return_inbound()->value,
+                    ]);
+
+                    if($u_res){
+                        //寫入LOG
+                        $i_log_res = PurchaseLog::insert($log_items);
+
+                        if($i_log_res){
+                            return ['success' => 1];
+                        }
+                    }
+                }
+
+                DB::rollBack();
+                return ['success' => 0, 'error_msg' => '退出入庫審核失敗'];
+            });
+
+            if ($msg['success'] == 0) {
+                throw ValidationException::withMessages(['error_msg' => $msg['error_msg']]);
+            } else {
+
+                $return = PurchaseReturn::findOrFail($return_id);
+                // $return_main_item = PurchaseReturnItem::return_item_list($return_id, 1, 0)->get();
+
+                // $parm = [
+                //     'event' => Event::purchase()->value,
+                //     'event_id' => $return->purchase_id,
+                //     'event_item_id' => $return_main_item->pluck('purchase_item_id')->toArray()
+                // ];
+                // $inbound_list = PurchaseInbound::getInboundList($parm);
+                // foreach($return_main_item as $r_value){
+                //     $r_value->inbound = $inbound_list->where('inbound.event_item_id', $r_value->purchase_item_id)->get()->toArray();
+                //     $r_value->inbound_num = $inbound_list->where('inbound.event_item_id', $r_value->purchase_item_id)->sum('inbound.inbound_num');
+                // }
+
+                wToast('退出入庫審核成功');
+                return redirect(route('cms.purchase.return_list', ['purchase_id' => $return->purchase_id]));
+            }
+
+        } else {
+            $return = PurchaseReturn::findOrFail($return_id);
+            $return_main_item = PurchaseReturnItem::return_item_list($return_id, 1, 0)->get();
+
+            $purchaseData = Purchase::getPurchase($return->purchase_id)->first();
+            if (!$purchaseData) {
+                return abort(404);
+            }
+
+            $parm = [
+                'event' => Event::purchase()->value,
+                'event_id' => $return->purchase_id,
+                'event_item_id' => $return_main_item->pluck('purchase_item_id')->toArray()
+            ];
+            $inbound_list = PurchaseInbound::getInboundList($parm);
+            foreach($return_main_item as $r_value){
+                $r_value->inbound = $inbound_list->where('inbound.event_item_id', $r_value->purchase_item_id)->get()->toArray();
+                $r_value->inbound_num = $inbound_list->where('inbound.event_item_id', $r_value->purchase_item_id)->sum('inbound.inbound_num');
+            }
+
+            return view('cms.commodity.purchase.return_inbound', [
+                'breadcrumb_data' => ['purchase_id' => $return->purchase_id, 'purchase_sn' => $purchaseData->purchase_sn],
+                'form_action' => route('cms.purchase.return_inbound', ['return_id' => $return_id]),
+                'return' => $return,
+                'return_main_item' => $return_main_item,
+            ]);
+        }
+    }
+
+    public function return_inbound_delete($return_id)
+    {
+        $audited_items = PurchaseElementReturn::audited_item_list(null, null, null, $return_id, null)->get()->toArray();
+
+        if (count($audited_items) > 0) {
+            $msg = IttmsDBB::transaction(function () use ($return_id, $audited_items) {
+                $time = date('Y-m-d H:i:s');
+                $log_items = [];
+                foreach($audited_items as $key => $value){
+                    $log_items[] = [
+                        'event_parent_id' => $value->purchase_id,
+                        'product_style_id' => $value->product_style_id,
+                        'event' => 'purchase',
+                        'event_id' => $value->purchase_item_id,
+                        'extra_id' => 0,
+                        'feature' => ReturnStatus::del_return_inbound()->value,
+                        'inbound_id' => $value->inbound_id,
+                        'product_title' => $value->product_title,
+                        'prd_type' => 'p',
+                        'qty' => $value->qty,
+                        'user_id' => Auth::user()->id,
+                        'user_name' => Auth::user()->name,
+                        'note' => null,
+                        'created_at' => $time,
+                        'updated_at' => $time
+                    ];
+
+                    PurchaseInbound::where('id', $value->inbound_id)->decrement('scrap_num', $value->qty);
+                }
+
+                $d_res = PurchaseElementReturn::where('return_id', $return_id)->delete();
+
+                if($d_res){
+                    $u_res = PurchaseReturn::where('id', '=', $return_id)->update([
+                        'inbound_user_id' => null,
+                        'inbound_user_name' => null,
+                        'inbound_date' => null,
+                        'status' => ReturnStatus::del_return_inbound()->value,
+                    ]);
+
+                    if($u_res){
+                        //寫入LOG
+                        $i_log_res = PurchaseLog::insert($log_items);
+
+                        if($i_log_res){
+                            return ['success' => 1];
+                        }
+                    }
+                }
+
+                DB::rollBack();
+                return ['success' => 0, 'error_msg' => '刪除退出入庫審核失敗'];
+            });
+
+            if ($msg['success'] == 0) {
+                wToast($msg['error_msg'], ['type' => 'danger']);
+                throw ValidationException::withMessages(['error_msg' => $msg['error_msg']]);
+            } else {
+                wToast('刪除退出入庫審核成功');
+                return redirect()->back();
+            }
+
+        } else {
+            throw ValidationException::withMessages(['error_msg' => '無可退出入庫數量']);
+        }
+    }
+
+    public function ro_edit($return_id)
+    {
+        $return_id = request('return_id');
+
+        $return = PurchaseReturn::findOrFail($return_id);
+        $return_item = PurchaseReturnItem::return_item_list($return_id, 1, null)->get();
+
+        $purchaseData = Purchase::getPurchase($return->purchase_id)->first();
+        if (!$purchaseData) {
+            return abort(404);
+        }
+
+        $source_type = app(PurchaseReturn::class)->getTable();
+        $ro_collection = ReceivedOrder::where([
+            'source_type' => $source_type,
+            'source_id' => $return_id,
+        ]);
+
+        $ro_data = $ro_collection->get();
+        $received_data = ReceivedOrder::get_received_detail($ro_data->pluck('id')->toArray());
+
+        $tw_price = $return_item->sum('sub_total');
+        if ($ro_data->count() > 0) {
+            $tw_price = $ro_data->sum('price') - $received_data->sum('tw_price');
+        }
+
+        if ($tw_price == 0) {
+            return redirect()->back();
+        }
+
+        $defaultData = [];
+        foreach (ReceivedMethod::asArray() as $receivedMethod) {
+            $defaultData[$receivedMethod] = DB::table('acc_received_default')
+                ->where('name', '=', $receivedMethod)
+                ->doesntExistOr(function () use ($receivedMethod) {
+                    return DB::table('acc_received_default')
+                        ->where('name', '=', $receivedMethod)
+                        ->select('default_grade_id')
+                        ->get();
+                });
+        }
+
+        $total_grades = GeneralLedger::total_grade_list();
+
+        $allGradeArray = [];
+        // $allGrade = AllGrade::all();
+        // $gradeModelArray = GradeModelClass::asSelectArray();
+
+        // foreach ($allGrade as $grade) {
+        //     $allGradeArray[$grade->id] = [
+        //         'grade_id' => $grade->id,
+        //         'grade_num' => array_keys($gradeModelArray, $grade->grade_type)[0],
+        //         'code' => $grade->eachGrade->code,
+        //         'name' => $grade->eachGrade->name,
+        //     ];
+        // }
+
+        foreach ($total_grades as $grade) {
+            $allGradeArray[$grade['primary_id']] = $grade;
+        }
+        $defaultArray = [];
+        foreach ($defaultData as $recMethod => $ids) {
+            // 收款方式若沒有預設、或是方式為「其它」，則自動帶入所有會計科目
+            if ($ids !== true &&
+                $recMethod !== 'other') {
+                foreach ($ids as $id) {
+                    $defaultArray[$recMethod][$id->default_grade_id] = [
+                        // 'methodName' => $recMethod,
+                        'method' => ReceivedMethod::getDescription($recMethod),
+                        'grade_id' => $id->default_grade_id,
+                        'grade_num' => $allGradeArray[$id->default_grade_id]['grade_num'],
+                        'code' => $allGradeArray[$id->default_grade_id]['code'],
+                        'name' => $allGradeArray[$id->default_grade_id]['name'],
+                    ];
+                }
+            } else {
+                if ($recMethod == 'other') {
+                    $defaultArray[$recMethod] = $allGradeArray;
+                } else {
+                    $defaultArray[$recMethod] = [];
+                }
+            }
+        }
+
+        $currencyDefault = DB::table('acc_currency')
+            ->leftJoin('acc_received_default', 'acc_currency.received_default_fk', '=', 'acc_received_default.id')
+            ->select(
+                'acc_currency.name as currency_name',
+                'acc_currency.id as currency_id',
+                'acc_currency.rate',
+                'default_grade_id',
+                'acc_received_default.name as method_name'
+            )
+            ->orderBy('acc_currency.id')
+            ->get();
+        $currencyDefaultArray = [];
+        foreach ($currencyDefault as $default) {
+            $currencyDefaultArray[$default->default_grade_id][] = [
+                'currency_id' => $default->currency_id,
+                'currency_name' => $default->currency_name,
+                'rate' => $default->rate,
+                'default_grade_id' => $default->default_grade_id,
+            ];
+        }
+
+        $card_type = CrdCreditCard::distinct('title')->groupBy('title')->orderBy('id', 'asc')->pluck('title', 'id')->toArray();
+
+        $checkout_area = Area::get_key_value();
+
+        return view('cms.commodity.purchase.ro_edit', [
+            'defaultArray' => $defaultArray,
+            'currencyDefaultArray' => $currencyDefaultArray,
+            'tw_price' => $tw_price,
+            'receivedMethods' => ReceivedMethod::asSelectArray(),
+            'formAction' => Route('cms.purchase.ro-store', ['return_id' => $return_id]),
+
+            'breadcrumb_data' => [
+                'purchase_sn' => $purchaseData->purchase_sn,
+                'purchase_id' => $return->purchase_id,
+                'return_id' => $return->id,
+            ],
+            'return' => $return,
+            'return_item' => $return_item,
+            'purchaseData' => $purchaseData,
+
+            'ro_data' => $ro_data,
+            'received_data' => $received_data,
+            'card_type' => $card_type,
+            'checkout_area' => $checkout_area,
+        ]);
+    }
+
+    public function ro_store(Request $request, $return_id)
+    {
+        $source_id = $return_id;
+        $source_type = app(PurchaseReturn::class)->getTable();
+
+        $request->merge([
+            'id' => $source_id
+        ]);
+        $request->validate([
+            'id' => 'required|exists:' . $source_type . ',id',
+            'acc_transact_type_fk' => 'required|string|in:' . implode(',', ReceivedMethod::asArray()),
+            'tw_price' => 'required|numeric',
+            request('acc_transact_type_fk') => 'required|array',
+            request('acc_transact_type_fk') . '.grade' => 'required|exists:acc_all_grades,id',
+            'summary' => 'nullable|string',
+            'note' => 'nullable|string',
+        ]);
+
+        $data = $request->except('_token');
+        $ro_collection = ReceivedOrder::where([
+            'source_type' => $source_type,
+            'source_id' => $source_id,
+        ]);
+        if (!$ro_collection->first()) {
+            ReceivedOrder::create_received_order($source_type, $source_id);
+        }
+        $received_order_id = $ro_collection->first()->id;
+
+        DB::beginTransaction();
+
+        try {
+            // 'credit_card'
+            if ($data['acc_transact_type_fk'] == ReceivedMethod::CreditCard) {
+                $card_type = CrdCreditCard::distinct('title')->groupBy('title')->orderBy('id', 'asc')->pluck('title', 'id')->toArray();
+
+                $checkout_area = Area::get_key_value();
+
+                $data[$data['acc_transact_type_fk']] = [
+                    'cardnumber' => $data[$data['acc_transact_type_fk']]['cardnumber'],
+                    'authamt' => $data['tw_price'] ?? 0,
+                    'checkout_date' => $data[$data['acc_transact_type_fk']]['checkout_date'] ?? null, // date('Y-m-d H:i:s')
+                    'card_type_code' => $data[$data['acc_transact_type_fk']]['card_type_code'] ?? null,
+                    'card_type' => $card_type[$data[$data['acc_transact_type_fk']]['card_type_code']] ?? null,
+                    'card_owner_name' => $data[$data['acc_transact_type_fk']]['card_owner_name'] ?? null,
+                    'authcode' => $data[$data['acc_transact_type_fk']]['authcode'] ?? null,
+                    'all_grades_id' => $data[$data['acc_transact_type_fk']]['grade'],
+                    'checkout_area_code' => 'taipei', // $data[$data['acc_transact_type_fk']]['credit_card_area_code']
+                    'checkout_area' => '台北', // $checkout_area[$data[$data['acc_transact_type_fk']]['credit_card_area_code']]
+                    'installment' => $data[$data['acc_transact_type_fk']]['installment'] ?? 'none',
+                    'status_code' => 0,
+                    'card_nat' => 'local',
+                    'checkout_mode' => 'offline',
+                ];
+
+                $data[$data['acc_transact_type_fk']]['grade'] = $data[$data['acc_transact_type_fk']]['all_grades_id'];
+
+                $EncArray['more_info'] = $data[$data['acc_transact_type_fk']];
+
+            } else if ($data['acc_transact_type_fk'] == ReceivedMethod::Cheque) {
+                $request->validate([
+                    request('acc_transact_type_fk') . '.ticket_number' => 'required|unique:acc_received_cheque,ticket_number,ro_delete,status_code|regex:/^[A-Z]{2}[0-9]{7}$/',
+                ]);
+            }
+
+            $result_id = ReceivedOrder::store_received_method($data);
+
+            $parm = [];
+            $parm['received_order_id'] = $received_order_id;
+            $parm['received_method'] = $data['acc_transact_type_fk'];
+            $parm['received_method_id'] = $result_id;
+            $parm['grade_id'] = $data[$data['acc_transact_type_fk']]['grade'];
+            $parm['price'] = $data['tw_price'];
+            // $parm['accountant_id_fk'] = auth('user')->user()->id;
+            $parm['summary'] = $data['summary'];
+            $parm['note'] = $data['note'];
+            ReceivedOrder::store_received($parm);
+
+            if ($data['acc_transact_type_fk'] == ReceivedMethod::CreditCard) {
+                OrderPayCreditCard::create_log(app(PurchaseReturn::class)->getTable(), $source_id, (object) $EncArray);
+            }
+
+            DB::commit();
+            wToast(__('收款單儲存成功'));
+
+        } catch (\Exception $e) {
+            DB::rollback();
+            wToast(__('收款單儲存失敗'), ['type' => 'danger']);
+        }
+
+        if (ReceivedOrder::find($received_order_id) && ReceivedOrder::find($received_order_id)->balance_date) {
+            return redirect()->route('cms.purchase.return_detail', [
+                'return_id' => $source_id,
+            ]);
+
+        } else {
+            return redirect()->route('cms.purchase.ro-edit', [
+                'return_id' => $source_id,
+            ]);
+        }
+    }
+
+    public function ro_receipt($return_id)
+    {
+        $ro_collection = ReceivedOrder::where([
+            'source_type' => app(PurchaseReturn::class)->getTable(),
+            'source_id' => $return_id,
+        ]);
+
+        $ro_data = $ro_collection->get();
+        if (count($ro_data) == 0 || !$ro_collection->first()->balance_date) {
+            return abort(404);
+        }
+
+        $return = PurchaseReturn::findOrFail($return_id);
+        $return_item = PurchaseReturnItem::return_item_list($return_id, 1, null)->get();
+
+        $purchaseData = Purchase::getPurchase($return->purchase_id)->first();
+        if (!$purchaseData) {
+            return abort(404);
+        }
+
+        $product_qc = $return_item->pluck('product_user_name')->toArray();
+        $product_qc = array_filter(array_unique($product_qc), 'strlen');
+
+        asort($product_qc);
+
+        $received_data = ReceivedOrder::get_received_detail($ro_data->pluck('id')->toArray());
+        $data_status_check = ReceivedOrder::received_data_status_check($received_data);
+
+        $undertaker = User::find($ro_collection->first()->usr_users_id);
+
+        // $accountant = User::whereIn('id', $received_data->pluck('accountant_id_fk')->toArray())->get();
+        // $accountant = array_unique($accountant->pluck('name')->toArray());
+        // asort($accountant);
+        $accountant = User::find($ro_collection->first()->accountant_id) ? User::find($ro_collection->first()->accountant_id)->name : null;
+
+        $zh_price = num_to_str($ro_collection->first()->price);
+
+        $view = 'cms.commodity.purchase.ro_receipt';
+        if (request('action') == 'print') {
+            // 列印－收款單
+            $view = 'doc.print_purchase_ro';
+        }
+        return view($view, [
+            'breadcrumb_data' => [
+                'purchase_sn' => $purchaseData->purchase_sn,
+                'purchase_id' => $return->purchase_id,
+                'return_id' => $return->id,
+            ],
+            'return' => $return,
+            'return_item' => $return_item,
+            'purchaseData' => $purchaseData,
+
+            'received_order' => $ro_collection->first(),
+            'received_data' => $received_data,
+            'data_status_check' => $data_status_check,
+            'undertaker' => $undertaker,
+            'product_qc' => implode(',', $product_qc),
+            // 'accountant'=>implode(',', $accountant),
+            'accountant' => $accountant,
+            'zh_price' => $zh_price,
+            'relation_order' => Petition::getBindedOrder($ro_collection->first()->id, 'MSG'),
+        ]);
+    }
+
+    public function ro_review(Request $request, $return_id)
+    {
+        $request->merge([
+            'id' => $return_id,
+        ]);
+        $request->validate([
+            'id' => 'required|exists:pcs_purchase_return,id',
+        ]);
+
+        $ro_collection = ReceivedOrder::where([
+            'source_type' => app(PurchaseReturn::class)->getTable(),
+            'source_id' => $return_id,
+        ]);
+
+        $ro_data = $ro_collection->get();
+        if (count($ro_data) == 0 || !$ro_collection->first()->balance_date) {
+            return abort(404);
+        }
+
+        $received_order = $ro_collection->first();
+
+        if ($request->isMethod('post')) {
+            $request->validate([
+                'receipt_date' => 'required|date_format:"Y-m-d"',
+                'invoice_number' => 'nullable|string',
+            ]);
+
+            DB::beginTransaction();
+
+            try {
+                $update = [];
+                $update['accountant_id'] = auth('user')->user()->id;
+                $update['receipt_date'] = request('receipt_date');
+                if (request('invoice_number')) {
+                    $update['invoice_number'] = request('invoice_number');
+                }
+                $received_order->update($update);
+
+                if (is_array(request('received_method'))) {
+                    $unique_m = array_unique(request('received_method'));
+
+                    foreach ($unique_m as $m_value) {
+                        if (in_array($m_value, ReceivedMethod::asArray()) && is_array(request($m_value))) {
+                            $req = request($m_value);
+                            foreach ($req as $r) {
+                                $r['received_method'] = $m_value;
+                                ReceivedOrder::update_received_method($r);
+                            }
+                        }
+                    }
+                }
+
+                DayEnd::match_day_end_status(request('receipt_date'), $received_order->sn);
+
+                DB::commit();
+                wToast(__('入帳日期更新成功'));
+
+                return redirect()->route('cms.purchase.ro-receipt', ['return_id' => request('return_id')]);
+
+            } catch (\Exception $e) {
+                DB::rollback();
+                wToast(__('入帳日期更新失敗'), ['type' => 'danger']);
+
+                return redirect()->back();
+            }
+
+        } else if ($request->isMethod('get')) {
+            $received_data = ReceivedOrder::get_received_detail($ro_data->pluck('id')->toArray());
+            $data_status_check = ReceivedOrder::received_data_status_check($received_data);
+
+            if ($received_order->receipt_date) {
+                if($data_status_check){
+                    return redirect()->back();
+                }
+
+                DayEnd::match_day_end_status($received_order->receipt_date, $received_order->sn);
+
+                $received_order->update([
+                    'accountant_id' => null,
+                    'receipt_date' => null,
+                ]);
+
+                wToast(__('入帳日期已取消'));
+                return redirect()->route('cms.purchase.ro-receipt', ['return_id'=>request('return_id')]);
+
+            } else {
+                $return = PurchaseReturn::findOrFail($return_id);
+                $return_item = PurchaseReturnItem::return_item_list($return_id, 1, null)->get();
+
+                $purchaseData = Purchase::getPurchase($return->purchase_id)->first();
+                if (!$purchaseData) {
+                    return abort(404);
+                }
+
+                $undertaker = User::find($received_order->usr_users_id);
+
+                $debit = [];
+                $credit = [];
+
+                // 收款項目
+                foreach ($received_data as $value) {
+                    $name = $value->received_method_name . ' ' . $value->summary . '（' . $value->account->code . ' ' . $value->account->name . '）';
+                    // GeneralLedger::classification_processing($debit, $credit, $value->master_account->code, $name, $value->tw_price, 'r', 'received');
+
+                    $tmp = [
+                        'account_code' => $value->account->code,
+                        'name' => $name,
+                        'price' => $value->tw_price,
+                        'type' => 'r',
+                        'd_type' => 'received',
+
+                        'account_name' => $value->account->name,
+                        'method_name' => $value->received_method_name,
+                        'summary' => $value->summary,
+                        'note' => $value->note,
+                        'product_title' => null,
+                        'del_even' => null,
+                        'del_category_name' => null,
+                        'product_price' => null,
+                        'product_qty' => null,
+                        'product_owner' => null,
+                        'discount_title' => null,
+                        'payable_type' => null,
+
+                        'received_info' => $value,
+                    ];
+                    GeneralLedger::classification_processing($debit, $credit, $tmp);
+                }
+
+                // 商品
+                foreach ($return_item as $value) {
+                    $name = $value->grade_code . ' ' . $value->grade_name . ' - ' . $value->product_title . '（' . $value->price . ' * ' . $value->qty . '）';
+                    // GeneralLedger::classification_processing($debit, $credit, $product_master_account->code, $name, $value->product_origin_price, 'r', 'product');
+
+                    $tmp = [
+                        'account_code' => $value->grade_code,
+                        'name' => $name,
+                        'price' => $value->sub_total,
+                        'type' => 'r',
+                        'd_type' => 'product',
+
+                        'account_name' => $value->grade_name,
+                        'method_name' => null,
+                        'summary' => $value->summary ?? null,
+                        'note' => $value->note ?? null,
+                        'product_title' => $value->product_title,
+                        'del_even' => $value->del_even ?? null,
+                        'del_category_name' => $value->del_category_name ?? null,
+                        'product_price' => $value->price,
+                        'product_qty' => $value->qty,
+                        'product_owner' => null,
+                        'discount_title' => null,
+                        'payable_type' => null,
+                        'received_info' => null,
+                    ];
+                    GeneralLedger::classification_processing($debit, $credit, $tmp);
+                }
+
+                $card_type = CrdCreditCard::distinct('title')->groupBy('title')->orderBy('id', 'asc')->pluck('title', 'id')->toArray();
+
+                $checkout_area = Area::get_key_value();
+
+                // grade process start
+                $defaultData = [];
+                foreach (ReceivedMethod::asArray() as $receivedMethod) {
+                    $defaultData[$receivedMethod] = DB::table('acc_received_default')->where('name', '=', $receivedMethod)
+                        ->doesntExistOr(function () use ($receivedMethod) {
+                            return DB::table('acc_received_default')->where('name', '=', $receivedMethod)
+                                ->select('default_grade_id')
+                                ->get();
+                        });
+                }
+
+                $total_grades = GeneralLedger::total_grade_list();
+                $allGradeArray = [];
+
+                foreach ($total_grades as $grade) {
+                    $allGradeArray[$grade['primary_id']] = $grade;
+                }
+                $default_grade = [];
+                foreach ($defaultData as $recMethod => $ids) {
+                    if ($ids !== true &&
+                        $recMethod !== 'other') {
+                        foreach ($ids as $id) {
+                            $default_grade[$recMethod][$id->default_grade_id] = [
+                                // 'methodName' => $recMethod,
+                                'method' => ReceivedMethod::getDescription($recMethod),
+                                'grade_id' => $id->default_grade_id,
+                                'grade_num' => $allGradeArray[$id->default_grade_id]['grade_num'],
+                                'code' => $allGradeArray[$id->default_grade_id]['code'],
+                                'name' => $allGradeArray[$id->default_grade_id]['name'],
+                            ];
+                        }
+                    } else {
+                        if ($recMethod == 'other') {
+                            $default_grade[$recMethod] = $allGradeArray;
+                        } else {
+                            $default_grade[$recMethod] = [];
+                        }
+                    }
+                }
+
+                $currencyDefault = DB::table('acc_currency')
+                    ->leftJoin('acc_received_default', 'acc_currency.received_default_fk', '=', 'acc_received_default.id')
+                    ->select(
+                        'acc_currency.name as currency_name',
+                        'acc_currency.id as currency_id',
+                        'acc_currency.rate',
+                        'default_grade_id',
+                        'acc_received_default.name as method_name'
+                    )
+                    ->orderBy('acc_currency.id')
+                    ->get();
+                $currency_default_grade = [];
+                foreach ($currencyDefault as $default) {
+                    $currency_default_grade[$default->default_grade_id][] = [
+                        'currency_id' => $default->currency_id,
+                        'currency_name' => $default->currency_name,
+                        'rate' => $default->rate,
+                        'default_grade_id' => $default->default_grade_id,
+                    ];
+                }
+                // grade process end
+
+                $cheque_status = ChequeStatus::get_key_value();
+
+                return view('cms.commodity.purchase.ro_review', [
+                    'breadcrumb_data' => [
+                        'purchase_sn' => $purchaseData->purchase_sn,
+                        'purchase_id' => $return->purchase_id,
+                        'return_id' => $return->id,
+                    ],
+                    'form_action' => route('cms.purchase.ro-review', ['return_id' => request('return_id')]),
+                    'received_order' => $received_order,
+                    'return' => $return,
+                    'return_item' => $return_item,
+                    'received_data' => $received_data,
+                    'undertaker' => $undertaker,
+                    'debit' => $debit,
+                    'credit' => $credit,
+                    'card_type' => $card_type,
+                    'checkout_area' => $checkout_area,
+                    'cheque_status' => $cheque_status,
+                    'credit_card_grade' => $default_grade[ReceivedMethod::CreditCard],
+                    'cheque_grade' => $default_grade[ReceivedMethod::Cheque],
+                    // 'default_grade'=>$default_grade,
+                    // 'currency_default_grade'=>$currency_default_grade,
+                ]);
+            }
+        }
+    }
+
+    public function ro_taxation(Request $request, $return_id)
+    {
+        $request->merge([
+            'id' => $return_id,
+        ]);
+        $request->validate([
+            'id' => 'required|exists:pcs_purchase_return,id',
+        ]);
+
+        $ro_collection = ReceivedOrder::where([
+            'source_type' => app(PurchaseReturn::class)->getTable(),
+            'source_id' => $return_id,
+        ]);
+
+        $ro_data = $ro_collection->get();
+        if (count($ro_data) == 0 || !$ro_collection->first()->balance_date) {
+            return abort(404);
+        }
+
+        $received_order = $ro_collection->first();
+
+        if ($request->isMethod('post')) {
+            $request->validate([
+                'received' => 'required|array',
+                'product' => 'required|array',
+                'return_item' => 'required|array',
+            ]);
+
+            DB::beginTransaction();
+
+            try {
+                if (request('received') && is_array(request('received'))) {
+                    $received = request('received');
+                    foreach ($received as $key => $value) {
+                        $value['received_id'] = $key;
+                        ReceivedOrder::update_received($value);
+                    }
+                }
+
+                if (request('product') && is_array(request('product'))) {
+                    $product = request('product');
+                    foreach ($product as $key => $value) {
+                        $value['product_id'] = $key;
+                        Product::update_product_taxation($value);
+                    }
+                }
+
+                if (request('return_item') && is_array(request('return_item'))) {
+                    $return_item = request('return_item');
+                    foreach ($return_item as $key => $value) {
+                        $value['return_item_id'] = $key;
+                        PurchaseReturnItem::update_return_item($value);
+                    }
+                }
+
+                DB::commit();
+                wToast(__('摘要/稅別更新成功'));
+
+            } catch (\Exception $e) {
+                DB::rollback();
+                wToast(__('摘要/稅別更新失敗'), ['type' => 'danger']);
+            }
+
+            return redirect()->route('cms.purchase.ro-receipt', ['return_id' => request('return_id')]);
+
+        } else if ($request->isMethod('get')) {
+            $return = PurchaseReturn::findOrFail($return_id);
+            $return_item = PurchaseReturnItem::return_item_list($return_id, 1, null)->get();
+
+            $purchaseData = Purchase::getPurchase($return->purchase_id)->first();
+            if (!$purchaseData) {
+                return abort(404);
+            }
+
+            $received_data = ReceivedOrder::get_received_detail($ro_data->pluck('id')->toArray());
+
+            $total_grades = GeneralLedger::total_grade_list();
+
+            return view('cms.commodity.purchase.ro_taxation', [
+                'breadcrumb_data' => [
+                    'purchase_sn' => $purchaseData->purchase_sn,
+                    'purchase_id' => $return->purchase_id,
+                    'return_id' => $return->id,
+                ],
+                'form_action' => route('cms.purchase.ro-taxation', ['return_id' => request('return_id')]),
+                'received_order' => $received_order,
+                'return' => $return,
+                'return_item' => $return_item,
+                'received_data' => $received_data,
+                'total_grades' => $total_grades,
+            ]);
+        }
     }
 }
 

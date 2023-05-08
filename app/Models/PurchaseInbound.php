@@ -488,6 +488,7 @@ class PurchaseInbound extends Model
                 , 'inbound.sn as inbound_sn' //入庫sn
                 , 'inbound.inbound_num as inbound_num' //入庫實進數量
                 , DB::raw('(inbound.sale_num + inbound.csn_num + inbound.consume_num + inbound.back_num + inbound.scrap_num) as shipped_num')
+                , 'inbound.scrap_num as inbound_return_num' //採購已退出數量
                 , 'inbound.depot_id as depot_id' //入庫倉庫ID
                 , 'inbound.depot_name as depot_name' //入庫倉庫名稱
                 , 'inbound.inbound_user_id as inbound_user_id' //入庫人員ID
@@ -509,7 +510,11 @@ class PurchaseInbound extends Model
             $result->where('inbound.event_id', '=', $param['event_id']);
         }
         if (isset($param['event_item_id'])) {
-            $result->where('inbound.event_item_id', '=', $param['event_item_id']);
+            if(is_array($param['event_item_id'])) {
+                $result->whereIn('inbound.event_item_id', $param['event_item_id']);
+            } else {
+                $result->where('inbound.event_item_id', '=', $param['event_item_id']);
+            }
         }
         if (isset($param['keyword'])) {
             $keyword = $param['keyword'];
