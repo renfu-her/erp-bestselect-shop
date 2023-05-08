@@ -1566,3 +1566,10 @@ Breadcrumbs::for('cms.erp-travel.create', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.erp-travel.index');
     $trail->push('新增');
 });
+
+// 消費者紅利點數
+
+Breadcrumbs::for('cms.user-dividend.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('消費者紅利點數');
+});
