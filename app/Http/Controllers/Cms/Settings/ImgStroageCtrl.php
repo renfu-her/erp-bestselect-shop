@@ -35,7 +35,8 @@ class ImgStroageCtrl extends Controller
             }
         }
 
-        $dataList = ImgStorage::dataList($user_name, $sDate, $eDate);
+        $dataList = ImgStorage::dataList($user_name, $sDate, $eDate)
+            ->orderBy('img.created_at', 'DESC');
 
         return view('cms.settings.img_storage.index', [
             'user' => $user_name,
@@ -143,12 +144,12 @@ class ImgStroageCtrl extends Controller
         try {
             $asdf = Image::make($path);
 
-            if ($compress) {    // 要壓縮
+            if ($compress) { // 要壓縮
                 $asdf = $asdf->resize(1000, 1000, function ($constraint) {
                     $constraint->aspectRatio();
                     $constraint->upsize();
                 })->encode('webp', 70);
-            } else {    // 不壓縮
+            } else { // 不壓縮
                 if ($w !== null || $h !== null) {
                     $asdf = $asdf->resize($w, $h, function ($constraint) {
                         $constraint->aspectRatio();
