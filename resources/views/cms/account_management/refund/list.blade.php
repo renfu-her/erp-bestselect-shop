@@ -90,7 +90,7 @@
                         <th scope="col">對應單號</th>
                         <th scope="col" style="width:180px">科目</th>
                         <th scope="col">摘要</th>
-                        <th scope="col">收款金額</th>
+                        <th scope="col" class="text-end">收款金額</th>
                         <th scope="col">付款日期</th>
                     </tr>
                 </thead>

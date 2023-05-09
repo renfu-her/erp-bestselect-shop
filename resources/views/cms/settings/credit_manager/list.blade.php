@@ -183,7 +183,7 @@
                         <th scope="col">#</th>
                         <th scope="col">持卡人</th>
                         <th scope="col">卡號</th>
-                        <th scope="col">刷卡金額</th>
+                        <th scope="col" class="text-end">刷卡金額</th>
                         <th scope="col">狀態</th>
                         <th scope="col">刷卡日期</th>
                         <th scope="col">卡別</th>

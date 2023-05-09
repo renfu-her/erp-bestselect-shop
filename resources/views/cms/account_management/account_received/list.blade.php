@@ -103,7 +103,7 @@
                         <th scope="col">對象　</th>
                         <th scope="col">會計科目</th>
                         <th scope="col">摘要</th>
-                        <th scope="col">金額</th>
+                        <th scope="col" class="text-end">金額</th>
                         <th scope="col">狀態</th>
                         <th scope="col">日期</th>
                         <th scope="col" class="wrap">

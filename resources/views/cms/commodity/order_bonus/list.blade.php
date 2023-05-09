@@ -41,7 +41,7 @@
                         <th scope="col">報表月份</th>
                         <th scope="col">名稱</th>
                         <th scope="col">筆數</th>
-                        <th scope="col">銷售獎金</th>
+                        <th scope="col" class="text-end">銷售獎金</th>
                         <th scope="col">匯款日期</th>
                         <th scope="col">建立日期</th>
                         <th scope="col" class="text-center">刪除</th>
