@@ -201,7 +201,7 @@
                             <th>{{ $key + 1 }}</th>
                             <td>{{ $data->credit_card_owner_name }}</td>
                             <td><a href="{{ route('cms.credit_manager.record', ['id'=>$data->credit_card_received_id])}}">{{ $data->credit_card_number }}</a></td>
-                            <td>${{ number_format($data->credit_card_price) }}</td>
+                            <td class="text-end">${{ number_format($data->credit_card_price) }}</td>
                             <td>{{ $data->credit_card_status_code == 0 ? '刷卡' : ($data->credit_card_status_code == 1 ? '請款' : '入款') }}</td>
                             <td>{{ $data->credit_card_checkout_date ? date('Y/m/d', strtotime($data->credit_card_checkout_date)) : '-' }}</td>
                             <td>{{ $data->credit_card_type }}</td>

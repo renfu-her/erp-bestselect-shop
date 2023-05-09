@@ -35,7 +35,7 @@
 
         <div class="table-responsive tableOverBox">
             <table class="table table-striped tableList">
-                <thead>
+                <thead class="small">
                     <tr>
                         <th scope="col" style="width:10%">#</th>
                         <th scope="col">報表月份</th>
@@ -52,7 +52,7 @@
                         <tr>
                             <th scope="row">{{ $key + 1 }}</th>
                             <td>{{ $data->report_at }}</td>
-                            <td>
+                            <td class="wrap">
                                 @can('cms.order-bonus.detail')
                                     <a href="{{ route('cms.order-bonus.detail', ['id' => $data->id]) }}">
                                         {{ $data->title }}
@@ -60,9 +60,9 @@
                                 @endcan
                             </td>
                             <td>{{ $data->qty }}</td>
-                            <td>{{ $data->bonus }}</td>
-                            <td>{{ $data->transfer_at }}</td>
-                            <td>{{ $data->created_at }}</td>
+                            <td class="text-end">${{ number_format($data->bonus) }}</td>
+                            <td>{{ date('Y/m/d', strtotime($data->transfer_at)) }}</td>
+                            <td>{{ date('Y/m/d', strtotime($data->created_at)) }}</td>
                             <td class="text-center">
                                 @can('cms.order-bonus.delete')
                                     <a href="javascript:void(0)"

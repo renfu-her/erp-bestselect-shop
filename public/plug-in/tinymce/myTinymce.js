@@ -14,4 +14,7 @@ const TINY_OPTION = {
             <iframe src="${data.source}" frameborder="0" allowfullscreen></iframe>
         </div>`
     ),
+    // allow_script_urls: true,
+    // valid_elements: '*[*]',
+    // extended_valid_elements: 'script[language|type|src|async|defer|charset]'
 };
