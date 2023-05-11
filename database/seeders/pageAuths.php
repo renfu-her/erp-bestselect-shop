@@ -1292,5 +1292,14 @@ return [
 
         ],
     ],
+    [
+        "unit" => "季報表",
+        "permissions" => [
+            [
+                "cms.product-report.index",
+                "瀏覽",
+            ],
+        ],
+    ],
 
 ];
