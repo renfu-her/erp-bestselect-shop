@@ -1,10 +1,11 @@
 @extends('layouts.main')
 @section('sub-content')
+    <h2 class="mb-4">季報表</h2>
+
     <form method="GET">
         <div class="card shadow p-4 mb-4">
-            <div class="row mb-3">
+            <div class="row">
                 <div class="col-auto">
-                    <label class="form-label">年度</label>
                     <select class="form-select" name="y" aria-label="年度" placeholder="請選擇年度">
                         @foreach ($year_range as $value)
                             <option value="{{ $value }}" {{ $value == $cond['year'] ? 'selected' : '' }}>
@@ -14,7 +15,6 @@
                 </div>
 
                 <div class="col-auto">
-                    <label class="form-label">季</label>
                     <select class="form-select" name="quarter" aria-label="季" data-placeholder="季度">
                         @for ($i = 1; $i <= 4; $i++)
                             <option value="{{ $i }}" {{ $i == $cond['quarter'] ? 'selected' : '' }}>
@@ -30,18 +30,23 @@
 
         </div>
     </form>
-    總商品:{{ $products }}
-    總廠商:{{ $suppliers }}
+    
     <div class="card shadow p-4 mb-4">
+        <div>
+            <table class="table table-borderless">
+                <tr>
+                    <th>總商品數：{{ number_format($products) }}</th>
+                    <th>總廠商數：{{ number_format($suppliers) }}</th>
+                </tr>
+            </table>
+        </div>
         <div class="table-responsive tableOverBox">
             <table class="table table-striped tableList">
                 <thead class="small align-middle">
                     <tr>
-            
                         <th scope="col">月份</th>
-                        <th scope="col" class="text-center">總營業額</th>
-                        <th scope="col" class="text-center">總毛利</th>
-                        <!-- <th scope="col" class="text-center">人數</th>-->
+                        <th scope="col" class="text-end">總營業額</th>
+                        <th scope="col" class="text-end">總毛利</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -58,11 +63,9 @@
                           
                         @endphp
                         <tr>
-                           
                             <td> 
                                 {{ $data->m }}月
                             </td>
-                    
                             <td class="text-end">
                                 <x-b-number :val="$data->total_price" prefix="$" />
                             </td>

@@ -79,52 +79,44 @@
     <div class="card shadow p-4 mb-4">
         @can('cms.product-profit-report.export-excel')
             <div class="col">
-                <a href="{{ Route('cms.product-profit-report.export-excel', ['stock_status' => 'all']) }}" class="btn btn-outline-success export">
-                    <i class="bi"></i> 匯出售價利潤報表
+                <a href="{{ Route('cms.product-profit-report.export-excel', ['stock_status' => 'all']) }}" 
+                    class="btn btn-outline-success export">
+                    匯出售價利潤報表
                 </a>
             </div>
         @endcan
         <div class="table-responsive tableOverBox">
-            <table class="table table-striped tableList">
+            <table class="table table-striped tableList mb-0">
                 <thead class="small align-middle">
-                <tr>
-                    <th scope="col" style="width:40px">#</th>
-                    <th scope="col">商品名稱</th>
-                    <th scope="col">款式</th>
-                    <th scope="col">售價</th>
-                    <th scope="col">售價利潤</th>
-                    <th scope="col">經銷價</th>
-                    <th scope="col">經銷價利潤</th>
-                    <th scope="col">成本</th>
-                    <th scope="col">理貨倉庫存</th>
-                </tr>
+                    <tr>
+                        <th scope="col" style="width:40px">#</th>
+                        <th scope="col">商品名稱</th>
+                        <th scope="col">款式</th>
+                        <th scope="col">售價</th>
+                        <th scope="col">售價利潤</th>
+                        <th scope="col">經銷價</th>
+                        <th scope="col" class="wrap lh-sm">經銷價利潤</th>
+                        <th scope="col">成本</th>
+                        <th scope="col" class="wrap lh-sm">理貨倉庫存</th>
+                    </tr>
                 </thead>
                 <tbody>
-                @foreach ($dataList as $key => $data)
-                    <tr>
-                        <th scope="row">{{ $key + 1 }}</th>
-                        <td>
-                            <a href="{{ Route('cms.product.edit', ['id' => $data->product_id], true) }}">{{ $data->product_title }}</a>
-                        </td>
-                        <td>{{ $data->sku }}</td>
-                        <td>{{ number_format($data->price) }}</td>
-                        <td>
-                            {{ $data->price_profit }}%
-                        </td>
-                        <td>{{ number_format($data->dealer_price) }}</td>
-                        <td>
-                            {{ $data->dealer_price_profit }}%
-                        </td>
-                        <td>{{ number_format(round($data->estimated_cost)) }}</td>
-                        <td>{{ $data->total_in_stock_num }}</td>
-                    </tr>
-                @endforeach
-
+                    @foreach ($dataList as $key => $data)
+                        <tr>
+                            <th scope="row">{{ $key + 1 }}</th>
+                            <td class="wrap">
+                                <a href="{{ Route('cms.product.edit', ['id' => $data->product_id], true) }}">{{ $data->product_title }}</a>
+                            </td>
+                            <td class="wrap">{{ $data->sku }}</td>
+                            <td>${{ number_format($data->price) }}</td>
+                            <td>{{ $data->price_profit }}%</td>
+                            <td>${{ number_format($data->dealer_price) }}</td>
+                            <td @class(['text-danger' => $data->dealer_price_profit < 0])>{{ $data->dealer_price_profit }}%</td>
+                            <td>${{ number_format(round($data->estimated_cost)) }}</td>
+                            <td>{{ $data->total_in_stock_num }}</td>
+                        </tr>
+                    @endforeach
                 </tbody>
-                <tfoot>
-                <tr>
-                </tr>
-                </tfoot>
             </table>
         </div>
     </div>

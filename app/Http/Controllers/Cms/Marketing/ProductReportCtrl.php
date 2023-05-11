@@ -27,7 +27,7 @@ class ProductReportCtrl extends Controller
 
         $re = ProductReport::createData($cond['year'], $cond['quarter']);
 
-        return view('cms.commodity.product_report.list', [
+        return view('cms.reports.product_report.list', [
             'year_range' => $year_range,
             'cond' => $cond,
             'dataList' => $re['seasons'],
