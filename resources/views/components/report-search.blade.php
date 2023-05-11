@@ -10,7 +10,7 @@
                         <div class="form-check form-check-inline">
                             <label class="form-check-label">
                                 <input class="form-check-input" name="type" type="radio"
-                                    value="{{ $key }}">
+                                    value="{{ $key }}" @if ($key == $cond['type']) checked @endif>
                                 {{ $value }}
                             </label>
                         </div>
@@ -26,16 +26,16 @@
                     @endforeach
                 </select>
             </div>
-            <div class="col-12 col-sm-6 mb-3 -season" hidden>
+            <div class="col-12 col-sm-6 mb-3 -season" @if ($cond['type'] !== 'season') hidden @endif>
                 <label class="form-label">季</label>
                 <select class="form-select" name="season" aria-label="季">
                     @foreach ($season as $key => $value)
-                        <option value="{{ $key }}" >
+                        <option value="{{ $key }}" @if ($key == $cond['season']) selected @endif>
                             第{{ $value }}季</option>
                     @endforeach
                 </select>
             </div>
-            <div class="col-12 col-sm-6 mb-3 -month" hidden>
+            <div class="col-12 col-sm-6 mb-3 -month" @if ($cond['type'] !== 'month') hidden @endif>
                 <label class="form-label">月份</label>
                 <select class="form-select" name="month" aria-label="月份">
                     @for ($i = 1; $i < 13; $i++)
@@ -122,13 +122,13 @@
                         break;
                     case 'season':  // 季
                         const Season = $('#search select[name="season"]').val();
-                        sdate = moment().quarter(Season).startOf('quarter');
-                        edate = moment().quarter(Season).endOf('quarter');
+                        sdate = moment().year(Year).quarter(Season).startOf('quarter');
+                        edate = moment().year(Year).quarter(Season).endOf('quarter');
                         break;
                     case 'month':   // 月份
                         const Month = $('#search select[name="month"]').val();
-                        sdate = moment().month(Month - 1).startOf('month');
-                        edate = moment().month(Month - 1).endOf('month');
+                        sdate = moment().year(Year).month(Month - 1).startOf('month');
+                        edate = moment().year(Year).month(Month - 1).endOf('month');
                         break;
                 
                     default:
