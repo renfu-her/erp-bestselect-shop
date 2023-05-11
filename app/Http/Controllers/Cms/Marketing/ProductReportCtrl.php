@@ -17,7 +17,7 @@ class ProductReportCtrl extends Controller
     public function index(Request $request)
     {
         $query = $request->query();
-        $cond['year'] = Arr::get($query, 'year', date('Y'));
+        $cond['year'] = Arr::get($query, 'y', date('Y'));
         $cond['quarter'] = Arr::get($query, 'quarter', intval(ceil(date('n') / 3)));
 
         $year_range = [];
