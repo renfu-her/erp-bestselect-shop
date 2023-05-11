@@ -175,7 +175,7 @@
                                     @endif
                                 </td>
                                 <td class="text-end table-warning wrap pe-2">
-                                    {{ $d_value->price < 0 ? '-$' : '$' }}{{ number_format($d_value->price) }}
+                                    {{ $d_value->price < 0 ? '-$' : '$' }}{{ number_format(abs($d_value->price)) }}
                                 </td>
                             </tr>
                         @endforeach
@@ -196,7 +196,7 @@
                                     @endif
                                 </td>
                                 <td class="text-end wrap pe-2">
-                                    {{ $c_value->price < 0 ? '-$' : '$' }}{{ number_format($c_value->price) }}
+                                    {{ $c_value->price < 0 ? '-$' : '$' }}{{ number_format(abs($c_value->price)) }}
                                 </td>
                             </tr>
                         @endforeach
