@@ -74,7 +74,7 @@
 
         <div class="table-responsive tableOverBox">
             <table class="table table-striped tableList">
-                <thead>
+                <thead class="small">
                     <tr>
                         <th scope="col">#</th>
                         <th scope="col">發票號碼</th>
@@ -105,7 +105,7 @@
                             @endif
                             <td>{{ date('Y/m/d', strtotime($data->invoice_date)) }}</td>
                             <td>{{ $data->category }}</td>
-                            <td>{{ $data->buyer_name }}</td>
+                            <td class="wrap">{{ $data->buyer_name }}</td>
                             <td class="text-end">${{ number_format($data->total_amt) }}</td>
                         </tr>
                     @endforeach

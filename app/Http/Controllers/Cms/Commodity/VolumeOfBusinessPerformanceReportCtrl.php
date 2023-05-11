@@ -45,7 +45,7 @@ class VolumeOfBusinessPerformanceReportCtrl extends Controller
 
         // $dataList = RptProductManagerReport::managerList($query['sDate'], $query['eDate'], $cond)->get();
 
-        return view('cms.commodity.vob_performance_report.list', [
+        return view('cms.reports.vob_performance_report.list', [
             'department' => UserOrganize::where('level', 2)->get(),
             'year' => $year,
             'cond' => $cond,

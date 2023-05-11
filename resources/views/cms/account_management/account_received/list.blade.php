@@ -97,13 +97,13 @@
 
         <div class="table-responsive tableOverBox">
             <table class="table table-striped tableList">
-                <thead>
+                <thead class="small">
                     <tr>
                         <th scope="col">#</th>
                         <th scope="col">對象　</th>
                         <th scope="col">會計科目</th>
                         <th scope="col">摘要</th>
-                        <th scope="col">金額</th>
+                        <th scope="col" class="text-end">金額</th>
                         <th scope="col">狀態</th>
                         <th scope="col">日期</th>
                         <th scope="col" class="wrap">
@@ -119,7 +119,7 @@
                             <td class="wrap"><a href="{{ route('cms.account_received.claim', ['type'=>'t', 'id'=>0, 'key'=>$data->ro_target_name])}}">{{ $data->ro_target_name }}</a></td>
                             <td class="wrap"><a href="{{ route('cms.account_received.claim', ['type'=>'g', 'id'=>$data->ro_received_grade_id, 'key'=>$data->ro_received_grade_name])}}">{{ $data->ro_received_grade_code }} {{ $data->ro_received_grade_name }}</a></td>
                             <td class="wrap">{{ $data->summary }}</td>
-                            <td>${{ number_format($data->tw_price) }}</td>
+                            <td class="text-end">${{ number_format($data->tw_price) }}</td>
                             <td>{!! $data->account_status_code == 0 ? '<span class="text-danger">未入款</span>' : '已入款' !!}</td>
                             <td>{{ $data->ro_created ? date('Y/m/d', strtotime($data->ro_created)) : '' }}</td>
                             <td class="wrap">

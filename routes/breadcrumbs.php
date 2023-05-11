@@ -654,6 +654,11 @@ Breadcrumbs::for('cms.vob-performance-report.index', function (BreadcrumbTrail $
     $trail->parent('cms.dashboard');
     $trail->push('營業額目標');
 });
+// 營業額目標
+Breadcrumbs::for('cms.product-report.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('季報表');
+});
 
 
 // *** 共用頁 *** //

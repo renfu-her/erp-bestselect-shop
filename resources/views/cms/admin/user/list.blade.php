@@ -75,8 +75,8 @@
                         <th scope="col" style="width:10%;">姓名</th>
                         <th scope="col">帳號</th>
                         <th scope="col">角色</th>
-                        <th scope="col">分潤申請</th>
-                        <th scope="col" style="width:10%;">角色設定狀況</th>
+                        <th scope="col" class="wrap lh-sm">分潤申請</th>
+                        <th scope="col" class="wrap lh-sm">角色設定狀況</th>
 
                         <th scope="col" class="text-center" style="width:40px;">編輯</th>
                         <th scope="col" class="text-center wrap lh-sm" style="width:40px;">通路<br>權限</th>
@@ -90,7 +90,7 @@
 
                             <td>{!! nl2br($data->name) !!}</td>
                             <td>{{ $data->account }}</td>
-                            <td class="wrap">
+                            <td class="lh-base">
                                 @php
                                     $roleNames = \App\Models\User::getRoleTitleByUserId($data->id);
                                 @endphp
@@ -99,18 +99,21 @@
                                         $i = count($roleNames);
                                     @endphp
                                     @foreach ($roleNames as $roleName)
-                                        {{ $roleName->title }}
+                                        <div>{{ $roleName->title }}
                                         @if ($i > 1)
                                             {{ ',' }}
                                         @endif
+                                        </div>
                                         @php
                                             $i--;
                                         @endphp
                                     @endforeach
                                 @endif
                             </td>
-                            <td @class(['text-truncate', 'text-danger' => $data->profit_status_title === '尚未申請'])>{{ $data->profit_status_title }}</td>
-                            <td @class(['text-danger' => is_null($data->role_ids)])>
+                            <td @class(['text-truncate wrap', 'text-danger' => $data->profit_status_title === '尚未申請'])>
+                                {{ $data->profit_status_title }}
+                            </td>
+                            <td @class(['wrap', 'text-danger' => is_null($data->role_ids)])>
                                 @if (is_null($data->role_ids))
                                     未設定角色
                                 @else

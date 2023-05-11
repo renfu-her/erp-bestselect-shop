@@ -14,13 +14,13 @@ class ProductProfitReportCtrl extends Controller
     /**
      * @param  Request  $request
      *
-        1.商品名稱
-        2.款式
-        3.售價
-        4.售價利潤%(用參考成本去計算)
-        5.經銷價
-        6.經銷價利潤%(用參考成本去計算)
-        7.庫存
+     * 1.商品名稱
+     * 2.款式
+     * 3.售價
+     * 4.售價利潤%(用參考成本去計算)
+     * 5.經銷價
+     * 6.經銷價利潤%(用參考成本去計算)
+     * 7.庫存
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
      */
     public function index(Request $request)
@@ -31,7 +31,7 @@ class ProductProfitReportCtrl extends Controller
         $products = $products->paginate($searchParam['data_per_page'])
             ->appends($query);
 
-        return view('cms.commodity.product_profit_report.list', [
+        return view('cms.reports.product_profit_report.list', [
             'query' => $query,
             'dataList' => $products,
             'searchParam' => $searchParam,

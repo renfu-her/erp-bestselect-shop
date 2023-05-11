@@ -86,11 +86,11 @@
                         <th scope="col" style="width:40px">#</th>
                         <th scope="col">收款<br class="d-block d-lg-none">對象</th>
                         <th scope="col">付款單號</th>
-                        <th scope="col">已付/未付</th>
+                        <th scope="col">付款狀態</th>
                         <th scope="col">對應單號</th>
                         <th scope="col" style="width:180px">科目</th>
                         <th scope="col">摘要</th>
-                        <th scope="col">收款金額</th>
+                        <th scope="col" class="text-end">收款金額</th>
                         <th scope="col">付款日期</th>
                     </tr>
                 </thead>
@@ -119,7 +119,7 @@
                                 @endforeach
                             </td>
 
-                            <td rowspan="{{ $rows }}">{{ $data->payment_date ? '已付款' : '未付款' }}</td>
+                            <td rowspan="{{ $rows }}">{{ $data->payment_date ? '已付款' : '<span class="text-danger">未付款</span>' }}</td>
                             <td rowspan="{{ $rows }}" class="wrap"><a href="{{ $data->source_url_link }}">{{ $data->source_sn }}</a></td>
 
                             <td class="p-0 border-bottom-0" height="0"></td>

@@ -22,7 +22,7 @@
     <div class="card shadow p-4 mb-4">
         <div class="col-auto">
             <a href="{{  route('cms.vob-performance-report.export-excel',$cond)  }}" 
-                class="btn btn btn-success">輸出excel</a>
+                class="btn btn-outline-success">匯出excel</a>
         </div>
         @if (isset($search))
             @can('cms.vob-performance-report.renew')
@@ -68,13 +68,9 @@
                 <thead class="small align-middle">
                     <tr>
                         <th scope="col" style="width:40px">#</th>
-                        <th scope="col">
-                            部門名稱
-                        </th>
-                        <th scope="col">
-                            姓名
-                        </th>
-                        <th scope="col" class="text-center lh-1">營業額</th>
+                        <th scope="col">部門名稱</th>
+                        <th scope="col">姓名</th>
+                        <th scope="col" class="text-center">營業額</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -91,10 +87,10 @@
                                 {{ $data->department }}
                             </td>
                             <td>
-                                {{ $data->name }}
+                                {!! nl2br($data->name) !!}
                             </td>
                             <td class="text-center">
-                                {{ $data->price }}
+                                ${{ number_format($data->price) }}
                             </td>
                         </tr>
                     @endforeach
@@ -102,7 +98,7 @@
                 <tfoot>
                     <tr>
                         <th colspan="3">合計</th>
-                        <th class="text-center">{{ $price }}</th>
+                        <th class="text-center">${{ number_format($price) }}</th>
                     </tr>
                 </tfoot>
             </table>

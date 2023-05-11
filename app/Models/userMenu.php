@@ -100,6 +100,11 @@ return
                 "controller_name" => "VolumeOfBusinessPerformanceReportCtrl",
                 "route_name" => "cms.vob-performance-report.index",
             ],
+            [
+                "title" => "季報表",
+                "controller_name" => "ProductReportCtrl",
+                "route_name" => "cms.product-report.index",
+            ],
         ],
     ],
     [

@@ -63,7 +63,7 @@ class UserPerformanceReportCtrl extends Controller
         }
          */
 
-        return view('cms.commodity.user_performance_report.list', [
+        return view('cms.reports.user_performance_report.list', [
             'department' => UserOrganize::where('level', 2)->get(),
             // 'type' => $type,
             'year' => $year,
@@ -144,7 +144,7 @@ class UserPerformanceReportCtrl extends Controller
             date('Y/m/d', strtotime($query['eDate'])) . " " . 
             UserOrganize::where('id', $organize_id)->get()->first()->title;
 
-        return view('cms.commodity.user_performance_report.list', [
+        return view('cms.reports.user_performance_report.list', [
             'dataList' => $dataList,
             'pageTitle' => $pageTitle,
             'query' => $query,
@@ -168,7 +168,7 @@ class UserPerformanceReportCtrl extends Controller
             date('Y/m/d', strtotime($query['eDate'])) . " " . 
             UserOrganize::where('id', $organize_id)->get()->first()->title;
 
-        return view('cms.commodity.user_performance_report.list', [
+        return view('cms.reports.user_performance_report.list', [
             'dataList' => $dataList,
             'pageTitle' => $pageTitle,
             'query' => $query,
@@ -201,7 +201,7 @@ class UserPerformanceReportCtrl extends Controller
             date('Y/m/d', strtotime($query['eDate'])) . " " . 
             UserOrganize::where('id', $organize_id)->get()->first()->title;
 
-        return view('cms.commodity.user_performance_report.order_list', [
+        return view('cms.reports.user_performance_report.order_list', [
             'dataList' => $dataList,
             'pageTitle' => $pageTitle,
             'query' => $query,

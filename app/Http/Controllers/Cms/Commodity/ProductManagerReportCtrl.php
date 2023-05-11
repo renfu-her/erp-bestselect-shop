@@ -40,7 +40,7 @@ class ProductManagerReportCtrl extends Controller
 
         $dataList = RptProductManagerReport::managerList($query['sDate'], $query['eDate'], $cond)->get();
 
-        return view('cms.commodity.product_manager_report.list', [
+        return view('cms.reports.product_manager_report.list', [
             'users' => RptProductManagerReport::managers()->get(),
             'year' => $year,
             'cond' => $cond,
@@ -63,7 +63,7 @@ class ProductManagerReportCtrl extends Controller
             date('Y/m/d', strtotime($query['sDate'])) . " ~ " . 
             date('Y/m/d', strtotime($query['eDate'])) . " 報表";
         // dd($dataList);
-        return view('cms.commodity.product_manager_report.product', [
+        return view('cms.reports.product_manager_report.product', [
             'dataList' => $dataList,
             'pageTitle' => $pageTitle,
             'query' => $query,
