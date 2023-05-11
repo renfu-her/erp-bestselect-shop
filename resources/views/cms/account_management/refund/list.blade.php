@@ -84,9 +84,9 @@
                 <thead class="small align-middle">
                     <tr>
                         <th scope="col" style="width:40px">#</th>
-                        <th scope="col">收款<br class="d-block d-lg-none">對象</th>
+                        <th scope="col" class="wrap lh-sm">收款對象</th>
                         <th scope="col">付款單號</th>
-                        <th scope="col">付款狀態</th>
+                        <th scope="col" class="wrap lh-sm">付款狀態</th>
                         <th scope="col">對應單號</th>
                         <th scope="col" style="width:180px">科目</th>
                         <th scope="col">摘要</th>
@@ -101,7 +101,7 @@
                         @endphp
                         <tr>
                             <th rowspan="{{ $rows }}">{{ $key + 1 }}</th>
-                            <td rowspan="{{ $rows }}">{{ $data->po_target_name }}</td>
+                            <td rowspan="{{ $rows }}" class="wrap">{{ $data->po_target_name }}</td>
 
                             <td rowspan="{{ $rows }}">
                                 @php
@@ -119,7 +119,7 @@
                                 @endforeach
                             </td>
 
-                            <td rowspan="{{ $rows }}">{{ $data->payment_date ? '已付款' : '<span class="text-danger">未付款</span>' }}</td>
+                            <td rowspan="{{ $rows }}" class="wrap">{!! $data->payment_date ? '已付款' : '<span class="text-danger">未付款</span>' !!}</td>
                             <td rowspan="{{ $rows }}" class="wrap"><a href="{{ $data->source_url_link }}">{{ $data->source_sn }}</a></td>
 
                             <td class="p-0 border-bottom-0" height="0"></td>
