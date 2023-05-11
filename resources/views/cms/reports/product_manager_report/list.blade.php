@@ -9,7 +9,9 @@
     </div>
     @if (isset($search))
         <h2 class="mb-4">採購營收報表</h2>
-        <x-b-report-search>
+        <x-b-report-search type="{{ $query['type'] ?? '' }}" season="{{ $query['season'] ?? '' }}" 
+            year="{{ $cond['year'] ?? '' }}" month="{{ $cond['month'] ?? '' }}" 
+            sDate="{{ $cond['sDate'] ?? '' }}" eDate="{{ $cond['eDate'] ?? '' }}">
             <div class="col-12 col-sm-6 mb-3">
                 <label class="form-label">人員</label>
                 <select class="form-select -select2 -multiple" multiple name="user_id[]" aria-label="人員" data-placeholder="多選">
