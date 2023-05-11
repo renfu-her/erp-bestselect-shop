@@ -29,7 +29,8 @@ class ProductReport extends Model
                 ->groupByRaw('YEAR(month)')
                 ->groupByRaw('MONTH(month)'), 'data')
             ->where('data.y', $year)
-            ->where('data.quarter', $quarter);
+            ->where('data.quarter', $quarter)
+            ->orderBy('data.m');
        
         return [
             'products' => $products,
