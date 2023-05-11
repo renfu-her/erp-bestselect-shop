@@ -17,7 +17,7 @@
                     <label class="form-label">季</label>
                     <select class="form-select" name="quarter" aria-label="季" data-placeholder="季度">
                         @for ($i = 1; $i <= 4; $i++)
-                            <option value="{{ $i }}" {{ $value == $cond['quarter'] ? 'selected' : '' }}>
+                            <option value="{{ $i }}" {{ $i == $cond['quarter'] ? 'selected' : '' }}>
                                 {{ $i }}季</option>
                         @endfor
                     </select>
