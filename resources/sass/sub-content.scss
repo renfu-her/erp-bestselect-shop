@@ -113,7 +113,6 @@ thead, tbody, tfoot, tr, td, th {
 .tableList > :not(caption) > * > th.wrap,
 .tableList > :not(caption) > * > td.wrap {
   white-space: normal;
-  word-break: break-word;
   &.-sm {
     min-width: 70px;
   }

@@ -98,14 +98,14 @@
 
         <div class="table-responsive tableOverBox">
             <table class="table table-striped tableList">
-                <thead class="small">
+                <thead class="small align-middle">
                     <tr>
                         <th scope="col">#</th>
                         <th scope="col">對象</th>
                         <th scope="col">會計科目</th>
                         <th scope="col">摘要</th>
                         <th scope="col" class="text-end">金額</th>
-                        <th scope="col">狀態</th>
+                        <th scope="col" class="wrap lh-sm">狀態</th>
                         <th scope="col">日期</th>
                         <th scope="col">銷帳單號</th>
                         <th scope="col">單據編號</th>
@@ -119,7 +119,7 @@
                             <td class="wrap"><a href="{{ route('cms.accounts_payable.claim', ['type'=>'g', 'id'=>$data->po_payable_grade_id, 'key'=>$data->po_payable_grade_name])}}">{{ $data->po_payable_grade_code }} {{ $data->po_payable_grade_name }}</a></td>
                             <td class="wrap">{{ $data->summary }}</td>
                             <td class="text-end">${{ number_format($data->tw_price) }}</td>
-                            <td>{!! $data->account_status_code == 0 ? '<span class="text-danger">未付款</span>' : '已付款' !!}</td>
+                            <td class="wrap">{!! $data->account_status_code == 0 ? '<span class="text-danger">未付款</span>' : '已付款' !!}</td>
                             <td>{{ $data->po_created ? date('Y/m/d', strtotime($data->po_created)) : '' }}</td>
                             <td>
                                 @if($data->append_po_source_type == 'pcs_paying_orders' && $data->account_status_code == 0)

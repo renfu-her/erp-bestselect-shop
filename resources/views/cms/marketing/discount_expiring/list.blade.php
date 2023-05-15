@@ -124,7 +124,7 @@
                             <th scope="col">#</th>
                             <th scope="col" class="text-center"><input class="form-check-input" type="checkbox" id="checkAll"></th>
                             <th scope="col" class="text-center">編輯</th>
-                            <th scope="col">姓名</th>
+                            <th scope="col">姓名　</th>
                             <th scope="col">信箱</th>
                             <th scope="col">優惠券活動名稱</th>
                             <th scope="col">優惠類型</th>
@@ -162,7 +162,7 @@
                                     @endcan
                                 </td>
 
-                                <td>{!! $data->name !!}</td>
+                                <td class="wrap">{!! $data->name !!}</td>
                                 <td>{{ $data->email }}</td>
 
                                 <td>{{ $data->title }}</td>
