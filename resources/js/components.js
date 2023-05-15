@@ -614,14 +614,20 @@
             const checked = $(this).prop('checked');
             if (checked) {
                 $table.find(`
-                thead tr > *:nth-child(${nth}), 
-                tbody tr > *:nth-child(${nth}), 
-                tfoot tr > *:nth-child(${nth})`).removeClass('d-none');
+                thead tr:not(.-rowspan) > *:nth-child(${nth}), 
+                tbody tr:not(.-rowspan) > *:nth-child(${nth}), 
+                tfoot tr:not(.-rowspan) > *:nth-child(${nth}),
+                thead tr.-rowspan > *[data-nth="${nth}"], 
+                tbody tr.-rowspan > *[data-nth="${nth}"], 
+                tfoot tr.-rowspan > *[data-nth="${nth}"]`).removeClass('d-none');
             } else {
                 $table.find(`
-                thead tr > *:nth-child(${nth}), 
-                tbody tr > *:nth-child(${nth}), 
-                tfoot tr > *:nth-child(${nth})`).addClass('d-none');
+                thead tr:not(.-rowspan) > *:nth-child(${nth}), 
+                tbody tr:not(.-rowspan) > *:nth-child(${nth}), 
+                tfoot tr:not(.-rowspan) > *:nth-child(${nth}),
+                thead tr.-rowspan > *[data-nth="${nth}"], 
+                tbody tr.-rowspan > *[data-nth="${nth}"], 
+                tfoot tr.-rowspan > *[data-nth="${nth}"]`).addClass('d-none');
             }
         });
         // 全選事件
@@ -640,9 +646,12 @@
             for (const i of option.defaultHide) {
                 if (isFinite(i)) {
                     $table.find(`
-                    thead tr > *:nth-child(${i}), 
-                    tbody tr > *:nth-child(${i}), 
-                    tfoot tr > *:nth-child(${i})`).addClass('d-none');
+                    thead tr:not(.-rowspan) > *:nth-child(${i}), 
+                    tbody tr:not(.-rowspan) > *:nth-child(${i}), 
+                    tfoot tr:not(.-rowspan) > *:nth-child(${i}),
+                    thead tr.-rowspan > *[data-nth="${i}"], 
+                    tbody tr.-rowspan > *[data-nth="${i}"], 
+                    tfoot tr.-rowspan > *[data-nth="${i}"]`).addClass('d-none');
                 }
             }
         }

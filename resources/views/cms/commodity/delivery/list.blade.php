@@ -205,7 +205,7 @@
         </div>
 
         <div class="table-responsive tableOverBox">
-            <table class="table table-striped tableList small mb-0">
+            <table class="table tableList small mb-0">
                 <thead class="align-middle">
                     <tr>
                         <th scope="col" style="width:40px">#</th>
@@ -221,19 +221,23 @@
                         <th scope="col">物流分類</th>
                         <th scope="col">物流溫層</th>
                         <th scope="col">自取倉溫層</th>
-                        <th scope="col">寄件人姓名</th>
-                        <th scope="col">收件人姓名</th>
+                        <th scope="col">寄件人</th>
+                        <th scope="col">收件人</th>
                         <th scope="col">收件人地址</th>
                         <th scope="col">產品名稱</th>
-                        <th scope="col">數量</th>
+                        <th scope="col" class="text-center">數量</th>
                         <th scope="col">退貨</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($uniqueSubOrderDataList as $key => $data)
-                        <tr>
-                            <th scope="row" class="fs-6">{{ $key + 1 }}</th>
-                            <td class="text-center fs-6">
+                        @php
+                            $rows = count($data->products) > 0 ? count($data->products) + 1 : 2;
+                            $striped = $key % 2 === 0 ? 'table-light' : '';
+                        @endphp
+                        <tr class="{{ $striped }}">
+                            <th rowspan="{{ $rows }}" scope="row" class="fs-6">{{ $key + 1 }}</th>
+                            <td rowspan="{{ $rows }}" class="text-center fs-6">
                                 @can('cms.delivery.edit')
                                     <a href="
                                     @if ($data->event == App\Enums\Delivery\Event::order()->value) {{ Route('cms.order.detail', ['id' => $data->order_id, 'subOrderId' => $data->sub_order_id], true) }}
@@ -247,17 +251,17 @@
                                     </a>
                                 @endcan
                             </td>
-                            <td class="wrap">
+                            <td rowspan="{{ $rows }}" class="wrap">
                                 <div class="fw-bold">{{ $data->delivery_sn }}</div>
                                 <div>{{ $data->event_sn }}</div>
                             </td>
-                            <td>${{ number_format($data->total_price) }}</td>
-                            <td class="wrap">{{ $data->depot_name ?? '-' }}</td>
-                            <td @class(['fs-6', 'text-danger' => $data->order_status === '取消'])>
+                            <td rowspan="{{ $rows }}">${{ number_format($data->total_price) }}</td>
+                            <td rowspan="{{ $rows }}" class="wrap">{{ $data->depot_name ?? '-' }}</td>
+                            <td rowspan="{{ $rows }}" @class(['fs-6', 'text-danger' => $data->order_status === '取消'])>
                                 {{ $data->order_status }}
                             </td>
-                            <td class="fs-6">{{ $data->logistic_status }}</td>
-                            <td class="wrap">
+                            <td rowspan="{{ $rows }}" class="fs-6">{{ $data->logistic_status }}</td>
+                            <td rowspan="{{ $rows }}" class="wrap">
                                 <div class="lh-1 text-nowrap">
                                     <span @class([
                                         'badge -badge',
@@ -267,36 +271,45 @@
                                 </div>
                                 <div class="lh-base text-nowrap">{{ $data->method ?? '-' }}</div>
                             </td>
-                            <td>{{ $data->temp_name }}</td>
-                            <td>{{ $data->depot_temp_name }}</td>
-                            <td class="wrap">{{ $data->sed_name }}</td>
-                            <td class="wrap">{{ $data->rec_name }}</td>
-                            <td>{{ $data->rec_address }}</td>
-                            <td class="py-0 lh-base">
-                                <ul class="list-group list-group-flush">
-                                @foreach($data->products as $product)
-                                    <li class="list-group-item bg-transparent pe-1">{{ $product->product_title }}</li>
-                                @endforeach
-                                </ul>
-                            </td>
-                            <td class="py-0 lh-base">
-                                <ul class="list-group list-group-flush">
-                                    @foreach($data->products as $product)
-                                        <li class="list-group-item bg-transparent pe-1">{{ $product->qty }}</li>
-                                    @endforeach
-                                </ul>
-                            </td>
-                            <td>
+                            <td rowspan="{{ $rows }}">{{ $data->temp_name }}</td>
+                            <td rowspan="{{ $rows }}">{{ $data->depot_temp_name }}</td>
+                            <td rowspan="{{ $rows }}" class="wrap lh-sm">{{ $data->sed_name }}</td>
+                            <td rowspan="{{ $rows }}" class="wrap lh-sm">{{ $data->rec_name }}</td>
+                            <td rowspan="{{ $rows }}" class="wrap lh-sm">{{ $data->rec_address }}</td>
+
+                            <td class="p-0 border-bottom-0" height="0"></td>
+                            <td class="p-0 border-bottom-0" height="0"></td>
+                            
+                            <td rowspan="{{ $rows }}" class="wrap">
                                 @php
                                 if (null != $data->back_detail) {
                                     $back_detail = json_decode($data->back_detail);
                                     foreach ($back_detail as $val_bac) {
-                                        echo $val_bac->sn. ' '. $val_bac->back_status. '<br>';
+                                        echo '<div>' . $val_bac->sn. ' '. $val_bac->back_status . '</div>';
                                     }
                                 }
                                 @endphp
                             </td>
                         </tr>
+
+                        @if (count($data->products) > 0)
+                            @foreach($data->products as $product)
+                                <tr class="{{ $striped }} -rowspan">
+                                    <td class="wrap lh-sm ps-2" data-nth="14">
+                                        {{ $product->product_title }}
+                                    </td>
+                                    <td class="pe-2 text-center" data-nth="15">
+                                        {{ number_format($product->qty) }}
+                                    </td>
+                                </tr>
+                            @endforeach
+                        @else
+                            <tr class="{{ $striped }} -rowspan">
+                                <td data-nth="14"></td>
+                                <td data-nth="15"></td>
+                            </tr>
+                        @endif
+                        
                     @endforeach
                 </tbody>
             </table>

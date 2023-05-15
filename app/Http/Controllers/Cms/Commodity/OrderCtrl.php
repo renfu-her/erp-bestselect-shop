@@ -198,8 +198,8 @@ class OrderCtrl extends Controller
 
         return view('cms.commodity.order.list', [
             'dataList' => $dataList,
-//            'uniqueDataList' => $uniqueDataList,
-            'somOfPrice' => $sumOfPrice,
+            // 'uniqueDataList' => $uniqueDataList,
+            'sumOfPrice' => $sumOfPrice,
             'cond' => $cond,
             'orderStatus' => $orderStatus,
             'shipmentStatus' => LogisticStatus::asArray(),
