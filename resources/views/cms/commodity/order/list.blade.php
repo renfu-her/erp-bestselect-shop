@@ -216,7 +216,7 @@
                         <th scope="col">出貨日期</th>
                         <th scope="col">包裹編號</th>
                         <th scope="col">產品名稱</th>
-                        <th scope="col">數量</th>
+                        <th scope="col" class="text-center">數量</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -256,7 +256,7 @@
                             </td>
                             <td rowspan="{{ $rows }}">{{ date('Y/m/d', strtotime($data->order_date)) }}</td>
                             <td rowspan="{{ $rows }}" class="wrap">{{ $data->name }}</td>
-                            <td rowspan="{{ $rows }}">{{ $data->sale_title }}</td>
+                            <td rowspan="{{ $rows }}" class="wrap">{{ $data->sale_title }}</td>
                             <td rowspan="{{ $rows }}">{{ $data->or_sn }}</td>
                             <td rowspan="{{ $rows }}" class="wrap">
                                 <div class="lh-1 text-nowrap">
@@ -266,10 +266,12 @@
                                         '-warning' => $data->ship_category_name === '自取',
                                     ])>{{ $data->ship_category_name }}</span>
                                 </div>
-                                <div class="lh-base text-nowrap">{{ $data->ship_event }}</div>
+                                <div class="lh-base">{{ $data->ship_event }}</div>
                             </td>
-                            <td rowspan="{{ $rows }}">{{ $data->ship_group_name }}</td>
-                            <td rowspan="{{ $rows }}">{{ $data->dlv_audit_date }}</td>
+                            <td rowspan="{{ $rows }}" class="wrap">{{ $data->ship_group_name }}</td>
+                            <td rowspan="{{ $rows }}" class="wrap">
+                                {{ $data->dlv_audit_date ? date('Y/m/d H:i:s', strtotime($data->dlv_audit_date)) : '' }}
+                            </td>
                             <td rowspan="{{ $rows }}">{{ $data->package_sn }}</td>
                             
                             <td class="p-0 border-bottom-0" height="0"></td>
@@ -281,7 +283,7 @@
                                         <td class="wrap lh-sm ps-2" data-nth="17">
                                             {{ $productTitle->product_title }}
                                         </td>
-                                        <td class="pe-2 text-center" data-nth="18">
+                                        <td class="text-center" data-nth="18">
                                             {{ number_format($productTitle->qty) }}
                                         </td>
                                     </tr>
@@ -298,7 +300,7 @@
             </table>
         </div>
         <div class="fs-5 fw-bold text-end">
-            合計金額（搜尋結果的費用總和）：${{ number_format($somOfPrice ?? '') }}
+            合計金額（搜尋結果的費用總和）：${{ number_format($sumOfPrice ?? 0) }}
             （共 {{ $dataList->total() }} 筆）
         </div>
     </div>
