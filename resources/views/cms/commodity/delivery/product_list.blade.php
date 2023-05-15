@@ -162,13 +162,13 @@
         </div>
 
         <div class="table-responsive tableOverBox">
-            <table class="table border-bottom tableList mb-1">
+            <table class="table tableList small mb-1">
                 <thead class="small align-middle">
                     <tr>
                         <th scope="col" style="width:40px">#</th>
                         <th scope="col" style="width:40px" class="text-center">編輯</th>
                         <th scope="col">商品名稱</th>
-                        <th scope="col" class="text-center">出貨數量</th>
+                        <th scope="col" class="text-center wrap lh-sm">出貨數量</th>
                         <th scope="col">採購單號</th>
                         <th scope="col">訂單編號</th>
                         <th scope="col">出貨單號</th>
@@ -192,7 +192,7 @@
                         $striped = $key % 2 === 0 ? 'table-light' : '';
                     @endphp
                     <tr class="{{ $striped }}">
-                        <th rowspan="{{ $rows }}" scope="row">{{ $key + 1 }}</th>
+                        <th rowspan="{{ $rows }}" scope="row" class="fs-6">{{ $key + 1 }}</th>
                         <td rowspan="{{ $rows }}" class="text-center fs-6">
                             @can('cms.delivery.edit')
                                 <a href="
@@ -226,7 +226,7 @@
                         @endif
 
                         <td rowspan="{{ $rows }}">{{ $data->audit_user_name }}</td>
-                        <td rowspan="{{ $rows }}">
+                        <td rowspan="{{ $rows }}" class="wrap">
                             @php
                                 if (null != $data->back_detail) {
                                     $back_detail = json_decode($data->back_detail);
@@ -241,35 +241,35 @@
 
                     @if (null != $rcv_depot_data && 0 < count($rcv_depot_data))
                         @foreach ($rcv_depot_data as $item_data)
-                            <tr class="{{ $striped }}">
-                                <td class="wrap ps-2">
+                            <tr class="{{ $striped }} -rowspan">
+                                <td class="wrap lh-sm ps-2" data-nth="3">
                                     {{ $item_data->product_title }}
                                 </td>
-                                <td class="text-center">
+                                <td class="text-center" data-nth="4">
                                     {{ number_format($item_data->qty) }}
                                 </td>
-                                <td class="wrap">
+                                <td class="wrap" data-nth="5">
                                     {{ $item_data->ib_source_sn }}
                                 </td>
 
-                                <td @class(['pe-2' => $searchParam['search_supplier'] == null])>
+                                <td @class(['pe-2' => $searchParam['search_supplier'] == null]) data-nth="11">
                                     {{ $item_data->prd_user_name }}
                                 </td>
                                 @if (null != $searchParam['search_supplier'])
-                                    <td class="wrap pe-2">
+                                    <td class="wrap pe-2" data-nth="12">
                                         {{ $item_data->supplier_name }}
                                     </td>
                                 @endif
                             </tr>
                         @endforeach
                     @else
-                        <tr class="{{ $striped }}">
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
+                        <tr class="{{ $striped }} -rowspan">
+                            <td data-nth="3"></td>
+                            <td data-nth="4"></td>
+                            <td data-nth="5"></td>
+                            <td data-nth="11"></td>
                             @if (null != $searchParam['search_supplier'])
-                                <td></td>
+                                <td data-nth="12"></td>
                             @endif
                         </tr>
                     @endif
@@ -278,7 +278,7 @@
             </table>
         </div>
         <div class="pt-3 pe-5 fw-bold text-end fs-6">
-            出貨總數：{{ $sum_of_qty }}
+            出貨總數：{{ number_format($sum_of_qty) }}
         </div>
     </div>
     <div class="row flex-column-reverse flex-sm-row">

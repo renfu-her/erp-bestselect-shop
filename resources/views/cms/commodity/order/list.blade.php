@@ -196,7 +196,7 @@
         </div>
 
         <div class="table-responsive tableOverBox mb-3">
-            <table class="table table-striped tableList small mb-0">
+            <table class="table tableList small mb-0">
                 <thead class="align-middle">
                     <tr>
                         <th scope="col" style="width:40px">#</th>
@@ -219,11 +219,15 @@
                         <th scope="col">數量</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody>{{ dd($dataList) }}
                     @foreach ($dataList as $key => $data)
-                        <tr>
-                            <th scope="row" class="fs-6">{{ $key + 1 }}</th>
-                            <td class="text-center fs-6">
+                        @php
+                            $rows = count($data->productTitleGroup) > 0 ? count($data->productTitleGroup) + 1 : 2;
+                            $striped = $key % 2 === 0 ? 'table-light' : '';
+                        @endphp
+                        <tr class="{{ $striped }}">
+                            <th rowspan="{{ $rows }}" scope="row" class="fs-6">{{ $key + 1 }}</th>
+                            <td rowspan="{{ $rows }}" class="text-center fs-6">
                                 @can('cms.order.detail')
                                     <a href="{{ Route('cms.order.detail', ['id' => $data->id]) }}" data-bs-toggle="tooltip"
                                         title="明細" class="icon icon-btn fs-5 text-primary rounded-circle border-0">
@@ -231,16 +235,16 @@
                                     </a>
                                 @endcan
                             </td>
-                            <td class="wrap">{{ $data->order_sn }}</td>
-                            <td>
+                            <td rowspan="{{ $rows }}" class="wrap">{{ $data->order_sn }}</td>
+                            <td rowspan="{{ $rows }}">
                                 ${{ number_format($data->total_price) }}
                             </td>
-                            <td @class(['fs-6', 'text-danger' => $data->order_status === '取消'])>
+                            <td rowspan="{{ $rows }}" @class(['text-danger' => $data->order_status === '取消'])>
                                 {{ $data->order_status }}
                             </td>
-                            <td class="fs-6">{{ $data->logistic_status }}</td>
-                            <td>{{ $data->payment_method_title }}</td>
-                            <td>
+                            <td rowspan="{{ $rows }}">{{ $data->logistic_status }}</td>
+                            <td rowspan="{{ $rows }}">{{ $data->payment_method_title }}</td>
+                            <td rowspan="{{ $rows }}">
                                 @if ($data->projlgt_order_sn)
                                     <a href="{{ env('LOGISTIC_URL') . 'guest/order-flow/' . $data->projlgt_order_sn }}"
                                         target="_blank">
@@ -250,11 +254,11 @@
                                     {{ $data->package_sn }}
                                 @endif
                             </td>
-                            <td>{{ date('Y/m/d', strtotime($data->order_date)) }}</td>
-                            <td class="wrap">{{ $data->name }}</td>
-                            <td>{{ $data->sale_title }}</td>
-                            <td>{{ $data->or_sn }}</td>
-                            <td class="wrap">
+                            <td rowspan="{{ $rows }}">{{ date('Y/m/d', strtotime($data->order_date)) }}</td>
+                            <td rowspan="{{ $rows }}" class="wrap">{{ $data->name }}</td>
+                            <td rowspan="{{ $rows }}">{{ $data->sale_title }}</td>
+                            <td rowspan="{{ $rows }}">{{ $data->or_sn }}</td>
+                            <td rowspan="{{ $rows }}" class="wrap">
                                 <div class="lh-1 text-nowrap">
                                     <span @class([
                                         'badge -badge',
@@ -264,23 +268,30 @@
                                 </div>
                                 <div class="lh-base text-nowrap">{{ $data->ship_event }}</div>
                             </td>
-                            <td>{{ $data->ship_group_name }}</td>
-                            <td>{{ $data->dlv_audit_date }}</td>
-                            <td>{{ $data->package_sn }}</td>
-                            <td class="py-0 lh-base">
-                                <ul class="list-group list-group-flush">
+                            <td rowspan="{{ $rows }}">{{ $data->ship_group_name }}</td>
+                            <td rowspan="{{ $rows }}">{{ $data->dlv_audit_date }}</td>
+                            <td rowspan="{{ $rows }}">{{ $data->package_sn }}</td>
+                            
+                            <td class="p-0 border-bottom-0" height="0"></td>
+                            <td class="p-0 border-bottom-0" height="0"></td>
+
+                            @if (count($data->productTitleGroup) > 0)
                                 @foreach($data->productTitleGroup as $x => $productTitle)
-                                    <li class="list-group-item bg-transparent pe-1">{{ $productTitle->product_title }}</li>
+                                    <tr class="{{ $striped }} -rowspan">
+                                        <td class="wrap lh-sm ps-2" data-nth="16">
+                                            {{ $productTitle->product_title }}
+                                        </td>
+                                        <td class="pe-2 text-center" data-nth="17">
+                                            {{ number_format($productTitle->qty) }}
+                                        </td>
+                                    </tr>
                                 @endforeach
-                                </ul>
-                            </td>
-                            <td class="py-0 lh-base">
-                                <ul class="list-group list-group-flush">
-                                    @foreach($data->productTitleGroup as $x => $productTitle)
-                                        <li class="list-group-item bg-transparent pe-1">{{ $productTitle->qty }}</li>
-                                    @endforeach
-                                </ul>
-                            </td>
+                            @else
+                                <tr class="{{ $striped }} -rowspan">
+                                    <td data-nth="16"></td>
+                                    <td data-nth="17"></td>
+                                </tr>
+                            @endif
                         </tr>
                     @endforeach
                 </tbody>
