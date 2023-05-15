@@ -219,7 +219,7 @@
                         <th scope="col">數量</th>
                     </tr>
                 </thead>
-                <tbody>{{ dd($dataList) }}
+                <tbody>
                     @foreach ($dataList as $key => $data)
                         @php
                             $rows = count($data->productTitleGroup) > 0 ? count($data->productTitleGroup) + 1 : 2;
