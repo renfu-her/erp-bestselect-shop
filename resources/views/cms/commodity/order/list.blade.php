@@ -278,18 +278,18 @@
                             @if (count($data->productTitleGroup) > 0)
                                 @foreach($data->productTitleGroup as $x => $productTitle)
                                     <tr class="{{ $striped }} -rowspan">
-                                        <td class="wrap lh-sm ps-2" data-nth="16">
+                                        <td class="wrap lh-sm ps-2" data-nth="17">
                                             {{ $productTitle->product_title }}
                                         </td>
-                                        <td class="pe-2 text-center" data-nth="17">
+                                        <td class="pe-2 text-center" data-nth="18">
                                             {{ number_format($productTitle->qty) }}
                                         </td>
                                     </tr>
                                 @endforeach
                             @else
                                 <tr class="{{ $striped }} -rowspan">
-                                    <td data-nth="16"></td>
                                     <td data-nth="17"></td>
+                                    <td data-nth="18"></td>
                                 </tr>
                             @endif
                         </tr>
