@@ -259,19 +259,19 @@
                             <tr>
                                 <td></td>
                                 <td colspan="9" class="pt-0 ps-0 wrap">
-                                    <table class="table table-bordered table-sm mb-0">
-                                        <thead class="small table-light">
+                                    <table class="table table-bordered table-sm small mb-0">
+                                        <thead class="table-light">
                                             <tr class="border-top-0" style="border-bottom-color:var(--bs-secondary);">
                                                 <th scope="col">SKU</th>
                                                 <th scope="col">商品名稱</th>
                                                 <th scope="col">總價</th>
                                                 <th scope="col">單價</th>
-                                                <th scope="col">數量</th>
-                                                <th scope="col">入庫數量</th>
-                                                <th scope="col">異常數量</th>
+                                                <th scope="col" class="lh-sm">數量</th>
+                                                <th scope="col" class="lh-sm">入庫數量</th>
+                                                <th scope="col" class="lh-sm">異常數量</th>
                                                 <th scope="col">效期</th>
-                                                <th scope="col">入庫狀態</th>
-                                                <th scope="col">入庫人員</th>
+                                                <th scope="col" class="lh-sm">入庫狀態</th>
+                                                <th scope="col" class="lh-sm">入庫人員</th>
                                             </tr>
                                         </thead>
                                         <tbody class="border-top-0">
@@ -281,16 +281,16 @@
                                             @if(null != $itemsConcat && 0 < count($itemsConcat))
                                                 @foreach ($itemsConcat as $item_data)
                                                     <tr>
-                                                        <td>{{ $item_data->sku }}</td>
-                                                        <td>{{ $item_data->title }}</td>
-                                                        <td>${{ number_format(floatval($item_data->price)) }}</td>
-                                                        <td>${{ number_format(floatval($item_data->single_price)) }}</td>
+                                                        <td class="lh-sm">{{ $item_data->sku }}</td>
+                                                        <td class="lh-sm">{{ $item_data->title }}</td>
+                                                        <td class="text-nowrap">${{ number_format(floatval($item_data->price)) }}</td>
+                                                        <td class="text-nowrap">${{ number_format(floatval($item_data->single_price)) }}</td>
                                                         <td>{{ number_format($item_data->num) }}</td>
                                                         <td>{{ number_format($item_data->arrived_num) }}</td>
                                                         <td>{{ $item_data->error_num }}</td>
-                                                        <td>{{ $item_data->expiry_date }}</td>
+                                                        <td class="text-nowrap">{{ date('Y/m/d', strtotime($item_data->expiry_date)) }}</td>
                                                         <td>{{ $item_data->inbound_status }}</td>
-                                                        <td>{{ $item_data->inbound_user_names ?? '' }}</td>
+                                                        <td class="lh-sm">{{ $item_data->inbound_user_names ?? '' }}</td>
                                                     </tr>
                                                 @endforeach
                                             @endif

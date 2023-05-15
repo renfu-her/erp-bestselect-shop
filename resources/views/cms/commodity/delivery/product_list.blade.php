@@ -162,20 +162,20 @@
         </div>
 
         <div class="table-responsive tableOverBox">
-            <table class="table table-striped tableList">
+            <table class="table border-bottom tableList mb-1">
                 <thead class="small align-middle">
                     <tr>
                         <th scope="col" style="width:40px">#</th>
                         <th scope="col" style="width:40px" class="text-center">編輯</th>
                         <th scope="col">商品名稱</th>
-                        <th scope="col">出貨數量</th>
+                        <th scope="col" class="text-center">出貨數量</th>
                         <th scope="col">採購單號</th>
-                        <th scope="col">訂單號</th>
+                        <th scope="col">訂單編號</th>
                         <th scope="col">出貨單號</th>
                         <th scope="col">訂單狀態</th>
                         <th scope="col">出貨狀態</th>
                         <th scope="col">出貨日期</th>
-                        <th scope="col">商品負責人</th>
+                        <th scope="col" class="wrap lh-sm">商品負責人</th>
                         @if(null != $searchParam['search_supplier'])
                             <th scope="col">廠商</th>
                         @endif
@@ -186,9 +186,14 @@
                 </thead>
                 <tbody>
                 @foreach ($dataList as $key => $data)
-                    <tr>
-                        <th scope="row">{{ $key + 1 }}</th>
-                        <td class="text-center fs-6">
+                    @php
+                        $rcv_depot_data = (null != $data->rcv_depot_data) ? json_decode($data->rcv_depot_data) : null;
+                        $rows = (null != $rcv_depot_data && 0 < count($rcv_depot_data)) ? count($rcv_depot_data) + 1 : 2;
+                        $striped = $key % 2 === 0 ? 'table-light' : '';
+                    @endphp
+                    <tr class="{{ $striped }}">
+                        <th rowspan="{{ $rows }}" scope="row">{{ $key + 1 }}</th>
+                        <td rowspan="{{ $rows }}" class="text-center fs-6">
                             @can('cms.delivery.edit')
                                 <a href="
                                     @if ($data->event == App\Enums\Delivery\Event::order()->value) {{ Route('cms.order.detail', ['id' => $data->order_id, 'subOrderId' => $data->event_id], true) }}
@@ -202,78 +207,72 @@
                                 </a>
                             @endcan
                         </td>
-                        @php
-                            $rcv_depot_data = (null != $data->rcv_depot_data)? json_decode($data->rcv_depot_data): null;
-                        @endphp
 
-                        <td class="py-0 lh-1">
-                            <ul class="list-group list-group-flush">
-                                @if(null != $rcv_depot_data && 0 < count($rcv_depot_data))
-                                    @foreach ($rcv_depot_data as $item_data)
-                                        <li class="list-group-item bg-transparent px-1">{{ $item_data->product_title }}</li>
-                                    @endforeach
-                                @endif
-                            </ul>
-                        </td>
-                        <td class="py-0 lh-1 text-center">
-                            <ul class="list-group list-group-flush">
-                                @if(null != $rcv_depot_data && 0 < count($rcv_depot_data))
-                                    @foreach ($rcv_depot_data as $item_data)
-                                        <li class="list-group-item bg-transparent px-1">{{ $item_data->qty }}</li>
-                                    @endforeach
-                                @endif
-                            </ul>
-                        </td>
-                        <td class="py-0 lh-1">
-                            <ul class="list-group list-group-flush">
-                                @if(null != $rcv_depot_data && 0 < count($rcv_depot_data))
-                                    @foreach ($rcv_depot_data as $item_data)
-                                        <li class="list-group-item bg-transparent px-1">{{ $item_data->ib_source_sn }}</li>
-                                    @endforeach
-                                @endif
-                            </ul>
+                        <td class="p-0 border-bottom-0" height="0"></td>
+                        <td class="p-0 border-bottom-0" height="0"></td>
+                        <td class="p-0 border-bottom-0" height="0"></td>
+
+                        <td rowspan="{{ $rows }}" class="wrap">{{ $data->event_sn }}</td>
+                        <td rowspan="{{ $rows }}" class="wrap">{{ $data->sn }}</td>
+                        <td rowspan="{{ $rows }}">{{ $data->ord_status }}</td>
+                        <td rowspan="{{ $rows }}">{{ $data->logistic_status }}</td>
+                        <td rowspan="{{ $rows }}" class="wrap">
+                            {{ $data->audit_date ? date('Y/m/d H:i:s', strtotime($data->audit_date)) : '' }}
                         </td>
 
-                        <td>{{ $data->event_sn }}</td>
-                        <td>{{ $data->sn }}</td>
-                        <td>{{ $data->ord_status }}</td>
-                        <td>{{ $data->logistic_status }}</td>
-                        <td>{{ $data->audit_date }}</td>
-
-                        <td class="py-0 lh-1">
-                            <ul class="list-group list-group-flush">
-                                @if(null != $rcv_depot_data && 0 < count($rcv_depot_data))
-                                    @foreach ($rcv_depot_data as $item_data)
-                                        <li class="list-group-item bg-transparent px-1">{{ $item_data->prd_user_name }}</li>
-                                    @endforeach
-                                @endif
-                            </ul>
-                        </td>
-
+                        <td class="p-0 border-bottom-0" height="0"></td>
                         @if(null != $searchParam['search_supplier'])
-                        <td class="py-0 lh-1">
-                            <ul class="list-group list-group-flush">
-                                @if(null != $rcv_depot_data && 0 < count($rcv_depot_data))
-                                    @foreach ($rcv_depot_data as $item_data)
-                                        <li class="list-group-item bg-transparent px-1">{{ $item_data->supplier_name }}</li>
-                                    @endforeach
-                                @endif
-                            </ul>
-                        </td>
+                            <td class="p-0 border-bottom-0" height="0"></td>
                         @endif
-                        <td>{{ $data->audit_user_name }}</td>
-                        <td>
+
+                        <td rowspan="{{ $rows }}">{{ $data->audit_user_name }}</td>
+                        <td rowspan="{{ $rows }}">
                             @php
                                 if (null != $data->back_detail) {
                                     $back_detail = json_decode($data->back_detail);
                                     foreach ($back_detail as $val_bac) {
-                                        echo $val_bac->sn. ' '. $val_bac->back_status. '<br>';
+                                        echo '<div>' . $val_bac->sn. ' '. $val_bac->back_status. '</div>';
                                     }
                                 }
                             @endphp
                         </td>
-                        <td>{{ $data->depot_names }}</td>
+                        <td rowspan="{{ $rows }}" class="wrap">{{ $data->depot_names }}</td>
                     </tr>
+
+                    @if (null != $rcv_depot_data && 0 < count($rcv_depot_data))
+                        @foreach ($rcv_depot_data as $item_data)
+                            <tr class="{{ $striped }}">
+                                <td class="wrap ps-2">
+                                    {{ $item_data->product_title }}
+                                </td>
+                                <td class="text-center">
+                                    {{ number_format($item_data->qty) }}
+                                </td>
+                                <td class="wrap">
+                                    {{ $item_data->ib_source_sn }}
+                                </td>
+
+                                <td @class(['pe-2' => $searchParam['search_supplier'] == null])>
+                                    {{ $item_data->prd_user_name }}
+                                </td>
+                                @if (null != $searchParam['search_supplier'])
+                                    <td class="wrap pe-2">
+                                        {{ $item_data->supplier_name }}
+                                    </td>
+                                @endif
+                            </tr>
+                        @endforeach
+                    @else
+                        <tr class="{{ $striped }}">
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            @if (null != $searchParam['search_supplier'])
+                                <td></td>
+                            @endif
+                        </tr>
+                    @endif
                 @endforeach
                 </tbody>
             </table>

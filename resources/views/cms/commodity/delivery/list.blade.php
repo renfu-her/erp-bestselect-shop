@@ -210,7 +210,7 @@
                     <tr>
                         <th scope="col" style="width:40px">#</th>
                         <th scope="col" style="width:40px" class="text-center">編輯</th>
-                        <td scope="col" class="wrap lh-sm">
+                        <td scope="col" class="lh-sm">
                             <div class="fw-bold">出貨單號</div>
                             <div>單據編號</div>
                         </td>
