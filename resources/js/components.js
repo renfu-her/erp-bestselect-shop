@@ -609,7 +609,8 @@
         });
 
         // 隱藏/顯示 事件
-        $fieldset.find('input[type="checkbox"][data-nth]:not(.-all)').off('change').on('change', function () {
+        $fieldset.find('input[type="checkbox"][data-nth]:not(.-all)')
+        .off('change.tdDisplay').on('change.tdDisplay', function () {
             const nth = Number($(this).data('nth'));
             const checked = $(this).prop('checked');
             if (checked) {
@@ -631,7 +632,8 @@
             }
         });
         // 全選事件
-        $fieldset.find('input[type="checkbox"].-all').off('change').on('change', function () {
+        $fieldset.find('input[type="checkbox"].-all')
+        .off('change.tdDisplayAll').on('change.tdDisplayAll', function () {
             const checked = $(this).prop('checked');
             $fieldset.find('input[type="checkbox"][data-nth]').prop('checked', checked);
             if (checked) {

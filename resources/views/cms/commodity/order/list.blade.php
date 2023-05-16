@@ -349,7 +349,7 @@
                 { type: 'dropdown', defaultHide: DefHide[Key] || [] }
             );
             // 紀錄選項
-            $('#selectField').parent().on('hidden.bs.dropdown', function () {
+            $('#selectField input[type="checkbox"]').on('change.setLS', function () {
                 let temp = [];
                 $('#selectField input[type="checkbox"][data-nth]').each((i, elem) => {
                     if (!$(elem).prop('checked')) {

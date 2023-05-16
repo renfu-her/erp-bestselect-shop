@@ -54,14 +54,12 @@
 
 @once
     @push('styles')
-        <link rel="stylesheet" href="{{ Asset('dist/css/sub-content.css') }}">
-        <link rel="stylesheet" href="{{ Asset('dist/css/component.css') }}">
+        <link rel="stylesheet" href="{{ Asset('dist/css/sub-content.css') }}?2.1">
+        <link rel="stylesheet" href="{{ Asset('dist/css/component.css') }}?2.0">
         @stack('sub-styles')
     @endpush
     @push('scripts')
-        <script src="{{ Asset('dist/js/dashboard.js') }}"></script>
-        <script src="{{ Asset('dist/js/helpers.js') }}"></script>
-        <script src="{{ Asset('dist/js/components.js') }}"></script>
+        <script src="{{ Asset('dist/js/app.js') }}?3.0"></script>
         <script>
             window.Laravel = {!! json_encode([
                 'apiToken' => auth()->user()->api_token ?? null,
