@@ -43,7 +43,7 @@
 
 <body>
     @yield('content')
-    <script src="{{ Asset('dist/js/app.js') }}?3.0"></script>
+    <script src="{{ Asset('dist/js/app.js') }}?3.1"></script>
     <script>
         $('#sidebarMenu').on('shown.bs.collapse', function () {
             console.log('show');
