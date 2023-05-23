@@ -196,7 +196,7 @@
         </div>
 
         <div class="table-responsive tableOverBox mb-3">
-            <table class="table tableList small mb-0">
+            <table class="table tableList border-bottom small mb-0">
                 <thead class="align-middle">
                     <tr>
                         <th scope="col" style="width:40px">#</th>
@@ -235,15 +235,15 @@
                                     </a>
                                 @endcan
                             </td>
-                            <td rowspan="{{ $rows }}" class="wrap">{{ $data->order_sn }}</td>
+                            <td rowspan="{{ $rows }}" class="wrap lh-sm">{{ $data->order_sn ?? '-' }}</td>
                             <td rowspan="{{ $rows }}">
                                 ${{ number_format($data->total_price) }}
                             </td>
                             <td rowspan="{{ $rows }}" @class(['text-danger' => $data->order_status === '取消'])>
-                                {{ $data->order_status }}
+                                {{ $data->order_status ?? '-' }}
                             </td>
-                            <td rowspan="{{ $rows }}">{{ $data->logistic_status }}</td>
-                            <td rowspan="{{ $rows }}">{{ $data->payment_method_title }}</td>
+                            <td rowspan="{{ $rows }}">{{ $data->logistic_status ?? '-' }}</td>
+                            <td rowspan="{{ $rows }}">{{ $data->payment_method_title ?? '-' }}</td>
                             <td rowspan="{{ $rows }}">
                                 @if ($data->projlgt_order_sn)
                                     <a href="{{ env('LOGISTIC_URL') . 'guest/order-flow/' . $data->projlgt_order_sn }}"
@@ -251,13 +251,15 @@
                                         {{ $data->projlgt_order_sn }}
                                     </a>
                                 @else
-                                    {{ $data->package_sn }}
+                                    {{ $data->package_sn ?? '-' }}
                                 @endif
                             </td>
-                            <td rowspan="{{ $rows }}">{{ date('Y/m/d', strtotime($data->order_date)) }}</td>
-                            <td rowspan="{{ $rows }}" class="wrap">{{ $data->name }}</td>
-                            <td rowspan="{{ $rows }}" class="wrap">{{ $data->sale_title }}</td>
-                            <td rowspan="{{ $rows }}">{{ $data->or_sn }}</td>
+                            <td rowspan="{{ $rows }}">
+                                {{ $data->order_date ? date('Y/m/d', strtotime($data->order_date)) : '-' }}
+                            </td>
+                            <td rowspan="{{ $rows }}" class="wrap lh-sm">{{ $data->name ?? '-' }}</td>
+                            <td rowspan="{{ $rows }}" class="wrap lh-sm">{{ $data->sale_title ?? '-' }}</td>
+                            <td rowspan="{{ $rows }}">{{ $data->or_sn ?? '-' }}</td>
                             <td rowspan="{{ $rows }}" class="wrap">
                                 <div class="lh-1 text-nowrap">
                                     <span @class([
@@ -266,13 +268,13 @@
                                         '-warning' => $data->ship_category_name === '自取',
                                     ])>{{ $data->ship_category_name }}</span>
                                 </div>
-                                <div class="lh-base">{{ $data->ship_event }}</div>
+                                <div class="lh-sm">{{ $data->ship_event ?? '-' }}</div>
                             </td>
-                            <td rowspan="{{ $rows }}" class="wrap">{{ $data->ship_group_name }}</td>
+                            <td rowspan="{{ $rows }}" class="wrap lh-sm">{{ $data->ship_group_name ?? '-' }}</td>
                             <td rowspan="{{ $rows }}" class="wrap">
-                                {{ $data->dlv_audit_date ? date('Y/m/d H:i:s', strtotime($data->dlv_audit_date)) : '' }}
+                                {{ $data->dlv_audit_date ? date('Y/m/d H:i:s', strtotime($data->dlv_audit_date)) : '-' }}
                             </td>
-                            <td rowspan="{{ $rows }}">{{ $data->package_sn }}</td>
+                            <td rowspan="{{ $rows }}">{{ $data->package_sn ?? '-' }}</td>
                             
                             <td class="p-0 border-bottom-0" height="0"></td>
                             <td class="p-0 border-bottom-0" height="0"></td>
@@ -290,8 +292,8 @@
                                 @endforeach
                             @else
                                 <tr class="{{ $striped }} -rowspan">
-                                    <td data-nth="17"></td>
-                                    <td data-nth="18"></td>
+                                    <td data-nth="17">-</td>
+                                    <td data-nth="18">-</td>
                                 </tr>
                             @endif
                         </tr>

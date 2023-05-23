@@ -205,7 +205,7 @@
         </div>
 
         <div class="table-responsive tableOverBox">
-            <table class="table tableList small mb-0">
+            <table class="table tableList border-bottom small mb-0">
                 <thead class="align-middle">
                     <tr>
                         <th scope="col" style="width:40px">#</th>
@@ -219,8 +219,7 @@
                         <th scope="col">訂單狀態</th>
                         <th scope="col">物流狀態</th>
                         <th scope="col">物流分類</th>
-                        <th scope="col">物流溫層</th>
-                        <th scope="col">自取倉溫層</th>
+                        <th scope="col">溫層</th>
                         <th scope="col">寄件人</th>
                         <th scope="col">收件人</th>
                         <th scope="col">收件人地址</th>
@@ -253,14 +252,14 @@
                             </td>
                             <td rowspan="{{ $rows }}" class="wrap">
                                 <div class="fw-bold">{{ $data->delivery_sn }}</div>
-                                <div>{{ $data->event_sn }}</div>
+                                <div class="lh-sm">{{ $data->event_sn }}</div>
                             </td>
                             <td rowspan="{{ $rows }}">${{ number_format($data->total_price) }}</td>
-                            <td rowspan="{{ $rows }}" class="wrap">{{ $data->depot_name ?? '-' }}</td>
-                            <td rowspan="{{ $rows }}" @class(['fs-6', 'text-danger' => $data->order_status === '取消'])>
-                                {{ $data->order_status }}
+                            <td rowspan="{{ $rows }}" class="wrap lh-sm">{{ $data->depot_name ?? '-' }}</td>
+                            <td rowspan="{{ $rows }}" @class(['text-danger' => $data->order_status === '取消'])>
+                                {{ $data->order_status ?? '-' }}
                             </td>
-                            <td rowspan="{{ $rows }}" class="fs-6">{{ $data->logistic_status }}</td>
+                            <td rowspan="{{ $rows }}">{{ $data->logistic_status ?? '-' }}</td>
                             <td rowspan="{{ $rows }}" class="wrap">
                                 <div class="lh-1 text-nowrap">
                                     <span @class([
@@ -269,13 +268,18 @@
                                         '-warning' => $data->ship_category_name === '自取',
                                     ])>{{ $data->ship_category_name }}</span>
                                 </div>
-                                <div class="lh-base text-nowrap">{{ $data->method ?? '-' }}</div>
+                                <div class="lh-sm">{{ $data->method ?? '-' }}</div>
                             </td>
-                            <td rowspan="{{ $rows }}">{{ $data->temp_name }}</td>
-                            <td rowspan="{{ $rows }}">{{ $data->depot_temp_name }}</td>
-                            <td rowspan="{{ $rows }}" class="wrap lh-sm">{{ $data->sed_name }}</td>
-                            <td rowspan="{{ $rows }}" class="wrap lh-sm">{{ $data->rec_name }}</td>
-                            <td rowspan="{{ $rows }}" class="wrap lh-sm">{{ $data->rec_address }}</td>
+                            <td rowspan="{{ $rows }}" @class([
+                                    'table-primary' => $data->temp_name === '冷凍' || $data->depot_temp_name === '冷凍',
+                                    'table-success' => $data->temp_name === '冷藏' || $data->depot_temp_name === '冷藏',
+                                    'table-warning' => $data->temp_name === '常溫' || $data->depot_temp_name === '常溫',
+                                ])>
+                                {{ $data->temp_name ?? $data->depot_temp_name ?? '-' }}
+                            </td>
+                            <td rowspan="{{ $rows }}" class="wrap lh-sm">{{ $data->sed_name ?? '-' }}</td>
+                            <td rowspan="{{ $rows }}" class="wrap lh-sm">{{ $data->rec_name ?? '-' }}</td>
+                            <td rowspan="{{ $rows }}" class="wrap lh-sm">{{ $data->rec_address ?? '-' }}</td>
 
                             <td class="p-0 border-bottom-0" height="0"></td>
                             <td class="p-0 border-bottom-0" height="0"></td>
@@ -305,8 +309,8 @@
                             @endforeach
                         @else
                             <tr class="{{ $striped }} -rowspan">
-                                <td data-nth="14"></td>
-                                <td data-nth="15"></td>
+                                <td data-nth="14">-</td>
+                                <td data-nth="15">-</td>
                             </tr>
                         @endif
                         

@@ -162,7 +162,7 @@
         </div>
 
         <div class="table-responsive tableOverBox">
-            <table class="table tableList small mb-1">
+            <table class="table tableList border-bottom small mb-1">
                 <thead class="small align-middle">
                     <tr>
                         <th scope="col" style="width:40px">#</th>
@@ -212,12 +212,14 @@
                         <td class="p-0 border-bottom-0" height="0"></td>
                         <td class="p-0 border-bottom-0" height="0"></td>
 
-                        <td rowspan="{{ $rows }}" class="wrap">{{ $data->event_sn }}</td>
-                        <td rowspan="{{ $rows }}" class="wrap">{{ $data->sn }}</td>
-                        <td rowspan="{{ $rows }}">{{ $data->ord_status }}</td>
-                        <td rowspan="{{ $rows }}">{{ $data->logistic_status }}</td>
+                        <td rowspan="{{ $rows }}" class="wrap lh-sm">{{ $data->event_sn ?? '-' }}</td>
+                        <td rowspan="{{ $rows }}" class="wrap lh-sm">{{ $data->sn ?? '-' }}</td>
+                        <td rowspan="{{ $rows }}" @class(['text-danger' => $data->ord_status === '取消'])>
+                            {{ $data->ord_status ?? '-' }}
+                        </td>
+                        <td rowspan="{{ $rows }}">{{ $data->logistic_status ?? '-' }}</td>
                         <td rowspan="{{ $rows }}" class="wrap">
-                            {{ $data->audit_date ? date('Y/m/d H:i:s', strtotime($data->audit_date)) : '' }}
+                            {{ $data->audit_date ? date('Y/m/d H:i:s', strtotime($data->audit_date)) : '-' }}
                         </td>
 
                         <td class="p-0 border-bottom-0" height="0"></td>
@@ -236,7 +238,7 @@
                                 }
                             @endphp
                         </td>
-                        <td rowspan="{{ $rows }}" class="wrap">{{ $data->depot_names }}</td>
+                        <td rowspan="{{ $rows }}" class="wrap lh-sm">{{ $data->depot_names ?? '-' }}</td>
                     </tr>
 
                     @if (null != $rcv_depot_data && 0 < count($rcv_depot_data))
@@ -248,28 +250,28 @@
                                 <td class="text-center" data-nth="4">
                                     {{ number_format($item_data->qty) }}
                                 </td>
-                                <td class="wrap" data-nth="5">
-                                    {{ $item_data->ib_source_sn }}
+                                <td class="wrap lh-sm" data-nth="5">
+                                    {{ $item_data->ib_source_sn ?? '-' }}
                                 </td>
 
                                 <td @class(['pe-2' => $searchParam['search_supplier'] == null]) data-nth="11">
-                                    {{ $item_data->prd_user_name }}
+                                    {{ $item_data->prd_user_name ?? '-' }}
                                 </td>
                                 @if (null != $searchParam['search_supplier'])
-                                    <td class="wrap pe-2" data-nth="12">
-                                        {{ $item_data->supplier_name }}
+                                    <td class="wrap lh-sm pe-2" data-nth="12">
+                                        {{ $item_data->supplier_name ?? '-' }}
                                     </td>
                                 @endif
                             </tr>
                         @endforeach
                     @else
                         <tr class="{{ $striped }} -rowspan">
-                            <td data-nth="3"></td>
-                            <td data-nth="4"></td>
-                            <td data-nth="5"></td>
-                            <td data-nth="11"></td>
+                            <td data-nth="3">-</td>
+                            <td data-nth="4">-</td>
+                            <td data-nth="5">-</td>
+                            <td data-nth="11">-</td>
                             @if (null != $searchParam['search_supplier'])
-                                <td data-nth="12"></td>
+                                <td data-nth="12">-</td>
                             @endif
                         </tr>
                     @endif
