@@ -214,7 +214,7 @@ class PayingOrder extends Model
                         "tw_price":"\', tw_price, \'",
                         "payment_date":"\', acc_payable.payment_date, \'",
                         "accountant_id_fk":"\', accountant_id_fk, \'",
-                        "summary":"\', COALESCE(replace(acc_payable.summary, \'\"\', \'\\\"\'), ""), \'",
+                        "summary":"\', COALESCE(replace(replace(acc_payable.summary, \'\"\', \'\\\"\'), \'\t\', " "), ""), \'",
                         "note":"\', COALESCE(note, ""), \'",
                         "cheque_ticket_number":"\', COALESCE(_cheque.ticket_number, ""),\'",
                         "cheque_due_date":"\', COALESCE(_cheque.due_date, ""),\'"
