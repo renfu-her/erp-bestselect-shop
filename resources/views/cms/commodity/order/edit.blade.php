@@ -420,7 +420,7 @@
                     <fieldset class="col-12 mb-1">
                         <div class="px-1 pt-1">
                             @if(!is_null($defaultAddress))
-                                <div class="form-check form-check-inline">
+                                <div class="form-check form-check-inline default-address">
                                     <label class="form-check-label">
                                         <input class="form-check-input" name="ord_radio" value="default" type="radio" checked>
                                         預設地址
@@ -428,7 +428,7 @@
                                 </div>
                             @endif
                             @if(count($otherOftenUsedAddresses ?? []) > 0)
-                                <div class="form-check form-check-inline">
+                                <div class="form-check form-check-inline other-often-used-addresses">
                                     <label class="form-check-label">
                                         <input class="form-check-input" name="ord_radio" value="other_often_used_addresses" type="radio">
                                         選擇常用地址
@@ -526,7 +526,7 @@
                                 </label>
                             </div>
                             @if(!is_null($defaultAddress))
-                                <div class="form-check form-check-inline">
+                                <div class="form-check form-check-inline default-address">
                                     <label class="form-check-label">
                                         <input class="form-check-input" name="sed_radio" value="default" type="radio">
                                         預設地址
@@ -534,7 +534,7 @@
                                 </div>
                             @endif
                             @if(count($otherOftenUsedAddresses ?? []) > 0)
-                                <div class="form-check form-check-inline">
+                                <div class="form-check form-check-inline other-often-used-addresses">
                                     <label class="form-check-label">
                                         <input class="form-check-input" name="sed_radio" value="other_often_used_addresses" type="radio">
                                         選擇常用地址
@@ -618,7 +618,7 @@
                                 </label>
                             </div>
                             @if(!is_null($defaultAddress))
-                                <div class="form-check form-check-inline">
+                                <div class="form-check form-check-inline default-address">
                                     <label class="form-check-label">
                                         <input class="form-check-input" name="rec_radio" value="default" type="radio">
                                         預設地址
@@ -626,7 +626,7 @@
                                 </div>
                             @endif
                             @if(count($otherOftenUsedAddresses ?? []) > 0)
-                                <div class="form-check form-check-inline">
+                                <div class="form-check form-check-inline other-often-used-addresses">
                                     <label class="form-check-label">
                                         <input class="form-check-input" name="rec_radio" value="other_often_used_addresses" type="radio">
                                         選擇常用地址
@@ -959,6 +959,7 @@
                         console.error(err);
                     });
             }
+            otherOftenUsedAddresses = [];
 
             // 取得地址
             function getAddress() {
@@ -997,6 +998,10 @@
                                            .rec_selectOftenUsedAddress select`)
                                            .append(`<option value="${addr.id}">${addr.name} - ${addr.address}</option>`);
                                     }
+                                    if (addr.is_default === 0) {
+                                        //常用地址（不含預設地址）
+                                        otherOftenUsedAddresses[addr["id"]] = addr;
+                                    }
                                 });
                                 // 預設地址
                                 const defaultAddr = addresses.find((v)=>(v.is_default));
@@ -1012,8 +1017,23 @@
                                         DefaultAddress.region_id
                                     );
                                     $('input[name="ord_radio"][value="default"]').prop('checked', true);
+                                    $('.default-address').prop('hidden', false);
+
                                     $('input[name="sed_radio"],input[name="rec_radio"]').prop('checked', false);
                                     $('.ord_selectOftenUsedAddress').prop('hidden', true);
+                                } else {
+                                    $('.default-address').prop('hidden', true);
+                                }
+
+                                if (defaultAddr.length === 0 &&
+                                    otherOftenUsedAddresses.length === 0
+                                ) {
+                                    //"預設地址", "常用地址"都沒有時,勾選 "新增地址"
+                                    $('input[name="ord_radio"][value="new"]').prop('checked', true);
+                                } else if (otherOftenUsedAddresses.length === 0) {
+                                    $('.other-often-used-addresses').prop('hidden', true);
+                                } else {
+                                    $('.other-often-used-addresses').prop('hidden', false);
                                 }
                             }
                         }).catch((err) => {
@@ -2569,12 +2589,6 @@
                 regions: @json($default_region)
             };
 
-            //常用地址（不含預設地址）
-            const OtherOftenUsedAddresses = @json($otherOftenUsedAddresses ?? []);
-            let otherOftenUsedAddresses = [];
-            for (let i = 0; i < OtherOftenUsedAddresses.length; i++) {
-                otherOftenUsedAddresses[OtherOftenUsedAddresses[i]["customer_addr_id"]] = OtherOftenUsedAddresses[i];
-            }
 
             /*** 步驟 ***/
             // 無商品不可下一步
