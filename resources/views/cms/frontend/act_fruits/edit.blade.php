@@ -39,9 +39,15 @@
                 </div>
                 <div class="col-12 mb-3">
                     <label class="form-label">圖片網址 <span class="text-danger">*</span></label>
-                    <input class="form-control @error('pic') is-invalid @enderror" type="text" 
+                    <input class="form-control @error('pic') is-invalid @enderror" type="url" 
                         name="pic" value=""
                         placeholder="輸入圖片網址" required aria-label="圖片網址">
+                </div>
+                <div class="col-12 mb-3">
+                    <label class="form-label">產品連結 <span class="text-danger">*</span></label>
+                    <input class="form-control @error('link') is-invalid @enderror" type="url"
+                        name="link" value=""
+                        placeholder="輸入產品連結" required aria-label="產品連結">
                 </div>
                 <div class="col-12 mb-3">
                     <label class="form-label">內文 <span class="text-danger">*</span></label>
