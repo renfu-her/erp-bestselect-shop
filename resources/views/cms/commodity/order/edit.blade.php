@@ -999,7 +999,7 @@
                                 city_id: '',
                                 region_id: '',
                                 addr: '',
-                                regions: ''
+                                regions: []
                             };
                             otherOftenUsedAddresses = [];
 
@@ -2634,7 +2634,7 @@
                 (DefaultAddress.city_id === '') &&
                 (DefaultAddress.region_id === '') &&
                 (DefaultAddress.addr === '') &&
-                (DefaultAddress.regions === '')
+                (DefaultAddress.regions.length === 0)
             ) {
                 $('.default-address label').html('');
                 // $('.default-address').hide();
