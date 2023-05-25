@@ -959,7 +959,6 @@
                         console.error(err);
                     });
             }
-            otherOftenUsedAddresses = [];
 
             // 取得地址
             function getAddress() {
@@ -989,9 +988,19 @@
                         .then((result) => {
                             const res = result.data;
                             console.log('取得地址', res);
+
+                            DefaultAddress = {
+                                name: '',
+                                phone: '',
+                                city_id: '',
+                                region_id: '',
+                                addr: '',
+                                regions: ''
+                            };
+                            otherOftenUsedAddresses = [];
+
                             if (res.status === '0' && res.data && res.data.length) {
                                 const addresses = res.data;
-                                otherOftenUsedAddresses = [];
                                 addresses.forEach(addr => {
                                     if (addr.is_default !== 1) {
                                         $(`.ord_selectOftenUsedAddress select,
@@ -1022,20 +1031,18 @@
 
                                     $('input[name="sed_radio"],input[name="rec_radio"]').prop('checked', false);
                                     $('.ord_selectOftenUsedAddress').prop('hidden', true);
-                                } else {
-                                    $('.default-address').prop('hidden', true);
                                 }
 
-                                if (defaultAddr.length === 0 &&
-                                    otherOftenUsedAddresses.length === 0
-                                ) {
-                                    //"預設地址", "常用地址"都沒有時,勾選 "新增地址"
-                                    $('input[name="ord_radio"][value="new"]').prop('checked', true);
-                                } else if (otherOftenUsedAddresses.length === 0) {
+                                if (otherOftenUsedAddresses.length === 0) {
                                     $('.other-often-used-addresses').prop('hidden', true);
                                 } else {
                                     $('.other-often-used-addresses').prop('hidden', false);
                                 }
+                            } else {
+                                //"預設地址", "常用地址"都沒有時
+                                $('.default-address').prop('hidden', true);
+                                $('.other-often-used-addresses').prop('hidden', true);
+                                $('input[name="ord_radio"][value="new"]').prop('checked', true);
                             }
                         }).catch((err) => {
                             console.error(err);
@@ -2589,6 +2596,7 @@
                 addr: @json($defaultAddress->addr ?? ''),
                 regions: @json($default_region)
             };
+            let otherOftenUsedAddresses = [];
 
             //常用地址（不含預設地址）
             const OtherOftenUsedAddresses = @json($otherOftenUsedAddresses ?? []);
