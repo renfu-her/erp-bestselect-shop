@@ -421,18 +421,14 @@
                         <div class="px-1 pt-1">
                                 <div class="form-check form-check-inline default-address">
                                     <label class="form-check-label ord-default-address">
-                            @if(!is_null($defaultAddress))
                                         <input class="form-check-input" name="ord_radio" value="default" type="radio" checked>
                                         預設地址
-                            @endif
                                     </label>
                                 </div>
                                 <div class="form-check form-check-inline other-often-used-addresses">
                                     <label class="form-check-label ord-other-often-used-addresses">
-                            @if(count($otherOftenUsedAddresses ?? []) > 0)
                                         <input class="form-check-input" name="ord_radio" value="other_often_used_addresses" type="radio">
                                         選擇常用地址
-                            @endif
                                     </label>
                                 </div>
                             <div class="form-check form-check-inline">
@@ -527,18 +523,14 @@
                             </div>
                                 <div class="form-check form-check-inline default-address">
                                     <label class="form-check-label sed-default-address">
-                            @if(!is_null($defaultAddress))
                                         <input class="form-check-input" name="sed_radio" value="default" type="radio">
                                         預設地址
-                            @endif
                                     </label>
                                 </div>
                                 <div class="form-check form-check-inline other-often-used-addresses">
                                     <label class="form-check-label sed-other-often-used-addresses">
-                            @if(count($otherOftenUsedAddresses ?? []) > 0)
                                         <input class="form-check-input" name="sed_radio" value="other_often_used_addresses" type="radio">
                                         選擇常用地址
-                            @endif
                                     </label>
                                 </div>
                             <div class="form-check form-check-inline">
@@ -619,18 +611,14 @@
                             </div>
                                 <div class="form-check form-check-inline default-address">
                                     <label class="form-check-label rec-default-address">
-                            @if(!is_null($defaultAddress))
                                         <input class="form-check-input" name="rec_radio" value="default" type="radio">
                                         預設地址
-                            @endif
                                     </label>
                                 </div>
                                 <div class="form-check form-check-inline other-often-used-addresses">
                                     <label class="form-check-label rec-other-often-used-addresses">
-                            @if(count($otherOftenUsedAddresses ?? []) > 0)
                                         <input class="form-check-input" name="rec_radio" value="other_often_used_addresses" type="radio">
                                         選擇常用地址
-                            @endif
                                     </label>
                                 </div>
                             <div class="form-check form-check-inline">
@@ -980,9 +968,7 @@
                    .sed_selectOftenUsedAddress select,
                    .rec_selectOftenUsedAddress select`)
                    .html('<option disabled selected value="0">請選擇常用地址</option>');
-                $('.default-address label').html('');
                 $('.default-address').prop('hidden', true);
-                $('.other-often-used-addresses label').html('');
                 $('.other-often-used-addresses').prop('hidden', true);
 
                 if (!Data.customer_id) {
@@ -1031,18 +1017,6 @@
                                         DefaultAddress.region_id
                                     );
                                     $('input[name="ord_radio"][value="default"]').prop('checked', true);
-
-                                    $('.default-address label.ord-default-address').html(
-                                        '<input class="form-check-input" name="ord_radio" value="default" type="radio">預設地址'
-                                    );
-                                    $('.default-address label.sed-default-address').html(
-                                        '<input class="form-check-input" name="sed_radio" value="default" type="radio">預設地址'
-                                    );
-                                    $('.default-address label.rec-default-address').html(
-                                        '<input class="form-check-input" name="rec_radio" value="default" type="radio">預設地址'
-                                    );
-                                    // $('.default-address label.sed-default-address').show();
-                                    // $('.default-address label.rec-default-address').show();
                                     $('.default-address').prop('hidden', false);
 
                                     $('input[name="sed_radio"],input[name="rec_radio"]').prop('checked', false);
@@ -1052,21 +1026,6 @@
                                 if (otherOftenUsedAddresses.length === 0) {
                                     $('.other-often-used-addresses').prop('hidden', true);
                                 } else {
-                                    $('.other-often-used-addresses label.ord-other-often-used-addresses').html(
-                                        '<input class="form-check-input" name="ord_radio" value="other_often_used_addresses" type="radio">選擇常用地址'
-                                    );
-                                    $('.other-often-used-addresses label.sed-other-often-used-addresses').html(
-                                        '<input class="form-check-input" name="sed_radio" value="other_often_used_addresses" type="radio">選擇常用地址'
-                                    );
-                                    $('.other-often-used-addresses label.rec-other-often-used-addresses').html(
-                                        '<input class="form-check-input" name="rec_radio" value="other_often_used_addresses" type="radio">選擇常用地址'
-                                    );
-                                    // $('.default-address label.ord-other-often-used-addresses').show();
-                                    // $('.default-address label.sed-other-often-used-addresses').show();
-                                    // $('.default-address label.rec-other-often-used-addresses').show();
-
-
-
                                     $('.other-often-used-addresses').prop('hidden', false);
                                 }
                             } else {
@@ -2636,8 +2595,6 @@
                 (DefaultAddress.addr === '') &&
                 (DefaultAddress.regions.length === 0)
             ) {
-                $('.default-address label').html('');
-                // $('.default-address').hide();
                 $('.default-address').prop('hidden', true);
             }
 
@@ -2649,7 +2606,6 @@
             }
             ////顧客沒有其它常用地址,就清空“常用地址”按鈕
             if(otherOftenUsedAddresses.length === 0) {
-                $('.other-often-used-addresses label').html('');
                 $('.other-often-used-addresses').prop('hidden', true);
                 // $('.other-often-used-addresses').hide();
             }
