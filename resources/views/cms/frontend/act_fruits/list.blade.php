@@ -7,7 +7,7 @@
             <div class="col-auto">
                 @can('cms.act-fruits.create')
                     <a href="{{ Route('cms.act-fruits.create', null, true) }}" class="btn btn-primary">
-                        <i class="bi bi-plus-lg"></i> 新增
+                        <i class="bi bi-plus-lg"></i> 新增水果
                     </a>
                 @endcan
                 <a href="{{ Route('cms.act-fruits.season') }}" class="btn btn-success">水果分類設定</a>
@@ -19,19 +19,23 @@
                 <thead class="align-middle">
                     <tr>
                         <th scope="col" style="width:10%">#</th>
-                        <th scope="col"></th>
-                        <th scope="col" class="text-center">編輯</th>
-                        <th scope="col" class="text-center">刪除</th>
+                        <th scope="col">名稱</th>
+                        <th scope="col">產季</th>
+                        <th scope="col">目前狀態</th>
+                        <th scope="col" width="60" class="text-center">編輯</th>
+                        <th scope="col" width="60" class="text-center">刪除</th>
                     </tr>
                 </thead>
                 <tbody>
                 {{-- @foreach ($dataList as $key => $data) --}}
                     <tr>
-                        <th scope="row"></th>
-                        <td class="wrap"></td>
+                        <th scope="row">1</th>
+                        <td>茂谷柑</td>
+                        <td>春、冬季 (12月-隔年3月)</td>
+                        <td>12月開放預購</td>
                         <td class="text-center">
                             @can('cms.act-fruits.edit')
-                                <a href="#"
+                                <a href="{{ Route('cms.act-fruits.edit', ['id' => 1], true) }}"
                                    data-bs-toggle="tooltip" title="編輯"
                                    class="icon icon-btn fs-5 text-primary rounded-circle border-0">
                                     <i class="bi bi-pencil-square"></i>

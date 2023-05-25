@@ -31,7 +31,9 @@ class ActFruitsCtrl extends Controller
      */
     public function create()
     {
-        return view('cms.frontend.act_fruits.edit');
+        return view('cms.frontend.act_fruits.edit', [
+            'method' => 'create',
+        ]);
     }
 
     /**
@@ -52,7 +54,9 @@ class ActFruitsCtrl extends Controller
      */
     public function season()
     {
-        return view('cms.frontend.act_fruits.season');
+        return view('cms.frontend.act_fruits.season', [
+            'method' => 'create',
+        ]);
     }
 
     /**
@@ -63,7 +67,9 @@ class ActFruitsCtrl extends Controller
      */
     public function edit($id)
     {
-        //
+        return view('cms.frontend.act_fruits.edit', [
+            'method' => 'edit',
+        ]);
     }
 
     /**
