@@ -991,6 +991,7 @@
                             console.log('取得地址', res);
                             if (res.status === '0' && res.data && res.data.length) {
                                 const addresses = res.data;
+                                otherOftenUsedAddresses = [];
                                 addresses.forEach(addr => {
                                     if (addr.is_default !== 1) {
                                         $(`.ord_selectOftenUsedAddress select,
@@ -2588,6 +2589,12 @@
                 addr: @json($defaultAddress->addr ?? ''),
                 regions: @json($default_region)
             };
+
+            //常用地址（不含預設地址）
+            const OtherOftenUsedAddresses = @json($otherOftenUsedAddresses ?? []);
+            for (let i = 0; i < OtherOftenUsedAddresses.length; i++) {
+                otherOftenUsedAddresses[OtherOftenUsedAddresses[i]["customer_addr_id"]] = OtherOftenUsedAddresses[i];
+            }
 
 
             /*** 步驟 ***/
