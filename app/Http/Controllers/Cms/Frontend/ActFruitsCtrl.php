@@ -8,6 +8,23 @@ use Illuminate\Support\Arr;
 
 class ActFruitsCtrl extends Controller
 {
+    public $SaleStatus = [
+        0 => '販售中',
+        13 => '已售罄',
+        14 => '今年產季已過',
+        1 => '1月開放預購',
+        2 => '2月開放預購',
+        3 => '3月開放預購',
+        4 => '4月開放預購',
+        5 => '5月開放預購',
+        6 => '6月開放預購',
+        7 => '7月開放預購',
+        8 => '8月開放預購',
+        9 => '9月開放預購',
+        10 => '10月開放預購',
+        11 => '11月開放預購',
+        12 => '12月開放預購',
+    ];
     /**
      * Display a listing of the resource.
      *
@@ -33,6 +50,7 @@ class ActFruitsCtrl extends Controller
     {
         return view('cms.frontend.act_fruits.edit', [
             'method' => 'create',
+            'saleStatus' => $this->SaleStatus
         ]);
     }
 
@@ -69,6 +87,7 @@ class ActFruitsCtrl extends Controller
     {
         return view('cms.frontend.act_fruits.edit', [
             'method' => 'edit',
+            'saleStatus' => $this->SaleStatus
         ]);
     }
 

@@ -52,21 +52,12 @@
                     <label class="form-label">目前狀態 <span class="text-danger">*</span></label>
                     <select name="status" class="form-select" required>
                         <option value="" selected disabled>請選擇</option>
-                        <option value="" class="bg-success text-white">販售中</option>
-                        <option value="" class="bg-danger text-white">已售罄</option>
-                        <option value="" class="bg-warning">今年產季已過</option>
-                        <option value="">1月開放預購</option>
-                        <option value="">2月開放預購</option>
-                        <option value="">3月開放預購</option>
-                        <option value="">4月開放預購</option>
-                        <option value="">5月開放預購</option>
-                        <option value="">6月開放預購</option>
-                        <option value="">7月開放預購</option>
-                        <option value="">8月開放預購</option>
-                        <option value="">9月開放預購</option>
-                        <option value="">10月開放預購</option>
-                        <option value="">11月開放預購</option>
-                        <option value="">12月開放預購</option>
+                        @foreach ($saleStatus as $key => $status)
+                            <option value="{{ $key }}"
+                                @class(['bg-success' => $key == 0, 'bg-danger' => $key == 13,
+                                'bg-warning' => $key == 14, 'text-white' => $key == 0 || $key == 13])>
+                                {{ $status }}</option>
+                        @endforeach
                     </select>
                 </div>
             </div>
@@ -80,20 +71,6 @@
 
 @endsection
 @once
-    @push('sub-styles')
-        <style>
-            /* 拖曳預覽框 */
-            .-appendClone.--selectedP tr.placeholder-highlight {
-                width: 100%;
-                height: 60px;
-                margin-bottom: .5rem;
-                display: table-row;
-            }
-            tr.placeholder-highlight > td {
-                border: none;
-            }
-        </style>
-    @endpush
     @push('sub-scripts')
     @endpush
 @endonce
