@@ -282,8 +282,16 @@ class OrderCtrl extends Controller
         }
 
         $citys = Addr::getCitys();
+
+        $hasAllCustomerPermission = $request->user()->hasPermissionTo('cms.order.proxy-buy') || $request->user()->hasRole('Super Admin');
+        //如果代理訂購的帳號沒有做綁定，地址資料就帶入第一位資料庫帳號
+        if ($hasAllCustomerPermission && is_null($customer_id)) {
+            $address_customer_id = 1;
+        } else {
+            $address_customer_id = $customer_id;
+        }
         $defaultAddress = DB::table('usr_customers')
-            ->where('usr_customers.id', '=', $customer_id)
+            ->where('usr_customers.id', '=', $address_customer_id)
             ->leftJoin('usr_customers_address', 'usr_customers.id', '=', 'usr_customers_address.usr_customers_id_fk')
             ->where('is_default_addr', '=', 1)
             ->select([
@@ -298,7 +306,7 @@ class OrderCtrl extends Controller
             ->get()->first();
 
         $otherOftenUsedAddresses = DB::table('usr_customers')
-            ->where('usr_customers.id', '=', $customer_id)
+            ->where('usr_customers.id', '=', $address_customer_id)
             ->leftJoin('usr_customers_address', 'usr_customers.id', '=', 'usr_customers_address.usr_customers_id_fk')
             ->where('is_default_addr', '=', 0)
             ->select([
@@ -316,7 +324,7 @@ class OrderCtrl extends Controller
 
         //    dd(Discount::getDiscounts('global-normal'));
 
-        if ($request->user()->hasPermissionTo('cms.order.proxy-buy') || $request->user()->hasRole('Super Admin')) {
+        if ($hasAllCustomerPermission) {
             $customer = Customer::get();
         } else {
             $customer = Customer::where('id', $customer_id)->get();

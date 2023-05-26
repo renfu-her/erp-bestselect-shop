@@ -419,22 +419,18 @@
                 <div class="row">
                     <fieldset class="col-12 mb-1">
                         <div class="px-1 pt-1">
-                            @if(!is_null($defaultAddress))
-                                <div class="form-check form-check-inline">
-                                    <label class="form-check-label">
+                                <div class="form-check form-check-inline default-address">
+                                    <label class="form-check-label ord-default-address">
                                         <input class="form-check-input" name="ord_radio" value="default" type="radio" checked>
                                         預設地址
                                     </label>
                                 </div>
-                            @endif
-                            @if(count($otherOftenUsedAddresses ?? []) > 0)
-                                <div class="form-check form-check-inline">
-                                    <label class="form-check-label">
+                                <div class="form-check form-check-inline other-often-used-addresses">
+                                    <label class="form-check-label ord-other-often-used-addresses">
                                         <input class="form-check-input" name="ord_radio" value="other_often_used_addresses" type="radio">
                                         選擇常用地址
                                     </label>
                                 </div>
-                            @endif
                             <div class="form-check form-check-inline">
                                 <label class="form-check-label">
                                     <input class="form-check-input"
@@ -451,7 +447,6 @@
                             </div>
                         </div>
                     </fieldset>
-                    @if(count($otherOftenUsedAddresses ?? []) > 0)
                         <div class="col-12 mb-3 ord_selectOftenUsedAddress">
                             <select class="form-select" aria-label="Select">
                                 <option disabled selected value="0">請選擇常用地址</option>
@@ -462,7 +457,6 @@
                                 @endforeach
                             </select>
                         </div>
-                    @endif
 
                     <div class="col-12 col-sm-6 mb-3">
                         <label class="form-label">姓名 <span class="text-danger">*</span></label>
@@ -525,22 +519,18 @@
                                     <input id="sed_same" name="sed_radio" class="form-check-input mt-0 me-1" value="same" type="radio" required>同購買人
                                 </label>
                             </div>
-                            @if(!is_null($defaultAddress))
-                                <div class="form-check form-check-inline">
-                                    <label class="form-check-label">
+                                <div class="form-check form-check-inline default-address">
+                                    <label class="form-check-label sed-default-address">
                                         <input class="form-check-input" name="sed_radio" value="default" type="radio">
                                         預設地址
                                     </label>
                                 </div>
-                            @endif
-                            @if(count($otherOftenUsedAddresses ?? []) > 0)
-                                <div class="form-check form-check-inline">
-                                    <label class="form-check-label">
+                                <div class="form-check form-check-inline other-often-used-addresses">
+                                    <label class="form-check-label sed-other-often-used-addresses">
                                         <input class="form-check-input" name="sed_radio" value="other_often_used_addresses" type="radio">
                                         選擇常用地址
                                     </label>
                                 </div>
-                            @endif
                             <div class="form-check form-check-inline">
                                 <label class="form-check-label">
                                     <input class="form-check-input" name="sed_radio" value="new" type="radio" >
@@ -549,7 +539,6 @@
                             </div>
                         </div>
                     </fieldset>
-                    @if(count($otherOftenUsedAddresses ?? []) > 0)
                         <div class="col-12 mb-3 sed_selectOftenUsedAddress">
                             <select class="form-select" aria-label="Select">
                                 <option disabled selected value="0">請選擇常用地址</option>
@@ -560,7 +549,6 @@
                                 @endforeach
                             </select>
                         </div>
-                    @endif
                 </div>
                 <div class="row">
                     <div class="col-12 col-sm-6 mb-3">
@@ -617,22 +605,18 @@
                                     <input id="rec_same" name="rec_radio" class="form-check-input mt-0 me-1" value="same" type="radio" required>同購買人
                                 </label>
                             </div>
-                            @if(!is_null($defaultAddress))
-                                <div class="form-check form-check-inline">
-                                    <label class="form-check-label">
+                                <div class="form-check form-check-inline default-address">
+                                    <label class="form-check-label rec-default-address">
                                         <input class="form-check-input" name="rec_radio" value="default" type="radio">
                                         預設地址
                                     </label>
                                 </div>
-                            @endif
-                            @if(count($otherOftenUsedAddresses ?? []) > 0)
-                                <div class="form-check form-check-inline">
-                                    <label class="form-check-label">
+                                <div class="form-check form-check-inline other-often-used-addresses">
+                                    <label class="form-check-label rec-other-often-used-addresses">
                                         <input class="form-check-input" name="rec_radio" value="other_often_used_addresses" type="radio">
                                         選擇常用地址
                                     </label>
                                 </div>
-                            @endif
                             <div class="form-check form-check-inline">
                                 <label class="form-check-label">
                                     <input class="form-check-input" name="rec_radio" value="new" type="radio" >
@@ -641,7 +625,6 @@
                             </div>
                         </div>
                     </fieldset>
-                    @if(count($otherOftenUsedAddresses ?? []) > 0)
                         <div class="col-12 mb-3 rec_selectOftenUsedAddress">
                             <select class="form-select" aria-label="Select">
                                 <option disabled selected value="0">請選擇常用地址</option>
@@ -652,7 +635,6 @@
                                 @endforeach
                             </select>
                         </div>
-                    @endif
                 </div>
                 <div class="row">
                     <div class="col-12 col-sm-6 mb-3">
@@ -832,7 +814,7 @@
     @endpush
     @push('sub-scripts')
         <script>
-            
+
             getSaleChannel();
             $('#customer').off('change.channel').on('change.channel', function() {
                 getSaleChannel();
@@ -973,13 +955,15 @@
                    select[name="sed_city_id"], select[name="sed_region_id"],
                    input[name="rec_name"], input[name="rec_phone"], input[name="rec_addr"],
                    select[name="rec_city_id"], select[name="rec_region_id"]`).val('');
-                $(`select[name="ord_region_id"], 
-                   select[name="sed_region_id"], 
+                $(`select[name="ord_region_id"],
+                   select[name="sed_region_id"],
                    select[name="rec_region_id"]`).html('<option value="">地區</option>');
                 $(`.ord_selectOftenUsedAddress select,
                    .sed_selectOftenUsedAddress select,
                    .rec_selectOftenUsedAddress select`)
                    .html('<option disabled selected value="0">請選擇常用地址</option>');
+                $('.default-address').prop('hidden', true);
+                $('.other-often-used-addresses').prop('hidden', true);
 
                 if (!Data.customer_id) {
                     return false;
@@ -988,6 +972,17 @@
                         .then((result) => {
                             const res = result.data;
                             console.log('取得地址', res);
+
+                            DefaultAddress = {
+                                name: '',
+                                phone: '',
+                                city_id: '',
+                                region_id: '',
+                                addr: '',
+                                regions: []
+                            };
+                            otherOftenUsedAddresses = [];
+
                             if (res.status === '0' && res.data && res.data.length) {
                                 const addresses = res.data;
                                 addresses.forEach(addr => {
@@ -996,6 +991,10 @@
                                            .sed_selectOftenUsedAddress select,
                                            .rec_selectOftenUsedAddress select`)
                                            .append(`<option value="${addr.id}">${addr.name} - ${addr.address}</option>`);
+                                    }
+                                    if (addr.is_default === 0) {
+                                        //常用地址（不含預設地址）
+                                        otherOftenUsedAddresses[addr["id"]] = addr;
                                     }
                                 });
                                 // 預設地址
@@ -1012,9 +1011,22 @@
                                         DefaultAddress.region_id
                                     );
                                     $('input[name="ord_radio"][value="default"]').prop('checked', true);
+                                    $('.default-address').prop('hidden', false);
+
                                     $('input[name="sed_radio"],input[name="rec_radio"]').prop('checked', false);
                                     $('.ord_selectOftenUsedAddress').prop('hidden', true);
                                 }
+
+                                if (otherOftenUsedAddresses.length === 0) {
+                                    $('.other-often-used-addresses').prop('hidden', true);
+                                } else {
+                                    $('.other-often-used-addresses').prop('hidden', false);
+                                }
+                            } else {
+                                //"預設地址", "常用地址"都沒有時
+                                $('.default-address').prop('hidden', true);
+                                $('.other-often-used-addresses').prop('hidden', true);
+                                $('input[name="ord_radio"][value="new"]').prop('checked', true);
                             }
                         }).catch((err) => {
                             console.error(err);
@@ -1038,7 +1050,7 @@
                     return city + region + addr;
                 });
             });
-            
+
             const MIN_PAY_SUM = 10;
             let addProductModal = new bootstrap.Modal(document.getElementById('addProduct'));
             let setShipmentModal = new bootstrap.Modal(document.getElementById('setShipment'), {
@@ -1339,10 +1351,10 @@
                                 $('#addProduct .-appendClone.--product .-add').on('click', function() {
                                     const idx = Number($(this).attr('data-idx'));
                                     setProduct(prodData[idx]);
-                                  
+
                                     // 關閉商品懸浮視窗
                                     addProductModal.hide();
-                                   
+
                                     // 開啟物流選擇視窗
                                     setShipmentModal.show();
                                 });
@@ -2557,8 +2569,8 @@
                 // 應付金額 HTML
                 calc_set_AllAmount();
             }
-        
-        
+
+
             // 預設地址資料
             let DefaultAddress = {
                 name: @json($defaultAddress->name ?? ''),
@@ -2568,13 +2580,30 @@
                 addr: @json($defaultAddress->addr ?? ''),
                 regions: @json($default_region)
             };
+            //顧客沒有預設地址,就清空“預設地址”按鈕
+            if(
+                (DefaultAddress.name === '') &&
+                (DefaultAddress.phone === '') &&
+                (DefaultAddress.city_id === '') &&
+                (DefaultAddress.region_id === '') &&
+                (DefaultAddress.addr === '') &&
+                (DefaultAddress.regions.length === 0)
+            ) {
+                $('.default-address').prop('hidden', true);
+            }
 
+            let otherOftenUsedAddresses = [];
             //常用地址（不含預設地址）
             const OtherOftenUsedAddresses = @json($otherOftenUsedAddresses ?? []);
-            let otherOftenUsedAddresses = [];
             for (let i = 0; i < OtherOftenUsedAddresses.length; i++) {
                 otherOftenUsedAddresses[OtherOftenUsedAddresses[i]["customer_addr_id"]] = OtherOftenUsedAddresses[i];
             }
+            ////顧客沒有其它常用地址,就清空“常用地址”按鈕
+            if(otherOftenUsedAddresses.length === 0) {
+                $('.other-often-used-addresses').prop('hidden', true);
+                // $('.other-often-used-addresses').hide();
+            }
+
 
             /*** 步驟 ***/
             // 無商品不可下一步
