@@ -447,7 +447,6 @@
                             </div>
                         </div>
                     </fieldset>
-                    @if(count($otherOftenUsedAddresses ?? []) > 0)
                         <div class="col-12 mb-3 ord_selectOftenUsedAddress">
                             <select class="form-select" aria-label="Select">
                                 <option disabled selected value="0">請選擇常用地址</option>
@@ -458,7 +457,6 @@
                                 @endforeach
                             </select>
                         </div>
-                    @endif
 
                     <div class="col-12 col-sm-6 mb-3">
                         <label class="form-label">姓名 <span class="text-danger">*</span></label>
@@ -541,7 +539,6 @@
                             </div>
                         </div>
                     </fieldset>
-                    @if(count($otherOftenUsedAddresses ?? []) > 0)
                         <div class="col-12 mb-3 sed_selectOftenUsedAddress">
                             <select class="form-select" aria-label="Select">
                                 <option disabled selected value="0">請選擇常用地址</option>
@@ -552,7 +549,6 @@
                                 @endforeach
                             </select>
                         </div>
-                    @endif
                 </div>
                 <div class="row">
                     <div class="col-12 col-sm-6 mb-3">
@@ -629,7 +625,6 @@
                             </div>
                         </div>
                     </fieldset>
-                    @if(count($otherOftenUsedAddresses ?? []) > 0)
                         <div class="col-12 mb-3 rec_selectOftenUsedAddress">
                             <select class="form-select" aria-label="Select">
                                 <option disabled selected value="0">請選擇常用地址</option>
@@ -640,7 +635,6 @@
                                 @endforeach
                             </select>
                         </div>
-                    @endif
                 </div>
                 <div class="row">
                     <div class="col-12 col-sm-6 mb-3">
