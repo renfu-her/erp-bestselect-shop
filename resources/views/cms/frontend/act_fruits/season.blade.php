@@ -32,7 +32,7 @@
 
 <form action="" method="post">
     <div id="tab1" class="-page">
-        <input type="hidden" name="tab_id[]" value="">
+        <input type="hidden" name="tab_id[]" value="1">
         <div class="card shadow p-4 mb-4">
             <h6 class="mb-2">春季水果 (3至5月)</h6>
             <p class="mb-2">拖曳方框以排序
@@ -44,28 +44,28 @@
             <ul class="sortable mb-3 -serial-number">
                 <li>
                     <label class="-serial-title -before">茂谷柑</label>
-                    <input type="hidden" name="fruit_[]" value="1">
+                    <input type="hidden" name="fruit_1[]" value="1">
                     <span class="icon icon-btn fs-5 text-danger rounded-circle border-0 -del">
                         <i class="bi bi-trash"></i>
                     </span>
                 </li>
                 <li>
                     <label class="-serial-title -before">玉女小番茄</label>
-                    <input type="hidden" name="fruit_[]" value="2">
+                    <input type="hidden" name="fruit_1[]" value="2">
                     <span class="icon icon-btn fs-5 text-danger rounded-circle border-0 -del">
                         <i class="bi bi-trash"></i>
                     </span>
                 </li>
                 <li>
                     <label class="-serial-title -before">橙蜜香小番茄</label>
-                    <input type="hidden" name="fruit_[]" value="3">
+                    <input type="hidden" name="fruit_1[]" value="3">
                     <span class="icon icon-btn fs-5 text-danger rounded-circle border-0 -del">
                         <i class="bi bi-trash"></i>
                     </span>
                 </li>
                 <li>
                     <label class="-serial-title -before">鳳梨釋迦</label>
-                    <input type="hidden" name="fruit_[]" value="4">
+                    <input type="hidden" name="fruit_1[]" value="4">
                     <span class="icon icon-btn fs-5 text-danger rounded-circle border-0 -del">
                         <i class="bi bi-trash"></i>
                     </span>
@@ -74,7 +74,7 @@
         </div>
     </div>
     <div id="tab2" class="-page" hidden>
-        <input type="hidden" name="tab_id[]" value="">
+        <input type="hidden" name="tab_id[]" value="2">
         <div class="card shadow p-4 mb-4">
             <h6 class="mb-2">夏季水果 (6至8月)</h6>
             <p class="mb-2">拖曳方框以排序
@@ -83,12 +83,12 @@
                     <i class="bi bi-plus-circle bold"></i> 加入水果
                 </button>
             </p>
-            <ul class="sortable mb-3">
+            <ul class="sortable mb-3 -serial-number">
             </ul>
         </div>
     </div>
     <div id="tab3" class="-page" hidden>
-        <input type="hidden" name="tab_id[]" value="">
+        <input type="hidden" name="tab_id[]" value="3">
         <div class="card shadow p-4 mb-4">
             <h6 class="mb-2">秋季水果 (9至11月)</h6>
             <p class="mb-2">拖曳方框以排序
@@ -97,12 +97,12 @@
                     <i class="bi bi-plus-circle bold"></i> 加入水果
                 </button>
             </p>
-            <ul class="sortable mb-3">
+            <ul class="sortable mb-3 -serial-number">
             </ul>
         </div>
     </div>
     <div id="tab4" class="-page" hidden>
-        <input type="hidden" name="tab_id[]" value="">
+        <input type="hidden" name="tab_id[]" value="4">
         <div class="card shadow p-4 mb-4">
             <h6 class="mb-2">冬季水果 (12至2月)</h6>
             <p class="mb-2">拖曳方框以排序
@@ -111,12 +111,12 @@
                     <i class="bi bi-plus-circle bold"></i> 加入水果
                 </button>
             </p>
-            <ul class="sortable mb-3">
+            <ul class="sortable mb-3 -serial-number">
             </ul>
         </div>
     </div>
     <div id="tab5" class="-page" hidden>
-        <input type="hidden" name="tab_id[]" value="">
+        <input type="hidden" name="tab_id[]" value="5">
         <div class="card shadow p-4 mb-4">
             <h6 class="mb-2">進口水果 (1至12月)</h6>
             <p class="mb-2">拖曳方框以排序
@@ -125,38 +125,38 @@
                     <i class="bi bi-plus-circle bold"></i> 加入水果
                 </button>
             </p>
-            <ul class="sortable mb-3">
+            <ul class="sortable mb-3 -serial-number">
                 <li>
                     <label class="-serial-title -before">日本水蜜桃</label>
-                    <input type="hidden" name="fruit_[]" value="27">
+                    <input type="hidden" name="fruit_5[]" value="27">
                     <span class="icon icon-btn fs-5 text-danger rounded-circle border-0 -del">
                         <i class="bi bi-trash"></i>
                     </span>
                 </li>
                 <li>
                     <label class="-serial-title -before">日本麝香葡萄</label>
-                    <input type="hidden" name="fruit_[]" value="28">
+                    <input type="hidden" name="fruit_5[]" value="28">
                     <span class="icon icon-btn fs-5 text-danger rounded-circle border-0 -del">
                         <i class="bi bi-trash"></i>
                     </span>
                 </li>
                 <li>
                     <label class="-serial-title -before">日本水蜜桃蘋果</label>
-                    <input type="hidden" name="fruit_[]" value="29">
+                    <input type="hidden" name="fruit_5[]" value="29">
                     <span class="icon icon-btn fs-5 text-danger rounded-circle border-0 -del">
                         <i class="bi bi-trash"></i>
                     </span>
                 </li>
                 <li>
                     <label class="-serial-title -before">日本陽光蜜富士</label>
-                    <input type="hidden" name="fruit_[]" value="30">
+                    <input type="hidden" name="fruit_5[]" value="30">
                     <span class="icon icon-btn fs-5 text-danger rounded-circle border-0 -del">
                         <i class="bi bi-trash"></i>
                     </span>
                 </li>
                 <li>
                     <label class="-serial-title -before">秘魯無籽葡萄</label>
-                    <input type="hidden" name="fruit_[]" value="31">
+                    <input type="hidden" name="fruit_5[]" value="31">
                     <span class="icon icon-btn fs-5 text-danger rounded-circle border-0 -del">
                         <i class="bi bi-trash"></i>
                     </span>
@@ -177,7 +177,7 @@
     <x-slot name="body">
         <div class="row">
             <div class="col-12">
-                <select multiple class="-select2 -multiple form-select">
+                <select multiple class="-multiple form-select">
                     <option value="1">茂谷柑</option>
                     <option value="2">玉女小番茄</option>
                     <option value="3">橙蜜香小番茄</option>
@@ -245,6 +245,9 @@
     @push('sub-scripts')
         <script>
             delFn();
+            $('#addFruit select.-multiple').select2({
+                closeOnSelect: false
+            });
             // Tabs
             $('.nav-link').off('click').on('click', function() {
                 const $this = $(this);
@@ -265,7 +268,9 @@
             });
 
             // 加入水果Modal
-            const addFruitModal = new bootstrap.Modal(document.getElementById('addFruit'));
+            const addFruitModal = new bootstrap.Modal(document.getElementById('addFruit'), {
+                backdrop: 'static'
+            });
             // -- 開啟 Modal
             $('#addFruit').on('show.bs.modal', function (e) {
                 // console.log(e.relatedTarget);
@@ -275,8 +280,8 @@
                     // element == this
                     id.push($(element).val());
                 });
-                $('#addFruit select.-select2').val(id);
-                $('#addFruit select.-select2').trigger('change');
+                $('#addFruit select.-multiple').val(id);
+                $('#addFruit select.-multiple').trigger('change');
                 $('#addFruit .btn-ok').data('tab', $page.attr('id'));
             });
             // -- 加入
@@ -284,10 +289,10 @@
                 const tab = $(this).data('tab');
                 const $page = $(`#${tab}`);
                 const $ul = $('ul.sortable', $page);
-                const _newFruits = $('#addFruit select.-select2').select2('data');
+                const id = $('input[name="tab_id[]"]', $page).val();
+                const _newFruits = $('#addFruit select.-multiple').select2('data');
                 $('.sortable li', $page).addClass('del');
 
-                // $('#addFruit select.-select2 option:selected').each(function (index, element) {});
                 _newFruits.forEach(data => {
                     if ($(`input[name^="fruit_"][value="${data.id}"]`, $page).length > 0) {
                         $(`.sortable li:has(input[name^="fruit_"][value="${data.id}"])`, $page).removeClass('del');
@@ -295,7 +300,7 @@
                         $ul.append(`
                             <li>
                                 <label class="-serial-title -before">${data.text}</label>
-                                <input type="hidden" name^="fruit_" value="${data.id}">
+                                <input type="hidden" name="fruit_${id}[]" value="${data.id}">
                                 <span class="icon icon-btn fs-5 text-danger rounded-circle border-0 -del">
                                     <i class="bi bi-trash"></i>
                                 </span>
