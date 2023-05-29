@@ -12,4 +12,6 @@ Route::group(['prefix' => 'act-fruits', 'as' => 'act-fruits.'], function () {
     Route::get('delete/{id}', [ActFruitsCtrl::class, 'destroy'])->name('delete')->middleware('permission:cms.act-fruits.delete');
 
     Route::get('season', [ActFruitsCtrl::class, 'season'])->name('season')->middleware('permission:cms.act-fruits.season');
+    Route::post('season', [ActFruitsCtrl::class, 'seasonUpdate']);
+
 });
