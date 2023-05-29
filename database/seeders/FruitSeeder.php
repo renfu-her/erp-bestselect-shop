@@ -5,6 +5,8 @@ namespace Database\Seeders;
 use App\Models\Fruit;
 use App\Models\FruitCollection;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+
 
 class FruitSeeder extends Seeder
 {
@@ -16,6 +18,13 @@ class FruitSeeder extends Seeder
     public function run()
     {
         //
+
+        DB::table('fru_collection_fruit')->truncate();
+        DB::table('fru_fruits')->truncate();
+        DB::table('fru_collections')->truncate();
+
+
+
         $collections = [
             ['春季水果', '(3至5月)'],
             ['夏季水果', '(6至8月)'],
