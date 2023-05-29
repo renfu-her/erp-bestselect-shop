@@ -62,6 +62,7 @@ class FruitCollection extends Model
             ->leftJoinSub($sub, 'fruit', 'collection.id', '=', 'fruit.collection_id')
             ->select(['collection.*'])
             ->selectRaw('IF(fruit.fruits IS NULL,"[]",fruit.fruits) as fruits')
+            ->orderBy('collection.id')
             ->get();
 
         foreach ($re as $value) {
