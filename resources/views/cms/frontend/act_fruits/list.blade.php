@@ -4,18 +4,29 @@
 
     <div class="card shadow p-4 mb-4">
         <div class="row mb-4">
-            <div class="col-auto">
+            <div class="col">
                 @can('cms.act-fruits.create')
-                    <a href="{{ Route('cms.act-fruits.create', null, true) }}" class="btn btn-primary">
+                    <a href="{{ Route('cms.act-fruits.create', null, true) }}" class="btn btn-primary mb-1">
                         <i class="bi bi-plus-lg"></i> 新增水果
                     </a>
                 @endcan
-                <a href="{{ Route('cms.act-fruits.season') }}" class="btn btn-success">水果分類設定</a>
+                <a href="{{ Route('cms.act-fruits.season') }}" class="btn btn-success mb-1">水果分類設定</a>
+            </div>
+            <div class="col-auto">
+                <form id="search" method="get">
+                    顯示
+                    <select class="form-select d-inline-block w-auto" name="data_per_page" aria-label="表格顯示筆數">
+                        <option value="20" @if ($data_per_page == 20) selected @endif>20</option>
+                        <option value="40" @if ($data_per_page == 40) selected @endif>40</option>
+                        <option value="60" @if ($data_per_page == 60) selected @endif>60</option>
+                    </select>
+                    筆
+                </form>
             </div>
         </div>
 
         <div class="table-responsive tableOverBox">
-            <table class="table table-striped tableList">
+            <table class="table table-striped tableList mb-1">
                 <thead class="align-middle">
                     <tr>
                         <th scope="col" style="width:10%">#</th>
@@ -29,9 +40,9 @@
                 <tbody>
                     @foreach ($dataList as $key => $data)
                         <tr>
-                            <th scope="row">1</th>
+                            <th scope="row">{{ $key + 1 }}</th>
                             <td>{{ $data->title }}</td>
-                            <td>{{ $data->season }}</td>
+                            <td class="wrap lh-sm">{{ $data->season }}</td>
                             <td>{{ $data->status }}</td>
                             <td class="text-center">
                                 @can('cms.act-fruits.edit')
@@ -81,6 +92,10 @@
         <script>
             $('#confirm-delete').on('show.bs.modal', function(e) {
                 $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
+            });
+            // 顯示筆數選擇
+            $('select[name="data_per_page"]').on('change', function(e) {
+                $('#search').submit();
             });
         </script>
     @endpush

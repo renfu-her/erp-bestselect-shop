@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Cms\Frontend;
 
 use App\Http\Controllers\Controller;
 use App\Models\Fruit;
+use App\Models\FruitCollection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 
@@ -35,8 +36,8 @@ class ActFruitsCtrl extends Controller
     {
 
         $query = $request->query();
-        $data_per_page = Arr::get($query, 'data_per_page', 10);
-        $data_per_page = is_numeric($data_per_page) ? $data_per_page : 10;
+        $data_per_page = Arr::get($query, 'data_per_page', 20);
+        $data_per_page = is_numeric($data_per_page) ? $data_per_page : 20;
 
         return view('cms.frontend.act_fruits.list', [
             'data_per_page' => $data_per_page,
