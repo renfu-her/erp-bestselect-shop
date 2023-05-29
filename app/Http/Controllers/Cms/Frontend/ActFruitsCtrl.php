@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Cms\Frontend;
 
 use App\Http\Controllers\Controller;
 use App\Models\Fruit;
+use App\Models\FruitCollection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 
 class ActFruitsCtrl extends Controller
 {
@@ -103,9 +105,49 @@ class ActFruitsCtrl extends Controller
      */
     public function season()
     {
+
+        $collectionFruits=[];
+        foreach(FruitCollection::getFruitList() as $value){
+            $collectionFruits[$value->collection_id] = $value->fruits;
+        }
         return view('cms.frontend.act_fruits.season', [
             'method' => 'create',
+            'collection' => FruitCollection::get(),
+            'fruits' => Fruit::get(),
+            'collectionFruits' => $collectionFruits,
         ]);
+    }
+
+    public function seasonUpdate(Request $request)
+    {
+        //  dd($_POST);
+        // FruitCollection::get()
+        $request->validate([
+            'tab_id' => 'array|required',
+        ]);
+
+        $d = $request->all();
+        $f = [];
+        foreach ($d['tab_id'] as $key => $value) {
+            $fruitKey = 'fruit_' . ($key + 1);
+            if (isset($d[$fruitKey])) {
+                $f = array_merge($f, array_map(function ($n, $idx) use ($value) {
+                    //   dd($idx, $value);
+                    return [
+                        'collection_id' => $value,
+                        'sort' => $idx * 10,
+                        'fruit_id' => $n,
+                    ];
+                }, $d[$fruitKey], array_keys($d[$fruitKey])));
+
+            }
+        }
+
+        DB::table('fru_collection_fruit')->truncate();
+        DB::table('fru_collection_fruit')->insert($f);
+
+        return redirect(route('cms.act-fruits.season'));
+
     }
 
     /**
