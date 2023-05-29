@@ -106,8 +106,8 @@ class ActFruitsCtrl extends Controller
     public function season()
     {
 
-        $collectionFruits=[];
-        foreach(FruitCollection::getFruitList() as $value){
+        $collectionFruits = [];
+        foreach (FruitCollection::getFruitList() as $value) {
             $collectionFruits[$value->collection_id] = $value->fruits;
         }
         return view('cms.frontend.act_fruits.season', [
@@ -217,5 +217,10 @@ class ActFruitsCtrl extends Controller
         Fruit::where('id', $id)->delete();
         return redirect(route('cms.act-fruits.index'));
 
+    }
+
+    public function api()
+    {
+        return response()->json(['status' => '0', 'data' => FruitCollection::getFruitListForApi()]);
     }
 }

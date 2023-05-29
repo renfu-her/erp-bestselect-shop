@@ -1,10 +1,11 @@
 <?php
 
 use App\Http\Controllers\Api\Cms\Commodity\DiscountCtrl;
+use App\Http\Controllers\Api\Cms\User\UserCtrl;
 use App\Http\Controllers\Api\CustomerCtrl;
 use App\Http\Controllers\Api\Web\NaviCtrl;
 use App\Http\Controllers\Api\Web\OrderCtrl;
-use App\Http\Controllers\Api\Cms\User\UserCtrl;
+use App\Http\Controllers\Cms\Frontend\ActFruitsCtrl;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -32,6 +33,8 @@ Route::get('/tokens/get', function (Request $request) {
     return 'ok';
 });
 
+Route::get('/fruit', [ActFruitsCtrl::class, 'api']);
+
 Route::get('/tokens/create', function (Request $request) {
     // $token = $request->user()->createToken($request->token_name);
     // dd($request->token_name);
@@ -57,13 +60,11 @@ Route::group(['prefix' => 'customer', 'as' => 'customer.', 'middleware' => ['aut
 
     Route::post('/bind-b2e-company', [CustomerCtrl::class, 'bindB2eCompany']);
 
-
     Route::get('/logout-all', [CustomerCtrl::class, 'tokensDeleteAll']);
     Route::get('/logout', [CustomerCtrl::class, 'tokensDeleteCurrent']);
 
     require base_path('routes/api/web/CustomerData.php');
     require base_path('routes/api/web/OrderWithAuth.php');
-
 
 });
 
@@ -79,7 +80,6 @@ Route::group(['prefix' => 'cms', 'as' => 'cms.', 'middleware' => 'auth:cms-api']
     require base_path('routes/api/cms/Stock.php');
     Route::post('/address-list', [CustomerCtrl::class, 'customerAddress'])->name('customer_address');
 
-
 });
 
 Route::group(['prefix' => 'web', 'as' => 'web.'], function () {
@@ -92,7 +92,6 @@ Route::group(['prefix' => 'web', 'as' => 'web.'], function () {
     require base_path('routes/api/web/Order.php');
     require base_path('routes/api/web/OnePage.php');
 
-
     Route::post('check-discount-code', [DiscountCtrl::class, 'checkDiscountCode'])->name('check-discount-code');
 
     Route::post('check-recommender', [CustomerCtrl::class, 'checkRecommender'])->name('check-recommender');
@@ -101,13 +100,11 @@ Route::group(['prefix' => 'web', 'as' => 'web.'], function () {
         return 'ok';
     }, 'middleware' => 'checksum'], );
 
-
 });
 
 require base_path('routes/api/Addr.php');
 require base_path('routes/api/Schedule.php');
 require base_path('routes/api/Bank.php');
-
 
 Route::group(['prefix' => 'erp', 'as' => 'erp.'], function () {
     Route::post('user', [UserCtrl::class, 'erpUser']);
