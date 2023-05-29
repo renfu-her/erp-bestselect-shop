@@ -5,12 +5,12 @@
     <ul class="nav nav-tabs border-bottom-0">
         @foreach ($collection as $key => $value)
             <li class="nav-item">
-                <button class="nav-link active" data-page="tab{{ $key + 1 }}" aria-current="page" type="button">
+                <button class="nav-link @if ($key === 0) active @endif" type="button"
+                    data-page="tab{{ $key + 1 }}" @if ($key === 0) aria-current="page" @endif>
                     {{ $value->title }}<br><span class="small">{{ $value->sub_title }}</span>
                 </button>
             </li>
         @endforeach
-
     </ul>
 
     <form action="{{ route('cms.act-fruits.season') }}" method="post">
@@ -31,7 +31,7 @@
                             @foreach ($collectionFruits[$value->id] as $fruit)
                                 <li>
                                     <label class="-serial-title -before">{{ $fruit->fruit_title }}</label>
-                                    <input type="hidden" name="fruit_{{ $key }}[]"
+                                    <input type="hidden" name="fruit_{{ $key + 1 }}[]"
                                         value="{{ $fruit->fruit_id }}">
                                     <span class="icon icon-btn fs-5 text-danger rounded-circle border-0 -del">
                                         <i class="bi bi-trash"></i>
