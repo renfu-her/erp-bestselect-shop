@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Cms\Frontend;
 
 use App\Http\Controllers\Controller;
+use App\Models\Fruit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 
@@ -32,12 +33,14 @@ class ActFruitsCtrl extends Controller
      */
     public function index(Request $request)
     {
+
         $query = $request->query();
         $data_per_page = Arr::get($query, 'data_per_page', 10);
         $data_per_page = is_numeric($data_per_page) ? $data_per_page : 10;
 
         return view('cms.frontend.act_fruits.list', [
             'data_per_page' => $data_per_page,
+            'dataList' => Fruit::paginate($data_per_page)->appends($query),
         ]);
     }
 
@@ -48,9 +51,11 @@ class ActFruitsCtrl extends Controller
      */
     public function create()
     {
+
         return view('cms.frontend.act_fruits.edit', [
             'method' => 'create',
-            'saleStatus' => $this->SaleStatus
+            'saleStatus' => $this->SaleStatus,
+            'actionUrl' => route('cms.act-fruits.create'),
         ]);
     }
 
@@ -63,6 +68,32 @@ class ActFruitsCtrl extends Controller
     public function store(Request $request)
     {
         //
+        $request->validate([
+            'title' => 'required',
+            'sub_title' => 'required',
+            'place' => 'required',
+            'season' => 'required',
+            'pic' => 'required',
+            'link' => 'required',
+            'text' => 'required',
+            'status' => 'required',
+        ]);
+
+        $d = $request->all();
+
+        Fruit::create([
+            'title' => $d['title'],
+            'sub_title' => $d['sub_title'],
+            'place' => $d['place'],
+            'season' => $d['season'],
+            'pic' => $d['pic'],
+            'link' => $d['link'],
+            'text' => $d['text'],
+            'status' => $d['status'],
+        ]);
+
+        return redirect(route('cms.act-fruits.index'));
+
     }
 
     /**
@@ -85,9 +116,12 @@ class ActFruitsCtrl extends Controller
      */
     public function edit($id)
     {
+
         return view('cms.frontend.act_fruits.edit', [
             'method' => 'edit',
-            'saleStatus' => $this->SaleStatus
+            'saleStatus' => $this->SaleStatus,
+            'data' => Fruit::where('id', $id)->get()->first(),
+            'actionUrl' => route('cms.act-fruits.edit', ['id' => $id]),
         ]);
     }
 
@@ -101,6 +135,31 @@ class ActFruitsCtrl extends Controller
     public function update(Request $request, $id)
     {
         //
+        $request->validate([
+            'title' => 'required',
+            'sub_title' => 'required',
+            'place' => 'required',
+            'season' => 'required',
+            'pic' => 'required',
+            'link' => 'required',
+            'text' => 'required',
+            'status' => 'required',
+        ]);
+
+        $d = $request->all();
+
+        Fruit::where('id', $id)->update([
+            'title' => $d['title'],
+            'sub_title' => $d['sub_title'],
+            'place' => $d['place'],
+            'season' => $d['season'],
+            'pic' => $d['pic'],
+            'link' => $d['link'],
+            'text' => $d['text'],
+            'status' => $d['status'],
+        ]);
+
+        return redirect(route('cms.act-fruits.index'));
     }
 
     /**
@@ -112,5 +171,9 @@ class ActFruitsCtrl extends Controller
     public function destroy($id)
     {
         //
+
+        Fruit::where('id', $id)->delete();
+        return redirect(route('cms.act-fruits.index'));
+
     }
 }

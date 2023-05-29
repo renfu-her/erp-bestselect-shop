@@ -27,46 +27,44 @@
                     </tr>
                 </thead>
                 <tbody>
-                {{-- @foreach ($dataList as $key => $data) --}}
-                    <tr>
-                        <th scope="row">1</th>
-                        <td>茂谷柑</td>
-                        <td>春、冬季 (12月-隔年3月)</td>
-                        <td>12月開放預購</td>
-                        <td class="text-center">
-                            @can('cms.act-fruits.edit')
-                                <a href="{{ Route('cms.act-fruits.edit', ['id' => 1], true) }}"
-                                   data-bs-toggle="tooltip" title="編輯"
-                                   class="icon icon-btn fs-5 text-primary rounded-circle border-0">
-                                    <i class="bi bi-pencil-square"></i>
-                                </a>
-                            @endcan
-                        </td>
-                        <td class="text-center">
-                            @can('cms.act-fruits.delete')
-                                <a href="javascript:void(0)"
-                                   data-href="#"
-                                   data-bs-toggle="modal" data-bs-target="#confirm-delete"
-                                   class="icon -del icon-btn fs-5 text-danger rounded-circle border-0">
-                                    <i class="bi bi-trash"></i>
-                                </a>
-                            @endcan
-                        </td>
-                    </tr>
-                {{-- @endforeach --}}
+                    @foreach ($dataList as $key => $data)
+                        <tr>
+                            <th scope="row">1</th>
+                            <td>{{ $data->title }}</td>
+                            <td>{{ $data->season }}</td>
+                            <td>{{ $data->status }}</td>
+                            <td class="text-center">
+                                @can('cms.act-fruits.edit')
+                                    <a href="{{ Route('cms.act-fruits.edit', ['id' => $data->id], true) }}" data-bs-toggle="tooltip"
+                                        title="編輯" class="icon icon-btn fs-5 text-primary rounded-circle border-0">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
+                                @endcan
+                            </td>
+                            <td class="text-center">
+                                @can('cms.act-fruits.delete')
+                                    <a href="javascript:void(0)" data-href="{{ Route('cms.act-fruits.delete', ['id' => $data->id], true) }}" data-bs-toggle="modal"
+                                        data-bs-target="#confirm-delete"
+                                        class="icon -del icon-btn fs-5 text-danger rounded-circle border-0">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                @endcan
+                            </td>
+                        </tr>
+                    @endforeach
                 </tbody>
             </table>
         </div>
     </div>
 
-    {{-- @if ($dataList->hasPages()) --}}
+    @if ($dataList->hasPages())
         <div class="row flex-column-reverse flex-sm-row mb-4">
             <div class="col d-flex justify-content-end align-items-center">
                 {{-- 頁碼 --}}
-                {{-- <div class="d-flex justify-content-center">{{ $dataList->links() }}</div> --}}
+                <div class="d-flex justify-content-center">{{ $dataList->links() }}</div>
             </div>
         </div>
-    {{-- @endif --}}
+    @endif
 
     <!-- Modal -->
     <x-b-modal id="confirm-delete">
@@ -81,10 +79,9 @@
 @once
     @push('sub-scripts')
         <script>
-            $('#confirm-delete').on('show.bs.modal', function (e) {
+            $('#confirm-delete').on('show.bs.modal', function(e) {
                 $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
             });
-
         </script>
     @endpush
 @endOnce
