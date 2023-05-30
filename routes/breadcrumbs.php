@@ -1026,6 +1026,24 @@ Breadcrumbs::for('cms.custom-pages.edit', function (BreadcrumbTrail $trail) {
     $trail->push('編輯');
 });
 
+// 活動-四季鮮果
+Breadcrumbs::for('cms.act-fruits.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('活動-四季鮮果', route('cms.act-fruits.index'));
+});
+Breadcrumbs::for('cms.act-fruits.create', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.act-fruits.index');
+    $trail->push('新增');
+});
+Breadcrumbs::for('cms.act-fruits.edit', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.act-fruits.index');
+    $trail->push('編輯');
+});
+Breadcrumbs::for('cms.act-fruits.season', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.act-fruits.index');
+    $trail->push('水果分類設定');
+});
+
 /**
  * 帳號管理
  **/

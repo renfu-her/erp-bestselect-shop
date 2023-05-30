@@ -116,15 +116,11 @@ Route::group(['prefix' => 'cms', 'as' => 'cms.', 'middleware' => 'auth:user'], f
     require base_path('routes/cms/Edm.php');
     require base_path('routes/cms/OnePage.php');
     require base_path('routes/cms/B2eCompany.php');
-
+    require base_path('routes/cms/frontend/ActFruits.php');
 
     require base_path('routes/cms/ErpTravel.php');
-
-
     require base_path('routes/cms/ImgStorage.php');
-
     require base_path('routes/cms/UserDividend.php');
-
     require base_path('routes/cms/ProductReport.php');
 
 

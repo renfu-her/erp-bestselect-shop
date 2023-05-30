@@ -236,6 +236,11 @@ return
                 "controller_name" => "CustomPagesCtrl",
                 "route_name" => "cms.custom-pages.index",
             ],
+            [
+                "title" => "活動-四季鮮果",
+                "controller_name" => "ActFruitsCtrl",
+                "route_name" => "cms.act-fruits.index",
+            ],
         ],
     ],
     [
