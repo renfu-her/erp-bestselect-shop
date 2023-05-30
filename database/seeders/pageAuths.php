@@ -1301,5 +1301,13 @@ return [
             ],
         ],
     ],
-
+    [
+        "unit" => "活動-四季鮮果",
+        "permissions" => [
+            [
+                "cms.act-fruits.index",
+                "瀏覽",
+            ],
+        ],
+    ],
 ];
