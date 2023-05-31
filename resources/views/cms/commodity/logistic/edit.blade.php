@@ -52,7 +52,7 @@
         </div>
     </div>
 
-    <form id="form_store" action="{{ Route('cms.logistic.store', [], true) }}" method="post" class="-banRedo">
+    <form id="form_store" action="{{ Route('cms.logistic.store', [], true) }}" method="post" class="-debounce">
         @method('POST')
         @csrf
         <div class="card shadow p-4 mb-4">
@@ -201,7 +201,7 @@
             <div class="card shadow p-4 mb-4">
                 <h6>託運單資訊(喜鴻託運單)</h6>
                 <div class="col-12 mb-3">
-                    <form id="form_store" action="{{ Route('cms.logistic.createLogisticOrder', [], true) }}" method="post" class="-banRedo">
+                    <form id="form_store" action="{{ Route('cms.logistic.createLogisticOrder', [], true) }}" method="post" class="-debounce">
                         @method('POST')
                         @csrf
                         <h6>新增喜鴻托運單</h6>
@@ -368,7 +368,7 @@
         <x-slot name="title">審核確認</x-slot>
         <x-slot name="body">審核後將無法再做修改！確認要送審？</x-slot>
         <x-slot name="foot">
-            <form action="{{ Route('cms.logistic.auditInbound', [], true) }}" method="post" class="-banRedo">
+            <form action="{{ Route('cms.logistic.auditInbound', [], true) }}" method="post" class="-debounce">
                 @method('POST')
                 @csrf
                 <input type="hidden" name="logistic_id" value="{{ $logistic->id }}">
@@ -429,7 +429,7 @@
                     <h5 class="modal-title" id="addInboundLabel">選擇入庫單</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form action="{{ Route('cms.logistic.storeConsum', [], true) }}" method="post" class="-banRedo">
+                <form action="{{ Route('cms.logistic.storeConsum', [], true) }}" method="post" class="-debounce">
                     @method('POST')
                     @csrf
                     <div class="modal-body">
@@ -486,7 +486,7 @@
         <x-slot name="title">取消確認</x-slot>
         <x-slot name="body">確認取消？</x-slot>
         <x-slot name="foot">
-            <form action="{{ Route('cms.logistic.auditReturnInbound', [], true) }}" method="post" class="-banRedo">
+            <form action="{{ Route('cms.logistic.auditReturnInbound', [], true) }}" method="post" class="-debounce">
                 @method('POST')
                 @csrf
                 <input type="hidden" name="logistic_id" value="{{ $logistic->id }}">
@@ -499,7 +499,7 @@
         <x-slot name="title">刪除委託單確認</x-slot>
         <x-slot name="body">確認刪除委託單？</x-slot>
         <x-slot name="foot">
-            <form id="formDelLogisticOrder" method="post" action="{{ $DelLogisticOrderAction }}" class="-banRedo">
+            <form id="formDelLogisticOrder" method="post" action="{{ $DelLogisticOrderAction }}" class="-debounce">
                 @method('POST')
                 @csrf
                 <input type="hidden" name="event" value="{{$delivery->event}}">

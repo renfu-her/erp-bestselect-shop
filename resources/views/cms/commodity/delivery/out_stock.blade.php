@@ -18,7 +18,7 @@
     </div>
     @enderror
 
-    <form id="form1" method="post" action="{{ $formAction }}" class="-banRedo">
+    <form id="form1" method="post" action="{{ $formAction }}" class="-debounce">
         @method('POST')
         @csrf
         <div class="card shadow p-4 mb-4">

@@ -2,7 +2,7 @@
 @section('sub-content')
     <h2 class="mb-4">付款管理</h2>
 
-    <form method="POST" action="{{ $formAction }}" class="-banRedo">
+    <form method="POST" action="{{ $formAction }}" class="-debounce">
         @csrf
         <div class="card shadow p-4 mb-4">
             <h6>付款單明細</h6>

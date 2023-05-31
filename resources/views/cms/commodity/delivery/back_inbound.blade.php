@@ -11,7 +11,7 @@
         <div class="alert alert-danger mt-3">{!! implode('', $errors->all('<div>:message</div>')) !!}</div>
     @endif
 
-    <form method="post" action="{{ $formAction }}" class="-banRedo">
+    <form method="post" action="{{ $formAction }}" class="-debounce">
         @method('POST')
         @csrf
         <div class="card shadow p-4 mb-4">
@@ -153,7 +153,7 @@
             .off('change')
             .on('change', checkBackQtySum);
 
-            $('form.-banRedo').off('submit.check').on('submit.check', function () {
+            $('form.-debounce').off('submit.check').on('submit.check', function () {
                 return checkBackQtySum();
             });
 

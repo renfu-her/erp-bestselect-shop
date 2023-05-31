@@ -2,7 +2,7 @@
 @section('sub-content')
 <h2 class="mb-3">#{{ $inboundData->sn }} 入庫單庫存調整</h2>
 
-<form method="post" action="{{ $formAction }}" class="-banRedo">
+<form method="post" action="{{ $formAction }}" class="-debounce">
     <div class="card shadow p-4 mb-4">
         @method('POST')
         @csrf

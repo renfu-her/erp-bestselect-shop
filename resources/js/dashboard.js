@@ -103,5 +103,23 @@
     $('.-blockReBtn').off('click.banRedo').on('click.banRedo', function (e) {
         $(this).prop('disabled', true).addClass('disabled');
     });
+    // 去抖動 -debounce
+    let inDebounce;
+    const formDebounce = _.debounce(() => {
+        inDebounce = true;
+        $('form.-debounce').trigger('submit');
+    }, 3000, { leading: true, trailing: false });
+    $('form.-debounce').on('submit', function (e) {
+        if (!inDebounce) {
+            // return false;
+            e.preventDefault();
+        }
+        console.log('submit');
+    });
+    $('button:submit, .-banReBtn', 'form.-debounce').on('click', () => {
+        console.log('debounce');
+        inDebounce = false;
+        formDebounce();
+    });
 
 })();

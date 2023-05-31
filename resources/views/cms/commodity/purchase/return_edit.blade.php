@@ -2,7 +2,7 @@
 @section('sub-content')
     <h2 class="mb-3">{{ $method == 'create' ? '新增' : '編輯' }}退出單</h2>
 
-    <form id="form1" method="post" action="{{ $form_action }}" class="-banRedo">
+    <form id="form1" method="post" action="{{ $form_action }}" class="-debounce">
         @csrf
         <div class="card shadow p-4 mb-4">
             <h6>採購退出單內容</h6>
