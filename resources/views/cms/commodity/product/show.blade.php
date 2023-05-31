@@ -44,8 +44,8 @@
                 </button>
             </h3>
             <div id="collapse1" class="accordion-collapse collapse show">
-                <div class="accordion-body pb-0 pe-0" style="overflow-x: auto">
-                    <div class="upload_image_block" style="width: max-content">
+                <div class="accordion-body pb-0 pe-0">
+                    <div class="upload_image_block d-flex flex-wrap">
                         @foreach ($images as $img)
                             <a href="{{ getImageUrl($img['url'], true) }}" target="_blank">
                                 <span class="browser_box rounded-0 border">
@@ -67,48 +67,50 @@
                 </button>
             </h3>
             <div id="collapse2" class="accordion-collapse collapse show">
-                <div class="accordion-body pb-0">
-                    <table class="table table-bordered table-sm align-middle">
-                        <thead class="table-secondary">
-                            <th class="text-center">款式</th>
-                            <th>銷售通路</th>
-                            <th class="text-end">售價</th>
-                            <th class="text-end">經銷價</th>
-                            <th class="text-end">定價</th>
-                            <th class="text-end">獎金
-                                <i class="bi bi-info-circle" data-bs-toggle="tooltip"
-                                    title="預設：(售價-經銷價) × {{ App\Enums\Customer\Bonus::bonus()->value }}"></i>
-                            </th>
-                            <th class="text-end">購物金抵扣
-                                <i class="bi bi-info-circle" data-bs-toggle="tooltip"
-                                    title="此設定顯示於顧客購買結帳頁面商品可使用之購物金上限。預設：售價 × 各通路可抵扣上限"></i>
-                            </th>
-                        </thead>
-                        <tbody>
-                            @foreach ($styles as $style)
-                                @if ( isset($style->prices))
-                                    @foreach ($style->prices as $i => $price)
-                                        <tr>
-                                            @if ($i === 0)
-                                                <th rowspan="{{ count($style->prices) }}"
-                                                    class="text-center table-warning">
-                                                    {{ $style->title }}
-                                                    <div class="text-secondary small fw-light">{{ $style->sku }}</div>
-                                                </th>
-                                            @endif
-                                            <td>{{ $price->salechannel_title }}</td>
-                                            <td class="text-end">${{ number_format($price->price) }}</td>
-                                            <td class="text-end">${{ number_format($price->dealer_price) }}</td>
-                                            <td class="text-end">${{ number_format($price->origin_price) }}</td>
-                                            <td class="text-end">${{ number_format($price->bonus) }}</td>
-                                            <td class="text-end">${{ number_format($price->dividend) }}</td>
-                                        </tr>
-                                    @endforeach
-                                @endif
-                            @endforeach
-                            <tr></tr>
-                        </tbody>
-                    </table>
+                <div class="accordion-body p-2">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-sm align-middle mb-1">
+                            <thead class="table-secondary small">
+                                <th class="text-center">款式</th>
+                                <th>銷售通路</th>
+                                <th class="text-end">售價</th>
+                                <th class="text-end">經銷價</th>
+                                <th class="text-end">定價</th>
+                                <th class="text-end">獎金
+                                    <i class="bi bi-info-circle" data-bs-toggle="tooltip"
+                                        title="預設：(售價-經銷價) × {{ App\Enums\Customer\Bonus::bonus()->value }}"></i>
+                                </th>
+                                <th class="text-end">購物金抵扣
+                                    <i class="bi bi-info-circle" data-bs-toggle="tooltip"
+                                        title="此設定顯示於顧客購買結帳頁面商品可使用之購物金上限。預設：售價 × 各通路可抵扣上限"></i>
+                                </th>
+                            </thead>
+                            <tbody>
+                                @foreach ($styles as $style)
+                                    @if ( isset($style->prices))
+                                        @foreach ($style->prices as $i => $price)
+                                            <tr>
+                                                @if ($i === 0)
+                                                    <th rowspan="{{ count($style->prices) }}"
+                                                        class="text-center table-warning">
+                                                        {{ $style->title }}
+                                                        <div class="text-secondary small fw-light">{{ $style->sku }}</div>
+                                                    </th>
+                                                @endif
+                                                <td class="small">{{ $price->salechannel_title }}</td>
+                                                <td class="text-end">${{ number_format($price->price) }}</td>
+                                                <td class="text-end">${{ number_format($price->dealer_price) }}</td>
+                                                <td class="text-end">${{ number_format($price->origin_price) }}</td>
+                                                <td class="text-end">${{ number_format($price->bonus) }}</td>
+                                                <td class="text-end">${{ number_format($price->dividend) }}</td>
+                                            </tr>
+                                        @endforeach
+                                    @endif
+                                @endforeach
+                                <tr></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
