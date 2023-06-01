@@ -13,7 +13,7 @@
         @endif
     </div>
 
-    <form method="POST" action="{{ $formAction }}" class="-banRedo" enctype="multipart/form-data" novalidate>
+    <form method="POST" action="{{ $formAction }}" class="-debounce" enctype="multipart/form-data" novalidate>
         @csrf
         <div class="card shadow p-4 mb-4">
             <h6>基本設定</h6>
@@ -140,6 +140,13 @@
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
+                <fieldset class="col-12 col-sm-6 mb-3">
+                    <legend class="col-form-label p-0 mb-2">公開 <span class="text-danger">*</span></legend>
+                    <div class="form-check form-switch form-switch-lg">
+                        <input class="form-check-input" type="checkbox" name="public" value="1"
+                            @if (old('public', $product->public ?? 1)) checked @endif>
+                    </div>
+                </fieldset>
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">上架時間</label>
                     <div class="input-group has-validation">
@@ -172,11 +179,24 @@
                         </div>
                     </div>
                 </div>
-                <fieldset class="col-12 col-lg-6 mb-3">
-                    <legend class="col-form-label p-0 mb-2">公開 <span class="text-danger">*</span></legend>
-                    <div class="form-check form-switch form-switch-lg">
-                        <input class="form-check-input" type="checkbox" name="public" value="1"
-                            @if (old('public', $product->public ?? 1)) checked @endif>
+                <fieldset class="col-12 col-sm-6 mb-3">
+                    <legend class="col-form-label p-0 mb-2">應稅免稅 <span class="text-danger">*</span></legend>
+                    <div class="px-1 pt-1">
+                        <div class="form-check form-check-inline @error('has_tax') is-invalid @enderror">
+                            <input class="form-check-input @error('has_tax') is-invalid @enderror" name="has_tax"
+                                value="1" type="radio" id="tax_1" required
+                                @if (old('has_tax', $product->has_tax ?? '1') == '1') checked @endif>
+                            <label class="form-check-label" for="tax_1">應稅</label>
+                        </div>
+                        <div class="form-check form-check-inline @error('has_tax') is-invalid @enderror">
+                            <input class="form-check-input @error('has_tax') is-invalid @enderror" name="has_tax"
+                                value="0" type="radio" id="tax_2" required
+                                @if (old('has_tax', $product->has_tax ?? '') == '0') checked @endif>
+                            <label class="form-check-label" for="tax_2">免稅（農林漁牧產品/免稅）</label>
+                        </div>
+                        @error('has_tax')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
                 </fieldset>
                 <fieldset class="col-12 col-sm-6 mb-3">
@@ -198,26 +218,6 @@
                             </label>
                         </div>
                         {{-- @endforeach --}}
-                    </div>
-                </fieldset>
-                <fieldset class="col-12 col-lg-6 mb-3">
-                    <legend class="col-form-label p-0 mb-2">應稅免稅 <span class="text-danger">*</span></legend>
-                    <div class="px-1 pt-1">
-                        <div class="form-check form-check-inline @error('has_tax') is-invalid @enderror">
-                            <input class="form-check-input @error('has_tax') is-invalid @enderror" name="has_tax"
-                                value="1" type="radio" id="tax_1" required
-                                @if (old('has_tax', $product->has_tax ?? '1') == '1') checked @endif>
-                            <label class="form-check-label" for="tax_1">應稅</label>
-                        </div>
-                        <div class="form-check form-check-inline @error('has_tax') is-invalid @enderror">
-                            <input class="form-check-input @error('has_tax') is-invalid @enderror" name="has_tax"
-                                value="0" type="radio" id="tax_2" required
-                                @if (old('has_tax', $product->has_tax ?? '') == '0') checked @endif>
-                            <label class="form-check-label" for="tax_2">免稅（農林漁牧產品/免稅）</label>
-                        </div>
-                        @error('has_tax')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
                     </div>
                 </fieldset>
             </div>

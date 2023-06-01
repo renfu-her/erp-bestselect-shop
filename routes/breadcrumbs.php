@@ -1033,11 +1033,11 @@ Breadcrumbs::for('cms.act-fruits.index', function (BreadcrumbTrail $trail) {
 });
 Breadcrumbs::for('cms.act-fruits.create', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.act-fruits.index');
-    $trail->push('新增');
+    $trail->push('新增水果');
 });
 Breadcrumbs::for('cms.act-fruits.edit', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.act-fruits.index');
-    $trail->push('編輯');
+    $trail->push('編輯水果');
 });
 Breadcrumbs::for('cms.act-fruits.season', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.act-fruits.index');

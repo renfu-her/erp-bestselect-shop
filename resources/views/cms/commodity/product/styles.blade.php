@@ -36,7 +36,7 @@
         </div>
     </div>
 
-    <form id="form1" action="{{ route('cms.product.edit-style', ['id' => $data->id]) }}" class="-banRedo" method="POST">
+    <form id="form1" action="{{ route('cms.product.edit-style', ['id' => $data->id]) }}" class="-debounce" method="POST">
         @csrf
         <div class="card shadow p-4 mb-4">
             <h6>款式管理</h6>

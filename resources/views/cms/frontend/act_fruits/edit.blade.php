@@ -4,7 +4,7 @@
         @if ($method === 'create')
             新增水果
         @else
-            編輯
+            編輯水果
         @endif
     </h2>
     <form method="post" action="" enctype="multipart/form-data">

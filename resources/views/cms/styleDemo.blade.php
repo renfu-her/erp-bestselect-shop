@@ -171,11 +171,16 @@
                                     </div>
 
                                     <h6>Form</h6>
-                                    <p>form 加上 <code>.-banRedo</code> 可在 submit 事件中鎖定以下按鈕，以防止重複送出：</p>
-                                    <ul>
-                                        <li>含 <code>.-banReBtn</code> 的 tag</li>
-                                        <li>submit button</li>
-                                    </ul>
+                                    <p>form 加上 <code>.-debounce</code> 去抖動，以防止重複送出：</p>
+                                    <form action="#" method="get" class="-debounce">
+                                        <ul>
+                                            <li>含 <code>.-banReBtn</code> 的 tag</li>
+                                            <li>submit button</li>
+                                            <li>
+                                                <button type="submit" class="-banReBtn btn btn-sm btn-outline-success">Submit</button>
+                                            </li>
+                                        </ul>
+                                    </form>
                                 </div>
                             </div>
                         </fieldset>
@@ -295,9 +300,9 @@
                                 <div class="mt-4">
                                     <textarea id="editor1" name="editor1" hidden></textarea>
                                 </div>
-                                <div>
+                                {{-- <div>
                                     <x-b-calendar id="calendar" readOnly="false" create="true" classes="my-3" ></x-b-calendar>
-                                </div>
+                                </div> --}}
                             </div>
                         </fieldset>
                         

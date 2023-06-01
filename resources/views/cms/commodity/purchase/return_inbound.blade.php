@@ -6,7 +6,7 @@
         <div class="alert alert-danger mt-3">{!! implode('', $errors->all('<div>:message</div>')) !!}</div>
     @endif
 
-    <form method="post" action="{{ $form_action }}" class="-banRedo">
+    <form method="post" action="{{ $form_action }}" class="-debounce">
         @csrf
         <div class="card shadow p-4 mb-4">
             <h6>商品列表</h6>
@@ -139,7 +139,7 @@
             .off('change')
             .on('change', checkBackQtySum);
 
-            $('form.-banRedo').off('submit.check').on('submit.check', function () {
+            $('form.-debounce').off('submit.check').on('submit.check', function () {
                 return checkBackQtySum();
             });
 
