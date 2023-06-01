@@ -45,7 +45,7 @@
                             <td class="wrap lh-sm">{{ $data->season }}</td>
                             <td>{{ $data->status }}</td>
                             <td class="text-center">
-                                @can('cms.act-fruits.edit')
+                                @can('cms.act-fruits.index')
                                     <a href="{{ Route('cms.act-fruits.edit', ['id' => $data->id], true) }}" data-bs-toggle="tooltip"
                                         title="編輯" class="icon icon-btn fs-5 text-primary rounded-circle border-0">
                                         <i class="bi bi-pencil-square"></i>
@@ -53,7 +53,7 @@
                                 @endcan
                             </td>
                             <td class="text-center">
-                                @can('cms.act-fruits.delete')
+                                @can('cms.act-fruits.index')
                                     <a href="javascript:void(0)" data-href="{{ Route('cms.act-fruits.delete', ['id' => $data->id], true) }}" data-bs-toggle="modal"
                                         data-bs-target="#confirm-delete"
                                         class="icon -del icon-btn fs-5 text-danger rounded-circle border-0">
