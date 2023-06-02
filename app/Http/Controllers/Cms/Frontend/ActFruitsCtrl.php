@@ -37,8 +37,8 @@ class ActFruitsCtrl extends Controller
     {
 
         $query = $request->query();
-        $data_per_page = Arr::get($query, 'data_per_page', 20);
-        $data_per_page = is_numeric($data_per_page) ? $data_per_page : 20;
+        $data_per_page = Arr::get($query, 'data_per_page', 40);
+        $data_per_page = is_numeric($data_per_page) ? $data_per_page : 40;
 
         return view('cms.frontend.act_fruits.list', [
             'data_per_page' => $data_per_page,
