@@ -63,7 +63,7 @@
                 </x-b-form-group>
                 <div class="menu_type -group" @if (old('event', $data->type ?? 'group') !== 'group') hidden @endif>
                     <x-b-form-group name="event_id" title="群組" required="true">
-                        <select class="form-select" name="event_id" aria-label="Default select example"
+                        <select class="form-select -select2 -single" name="event_id" data-placeholder="請選擇"
                             @if (old('event', $data->event ?? 'group') == 'group') required @else disabled @endif>
                             @foreach ($collections as $key => $group)
                                 <option value="{{ $group['id'] }}" @if (old('event_id', $data->event_id ?? '') == $group['id']) selected @endif>

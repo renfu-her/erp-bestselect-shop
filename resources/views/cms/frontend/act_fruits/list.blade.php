@@ -16,9 +16,9 @@
                 <form id="search" method="get">
                     顯示
                     <select class="form-select d-inline-block w-auto" name="data_per_page" aria-label="表格顯示筆數">
-                        <option value="20" @if ($data_per_page == 20) selected @endif>20</option>
                         <option value="40" @if ($data_per_page == 40) selected @endif>40</option>
                         <option value="60" @if ($data_per_page == 60) selected @endif>60</option>
+                        <option value="100" @if ($data_per_page == 100) selected @endif>100</option>
                     </select>
                     筆
                 </form>
@@ -29,21 +29,18 @@
             <table class="table table-striped tableList mb-1">
                 <thead class="align-middle">
                     <tr>
-                        <th scope="col" style="width:10%">#</th>
+                        <th scope="col" width="50" class="text-center">#</th>
+                        <th scope="col" width="50" class="text-center">編輯</th>
                         <th scope="col">名稱</th>
                         <th scope="col">產季</th>
                         <th scope="col">目前狀態</th>
-                        <th scope="col" width="60" class="text-center">編輯</th>
-                        <th scope="col" width="60" class="text-center">刪除</th>
+                        <th scope="col" style="width:10%" class="text-center">刪除</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($dataList as $key => $data)
                         <tr>
-                            <th scope="row">{{ $key + 1 }}</th>
-                            <td>{{ $data->title }}</td>
-                            <td class="wrap lh-sm">{{ $data->season }}</td>
-                            <td>{{ $data->status }}</td>
+                            <th scope="row" class="text-center">{{ $key + 1 }}</th>
                             <td class="text-center">
                                 @can('cms.act-fruits.index')
                                     <a href="{{ Route('cms.act-fruits.edit', ['id' => $data->id], true) }}" data-bs-toggle="tooltip"
@@ -52,6 +49,9 @@
                                     </a>
                                 @endcan
                             </td>
+                            <td>{{ $data->title }}</td>
+                            <td class="wrap lh-sm">{{ $data->season }}</td>
+                            <td>{{ $data->status }}</td>
                             <td class="text-center">
                                 @can('cms.act-fruits.index')
                                     <a href="javascript:void(0)" data-href="{{ Route('cms.act-fruits.delete', ['id' => $data->id], true) }}" data-bs-toggle="modal"
