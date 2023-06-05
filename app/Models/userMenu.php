@@ -17,10 +17,10 @@ return
                 "route_name" => "cms.stock.index",
             ],
 //            [
-//                "title" => "報廢管理",
-//                "controller_name" => "ScrapCtrl",
-//                "route_name" => "cms.scrap.index",
-//            ],
+            //                "title" => "報廢管理",
+            //                "controller_name" => "ScrapCtrl",
+            //                "route_name" => "cms.scrap.index",
+            //            ],
             [
                 "title" => "採購單庫存匯入",
                 "controller_name" => "InboundImportCtrl",
@@ -147,6 +147,12 @@ return
                 "controller_name" => "OnePageCtrl",
                 "route_name" => "cms.onepage.index",
             ],
+            [
+                "title" => "手動發紅利",
+                "controller_name" => "ManualDividend",
+                "route_name" => "cms.manual-dividend.index",
+            ],
+
         ],
     ],
     [
@@ -442,8 +448,8 @@ return
                 "title" => "上傳圖片",
                 "controller_name" => "ImgStroageCtrl",
                 "route_name" => "cms.img-storage.index",
-                "target" => "_blank"
-            ]
+                "target" => "_blank",
+            ],
         ],
     ],
 ];
