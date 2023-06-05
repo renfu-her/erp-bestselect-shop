@@ -45,13 +45,13 @@
 
         <div class="table-responsive tableOverBox">
             <table class="table table-striped tableList">
-                <thead class="small">
+                <thead class="small align-middle">
                     <tr>
                         <th scope="col" style="width:10px">#</th>
                         <th scope="col">會員編號</th>
                         <th scope="col">姓名</th>
                         <th scope="col">帳號</th>
-                        <th scope="col" class="wrap text-center">綁定的員工帳號<br>(員工姓名, 編號)</th>
+                        <th scope="col" class="text-center wrap lh-sm">綁定的員工帳號<br>(員工姓名, 編號)</th>
                         <th scope="col" class="text-center wrap lh-sm" style="width:40px;">會員<br>專區</th>
                         <th scope="col" class="text-center" style="width:40px;">編輯</th>
                     </tr>
