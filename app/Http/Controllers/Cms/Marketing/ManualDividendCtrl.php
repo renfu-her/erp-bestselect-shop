@@ -73,6 +73,8 @@ class ManualDividendCtrl extends Controller
         Excel::import(new DividendImport($id, $d['category']), $request->file('file'));
 
         DB::commit();
+
+        return redirect(Route('cms.manual-dividend.show', ['id' => $id], true));
     }
 
     /**

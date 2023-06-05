@@ -1,18 +1,26 @@
 @extends('layouts.main')
 @section('sub-content')
     <div class="card p-4 mb-4">
-        <h6 class="mb-3">
-            操作者：{{ $data->user_name ?? '' }}
-        </h6>
-        <h6 class="mb-3">
-            日期：{{ $data->created_at }}
-        </h6>
-        <h6 class="mb-3">
-            會計科目：{{ $data->category_title ?? '' }}
-        </h6>
+        <div class="row">
+            <div class="col-12 col-md-6 mb-3">
+                <h6 class="m-0">
+                    操作者：{{ $data->user_name ?? '' }}
+                </h6>
+            </div>
+            <div class="col-12 col-md-6 mb-3">
+                <h6 class="m-0">
+                    日期：{{ date('Y/m/d H:i:s', strtotime($data->created_at)) }}
+                </h6>
+            </div>
+            <div class="col-12 col-md-6 mb-3">
+                <h6 class="m-0">
+                    會計科目：{{ $data->category_title ?? '' }}
+                </h6>
+            </div>
+        </div>
 
         <div class="table-responsive tableOverBox">
-            <table class="table table-striped tableList">
+            <table class="table table-sm table-striped tableList">
                 <thead>
                     <tr>
                         <th scope="col" style="width:10%">#</th>
@@ -29,8 +37,9 @@
                             <td>
                                 {{ $value->account }}
                             </td>
-                            <td>{{ $value->dividend }}</td>
-                            <td>
+                            <td>{{ number_format($value->dividend) }}</td>
+                            <td @class(['text-success' => $value->status == '1',
+                                'text-danger' => $value->status != '1'])>
                                 @if ($value->status == '1')
                                     成功
                                 @else

@@ -8,11 +8,7 @@
                 <a href="{{ Route('cms.manual-dividend.create', null, true) }}" class="btn btn-primary">
                     <i class="bi bi-plus-lg"></i> 新增
                 </a>
-                <a href="{{ Route('cms.manual-dividend.sample', null, true) }}" class="btn btn-primary">
-                    範本
-                </a>
             </div>
-
         </div>
 
         <div class="table-responsive tableOverBox">
@@ -20,7 +16,7 @@
                 <thead>
                     <tr>
                         <th scope="col" style="width:10%">#</th>
-                        <th scope="col">詳細</th>
+                        <th scope="col" style="width:10%">明細</th>
                         <th scope="col">類別</th>
                         <th scope="col">建立者</th>
 
@@ -31,8 +27,10 @@
                         <tr>
                             <th scope="row">{{ $key + 1 }}</th>
                             <td>
-                                <a href="{{ Route('cms.manual-dividend.show', ['id' => $data->id], true) }}">
-                                    詳細
+                                <a href="{{ Route('cms.manual-dividend.show', ['id' => $data->id], true) }}" 
+                                    data-bs-toggle="tooltip" title="明細" 
+                                    class="icon icon-btn fs-5 text-primary rounded-circle border-0">
+                                    <i class="bi bi-card-list"></i>
                                 </a>
                             </td>
                             <td>{{ $data->category_title }}</td>

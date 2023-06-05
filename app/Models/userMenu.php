@@ -148,8 +148,8 @@ return
                 "route_name" => "cms.onepage.index",
             ],
             [
-                "title" => "手動發紅利",
-                "controller_name" => "ManualDividend",
+                "title" => "手動發放紅利",
+                "controller_name" => "ManualDividendCtrl",
                 "route_name" => "cms.manual-dividend.index",
             ],
 
@@ -381,7 +381,7 @@ return
         "menu_id" => "7",
         "child" => [
             [
-                "title" => "佈告欄",
+                "title" => "公佈欄",
                 "controller_name" => "BulletinBoardCtrl",
                 "route_name" => "cms.bulletin_board.index",
             ],
