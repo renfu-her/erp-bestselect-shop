@@ -3,13 +3,13 @@
 namespace App\Enums\Discount;
 
 use BenSampo\Enum\Enum;
-
+use App\Enums\Helper;
 /**
  * 點數來源類型
  * @method static static Order() 購物訂單
  * @method static static Cyberbiz() Cyberbiz匯入
  */
-final class DividendCategory extends Enum
+final class DividendCategory extends Helper
 {
     const Order = 'order';
     const Cyberbiz = 'cyberbiz';
