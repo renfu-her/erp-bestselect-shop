@@ -67,6 +67,7 @@ class ManualDividendCtrl extends Controller
         $id = ManualDividend::create([
             'user_id' => $request->user()->id,
             'category' => $d['category'],
+            'note'=>$d['note'],
             'category_title' => DividendCategory::fromValue($d['category'])->description,
         ])->id;
 

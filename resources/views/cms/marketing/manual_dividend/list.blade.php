@@ -19,7 +19,7 @@
                         <th scope="col" style="width:10%">明細</th>
                         <th scope="col">類別</th>
                         <th scope="col">建立者</th>
-
+                        <th scope="col">時間</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -27,14 +27,15 @@
                         <tr>
                             <th scope="row">{{ $key + 1 }}</th>
                             <td>
-                                <a href="{{ Route('cms.manual-dividend.show', ['id' => $data->id], true) }}" 
-                                    data-bs-toggle="tooltip" title="明細" 
+                                <a href="{{ Route('cms.manual-dividend.show', ['id' => $data->id], true) }}"
+                                    data-bs-toggle="tooltip" title="明細"
                                     class="icon icon-btn fs-5 text-primary rounded-circle border-0">
                                     <i class="bi bi-card-list"></i>
                                 </a>
                             </td>
                             <td>{{ $data->category_title }}</td>
                             <td>{{ $data->user_name }}</td>
+                            <td>{{ $data->created_at }}</td>
 
                         </tr>
                     @endforeach

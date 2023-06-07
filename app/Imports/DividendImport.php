@@ -37,22 +37,31 @@ class DividendImport implements ToCollection
                     $customer = Customer::where('sn', $value[0])->get()->first();
 
                     if ($customer) {
-                        if (is_numeric($value[1]) && $value[1] > 0) {
+                        if (is_numeric($value[1])) {
 
-                            $id = CustomerDividend::create([
-                                'customer_id' => $customer->id,
-                                'category' => $this->category,
-                                'category_sn' => '',
-                                'dividend' => $value[1],
-                                'deadline' => 0,
-                                'flag' => DividendFlag::Active(),
-                                'flag_title' => DividendFlag::Active()->description,
-                                'weight' => 0,
-                                'type' => 'get',
-                                'note' => "手動匯入",
-                            ])->id;
-                            $log['status'] = '1';
-                            $log['note'] = 'dividend_id:' . $id;
+                            if ($value[1] > 0) {
+                                $id = CustomerDividend::create([
+                                    'customer_id' => $customer->id,
+                                    'category' => $this->category,
+                                    'category_sn' => '',
+                                    'dividend' => $value[1],
+                                    'deadline' => 0,
+                                    'flag' => DividendFlag::Active(),
+                                    'flag_title' => DividendFlag::Active()->description,
+                                    'weight' => 0,
+                                    'type' => 'get',
+                                    'note' => "手動匯入",
+                                ])->id;
+                                $log['status'] = '1';
+                                $log['note'] = 'dividend_id:' . $id;
+                            } else if ($value[1] < 0) {
+                                $id = CustomerDividend::decrease($customer->id, DividendFlag::Manual(), $value[1], '手動:' . $this->order_id);
+                                $log['status'] = '1';
+                                $log['note'] = 'dividend_id:' . $id;
+                            } else {
+                                $log['status'] = '0';
+                                $log['note'] = '紅利資料錯誤';
+                            }
                         } else {
                             $log['status'] = '0';
                             $log['note'] = '紅利資料錯誤';
@@ -69,7 +78,7 @@ class DividendImport implements ToCollection
             }
 
         }
-       
+
         // dd($this->param1, $collection);
     }
 }

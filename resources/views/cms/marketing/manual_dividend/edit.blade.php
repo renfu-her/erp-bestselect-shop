@@ -17,6 +17,11 @@
                         @endforeach
                     </select>
                 </x-b-form-group>
+                <div class="col-12 mb-3">
+                    <label class="form-label">備註 <span class="text-danger">*</span></label>
+                    <input class="form-control" name="note" type="text" placeholder="備註"
+                        value="{{ old('note', '') }}" required aria-label="備註">
+                </div>
                 <div class="col-12">
                     <label class="form-label">匯入Excel（.xls, .xlsx）<span class="text-danger">*</span></label>
                     <div class="input-group has-validation">

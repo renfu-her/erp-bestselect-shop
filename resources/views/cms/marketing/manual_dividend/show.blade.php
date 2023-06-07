@@ -17,6 +17,11 @@
                     會計科目：{{ $data->category_title ?? '' }}
                 </h6>
             </div>
+            <div class="col-12 col-md-6 mb-3">
+                <h6 class="m-0">
+                    備註：{{ $data->note ?? '' }}
+                </h6>
+            </div>
         </div>
 
         <div class="table-responsive tableOverBox">
