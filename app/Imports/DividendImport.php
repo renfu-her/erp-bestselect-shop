@@ -38,7 +38,7 @@ class DividendImport implements ToCollection
 
                     if ($customer) {
                         if (is_numeric($value[1])) {
-
+                            $note = isset($value[2])?$value[2]:'';
                             if ($value[1] > 0) {
                                 $id = CustomerDividend::create([
                                     'customer_id' => $customer->id,
@@ -53,11 +53,11 @@ class DividendImport implements ToCollection
                                     'note' => "手動匯入",
                                 ])->id;
                                 $log['status'] = '1';
-                                $log['note'] = 'dividend_id:' . $id;
+                                $log['note'] = $note.'(dividend_id:' . $id.")";
                             } else if ($value[1] < 0) {
                                 $id = CustomerDividend::decrease($customer->id, DividendFlag::Manual(), $value[1], '手動:' . $this->order_id);
                                 $log['status'] = '1';
-                                $log['note'] = 'dividend_id:' . $id;
+                                $log['note'] =  $note.'(dividend_id:' . $id.")";
                             } else {
                                 $log['status'] = '0';
                                 $log['note'] = '紅利資料錯誤';
