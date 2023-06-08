@@ -164,7 +164,7 @@ class OrderCtrl extends Controller
             }
         }
         $sumPrice = $dataList;
-        // $sumOfPrice = $sumPrice->get()->unique('sub_order_id')->sum('total_price');
+        $sumOfPrice = $sumPrice->get()->unique('sub_order_id')->sum('total_price');
 
         $dataList = $dataList
             ->paginate($page)
@@ -195,11 +195,11 @@ class OrderCtrl extends Controller
 
         $receivedMethods = ReceivedMethod::asSelectArray();
         $receivedMethods['line_pay'] = 'Line Pay';
-dd($dataList);
+
         return view('cms.commodity.order.list', [
             'dataList' => $dataList,
             // 'uniqueDataList' => $uniqueDataList,
-            'sumOfPrice' => $sumOfPrice ?? 0,
+            'sumOfPrice' => $sumOfPrice,
             'cond' => $cond,
             'orderStatus' => $orderStatus,
             'shipmentStatus' => LogisticStatus::asArray(),
