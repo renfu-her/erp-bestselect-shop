@@ -38,7 +38,7 @@
         <div class="row mb-4">
             <div class="col">
                 <a href="{{ Route('cms.bulletin_board.create', null, true) }}" class="btn btn-primary">
-                    <i class="bi bi-plus-lg"></i> 新增公佈欄
+                    <i class="bi bi-plus-lg"></i> 新增公吿
                 </a>
             </div>
             <div class="col-auto">

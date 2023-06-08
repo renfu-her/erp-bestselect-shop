@@ -5,7 +5,7 @@
             新增
         @else
             編輯
-        @endif 公佈欄
+        @endif 公吿
     </h2>
     <form id="form1" class="card-body" method="post" action="{{ $formAction }}">
         @method('POST')

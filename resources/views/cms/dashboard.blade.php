@@ -230,7 +230,7 @@
                             </tr>
                         @endfor
                     </tbody>
-                    <caption class="text-end border-top-0">更新時間：{{ $reportUpdatedTime }}
+                    <caption class="text-end border-top-0">更新時間：{{ date('Y/m/d H:i:s', strtotime($reportUpdatedTime)) }}
                     </caption>
                 </table>
             </div>
