@@ -32,12 +32,10 @@
             <a href="{{ url()->full() . '&action=print' }}" target="_blank"
                 class="btn btn-sm btn-warning mb-1" rel="noopener noreferrer">中一刀列印畫面</a>
 
-            @if($type == 'final')
-                @can('cms.collection_payment.edit_note')
-                <a href="{{ route('cms.collection_payment.edit_note', ['id' => $payOrdId]) }}"
-                    class="btn btn-dark btn-sm mb-1" role="button">編輯付款項目備註</a>
-                @endcan
-            @endif
+            @can('cms.collection_payment.edit_note')
+            <a href="{{ route('cms.collection_payment.edit_note', ['id' => $payOrdId]) }}"
+                class="btn btn-dark btn-sm mb-1" role="button">編輯付款項目備註</a>
+            @endcan
 
             @can('cms.collection_payment.edit')
             <a href="{{ route('cms.ref_expenditure_petition.edit', ['current_sn' => $payingOrderData->sn]) }}" class="btn btn-sm btn-primary mb-1" role="button">相關單號</a>
@@ -110,7 +108,7 @@
                                 <td class="text-end">{{ number_format($depositPaymentData->price, 2) }}</td>
                                 <td class="text-end">{{ number_format($depositPaymentData->price) }}</td>
                                 <td>{!! nl2br($depositPaymentData->memo) !!}</td>
-                                <td></td>
+                                <td>{!! nl2br($depositPaymentData->po_note) !!}</td>
                             </tr>
                         @elseif($type === 'final')
                             @foreach($purchaseItemData as $purchaseItem)
