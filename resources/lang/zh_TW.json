@@ -256,6 +256,7 @@
     "This card has been suspended.": "此信用卡已被停卡",
     "A CVN input error": "信用卡驗證碼 (CVN) 無效",
     "CVN input error": "信用卡驗證碼 (CVN) 無效",
+    "Invalid Card Verification Number (CVN)": "信用卡驗證碼 (CVN) 無效",
     "The card is listed on the blacklist.": "此信用卡已被列入黑名單",
     "A wrong credit card number": "信用卡號無效",
     "Wrong credit card number": "信用卡號無效",

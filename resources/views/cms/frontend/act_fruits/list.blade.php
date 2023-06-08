@@ -5,7 +5,7 @@
     <div class="card shadow p-4 mb-4">
         <div class="row mb-4">
             <div class="col">
-                @can('cms.act-fruits.create')
+                @can('cms.act-fruits.index')
                     <a href="{{ Route('cms.act-fruits.create', null, true) }}" class="btn btn-primary mb-1">
                         <i class="bi bi-plus-lg"></i> 新增水果
                     </a>

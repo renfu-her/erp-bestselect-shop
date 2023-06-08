@@ -122,7 +122,7 @@ class CustomerDividend extends Model
 
 // decrease
 
-    public static function decrease($customer_id, DividendFlag $flag, $point)
+    public static function decrease($customer_id, DividendFlag $flag, $point, $note = null)
     {
 
         $id = self::create([
@@ -132,6 +132,7 @@ class CustomerDividend extends Model
             'flag_title' => $flag->description,
             'weight' => 0,
             'type' => 'used',
+            'note' => $note,
         ])->id;
 
         return $id;

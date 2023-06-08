@@ -1310,4 +1310,13 @@ return [
             ],
         ],
     ],
+    [
+        "unit" => "手動發放紅利",
+        "permissions" => [
+            [
+                "cms.manual-dividend.index",
+                "瀏覽",
+            ],
+        ],
+    ],
 ];
