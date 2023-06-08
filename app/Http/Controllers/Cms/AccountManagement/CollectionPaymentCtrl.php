@@ -379,20 +379,31 @@ class CollectionPaymentCtrl extends Controller
             DB::beginTransaction();
 
             try {
-                if($paying_order->source_type == 'pcs_purchase'){
-                    if (request('item') && is_array(request('item'))) {
-                        $purchase_item = request('item');
-                        foreach ($purchase_item as $key => $value) {
-                            $value['purchase_item_id'] = $key;
-                            PurchaseItem::update_purchase_item($value);
+                if($paying_order->source_type == 'pcs_purchase') {
+                    if($paying_order->type == 0) {
+                        if (request('item') && is_array(request('item'))) {
+                            $po = array_values(request('item'))[0];
+                            $paying_order->update([
+                                'memo'=> $po['note'],
+                                'po_note'=> $po['po_note'],
+                            ]);
                         }
-                    }
 
-                    if (request('logistic_item') && is_array(request('logistic_item'))) {
-                        $logistic_item = request('logistic_item');
-                        foreach ($logistic_item as $key => $value) {
-                            $value['logistic_id'] = $key;
-                            Purchase::update_logistic($value);
+                    } else if($paying_order->type == 1) {
+                        if (request('item') && is_array(request('item'))) {
+                            $purchase_item = request('item');
+                            foreach ($purchase_item as $key => $value) {
+                                $value['purchase_item_id'] = $key;
+                                PurchaseItem::update_purchase_item($value);
+                            }
+                        }
+
+                        if (request('logistic_item') && is_array(request('logistic_item'))) {
+                            $logistic_item = request('logistic_item');
+                            foreach ($logistic_item as $key => $value) {
+                                $value['logistic_id'] = $key;
+                                Purchase::update_logistic($value);
+                            }
                         }
                     }
 
@@ -493,35 +504,49 @@ class CollectionPaymentCtrl extends Controller
             $logistic_data = [];
 
             if($paying_order->source_type == 'pcs_purchase'){
-                $purchase = Purchase::purchase_item($paying_order->source_id)->get();
-                foreach ($purchase as $key => $value) {
-                    $purchase[$key]->purchase_table_items = json_decode($value->purchase_table_items);
-                }
-                $purchase = $purchase->first();
-
-                foreach($purchase->purchase_table_items as $value){
+                if($paying_order->type == 0){
                     $item_data[] = (object)[
-                        'item_id' => $value->id,
-                        'title' => $value->product_title,
-                        'price' => ($value->total_price / $value->qty),
-                        'qty' => $value->qty,
-                        'total_price' => $value->total_price,
-                        'note' => $value->memo,
-                        'po_note' => $value->po_note,
+                        'item_id' => $paying_order->id,
+                        'title' => $paying_order->summary,
+                        'price' => $paying_order->price,
+                        'qty' => 1,
+                        'total_price' => $paying_order->price,
+                        'note' => $paying_order->memo,
+                        'po_note' => $paying_order->po_note,
                         'read_only' => false,
                     ];
-                }
 
-                if($purchase->purchase_logistics_price <> 0){
-                    $logistic_data[] = (object)[
-                        'item_id' => $purchase->purchase_id,
-                        'title' => AllGrade::find($paying_order->logistics_grade_id)->eachGrade->name,
-                        'price' => $purchase->purchase_logistics_price,
-                        'qty' => 1,
-                        'total_price' => $purchase->purchase_logistics_price,
-                        'note' => $purchase->purchase_logistics_memo,
-                        'po_note' => $purchase->purchase_logistics_po_note,
-                    ];
+                } else if($paying_order->type == 1){
+                    $purchase = Purchase::purchase_item($paying_order->source_id)->get();
+                    foreach ($purchase as $key => $value) {
+                        $purchase[$key]->purchase_table_items = json_decode($value->purchase_table_items);
+                    }
+                    $purchase = $purchase->first();
+
+                    foreach($purchase->purchase_table_items as $value){
+                        $item_data[] = (object)[
+                            'item_id' => $value->id,
+                            'title' => $value->product_title,
+                            'price' => ($value->total_price / $value->qty),
+                            'qty' => $value->qty,
+                            'total_price' => $value->total_price,
+                            'note' => $value->memo,
+                            'po_note' => $value->po_note,
+                            'read_only' => false,
+                        ];
+                    }
+
+                    if($purchase->purchase_logistics_price <> 0){
+                        $logistic_data[] = (object)[
+                            'item_id' => $purchase->purchase_id,
+                            'title' => AllGrade::find($paying_order->logistics_grade_id)->eachGrade->name,
+                            'price' => $purchase->purchase_logistics_price,
+                            'qty' => 1,
+                            'total_price' => $purchase->purchase_logistics_price,
+                            'note' => $purchase->purchase_logistics_memo,
+                            'po_note' => $purchase->purchase_logistics_po_note,
+                        ];
+                    }
                 }
 
             } else if($paying_order->source_type == 'ord_orders' && $paying_order->source_sub_id != null){

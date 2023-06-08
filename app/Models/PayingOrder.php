@@ -102,6 +102,8 @@ class PayingOrder extends Model
                 'paying_order.sn as sn',
                 'paying_order.summary as summary',
                 'paying_order.memo as memo',
+                'paying_order.ro_note',
+                'paying_order.po_note',
                 'paying_order.price as price',
                 'paying_order.balance_date as balance_date',
                 'paying_order.payment_date as payment_date',
@@ -248,7 +250,8 @@ class PayingOrder extends Model
                         "price":"\', price, \'",
                         "num":"\', 1, \'",
                         "summary":"\', CONCAT("訂金抵扣（訂金付款單號", sn, "）"), \'",
-                        "memo":"\', COALESCE(replace(pcs_paying_orders.memo, \'\"\', \'\\\"\'), ""), \'"
+                        "memo":"\', COALESCE(replace(pcs_paying_orders.memo, \'\"\', \'\\\"\'), ""), \'",
+                        "po_note":"\', COALESCE(replace(pcs_paying_orders.po_note, \'\"\', \'\\\"\'), ""), \'"
                     }\' ORDER BY pcs_paying_orders.id), \']\') AS items
                 FROM pcs_paying_orders
                 LEFT JOIN (' . $sq . ') AS grade ON grade.id = pcs_paying_orders.product_grade_id
