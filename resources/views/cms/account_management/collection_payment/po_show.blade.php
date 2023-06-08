@@ -5,7 +5,7 @@
     <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
         <div class="p-1 pb-0">
             @can('cms.collection_payment.edit')
-            <a href="{{ route('cms.collection_payment.edit', ['id' => $paying_order->id]) }}" class="btn btn-sm btn-success px-3 mb-1" role="button">修改</a>
+            <a href="{{ route('cms.collection_payment.edit', ['id' => $paying_order->id]) }}" class="btn btn-sm btn-success px-3 mb-1" role="button">更改付款對象</a>
             @endcan
 
             @can('cms.collection_payment.delete')
