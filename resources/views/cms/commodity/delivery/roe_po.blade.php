@@ -6,7 +6,7 @@
         <div class="p-1 pb-0">
             @can('cms.collection_payment.edit')
             <a href="{{ route('cms.collection_payment.edit', ['id' => $delivery->po_id]) }}"
-                class="btn btn-sm btn-success px-3 mb-1" role="button">修改</a>
+                class="btn btn-sm btn-success mb-1" role="button">更改付款對象</a>
             @endcan
 
             @if(! $paying_order->payment_date)
