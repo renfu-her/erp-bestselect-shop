@@ -119,7 +119,9 @@
     $('button:submit, .-banReBtn', 'form.-debounce').on('click', () => {
         console.log('debounce');
         inDebounce = false;
-        formDebounce();
+        if ($('form.-debounce')[0].reportValidity()) {
+            formDebounce();
+        }
     });
 
 })();

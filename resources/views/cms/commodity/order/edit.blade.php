@@ -516,7 +516,7 @@
                         <div class="px-1 pt-1">
                             <div class="form-check form-check-inline">
                                 <label class="form-check-label">
-                                    <input id="sed_same" name="sed_radio" class="form-check-input mt-0 me-1" value="same" type="radio" required>同購買人
+                                    <input id="sed_same" name="sed_radio" class="form-check-input mt-0 me-1" value="same" type="radio">同購買人
                                 </label>
                             </div>
                                 <div class="form-check form-check-inline default-address">
@@ -602,7 +602,7 @@
                         <div class="px-1 pt-1">
                             <div class="form-check form-check-inline">
                                 <label class="form-check-label">
-                                    <input id="rec_same" name="rec_radio" class="form-check-input mt-0 me-1" value="same" type="radio" required>同購買人
+                                    <input id="rec_same" name="rec_radio" class="form-check-input mt-0 me-1" value="same" type="radio">同購買人
                                 </label>
                             </div>
                                 <div class="form-check form-check-inline default-address">
@@ -697,16 +697,16 @@
                 <button type="submit" class="btn btn-primary px-4">送出訂單</button>
             </div>
         </div>
-
-        @error('error_msg')
-        <div class="alert alert-danger" role="alert">{{ $message }}</div>
-        @enderror
     </form>
-    <div>
+    
     @if($errors->any())
-        {!! implode('', $errors->all('<div>:message</div>')) !!}
+        <div class="mt-3 mb-0 alert alert-danger" role="alert">
+            <ul class="mb-0">
+                {!! implode('', $errors->all('<li>:message</li>')) !!}
+            </ul>
+        </div>
     @endif
-    </div>
+
     {{-- 商品清單 --}}
     <x-b-modal id="addProduct" cancelBtn="false" size="modal-xl modal-fullscreen-lg-down">
         <x-slot name="title">選擇商品</x-slot>
