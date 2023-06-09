@@ -419,23 +419,24 @@
                 <div class="row">
                     <fieldset class="col-12 mb-1">
                         <div class="px-1 pt-1">
-                                <div class="form-check form-check-inline default-address">
-                                    <label class="form-check-label ord-default-address">
-                                        <input class="form-check-input" name="ord_radio" value="default" type="radio" checked>
-                                        預設地址
-                                    </label>
-                                </div>
-                                <div class="form-check form-check-inline other-often-used-addresses">
-                                    <label class="form-check-label ord-other-often-used-addresses">
-                                        <input class="form-check-input" name="ord_radio" value="other_often_used_addresses" type="radio">
-                                        選擇常用地址
-                                    </label>
-                                </div>
+                            <div class="form-check form-check-inline default-address">
+                                <label class="form-check-label ord-default-address">
+                                    <input class="form-check-input" name="ord_radio" value="default" type="radio" checked required>
+                                    預設地址
+                                </label>
+                            </div>
+                            <div class="form-check form-check-inline other-often-used-addresses">
+                                <label class="form-check-label ord-other-often-used-addresses">
+                                    <input class="form-check-input" name="ord_radio" value="other_often_used_addresses" 
+                                        type="radio" required>
+                                    選擇常用地址
+                                </label>
+                            </div>
                             <div class="form-check form-check-inline">
                                 <label class="form-check-label">
                                     <input class="form-check-input"
                                            name="ord_radio"
-                                           value="new"
+                                           value="new" required
                                             {{-- 預設地址、常用地址都沒有時，勾選「新增地址」--}}
                                            @if(is_null($defaultAddress) &&
                                                 count($otherOftenUsedAddresses ?? []) === 0)
@@ -447,16 +448,16 @@
                             </div>
                         </div>
                     </fieldset>
-                        <div class="col-12 mb-3 ord_selectOftenUsedAddress">
-                            <select class="form-select" aria-label="Select">
-                                <option disabled selected value="0">請選擇常用地址</option>
-                                @foreach($otherOftenUsedAddresses ?? [] as $otherOftenUsedAddress)
-                                    <option value="{{ $otherOftenUsedAddress->customer_addr_id }}">
-                                        {{ $otherOftenUsedAddress->name }} - {{ $otherOftenUsedAddress->address}}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
+                    <div class="col-12 mb-3 ord_selectOftenUsedAddress">
+                        <select class="form-select" aria-label="Select">
+                            <option disabled selected value="0">請選擇常用地址</option>
+                            @foreach($otherOftenUsedAddresses ?? [] as $otherOftenUsedAddress)
+                                <option value="{{ $otherOftenUsedAddress->customer_addr_id }}">
+                                    {{ $otherOftenUsedAddress->name }} - {{ $otherOftenUsedAddress->address}}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
 
                     <div class="col-12 col-sm-6 mb-3">
                         <label class="form-label">姓名 <span class="text-danger">*</span></label>
@@ -516,39 +517,41 @@
                         <div class="px-1 pt-1">
                             <div class="form-check form-check-inline">
                                 <label class="form-check-label">
-                                    <input id="sed_same" name="sed_radio" class="form-check-input mt-0 me-1" value="same" type="radio">同購買人
+                                    <input id="sed_same" name="sed_radio" class="form-check-input mt-0 me-1" 
+                                        value="same" type="radio" required>同購買人
                                 </label>
                             </div>
-                                <div class="form-check form-check-inline default-address">
-                                    <label class="form-check-label sed-default-address">
-                                        <input class="form-check-input" name="sed_radio" value="default" type="radio">
-                                        預設地址
-                                    </label>
-                                </div>
-                                <div class="form-check form-check-inline other-often-used-addresses">
-                                    <label class="form-check-label sed-other-often-used-addresses">
-                                        <input class="form-check-input" name="sed_radio" value="other_often_used_addresses" type="radio">
-                                        選擇常用地址
-                                    </label>
-                                </div>
+                            <div class="form-check form-check-inline default-address">
+                                <label class="form-check-label sed-default-address">
+                                    <input class="form-check-input" name="sed_radio" value="default" type="radio" required>
+                                    預設地址
+                                </label>
+                            </div>
+                            <div class="form-check form-check-inline other-often-used-addresses">
+                                <label class="form-check-label sed-other-often-used-addresses">
+                                    <input class="form-check-input" name="sed_radio" value="other_often_used_addresses" 
+                                        type="radio" required>
+                                    選擇常用地址
+                                </label>
+                            </div>
                             <div class="form-check form-check-inline">
                                 <label class="form-check-label">
-                                    <input class="form-check-input" name="sed_radio" value="new" type="radio" >
+                                    <input class="form-check-input" name="sed_radio" value="new" type="radio" required>
                                     新增地址
                                 </label>
                             </div>
                         </div>
                     </fieldset>
-                        <div class="col-12 mb-3 sed_selectOftenUsedAddress">
-                            <select class="form-select" aria-label="Select">
-                                <option disabled selected value="0">請選擇常用地址</option>
-                                @foreach($otherOftenUsedAddresses ?? [] as $otherOftenUsedAddress)
-                                    <option value="{{ $otherOftenUsedAddress->customer_addr_id }}">
-                                        {{ $otherOftenUsedAddress->name }} - {{ $otherOftenUsedAddress->address}}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
+                    <div class="col-12 mb-3 sed_selectOftenUsedAddress">
+                        <select class="form-select" aria-label="Select">
+                            <option disabled selected value="0">請選擇常用地址</option>
+                            @foreach($otherOftenUsedAddresses ?? [] as $otherOftenUsedAddress)
+                                <option value="{{ $otherOftenUsedAddress->customer_addr_id }}">
+                                    {{ $otherOftenUsedAddress->name }} - {{ $otherOftenUsedAddress->address}}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
                 </div>
                 <div class="row">
                     <div class="col-12 col-sm-6 mb-3">
@@ -602,39 +605,41 @@
                         <div class="px-1 pt-1">
                             <div class="form-check form-check-inline">
                                 <label class="form-check-label">
-                                    <input id="rec_same" name="rec_radio" class="form-check-input mt-0 me-1" value="same" type="radio">同購買人
+                                    <input id="rec_same" name="rec_radio" class="form-check-input mt-0 me-1" 
+                                        value="same" type="radio" required>同購買人
                                 </label>
                             </div>
-                                <div class="form-check form-check-inline default-address">
-                                    <label class="form-check-label rec-default-address">
-                                        <input class="form-check-input" name="rec_radio" value="default" type="radio">
-                                        預設地址
-                                    </label>
-                                </div>
-                                <div class="form-check form-check-inline other-often-used-addresses">
-                                    <label class="form-check-label rec-other-often-used-addresses">
-                                        <input class="form-check-input" name="rec_radio" value="other_often_used_addresses" type="radio">
-                                        選擇常用地址
-                                    </label>
-                                </div>
+                            <div class="form-check form-check-inline default-address">
+                                <label class="form-check-label rec-default-address">
+                                    <input class="form-check-input" name="rec_radio" value="default" type="radio" required>
+                                    預設地址
+                                </label>
+                            </div>
+                            <div class="form-check form-check-inline other-often-used-addresses">
+                                <label class="form-check-label rec-other-often-used-addresses">
+                                    <input class="form-check-input" name="rec_radio" value="other_often_used_addresses" 
+                                        type="radio" required>
+                                    選擇常用地址
+                                </label>
+                            </div>
                             <div class="form-check form-check-inline">
                                 <label class="form-check-label">
-                                    <input class="form-check-input" name="rec_radio" value="new" type="radio" >
+                                    <input class="form-check-input" name="rec_radio" value="new" type="radio" required>
                                     新增地址
                                 </label>
                             </div>
                         </div>
                     </fieldset>
-                        <div class="col-12 mb-3 rec_selectOftenUsedAddress">
-                            <select class="form-select" aria-label="Select">
-                                <option disabled selected value="0">請選擇常用地址</option>
-                                @foreach($otherOftenUsedAddresses ?? [] as $otherOftenUsedAddress)
-                                    <option value="{{ $otherOftenUsedAddress->customer_addr_id }}">
-                                        {{ $otherOftenUsedAddress->name }} - {{ $otherOftenUsedAddress->address}}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
+                    <div class="col-12 mb-3 rec_selectOftenUsedAddress">
+                        <select class="form-select" aria-label="Select">
+                            <option disabled selected value="0">請選擇常用地址</option>
+                            @foreach($otherOftenUsedAddresses ?? [] as $otherOftenUsedAddress)
+                                <option value="{{ $otherOftenUsedAddress->customer_addr_id }}">
+                                    {{ $otherOftenUsedAddress->name }} - {{ $otherOftenUsedAddress->address}}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
                 </div>
                 <div class="row">
                     <div class="col-12 col-sm-6 mb-3">
