@@ -11,7 +11,8 @@
             <div class="row">
                 <x-b-form-group name="category" title="會計科目" required="true">
                     <select class="form-select -select" name="category" aria-label="會計科目"
-                        data-placeholder="請選擇會計科目">
+                        data-placeholder="請選擇會計科目" required>
+                        <option value="" selected disabled>請選擇</option>
                         @foreach ($dividendCategory as $key => $value)
                             <option value="{{ $key }}">{{ $value }} </option>
                         @endforeach
@@ -20,7 +21,7 @@
                 <div class="col-12 mb-3">
                     <label class="form-label">備註 <span class="text-danger">*</span></label>
                     <input class="form-control" name="note" type="text" placeholder="備註"
-                        value="{{ old('note', '') }}" required aria-label="備註">
+                        value="{{ old('note', '') }}" required aria-label="備註" required>
                 </div>
                 <div class="col-12">
                     <label class="form-label">匯入Excel（.xls, .xlsx）<span class="text-danger">*</span></label>
