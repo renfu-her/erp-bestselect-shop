@@ -138,7 +138,7 @@
                                     <td class="text-end">-{{ number_format($depositPaymentData->price, 2) }}</td>
                                     <td class="text-end">-{{ number_format($depositPaymentData->price) }}</td>
                                     <td>{!! nl2br($depositPaymentData->memo) !!}</td>
-                                    <td></td>
+                                    <td>{!! nl2br($depositPaymentData->po_note) !!}</td>
                                 </tr>
                             @endif
                         @endif
