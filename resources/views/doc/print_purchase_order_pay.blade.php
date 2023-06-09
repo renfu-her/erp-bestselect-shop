@@ -89,7 +89,7 @@
                                 <td style="text-align: right;">{{ number_format($depositPaymentData->price, 2) }}</td>
                                 <td style="text-align: right;">{{ number_format($depositPaymentData->price) }}</td>
                                 <td>{!! nl2br($depositPaymentData->memo) !!}</td>
-                                <td></td>
+                                <td>{!! nl2br($depositPaymentData->po_note) !!}</td>
                             </tr>
                         @elseif($type === 'final')
                             @foreach($purchaseItemData as $purchaseItem)
