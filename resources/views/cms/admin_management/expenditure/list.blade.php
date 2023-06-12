@@ -155,30 +155,28 @@
                         <tr>
                             <th></th>
                             <td colspan="8" class="pt-0 ps-0">
-                                @if (isset($data->users) && is_array($data->users))
-                                    <table class="table table-sm border border-top-0 m-0">
-                                        <tbody>
+                                <table class="table table-sm border border-top-0 m-0">
+                                    <tbody>
+                                        <tr>
+                                            <th rowspan="{{ count($data->users) + 1 }}"
+                                                style="writing-mode: vertical-lr; width:40px;"
+                                                class="text-center border-end">簽核狀態</th>
+                                            <th class="border-secondary">主管</th>
+                                            <th class="border-secondary">職稱</th>
+                                            <th class="border-secondary">簽核時間</th>
+                                            <th class="border-secondary">意見</th>
+                                        </tr>
+                                        @foreach ($data->users as $key => $user)
                                             <tr>
-                                                <th rowspan="{{ count($data->users) + 1 }}"
-                                                    style="writing-mode: vertical-lr; width:40px;"
-                                                    class="text-center border-end">簽核狀態</th>
-                                                <th class="border-secondary">主管</th>
-                                                <th class="border-secondary">職稱</th>
-                                                <th class="border-secondary">簽核時間</th>
-                                                <th class="border-secondary">意見</th>
+                                                <td>{{ $user->user_name }}</td>
+                                                <td>{{ $user->user_title }}</td>
+                                                <td>{{ $user->checked_at ? date('Y/m/d H:i:s', strtotime($user->checked_at)) : '' }}
+                                                </td>
+                                                <td>{!! nl2br($user->user_note) !!}</td>
                                             </tr>
-                                            @foreach ($data->users as $key => $user)
-                                                <tr>
-                                                    <td>{{ $user->user_name }}</td>
-                                                    <td>{{ $user->user_title }}</td>
-                                                    <td>{{ $user->checked_at ? date('Y/m/d H:i:s', strtotime($user->checked_at)) : '' }}
-                                                    </td>
-                                                    <td>{{ $user->user_note }}</td>
-                                                </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                @endif
+                                        @endforeach
+                                    </tbody>
+                                </table>
                             </td>
                         </tr>
                     @endforeach
