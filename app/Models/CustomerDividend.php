@@ -397,25 +397,27 @@ class CustomerDividend extends Model
 
     public static function totalList($keyword = null)
     {
-        $getDividendSub = self::select(['customer_id', 'type'])
+        $getDividendSub = self::select(['customer_id', 'category', 'type'])
             ->selectRaw('SUM(dividend) as dividend')
-            ->where('type', 'get')
-            ->groupBy('customer_id');
+        //   ->where('type', 'get')
+            ->groupBy('customer_id')
+            ->groupBy('category')
+            ->groupBy('type');
 
-        $usedDividendSub = self::select(['customer_id', 'type'])
-            ->selectRaw('ABS(SUM(dividend)) as dividend')
-            ->where('type', 'used')
-            ->groupBy('customer_id');
+        $step2 = DB::query()->fromSub($getDividendSub, 'base')
+            ->select(['base.customer_id'])
+            ->selectRaw(concatStr(['category' => 'base.category', 'type' => 'base.type', 'dividend' => 'base.dividend']) . " as data")
+            ->selectRaw('SUM(base.dividend) as total')
+            ->groupBy('base.customer_id');
 
         $re = DB::table('usr_customers as customer')
             ->select(['customer.name',
                 'customer.email',
-                'customer.sn'])
-            ->selectRaw('IF(getd.dividend IS NULL,0,getd.dividend) as get_dividend')
-            ->selectRaw('IF(used.dividend IS NULL,0,used.dividend) as used_dividend')
-
-            ->leftJoinSub($getDividendSub, 'getd', 'customer.id', '=', 'getd.customer_id')
-            ->leftJoinSub($usedDividendSub, 'used', 'customer.id', '=', 'used.customer_id');
+                'customer.sn'
+            ])
+            ->selectRaw('IF(data.data IS NULL,"[]",data.data) as data')
+            ->selectRaw('IF(data.total IS NULL,0,data.total) as total')
+            ->leftJoinSub($step2, 'data', 'customer.id', '=', 'data.customer_id');
 
         if ($keyword) {
             $re->where(function ($query) use ($keyword) {
@@ -426,6 +428,29 @@ class CustomerDividend extends Model
         }
         return $re;
 
+    }
+
+    public static function format(&$data)
+    {
+
+        $template = [];
+        foreach (DividendCategory::asArray() as $value) {
+            $template[$value . "_get"] = 0;
+            if ($value == 'order') {
+                $template[$value . "_used"] = 0;
+            }
+        }
+
+        foreach ($data as $value) {
+            $d = json_decode($value->data);
+            $value->formated = $template;
+            if (!is_array($d)) {
+                dd($value);
+            }
+            foreach ($d as $v) {
+                $value->formated[$v->category . "_" . $v->type] = $v->dividend;
+            }
+        }
     }
 
 }
