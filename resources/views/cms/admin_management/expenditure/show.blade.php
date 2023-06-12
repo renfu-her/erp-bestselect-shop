@@ -89,7 +89,7 @@
                             <td>{{ $value->user_name }}</td>
                             <td>{{ $value->user_title }}</td>
                             <td>{{ $value->checked_at ? date('Y/m/d H:i:s', strtotime($value->checked_at)) : '' }}</td>
-                            <td>{{ $value->user_note }}</td>
+                            <td>{!! nl2br($value->user_note) !!}</td>
                         </tr>
                     @endforeach
                 </tbody>

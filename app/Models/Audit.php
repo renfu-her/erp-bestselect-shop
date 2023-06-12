@@ -48,7 +48,7 @@ class Audit extends Model
             'user_name' => 'user.name',
             'user_title' => 'user.title',
             'checked_at' => 'IFNULL(audit.checked_at,"")',
-            'user_note' => 'IFNULL(audit.note,"")',
+            'user_note' => 'IFNULL(REPLACE(audit.note, "\\r\\n", "\\\\r\\\\n"), "")',
         ], 'ORDER BY audit.step DESC');
 
         $sub = DB::table('pet_audit as audit')

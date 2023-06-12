@@ -12,7 +12,7 @@
                 </div>
 
             </div>
-           
+
             <div class="col">
                 <button type="submit" class="btn btn-primary px-4">搜尋</button>
             </div>
@@ -20,35 +20,51 @@
     </form>
     <div class="card shadow p-4 mb-4">
         <div class="table-responsive tableOverBox">
-            <table class="table table-striped tableList">
-                <thead class="small">
+            <table class="table table-striped tableList mb-1">
+                <thead class="">
                     <tr>
                         <th scope="col" style="width:10px">#</th>
                         <th scope="col">會員編號</th>
                         <th scope="col">姓名</th>
                         <th scope="col">帳號</th>
-                        <th scope="col">取得點數</th>
-                        <th scope="col">使用點數</th>
-                        <th scope="col" class="text-center" style="width:40px;"></th>
+                        <th scope="col" class="text-end">剩餘點數</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($dataList as $key => $data)
                         <tr>
                             <th scope="row">{{ $key + 1 }}</th>
-
                             <td>{{ $data->sn }}</td>
                             <td>{!! nl2br($data->name) !!}</td>
                             <td>{{ $data->email }}</td>
-                            <td>{{ $data->get_dividend }}</td>
-                            <td>
-
-                                {{ $data->used_dividend }}
-
+                            <th class="text-end">{{ number_format($data->total) }}</th>
+                        </tr>
+                        <tr>
+                            <td class="pt-0 small">點數明細</td>
+                            <td colspan="4" class="py-0">
+                                <table class="table table-sm table-bordered border-secondary small">
+                                    <tr class="small border-top-0" style="white-space: normal;">
+                                        @foreach ($titleGet as $value1)
+                                            <td scope="col" class="wrap lh-sm text-end table-primary">{{ $value1 }}</td>
+                                        @endforeach
+                                        @foreach ($titleUse as $value2)
+                                            <td scope="col" class="wrap lh-sm text-end table-danger">
+                                                {{ $value2 }}
+                                            </td>
+                                        @endforeach
+                                    </tr>
+                                    <tr>
+                                        @foreach ($fieldGet as $f1)
+                                            <td class="text-end table-primary">{{ number_format($data->formated[$f1]) }}</td>
+                                        @endforeach
+                                        @foreach ($fieldUse as $f2)
+                                            <td class="text-end table-danger">
+                                                {{ number_format($data->formated[$f2]) }}
+                                            </td>
+                                        @endforeach
+                                    </tr>
+                                </table>
                             </td>
-
-                            <td></td>
-
                         </tr>
                     @endforeach
                 </tbody>

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Cms\User;
 
+use App\Enums\Discount\DividendCategory;
 use App\Http\Controllers\Controller;
 use App\Models\CustomerDividend;
 use Illuminate\Http\Request;
@@ -17,13 +18,35 @@ class DividendCtrl extends Controller
     public function index(Request $request)
     {
         //
+
+        $titleGet = [];
+        $titleUse = [];
+        $fieldGet = [];
+        $fieldUse = [];
+        foreach (DividendCategory::asArray() as $value) {
+            $desc = DividendCategory::fromValue($value)->description;
+            $titleGet[] = $desc . "取得";
+            $fieldGet[] = $value . "_get";
+            if ($value == 'order') {
+                $titleUse[] = $desc . "使用";
+                $fieldUse[] = $value . "_used";
+            }
+        }
+
         $query = $request->query();
 
         $keyword = Arr::get($query, 'keyword');
 
         $dataList = CustomerDividend::totalList($keyword)->paginate(100)->appends($query);
+        CustomerDividend::format($dataList);
+        
+        //  dd( CustomerDividend::totalList($keyword)->limit(10)->get()->toArray());
         return view('cms.marketing.customer_dividend.list', [
             'dataList' => $dataList,
+            'titleGet' => $titleGet,
+            'titleUse' => $titleUse,
+            'fieldGet' => $fieldGet,
+            'fieldUse' => $fieldUse,
         ]);
     }
 
