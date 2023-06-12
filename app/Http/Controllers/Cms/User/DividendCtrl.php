@@ -19,15 +19,17 @@ class DividendCtrl extends Controller
     {
         //
 
-        $title = [];
-        $field = [];
+        $titleGet = [];
+        $titleUse = [];
+        $fieldGet = [];
+        $fieldUse = [];
         foreach (DividendCategory::asArray() as $value) {
             $desc = DividendCategory::fromValue($value)->description;
-            $title[] = $desc . "取得";
-            $field[] = $value . "_get";
+            $titleGet[] = $desc . "取得";
+            $fieldGet[] = $value . "_get";
             if ($value == 'order') {
-                $title[] = $desc . "使用";
-                $field[] = $value . "_used";
+                $titleUse[] = $desc . "使用";
+                $fieldUse[] = $value . "_used";
             }
         }
 
@@ -41,8 +43,10 @@ class DividendCtrl extends Controller
         //  dd( CustomerDividend::totalList($keyword)->limit(10)->get()->toArray());
         return view('cms.marketing.customer_dividend.list', [
             'dataList' => $dataList,
-            'title' => $title,
-            'field' => $field,
+            'titleGet' => $titleGet,
+            'titleUse' => $titleUse,
+            'fieldGet' => $fieldGet,
+            'fieldUse' => $fieldUse,
         ]);
     }
 
