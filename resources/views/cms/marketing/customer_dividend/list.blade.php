@@ -12,7 +12,7 @@
                 </div>
 
             </div>
-           
+
             <div class="col">
                 <button type="submit" class="btn btn-primary px-4">搜尋</button>
             </div>
@@ -27,8 +27,10 @@
                         <th scope="col">會員編號</th>
                         <th scope="col">姓名</th>
                         <th scope="col">帳號</th>
-                        <th scope="col">取得點數</th>
-                        <th scope="col">使用點數</th>
+                        @foreach ($title as $value)
+                            <th scope="col">{{ $value }}</th>
+                        @endforeach
+                        <th scope="col">總數</th>
                         <th scope="col" class="text-center" style="width:40px;"></th>
                     </tr>
                 </thead>
@@ -40,13 +42,10 @@
                             <td>{{ $data->sn }}</td>
                             <td>{!! nl2br($data->name) !!}</td>
                             <td>{{ $data->email }}</td>
-                            <td>{{ $data->get_dividend }}</td>
-                            <td>
-
-                                {{ $data->used_dividend }}
-
-                            </td>
-
+                            @foreach ($field as $f)
+                                <td>{{ $data->formated[$f] }}</td>
+                            @endforeach
+                            <td>{{ $data->total }}</td>
                             <td></td>
 
                         </tr>
