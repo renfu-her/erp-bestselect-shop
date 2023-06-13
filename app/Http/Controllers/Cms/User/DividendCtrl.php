@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Cms\User;
 use App\Enums\Discount\DividendCategory;
 use App\Http\Controllers\Controller;
 use App\Models\CustomerDividend;
+use App\Models\DividendErpLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 
@@ -39,7 +40,7 @@ class DividendCtrl extends Controller
 
         $dataList = CustomerDividend::totalList($keyword)->paginate(100)->appends($query);
         CustomerDividend::format($dataList);
-        
+
         //  dd( CustomerDividend::totalList($keyword)->limit(10)->get()->toArray());
         return view('cms.marketing.customer_dividend.list', [
             'dataList' => $dataList,
@@ -114,5 +115,13 @@ class DividendCtrl extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function log($id)
+    {
+        $dataList = DividendErpLog::dataList()->where('customer.id',$id)->get();
+        return view('cms.marketing.customer_dividend.log', [
+            'dataList' => $dataList
+        ]);
     }
 }
