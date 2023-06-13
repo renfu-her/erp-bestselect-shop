@@ -38,7 +38,12 @@
                             <th class="text-end">{{ number_format($data->total) }}</th>
                         </tr>
                         <tr>
-                            <td class="pt-0 small">點數明細</td>
+                            <td class="pt-0 small lh-sm text-center">
+                                <div>點數明細</div>
+                                <a href="#" class="icon icon-btn fs-5 text-primary rounded-circle border-0">
+                                    <i class="bi bi-card-list"></i>
+                                </a>
+                            </td>
                             <td colspan="4" class="py-0">
                                 <table class="table table-sm table-bordered border-secondary small">
                                     <tr class="small border-top-0" style="white-space: normal;">
