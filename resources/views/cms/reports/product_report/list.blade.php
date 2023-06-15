@@ -104,6 +104,7 @@
                 <thead class="small align-middle">
                     <tr>
                         <th scope="col">產品名稱</th>
+                        <th scope="col">類別</th>
                         <th scope="col" class="text-end">數量</th>
                         <th scope="col" class="text-end">營業額</th>
                         <th scope="col" class="text-end">毛利</th>
@@ -128,6 +129,9 @@
                             <td> 
                                 {{ $data->product_title }}
                             </td>
+                            <td> 
+                                {{ $data->category }}
+                            </td>
                             <td class="text-end">
                                 <x-b-number :val="$data->qty"/>
                             </td>
@@ -142,7 +146,7 @@
                 </tbody>
                 <tfoot>
                     <tr>
-                        <th>合計</th>
+                        <th colspan="2">合計</th>
                         <th class="text-end">
                             <x-b-number :val="$total_qty"  />
                         </th>
