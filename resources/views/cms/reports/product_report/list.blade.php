@@ -91,24 +91,16 @@
         </div>
     </div>
     <div class="card shadow p-4 mb-4">
-        <div>
-            <table class="table table-borderless">
-                <tr>
-                    <th>總商品數：{{ number_format($products) }}</th>
-                    <th>總廠商數：{{ number_format($suppliers) }}</th>
-                </tr>
-            </table>
-        </div>
         <div class="table-responsive tableOverBox">
             <table class="table table-striped tableList">
                 <thead class="small align-middle">
                     <tr>
+                        <th scope="col" style="width: 10px">#</th>
                         <th scope="col">產品名稱</th>
                         <th scope="col">類別</th>
                         <th scope="col" class="text-end">數量</th>
                         <th scope="col" class="text-end">營業額</th>
                         <th scope="col" class="text-end">毛利</th>
-                       
                     </tr>
                 </thead>
                 <tbody>
@@ -126,10 +118,11 @@
                           
                         @endphp
                         <tr>
-                            <td> 
+                            <th scope="row">{{ $key + 1 }}</th>
+                            <td class="wrap lh-sm"> 
                                 {{ $data->product_title }}
                             </td>
-                            <td> 
+                            <td class="wrap lh-sm"> 
                                 {{ $data->category }}
                             </td>
                             <td class="text-end">
@@ -146,7 +139,7 @@
                 </tbody>
                 <tfoot>
                     <tr>
-                        <th colspan="2">合計</th>
+                        <th colspan="3">合計</th>
                         <th class="text-end">
                             <x-b-number :val="$total_qty"  />
                         </th>
