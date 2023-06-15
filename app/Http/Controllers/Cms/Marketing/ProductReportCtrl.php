@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Cms\Marketing;
 
 use App\Http\Controllers\Controller;
 use App\Models\ProductReport;
+use App\Models\RptProductReportMonthly;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 
@@ -25,10 +26,13 @@ class ProductReportCtrl extends Controller
             $year_range[] = $i;
         }
 
-        $re = ProductReport::createData($cond['year'], $cond['quarter']);
+        $product = RptProductReportMonthly::dataList($cond['year'], $cond['quarter'])
+            ->orderBy('data.price', 'DESC')->get();
+        $re = ProductReport::dataList($cond['year'], $cond['quarter']);
 
         return view('cms.reports.product_report.list', [
             'year_range' => $year_range,
+            'product'=>$product,
             'cond' => $cond,
             'dataList' => $re['seasons'],
             'products' => $re['products'],
