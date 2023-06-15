@@ -96,7 +96,7 @@
                 <thead class="small align-middle">
                     <tr>
                         <th scope="col" style="width: 10px">#</th>
-                        <th scope="col">產品名稱</th>
+                        <th scope="col"></th>
                         <th scope="col">類別</th>
                         <th scope="col" class="text-end">數量</th>
                         <th scope="col" class="text-end">營業額</th>
@@ -120,7 +120,7 @@
                         <tr>
                             <th scope="row">{{ $key + 1 }}</th>
                             <td class="wrap lh-sm"> 
-                                {{ $data->product_title }}
+                              
                             </td>
                             <td class="wrap lh-sm"> 
                                 {{ $data->category }}

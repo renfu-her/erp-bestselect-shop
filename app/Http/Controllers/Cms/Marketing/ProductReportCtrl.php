@@ -26,8 +26,8 @@ class ProductReportCtrl extends Controller
             $year_range[] = $i;
         }
 
-        $product = RptProductReportMonthly::dataList($cond['year'], $cond['quarter'])
-            ->orderBy('data.price', 'DESC')->get();
+        $product = RptProductReportMonthly::dataListCategory($cond['year'], $cond['quarter'])
+            ->orderBy('data.gross_profit', 'DESC')->get();
         $re = ProductReport::dataList($cond['year'], $cond['quarter']);
 
         return view('cms.reports.product_report.list', [

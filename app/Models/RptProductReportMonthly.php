@@ -22,15 +22,37 @@ class RptProductReportMonthly extends Model
                 ->selectRaw('SUM(gross_profit) as gross_profit')
                 ->selectRaw('SUM(qty) as qty')
                 ->groupBy('product_id')
-                ->whereRaw('YEAR(month) = '.$year)
-                ->whereRaw('QUARTER(month) = '.$quarter), 'data')
-            ->leftJoin('prd_products as product','data.product_id','=','product.id')
-            ->leftJoin('prd_categorys as category','product.category_id','=','category.id')
-            ->select(['data.*','product.title as product_title','category.category']);
-           
-          //  ->orderBy('data.m');
+                ->whereRaw('YEAR(month) = ' . $year)
+                ->whereRaw('QUARTER(month) = ' . $quarter), 'data')
+            ->leftJoin('prd_products as product', 'data.product_id', '=', 'product.id')
+            ->leftJoin('prd_categorys as category', 'product.category_id', '=', 'category.id')
+            ->select(['data.*', 'product.title as product_title', 'category.category']);
 
-         return $seasonData;
+        //  ->orderBy('data.m');
+
+        return $seasonData;
+
+    }
+
+    public static function dataListCategory($year, $quarter)
+    {
+
+        $seasonData = DB::query()->fromSub(DB::table('rpt_product_report_monthly as rm')
+                ->leftJoin('prd_products as product', 'rm.product_id', '=', 'product.id')
+                ->select(['category_id'])
+                ->selectRaw('SUM(price) as price')
+                ->selectRaw('SUM(gross_profit) as gross_profit')
+                ->selectRaw('SUM(qty) as qty')
+                ->groupBy('category_id')
+                ->whereRaw('YEAR(month) = ' . $year)
+                ->whereRaw('QUARTER(month) = ' . $quarter), 'data')
+            ->leftJoin('prd_categorys as category', 'data.category_id', '=', 'category.id')
+
+            ->select(['data.*', 'category.category']);
+
+        //  ->orderBy('data.m');
+
+        return $seasonData;
 
     }
 
