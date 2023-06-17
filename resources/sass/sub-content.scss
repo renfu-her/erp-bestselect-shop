@@ -156,9 +156,9 @@ thead, tbody, tfoot, tr, td, th {
 .tableList select.form-select {
   width: auto;
 }
-.tableList input.form-control.-sx,
-.tableList .input-group > input.form-control.-sx,
-.tableList select.form-select.-sx {
+.tableList input.form-control.-xs,
+.tableList .input-group > input.form-control.-xs,
+.tableList select.form-select.-xs {
   min-width: 60px;
 }
 .tableList input.form-control.-sm,
