@@ -29,7 +29,7 @@
                             @endif
                         </td>
                         <td>{{ number_format($data->dividend) }}</td>
-                        <td class="wrap">{{ date('Y/m/d H:i:s', strtotime($data->active_edate)) }}</td>
+                        <td class="wrap">{{ $data->active_edate ? date('Y/m/d H:i:s', strtotime($data->active_edate)) : '-' }}</td>
                         <td>{{ DividendCategory::getDescription($data->category) }}</td>
                     </tr>
                 @endforeach
