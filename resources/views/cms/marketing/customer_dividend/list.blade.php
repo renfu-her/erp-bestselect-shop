@@ -3,7 +3,7 @@
     <h2 class="mb-4">消費者紅利點數</h2>
     <form id="search" method="GET">
         <div class="card shadow p-4 mb-4">
-            <h6>搜尋條件</h6>
+            <h6 class="mb-2">搜尋條件</h6>
             <div class="row">
                 <label class="form-label">關鍵字</label>
                 <div class="col">
@@ -16,6 +16,25 @@
             </div>
         </div>
     </form>
+    <div class="card shadow p-4 mb-4">
+        <h6 class="mb-2">統計總覽</h6>
+        <table class="table table-sm table-bordered text-center mb-0">
+            <thead class="small align-middle">
+                <td class="table-primary lh-sm">購物訂單<span class="d-inline-block">發放總數</span><br>
+                    (購物訂單 + 喜鴻購物2.0<span class="d-inline-block">取得)</span>
+                </td>
+                <td class="table-primary lh-sm">旅遊企業<span class="d-inline-block">領取總數</span></td>
+                <td class="table-primary lh-sm">旅遊會員<span class="d-inline-block">領取總數</span></td>
+                <td class="table-danger lh-sm">已使用<span class="d-inline-block">總數</span></td>
+            </thead>
+            <tbody>
+                <td>0</td>
+                <td>0</td>
+                <td>0</td>
+                <td>0</td>
+            </tbody>
+        </table>
+    </div>
     <div class="card shadow p-4 mb-4">
         <div class="table-responsive tableOverBox">
             <table class="table table-striped tableList mb-1">

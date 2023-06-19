@@ -2,9 +2,9 @@
 @section('sub-content')
     <h2 class="mb-4">季報表</h2>
 
-    <form method="GET">
-        <div class="card shadow p-4 mb-4">
-            <div class="row">
+    <div class="card shadow p-4 mb-4">
+        <form method="GET">
+            <div class="row align-items-center">
                 <div class="col-auto">
                     <select class="form-select" name="y" aria-label="年度" placeholder="請選擇年度">
                         @foreach ($year_range as $value)
@@ -23,13 +23,17 @@
                     </select>
                 </div>
 
-                <div class="col-auto align-self-end">
+                <div class="col-auto">
                     <button type="submit" class="btn btn-primary px-4">查詢</button>
                 </div>
+                <div class="col-auto border-bottom border-success p-0 m-2">
+                    <a href="{{ route('cms.user-performance-report.index') }}" target="_blank" class="text-success">
+                        重新統計 <i class="bi bi-box-arrow-up-right"></i>
+                    </a>
+                </div>
             </div>
-
-        </div>
-    </form>
+        </form>
+    </div>
     
     <div class="card shadow p-4 mb-4">
         <div>
