@@ -5,16 +5,14 @@
         <div class="card shadow p-4 mb-4">
             <h6>搜尋條件</h6>
             <div class="row">
-                <div class="col-12 col-sm-6 mb-3">
-                    <label class="form-label">關鍵字</label>
+                <label class="form-label">關鍵字</label>
+                <div class="col">
                     <input class="form-control" type="text" name="keyword" placeholder="請輸入姓名或email" value=""
                         aria-label="關鍵字">
                 </div>
-
-            </div>
-
-            <div class="col">
-                <button type="submit" class="btn btn-primary px-4">搜尋</button>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-primary px-4">搜尋</button>
+                </div>
             </div>
         </div>
     </form>

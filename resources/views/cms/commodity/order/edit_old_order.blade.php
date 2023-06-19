@@ -40,16 +40,16 @@
                                         </td>
                                         <td>{{ $item->sku }}</td>
                                         <td>
-                                            <input class="form-control form-control-sm -sx" type="text" aria-label="售價"
+                                            <input class="form-control form-control-sm -xs" type="text" aria-label="售價"
                                                 value="{{ $item->price }}" disabled>
                                         </td>
                                         <td>
-                                            <input class="form-control form-control-sm -sx" type="text" aria-label="經銷價"
+                                            <input class="form-control form-control-sm -xs" type="text" aria-label="經銷價"
                                                 value="{{ $item->dealer_price }}" disabled>
                                         </td>
 
                                         <td class="text-center">
-                                            <input class="form-control form-control-sm -sx" type="text" aria-label="數量"
+                                            <input class="form-control form-control-sm -xs" type="text" aria-label="數量"
                                                 value="{{ $item->qty }}" disabled>
                                         </td>
                                         <td>
@@ -72,7 +72,7 @@
                                     <tr>
                                         <td>物流</td>
                                         <td>
-                                            <select name="ship_category[]" class="form-select form-select-sm -sx w-100"
+                                            <select name="ship_category[]" class="form-select form-select-sm -xs w-100"
                                                 required>
                                                 @foreach ($shipmentCategory as $key => $value)
                                                     <option value="{{ $value->code }}"
@@ -83,7 +83,7 @@
                                         </td>
                                         <td>
                                             <select name="ship_event_id[]"
-                                                class="-select2 -single form-select form-select-sm -sx">
+                                                class="-select2 -single form-select form-select-sm -xs">
                                                 @foreach ($shipEvent[$subOrder->ship_category] as $key => $value)
                                                     <option value="{{ $value->id }}"
                                                         @if ($subOrder->ship_event_id == $value->id) selected @endif>
@@ -96,7 +96,7 @@
                                         <td style="width: 20%;">
                                             <div class="input-group input-group-sm flex-nowrap">
                                                 <span class="input-group-text">$</span>
-                                                <input class="form-control -sx" name="dlv_fee[]" type="number"
+                                                <input class="form-control -xs" name="dlv_fee[]" type="number"
                                                     aria-label="運費" value="{{ $subOrder->dlv_fee }}" required>
                                             </div>
                                         </td>
@@ -109,7 +109,7 @@
                 @endif
                 <div class="card-header px-4  text-secondary border-top border-bottom-0">銷貨備註</div>
                 <div class="card-body px-4 py-2">
-                    <input class="form-control form-control-sm -sx" name="sub_order_note[]" aria-label="運費"
+                    <input class="form-control form-control-sm -xs" name="sub_order_note[]" aria-label="運費"
                         value="{{ $subOrder->note }}">
                 </div>
             </div>

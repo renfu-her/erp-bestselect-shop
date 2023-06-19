@@ -112,7 +112,7 @@
                                     <td>
                                         <input type="number" name="qty[{{ $i }}]" 
                                             value="{{ old('qty.' . $i, $item->qty ?? '') }}" min="0" 
-                                            class="d-target r-target form-control form-control-sm -sx @error('qty.' . $i) is-invalid @enderror" 
+                                            class="d-target r-target form-control form-control-sm -xs @error('qty.' . $i) is-invalid @enderror" 
                                             aria-label="數量" placeholder="請輸入數量" disabled>
                                     </td>
                                     <td>
@@ -161,7 +161,7 @@
                             </td>
                             <td>
                                 <input type="number" name="qty[]" value="" min="0" 
-                                    class="d-target r-target form-control form-control-sm -sx" 
+                                    class="d-target r-target form-control form-control-sm -xs" 
                                     aria-label="數量" placeholder="請輸入數量" disabled>
                             </td>
                             <td>
