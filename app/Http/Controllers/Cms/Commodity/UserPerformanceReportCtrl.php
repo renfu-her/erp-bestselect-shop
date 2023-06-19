@@ -9,7 +9,8 @@ use App\Models\User;
 use App\Models\UserOrganize;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-
+use App\Models\RptProductReportMonthly;
+ 
 class UserPerformanceReportCtrl extends Controller
 {
     public $season = [1 => 'ㄧ', 2 => '二', 3 => '三', 4 => '四'];
@@ -215,9 +216,12 @@ class UserPerformanceReportCtrl extends Controller
         $request->validate(['year' => 'required', 'month' => 'required']);
         $d = $request->all();
         $date = $d['year'] . "-" . $d['month'];
+
+
         RptUserReportMonthly::grossProfit($date, 'month');
         RptUserReportMonthly::report($date, 'month');
         RptOrganizeReportMonthly::report($date, 'month');
+        RptProductReportMonthly::report($date, 'month');
 
         wToast('資料更新完成');
 

@@ -15,6 +15,7 @@ use App\Models\CustomerDividend;
 use App\Models\CustomerIdentity;
 use App\Models\CustomerLoginMethod;
 use App\Models\CustomerProfit;
+use App\Models\DividendErpLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
@@ -230,7 +231,7 @@ class CustomerCtrl extends Controller
             $user['salechannel_id'] = '';
             $user['b2e_img'] = '';
             $user['b2e_title'] = '';
-    
+
             if ($user['b2e_company_id']) {
                 $b2eCompany = B2eCompany::where('id', $user['b2e_company_id'])->get()->first();
                 if ($b2eCompany) {
@@ -813,6 +814,7 @@ class CustomerCtrl extends Controller
             'points' => ['required'],
             'type' => ['required'],
             'requestid' => ['required'],
+            'account' => ['required'],
         ]);
 
         if ($validator->fails()) {
@@ -831,6 +833,11 @@ class CustomerCtrl extends Controller
                 'msg' => $re['error_log'],
             ]);
         }
+        DividendErpLog::create([
+            'customer_id' => $request->user()->id,
+            'account' => $d['account'],
+            'points' => $d['points'],
+        ]);
 
         return response()->json($re);
 
@@ -891,7 +898,6 @@ class CustomerCtrl extends Controller
         }
 
         $request->user()->update(['b2e_company_id' => $company->id, 'join_b2e_at' => now()]);
-
 
         return response()->json([
             'status' => '0',

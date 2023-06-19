@@ -411,7 +411,7 @@ class CustomerDividend extends Model
             ->groupBy('base.customer_id');
 
         $re = DB::table('usr_customers as customer')
-            ->select(['customer.name',
+            ->select(['customer.id','customer.name',
                 'customer.email',
                 'customer.sn'
             ])
