@@ -164,7 +164,7 @@
                             </td>
                             <td>
                                 <input type="number" name="qty[]" value="" min="0" 
-                                    class="d-target r-target form-control form-control-sm -sx" 
+                                    class="d-target r-target form-control form-control-sm -xs" 
                                     aria-label="數量" placeholder="請輸入數量" disabled>
                             </td>
                             <td>

@@ -27,6 +27,7 @@ class RptReport extends Model
                 'item.qty',
                 'order.mcode',
                 'item.price',
+                'item.product_style_id',
                 'ro.receipt_date',
                 'style.estimated_cost',
             ])

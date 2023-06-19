@@ -1584,7 +1584,10 @@ Breadcrumbs::for('cms.user-dividend.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
     $trail->push('消費者紅利點數');
 });
-
+Breadcrumbs::for('cms.user-dividend.log', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.user-dividend.index');
+    $trail->push('點數提領紀錄');
+});
 
 /**
  * 共用頁

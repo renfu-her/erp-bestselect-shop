@@ -10,7 +10,7 @@ class ProductReport extends Model
 {
     use HasFactory;
 
-    public static function createData($year = null, $quarter = null)
+    public static function dataList($year = null, $quarter = null)
     {
         $product = DB::table('prd_products as product')
             ->where('public', 1);

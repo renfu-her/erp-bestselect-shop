@@ -112,7 +112,7 @@
                                     <td>
                                         <input type="number" name="rate[{{ $i }}]" step="0.01" 
                                             value="{{ old('rate.' . $i, $item->rate ?? '1') }}" 
-                                            class="d-target r-target form-control form-control-sm -sx @error('rate.' . $i) is-invalid @enderror" 
+                                            class="d-target r-target form-control form-control-sm -xs @error('rate.' . $i) is-invalid @enderror" 
                                             aria-label="匯率" placeholder="匯率" disabled>
                                     </td>
                                     <td>
@@ -195,7 +195,7 @@
                             </td>
                             <td>
                                 <input type="number" name="rate[]" step="0.01" value="1" 
-                                    class="d-target r-target form-control form-control-sm -sx" 
+                                    class="d-target r-target form-control form-control-sm -xs" 
                                     aria-label="匯率" placeholder="匯率" disabled>
                             </td>
                             <td>

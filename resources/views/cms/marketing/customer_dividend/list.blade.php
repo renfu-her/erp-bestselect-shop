@@ -5,16 +5,14 @@
         <div class="card shadow p-4 mb-4">
             <h6>搜尋條件</h6>
             <div class="row">
-                <div class="col-12 col-sm-6 mb-3">
-                    <label class="form-label">關鍵字</label>
+                <label class="form-label">關鍵字</label>
+                <div class="col">
                     <input class="form-control" type="text" name="keyword" placeholder="請輸入姓名或email" value=""
                         aria-label="關鍵字">
                 </div>
-
-            </div>
-
-            <div class="col">
-                <button type="submit" class="btn btn-primary px-4">搜尋</button>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-primary px-4">搜尋</button>
+                </div>
             </div>
         </div>
     </form>
@@ -40,12 +38,21 @@
                             <th class="text-end">{{ number_format($data->total) }}</th>
                         </tr>
                         <tr>
-                            <td class="pt-0 small">點數明細</td>
+                            <td class="pt-0 small lh-sm text-center">
+                                <div>點數明細</div>
+                                <a href="{{ route('cms.user-dividend.log', ['id' => $data->id]) }}" 
+                                    class="icon icon-btn fs-5 text-primary rounded-circle border-0"
+                                    data-bs-toggle="tooltip" title="Log">
+                                    <i class="bi bi-card-list"></i>
+                                </a>
+                            </td>
                             <td colspan="4" class="py-0">
                                 <table class="table table-sm table-bordered border-secondary small">
                                     <tr class="small border-top-0" style="white-space: normal;">
                                         @foreach ($titleGet as $value1)
-                                            <td scope="col" class="wrap lh-sm text-end table-primary">{{ $value1 }}</td>
+                                            <td scope="col" class="wrap lh-sm text-end table-primary">
+                                                {{ $value1 }}
+                                            </td>
                                         @endforeach
                                         @foreach ($titleUse as $value2)
                                             <td scope="col" class="wrap lh-sm text-end table-danger">
@@ -55,7 +62,9 @@
                                     </tr>
                                     <tr>
                                         @foreach ($fieldGet as $f1)
-                                            <td class="text-end table-primary">{{ number_format($data->formated[$f1]) }}</td>
+                                            <td class="text-end table-primary">
+                                                {{ number_format($data->formated[$f1]) }}
+                                            </td>
                                         @endforeach
                                         @foreach ($fieldUse as $f2)
                                             <td class="text-end table-danger">
