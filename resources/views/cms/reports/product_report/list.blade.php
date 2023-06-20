@@ -98,7 +98,7 @@
     <ul class="nav nav-tabs border-bottom-0">
         <li class="nav-item">
             <button class="nav-link active" type="button" data-page="detail" aria-current="page">
-                排名
+                類別排名
             </button>
         </li>
         <li class="nav-item">
@@ -203,7 +203,7 @@
         <script>
             const data = @json($product);
             const total_gross_profit = @json($total_gross_profit);
-            console.log(data);
+            // console.log(data);
             const filterData = _.filter(data, (d) => (d.gross_profit >= 0));
             const categorys = _.map(data, 'category');    // 類別
             const gross_profits = _.map(data, 'gross_profit');    // 毛利
@@ -223,6 +223,15 @@
                 }
             });
 
+            const colorBlue = '0, 161, 230';
+            const colorRed = '255, 101, 130';
+            const positive = filterData.length;
+            const negative = gross_profits.length;
+            const bgColor = _.map(gross_profits, (n, index) => {
+                const rgb = n >= 0 ? colorBlue : colorRed;
+                const a = n >= 0 ? ((positive-index)/positive) : (index/negative);
+                return `rgba(${rgb}, ${a})`;
+            });
             // 長條圖
             new Chart('barChart', {
                 type: 'bar',
@@ -231,6 +240,7 @@
                     datasets: [{
                         label: '總毛利',
                         data: gross_profits,
+                        backgroundColor: bgColor
                     }]
                 },
                 options: {
@@ -290,12 +300,14 @@
                     datasets: [{
                         label: '總毛利',
                         data: gross_profits,
+                        backgroundColor: bgColor
                     }]
                 },
                 options: {
                     plugins: {
                         legend: {
-                            position: 'right'
+                            position: 'top',
+                            align: 'start'
                         },
                         title: {
                             display: true,
