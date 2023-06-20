@@ -226,10 +226,10 @@
             const colorBlue = '0, 161, 230';
             const colorRed = '255, 101, 130';
             const positive = filterData.length;
-            const negative = gross_profits.length;
+            const negative = gross_profits.length - positive;
             const bgColor = _.map(gross_profits, (n, index) => {
                 const rgb = n >= 0 ? colorBlue : colorRed;
-                const a = n >= 0 ? ((positive - index)/positive) : ((index + 1)/negative);
+                const a = n >= 0 ? ((positive - index) / positive) : ((index - positive + 1) / negative);
                 return `rgba(${rgb}, ${a})`;
             });
             // 長條圖
