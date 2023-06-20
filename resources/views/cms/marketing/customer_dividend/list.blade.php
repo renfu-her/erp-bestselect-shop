@@ -28,10 +28,10 @@
                 <td class="table-danger lh-sm">已使用<span class="d-inline-block">總數</span></td>
             </thead>
             <tbody>
-                <td>{{ $total['normal_get'] }}</td>
-                <td>{{ $total['m_b2b_get'] }}</td>
-                <td>{{ $total['m_b2e_get'] }}</td>
-                <td>{{ $total['used'] }}</td>
+                <td>{{ number_format($total['normal_get']) }}</td>
+                <td>{{ number_format($total['m_b2b_get']) }}</td>
+                <td>{{ number_format($total['m_b2e_get']) }}</td>
+                <td>{{ number_format($total['used']) }}</td>
             </tbody>
         </table>
     </div>
