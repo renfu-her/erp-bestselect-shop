@@ -33,7 +33,12 @@
                             <select class="form-select form-select-sm" name="year" aria-label="年度">
                                 <option value="" disabled>選擇年度</option>
                                 @foreach ($year as $value)
-                                    <option value="{{ $value }}" @if ($value == $cond['year']) selected @endif>
+                                    <option value="{{ $value }}" 
+                                        @if ($_GET['year'])
+                                            @if ($_GET['year'] == $value) selected @endif
+                                        @else
+                                            @if ($cond['year'] == $value) selected @endif
+                                        @endif >
                                         {{ $value }}</option>
                                 @endforeach
                             </select>
@@ -42,7 +47,12 @@
                             <select class="form-select form-select-sm" name="month" aria-label="月份">
                                 <option value="" disabled>選擇月份</option>
                                 @for ($i = 1; $i < 13; $i++)
-                                    <option value="{{ $i }}" @if ($i == $cond['month']) selected @endif>
+                                    <option value="{{ $i }}" 
+                                        @if ($_GET['month'])
+                                            @if ($i == $_GET['month']) selected @endif
+                                        @else
+                                            @if ($i == $cond['month']) selected @endif
+                                        @endif >
                                         {{ $i }}月</option>
                                 @endfor
                             </select>
