@@ -411,9 +411,9 @@ class CustomerDividend extends Model
             ->groupBy('base.customer_id');
 
         $re = DB::table('usr_customers as customer')
-            ->select(['customer.id','customer.name',
+            ->select(['customer.id', 'customer.name',
                 'customer.email',
-                'customer.sn'
+                'customer.sn',
             ])
             ->selectRaw('IF(data.data IS NULL,"[]",data.data) as data')
             ->selectRaw('IF(data.total IS NULL,0,data.total) as total')
@@ -451,6 +451,49 @@ class CustomerDividend extends Model
                 $value->formated[$v->category . "_" . $v->type] = $v->dividend;
             }
         }
+    }
+
+    public static function getByCategory()
+    {
+        $re = self::select(['type', 'category'])
+            ->selectRaw('SUM(dividend) as dividend')
+            ->groupBy('type')
+            ->groupBy('category')
+            ->get()
+            ->toArray();
+        $output = [
+            'normal_get' => 0,
+            'm_b2b_get' => 0,
+            'm_b2e_get' => 0,
+            'used' => 0,
+        ];
+        foreach ($re as $value) {
+            if ($value['type'] == 'get') {
+                switch ($value['category']) {
+                    case 'cyberbiz':
+                        $output['normal_get'] += $value['dividend'];
+                        break;
+                    case 'm_b2b':
+                        $output['m_b2b_get'] += $value['dividend'];
+                        break;
+                    case 'm_b2e':
+                        $output['m_b2e_get'] += $value['dividend'];
+                        break;
+                    case 'm_b2ec':
+                        $output['m_b2e_get'] += $value['dividend'];
+                        break;
+                    case 'order':
+                        $output['normal_get'] += $value['dividend'];
+                        break;
+
+                }
+            } else {
+                $output['used'] += abs($value['dividend']);
+            }
+        }
+
+        return $output;
+
     }
 
 }

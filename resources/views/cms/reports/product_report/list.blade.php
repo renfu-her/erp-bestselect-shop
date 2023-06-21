@@ -2,9 +2,9 @@
 @section('sub-content')
     <h2 class="mb-4">季報表</h2>
 
-    <form method="GET">
-        <div class="card shadow p-4 mb-4">
-            <div class="row">
+    <div class="card shadow p-4 mb-4">
+        <form method="GET">
+            <div class="row align-items-center">
                 <div class="col-auto">
                     <select class="form-select" name="y" aria-label="年度" placeholder="請選擇年度">
                         @foreach ($year_range as $value)
@@ -23,13 +23,17 @@
                     </select>
                 </div>
 
-                <div class="col-auto align-self-end">
+                <div class="col-auto">
                     <button type="submit" class="btn btn-primary px-4">查詢</button>
                 </div>
+                <div class="col-auto border-bottom border-success p-0 m-2">
+                    <a href="{{ route('cms.user-performance-report.index') }}" target="_blank" class="text-success">
+                        重新統計 <i class="bi bi-box-arrow-up-right"></i>
+                    </a>
+                </div>
             </div>
-
-        </div>
-    </form>
+        </form>
+    </div>
     
     <div class="card shadow p-4 mb-4">
         <div>
@@ -94,7 +98,7 @@
     <ul class="nav nav-tabs border-bottom-0">
         <li class="nav-item">
             <button class="nav-link active" type="button" data-page="detail" aria-current="page">
-                排名
+                類別排名
             </button>
         </li>
         <li class="nav-item">
@@ -199,7 +203,7 @@
         <script>
             const data = @json($product);
             const total_gross_profit = @json($total_gross_profit);
-            console.log(data);
+            // console.log(data);
             const filterData = _.filter(data, (d) => (d.gross_profit >= 0));
             const categorys = _.map(data, 'category');    // 類別
             const gross_profits = _.map(data, 'gross_profit');    // 毛利
@@ -219,6 +223,15 @@
                 }
             });
 
+            const colorBlue = '0, 161, 230';
+            const colorRed = '255, 101, 130';
+            const positive = filterData.length;
+            const negative = gross_profits.length - positive;
+            const bgColor = _.map(gross_profits, (n, index) => {
+                const rgb = n >= 0 ? colorBlue : colorRed;
+                const a = n >= 0 ? ((positive - index) / positive) : ((index - positive + 1) / negative);
+                return `rgba(${rgb}, ${a})`;
+            });
             // 長條圖
             new Chart('barChart', {
                 type: 'bar',
@@ -227,6 +240,7 @@
                     datasets: [{
                         label: '總毛利',
                         data: gross_profits,
+                        backgroundColor: bgColor
                     }]
                 },
                 options: {
@@ -286,12 +300,14 @@
                     datasets: [{
                         label: '總毛利',
                         data: gross_profits,
+                        backgroundColor: bgColor
                     }]
                 },
                 options: {
                     plugins: {
                         legend: {
-                            position: 'right'
+                            position: 'top',
+                            align: 'start'
                         },
                         title: {
                             display: true,
