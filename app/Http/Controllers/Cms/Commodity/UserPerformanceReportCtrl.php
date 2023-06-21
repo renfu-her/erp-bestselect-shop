@@ -225,7 +225,7 @@ class UserPerformanceReportCtrl extends Controller
 
         wToast('資料更新完成');
 
-        return redirect(route('cms.user-performance-report.index'));
+        return redirect(route('cms.user-performance-report.index', $d));
 
     }
 
