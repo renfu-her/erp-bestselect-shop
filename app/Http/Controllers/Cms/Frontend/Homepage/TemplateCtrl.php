@@ -50,7 +50,7 @@ class TemplateCtrl extends Controller
     public function edit(Request $request, $id)
     {
         $data = Template::where('id', '=', $id)->first();
-
+    
         if (!$data) {
             return abort(404);
         }

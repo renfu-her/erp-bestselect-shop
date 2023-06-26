@@ -25,12 +25,14 @@
                 </td>
                 <td class="table-primary lh-sm">旅遊企業<span class="d-inline-block">領取總數</span></td>
                 <td class="table-primary lh-sm">旅遊會員<span class="d-inline-block">領取總數</span></td>
+                <td class="table-primary lh-sm">旅遊同業<span class="d-inline-block">領取總數</span></td>
                 <td class="table-danger lh-sm">已使用<span class="d-inline-block">總數</span></td>
             </thead>
             <tbody>
                 <td>{{ number_format($total['normal_get']) }}</td>
-                <td>{{ number_format($total['m_b2b_get']) }}</td>
                 <td>{{ number_format($total['m_b2e_get']) }}</td>
+                <td>{{ number_format($total['m_b2c_get']) }}</td>
+                <td>{{ number_format($total['m_b2b_get']) }}</td>
                 <td>{{ number_format($total['used']) }}</td>
             </tbody>
         </table>
