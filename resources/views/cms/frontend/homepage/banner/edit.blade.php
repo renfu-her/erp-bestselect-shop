@@ -80,7 +80,7 @@
                      @if (old('event_type', $data->event_type ?? '') != App\Enums\Globals\FrontendApiUrl::collection()->key) hidden @endif>
                     <label class="form-label">橫幅廣告群組 <span class="text-danger">*</span></label>
                     {{-- @if ($event_type === 'group') <select> 加 required @else 加 disabled --}}
-                    <select name="event_id" class="form-select"
+                    <select name="event_id" class="form-select -select2 -single"
                             @if (old('event_type', $data->event_type ?? '') == App\Enums\Globals\FrontendApiUrl::collection()->key) required @else disabled @endif>
                         <option value="" @if('' == old('event_id', $data->event_id ?? '')) selected @endif disabled>請選擇</option>
                         @foreach($collectionList as $key => $collection)
@@ -92,7 +92,7 @@
                      @if (old('event_type', $data->event_type ?? '') != App\Enums\Globals\FrontendApiUrl::product()->key) hidden @endif>
                     <label class="form-label">商品 <span class="text-danger">*</span></label>
                     {{-- @if ($event_type === 'group') <select> 加 required @else 加 disabled --}}
-                    <select name="event_id" class="form-select -select2"
+                    <select name="event_id" class="form-select -select2 -single"
                             @if (old('event_type', $data->event_type ?? '') == App\Enums\Globals\FrontendApiUrl::product()->key) required @else disabled @endif>
                         <option value="" @if('' == old('event_id', $data->event_id ?? '')) selected @endif disabled>請選擇</option>
                         @foreach($productList as $key => $product)

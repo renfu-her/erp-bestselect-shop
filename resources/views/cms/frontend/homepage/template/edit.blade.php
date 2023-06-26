@@ -75,7 +75,7 @@
                 <div class="col-12 col-sm-6 mb-3 style_type -stype1 -stype2"
                     @if ($old_type !== 1 && $old_type !== 2) hidden @endif>
                     <label class="form-label">商品群組 <span class="text-danger">*</span></label>
-                    <select name="group_id" class="form-select" @if ($old_type !== 5) required @endif>
+                    <select name="group_id" class="form-select -select2 -single" @if ($old_type !== 5) required @endif>
                         <option value="" @if ('' == old('group_id', $data->group_id ?? '')) selected @endif disabled>請選擇</option>
                         @foreach ($collectionList as $key => $collection)
                             <option value="{{ $collection->id }}" @if ($collection->id == old('group_id', $data->group_id ?? '')) selected @endif>
@@ -107,7 +107,7 @@
                                     placeholder="" aria-label="">
                             </div>
                             <div class="col-12 col-sm-6 mb-1">
-                                <select name="group_id{{ $key }}" class="form-select">
+                                <select name="group_id{{ $key }}" class="form-select -select2 -single">
                                     <option value="0" @if ('' == $old_group_id) selected @endif >請選擇
                                     </option>
                                     @foreach ($collectionList as $key => $collection)
