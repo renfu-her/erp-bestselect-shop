@@ -66,8 +66,10 @@ class Template extends Model
     public static function updateData(Request $request, int $id)
     {
         $request = self::validInputValue($request);
+
         $data = Template::where('id', '=', $id);
         $dataGet = $data->get()->first();
+
         $result = IttmsDBB::transaction(function () use ($request, $id, $dataGet
         ) {
             if (null != $dataGet) {
@@ -82,30 +84,31 @@ class Template extends Model
                     ->update($updateData);
 
                 $d = $request->all();
+                if ($d['style_type'] == '5') {
+                    for ($i = 0; $i < 3; $i++) {
+                        $file = self::uploadFile($request, 'file' . $i, $id);
 
-                for ($i = 0; $i < 3; $i++) {
-                    $file = self::uploadFile($request, 'file' . $i, $id);
-
-                    $uploadData = [];
-                    if ($file) {
-                        $uploadData['file'] = $file;
-                    }
-                    if ($d['id' . $i]) {
-
-                        $uploadData['group_id'] = $d['group_id' . $i];
-                        if ($uploadData['group_id'] == 0) {
-                            $uploadData['file'] = null;
+                        $uploadData = [];
+                        if ($file) {
+                            $uploadData['file'] = $file;
                         }
+                        if ($d['id' . $i]) {
 
-                        DB::table('idx_template_child')->where('id', $d['id' . $i])
-                            ->update($uploadData);
-
-                    } else {
-                        if (isset($d['group_id' . $i]) && $d['group_id' . $i] > 0) {
                             $uploadData['group_id'] = $d['group_id' . $i];
-                            $uploadData['template_id'] = $id;
-                            DB::table('idx_template_child')
-                                ->insert($uploadData);
+                            if ($uploadData['group_id'] == 0) {
+                                $uploadData['file'] = null;
+                            }
+
+                            DB::table('idx_template_child')->where('id', $d['id' . $i])
+                                ->update($uploadData);
+
+                        } else {
+                            if (isset($d['group_id' . $i]) && $d['group_id' . $i] > 0) {
+                                $uploadData['group_id'] = $d['group_id' . $i];
+                                $uploadData['template_id'] = $id;
+                                DB::table('idx_template_child')
+                                    ->insert($uploadData);
+                            }
                         }
                     }
                 }
@@ -114,6 +117,7 @@ class Template extends Model
 
             return ['success' => 1, 'id' => $id];
         });
+
         return $result['id'] ?? null;
     }
 
