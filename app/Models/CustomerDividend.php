@@ -464,17 +464,18 @@ class CustomerDividend extends Model
         $output = [
             'normal_get' => 0,
             'm_b2b_get' => 0,
+            'm_b2c_get' => 0,
             'm_b2e_get' => 0,
             'used' => 0,
         ];
         foreach ($re as $value) {
             if ($value['type'] == 'get') {
                 switch ($value['category']) {
-                    case 'cyberbiz':
+                    case 'order':
                         $output['normal_get'] += $value['dividend'];
                         break;
-                    case 'm_b2b':
-                        $output['m_b2b_get'] += $value['dividend'];
+                    case 'cyberbiz':
+                        $output['normal_get'] += $value['dividend'];
                         break;
                     case 'm_b2e':
                         $output['m_b2e_get'] += $value['dividend'];
@@ -482,8 +483,11 @@ class CustomerDividend extends Model
                     case 'm_b2ec':
                         $output['m_b2e_get'] += $value['dividend'];
                         break;
-                    case 'order':
-                        $output['normal_get'] += $value['dividend'];
+                    case 'm_b2c':
+                        $output['m_b2c_get'] += $value['dividend'];
+                        break;
+                    case 'm_b2b':
+                        $output['m_b2b_get'] += $value['dividend'];
                         break;
 
                 }

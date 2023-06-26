@@ -30,8 +30,8 @@
             </thead>
             <tbody>
                 <td>{{ number_format($total['normal_get']) }}</td>
-                <td>{{ number_format($total['m_b2b_get']) }}</td>
                 <td>{{ number_format($total['m_b2e_get']) }}</td>
+                <td>{{ number_format($total['m_b2c_get']) }}</td>
                 <td>{{ number_format($total['m_b2b_get']) }}</td>
                 <td>{{ number_format($total['used']) }}</td>
             </tbody>
