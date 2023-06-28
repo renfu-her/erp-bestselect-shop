@@ -20,14 +20,14 @@ class ProductReport extends Model
             ->selectRaw('count(*) as total')
             ->groupBy('ps.supplier_id');
 
-        $seasonData = DB::query()->fromSub(DB::table('rpt_user_report_monthly as rm')
-                ->selectRaw('YEAR(month) as y')
-                ->selectRaw('MONTH(month) as m')
-                ->selectRaw('QUARTER(month) as quarter')
-                ->selectRaw('SUM(total_price) as total_price')
-                ->selectRaw('SUM(total_gross_profit) as total_gross_profit')
-                ->groupByRaw('YEAR(month)')
-                ->groupByRaw('MONTH(month)'), 'data')
+        $seasonData = DB::query()->fromSub(DB::table('rpt_product_sale_daily as rm')
+                ->selectRaw('YEAR(date) as y')
+                ->selectRaw('MONTH(date) as m')
+                ->selectRaw('QUARTER(date) as quarter')
+                ->selectRaw('SUM(price) as total_price')
+                ->selectRaw('SUM(gross_profit) as total_gross_profit')
+                ->groupByRaw('YEAR(date)')
+                ->groupByRaw('MONTH(date)'), 'data')
             ->where('data.y', $year)
             ->where('data.quarter', $quarter)
             ->orderBy('data.m');
