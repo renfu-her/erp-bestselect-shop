@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Cms\Marketing;
 
 use App\Http\Controllers\Controller;
 use App\Models\ProductReport;
-use App\Models\RptProductReportMonthly;
+use App\Models\RptProductReportDaily;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 
@@ -26,7 +26,7 @@ class ProductReportCtrl extends Controller
             $year_range[] = $i;
         }
 
-        $product = RptProductReportMonthly::dataListCategory($cond['year'], $cond['quarter'])
+        $product = RptProductReportDaily::dataListCategory($cond['year'], $cond['quarter'])
             ->orderBy('data.gross_profit', 'DESC')->get();
         $re = ProductReport::dataList($cond['year'], $cond['quarter']);
 
