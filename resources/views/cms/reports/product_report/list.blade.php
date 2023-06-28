@@ -44,7 +44,7 @@
             </li>
             <li class="nav-item">
                 <button class="nav-link" type="button" data-page="profit">
-                    分潤報表
+                    通路分潤報表
                 </button>
             </li>
             <li class="nav-item">
@@ -53,6 +53,8 @@
                 </button>
             </li>
         </ul>
+
+        {{-- 季報表 --}}
         <div id="-detail1" class="card shadow p-4 mb-4 -page">
             <div>
                 <table class="table table-sm table-borderless">
@@ -112,9 +114,12 @@
                 </table>
             </div>
         </div>
+
+        {{-- 分潤報表 --}}
         <div id="-profit" class="card shadow p-4 mb-4 -page" hidden>
+            <h6 class="mb-3">全通路</h6>
             <div class="table-responsive">
-                <table class="table table-bordered">
+                <table class="table table-bordered mb-1">
                     <thead class="align-middle">
                         <tr>
                             <th scope="col" rowspan="2">月份</th>
@@ -133,18 +138,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @php
-                            $total_gross_profit = 0;
-                            $total_price = 0;
-                            
-                        @endphp
                         @foreach ($dataList as $key => $data)
-                            @php
-
-                                $total_gross_profit += $data->total_gross_profit;
-                                $total_price += $data->total_price;
-                            
-                            @endphp
                             <tr>
                                 <td> 
                                     {{ $data->m }}月
@@ -162,13 +156,13 @@
                                     <x-b-number :val="0" />
                                 </td>
                                 <td class="table-success text-end">
-                                    <x-b-number :val="$data->total_price" prefix="$" />
+                                    <x-b-number :val="0" prefix="$" />
                                 </td>
                                 <td class="table-success text-center">
                                     <x-b-number :val="0" />
                                 </td>
                                 <td class="text-end table-danger">
-                                    <x-b-number :val="$data->total_gross_profit" prefix="$" />
+                                    <x-b-number :val="0" prefix="$" />
                                 </td>
                             </tr>
                         @endforeach
@@ -189,20 +183,108 @@
                                 <x-b-number :val="0" />
                             </th>
                             <th class="table-success text-end">
-                                <x-b-number :val="$total_price" prefix="$" />
+                                <x-b-number :val="0" prefix="$" />
                             </th>
                             <th class="table-success text-center">
                                 <x-b-number :val="0" />
                             </th>
                             <th class="text-end table-danger">
-                                <x-b-number :val="$total_gross_profit" prefix="$" />
+                                <x-b-number :val="0" prefix="$" />
                             </th>
                         </tr>
                     </tfoot>
                 </table>
             </div>
-            <div class="table-responsive"></div>
+            <hr>
+            <div class="row mb-3">
+                <label class="col-auto col-form-label">銷售通路</label>
+                <div class="col">
+                    <select name="channel" class="form-select">
+                        <option value="1">喜鴻購物2.0官網</option>
+                        <option value="2">喜鴻購物2.0ERP</option>
+                    </select>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-bordered mb-0">
+                    <thead class="align-middle">
+                        <tr>
+                            <th scope="col" rowspan="2">月份</th>
+                            <th scope="col" colspan="2" class="text-center lh-1 table-warning">有分潤碼</th>
+                            <th scope="col" colspan="2" class="text-center lh-1 table-light">無分潤碼</th>
+                            <th scope="col" colspan="2" class="text-center lh-1 table-success">總計</th>
+                            <th scope="col" rowspan="2" class="text-end table-danger">總毛利</th>
+                        </tr>
+                        <tr class="text-center small">
+                            <th scope="col" class="lh-1 p-1 table-warning ps-2">營業額</th>
+                            <th scope="col" class="lh-1 p-1 table-warning">訂單數</th>
+                            <th scope="col" class="lh-1 p-1 table-light">營業額</th>
+                            <th scope="col" class="lh-1 p-1 table-light">訂單數</th>
+                            <th scope="col" class="lh-1 p-1 table-success">營業額</th>
+                            <th scope="col" class="lh-1 p-1 table-success pe-2">訂單數</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($dataList as $key => $data)
+                            <tr>
+                                <td> 
+                                    {{ $data->m }}月
+                                </td>
+                                <td class="table-warning text-end">
+                                    <x-b-number :val="0" prefix="$" />
+                                </td>
+                                <td class="table-warning text-center">
+                                    <x-b-number :val="0" />
+                                </td>
+                                <td class="table-light text-end">
+                                    <x-b-number :val="0" prefix="$" />
+                                </td>
+                                <td class="table-light text-center">
+                                    <x-b-number :val="0" />
+                                </td>
+                                <td class="table-success text-end">
+                                    <x-b-number :val="0" prefix="$" />
+                                </td>
+                                <td class="table-success text-center">
+                                    <x-b-number :val="0" />
+                                </td>
+                                <td class="text-end table-danger">
+                                    <x-b-number :val="0" prefix="$" />
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th>合計</th>
+                            <th class="table-warning text-end">
+                                <x-b-number :val="0" prefix="$" />
+                            </th>
+                            <th class="table-warning text-center">
+                                <x-b-number :val="0" />
+                            </th>
+                            <th class="table-light text-end">
+                                <x-b-number :val="0" prefix="$" />
+                            </th>
+                            <th class="table-light text-center">
+                                <x-b-number :val="0" />
+                            </th>
+                            <th class="table-success text-end">
+                                <x-b-number :val="0" prefix="$" />
+                            </th>
+                            <th class="table-success text-center">
+                                <x-b-number :val="0" />
+                            </th>
+                            <th class="text-end table-danger">
+                                <x-b-number :val="0" prefix="$" />
+                            </th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
         </div>
+
+        {{-- Chart --}}
         <div id="-chart1" class="card shadow p-4 mb-4 -page" hidden></div>
     </div>
 
@@ -219,6 +301,8 @@
                 </button>
             </li>
         </ul>
+
+        {{-- 類別排名 --}}
         <div id="-detail2" class="card shadow p-4 mb-4 -page">
             <div class="table-responsive tableOverBox">
                 <table class="table table-sm table-striped tableList mb-0">
@@ -284,6 +368,8 @@
                 </table>
             </div>
         </div>
+
+        {{-- Chart --}}
         <div id="-chart2" class="card shadow p-4 mb-4 -page" hidden>
             <div style="margin-bottom: 20px;position: relative;height: 600px;">
                 <canvas id="barChart"></canvas>
