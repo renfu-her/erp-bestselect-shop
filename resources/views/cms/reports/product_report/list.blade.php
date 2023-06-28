@@ -39,12 +39,12 @@
         <ul class="nav nav-tabs border-bottom-0">
             <li class="nav-item">
                 <button class="nav-link active" type="button" data-page="detail1" aria-current="page">
-                    合計
+                    季報表
                 </button>
             </li>
             <li class="nav-item">
-                <button class="nav-link" type="button" data-page="channel">
-                    各通路
+                <button class="nav-link" type="button" data-page="profit">
+                    分潤報表
                 </button>
             </li>
             <li class="nav-item">
@@ -55,26 +55,77 @@
         </ul>
         <div id="-detail1" class="card shadow p-4 mb-4 -page">
             <div>
-                <table class="table table-sm table-borderless table-warning">
+                <table class="table table-sm table-borderless">
                     <tr>
                         <th>上架商品總數：{{ number_format($products) }}</th>
                         <th>廠商總數：{{ number_format($suppliers) }}</th>
                     </tr>
                 </table>
             </div>
+            <div class="table-responsive tableOverBox">
+                <table class="table table-striped mb-0 tableList">
+                    <thead class="align-middle">
+                        <tr>
+                            <th scope="col">月份</th>
+                            <th scope="col" class="text-end">總營業額</th>
+                            <th scope="col" class="text-end">總毛利</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @php
+                            $total_gross_profit = 0;
+                            $total_price = 0;
+                            
+                        @endphp
+                        @foreach ($dataList as $key => $data)
+                            @php
+    
+                                $total_gross_profit += $data->total_gross_profit;
+                                $total_price += $data->total_price;
+                              
+                            @endphp
+                            <tr>
+                                <td> 
+                                    {{ $data->m }}月
+                                </td>
+                                <td class="text-end">
+                                    <x-b-number :val="$data->total_price" prefix="$" />
+                                </td>
+                                <td class="text-end">
+                                    <x-b-number :val="$data->total_gross_profit" prefix="$" />
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th>合計</th>
+                           
+                            <th class="text-end">
+                                <x-b-number :val="$total_price" prefix="$" />
+                            </th>
+                            <th class="text-end">
+                                <x-b-number :val="$total_gross_profit" prefix="$" />
+                            </th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+        <div id="-profit" class="card shadow p-4 mb-4 -page" hidden>
             <div class="table-responsive">
-                <table class="table table-bordered mb-0">
+                <table class="table table-bordered">
                     <thead class="align-middle">
                         <tr>
                             <th scope="col" rowspan="2">月份</th>
-                            <th scope="col" colspan="2" class="text-center lh-1 table-primary">有分潤碼</th>
+                            <th scope="col" colspan="2" class="text-center lh-1 table-warning">有分潤碼</th>
                             <th scope="col" colspan="2" class="text-center lh-1 table-light">無分潤碼</th>
                             <th scope="col" colspan="2" class="text-center lh-1 table-success">總計</th>
                             <th scope="col" rowspan="2" class="text-end table-danger">總毛利</th>
                         </tr>
                         <tr class="text-center small">
-                            <th scope="col" class="lh-1 p-1 table-primary ps-2">營業額</th>
-                            <th scope="col" class="lh-1 p-1 table-primary">訂單數</th>
+                            <th scope="col" class="lh-1 p-1 table-warning ps-2">營業額</th>
+                            <th scope="col" class="lh-1 p-1 table-warning">訂單數</th>
                             <th scope="col" class="lh-1 p-1 table-light">營業額</th>
                             <th scope="col" class="lh-1 p-1 table-light">訂單數</th>
                             <th scope="col" class="lh-1 p-1 table-success">營業額</th>
@@ -98,10 +149,10 @@
                                 <td> 
                                     {{ $data->m }}月
                                 </td>
-                                <td class="table-primary text-end">
+                                <td class="table-warning text-end">
                                     <x-b-number :val="0" prefix="$" />
                                 </td>
-                                <td class="table-primary text-center">
+                                <td class="table-warning text-center">
                                     <x-b-number :val="0" />
                                 </td>
                                 <td class="table-light text-end">
@@ -125,10 +176,10 @@
                     <tfoot>
                         <tr>
                             <th>合計</th>
-                            <th class="table-primary text-end">
+                            <th class="table-warning text-end">
                                 <x-b-number :val="0" prefix="$" />
                             </th>
-                            <th class="table-primary text-center">
+                            <th class="table-warning text-center">
                                 <x-b-number :val="0" />
                             </th>
                             <th class="table-light text-end">
@@ -150,8 +201,8 @@
                     </tfoot>
                 </table>
             </div>
+            <div class="table-responsive"></div>
         </div>
-        <div id="-channel" class="card shadow p-4 mb-4 -page" hidden></div>
         <div id="-chart1" class="card shadow p-4 mb-4 -page" hidden></div>
     </div>
 
