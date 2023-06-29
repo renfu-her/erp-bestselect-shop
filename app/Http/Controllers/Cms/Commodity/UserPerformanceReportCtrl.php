@@ -7,6 +7,8 @@ use App\Models\RptOrganizeReportMonthly;
 use App\Models\RptUserReportMonthly;
 use App\Models\User;
 use App\Models\UserOrganize;
+
+use App\Models\RptOrderDailyReport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use App\Models\RptProductReportMonthly;
@@ -217,7 +219,7 @@ class UserPerformanceReportCtrl extends Controller
         $d = $request->all();
         $date = $d['year'] . "-" . $d['month'];
 
-
+        RptOrderDailyReport::report($date, 'month');
         RptUserReportMonthly::grossProfit($date, 'month');
         RptUserReportMonthly::report($date, 'month');
         RptOrganizeReportMonthly::report($date, 'month');

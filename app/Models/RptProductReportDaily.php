@@ -170,4 +170,26 @@ class RptProductReportDaily extends Model
         }, $sub));
     }
 
+    public static function dataListCategory($year, $quarter)
+    {
+        
+        $seasonData = DB::query()->fromSub(DB::table('rpt_product_sale_daily as rm')
+                ->leftJoin('prd_products as product', 'rm.product_id', '=', 'product.id')
+                ->select(['category_id'])
+                ->selectRaw('SUM(price) as price')
+                ->selectRaw('SUM(gross_profit) as gross_profit')
+                ->selectRaw('SUM(qty) as qty')
+                ->groupBy('category_id')
+                ->whereRaw('YEAR(date) = ' . $year)
+                ->whereRaw('QUARTER(date) = ' . $quarter), 'data')
+            ->leftJoin('prd_categorys as category', 'data.category_id', '=', 'category.id')
+
+            ->select(['data.*', 'category.category']);
+
+        //  ->orderBy('data.m');
+
+        return $seasonData;
+
+    }
+
 }
