@@ -34,7 +34,7 @@ class RptReport extends Model
             ->selectRaw("item.price * item.qty - style.estimated_cost * item.qty as gross_profit")
             ->selectRaw("item.price * item.qty as total_price")
             ->whereNotNull('style.estimated_cost')
-            ->whereNotNull('order.mcode')
+        //    ->whereNotNull('order.mcode') 
             ->where('ro.source_type', 'ord_orders')
             ->where('order.payment_status', PaymentStatus::Received())
             ->whereIn('order.status_code', ['received', 'back_processing', 'cancle_back', 'backed'])
