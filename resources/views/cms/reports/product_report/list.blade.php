@@ -548,8 +548,8 @@
 
                 const _URL = '{{ Route('api.cms.order_salechannel_report') }}';
                 const Data = {
-                    year: {{ $_GET["y"] }},
-                    quarter: {{ $_GET["quarter"] }},
+                    year: {{ $cond['year'] }},
+                    quarter: {{ $cond["quarter"] }},
                     salechannel_id: $('#salechannel_id').val(),
                 };
                 $('tbody, tfoot th:not(:first)', $table).empty();
