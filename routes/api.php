@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\CustomerCtrl;
 use App\Http\Controllers\Api\Web\NaviCtrl;
 use App\Http\Controllers\Api\Web\OrderCtrl;
 use App\Http\Controllers\Cms\Frontend\ActFruitsCtrl;
+use App\Http\Controllers\Cms\Marketing\ProductReportCtrl;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -34,6 +35,8 @@ Route::get('/tokens/get', function (Request $request) {
 });
 
 Route::get('/fruit', [ActFruitsCtrl::class, 'api']);
+
+
 
 Route::get('/tokens/create', function (Request $request) {
     // $token = $request->user()->createToken($request->token_name);
@@ -79,6 +82,7 @@ Route::group(['prefix' => 'cms', 'as' => 'cms.', 'middleware' => 'auth:cms-api']
     require base_path('routes/api/cms/Order.php');
     require base_path('routes/api/cms/Stock.php');
     Route::post('/address-list', [CustomerCtrl::class, 'customerAddress'])->name('customer_address');
+    Route::post('/order-salechannel-report', [ProductReportCtrl::class, 'RptOrderDailyReport'])->name('order_salechannel_report');
 
 });
 
