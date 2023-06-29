@@ -48,14 +48,14 @@
                 </button>
             </li>
             <li class="nav-item">
-                <button class="nav-link" type="button" data-page="chart1">
+                <button class="nav-link disabled" type="button" data-page="chart1">
                     Chart
                 </button>
             </li>
         </ul>
 
         {{-- 季報表 --}}
-        <div id="-detail1" class="card shadow p-4 mb-4 -page" hidden>
+        <div id="-detail1" class="card shadow p-4 mb-4 -page">
             <div>
                 <table class="table table-sm table-borderless">
                     <tr>
@@ -75,16 +75,13 @@
                     </thead>
                     <tbody>
                         @php
-                            $total_gross_profit = 0;
-                            $total_price = 0;
-                            
+                            $Q_total_gross_profit = 0;
+                            $Q_total_price = 0;
                         @endphp
                         @foreach ($dataList as $key => $data)
                             @php
-                                
-                                $total_gross_profit += $data->total_gross_profit;
-                                $total_price += $data->total_price;
-                                
+                                $Q_total_gross_profit += $data->total_gross_profit;
+                                $Q_total_price += $data->total_price;
                             @endphp
                             <tr>
                                 <td>
@@ -104,10 +101,10 @@
                             <th>合計</th>
 
                             <th class="text-end">
-                                <x-b-number :val="$total_price" prefix="$" />
+                                <x-b-number :val="$Q_total_price" prefix="$" />
                             </th>
                             <th class="text-end">
-                                <x-b-number :val="$total_gross_profit" prefix="$" />
+                                <x-b-number :val="$Q_total_gross_profit" prefix="$" />
                             </th>
                         </tr>
                     </tfoot>
@@ -116,10 +113,10 @@
         </div>
 
         {{-- 分潤報表 --}}
-        <div id="-profit" class="card shadow p-4 mb-4 -page">
+        <div id="-profit" class="card shadow p-4 mb-4 -page" hidden>
             <h6 class="mb-3">全通路</h6>
             <div class="table-responsive">
-                <table class="table table-bordered mb-1">
+                <table class="table table-bordered mb-1 align-middle">
                     <thead class="align-middle">
                         <tr>
                             <th scope="col" rowspan="2">月份</th>
@@ -139,23 +136,23 @@
                     </thead>
                     <tbody>
                         @php
-                            $price_1 = 0;
-                            $price_0 = 0;
-                            $qty_1 = 0;
-                            $qty_0 = 0;
-                            $total_price = 0;
-                            $total_qty = 0;
-                            $total_gross_profit = 0;
+                            $SC_price_1 = 0;
+                            $SC_price_0 = 0;
+                            $SC_qty_1 = 0;
+                            $SC_qty_0 = 0;
+                            $SC_total_price = 0;
+                            $SC_total_qty = 0;
+                            $SC_total_gross_profit = 0;
                         @endphp
                         @foreach ($salechannelReport as $key => $data)
                             @php
-                                $price_1 += $data->price_1;
-                                $price_0 += $data->price_0;
-                                $qty_1 += $data->qty_1;
-                                $qty_0 += $data->qty_0;
-                                $total_price += $data->total_price;
-                                $total_qty += $data->total_qty;
-                                $total_gross_profit += $data->total_gross_profit;
+                                $SC_price_1 += $data->price_1;
+                                $SC_price_0 += $data->price_0;
+                                $SC_qty_1 += $data->qty_1;
+                                $SC_qty_0 += $data->qty_0;
+                                $SC_total_price += $data->total_price;
+                                $SC_total_qty += $data->total_qty;
+                                $SC_total_gross_profit += $data->total_gross_profit;
                             @endphp
                             <tr>
                                 <td>
@@ -179,7 +176,7 @@
                                 <td class="table-success text-center">
                                     <x-b-number :val="$data->total_qty" />
                                 </td>
-                                <td class="text-end table-danger">
+                                <td class="table-danger text-end">
                                     <x-b-number :val="$data->total_gross_profit" prefix="$" />
                                 </td>
                             </tr>
@@ -189,25 +186,25 @@
                         <tr>
                             <th>合計</th>
                             <th class="table-warning text-end">
-                                <x-b-number :val="$price_1" prefix="$" />
+                                <x-b-number :val="$SC_price_1" prefix="$" />
                             </th>
                             <th class="table-warning text-center">
-                                <x-b-number :val="$qty_1" />
+                                <x-b-number :val="$SC_qty_1" />
                             </th>
                             <th class="table-light text-end">
-                                <x-b-number :val="$price_0" prefix="$" />
+                                <x-b-number :val="$SC_price_0" prefix="$" />
                             </th>
                             <th class="table-light text-center">
-                                <x-b-number :val="$qty_0" />
+                                <x-b-number :val="$SC_qty_0" />
                             </th>
                             <th class="table-success text-end">
-                                <x-b-number :val="$total_price" prefix="$" />
+                                <x-b-number :val="$SC_total_price" prefix="$" />
                             </th>
                             <th class="table-success text-center">
-                                <x-b-number :val="$total_qty" />
+                                <x-b-number :val="$SC_total_qty" />
                             </th>
-                            <th class="text-end table-danger">
-                                <x-b-number :val="$total_gross_profit" prefix="$" />
+                            <th class="table-danger text-end">
+                                <x-b-number :val="$SC_total_gross_profit" prefix="$" />
                             </th>
                         </tr>
                     </tfoot>
@@ -217,15 +214,15 @@
             <div class="row mb-3">
                 <label class="col-auto col-form-label">銷售通路</label>
                 <div class="col">
-                    <select name="channel" class="form-select">
+                    <select id="salechannel_id" class="form-select">
                         @foreach ($SaleChannels as $key => $value)
                             <option value="{{ $value->id }}">{{ $value->title }}</option>
                         @endforeach
                     </select>
                 </div>
             </div>
-            <div class="table-responsive">
-                <table class="table table-bordered mb-0">
+            <div class="table-responsive position-relative">
+                <table id="salechannel_table" class="table table-bordered mb-1 align-middle opacity-50">
                     <thead class="align-middle">
                         <tr>
                             <th scope="col" rowspan="2">月份</th>
@@ -244,62 +241,27 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($dataList as $key => $data)
-                            <tr>
-                                <td>
-                                    {{ $data->m }}月
-                                </td>
-                                <td class="table-warning text-end">
-                                    <x-b-number :val="0" prefix="$" />
-                                </td>
-                                <td class="table-warning text-center">
-                                    <x-b-number :val="0" />
-                                </td>
-                                <td class="table-light text-end">
-                                    <x-b-number :val="0" prefix="$" />
-                                </td>
-                                <td class="table-light text-center">
-                                    <x-b-number :val="0" />
-                                </td>
-                                <td class="table-success text-end">
-                                    <x-b-number :val="0" prefix="$" />
-                                </td>
-                                <td class="table-success text-center">
-                                    <x-b-number :val="0" />
-                                </td>
-                                <td class="text-end table-danger">
-                                    <x-b-number :val="0" prefix="$" />
-                                </td>
-                            </tr>
-                        @endforeach
                     </tbody>
                     <tfoot>
                         <tr>
                             <th>合計</th>
-                            <th class="table-warning text-end">
-                                <x-b-number :val="0" prefix="$" />
-                            </th>
-                            <th class="table-warning text-center">
-                                <x-b-number :val="0" />
-                            </th>
-                            <th class="table-light text-end">
-                                <x-b-number :val="0" prefix="$" />
-                            </th>
-                            <th class="table-light text-center">
-                                <x-b-number :val="0" />
-                            </th>
-                            <th class="table-success text-end">
-                                <x-b-number :val="0" prefix="$" />
-                            </th>
-                            <th class="table-success text-center">
-                                <x-b-number :val="0" />
-                            </th>
-                            <th class="text-end table-danger">
-                                <x-b-number :val="0" prefix="$" />
-                            </th>
+                            <th class="table-warning text-end"></th>
+                            <th class="table-warning text-center"></th>
+                            <th class="table-light text-end"></th>
+                            <th class="table-light text-center"></th>
+                            <th class="table-success text-end"></th>
+                            <th class="table-success text-center"></th>
+                            <th class="text-end table-danger"></th>
                         </tr>
                     </tfoot>
                 </table>
+                <div id="loading" class="text-center position-absolute start-0 end-0" 
+                    style="top: 15px; display: none;">
+                    <div class="spinner-border text-dark opacity-75"  role="status"
+                        style="width:70px; height:70px; border-width:16px">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -337,16 +299,16 @@
                     </thead>
                     <tbody>
                         @php
-                            $total_gross_profit = 0;
-                            $total_price = 0;
-                            $total_qty = 0;
+                            $P_total_gross_profit = 0;
+                            $P_total_price = 0;
+                            $P_total_qty = 0;
                         @endphp
                         @foreach ($product as $key => $data)
                             @php
                                 
-                                $total_gross_profit += $data->gross_profit;
-                                $total_price += $data->price;
-                                $total_qty += $data->qty;
+                                $P_total_gross_profit += $data->gross_profit;
+                                $P_total_price += $data->price;
+                                $P_total_qty += $data->qty;
                                 
                             @endphp
                             <tr>
@@ -373,13 +335,13 @@
                         <tr>
                             <th colspan="2">合計</th>
                             {{-- <th class="text-end">
-                                <x-b-number :val="$total_qty" />
+                                <x-b-number :val="$P_total_qty" />
                             </th> --}}
                             <th class="text-end">
-                                <x-b-number :val="$total_price" prefix="$" />
+                                <x-b-number :val="$P_total_price" prefix="$" />
                             </th>
                             <th class="text-end">
-                                <x-b-number :val="$total_gross_profit" prefix="$" />
+                                <x-b-number :val="$P_total_gross_profit" prefix="$" />
                             </th>
                             <th></th>
                         </tr>
@@ -419,21 +381,21 @@
     @endpush
     @push('sub-scripts')
         <script>
-            const data = @json($product);
-            const total_gross_profit = @json($total_gross_profit);
-            // console.log(data);
-            const filterData = _.filter(data, (d) => (d.gross_profit >= 0));
-            const categorys = _.map(data, 'category'); // 類別
-            const gross_profits = _.map(data, 'gross_profit'); // 毛利
+            const product = @json($product);    // 類別排名
+            const total_gross_profit = @json($P_total_gross_profit);    // 類別-總毛利合計
+            const salechannelReport = @json($salechannelReport);    // 全通路
+            console.log(salechannelReport);
+            getSalechannelReport();
 
-            const basePercent = _.round((data[0].gross_profit / total_gross_profit) * 100, 2);
+            // 毛利佔比
+            const basePercent = _.round((product[0].gross_profit / total_gross_profit) * 100, 2);
             $('.-percent').each(function(index, element) {
                 // element == this
-                const percent = _.round((data[index].gross_profit / total_gross_profit) * 100, 2);
+                const percent = _.round((product[index].gross_profit / total_gross_profit) * 100, 2);
                 $(element)
                     .attr('data-percent', percent + '%')
                     .css('width', Math.abs(percent / basePercent * 100) + '%');
-                if (data[index].gross_profit < 0) {
+                if (product[index].gross_profit < 0) {
                     $(element).css({
                         'background-color': 'rgba(255, 101, 130, 0.3)',
                         color: 'rgb(var(--bs-danger-rgb))'
@@ -441,6 +403,10 @@
                 }
             });
 
+            // Chart ****************
+            const filterData = _.filter(product, (d) => (d.gross_profit >= 0));
+            const categorys = _.map(product, 'category'); // 類別
+            const gross_profits = _.map(product, 'gross_profit'); // 毛利
             const colorBlue = '0, 161, 230';
             const colorRed = '255, 101, 130';
             const positive = filterData.length;
@@ -478,7 +444,13 @@
                                 stepSize: 100
                             },
                             grid: {
-                                tickLength: 20
+                                tickLength: 20,
+                                color: (context) => {
+                                    if (context.tick.value === 0) {
+                                        return '#000000';
+                                    }
+                                    return '#E5E5E5';
+                                }
                             }
                         }
                     },
@@ -496,7 +468,7 @@
                         tooltip: {
                             callbacks: {
                                 beforeBody: (tooltipItems) => {
-                                    return `總營業額：$${formatNumber(data[tooltipItems[0].dataIndex].price)}`;
+                                    return `總營業額：$${formatNumber(product[tooltipItems[0].dataIndex].price)}`;
                                 },
                                 label: (tooltipItem) => {
                                     let label = tooltipItem.dataset.label || '';
@@ -537,7 +509,7 @@
                         tooltip: {
                             callbacks: {
                                 beforeBody: (tooltipItems) => {
-                                    return `總營業額：$${formatNumber(data[tooltipItems[0].dataIndex].price)}`;
+                                    return `總營業額：$${formatNumber(product[tooltipItems[0].dataIndex].price)}`;
                                 },
                                 label: (tooltipItem) => {
                                     let label = tooltipItem.dataset.label || '';
@@ -552,7 +524,7 @@
                 }
             });
 
-            // Tabs
+            // Tabs ****************
             $('.nav-link').off('click').on('click', function() {
                 const $this = $(this);
                 const page = $this.data('page');
@@ -565,6 +537,67 @@
                 $('.-page', $tab).prop('hidden', true);
                 $(`#-${page}`, $tab).prop('hidden', false);
             });
+
+            // API - 銷售通路 ****************
+            $('#salechannel_id').on('change', getSalechannelReport);
+            function getSalechannelReport() {
+                const $table = $('#salechannel_table');
+                const $loading = $('#loading');
+                $table.addClass('opacity-50');
+                $loading.show();
+
+                const _URL = '{{ Route('api.cms.order_salechannel_report') }}';
+                const Data = {
+                    year: {{ $_GET["y"] }},
+                    quarter: {{ $_GET["quarter"] }},
+                    salechannel_id: $('#salechannel_id').val(),
+                };
+                $('tbody, tfoot th:not(:first)', $table).empty();
+
+                axios.post(_URL, Data)
+                .then((result) => {
+                    const res = result.data;
+                    // console.log(res.data);
+                    if (res.status === '0' && res.data && res.data.length > 0) {
+                        const sc_datas = res.data;
+                        let sums = [0, 0, 0, 0, 0, 0, 0];
+                        // tbody
+                        _.forEach(sc_datas, (val) => {
+                            $('tbody', $table).append(`
+                                <tr>
+                                    <td>${val.month}月</td>
+                                    <td class="table-warning text-end">$${formatNumber(val.price_1)}</td>
+                                    <td class="table-warning text-center">${formatNumber(val.qty_1)}</td>
+                                    <td class="table-light text-end">$${formatNumber(val.price_0)}</td>
+                                    <td class="table-light text-center">${formatNumber(val.qty_0)}</td>
+                                    <td class="table-success text-end">$${formatNumber(val.total_price)}</td>
+                                    <td class="table-success text-center">${formatNumber(val.total_qty)}</td>
+                                    <td class="table-danger text-end">$${formatNumber(val.total_gross_profit)}</td>
+                                </tr>
+                            `);
+                            sums[0] += Number(val.price_1);
+                            sums[1] += Number(val.qty_1);
+                            sums[2] += Number(val.price_0);
+                            sums[3] += Number(val.qty_0);
+                            sums[4] += Number(val.total_price);
+                            sums[5] += Number(val.total_qty);
+                            sums[6] += Number(val.total_gross_profit);
+                        });
+                        // tfoot
+                        $('tfoot th:not(:first)', $table).each(function (index, element) {
+                            // element == this
+                            const prefix = $(element).hasClass('text-end') ? '$' : '';
+                            $(element).text(prefix + formatNumber(sums[index]));
+                        });
+                    }
+                    $table.removeClass('opacity-50');
+                    $loading.hide();
+                }).catch((err) => {
+                    console.error(err);
+                    $table.removeClass('opacity-50');
+                    $loading.hide();
+                });
+            }
         </script>
     @endpush
 @endOnce
