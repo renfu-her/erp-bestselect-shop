@@ -34,7 +34,7 @@
             </div>
         </form>
     </div>
-    
+
     <div class="tab">
         <ul class="nav nav-tabs border-bottom-0">
             <li class="nav-item">
@@ -55,7 +55,7 @@
         </ul>
 
         {{-- 季報表 --}}
-        <div id="-detail1" class="card shadow p-4 mb-4 -page">
+        <div id="-detail1" class="card shadow p-4 mb-4 -page" hidden>
             <div>
                 <table class="table table-sm table-borderless">
                     <tr>
@@ -81,13 +81,13 @@
                         @endphp
                         @foreach ($dataList as $key => $data)
                             @php
-    
+                                
                                 $total_gross_profit += $data->total_gross_profit;
                                 $total_price += $data->total_price;
-                              
+                                
                             @endphp
                             <tr>
-                                <td> 
+                                <td>
                                     {{ $data->m }}月
                                 </td>
                                 <td class="text-end">
@@ -102,7 +102,7 @@
                     <tfoot>
                         <tr>
                             <th>合計</th>
-                           
+
                             <th class="text-end">
                                 <x-b-number :val="$total_price" prefix="$" />
                             </th>
@@ -116,7 +116,7 @@
         </div>
 
         {{-- 分潤報表 --}}
-        <div id="-profit" class="card shadow p-4 mb-4 -page" hidden>
+        <div id="-profit" class="card shadow p-4 mb-4 -page">
             <h6 class="mb-3">全通路</h6>
             <div class="table-responsive">
                 <table class="table table-bordered mb-1">
@@ -138,31 +138,49 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($dataList as $key => $data)
+                        @php
+                            $price_1 = 0;
+                            $price_0 = 0;
+                            $qty_1 = 0;
+                            $qty_0 = 0;
+                            $total_price = 0;
+                            $total_qty = 0;
+                            $total_gross_profit = 0;
+                        @endphp
+                        @foreach ($salechannelReport as $key => $data)
+                            @php
+                                $price_1 += $data->price_1;
+                                $price_0 += $data->price_0;
+                                $qty_1 += $data->qty_1;
+                                $qty_0 += $data->qty_0;
+                                $total_price += $data->total_price;
+                                $total_qty += $data->total_qty;
+                                $total_gross_profit += $data->total_gross_profit;
+                            @endphp
                             <tr>
-                                <td> 
-                                    {{ $data->m }}月
+                                <td>
+                                    {{ $data->month }}月
                                 </td>
                                 <td class="table-warning text-end">
-                                    <x-b-number :val="0" prefix="$" />
+                                    <x-b-number :val="$data->price_1" prefix="$" />
                                 </td>
                                 <td class="table-warning text-center">
-                                    <x-b-number :val="0" />
+                                    <x-b-number :val="$data->qty_1" />
                                 </td>
                                 <td class="table-light text-end">
-                                    <x-b-number :val="0" prefix="$" />
+                                    <x-b-number :val="$data->price_0" prefix="$" />
                                 </td>
                                 <td class="table-light text-center">
-                                    <x-b-number :val="0" />
+                                    <x-b-number :val="$data->qty_0" />
                                 </td>
                                 <td class="table-success text-end">
-                                    <x-b-number :val="0" prefix="$" />
+                                    <x-b-number :val="$data->total_price" prefix="$" />
                                 </td>
                                 <td class="table-success text-center">
-                                    <x-b-number :val="0" />
+                                    <x-b-number :val="$data->total_qty" />
                                 </td>
                                 <td class="text-end table-danger">
-                                    <x-b-number :val="0" prefix="$" />
+                                    <x-b-number :val="$data->total_gross_profit" prefix="$" />
                                 </td>
                             </tr>
                         @endforeach
@@ -171,25 +189,25 @@
                         <tr>
                             <th>合計</th>
                             <th class="table-warning text-end">
-                                <x-b-number :val="0" prefix="$" />
+                                <x-b-number :val="$price_1" prefix="$" />
                             </th>
                             <th class="table-warning text-center">
-                                <x-b-number :val="0" />
+                                <x-b-number :val="$qty_1" />
                             </th>
                             <th class="table-light text-end">
-                                <x-b-number :val="0" prefix="$" />
+                                <x-b-number :val="$price_0" prefix="$" />
                             </th>
                             <th class="table-light text-center">
-                                <x-b-number :val="0" />
+                                <x-b-number :val="$qty_0" />
                             </th>
                             <th class="table-success text-end">
-                                <x-b-number :val="0" prefix="$" />
+                                <x-b-number :val="$total_price" prefix="$" />
                             </th>
                             <th class="table-success text-center">
-                                <x-b-number :val="0" />
+                                <x-b-number :val="$total_qty" />
                             </th>
                             <th class="text-end table-danger">
-                                <x-b-number :val="0" prefix="$" />
+                                <x-b-number :val="$total_gross_profit" prefix="$" />
                             </th>
                         </tr>
                     </tfoot>
@@ -200,8 +218,9 @@
                 <label class="col-auto col-form-label">銷售通路</label>
                 <div class="col">
                     <select name="channel" class="form-select">
-                        <option value="1">喜鴻購物2.0官網</option>
-                        <option value="2">喜鴻購物2.0ERP</option>
+                        @foreach ($SaleChannels as $key => $value)
+                            <option value="{{ $value->id }}">{{ $value->title }}</option>
+                        @endforeach
                     </select>
                 </div>
             </div>
@@ -227,7 +246,7 @@
                     <tbody>
                         @foreach ($dataList as $key => $data)
                             <tr>
-                                <td> 
+                                <td>
                                     {{ $data->m }}月
                                 </td>
                                 <td class="table-warning text-end">
@@ -324,15 +343,15 @@
                         @endphp
                         @foreach ($product as $key => $data)
                             @php
-
+                                
                                 $total_gross_profit += $data->gross_profit;
                                 $total_price += $data->price;
                                 $total_qty += $data->qty;
-                            
+                                
                             @endphp
                             <tr>
                                 <th scope="row">{{ $key + 1 }}</th>
-                                <td class="wrap lh-sm"> 
+                                <td class="wrap lh-sm">
                                     {{ $data->category }}
                                 </td>
                                 {{-- <td class="text-end">
@@ -389,6 +408,7 @@
                 margin: auto;
                 margin-right: 0;
             }
+
             .-percent::after {
                 content: attr(data-percent);
                 display: block;
@@ -403,16 +423,16 @@
             const total_gross_profit = @json($total_gross_profit);
             // console.log(data);
             const filterData = _.filter(data, (d) => (d.gross_profit >= 0));
-            const categorys = _.map(data, 'category');    // 類別
-            const gross_profits = _.map(data, 'gross_profit');    // 毛利
+            const categorys = _.map(data, 'category'); // 類別
+            const gross_profits = _.map(data, 'gross_profit'); // 毛利
 
             const basePercent = _.round((data[0].gross_profit / total_gross_profit) * 100, 2);
-            $('.-percent').each(function (index, element) {
+            $('.-percent').each(function(index, element) {
                 // element == this
                 const percent = _.round((data[index].gross_profit / total_gross_profit) * 100, 2);
                 $(element)
                     .attr('data-percent', percent + '%')
-                    .css('width', Math.abs(percent/basePercent*100) + '%');
+                    .css('width', Math.abs(percent / basePercent * 100) + '%');
                 if (data[index].gross_profit < 0) {
                     $(element).css({
                         'background-color': 'rgba(255, 101, 130, 0.3)',
@@ -531,7 +551,7 @@
                     }
                 }
             });
-            
+
             // Tabs
             $('.nav-link').off('click').on('click', function() {
                 const $this = $(this);
