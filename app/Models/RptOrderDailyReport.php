@@ -72,7 +72,6 @@ class RptOrderDailyReport extends Model
             ->groupBy('dd')
             ->groupBy('atomic.sale_channel_id')
             ->groupBy('atomic.has_mcode')
-            ->limit(15)
             ->get()
             ->toArray();
 
