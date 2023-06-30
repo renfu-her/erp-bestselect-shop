@@ -47,8 +47,8 @@
                     通路分潤報表
                 </button>
             </li>
-            <li class="nav-item" hidden>
-                <button class="nav-link disabled" type="button" data-page="chart1">
+            <li class="nav-item">
+                <button class="nav-link" type="button" data-page="chart1">
                     Chart
                 </button>
             </li>
@@ -266,7 +266,11 @@
         </div>
 
         {{-- Chart --}}
-        <div id="-chart1" class="card shadow p-4 mb-4 -page" hidden></div>
+        <div id="-chart1" class="card shadow p-4 mb-4 -page" hidden>
+            <div style="position: relative;height: 400px;">
+                <canvas id="stackedBarChart"></canvas>
+            </div>
+        </div>
     </div>
 
     <div class="tab">
@@ -516,6 +520,137 @@
                                     if (label) label += '：';
                                     label += '$' + tooltipItem.formattedValue;
                                     label += ` (${_.round((tooltipItem.parsed / total_gross_profit) * 100, 2)}%)`;
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            const colorYellow = '255, 206, 103';
+            const colorGrey = '201, 203, 207';
+            const colorOrange = '255, 160, 78';
+            const colorGreen = '0, 192, 192';
+            // 堆積長條圖
+            new Chart('stackedBarChart', {
+                type: 'bar',
+                data: {
+                    labels: _.map(salechannelReport, (v) => (v.month + '月')),
+                    datasets: [
+                        {
+                            label: '總毛利',
+                            data: _.map(salechannelReport, 'total_gross_profit'),
+                            type: 'line',
+                            order: 0,
+                            yAxisID: 'y',
+                            borderColor: `rgb(${colorRed})`,
+                            backgroundColor: `rgba(${colorRed}, .5)`
+                        },
+                        {
+                            label: '總計',
+                            data: _.map(salechannelReport, 'total_price'),
+                            type: 'line',
+                            order: 0,
+                            yAxisID: 'y0',
+                            borderColor: `rgb(${colorGreen})`,
+                            backgroundColor: `rgba(${colorGreen}, .5)`
+                        },
+                        {
+                            label: '有分潤碼-營業額',
+                            data: _.map(salechannelReport, 'price_1'),
+                            order: 1,
+                            stack: 'Stack 0',
+                            yAxisID: 'y',
+                            borderColor: `rgb(${colorYellow})`,
+                            backgroundColor: `rgba(${colorYellow}, .6)`,
+                            borderWidth: 3
+                        },
+                        {
+                            label: '無分潤碼-營業額',
+                            data: _.map(salechannelReport, 'price_0'),
+                            order: 1,
+                            stack: 'Stack 0',
+                            yAxisID: 'y',
+                            borderColor: `rgb(${colorGrey})`,
+                            backgroundColor: `rgba(${colorGrey}, .7)`,
+                            borderWidth: 3
+                        },
+                        {
+                            label: '有分潤碼-訂單數',
+                            data: _.map(salechannelReport, 'qty_1'),
+                            order: 2,
+                            stack: 'Stack 1',
+                            yAxisID: 'y1',
+                            backgroundColor: `rgba(${colorOrange}, .3)`,
+                            barPercentage: 0.3
+                        },
+                        {
+                            label: '無分潤碼-訂單數',
+                            data: _.map(salechannelReport, 'qty_0'),
+                            order: 2,
+                            stack: 'Stack 1',
+                            yAxisID: 'y1',
+                            backgroundColor: `rgba(${colorGrey}, .4)`,
+                            barPercentage: 0.3
+                        },
+                    ]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            stacked: true,
+                        },
+                        y: {
+                            stacked: true,
+                            suggestedMin: 0,
+                            position: 'left',
+                        },
+                        y0: {
+                            display: false,
+                            stacked: false,
+                            suggestedMin: 0,
+                            position: 'left',
+                        },
+                        y1: {
+                            stacked: true,
+                            position: 'right',
+                            grid: {
+                                drawOnChartArea: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                padding: 18,
+                                font: {
+                                    size: 14,
+                                    lineHeight: 1.6
+                                }
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: '全通路分潤圖',
+                            font: {
+                                size: 16
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                title: (tooltipItems) => {
+                                    let label = tooltipItems[0].label || '';
+                                    if (tooltipItems[0].dataset.order > 0) label += (' ' + tooltipItems[0].dataset.label.split('-')[0]);
+                                    return label
+                                },
+                                label: (tooltipItem) => {
+                                    let label = tooltipItem.dataset.label.split('-')[1] || tooltipItem.dataset.label;
+                                    if (label) label += '：';
+                                    if (tooltipItem.dataset.stack !== 'Stack 1') label += '$';
+                                    label += tooltipItem.formattedValue;
                                     return label;
                                 }
                             }
