@@ -47,7 +47,7 @@
                     通路分潤報表
                 </button>
             </li>
-            <li class="nav-item">
+            <li class="nav-item" hidden>
                 <button class="nav-link disabled" type="button" data-page="chart1">
                     Chart
                 </button>
