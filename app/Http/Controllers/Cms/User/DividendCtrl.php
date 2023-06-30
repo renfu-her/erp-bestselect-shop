@@ -42,7 +42,7 @@ class DividendCtrl extends Controller
         CustomerDividend::format($dataList);
 
         $total = CustomerDividend::getByCategory();
-
+      
         //  dd( CustomerDividend::totalList($keyword)->limit(10)->get()->toArray());
         return view('cms.marketing.customer_dividend.list', [
             'dataList' => $dataList,

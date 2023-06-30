@@ -399,7 +399,8 @@ class CustomerDividend extends Model
     {
         $getDividendSub = self::select(['customer_id', 'category', 'type'])
             ->selectRaw('SUM(dividend) as dividend')
-        //   ->where('type', 'get')
+            ->where('flag', "<>", DividendFlag::NonActive())
+        //  ->where('type', 'get')
             ->groupBy('customer_id')
             ->groupBy('category')
             ->groupBy('type');
@@ -457,6 +458,7 @@ class CustomerDividend extends Model
     {
         $re = self::select(['type', 'category'])
             ->selectRaw('SUM(dividend) as dividend')
+            ->where('flag', "<>", DividendFlag::NonActive())
             ->groupBy('type')
             ->groupBy('category')
             ->get()
