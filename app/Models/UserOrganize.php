@@ -182,5 +182,17 @@ class UserOrganize extends Model
         return $output;
 
     }
+    // 取得管理者擁有的部門
+    public static function getDirectorDepartment($user_id)
+    {
+        DB::table('usr_user_organize as r')
+            ->leftJoin('usr_user_organize as r2', 'r.id',
+                '=', 'r2.parent')
+            ->where(function ($query) use ($user_id) {
+                $query->where('r.user_id', $user_id)
+                    ->orWhere('r.user_id2', $user_id);
+            })
+            ->where('r.level', 2);
+    }
 
 }

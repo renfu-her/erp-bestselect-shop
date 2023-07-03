@@ -47,8 +47,8 @@
                     通路分潤報表
                 </button>
             </li>
-            <li class="nav-item" hidden>
-                <button class="nav-link disabled" type="button" data-page="chart1">
+            <li class="nav-item">
+                <button class="nav-link" type="button" data-page="chart1">
                     Chart
                 </button>
             </li>
@@ -57,13 +57,17 @@
         {{-- 季報表 --}}
         <div id="-detail1" class="card shadow p-4 mb-4 -page">
             <div>
-                <table class="table table-sm table-borderless">
+                <table class="table table-sm table-borderless mb-3">
                     <tr>
                         <th>上架商品總數：{{ number_format($products) }}</th>
                         <th>廠商總數：{{ number_format($suppliers) }}</th>
                     </tr>
                 </table>
             </div>
+            <mark>
+                <i class="bi bi-info-circle-fill text-warning ps-2 pe-1"></i>
+                以<span class="text-danger">售出商品</span>金額成本計算，不包含優惠、折扣、運費等（同採購營收算法）
+            </mark>
             <div class="table-responsive tableOverBox">
                 <table class="table table-striped mb-0 tableList">
                     <thead class="align-middle">
@@ -115,6 +119,10 @@
         {{-- 分潤報表 --}}
         <div id="-profit" class="card shadow p-4 mb-4 -page" hidden>
             <h6 class="mb-3">全通路</h6>
+            <mark class="mb-3">
+                <i class="bi bi-info-circle-fill text-warning ps-2 pe-1"></i>
+                以<span class="text-danger">訂單</span>為單位計算，包含優惠折扣等
+            </mark>
             <div class="table-responsive">
                 <table class="table table-bordered mb-1 align-middle">
                     <thead class="align-middle">
@@ -266,7 +274,11 @@
         </div>
 
         {{-- Chart --}}
-        <div id="-chart1" class="card shadow p-4 mb-4 -page" hidden></div>
+        <div id="-chart1" class="card shadow p-4 mb-4 -page" hidden>
+            <div style="position: relative;height: 400px;">
+                <canvas id="stackedBarChart"></canvas>
+            </div>
+        </div>
     </div>
 
     <div class="tab">
@@ -388,20 +400,22 @@
             getSalechannelReport();
 
             // 毛利佔比
-            const basePercent = _.round((product[0].gross_profit / total_gross_profit) * 100, 2);
-            $('.-percent').each(function(index, element) {
-                // element == this
-                const percent = _.round((product[index].gross_profit / total_gross_profit) * 100, 2);
-                $(element)
-                    .attr('data-percent', percent + '%')
-                    .css('width', Math.abs(percent / basePercent * 100) + '%');
-                if (product[index].gross_profit < 0) {
-                    $(element).css({
-                        'background-color': 'rgba(255, 101, 130, 0.3)',
-                        color: 'rgb(var(--bs-danger-rgb))'
-                    });
-                }
-            });
+            if (total_gross_profit > 0) {
+                const basePercent = _.round((product[0].gross_profit / total_gross_profit) * 100, 2);
+                $('.-percent').each(function(index, element) {
+                    // element == this
+                    const percent = _.round((product[index].gross_profit / total_gross_profit) * 100, 2);
+                    $(element)
+                        .attr('data-percent', percent + '%')
+                        .css('width', Math.abs(percent / basePercent * 100) + '%');
+                    if (product[index].gross_profit < 0) {
+                        $(element).css({
+                            'background-color': 'rgba(255, 101, 130, 0.3)',
+                            color: 'rgb(var(--bs-danger-rgb))'
+                        });
+                    }
+                });
+            }
 
             // Chart ****************
             const filterData = _.filter(product, (d) => (d.gross_profit >= 0));
@@ -516,6 +530,137 @@
                                     if (label) label += '：';
                                     label += '$' + tooltipItem.formattedValue;
                                     label += ` (${_.round((tooltipItem.parsed / total_gross_profit) * 100, 2)}%)`;
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            const colorYellow = '255, 206, 103';
+            const colorGrey = '201, 203, 207';
+            const colorOrange = '255, 160, 78';
+            const colorGreen = '0, 192, 192';
+            // 堆積長條圖
+            new Chart('stackedBarChart', {
+                type: 'bar',
+                data: {
+                    labels: _.map(salechannelReport, (v) => (v.month + '月')),
+                    datasets: [
+                        {
+                            label: '總毛利',
+                            data: _.map(salechannelReport, 'total_gross_profit'),
+                            type: 'line',
+                            order: 0,
+                            yAxisID: 'y',
+                            borderColor: `rgb(${colorRed})`,
+                            backgroundColor: `rgba(${colorRed}, .5)`
+                        },
+                        {
+                            label: '總計',
+                            data: _.map(salechannelReport, 'total_price'),
+                            type: 'line',
+                            order: 0,
+                            yAxisID: 'y0',
+                            borderColor: `rgb(${colorGreen})`,
+                            backgroundColor: `rgba(${colorGreen}, .5)`
+                        },
+                        {
+                            label: '有分潤碼-營業額',
+                            data: _.map(salechannelReport, 'price_1'),
+                            order: 1,
+                            stack: 'Stack 0',
+                            yAxisID: 'y',
+                            borderColor: `rgb(${colorYellow})`,
+                            backgroundColor: `rgba(${colorYellow}, .6)`,
+                            borderWidth: 3
+                        },
+                        {
+                            label: '無分潤碼-營業額',
+                            data: _.map(salechannelReport, 'price_0'),
+                            order: 1,
+                            stack: 'Stack 0',
+                            yAxisID: 'y',
+                            borderColor: `rgb(${colorGrey})`,
+                            backgroundColor: `rgba(${colorGrey}, .7)`,
+                            borderWidth: 3
+                        },
+                        {
+                            label: '有分潤碼-訂單數',
+                            data: _.map(salechannelReport, 'qty_1'),
+                            order: 2,
+                            stack: 'Stack 1',
+                            yAxisID: 'y1',
+                            backgroundColor: `rgba(${colorOrange}, .3)`,
+                            barPercentage: 0.3
+                        },
+                        {
+                            label: '無分潤碼-訂單數',
+                            data: _.map(salechannelReport, 'qty_0'),
+                            order: 2,
+                            stack: 'Stack 1',
+                            yAxisID: 'y1',
+                            backgroundColor: `rgba(${colorGrey}, .4)`,
+                            barPercentage: 0.3
+                        },
+                    ]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            stacked: true,
+                        },
+                        y: {
+                            stacked: true,
+                            suggestedMin: 0,
+                            position: 'left',
+                        },
+                        y0: {
+                            display: false,
+                            stacked: false,
+                            suggestedMin: 0,
+                            position: 'left',
+                        },
+                        y1: {
+                            stacked: true,
+                            position: 'right',
+                            grid: {
+                                drawOnChartArea: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                padding: 18,
+                                font: {
+                                    size: 14,
+                                    lineHeight: 1.6
+                                }
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: '全通路分潤圖',
+                            font: {
+                                size: 16
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                title: (tooltipItems) => {
+                                    let label = tooltipItems[0].label || '';
+                                    if (tooltipItems[0].dataset.order > 0) label += (' ' + tooltipItems[0].dataset.label.split('-')[0]);
+                                    return label
+                                },
+                                label: (tooltipItem) => {
+                                    let label = tooltipItem.dataset.label.split('-')[1] || tooltipItem.dataset.label;
+                                    if (label) label += '：';
+                                    if (tooltipItem.dataset.stack !== 'Stack 1') label += '$';
+                                    label += tooltipItem.formattedValue;
                                     return label;
                                 }
                             }
