@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Cms\Marketing;
 
 use App\Http\Controllers\Controller;
 use App\Models\ProductReport;
-use App\Models\RptProductReportMonthly;
+use App\Models\RptOrderDailyReport;
+use App\Models\RptProductReportDaily;
+use App\Models\SaleChannel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 
@@ -26,19 +28,37 @@ class ProductReportCtrl extends Controller
             $year_range[] = $i;
         }
 
-        $product = RptProductReportMonthly::dataListCategory($cond['year'], $cond['quarter'])
+        $product = RptProductReportDaily::dataListCategory($cond['year'], $cond['quarter'])
             ->orderBy('data.gross_profit', 'DESC')->get();
         $re = ProductReport::dataList($cond['year'], $cond['quarter']);
 
+        $salechannelReport = RptOrderDailyReport::dataList($cond['year'], $cond['quarter'])->get();
+
         return view('cms.reports.product_report.list', [
             'year_range' => $year_range,
-            'product'=>$product,
+            'product' => $product,
             'cond' => $cond,
             'dataList' => $re['seasons'],
             'products' => $re['products'],
             'suppliers' => $re['suppliers'],
+            'salechannelReport' => $salechannelReport,
+            'SaleChannels' => SaleChannel::get(),
         ]);
 
+    }
+
+    public function RptOrderDailyReport(Request $request)
+    {
+        $d = $request->all();
+
+        $channel_id = Arr::get($d, 'salechannel_id', null);
+        $year = Arr::get($d, 'year', date('Y'));
+        $quarter = Arr::get($d, 'quarter', intval(ceil(date('n') / 3)));
+       
+        return response()->json([
+            'status' => '0',
+            'data' => RptOrderDailyReport::dataList($year, $quarter, $channel_id)->get(),
+        ]);
     }
 
     /**

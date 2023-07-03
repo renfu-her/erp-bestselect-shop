@@ -140,7 +140,7 @@ class RptUserReportMonthly extends Model
 
         self::where('month', 'like', "%$currentMonth%")->delete();
 
-        $atomic = RptReport::atomic();
+        $atomic = RptReport::atomic()->whereNotNull('order.mcode') ;
 
         $main = DB::query()->fromSub($atomic, 'atomic')
             ->leftJoin('prd_sale_channels as sh', 'atomic.sale_channel_id', '=', 'sh.id')
