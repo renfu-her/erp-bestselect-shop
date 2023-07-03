@@ -38,7 +38,15 @@ class Petition extends Model
         }
 
         if (isset($option['user_id']) && $option['user_id']) {
-            $re->where('petition.user_id', $option['user_id']);
+            $viewSub = DB::table('pet_audit')
+                ->select('source_id', 'user_id')
+                ->where('source_type', 'petition');
+
+            $re->leftJoinSub($viewSub, 'audit3', 'audit3.source_id', '=', 'petition.id')
+                ->where(function ($query) use ($option) {
+                    $query->where('petition.user_id', $option['user_id'])
+                        ->orWhere('audit3.user_id', $option['user_id']);
+                });
         }
 
         if (isset($option['sn']) && $option['sn']) {
