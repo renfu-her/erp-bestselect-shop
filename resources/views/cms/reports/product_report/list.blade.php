@@ -57,13 +57,17 @@
         {{-- 季報表 --}}
         <div id="-detail1" class="card shadow p-4 mb-4 -page">
             <div>
-                <table class="table table-sm table-borderless">
+                <table class="table table-sm table-borderless mb-3">
                     <tr>
                         <th>上架商品總數：{{ number_format($products) }}</th>
                         <th>廠商總數：{{ number_format($suppliers) }}</th>
                     </tr>
                 </table>
             </div>
+            <mark>
+                <i class="bi bi-info-circle-fill text-warning ps-2 pe-1"></i>
+                以<span class="text-danger">售出商品</span>金額成本計算，不包含優惠、折扣、運費等（同採購營收算法）
+            </mark>
             <div class="table-responsive tableOverBox">
                 <table class="table table-striped mb-0 tableList">
                     <thead class="align-middle">
@@ -115,6 +119,10 @@
         {{-- 分潤報表 --}}
         <div id="-profit" class="card shadow p-4 mb-4 -page" hidden>
             <h6 class="mb-3">全通路</h6>
+            <mark class="mb-3">
+                <i class="bi bi-info-circle-fill text-warning ps-2 pe-1"></i>
+                以<span class="text-danger">訂單</span>為單位計算，包含優惠折扣等
+            </mark>
             <div class="table-responsive">
                 <table class="table table-bordered mb-1 align-middle">
                     <thead class="align-middle">
@@ -392,20 +400,22 @@
             getSalechannelReport();
 
             // 毛利佔比
-            const basePercent = _.round((product[0].gross_profit / total_gross_profit) * 100, 2);
-            $('.-percent').each(function(index, element) {
-                // element == this
-                const percent = _.round((product[index].gross_profit / total_gross_profit) * 100, 2);
-                $(element)
-                    .attr('data-percent', percent + '%')
-                    .css('width', Math.abs(percent / basePercent * 100) + '%');
-                if (product[index].gross_profit < 0) {
-                    $(element).css({
-                        'background-color': 'rgba(255, 101, 130, 0.3)',
-                        color: 'rgb(var(--bs-danger-rgb))'
-                    });
-                }
-            });
+            if (total_gross_profit > 0) {
+                const basePercent = _.round((product[0].gross_profit / total_gross_profit) * 100, 2);
+                $('.-percent').each(function(index, element) {
+                    // element == this
+                    const percent = _.round((product[index].gross_profit / total_gross_profit) * 100, 2);
+                    $(element)
+                        .attr('data-percent', percent + '%')
+                        .css('width', Math.abs(percent / basePercent * 100) + '%');
+                    if (product[index].gross_profit < 0) {
+                        $(element).css({
+                            'background-color': 'rgba(255, 101, 130, 0.3)',
+                            color: 'rgb(var(--bs-danger-rgb))'
+                        });
+                    }
+                });
+            }
 
             // Chart ****************
             const filterData = _.filter(product, (d) => (d.gross_profit >= 0));
