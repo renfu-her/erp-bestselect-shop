@@ -33,9 +33,12 @@ class PetitionCtrl extends Controller
         if ($request->user()->can('cms.petition.admin')) {
             $options['user_id'] = Arr::get($query, 'user');
             $users = User::get();
+           
         } else {
             $options['user_id'] = $request->user()->id;
+            
             $users = User::where('id', $options['user_id'])->get();
+           
         }
 
         $dataList = Petition::dataList($options)->orderBy('petition.created_at', 'DESC')->paginate(100);
