@@ -628,6 +628,9 @@
                             position: 'right',
                             grid: {
                                 drawOnChartArea: false
+                            },
+                            ticks: {
+                                precision: 0
                             }
                         }
                     },
