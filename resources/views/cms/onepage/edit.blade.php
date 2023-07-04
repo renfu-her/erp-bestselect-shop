@@ -7,7 +7,7 @@
             編輯
         @endif 一頁式網站
     </h2>
-    <form method="post" action="{{ $formAction }}">
+    <form method="post" action="{{ $formAction }}" enctype="multipart/form-data">
         @method('POST')
         @csrf
 
@@ -75,7 +75,7 @@
                         </div>
                     </div>
                 </x-b-form-group>
-                
+              
                 <x-b-form-group name="img" title="APP顯示圖片（可將檔案拖拉至框中上傳）" required="false">
                     <div class="upload_image_block">
                         <label>
@@ -86,7 +86,7 @@
                             <!-- 預覽圖 -->
                             <span class="browser_box box" hidden>
                                 <span class="icon -x"><i class="bi bi-x"></i></span>
-                                <img src="{{ old('img', $data->img ?? '') }}" />
+                                <img src="{{ old('img') }}" />
                             </span>
                             <!-- 進度條 -->
                             <div class="progress" hidden>

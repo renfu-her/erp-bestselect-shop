@@ -9,8 +9,9 @@ use App\Models\SaleChannel;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Intervention\Image\Facades\Image;
 
 class OnePageCtrl extends Controller
 {
@@ -75,14 +76,22 @@ class OnePageCtrl extends Controller
 
         $d = $request->all();
 
-        OnePage::create([
+        $id = OnePage::create([
             'title' => $d['title'],
             'collection_id' => $d['collection_id'],
             'sale_channel_id' => $d['sale_channel_id'],
             'online_pay' => $d['online_pay'],
             'view_mode' => $d['view_mode'],
             'country' => $d['country'],
-        ]);
+        ])->id;
+
+        $img = self::imgResize($request->file('img')->path());
+       
+        $filename = self::imgFilename($id, $request->file('img')->hashName());
+        if (Storage::disk('local')->put($filename, $img)) {
+            OnePage::where('id',$id)->update(['img'=>$filename]);
+        }
+
 
         wToast('新增完成');
 
@@ -144,15 +153,30 @@ class OnePageCtrl extends Controller
         ]);
 
         $d = $request->all();
+        $_img = null;
+        $img = self::imgResize($request->file('img')->path());
+       
+        $filename = self::imgFilename($id, $request->file('img')->hashName());
+        if (Storage::disk('local')->put($filename, $img)) {
+          //  dd('aa');
+            $_img = $filename;
+        }
+      //  dd($_img);
 
-        OnePage::where('id', $id)->update([
+        $updateData = [
             'title' => $d['title'],
             'collection_id' => $d['collection_id'],
             'sale_channel_id' => $d['sale_channel_id'],
             'online_pay' => $d['online_pay'],
             'view_mode' => $d['view_mode'],
             'country' => $d['country'],
-        ]);
+        ];
+
+        if ($_img) {
+            $updateData['img'] = $_img;
+        }
+
+        OnePage::where('id', $id)->update($updateData);
 
         wToast('修改完成');
 
@@ -196,7 +220,6 @@ class OnePageCtrl extends Controller
         return response()->json(['status' => 'success']);
     }
 
-
     public function activeApp(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
@@ -215,6 +238,17 @@ class OnePageCtrl extends Controller
 
         return response()->json(['status' => 'success']);
     }
- 
+
+    public static function imgResize($path)
+    {
+        //             ->resize(1360, 453)
+        return Image::make($path)->encode('webp', 90);
+    }
+
+    public static function imgFilename($banner_id, $fileHashName)
+    {
+        return 'idx_banner/' . $banner_id . '/' . explode('.', $fileHashName)[0] . ".webp";
+
+    }
 
 }
