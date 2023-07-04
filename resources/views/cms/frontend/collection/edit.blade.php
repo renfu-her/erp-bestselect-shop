@@ -63,9 +63,9 @@
                                 <i class="bi bi-plus-circle text-secondary fs-4"></i>
                             </span>
                             <!-- 預覽圖 -->
-                            <span class="browser_box box" @if(false == isset($collectionData->img_path)) hidden @endif>
+                            <span class="browser_box box" @if(!isset($collectionData->img_path)) hidden @endif>
                                 <span class="icon -x"><i class="bi bi-x"></i></span>
-                                <img src="@if(true == isset($collectionData->img_path)) {{asset($collectionData->img_path)}} @endif" />
+                                <img src="@if(isset($collectionData->img_path)) {{asset($collectionData->img_path)}} @endif" />
                             </span>
                             <!-- 進度條 -->
                             <div class="progress" hidden>

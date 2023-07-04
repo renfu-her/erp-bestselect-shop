@@ -136,9 +136,9 @@
                             <i class="bi bi-plus-circle text-secondary fs-4"></i>
                         </span>
                         <!-- 預覽圖 -->
-                        <span class="browser_box box" @if(false == isset($data->img_pc)) hidden @endif>
+                        <span class="browser_box box" @if(!isset($data->img_pc)) hidden @endif>
                             <span class="icon -x"><i class="bi bi-x"></i></span>
-                            <img src="@if(true == isset($data->img_pc)) {{asset($data->img_pc)}} @endif" />
+                            <img src="@if(isset($data->img_pc)) {{asset($data->img_pc)}} @endif" />
                         </span>
                         <!-- 進度條 -->
                         <div class="progress" hidden>

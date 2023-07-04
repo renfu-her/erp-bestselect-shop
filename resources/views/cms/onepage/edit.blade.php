@@ -80,13 +80,13 @@
                     <div class="upload_image_block">
                         <label>
                             <!-- 按鈕 -->
-                            <span class="browser_box -plusBtn">
+                            <span class="browser_box -plusBtn" @if(isset($data->img)) hidden @endif>
                                 <i class="bi bi-plus-circle text-secondary fs-4"></i>
                             </span>
                             <!-- 預覽圖 -->
-                            <span class="browser_box box" hidden>
+                            <span class="browser_box box"  @if(!isset($data->img)) hidden @endif>
                                 <span class="icon -x"><i class="bi bi-x"></i></span>
-                                <img src="{{ old('img') }}" />
+                                <img src="@if(isset($data->img)) {{ asset($data->img) }} @endif" />
                             </span>
                             <!-- 進度條 -->
                             <div class="progress" hidden>
