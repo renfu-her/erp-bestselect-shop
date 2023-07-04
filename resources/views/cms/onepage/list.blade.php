@@ -58,7 +58,7 @@
                                         type="checkbox" @if ($data->active) checked @endif
                                         data-bs-toggle="tooltip" title="啟用"
                                         @cannot('cms.onepage.edit') disabled @endcannot>
-                                    <input type="hidden" name="id[]" value="{{ $data->id }}">
+                                    <input type="hidden" value="{{ $data->id }}">
                                 </div>
                                 <div class="form-check form-switch form-switch-lg form-switch-success mt-2">
                                     <input class="form-check-input"
@@ -66,7 +66,7 @@
                                         type="checkbox" @if ($data->app) checked @endif
                                         data-bs-toggle="tooltip" title="APP啟用"
                                         @cannot('cms.onepage.edit') disabled @endcannot>
-                                    <input type="hidden" name="id[]" value="{{ $data->id }}">
+                                    <input type="hidden" value="{{ $data->id }}">
                                 </div>
                             </td>
                             <td class="text-center">
@@ -151,7 +151,7 @@
                 const currentStatus = $(this).val();
                 const onepageId = $(this).next().val();
                 const _name = $(this).attr('name');
-                console.log(_name);
+                console.log(_name, onepageId);
                 const _URL = `/cms/onepage/${_name}/${onepageId}`;
                 const DATA = {
                     id: onepageId
