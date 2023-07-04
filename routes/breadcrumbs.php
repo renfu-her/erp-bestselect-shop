@@ -1580,12 +1580,12 @@ Breadcrumbs::for('cms.permission.child-edit', function (BreadcrumbTrail $trail, 
 });
 
 // 消費者紅利點數
-Breadcrumbs::for('cms.user-dividend.index', function (BreadcrumbTrail $trail) {
+Breadcrumbs::for('cms.customer-dividend.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
     $trail->push('消費者紅利點數');
 });
-Breadcrumbs::for('cms.user-dividend.log', function (BreadcrumbTrail $trail) {
-    $trail->parent('cms.user-dividend.index');
+Breadcrumbs::for('cms.customer-dividend.log', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.customer-dividend.index');
     $trail->push('點數提領紀錄');
 });
 
