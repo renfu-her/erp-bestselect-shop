@@ -85,13 +85,14 @@ class OnePageCtrl extends Controller
             'country' => $d['country'],
         ])->id;
 
-        $img = self::imgResize($request->file('img')->path());
-       
-        $filename = self::imgFilename($id, $request->file('img')->hashName());
-        if (Storage::disk('local')->put($filename, $img)) {
-            OnePage::where('id',$id)->update(['img'=>$filename]);
-        }
+        if ($request->hasFile('img')) {
+            $img = self::imgResize($request->file('img')->path());
 
+            $filename = self::imgFilename($id, $request->file('img')->hashName());
+            if (Storage::disk('local')->put($filename, $img)) {
+                OnePage::where('id', $id)->update(['img' => $filename]);
+            }
+        }
 
         wToast('新增完成');
 
@@ -144,6 +145,7 @@ class OnePageCtrl extends Controller
     public function update(Request $request, $id)
     {
         //
+
         $request->validate([
             'title' => 'required',
             'collection_id' => 'required',
@@ -154,14 +156,15 @@ class OnePageCtrl extends Controller
 
         $d = $request->all();
         $_img = null;
-        $img = self::imgResize($request->file('img')->path());
-       
-        $filename = self::imgFilename($id, $request->file('img')->hashName());
-        if (Storage::disk('local')->put($filename, $img)) {
-          //  dd('aa');
-            $_img = $filename;
+        if ($request->hasFile('img')) {
+            $img = self::imgResize($request->file('img')->path());
+            $filename = self::imgFilename($id, $request->file('img')->hashName());
+            if (Storage::disk('local')->put($filename, $img)) {
+                //  dd('aa');
+                $_img = $filename;
+            }
         }
-      //  dd($_img);
+        //  dd
 
         $updateData = [
             'title' => $d['title'],
@@ -174,6 +177,10 @@ class OnePageCtrl extends Controller
 
         if ($_img) {
             $updateData['img'] = $_img;
+        }
+
+        if ($d['del_img']) {
+            $updateData['img'] = null;
         }
 
         OnePage::where('id', $id)->update($updateData);
