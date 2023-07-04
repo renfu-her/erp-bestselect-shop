@@ -62,8 +62,8 @@
                                 </div>
                                 <div class="form-check form-switch form-switch-lg form-switch-success mt-2">
                                     <input class="form-check-input"
-                                        name="[]" value="{{ $data->active }}"
-                                        type="checkbox" @if ($data->active) checked @endif
+                                        name="app[]" value="{{ $data->app }}"
+                                        type="checkbox" @if ($data->app) checked @endif
                                         data-bs-toggle="tooltip" title="APP啟用"
                                         @cannot('cms.onepage.edit') disabled @endcannot>
                                     <input type="hidden" name="[]" value="{{ $data->id }}">

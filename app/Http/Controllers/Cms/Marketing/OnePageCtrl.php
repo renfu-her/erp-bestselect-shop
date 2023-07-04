@@ -196,6 +196,25 @@ class OnePageCtrl extends Controller
         return response()->json(['status' => 'success']);
     }
 
+
+    public function activeApp(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'id' => 'required|int|min:0',
+        ]);
+
+        $re = $request->all();
+
+        OnePage::changeAppStatus($re['id']);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'fail',
+                'errors' => $validator->errors()], 400);
+        }
+
+        return response()->json(['status' => 'success']);
+    }
  
 
 }

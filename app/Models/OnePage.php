@@ -44,6 +44,20 @@ class OnePage extends Model
         }
     }
 
+    public static function changeAppStatus($id)
+    {
+        $active = self::where('id', $id)
+            ->get()
+            ->first()
+            ->active;
+
+        if ($active) {
+            self::where('id', $id)->update(['app' => 0]);
+        } else {
+            self::where('id', $id)->update(['app' => 1]);
+        }
+    }
+
     public static function getProducts($collection_id, $sale_channel_id)
     {
 
