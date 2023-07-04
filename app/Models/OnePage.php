@@ -49,7 +49,7 @@ class OnePage extends Model
         $active = self::where('id', $id)
             ->get()
             ->first()
-            ->active;
+            ->app;
 
         if ($active) {
             self::where('id', $id)->update(['app' => 0]);
