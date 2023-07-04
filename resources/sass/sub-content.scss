@@ -432,6 +432,10 @@ input.form-control[type="month"] {
   margin-right: auto;
 }
 // checkbox .form-switch 大
+@mixin switch-variant($background, $border) {
+  background-color: $background;
+  border-color: $border;
+}
 .form-switch.form-switch-lg {
   .form-check-input {
     height: 1.5rem;
@@ -448,6 +452,26 @@ input.form-control[type="month"] {
     .form-check-input {
       margin-right: .8rem;
     }
+  }
+}
+@each $state, $value in $theme-colors {
+  $color: $value;
+  $shift-color: shift-color($value, -50%);
+
+  .form-switch-#{$state} {
+    .form-check-input {
+      &:checked {
+        @include switch-variant($color, $color);
+      }
+      &:focus {
+        border-color: $shift-color;
+        box-shadow: 0 0 0 $input-btn-focus-width rgba($color, 0.25);
+        &:not(:checked) {
+          background-image: escape-svg(url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'><circle r='3' fill='#{$shift-color}'/></svg>"));
+        }
+      }
+    }
+    
   }
 }
 

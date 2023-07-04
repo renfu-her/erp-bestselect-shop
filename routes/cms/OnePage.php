@@ -11,5 +11,6 @@ Route::group(['prefix' => 'onepage', 'as' => 'onepage.'], function () {
     Route::post('create', [OnePageCtrl::class, 'store']);
     Route::get('delete/{id}', [OnePageCtrl::class, 'destroy'])->name('delete')->middleware('permission:cms.onepage.edit');
     Route::post('active/{id}', [OnePageCtrl::class, 'active'])->name('active')->middleware('permission:cms.onepage.edit');
+    Route::post('active-app/{id}', [OnePageCtrl::class, 'activeApp'])->name('active-app')->middleware('permission:cms.onepage.edit');
 
 });

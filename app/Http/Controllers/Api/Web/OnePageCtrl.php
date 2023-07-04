@@ -10,6 +10,23 @@ use Illuminate\Support\Facades\Validator;
 
 class OnePageCtrl extends Controller
 {
+
+    function list(Request $request) {
+        $data = OnePage::select(['id', 'title', 'img'])->where('active', 1)
+            ->where('app', 1)->get()->toArray();
+    
+        $data = array_map(function ($n) {
+            $n['url'] = env('FRONTEND_URL') . "store/" . $n['id'];
+            return $n;
+        }, $data);
+
+        return response()->json([
+            'status' => '0',
+            'data' => $data,
+        ]);
+
+    }
+
     public static function getPage(Request $request, $id)
     {
 
