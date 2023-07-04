@@ -54,7 +54,7 @@
                             <th scope="row">{{ $key + 1 }}</th>
                             <td class="text-center">
                                 <div class="form-check form-switch form-switch-lg">
-                                    <input class="form-check-input" name="active[]" value="{{ $data->active }}"
+                                    <input class="form-check-input" name="active" value="{{ $data->active }}"
                                         type="checkbox" @if ($data->active) checked @endif
                                         data-bs-toggle="tooltip" title="啟用"
                                         @cannot('cms.onepage.edit') disabled @endcannot>
@@ -62,7 +62,7 @@
                                 </div>
                                 <div class="form-check form-switch form-switch-lg form-switch-success mt-2">
                                     <input class="form-check-input"
-                                        name="app[]" value="{{ $data->app }}"
+                                        name="active-app" value="{{ $data->app }}"
                                         type="checkbox" @if ($data->app) checked @endif
                                         data-bs-toggle="tooltip" title="APP啟用"
                                         @cannot('cms.onepage.edit') disabled @endcannot>
@@ -147,27 +147,29 @@
                 $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
             });
 
-            $('tbody').on('change', 'input[name="active[]"]', function() {
-                let currentStatus = $(this).val();
-                let onepageId = $(this).next().val();
-                console.log(onepageId);
-                let _URL = '/cms/onepage/active/' + onepageId;
-                let DATA = {
+            $('tbody').on('change', 'input[name="active"], input[name="active-app"]', function() {
+                const currentStatus = $(this).val();
+                const onepageId = $(this).next().val();
+                const _name = $(this).attr('name');
+                console.log(_name);
+                const _URL = `/cms/onepage/${_name}/${onepageId}`;
+                const DATA = {
                     id: onepageId
                 };
 
                 const ON = '1';
                 const OFF = '0';
+                const title = (_name === 'active-app') ? 'APP 推銷' : '網頁';
 
                 axios.post(_URL, DATA).then((result) => {
                     if (currentStatus === ON) {
                         $(this).val(OFF);
-                        toast.show('網頁已下架', {
+                        toast.show(title + '已下架', {
                             type: 'warning'
                         });
                     } else if (currentStatus === OFF) {
                         $(this).val(ON);
-                        toast.show('網頁已公開');
+                        toast.show(title + '已公開');
                     }
                 }).catch((error) => {
                     console.log('post error:' + error);
