@@ -31,18 +31,20 @@
         </div>
 
         <div class="table-responsive tableOverBox">
-            <table class="table table-striped tableList">
-                <thead>
+            <table class="table table-striped tableList mb-1">
+                <thead class="align-middle small">
                     <tr>
                         <th scope="col" style="width:40px">#</th>
+                        <th scope="col" class="text-center wrap lh-sm">
+                            <span>啟用</span> / <span class="text-nowrap">APP啟用</span>
+                        </th>
                         <th scope="col" class="text-center">編輯</th>
+                        <th scope="col" class="text-center wrap lh-1">複製連結</th>
                         <th scope="col">名稱</th>
                         <th scope="col">國家</th>
                         <th scope="col">商品群組</th>
                         <th scope="col">銷售通路</th>
-                        <th scope="col" class="text-center">啟用</th>
-                        <th scope="col" class="text-center">線上付款</th>
-                        <th scope="col" class="text-center">複製連結</th>
+                        <th scope="col" class="text-center wrap lh-1">線上付款</th>
                         <th scope="col" class="text-center">刪除</th>
                     </tr>
                 </thead>
@@ -50,6 +52,23 @@
                     @foreach ($dataList as $key => $data)
                         <tr>
                             <th scope="row">{{ $key + 1 }}</th>
+                            <td class="text-center">
+                                <div class="form-check form-switch form-switch-lg">
+                                    <input class="form-check-input" name="active[]" value="{{ $data->active }}"
+                                        type="checkbox" @if ($data->active) checked @endif
+                                        data-bs-toggle="tooltip" title="啟用"
+                                        @cannot('cms.onepage.edit') disabled @endcannot>
+                                    <input type="hidden" name="id[]" value="{{ $data->id }}">
+                                </div>
+                                <div class="form-check form-switch form-switch-lg form-switch-success mt-2">
+                                    <input class="form-check-input"
+                                        name="[]" value="{{ $data->active }}"
+                                        type="checkbox" @if ($data->active) checked @endif
+                                        data-bs-toggle="tooltip" title="APP啟用"
+                                        @cannot('cms.onepage.edit') disabled @endcannot>
+                                    <input type="hidden" name="[]" value="{{ $data->id }}">
+                                </div>
+                            </td>
                             <td class="text-center">
                                 @can('cms.onepage.edit')
                                     <a href="{{ Route('cms.onepage.edit', ['id' => $data->id], true) }}"
@@ -59,27 +78,7 @@
                                     </a>
                                 @endcan
                             </td>
-                            <td>{{ $data->title }}</td>
-                            <td>{{ $data->country }}</td>
-                            <td>{{ $data->collection_title }}</td>
-                            <td>{{ $data->salechannel_title }}</td>
-                            <td class="text-center">
-                                <div class="form-check form-switch form-switch-lg">
-                                    <input class="form-check-input" name="active[]" value="{{ $data->active }}"
-                                        type="checkbox" @if ($data->active) checked @endif
-                                        @cannot('cms.onepage.edit') disabled @endcannot>
-                                    <input type="hidden" name="id[]" value="{{ $data->id }}">
-                                </div>
-                            </td>
-
-                            <td class="text-center">
-                                @if ($data->online_pay == 1)
-                                    <i class="bi bi-check-lg text-success fs-5"></i>
-                                @else
-                                    <i class="bi bi-x-lg text-danger fs-6"></i>
-                                @endif
-                            </td>
-                            <td class="text-center">
+                            <td class="text-center wrap lh-1">
                                 <button type="button" data-bs-toggle="tooltip" title="複製"
                                     data-url="{{ frontendUrl() . 'store/' . $data->id . '?openExternalBrowser=1' }}"
                                     class="icon -copy icon-btn fs-5 text-primary rounded-circle border-0">
@@ -90,6 +89,18 @@
                                     class="icon -copy icon-btn fs-5 text-primary rounded-circle border-0">
                                     <i class="bi bi-clipboard2-plus"></i>
                                 </button>
+                            </td>
+
+                            <td class="wrap lh-sm">{{ $data->title }}</td>
+                            <td class="wrap lh-sm">{{ $data->country }}</td>
+                            <td class="wrap lh-sm">{{ $data->collection_title }}</td>
+                            <td class="wrap lh-sm">{{ $data->salechannel_title }}</td>
+                            <td class="text-center">
+                                @if ($data->online_pay == 1)
+                                    <i class="bi bi-check-lg text-success fs-5"></i>
+                                @else
+                                    <i class="bi bi-x-lg text-danger fs-6"></i>
+                                @endif
                             </td>
                             <td class="text-center">
                                 @can('cms.onepage.delete')
