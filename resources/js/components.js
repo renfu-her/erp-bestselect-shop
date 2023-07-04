@@ -207,6 +207,7 @@
                     aria-valuenow="1" aria-valuemin="0" aria-valuemax="100" style="width: 1%"></div>
             </div>
             <input type="file" name="" accept=".jpg,.jpeg,.png,.gif" hidden>
+            <input type="hidden" name="del_img">
         </label>
      * 
      * *** Multiple template

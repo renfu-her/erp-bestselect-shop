@@ -75,6 +75,29 @@
                         </div>
                     </div>
                 </x-b-form-group>
+                
+                <x-b-form-group name="img" title="APP顯示圖片（可將檔案拖拉至框中上傳）" required="false">
+                    <div class="upload_image_block">
+                        <label>
+                            <!-- 按鈕 -->
+                            <span class="browser_box -plusBtn">
+                                <i class="bi bi-plus-circle text-secondary fs-4"></i>
+                            </span>
+                            <!-- 預覽圖 -->
+                            <span class="browser_box box" hidden>
+                                <span class="icon -x"><i class="bi bi-x"></i></span>
+                                <img src="{{ old('img', $data->img ?? '') }}" />
+                            </span>
+                            <!-- 進度條 -->
+                            <div class="progress" hidden>
+                                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
+                                    aria-valuenow="1" aria-valuemin="0" aria-valuemax="100" style="width: 1%"></div>
+                            </div>
+                            <input type="file" name="img" accept=".jpg,.jpeg,.png,.gif" hidden>
+                            <input type="hidden" name="del_img">
+                        </label>
+                    </div>
+                </x-b-form-group>
             </div>
             @if ($errors->any())
                 <div class="alert alert-danger">
@@ -102,6 +125,21 @@
         </style>
     @endpush
     @push('sub-scripts')
-        <script></script>
+        <script>
+            /*** 圖片 ***/
+            bindReadImageFile($('input[name="img"]'), {
+                num: 'single',
+                fileInputName: 'img',
+                maxSize: 1024 * 5,
+                delFn: function ($x) {
+                    $x.siblings('img').attr('src', '');
+                    let img_box = $x.closest('.box');
+                    img_box.prop('hidden', true);
+                    img_box.siblings('.browser_box.-plusBtn').prop('hidden', false);
+                    img_box.siblings('input[name="img"]').val('');
+                    img_box.siblings('input[name="del_img"]').val('del');
+                }
+            });
+        </script>
     @endpush
 @endonce

@@ -66,7 +66,7 @@
                                         type="checkbox" @if ($data->app) checked @endif
                                         data-bs-toggle="tooltip" title="APP啟用"
                                         @cannot('cms.onepage.edit') disabled @endcannot>
-                                    <input type="hidden" name="[]" value="{{ $data->id }}">
+                                    <input type="hidden" name="id[]" value="{{ $data->id }}">
                                 </div>
                             </td>
                             <td class="text-center">
