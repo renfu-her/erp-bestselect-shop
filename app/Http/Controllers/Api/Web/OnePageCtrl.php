@@ -12,11 +12,41 @@ class OnePageCtrl extends Controller
 {
 
     function list(Request $request) {
-        $data = OnePage::select(['id', 'title', 'img'])->where('active', 1)
-            ->where('app', 1)->get()->toArray();
-    
-        $data = array_map(function ($n) {
-            $n['url'] = env('FRONTEND_URL') . "store/" . $n['id'];
+
+        $validator = Validator::make($request->all(), [
+            'country' => 'required',
+            'account' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'fail',
+                'errors' => $validator->errors()], 400);
+        }
+
+        $re = $request->all();
+
+        $customer = DB::table('usr_users as user')
+            ->join('usr_customers as customer', 'user.customer_id', '=', 'customer.id')
+            ->select('customer.sn')
+            ->where('user.account', $re['account'])
+            ->get()->first();
+
+        if (!$customer) {
+            return response()->json([
+                'status' => 'E02',
+                'errors' => '查無此用戶'], 400);
+        }
+
+        $data = OnePage::select(['id', 'title', 'img'])
+            ->where('country', $re['country'])
+            ->where('active', 1)
+            ->where('app', 1)
+            ->get()
+            ->toArray();
+
+        $data = array_map(function ($n) use ($customer) {
+            $n['url'] = frontendUrl() . 'store/' . $n['id'] . '?openExternalBrowser=1&mcode=' . $customer->sn;
             return $n;
         }, $data);
 
