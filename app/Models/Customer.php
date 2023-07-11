@@ -43,7 +43,7 @@ class Customer extends Authenticatable
         'password',
         'sn',
         'join_b2e_at',
-        'b2e_company_id'
+        'b2e_company_id',
     ];
 
     /**
@@ -290,8 +290,13 @@ class Customer extends Authenticatable
 
         if ($response->successful()) {
             $response = $response->json();
-            if ($response['check'] == 'Pass') {
-                return true;
+            if (isset($response['check'])) {
+                if ($response['check'] == 'Pass') {
+                    return true;
+                }
+            } else {
+                dd($response);
+                return false;
             }
         }
 
@@ -351,15 +356,16 @@ class Customer extends Authenticatable
     /**
      * 更新總花費
      */
-    public static function updateOrderSpends($customer_id, $total_spend) {
+    public static function updateOrderSpends($customer_id, $total_spend)
+    {
         if (isset($customer_id) && isset($total_spend)) {
             $count = 1;
             if (0 > $total_spend) {
                 $count = -1;
             }
             self::where('id', $customer_id)->update([
-                'order_counts' => DB::raw("order_counts + ". $count)
-                , 'total_spending' => DB::raw("total_spending + $total_spend")
+                'order_counts' => DB::raw("order_counts + " . $count)
+                , 'total_spending' => DB::raw("total_spending + $total_spend"),
             ]);
         }
     }
@@ -367,22 +373,24 @@ class Customer extends Authenticatable
     /**
      * 更新最近消費時間
      */
-    public static function updateLatestOrderTime($customer_id, $latest_order_time) {
+    public static function updateLatestOrderTime($customer_id, $latest_order_time)
+    {
         if (isset($customer_id) && isset($latest_order_time)) {
             self::where('id', $customer_id)->update([
-                'latest_order' => $latest_order_time
+                'latest_order' => $latest_order_time,
             ]);
         }
     }
 
     /**
-     * 用mcode取得user 
+     * 用mcode取得user
      */
-    public static function getUserByMcode($mcode) {
-       return  DB::table('usr_customers as customer')
-        ->join('usr_users as user','user.customer_id','=','customer.id')
-        ->select('user.*')
-        ->where('customer.sn',$mcode)
-        ->get()->first();
+    public static function getUserByMcode($mcode)
+    {
+        return DB::table('usr_customers as customer')
+            ->join('usr_users as user', 'user.customer_id', '=', 'customer.id')
+            ->select('user.*')
+            ->where('customer.sn', $mcode)
+            ->get()->first();
     }
 }
