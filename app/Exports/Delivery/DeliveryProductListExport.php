@@ -34,5 +34,6 @@ class DeliveryProductListExport implements FromArray, WithStyles
         $sheet->getStyle('I')->getAlignment()->setWrapText(true);
         $sheet->getStyle('K')->getAlignment()->setWrapText(true);
         $sheet->getStyle('L')->getAlignment()->setWrapText(true);
+        $sheet->getStyle('O')->getAlignment()->setWrapText(true);
     }
 }

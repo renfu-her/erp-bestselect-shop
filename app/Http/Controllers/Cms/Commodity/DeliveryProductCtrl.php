@@ -79,11 +79,10 @@ class DeliveryProductCtrl extends Controller
                 if(null != $rcv_depot_data && 0 < count($rcv_depot_data)) {
                     foreach ($rcv_depot_data as $item_key => $item_data) {
                         $endstr = ($item_key != count($rcv_depot_data) - 1) ? PHP_EOL: '';
-                        $endstr2 = ($item_key != count($rcv_depot_data) - 1) ? ','.PHP_EOL: '';
                         $dlv_product_title .= $item_data->product_title. $endstr;
                         $dlv_qty .= $item_data->qty. $endstr;
 
-                        $supplier_name .= $item_data->supplier_name. $endstr2;
+                        $supplier_name .= $item_data->supplier_name. $endstr;
                     }
                 }
 
