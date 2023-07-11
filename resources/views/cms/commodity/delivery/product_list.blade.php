@@ -176,9 +176,7 @@
                         <th scope="col">出貨狀態</th>
                         <th scope="col">出貨日期</th>
                         <th scope="col" class="wrap lh-sm">商品負責人</th>
-                        @if(null != $searchParam['search_supplier'])
-                            <th scope="col">廠商</th>
-                        @endif
+                        <th scope="col">廠商</th>
                         <th scope="col">出貨人員</th>
                         <th scope="col">退貨</th>
                         <th scope="col">出貨倉</th>
@@ -223,9 +221,7 @@
                         </td>
 
                         <td class="p-0 border-bottom-0" height="0"></td>
-                        @if(null != $searchParam['search_supplier'])
-                            <td class="p-0 border-bottom-0" height="0"></td>
-                        @endif
+                        <td class="p-0 border-bottom-0" height="0"></td>
 
                         <td rowspan="{{ $rows }}">{{ $data->audit_user_name }}</td>
                         <td rowspan="{{ $rows }}" class="wrap">
@@ -257,11 +253,9 @@
                                 <td @class(['pe-2' => $searchParam['search_supplier'] == null]) data-nth="11">
                                     {{ $item_data->prd_user_name ?? '-' }}
                                 </td>
-                                @if (null != $searchParam['search_supplier'])
-                                    <td class="wrap lh-sm pe-2" data-nth="12">
-                                        {{ $item_data->supplier_name ?? '-' }}
-                                    </td>
-                                @endif
+                                <td class="wrap lh-sm pe-2" data-nth="12">
+                                    {{ $item_data->supplier_name ?? '-' }}
+                                </td>
                             </tr>
                         @endforeach
                     @else
@@ -270,9 +264,7 @@
                             <td data-nth="4">-</td>
                             <td data-nth="5">-</td>
                             <td data-nth="11">-</td>
-                            @if (null != $searchParam['search_supplier'])
-                                <td data-nth="12">-</td>
-                            @endif
+                            <td data-nth="12">-</td>
                         </tr>
                     @endif
                 @endforeach

@@ -74,11 +74,16 @@ class DeliveryProductCtrl extends Controller
                 $rcv_depot_data = (null != $item->rcv_depot_data)? json_decode($item->rcv_depot_data): null;
                 $dlv_product_title = "";
                 $dlv_qty = "";
+                $supplier_name = "";
+
                 if(null != $rcv_depot_data && 0 < count($rcv_depot_data)) {
                     foreach ($rcv_depot_data as $item_key => $item_data) {
                         $endstr = ($item_key != count($rcv_depot_data) - 1) ? PHP_EOL: '';
+                        $endstr2 = ($item_key != count($rcv_depot_data) - 1) ? ','.PHP_EOL: '';
                         $dlv_product_title .= $item_data->product_title. $endstr;
                         $dlv_qty .= $item_data->qty. $endstr;
+
+                        $supplier_name .= $item_data->supplier_name. $endstr2;
                     }
                 }
 
@@ -97,6 +102,7 @@ class DeliveryProductCtrl extends Controller
                     $dlv_qty,
                     $item->audit_date,
                     $item->depot_names,
+                    $supplier_name,
                 ];
             }
         }
@@ -116,6 +122,7 @@ class DeliveryProductCtrl extends Controller
             '實際出貨數量',
             '出貨日期',
             '出貨倉',
+            '廠商',
         ];
 
         $export= new DeliveryProductListExport([
