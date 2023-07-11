@@ -411,20 +411,20 @@ class Delivery extends Model
         if (isset($param['event_sn'])) {
             $query_delivery->where('delivery.event_sn', 'like', "%" . $param['event_sn'] . "%");
         }
-        //商品管理-搜尋廠商條件
-        if (!empty($param['search_supplier'])) {
-            $query_delivery->leftJoin(app(ProductSupplier::class)->getTable(). ' as prd_prd_supplier', 'prd_prd_supplier.product_id', '=', 'prd.id')
-                ->join(app(Supplier::class)->getTable(). ' as supplier', function ($join) use ($param) {
-                    $join->on('prd_prd_supplier.supplier_id', '=', 'supplier.id');
+        $query_delivery->leftJoin(app(ProductSupplier::class)->getTable(). ' as prd_prd_supplier', 'prd_prd_supplier.product_id', '=', 'prd.id')
+            ->join(app(Supplier::class)->getTable(). ' as supplier', function ($join) use ($param) {
+                $join->on('prd_prd_supplier.supplier_id', '=', 'supplier.id');
+                //商品管理-搜尋廠商條件
+                if (!empty($param['search_supplier'])) {
                     if (is_array($param['search_supplier'])) {
                         $join->whereIn('supplier.id', $param['search_supplier']);
                     } else if (is_string($param['search_supplier']) || is_numeric($param['search_supplier'])) {
                         $join->where('supplier.id', $param['search_supplier']);
                     }
-                });
-            $rcv_depot_data['supplier_id'] = 'supplier.id';
-            $rcv_depot_data['supplier_name'] = 'supplier.name';
-        }
+                }
+            });
+        $rcv_depot_data['supplier_id'] = 'supplier.id';
+        $rcv_depot_data['supplier_name'] = 'supplier.name';
         $query_delivery->addSelect(DB::raw(concatStr($rcv_depot_data). ' as rcv_depot_data'));
 
 
