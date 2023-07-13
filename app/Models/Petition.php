@@ -277,31 +277,33 @@ class Petition extends Model
 
         $re2 = $re2->get();
         //    dd($re2);
-        $o = [];
-        $current_sn = DB::table('pet_order_sn')->where('order_id', $order_id)->where('order_type', $order_type)->first()->order_sn;
-        foreach ($re2 as $value) {
-            $o = array_merge($o, DB::table('pet_order_sn')
-                ->where('source_type', substr($value->sn, 0, 3) == 'PET' ? 'petition' : 'expenditure')
-                ->where('source_id', $value->id)
-                ->where('order_sn', '!=', $current_sn)
-                ->select('order_id AS id', 'order_sn AS sn')
-                ->get()->toArray()
-            );
-        }
-        $unique_other_sn = array_unique(array_map(function($n){
-            return $n->sn;
-        }, $o));
-        $m = [];
-        foreach ($unique_other_sn as $u_value) {
-            $order_id = DB::table('pet_order_sn')->where('order_sn', $u_value)->first() ? DB::table('pet_order_sn')->where('order_sn', $u_value)->first()->order_id : null;
-            if($order_id) {
-                $m[] = (object) [
-                    'id' => $order_id,
-                    'sn' => $u_value,
-                ];
+        if(count($re2) > 1) {
+            $o = [];
+            $current_sn = DB::table('pet_order_sn')->where('order_id', $order_id)->where('order_type', $order_type)->first()->order_sn;
+            foreach ($re2 as $value) {
+                $o = array_merge($o, DB::table('pet_order_sn')
+                    ->where('source_type', substr($value->sn, 0, 3) == 'PET' ? 'petition' : 'expenditure')
+                    ->where('source_id', $value->id)
+                    ->where('order_sn', '!=', $current_sn)
+                    ->select('order_id AS id', 'order_sn AS sn')
+                    ->get()->toArray()
+                );
             }
+            $unique_other_sn = array_unique(array_map(function($n){
+                return $n->sn;
+            }, $o));
+            $m = [];
+            foreach ($unique_other_sn as $u_value) {
+                $order_id = DB::table('pet_order_sn')->where('order_sn', $u_value)->first() ? DB::table('pet_order_sn')->where('order_sn', $u_value)->first()->order_id : null;
+                if($order_id) {
+                    $m[] = (object) [
+                        'id' => $order_id,
+                        'sn' => $u_value,
+                    ];
+                }
+            }
+            $re2 = collect(array_merge($re2->toArray(), $m));
         }
-        $re2 = collect(array_merge($re2->toArray(), $m));
         foreach ($re2 as $d) {
             $matches = null;
             preg_match('/^([A-Za-z])*/u', $d->sn, $matches);
