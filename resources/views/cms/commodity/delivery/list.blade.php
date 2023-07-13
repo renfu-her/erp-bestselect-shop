@@ -376,14 +376,6 @@
                     [Key]: temp
                 }));
             });
-
-            function submitAction(route, method)
-            {
-                console.log(route, method);
-                document.getElementById("search").action = route;
-                document.getElementById("search").setAttribute("method", method);
-                document.getElementById("search").submit();
-            }
         </script>
     @endpush
 @endOnce

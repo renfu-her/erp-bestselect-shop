@@ -29,7 +29,7 @@
     </div>
 
     <div class="col-auto">
-        <a href="{{ route('cms.user-dividend.index') }}" class="btn btn-outline-primary px-4">
+        <a href="{{ route('cms.customer-dividend.index') }}" class="btn btn-outline-primary px-4">
             返回列表
         </a>
     </div>
