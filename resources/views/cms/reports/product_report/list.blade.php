@@ -62,7 +62,7 @@
                         <th>上架商品總數：{{ number_format($products) }}</th>
                         <th class="text-end">廠商總數：{{ number_format($suppliers) }}</th>
                         <th>
-                            <a href="#"
+                            <a href="{{ route('cms.product-report.export-supplier', ['year' => $cond['year']]) }}"
                                 class="btn btn-outline-success px-2 py-1">匯出本年度廠商</a>
                         </th>
                     </tr>
@@ -267,9 +267,9 @@
                         </tr>
                     </tfoot>
                 </table>
-                <div id="loading" class="text-center position-absolute start-0 end-0" 
+                <div id="loading" class="text-center position-absolute start-0 end-0"
                     style="top: 15px; display: none;">
-                    <div class="spinner-border text-dark opacity-75"  role="status"
+                    <div class="spinner-border text-dark opacity-75" role="status"
                         style="width:70px; height:70px; border-width:16px">
                         <span class="visually-hidden">Loading...</span>
                     </div>
@@ -397,9 +397,9 @@
     @endpush
     @push('sub-scripts')
         <script>
-            const product = @json($product);    // 類別排名
-            const total_gross_profit = @json($P_total_gross_profit);    // 類別-總毛利合計
-            const salechannelReport = @json($salechannelReport);    // 全通路
+            const product = @json($product); // 類別排名
+            const total_gross_profit = @json($P_total_gross_profit); // 類別-總毛利合計
+            const salechannelReport = @json($salechannelReport); // 全通路
             console.log(salechannelReport);
             getSalechannelReport();
 
@@ -551,8 +551,7 @@
                 type: 'bar',
                 data: {
                     labels: _.map(salechannelReport, (v) => (v.month + '月')),
-                    datasets: [
-                        {
+                    datasets: [{
                             label: '總毛利',
                             data: _.map(salechannelReport, 'total_gross_profit'),
                             type: 'line',
@@ -660,11 +659,13 @@
                             callbacks: {
                                 title: (tooltipItems) => {
                                     let label = tooltipItems[0].label || '';
-                                    if (tooltipItems[0].dataset.order > 0) label += (' ' + tooltipItems[0].dataset.label.split('-')[0]);
+                                    if (tooltipItems[0].dataset.order > 0) label += (' ' + tooltipItems[0].dataset
+                                        .label.split('-')[0]);
                                     return label
                                 },
                                 label: (tooltipItem) => {
-                                    let label = tooltipItem.dataset.label.split('-')[1] || tooltipItem.dataset.label;
+                                    let label = tooltipItem.dataset.label.split('-')[1] || tooltipItem.dataset
+                                    .label;
                                     if (label) label += '：';
                                     if (tooltipItem.dataset.stack !== 'Stack 1') label += '$';
                                     label += tooltipItem.formattedValue;
@@ -692,6 +693,7 @@
 
             // API - 銷售通路 ****************
             $('#salechannel_id').on('change', getSalechannelReport);
+
             function getSalechannelReport() {
                 const $table = $('#salechannel_table');
                 const $loading = $('#loading');
@@ -701,21 +703,21 @@
                 const _URL = '{{ Route('api.cms.order_salechannel_report') }}';
                 const Data = {
                     year: {{ $cond['year'] }},
-                    quarter: {{ $cond["quarter"] }},
+                    quarter: {{ $cond['quarter'] }},
                     salechannel_id: $('#salechannel_id').val(),
                 };
                 $('tbody, tfoot th:not(:first)', $table).empty();
 
                 axios.post(_URL, Data)
-                .then((result) => {
-                    const res = result.data;
-                    // console.log(res.data);
-                    if (res.status === '0' && res.data && res.data.length > 0) {
-                        const sc_datas = res.data;
-                        let sums = [0, 0, 0, 0, 0, 0, 0];
-                        // tbody
-                        _.forEach(sc_datas, (val) => {
-                            $('tbody', $table).append(`
+                    .then((result) => {
+                        const res = result.data;
+                        // console.log(res.data);
+                        if (res.status === '0' && res.data && res.data.length > 0) {
+                            const sc_datas = res.data;
+                            let sums = [0, 0, 0, 0, 0, 0, 0];
+                            // tbody
+                            _.forEach(sc_datas, (val) => {
+                                $('tbody', $table).append(`
                                 <tr>
                                     <td>${val.month}月</td>
                                     <td class="table-warning text-end">$${formatNumber(val.price_1)}</td>
@@ -727,28 +729,28 @@
                                     <td class="table-danger text-end">$${formatNumber(val.total_gross_profit)}</td>
                                 </tr>
                             `);
-                            sums[0] += Number(val.price_1);
-                            sums[1] += Number(val.qty_1);
-                            sums[2] += Number(val.price_0);
-                            sums[3] += Number(val.qty_0);
-                            sums[4] += Number(val.total_price);
-                            sums[5] += Number(val.total_qty);
-                            sums[6] += Number(val.total_gross_profit);
-                        });
-                        // tfoot
-                        $('tfoot th:not(:first)', $table).each(function (index, element) {
-                            // element == this
-                            const prefix = $(element).hasClass('text-end') ? '$' : '';
-                            $(element).text(prefix + formatNumber(sums[index]));
-                        });
-                    }
-                    $table.removeClass('opacity-50');
-                    $loading.hide();
-                }).catch((err) => {
-                    console.error(err);
-                    $table.removeClass('opacity-50');
-                    $loading.hide();
-                });
+                                sums[0] += Number(val.price_1);
+                                sums[1] += Number(val.qty_1);
+                                sums[2] += Number(val.price_0);
+                                sums[3] += Number(val.qty_0);
+                                sums[4] += Number(val.total_price);
+                                sums[5] += Number(val.total_qty);
+                                sums[6] += Number(val.total_gross_profit);
+                            });
+                            // tfoot
+                            $('tfoot th:not(:first)', $table).each(function(index, element) {
+                                // element == this
+                                const prefix = $(element).hasClass('text-end') ? '$' : '';
+                                $(element).text(prefix + formatNumber(sums[index]));
+                            });
+                        }
+                        $table.removeClass('opacity-50');
+                        $loading.hide();
+                    }).catch((err) => {
+                        console.error(err);
+                        $table.removeClass('opacity-50');
+                        $loading.hide();
+                    });
             }
         </script>
     @endpush
