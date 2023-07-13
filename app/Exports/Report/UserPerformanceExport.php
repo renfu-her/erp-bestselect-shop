@@ -7,6 +7,8 @@ use Maatwebsite\Excel\Concerns\FromArray;
 
 class UserPerformanceExport implements FromArray
 {
+    public $sdate,$edate,$options;
+
     public function __construct($sdate, $edate, $options)
     {
         $this->sdate = $sdate;

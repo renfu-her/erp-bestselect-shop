@@ -9,6 +9,8 @@ use App\Models\RptProductReportDaily;
 use App\Models\SaleChannel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\Report\SupplierExport;
 
 class ProductReportCtrl extends Controller
 {
@@ -54,7 +56,7 @@ class ProductReportCtrl extends Controller
         $channel_id = Arr::get($d, 'salechannel_id', null);
         $year = Arr::get($d, 'year', date('Y'));
         $quarter = Arr::get($d, 'quarter', intval(ceil(date('n') / 3)));
-       
+
         return response()->json([
             'status' => '0',
             'data' => RptOrderDailyReport::dataList($year, $quarter, $channel_id)->get(),
@@ -125,5 +127,21 @@ class ProductReportCtrl extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public static function exportSupplier(Request $request)
+    {
+        $query = $request->query();
+        $cond['year'] = Arr::get($query, 'y', date('Y'));
+        $cond['quarter'] = Arr::get($query, 'quarter', intval(ceil(date('n') / 3)));
+        
+     //   $a = new SupplierExport($cond['year']);
+        
+        /*$a->sheets();
+        dd('aa');
+        */
+        return Excel::download(new SupplierExport($cond['year']), 'test.xlsx');
+
+       // dd($cond);
     }
 }
