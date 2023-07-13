@@ -62,7 +62,8 @@
                         <th>上架商品總數：{{ number_format($products) }}</th>
                         <th class="text-end">廠商總數：{{ number_format($suppliers) }}</th>
                         <th>
-                            <button type="button" class="btn btn-outline-success px-2 py-1">匯出本季廠商</button>
+                            <a href="#"
+                                class="btn btn-outline-success px-2 py-1">匯出本年度廠商</a>
                         </th>
                     </tr>
                 </table>
