@@ -135,13 +135,9 @@ class ProductReportCtrl extends Controller
         $cond['year'] = Arr::get($query, 'y', date('Y'));
         $cond['quarter'] = Arr::get($query, 'quarter', intval(ceil(date('n') / 3)));
         
-     //   $a = new SupplierExport($cond['year']);
-        
-        /*$a->sheets();
-        dd('aa');
-        */
-        return Excel::download(new SupplierExport($cond['year']), 'test.xlsx');
 
-       // dd($cond);
+        return Excel::download(new SupplierExport($cond['year']), 'supplier_'.date('YmdHis').'.xlsx');
+
+       
     }
 }
