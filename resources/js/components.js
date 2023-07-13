@@ -682,4 +682,13 @@
             });
         }
     }
+    
+    /** submit form */
+    window.submitAction = function (route, method, formId = '#search') {
+        $(formId).prop({
+            'action': route,
+            'method': method
+        });
+        $(formId).trigger('submit');
+    }
 })();
