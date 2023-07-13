@@ -30,9 +30,15 @@
             </thead>
             <tbody>
                 <td>{{ number_format($total['normal_get']) }}</td>
-                <td>{{ number_format($total['m_b2e_get']) }}</td>
-                <td>{{ number_format($total['m_b2c_get']) }}</td>
-                <td>{{ number_format($total['m_b2b_get']) }}</td>
+                <td>
+                    <a href="#">{{ number_format($total['m_b2e_get']) }}</a>
+                </td>
+                <td>
+                    <a href="#">{{ number_format($total['m_b2c_get']) }}</a>
+                </td>
+                <td>
+                    <a href="#">{{ number_format($total['m_b2b_get']) }}</a>
+                </td>
                 <td>{{ number_format($total['used']) }}</td>
             </tbody>
         </table>
@@ -61,7 +67,7 @@
                         <tr>
                             <td class="pt-0 small lh-sm text-center">
                                 <div>點數明細</div>
-                                <a href="{{ route('cms.user-dividend.log', ['id' => $data->id]) }}" 
+                                <a href="{{ route('cms.customer-dividend.log', ['id' => $data->id]) }}" 
                                     class="icon icon-btn fs-5 text-primary rounded-circle border-0"
                                     data-bs-toggle="tooltip" title="Log">
                                     <i class="bi bi-card-list"></i>
