@@ -57,10 +57,13 @@
         {{-- 季報表 --}}
         <div id="-detail1" class="card shadow p-4 mb-4 -page">
             <div>
-                <table class="table table-sm table-borderless mb-3">
+                <table class="table table-sm table-borderless mb-3 align-middle">
                     <tr>
                         <th>上架商品總數：{{ number_format($products) }}</th>
-                        <th>廠商總數：{{ number_format($suppliers) }}</th>
+                        <th class="text-end">廠商總數：{{ number_format($suppliers) }}</th>
+                        <th>
+                            <button type="button" class="btn btn-outline-success px-2 py-1">匯出本季廠商</button>
+                        </th>
                     </tr>
                 </table>
             </div>
