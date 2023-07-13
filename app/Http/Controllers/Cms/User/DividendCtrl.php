@@ -44,7 +44,7 @@ class DividendCtrl extends Controller
         $total = CustomerDividend::getByCategory();
       
         //  dd( CustomerDividend::totalList($keyword)->limit(10)->get()->toArray());
-        return view('cms.marketing.customer_dividend.list', [
+        return view('cms.admin.customer_dividend.list', [
             'dataList' => $dataList,
             'titleGet' => $titleGet,
             'titleUse' => $titleUse,
@@ -123,7 +123,7 @@ class DividendCtrl extends Controller
     public function log($id)
     {
         $dataList = DividendErpLog::dataList()->where('customer.id', $id)->get();
-        return view('cms.marketing.customer_dividend.log', [
+        return view('cms.admin.customer_dividend.log', [
             'dataList' => $dataList,
         ]);
     }

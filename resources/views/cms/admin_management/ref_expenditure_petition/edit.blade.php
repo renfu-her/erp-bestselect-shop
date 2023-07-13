@@ -36,10 +36,12 @@
                         @endforeach
                     </div>
 
+                    {{--
                     <mark>
                         <i class="bi bi-exclamation-diamond-fill text-warning"></i>
                         支援格式：申議書單號、支出憑單號
                     </mark>
+                    --}}
                 </div>
             </div>
         </div>

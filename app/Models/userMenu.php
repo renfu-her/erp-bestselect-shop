@@ -413,6 +413,11 @@ return
                 "route_name" => "cms.customer.index",
             ],
             [
+                "title" => "消費者紅利點數",
+                "controller_name" => "DividendCtrl",
+                "route_name" => "cms.customer-dividend.index",
+            ],
+            [
                 "title" => "分潤審核管理",
                 "controller_name" => "CustomerProfitCtrl",
                 "route_name" => "cms.customer-profit.index",
@@ -426,11 +431,6 @@ return
                 "title" => "頁面權限管理",
                 "controller_name" => "PermissionCtrl",
                 "route_name" => "cms.permission.index",
-            ],
-            [
-                "title" => "消費者紅利點數",
-                "controller_name" => "DividendCtrl",
-                "route_name" => "cms.user-dividend.index",
             ],
         ],
     ],
