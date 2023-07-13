@@ -24,12 +24,12 @@ class addDiscountSeeder extends Seeder
                 $i++;
                 echo $sn . "\n";
                 Discount::createCode($sn,
-                    '國貿暨電商人才就業媒合會',
+                    '歡慶旅展 優惠獎不完',
                     0,
                     DisMethod::cash(),
-                    50,
-                    '2023/05/03',
-                    '2023/05/31',
+                    100,
+                    '2023/07/01',
+                    '2023/12/31',
                     1,
                     [],
                     1);
