@@ -285,6 +285,7 @@ class Petition extends Model
                     ->where('source_type', substr($value->sn, 0, 3) == 'PET' ? 'petition' : 'expenditure')
                     ->where('source_id', $value->id)
                     ->where('order_sn', '!=', $current_sn)
+                    ->whereNotIn('order_type', ['PET', 'EXP'])
                     ->select('order_id AS id', 'order_sn AS sn')
                     ->get()->toArray()
                 );
