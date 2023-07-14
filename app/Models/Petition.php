@@ -277,7 +277,7 @@ class Petition extends Model
 
         $re2 = $re2->get();
         //    dd($re2);
-        if(count($re2) > 1) {
+        if(count($re2) > 0) {
             $o = [];
             $current_sn = DB::table('pet_order_sn')->where('order_id', $order_id)->where('order_type', $order_type)->first()->order_sn;
             foreach ($re2 as $value) {
