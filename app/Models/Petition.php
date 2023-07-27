@@ -277,7 +277,7 @@ class Petition extends Model
 
         $re2 = $re2->get();
         //    dd($re2);
-        if(count($re2) > 1) {
+        if(count($re2) > 0) {
             $o = [];
             $current_sn = DB::table('pet_order_sn')->where('order_id', $order_id)->where('order_type', $order_type)->first()->order_sn;
             foreach ($re2 as $value) {
@@ -285,6 +285,7 @@ class Petition extends Model
                     ->where('source_type', substr($value->sn, 0, 3) == 'PET' ? 'petition' : 'expenditure')
                     ->where('source_id', $value->id)
                     ->where('order_sn', '!=', $current_sn)
+                    ->whereNotIn('order_type', ['PET', 'EXP'])
                     ->select('order_id AS id', 'order_sn AS sn')
                     ->get()->toArray()
                 );

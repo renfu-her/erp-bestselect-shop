@@ -56,6 +56,17 @@ class RefExpenditurePetitionCtrl extends Controller
                     $err = true;
                     $errors['order.' . $n_p_e_key] = $re['message'];
                 }
+
+                foreach($new_p_e as $c_value){
+                    if($n_p_e_value != $c_value) {
+                        $re = Petition::reverseBind($c_value, $n_p_e_value);
+
+                        if ($re['success'] != '1') {
+                            $err = true;
+                            $errors['order.' . $n_p_e_key] = $re['message'];
+                        }
+                    }
+                }
             }
             $new_other = array_filter($order, function($v) {
                 return (substr($v, 0, 3) != 'PET' && substr($v, 0, 3) != 'EXP');
