@@ -202,7 +202,7 @@ class RequestOrder extends Model
     public static function create_request_order($request = [])
     {
         $result = self::create([
-            'sn'=> 'KSG' . str_pad((self::get()->count()) + 1, 9, '0', STR_PAD_LEFT),
+            'sn'=> 'KSG' . str_pad((self::withTrashed()->lockForUpdate()->get()->count()) + 1, 9, '0', STR_PAD_LEFT),
             'price' =>null,
             'client_id' =>$request['client_id'],
             'client_name' =>$request['client_name'],

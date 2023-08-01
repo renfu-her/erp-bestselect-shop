@@ -4,7 +4,7 @@
     // 左側 Menu
 
     // 會員大頭貼
-    $('#memberAvatar').text(($('#memberName').text() || '')[0].toLocaleUpperCase());
+    $('#memberAvatar').text(($('#memberName').text()[0] || '').toLocaleUpperCase());
 
     // datepicker 快速鍵
     $('button[data-daysBefore]').off('click.days').on('click.days', function () {

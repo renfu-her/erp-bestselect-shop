@@ -205,7 +205,7 @@ class TransferVoucher extends Model
         $credit_price = $parm['credit_price'] ?? 0;
 
         $re = self::create([
-            'sn'=> 'ZSG' . str_pad((self::get()->count()) + 1, 9, '0', STR_PAD_LEFT),
+            'sn'=> 'ZSG' . str_pad((self::withTrashed()->lockForUpdate()->get()->count()) + 1, 9, '0', STR_PAD_LEFT),
             'voucher_date' => $voucher_date,
             'debit_price' => $debit_price,
             'credit_price' => $credit_price,
