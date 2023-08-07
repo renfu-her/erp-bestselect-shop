@@ -30,6 +30,14 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class ProductCtrl extends Controller
 {
+
+    public $currentPage = 1;
+
+    public function __construct(Request $request)
+    {
+        $query = $request->query();
+        $this->currentPage = Arr::get($query, 'page', 1);
+    }
     /**
      * Display a listing of the resource.
      *
@@ -49,6 +57,7 @@ class ProductCtrl extends Controller
         $hasDelivery = [['all', '不限'], ['1', '有'], ['0', '無']];
         $hasSpecList = [['all', '不限'], ['1', '有'], ['0', '無']];
         $isLiquor = [['all', '不限'], ['1', '有']];
+
         $page = getPageCount(Arr::get($query, 'data_per_page'));
         $cond = [];
         $cond['keyword'] = Arr::get($query, 'keyword');
@@ -62,7 +71,7 @@ class ProductCtrl extends Controller
 
         $cond['product_type'] = Arr::get($query, 'product_type', 'all');
         $cond['consume'] = Arr::get($query, 'consume', 'all');
-        $cond['public'] = Arr::get($query, 'public', 'all');
+        $cond['public'] = Arr::get($query, 'public', '1');
         $cond['online'] = Arr::get($query, 'online', 'all');
         $cond['hasDelivery'] = Arr::get($query, 'hasDelivery', 'all');
         $cond['hasSpecList'] = Arr::get($query, 'hasSpecList', 'all');
@@ -94,7 +103,8 @@ class ProductCtrl extends Controller
             'hasDelivery' => $hasDelivery,
             'hasSpecList' => $hasSpecList,
             'suppliers' => Supplier::select('name', 'id', 'vat_no')->get()->toArray(),
-            'cond' => $cond]);
+            'cond' => $cond,
+            'page' => $this->currentPage]);
     }
 
     /**
@@ -107,12 +117,13 @@ class ProductCtrl extends Controller
 
         return view('cms.commodity.product.basic_info', [
             'method' => 'create',
-            'formAction' => Route('cms.product.create'),
+            'formAction' => Route('cms.product.create', ['page' => $this->currentPage]),
             'users' => User::get(),
             'suppliers' => Supplier::get(),
             'categorys' => Category::get(),
             'current_user' => $request->user()->id,
             'images' => [],
+            'page' => $this->currentPage,
         ]);
     }
 
@@ -224,7 +235,7 @@ class ProductCtrl extends Controller
 
         return view('cms.commodity.product.basic_info', [
             'method' => 'edit',
-            'formAction' => Route('cms.product.edit', ['id' => $id]),
+            'formAction' => Route('cms.product.edit', ['id' => $id, 'page' => $this->currentPage]),
             'users' => User::get(),
             'product' => $product,
             'suppliers' => Supplier::get(),
@@ -232,6 +243,7 @@ class ProductCtrl extends Controller
             'categorys' => Category::get(),
             'images' => ProductImg::where('product_id', $id)->get(),
             'breadcrumb_data' => $product,
+            'page' => $this->currentPage,
         ]);
     }
 
@@ -303,7 +315,8 @@ class ProductCtrl extends Controller
         }
 
         wToast('儲存完畢');
-        return redirect()->back();
+        $page = Arr::get($request->query(), 'page', 1);
+        return redirect(Route('cms.product.index', ['page' => $page]));
 
         //
     }
@@ -1143,4 +1156,3 @@ class ProductCtrl extends Controller
 
     }
 }
-
