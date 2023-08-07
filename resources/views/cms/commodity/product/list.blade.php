@@ -124,7 +124,7 @@
                             <div class="form-check form-check-inline">
                                 <label class="form-check-label">
                                     <input class="form-check-input" name="is_liquor" type="radio"
-                                           value="{{ $liquor[0] }}" @if ($liquor[0] == $cond['is_liquor']) checked @endif>
+                                        value="{{ $liquor[0] }}" @if ($liquor[0] == $cond['is_liquor']) checked @endif>
                                     {{ $liquor[1] }}
                                 </label>
                             </div>
@@ -142,18 +142,18 @@
 
     <div class="card shadow p-4 mb-4">
         <div class="row justify-content-end mb-4">
-                <div class="col">
-                    @can('cms.product.create')
-                        <a href="{{ Route('cms.product.create') }}" class="btn btn-primary">
-                            <i class="bi bi-plus-lg"></i> 新增商品
-                        </a>
-                    @endcan
-                    @can('cms.product.export_excel')
-                        <a href="{{ Route('cms.product.export_excel') }}" class="btn btn-outline-success">
-                            <i class="bi"></i> 匯出商品
-                        </a>
-                    @endcan
-                </div>
+            <div class="col">
+                @can('cms.product.create')
+                    <a href="{{ Route('cms.product.create') }}" class="btn btn-primary">
+                        <i class="bi bi-plus-lg"></i> 新增商品
+                    </a>
+                @endcan
+                @can('cms.product.export_excel')
+                    <a href="{{ Route('cms.product.export_excel') }}" class="btn btn-outline-success">
+                        <i class="bi"></i> 匯出商品
+                    </a>
+                @endcan
+            </div>
             <div class="col-auto">
                 顯示
                 <select class="form-select d-inline-block w-auto" id="dataPerPageElem" aria-label="表格顯示筆數">
@@ -188,7 +188,7 @@
                             <th scope="row">{{ $key + 1 }}</th>
                             <td class="text-center">
                                 @can('cms.product.edit')
-                                    <a href="{{ Route('cms.product.edit', ['id' => $data->id], true) }}"
+                                    <a href="{{ Route('cms.product.edit', ['id' => $data->id, 'page' => $page], true) }}"
                                         data-bs-toggle="tooltip" title="編輯"
                                         class="icon icon-btn fs-5 text-primary rounded-circle border-0">
                                         <i class="bi bi-pencil-square"></i>
