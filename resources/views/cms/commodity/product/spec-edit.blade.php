@@ -38,7 +38,7 @@
                                 <div class="col-12 col-lg-6 mb-2 -cloneElem -item">
                                     <div class="input-group has-validation">
                                         <input class="form-control" value="" name="item_new[]" type="text" required 
-                                            placeholder="請輸入項目" aria-label="項目" maxlength="20">
+                                            placeholder="請輸入項目" aria-label="項目" maxlength="40">
                                         <button class="btn btn-outline-secondary -del -item" type="button" title="刪除">
                                             <i class="bi bi-x-lg"></i>
                                         </button>
@@ -75,7 +75,7 @@
                                     <div class="col-12 col-lg-6 mb-2 -cloneElem -item">
                                         <div class="input-group has-validation">
                                             <input class="form-control" name="item_value[]" value="{{ $item->value }}" 
-                                                type="text" placeholder="請輸入項目" maxlength="20"
+                                                type="text" placeholder="請輸入項目" maxlength="40"
                                                 aria-label="項目" @if ($data->spec_locked) disabled @endif>
                                             <input type="hidden" name="item_id[]" value="{{ $item->key }}">
                                             <button class="btn btn-outline-secondary -del -item" @if ($data->spec_locked) disabled @endif 
