@@ -21,8 +21,8 @@
                 <div class="px-1 pt-1">
                     <div class="form-check form-check-inline @error('type') is-invalid @enderror">
                         <label class="form-check-label">
-                            <input class="form-check-input @error('type') is-invalid @enderror" name="type" value="p"
-                                type="radio" @if ($method == 'edit') disabled @endif required
+                            <input class="form-check-input @error('type') is-invalid @enderror" name="type"
+                                value="p" type="radio" @if ($method == 'edit') disabled @endif required
                                 @if (old('type', $product->type ?? 'p') == 'p') checked @endif>
                             一般商品
                         </label>
@@ -79,7 +79,8 @@
 
                 <div class="col-12 mb-3">
                     <label class="form-label">商品簡述</label>
-                    <textarea rows="3" name="feature" class="form-control" maxlength="1000" placeholder="請輸入關於產品的描述" aria-label="商品簡述">{{ old('feature', $product->feature ?? '') }}</textarea>
+                    <textarea rows="3" name="feature" class="form-control" maxlength="1000" placeholder="請輸入關於產品的描述"
+                        aria-label="商品簡述">{{ old('feature', $product->feature ?? '') }}</textarea>
                 </div>
                 <div class="col-12 mb-3">
                     <label class="form-label">關鍵字（商品搜尋）</label>
@@ -284,7 +285,8 @@
         <div>
             <div class="col-auto">
                 <button type="submit" class="btn btn-primary px-4">儲存</button>
-                <a href="{{ Route('cms.product.index') }}" class="btn btn-outline-primary px-4" role="button">返回列表</a>
+                <a href="{{ Route('cms.product.index', ['page' => $page]) }}" class="btn btn-outline-primary px-4"
+                    role="button">返回列表</a>
             </div>
         </div>
 
