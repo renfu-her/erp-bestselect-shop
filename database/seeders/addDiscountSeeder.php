@@ -17,7 +17,7 @@ class addDiscountSeeder extends Seeder
     {
         //
 
-        for ($i = 0; $i < 50;) {
+        for ($i = 0; $i < 120;) {
             $sn = self::createCode(12);
 
             if (!Discount::where('sn', $sn)->first()) {
