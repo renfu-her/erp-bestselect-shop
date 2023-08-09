@@ -103,7 +103,7 @@
                 </tbody>
             </table>
         </div>
-        
+
         @if(\App\Enums\Delivery\Event::order()->value == $delivery->event)
         <div class="form-switch form-switch-lg">
             <label class="form-check-label">
@@ -125,7 +125,10 @@
                 data-bs-toggle="modal" data-bs-target="#confirm-ok">送出</button>
             @if (isset($delivery->audit_date) &&
                 (\App\Enums\Delivery\Event::consignment()->value == $delivery->event
-                    || \App\Enums\Delivery\Event::csn_order()->value == $delivery->event))
+                    || \App\Enums\Delivery\Event::csn_order()->value == $delivery->event
+                    // （未做過測試）訂單 工程師08080 可以取消送出審核 做完需要檢查明細、庫存正確性
+                    || (\App\Enums\Delivery\Event::order()->value == $delivery->event && '08080' == Auth::user()->account)
+                    ))
                 <a href="{{ Route('cms.delivery.store_cancle', ['deliveryId' => $delivery->id ]) }}" class="btn btn-outline-danger" role="button">取消送出審核</a>
             @endif
             @if($delivery->event == App\Enums\Delivery\Event::order()->value)
@@ -137,7 +140,7 @@
             @endif
         </div>
     </div>
-    
+
     {{-- 入庫清單 modal-fullscreen-lg-down --}}
     <x-b-modal id="addInbound" cancelBtn="false" size="modal-xl">
         <x-slot name="title">選擇入庫單</x-slot>
@@ -207,7 +210,7 @@
         <x-slot name="title">送出確認</x-slot>
         <x-slot name="body">確認要送出？</x-slot>
         <x-slot name="foot">
-            <button type="submit" class="btn btn-success btn-ok">確認並送出</a>
+            <a type="submit" class="btn btn-success btn-ok">確認並送出</a>
         </x-slot>
     </x-b-modal>
 </form>
