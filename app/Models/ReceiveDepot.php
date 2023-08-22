@@ -163,16 +163,15 @@ class ReceiveDepot extends Model
         $delivery = Delivery::where('id', $delivery_id)->get()->first();
         $rcvDepotGet = null;
         if (null != $delivery_id) {
-            $rcvDepot = ReceiveDepot::where('delivery_id', $delivery_id);
-            $rcvDepotGet = $rcvDepot->get();
+            $rcvDepotGet = ReceiveDepot::where('delivery_id', $delivery_id)->get();
         }
         if (null != $delivery &&null != $rcvDepotGet && 0 < count($rcvDepotGet)) {
-            $result = IttmsDBB::transaction(function () use ($delivery, $rcvDepot, $rcvDepotGet, $event, $event_id, $delivery_id, $can_diff_depot, $user_id, $user_name
+            $result = IttmsDBB::transaction(function () use ($delivery, $rcvDepotGet, $event, $event_id, $delivery_id, $can_diff_depot, $user_id, $user_name
             ) {
                 //開放不同倉庫出貨 預設為關
                 if (0 == $can_diff_depot) {
                     //判斷都需是同一個倉庫出貨
-                    $first_rcv_depot_item = $rcvDepot->where('delivery_id', $delivery_id)->where('depot_id', '<>', 0)->first();
+                    $first_rcv_depot_item = ReceiveDepot::where('delivery_id', $delivery_id)->where('delivery_id', $delivery_id)->where('depot_id', '<>', 0)->first();
                     if (null == $first_rcv_depot_item) {
                         DB::rollBack();
                         return ['success' => 0, 'error_msg' => "資料有誤 請回報給工程師 並說明相關單號與情況"];
@@ -414,7 +413,7 @@ class ReceiveDepot extends Model
                     'audit_user_id' => $user_id,
                     'audit_user_name' => $user_name,]);
 
-                $rcvDepot->update([ 'audit_date' => $curr_date ]);
+                ReceiveDepot::where('delivery_id', $delivery_id)->update([ 'audit_date' => $curr_date ]);
 
                 //20220714 Hans:將出貨日填到子訂單
                 if (Event::order()->value == $delivery->event) {
