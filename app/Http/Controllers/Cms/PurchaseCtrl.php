@@ -1584,8 +1584,8 @@ class PurchaseCtrl extends Controller
                 'event_id' => $return->purchase_id,
                 'event_item_id' => $return_main_item->pluck('purchase_item_id')->toArray()
             ];
-            $inbound_list = PurchaseInbound::getInboundList($parm);
             foreach($return_main_item as $r_value){
+                $inbound_list = PurchaseInbound::getInboundList($parm);
                 $r_value->inbound = $inbound_list->where('inbound.event_item_id', $r_value->purchase_item_id)->get()->toArray();
                 $r_value->inbound_num = $inbound_list->where('inbound.event_item_id', $r_value->purchase_item_id)->sum('inbound.inbound_num');
             }
