@@ -160,19 +160,18 @@ class ReceiveDepot extends Model
 
     //將收貨資料變更為成立
     public static function setUpShippingData($event, $event_id, $delivery_id, $can_diff_depot = 0, $user_id, $user_name) {
-        $delivery = Delivery::where('id', $delivery_id)->get()->first();
-        $rcvDepotGet = null;
-        if (null != $delivery_id) {
-            $rcvDepot = ReceiveDepot::where('delivery_id', $delivery_id);
-            $rcvDepotGet = $rcvDepot->get();
-        }
-        if (null != $delivery &&null != $rcvDepotGet && 0 < count($rcvDepotGet)) {
-            $result = IttmsDBB::transaction(function () use ($delivery, $rcvDepot, $rcvDepotGet, $event, $event_id, $delivery_id, $can_diff_depot, $user_id, $user_name
-            ) {
+        $result = IttmsDBB::transaction(function () use ($event, $event_id, $delivery_id, $can_diff_depot, $user_id, $user_name
+        ) {
+            $delivery = Delivery::where('id', $delivery_id)->lockForUpdate()->get()->first();
+            $rcvDepotGet = null;
+            if (null != $delivery_id) {
+                $rcvDepotGet = ReceiveDepot::where('delivery_id', $delivery_id)->get();
+            }
+            if (null != $delivery &&null != $rcvDepotGet && 0 < count($rcvDepotGet)) {
                 //開放不同倉庫出貨 預設為關
                 if (0 == $can_diff_depot) {
                     //判斷都需是同一個倉庫出貨
-                    $first_rcv_depot_item = $rcvDepot->where('delivery_id', $delivery_id)->where('depot_id', '<>', 0)->first();
+                    $first_rcv_depot_item = ReceiveDepot::where('delivery_id', $delivery_id)->where('delivery_id', $delivery_id)->where('depot_id', '<>', 0)->first();
                     if (null == $first_rcv_depot_item) {
                         DB::rollBack();
                         return ['success' => 0, 'error_msg' => "資料有誤 請回報給工程師 並說明相關單號與情況"];
@@ -414,7 +413,7 @@ class ReceiveDepot extends Model
                     'audit_user_id' => $user_id,
                     'audit_user_name' => $user_name,]);
 
-                $rcvDepot->update([ 'audit_date' => $curr_date ]);
+                ReceiveDepot::where('delivery_id', $delivery_id)->update([ 'audit_date' => $curr_date ]);
 
                 //20220714 Hans:將出貨日填到子訂單
                 if (Event::order()->value == $delivery->event) {
@@ -441,32 +440,31 @@ class ReceiveDepot extends Model
                 }
 
                 return ['success' => 1, 'error_msg' => ""];
-            });
-        } else {
-            return ['success' => 0, 'error_msg' => "無此出貨單"];
-        }
+            } else {
+                return ['success' => 0, 'error_msg' => "無此出貨單"];
+            }
+        });
         return $result;
     }
 
     //將成立的收貨資料變更為尚未成立
     public static function cancleShippingData($event, $event_id, $delivery_id, $user_id, $user_name) {
-        $delivery = Delivery::where('id', $delivery_id)->get()->first();
-        $rcvDepotGet = null;
-        if (null != $delivery_id) {
-            //找出不是組合包的商品款式
-            $rcvDepot = ReceiveDepot::where('delivery_id', $delivery_id);
-            if (Event::order()->value == $delivery->event
-                || Event::consignment()->value == $delivery->event
-            ) {
-                //訂單、寄倉出貨時的組合包都是另外組 所以必須去除c
-                $rcvDepot->where('prd_type', '<>' , 'c');
+        $result = IttmsDBB::transaction(function () use ($event, $event_id, $delivery_id, $user_id, $user_name
+        ) {
+            $delivery = Delivery::where('id', $delivery_id)->lockForUpdate()->get()->first();
+            $rcvDepotGet = null;
+            if (null != $delivery_id) {
+                //找出不是組合包的商品款式
+                $rcvDepot = ReceiveDepot::where('delivery_id', $delivery_id);
+                if (Event::order()->value == $delivery->event
+                    || Event::consignment()->value == $delivery->event
+                ) {
+                    //訂單、寄倉出貨時的組合包都是另外組 所以必須去除c
+                    $rcvDepot->where('prd_type', '<>' , 'c');
+                }
+                $rcvDepotGet = $rcvDepot->get();
             }
-            $rcvDepotGet = $rcvDepot->get();
-        }
-
-        if (null != $delivery &&null != $rcvDepotGet && 0 < count($rcvDepotGet)) {
-            $result = IttmsDBB::transaction(function () use ($delivery, $rcvDepot, $rcvDepotGet, $event, $event_id, $delivery_id, $user_id, $user_name
-            ) {
+            if (null != $delivery &&null != $rcvDepotGet && 0 < count($rcvDepotGet)) {
                 // 判斷是否有入庫 有則回傳錯誤
                 $inbound_already = PurchaseInbound::where('event', '=', $event)->where('event_id', '=' , $event_id)->get();
                 if (isset($inbound_already) && 0 < count($inbound_already)) {
@@ -549,7 +547,7 @@ class ReceiveDepot extends Model
                     'audit_user_id' => null,
                     'audit_user_name' => null,]);
 
-                $rcvDepot->update([ 'audit_date' => null ]);
+                ReceiveDepot::where('delivery_id', $delivery_id)->update([ 'audit_date' => null ]);
 
                 //20220714 Hans:將出貨日填到子訂單
                 if (Event::order()->value == $delivery->event) {
@@ -573,10 +571,10 @@ class ReceiveDepot extends Model
                     }
                 }
                 return ['success' => 1, 'error_msg' => ""];
-            });
-        } else {
-            return ['success' => 0, 'error_msg' => "無此出貨單"];
-        }
+            } else {
+                return ['success' => 0, 'error_msg' => "無此出貨單"];
+            }
+        });
         return $result;
     }
 
