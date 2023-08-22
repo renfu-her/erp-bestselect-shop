@@ -414,7 +414,7 @@ class ReceiveDepot extends Model
                     'audit_user_id' => $user_id,
                     'audit_user_name' => $user_name,]);
 
-                ReceiveDepot::where('delivery_id', $delivery_id)->update([ 'audit_date' => $curr_date ]);
+                $rcvDepot->update([ 'audit_date' => $curr_date ]);
 
                 //20220714 Hans:將出貨日填到子訂單
                 if (Event::order()->value == $delivery->event) {
@@ -465,7 +465,7 @@ class ReceiveDepot extends Model
         }
 
         if (null != $delivery &&null != $rcvDepotGet && 0 < count($rcvDepotGet)) {
-            $result = IttmsDBB::transaction(function () use ($delivery, $rcvDepot, $rcvDepotGet, $event, $event_id, $delivery_id, $user_id, $user_name
+            $result = IttmsDBB::transaction(function () use ($delivery, $rcvDepotGet, $event, $event_id, $delivery_id, $user_id, $user_name
             ) {
                 // 判斷是否有入庫 有則回傳錯誤
                 $inbound_already = PurchaseInbound::where('event', '=', $event)->where('event_id', '=' , $event_id)->get();
@@ -549,7 +549,7 @@ class ReceiveDepot extends Model
                     'audit_user_id' => null,
                     'audit_user_name' => null,]);
 
-                $rcvDepot->update([ 'audit_date' => null ]);
+                ReceiveDepot::where('delivery_id', $delivery_id)->update([ 'audit_date' => null ]);
 
                 //20220714 Hans:將出貨日填到子訂單
                 if (Event::order()->value == $delivery->event) {
