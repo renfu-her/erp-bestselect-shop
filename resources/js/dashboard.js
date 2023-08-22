@@ -107,17 +107,18 @@
     let inDebounce;
     const formDebounce = _.debounce(() => {
         inDebounce = true;
+        console.log('submit', inDebounce);
         $('form.-debounce').trigger('submit');
     }, 3000, { leading: true, trailing: false });
     $('form.-debounce').on('submit', function (e) {
         if (!inDebounce) {
-            // return false;
             e.preventDefault();
+            return false;
         }
-        console.log('submit');
     });
     $('button:submit, .-banReBtn', 'form.-debounce').on('click', () => {
         console.log('debounce');
+        $(this).addClass('disabled').prop('disabled', true);
         inDebounce = false;
         if ($('form.-debounce')[0].reportValidity()) {
             formDebounce();
