@@ -414,7 +414,7 @@ class ReceiveDepot extends Model
                     'audit_user_id' => $user_id,
                     'audit_user_name' => $user_name,]);
 
-                $rcvDepot->update([ 'audit_date' => $curr_date ]);
+                ReceiveDepot::where('delivery_id', $delivery_id)->update([ 'audit_date' => $curr_date ]);
 
                 //20220714 Hans:將出貨日填到子訂單
                 if (Event::order()->value == $delivery->event) {
