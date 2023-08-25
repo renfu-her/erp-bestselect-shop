@@ -14,7 +14,7 @@ class productDisaledSeed extends Seeder
      */
     public function run()
     {
-        //
+        /*
         // 1
         $id1 = [216, 217, 218, 557, 558, 559, 564, 565, 567, 568, 569, 570, 571, 572, 573, 575, 580, 589, 592, 594, 618, 619, 620, 621, 623, 629, 631, 633, 639, 650, 652, 655, 848, 892, 894, 895, 898, 910, 911, 912, 986, 1066, 1080, 1081, 1083, 1084, 1085, 1093, 1094, 1095, 1096, 1110, 1185, 1187, 1193, 1195, 1197, 1261, 1324, 1325, 1363, 1370, 1405, 1426, 1427, 1428, 1615, 1618, 1619, 1621, 1630, 1728, 1729, 1911, 2166, 2225, 2424, 2459, 2475, 2929, 2948, 2949, 2950, 2951, 2952, 2953, 2954, 2956, 2957, 2959, 2961, 2962, 2965, 2966, 2968, 2969, 2972, 2973, 2983, 2984, 2985, 2986, 2989, 2990, 2991, 2992, 3033, 3047, 3053, 3054, 3059, 3062, 3064, 3065, 3066, 3067, 3361, 3463, 3612, 3613, 3614, 3615, 3616, 3617, 3665, 3666, 3667, 3669, 3709, 3710, 3711, 3718, 3720, 3721, 3725, 3728, 3730, 3732, 3739, 3742, 3750, 3752, 3753, 3755, 3760, 3762, 3763, 3764, 3765, 3766, 3781, 3787, 3788, 3789, 3790, 3791, 3792, 3793, 3795, 3796, 3915, 4207, 4248, 4249];
         //
@@ -24,32 +24,28 @@ class productDisaledSeed extends Seeder
         DB::table('prd_products')->whereIn('id', $id0)->update(['public' => 0]);
 
         exit;
-
-       
+         */
+        /*
         $sup = ["台塑生醫", "合益", "奇華", "養泉", "耐嘉", "祥和", "大鼎", "十翼饌"
-            , "八木", "匯恩", "王瓊凰", "黃源財", "李寶輝", "童林"];
+        , "八木", "匯恩", "王瓊凰", "黃源財", "李寶輝", "童林","灝翎","維京","祥和"];
+         */
 
+        $sup = ["台塑生醫", "維京", "祥和"];
 
         $re = DB::table('prd_suppliers as supplier')
             ->leftJoin('prd_product_supplier as ps', 'supplier.id', '=', 'ps.supplier_id')
             ->select(['ps.product_id'])
-            ->whereNotNull('ps.product_id')
             ->where(function ($query) use ($sup) {
-                $query->where('supplier.name', 'like', "%" . $sup[0] . "%");
+                $query->where('supplier.nickname', 'like', "%" . $sup[0] . "%");
                 for ($i = 1; $i < count($sup); $i++) {
-                    $query->orWhere('supplier.name', 'like', "%" . $sup[$i] . "%");
+                    $query->orWhere('supplier.nickname', 'like', "%" . $sup[$i] . "%");
                 }
             })->get()->toArray();
 
         $pp = DB::table('prd_products')
-            ->select('id', 'sku', 'public')
-            ->where('public', '0')
             ->whereIn('id', array_map(function ($n) {
                 return $n->product_id;
-            }, $re)); //->update(['public' => 1]);
+            }, $re))->update(['public' => 0]);
 
-        dd(json_encode(array_map(function ($n) {
-            return $n->id;
-        }, $pp->get()->toArray())));
     }
 }
