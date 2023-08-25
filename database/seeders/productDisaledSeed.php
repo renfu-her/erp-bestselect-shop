@@ -17,7 +17,7 @@ class productDisaledSeed extends Seeder
 
         $sup = ["台塑生醫", "合益", "奇華", "養泉", "耐嘉", "祥和", "大鼎", "十翼饌"
             , "八木", "匯恩", "王瓊凰", "黃源財", "李寶輝", "童林"];
-
+/*
         $subbbb = DB::table('prd_suppliers as supplier')
             ->select(['id'])
             ->where(function ($query) use ($sup) {
@@ -26,13 +26,17 @@ class productDisaledSeed extends Seeder
                     $query->orWhere('supplier.name', 'like', "%" . $sup[$i] . "%");
                 }
             })->get()->toArray();
-
+*/
         $re = DB::table('prd_suppliers as supplier')
             ->leftJoin('prd_product_supplier as ps', 'supplier.id', '=', 'ps.supplier_id')
             ->select(['ps.product_id'])
-            ->whereNotIn('supplier.id', array_map(function ($n) {
-                return $n->id;
-            }, $subbbb))
+            ->where(function ($query) use ($sup) {
+                $query->where('supplier.name', 'like', "%" . $sup[0] . "%");
+                for ($i = 1; $i < count($sup); $i++) {
+                    $query->orWhere('supplier.name', 'like', "%" . $sup[$i] . "%");
+                }
+            })
+         
             ->get()->toArray();
 
         $pp = DB::table('prd_products')
@@ -40,7 +44,7 @@ class productDisaledSeed extends Seeder
         //  ->where('public', '0')
             ->whereIn('id', array_map(function ($n) {
                 return $n->product_id;
-            }, $re))->update(['public' => 0]);
+            }, $re))->update(['public' => 1]);
 
         dd('done');
     }
