@@ -34,7 +34,7 @@ class productDisaledSeed extends Seeder
         //    ->select('sku', 'public')
             ->whereIn('id', array_map(function ($n) {
                 return $n->product_id;
-            }, $re))->update(['public' => 0]);
+            }, $re))->update(['public' => 1]);
 
         dd('done');
     }
