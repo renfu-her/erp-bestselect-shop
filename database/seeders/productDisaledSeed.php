@@ -16,7 +16,7 @@ class productDisaledSeed extends Seeder
     {
 
         $sup = ["台塑生醫", "合益", "奇華", "養泉", "耐嘉", "祥和", "大鼎", "十翼饌"
-            , "八木", "匯恩", "王瓊凰", "黃源財", "李寶輝", "童林"];
+            , "八木", "匯恩", "王瓊凰", "黃源財", "李寶輝", "童林","灝翎","維京","祥和"];
 /*
         $subbbb = DB::table('prd_suppliers as supplier')
             ->select(['id'])
@@ -31,9 +31,9 @@ class productDisaledSeed extends Seeder
             ->leftJoin('prd_product_supplier as ps', 'supplier.id', '=', 'ps.supplier_id')
             ->select(['ps.product_id'])
             ->where(function ($query) use ($sup) {
-                $query->where('supplier.name', 'like', "%" . $sup[0] . "%");
+                $query->where('supplier.nickname', 'like', "%" . $sup[0] . "%");
                 for ($i = 1; $i < count($sup); $i++) {
-                    $query->orWhere('supplier.name', 'like', "%" . $sup[$i] . "%");
+                    $query->orWhere('supplier.nickname', 'like', "%" . $sup[$i] . "%");
                 }
             })
          
