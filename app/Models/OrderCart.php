@@ -419,7 +419,7 @@ class OrderCart extends Model
 
         $discount_value = 0;
         if ($currentCoupon->is_global == '1') {
-            if ($order['discounted_price'] > $currentCoupon->min_consume) {
+            if ($order['discounted_price'] >= $currentCoupon->min_consume) {
 
                 switch ($currentCoupon->method_code) {
                     case DisMethod::cash():
