@@ -85,7 +85,7 @@ class OrderCtrl extends Controller
             'invoice_method' => 'required|in:print,give,e_inv',
             'love_code' => 'required_if:invoice_method,==,give',
             'carrier_type' => 'required_if:invoice_method,==,e_inv|in:0,1,2',
-            'carrier_num' => 'required_if:carrier_type,==,0|required_if:carrier_type,==,1',
+            'carrier_num' => 'required_if:invoice_method,==,e_inv',
 
             "orderer.name" => "required",
             "orderer.phone" => "required",
@@ -180,7 +180,7 @@ class OrderCtrl extends Controller
 
         $payinfo = null;
         $payinfo['category'] = $payLoad['category'] ?? null;
-        $payinfo['invoice_method'] = $d['invoice_method'] ?? InvoiceMethod::e_inv()->key; // 前端官網無紙本發票 所以一律為電子發票
+        $payinfo['invoice_method'] = $payLoad['invoice_method'] ?? null;
         $payinfo['inv_title'] = $payLoad['inv_title'] ?? null;
         $payinfo['buyer_ubn'] = $payLoad['buyer_ubn'] ?? null;
         $payinfo['buyer_email'] = $payLoad['buyer_email'] ?? null;
