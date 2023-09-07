@@ -50,7 +50,7 @@ class DividendImport implements ToCollection
                                     'flag_title' => DividendFlag::Active()->description,
                                     'weight' => 0,
                                     'type' => 'get',
-                                    'note' => "手動匯入",
+                                    'note' => "手動匯入 ".$note,
                                 ])->id;
                                 $log['status'] = '1';
                                 $log['note'] = $note.'(dividend_id:' . $id.")";

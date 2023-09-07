@@ -763,7 +763,7 @@
                             @foreach ($dividendList as $key => $value)
                                 <tr>
                                     <td>{{ $value->category_title }}</td>
-                                    <td>{{ $value->category_sn }}</td>
+                                    <td>{{ $value->category_sn }} {{ $value->note }}</td>
                                     <td>{{ $value->dividend }}</td>
                                 </tr>
                             @endforeach
