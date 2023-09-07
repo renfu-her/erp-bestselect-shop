@@ -109,7 +109,8 @@ class User extends Authenticatable
     public static function getUserBySearch(array $query, int $per_page = 10)
     {
         $user_table = DB::table('usr_users')
-            ->leftJoin('per_model_has_roles', 'usr_users.id', '=', 'per_model_has_roles.model_id');
+            ->leftJoin('per_model_has_roles', 'usr_users.id', '=', 'per_model_has_roles.model_id')
+            ->whereNull('usr_users.deleted_at');
 
         if (isset($query['roleIds']) && $query['roleIds']) {
             foreach ($query['roleIds'] as $roleId) {
