@@ -1473,6 +1473,7 @@ class Order extends Model
                 'od.dividend as dividend',
                 'cd.category_sn',
                 'cd.category',
+                'cd.note',
             ])
             ->selectRaw($titles)
             ->where('order.id', '=', $order_id);
