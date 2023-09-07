@@ -604,7 +604,7 @@ class OrderCtrl extends Controller
 
         // 使用紅利詳細
         $dividendList = Order::orderDividendList($id)->get();
-
+        
         $po_check = true;
         if (count($subOrder) > 0) {
             foreach ($subOrder as $so_value) {
