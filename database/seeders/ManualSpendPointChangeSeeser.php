@@ -17,9 +17,11 @@ class ManualSpendPointChangeSeeser extends Seeder
         //
         $pattern = '/^(.*?)\((.*?)\)$/';
 
-        $data = DB::table('dis_manual_dividend_log')
+        $data = DB::table('dis_manual_dividend_log as log')
+            ->leftJoin('dis_manual_dividend as md', 'log.manual_dividend_id', '=', 'md.id')
+            ->select(['log.*', 'md.note as md_note'])
             ->where('status', '1')->get();
-
+     
         foreach ($data as $d) {
             if (preg_match($pattern, $d->note, $matches)) {
                 $outside = $matches[1]; // 括号外的文本
@@ -29,10 +31,9 @@ class ManualSpendPointChangeSeeser extends Seeder
                     $id = explode(':', $inside);
                     $id = isset($id[1]) ? $id[1] : null;
 
-                   
                     if ($id) {
                         DB::table('usr_cusotmer_dividend')->where('id', $id)->update([
-                            'note' => '手動匯入 ' . $outside,
+                            'note' => '手動匯入 ' . $d->md_note . " " . $outside,
                         ]);
                     }
 

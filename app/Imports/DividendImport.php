@@ -5,6 +5,7 @@ namespace App\Imports;
 use App\Enums\Discount\DividendFlag;
 use App\Models\Customer;
 use App\Models\CustomerDividend;
+use App\Models\ManualDividend;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\ToCollection;
@@ -26,6 +27,8 @@ class DividendImport implements ToCollection
     public function collection(Collection $collection)
     {
         //
+        $mm = ManualDividend::where('id', $this->order_id)->get()->first();
+
         foreach ($collection as $key => $value) {
             if ($key != 0) {
                 if (isset($value[0]) && isset($value[1])) {
@@ -38,7 +41,7 @@ class DividendImport implements ToCollection
 
                     if ($customer) {
                         if (is_numeric($value[1])) {
-                            $note = isset($value[2])?$value[2]:'';
+                            $note = isset($value[2]) ? $value[2] : '';
                             if ($value[1] > 0) {
                                 $id = CustomerDividend::create([
                                     'customer_id' => $customer->id,
@@ -50,14 +53,14 @@ class DividendImport implements ToCollection
                                     'flag_title' => DividendFlag::Active()->description,
                                     'weight' => 0,
                                     'type' => 'get',
-                                    'note' => "手動匯入 ".$note,
+                                    'note' => "手動匯入 " . $mm->note . " " . $note,
                                 ])->id;
                                 $log['status'] = '1';
-                                $log['note'] = $note.'(dividend_id:' . $id.")";
+                                $log['note'] = $note . '(dividend_id:' . $id . ")";
                             } else if ($value[1] < 0) {
                                 $id = CustomerDividend::decrease($customer->id, DividendFlag::Manual(), $value[1], '手動:' . $this->order_id);
                                 $log['status'] = '1';
-                                $log['note'] =  $note.'(dividend_id:' . $id.")";
+                                $log['note'] = $note . '(dividend_id:' . $id . ")";
                             } else {
                                 $log['status'] = '0';
                                 $log['note'] = '紅利資料錯誤';
