@@ -30,7 +30,7 @@ class productDisaledSeed extends Seeder
         , "八木", "匯恩", "王瓊凰", "黃源財", "李寶輝", "童林","灝翎","維京","祥和"];
          */
 
-        $sup = ["台塑生醫", "維京", "祥和"];
+        $sup = ["匯恩"];
 
         $re = DB::table('prd_suppliers as supplier')
             ->leftJoin('prd_product_supplier as ps', 'supplier.id', '=', 'ps.supplier_id')
