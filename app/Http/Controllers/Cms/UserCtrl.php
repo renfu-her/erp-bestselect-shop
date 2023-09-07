@@ -235,7 +235,9 @@ class UserCtrl extends Controller
     public function destroy($id)
     {
         //
-        DB::table('usr_users')->where('id', $id)->delete();
+
+        
+        User::where('id', $id)->delete();
 
         wToast('資料刪除完成');
         return redirect(Route('cms.user.index'));
