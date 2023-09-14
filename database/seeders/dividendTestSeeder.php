@@ -16,7 +16,7 @@ class dividendTestSeeder extends Seeder
     public function run()
     {
         //
-
+        /*
         $re = CustomerDividend::select(['*'])
             ->selectRaw('CASE category
                         WHEN "cyberbiz" THEN 2
@@ -34,5 +34,6 @@ class dividendTestSeeder extends Seeder
             ->get()->toArray();
 
         dd($re);
+        */
     }
 }
