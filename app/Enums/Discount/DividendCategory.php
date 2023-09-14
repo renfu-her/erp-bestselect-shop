@@ -2,8 +2,8 @@
 
 namespace App\Enums\Discount;
 
-use BenSampo\Enum\Enum;
 use App\Enums\Helper;
+
 /**
  * 點數來源類型
  * @method static static Order() 購物訂單
@@ -17,6 +17,8 @@ final class DividendCategory extends Helper
     const M_b2c = 'm_b2c';
     const M_b2b = 'm_b2b';
     const M_b2ec = 'm_b2ec';
+    const Employee_gift = 'employee_gift';
+    const Guide = 'guide';
 
     public static function getDescription($value): string
     {
@@ -38,6 +40,12 @@ final class DividendCategory extends Helper
                 break;
             case self::M_b2ec:
                 $result = '企業會員個人紅利折扣';
+                break;
+            case self::Employee_gift:
+                $result = '旅遊員工購物金';
+                break;
+            case self::Guide:
+                $result = '導遊領隊購物金';
                 break;
             default:
                 return parent::getDescription($value);
