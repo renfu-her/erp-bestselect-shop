@@ -21,6 +21,8 @@ final class DisCategory extends Helper
     const m_b2c = 'm_b2c';
     const m_b2b = 'm_b2b';
     const m_b2ec = 'm_b2ec';
+    const Employee_gift = 'employee_gift';
+    const Guide = 'guide';
 
     public static function getDescription($value): string
     {
@@ -52,6 +54,12 @@ final class DisCategory extends Helper
                 break;
             case self::combine:
                 $result = '任選折扣';
+                break;
+            case self::Employee_gift:
+                $result = '旅遊員工購物金';
+                break;
+            case self::Guide:
+                $result = '導遊領隊購物金';
                 break;
             default:
                 $result = parent::getDescription($value);
