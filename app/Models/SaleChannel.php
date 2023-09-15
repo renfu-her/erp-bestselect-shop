@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\Customer\Bonus;
+use App\Enums\SaleChannel\Channel;
 use App\Helpers\IttmsDBB;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -95,6 +96,23 @@ class SaleChannel extends Model
             ->where(function ($q) use ($style_id) {
                 $q->where('price.style_id', $style_id)
                     ->orWhereNull('price.style_id');
+            })
+            /**
+                電商部，希望只顯示以下欄位
+                喜鴻購物2.0官網 1
+                喜鴻購物2.0ERP 2
+                喜鴻餐飲 8
+                喜鴻旅行社 9
+                經銷價販售(無獎金) 10
+                大量訂購通路 16
+             **/
+            ->where(function ($x) {
+                $x->orWhere('c.id', '=', Channel::Ecommerce)
+                    ->orWhere('c.id', '=', Channel::Erp)
+                    ->orWhere('c.id', '=', Channel::DepartureLounge)
+                    ->orWhere('c.id', '=', Channel::Besttour)
+                    ->orWhere('c.id', '=', Channel::DealerPriceNoBonus)
+                    ->orWhere('c.id', '=', Channel::MultipleOrders);
             })
             ->orderBy('c.is_master', 'DESC');
     }
@@ -236,9 +254,9 @@ class SaleChannel extends Model
 
             $p = $product->price;
             if ($currentSale->basis_on_estimated_cost == '1') {
-           
+
                 $p = ProductStyle::where('id', $product->style_id)->withTrashed()->get()->first()->estimated_cost;
-              
+
             }
 
             if ($currentSale->has_bonus === 1) {
