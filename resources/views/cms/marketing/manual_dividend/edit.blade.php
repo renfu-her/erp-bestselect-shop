@@ -25,6 +25,22 @@
                 </div>
                 <div class="col-12">
                     <label class="form-label">匯入Excel（.xls, .xlsx）<span class="text-danger">*</span></label>
+                    <fieldset class="col-12 mb-1">
+                        <div class="px-1">
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label">
+                                    <input class="form-check-input" name="file_type" type="radio" checked>
+                                    以會員編號匯入
+                                </label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label">
+                                    <input class="form-check-input" name="file_type" type="radio">
+                                    以會員E-mail匯入
+                                </label>
+                            </div>
+                        </div>
+                    </fieldset>
                     <div class="input-group has-validation">
                         <input type="file" class="form-control @error('file') is-invalid @enderror" name="file"
                             aria-label="匯入Excel" required 
