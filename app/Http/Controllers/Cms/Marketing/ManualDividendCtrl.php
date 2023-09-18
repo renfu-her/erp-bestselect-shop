@@ -91,8 +91,11 @@ class ManualDividendCtrl extends Controller
         if (!$data) {
             return abort(404);
         }
-
-        $log = DB::table('dis_manual_dividend_log')->where('manual_dividend_id', $id)->get();
+       
+        $log = DB::table('dis_manual_dividend_log as log')
+            ->leftJoin('usr_customers as customer', 'log.account', '=', 'customer.' . $data->file_type)
+            ->select(['log.*', 'customer.name'])
+            ->where('log.manual_dividend_id', $id)->get();
 
         return view('cms.marketing.manual_dividend.show', [
             'data' => $data,
@@ -141,7 +144,7 @@ class ManualDividendCtrl extends Controller
         } else {
             $f_name = "dividend.xlsx";
         }
-        
+
         $file = public_path() . "/excel/" . $f_name;
 
         $headers = array(
