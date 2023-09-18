@@ -29,17 +29,20 @@
                         <div class="px-1">
                             <div class="form-check form-check-inline">
                                 <label class="form-check-label">
-                                    <input class="form-check-input" name="file_type" type="radio" checked>
+                                    <input class="form-check-input" name="file_type" type="radio" value="sn" checked>
                                     以會員編號匯入
                                 </label>
                             </div>
                             <div class="form-check form-check-inline">
                                 <label class="form-check-label">
-                                    <input class="form-check-input" name="file_type" type="radio">
+                                    <input class="form-check-input" name="file_type" value="email" type="radio">
                                     以會員E-mail匯入
                                 </label>
                             </div>
                         </div>
+                        @error('file_type')
+                            {{ $message }}
+                        @enderror
                     </fieldset>
                     <div class="input-group has-validation">
                         <input type="file" class="form-control @error('file') is-invalid @enderror" name="file"
