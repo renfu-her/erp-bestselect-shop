@@ -15,11 +15,13 @@ class DividendImport implements ToCollection
 
     protected $order_id;
     protected $category;
+    protected $file_type;
 
-    public function __construct($order_id, $category)
+    public function __construct($order_id, $category, $file_type)
     {
         $this->order_id = $order_id;
         $this->category = $category;
+        $this->file_type = $file_type;
     }
     /**
      * @param Collection $collection
@@ -27,6 +29,13 @@ class DividendImport implements ToCollection
     public function collection(Collection $collection)
     {
         //
+        if (!in_array($this->file_type, ['sn', 'email'])) {
+            dd('error');
+            return;
+        }
+
+        //  dd($this->file_type);
+
         $mm = ManualDividend::where('id', $this->order_id)->get()->first();
 
         foreach ($collection as $key => $value) {
@@ -37,7 +46,7 @@ class DividendImport implements ToCollection
                         'account' => $value[0],
                         'dividend' => $value[1],
                     ];
-                    $customer = Customer::where('sn', $value[0])->get()->first();
+                    $customer = Customer::where($this->file_type, $value[0])->get()->first();
 
                     if ($customer) {
                         if (is_numeric($value[1])) {
