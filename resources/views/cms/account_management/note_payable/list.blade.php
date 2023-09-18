@@ -193,7 +193,7 @@
 
     <div class="row flex-column-reverse flex-sm-row">
         <div class="col-auto">
-            <a href="{{ strpos(url()->full(), '?') ? url()->full() . '&action=print' : url()->full() . '?action=print' }}" target="_blank" class="btn btn-warning px-4">列印畫面</a>
+            <a href="{{ strpos(url()->current(), '?') ? url()->current() . '&action=print' : url()->current() . '?action=print' }}" target="_blank" class="btn btn-warning px-4">列印畫面</a>
         </div>
 
         <div class="col d-flex justify-content-end align-items-center mb-3 mb-sm-0">

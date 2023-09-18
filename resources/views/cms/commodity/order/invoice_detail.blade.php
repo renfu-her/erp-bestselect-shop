@@ -17,11 +17,11 @@
 
                 @elseif($invoice->status == 1 && $invoice->r_status == 'SUCCESS')
                     @if($invoice->print_flag == 'Y')
-                        <a href="{{ url()->full() . '?action=print_inv_a4' }}" target="_blank" 
+                        <a href="{{ url()->current() . '?action=print_inv_a4' }}" target="_blank" 
                             class="btn btn-sm btn-warning mb-1">發票列印(單張)</a>
 
                         @if($invoice->category == 'B2B')
-                        <a href="{{ url()->full() . '?action=print_inv_B2B' }}" target="_blank" 
+                        <a href="{{ url()->current() . '?action=print_inv_B2B' }}" target="_blank" 
                             class="btn btn-sm btn-warning mb-1">發票列印(B2B)</a>
                         @endif
                     @endif

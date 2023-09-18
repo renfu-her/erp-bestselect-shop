@@ -15,7 +15,7 @@
                 data-href="{{ Route('cms.transfer_voucher.delete', ['id' => $voucher->tv_id]) }}">刪除傳票</a>
             @endcan
 
-            <a href="{{ url()->full() . '?action=print' }}" target="_blank" 
+            <a href="{{ url()->current() . '?action=print' }}" target="_blank" 
                 class="btn btn-sm btn-warning mb-1" rel="noopener noreferrer">中一刀列印畫面</a>
         </div>
     </nav>

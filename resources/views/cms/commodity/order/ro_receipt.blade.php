@@ -21,10 +21,10 @@
                     class="btn btn-sm btn-dark mb-1" role="button">修改摘要/稅別</a>
             @endcan
 
-            <a href="{{ url()->full() . '?action=print&print_type=rec' }}" target="_blank" 
+            <a href="{{ url()->current() . '?action=print&print_type=rec' }}" target="_blank" 
                 class="btn btn-sm btn-warning mb-1" rel="noopener noreferrer">中一刀列印-收款單</a>
 
-            <a href="{{ url()->full() . '?action=print&print_type=req' }}" target="_blank" 
+            <a href="{{ url()->current() . '?action=print&print_type=req' }}" target="_blank" 
                 class="btn btn-sm btn-warning mb-1" rel="noopener noreferrer">中一刀列印-請款單</a>
 
             @can('cms.collection_received.delete')

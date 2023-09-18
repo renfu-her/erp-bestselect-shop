@@ -20,7 +20,7 @@
                     class="btn btn-sm btn-dark mb-1" role="button">修改摘要/稅別</a>
             @endcan
 
-            <a href="{{ url()->full() . '?action=print' }}" target="_blank" class="btn btn-sm btn-warning mb-1" 
+            <a href="{{ url()->current() . '?action=print' }}" target="_blank" class="btn btn-sm btn-warning mb-1" 
                 rel="noopener noreferrer">中一刀列印畫面</a>
 
             @can('cms.collection_received.delete')
