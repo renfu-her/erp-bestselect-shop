@@ -134,15 +134,20 @@ class ManualDividendCtrl extends Controller
         //
     }
 
-    public function sample(Response $response)
+    public function sample(Request $request, Response $response)
     {
-        //
-        $file = public_path() . "/excel/dividend.xlsx";
+        if ($request->query('type') == "e") {
+            $f_name = "dividend_e.xlsx";
+        } else {
+            $f_name = "dividend.xlsx";
+        }
+        
+        $file = public_path() . "/excel/" . $f_name;
 
         $headers = array(
             'Content-Type: application/vnd.ms-excel',
         );
 
-        return response()->download($file, 'dividend.xlsx', $headers);
+        return response()->download($file, $f_name, $headers);
     }
 }

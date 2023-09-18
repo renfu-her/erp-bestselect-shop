@@ -48,7 +48,7 @@
                         <input type="file" class="form-control @error('file') is-invalid @enderror" name="file"
                             aria-label="匯入Excel" required 
                             accept="application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"/>
-                        <a href="{{ Route('cms.manual-dividend.sample', null, true) }}" class="btn btn-success">
+                        <a id="Sample" href="{{ Route('cms.manual-dividend.sample', [], true) }}" class="btn btn-success">
                             範本
                         </a>
                         <div class="invalid-feedback">
@@ -78,3 +78,17 @@
     </form>
 
 @endsection
+@once
+    @push('sub-scripts')
+        <script>
+            const SampleUrl = @json(Route('cms.manual-dividend.sample', [], true));
+            $('input[name="file_type"]').on('change', function(e) {
+                if ($(this).val() === 'email') {
+                    $('#Sample').attr('href', SampleUrl + '?type=e');
+                } else {
+                    $('#Sample').attr('href', SampleUrl);
+                }
+            });
+        </script>
+    @endpush
+@endonce

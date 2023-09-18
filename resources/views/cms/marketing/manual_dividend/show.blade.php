@@ -29,7 +29,7 @@
                 <thead>
                     <tr>
                         <th scope="col" style="width:10%">#</th>
-                        <th scope="col">帳號/email</th>
+                        <th scope="col">會員編號 / E-mail</th>
                         <th scope="col">點數</th>
                         <th scope="col">狀態</th>
                         <th scope="col">備註</th>
