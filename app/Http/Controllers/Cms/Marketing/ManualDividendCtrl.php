@@ -58,20 +58,21 @@ class ManualDividendCtrl extends Controller
         $request->validate([
             'file' => 'max:5000000|mimes:xls,xlsx|required',
             'category' => 'required',
-
+            'file_type' => 'required|in:sn,email',
         ]);
 
         $d = $request->all();
+
         DB::beginTransaction();
 
         $id = ManualDividend::create([
             'user_id' => $request->user()->id,
             'category' => $d['category'],
-            'note'=>$d['note'],
+            'note' => $d['note'],
             'category_title' => DividendCategory::fromValue($d['category'])->description,
         ])->id;
 
-        Excel::import(new DividendImport($id, $d['category']), $request->file('file'));
+        Excel::import(new DividendImport($id, $d['category'], $d['file_type']), $request->file('file'));
 
         DB::commit();
 
@@ -92,7 +93,7 @@ class ManualDividendCtrl extends Controller
         }
 
         $log = DB::table('dis_manual_dividend_log')->where('manual_dividend_id', $id)->get();
-        
+
         return view('cms.marketing.manual_dividend.show', [
             'data' => $data,
             'log' => $log,
