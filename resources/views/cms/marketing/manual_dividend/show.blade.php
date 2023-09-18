@@ -30,6 +30,7 @@
                     <tr>
                         <th scope="col" style="width:10%">#</th>
                         <th scope="col">會員編號 / E-mail</th>
+                        <th scope="col">名稱</th>
                         <th scope="col">點數</th>
                         <th scope="col">狀態</th>
                         <th scope="col">備註</th>
@@ -41,6 +42,9 @@
                             <th scope="row">{{ $key + 1 }}</th>
                             <td>
                                 {{ $value->account }}
+                            </td>
+                            <td>
+                                {{ $value->name }}
                             </td>
                             <td>{{ number_format($value->dividend) }}</td>
                             <td @class(['text-success' => $value->status == '1',
