@@ -1056,7 +1056,7 @@
                 });
             });
 
-            const MIN_PAY_SUM = 0;
+            const MIN_PAY_SUM = 10;
             let addProductModal = new bootstrap.Modal(document.getElementById('addProduct'));
             let setShipmentModal = new bootstrap.Modal(document.getElementById('setShipment'), {
                 backdrop: 'static',
