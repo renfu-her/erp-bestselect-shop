@@ -256,10 +256,10 @@ class OrderCart extends Model
         }
 
         $order['total_price'] = $order['discounted_price'] + $order['dlv_fee'];
-        if($order['total_price'] < 0){
+        if($order['total_price'] <= 10){
             return [
                 'success' => '0',
-                'error_msg' => '總金額不能低於0',
+                'error_msg' => '總金額不能低於10',
                 'event' => 'total_price',
             ];
         }
