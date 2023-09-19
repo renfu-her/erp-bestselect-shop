@@ -72,6 +72,12 @@ final class DisCategory extends Helper
     {
         $result = '';
         switch ($value) {
+            case self::Employee_gift:
+                $result = 12;
+                break;
+            case self::Guide:
+                $result = 12;
+                break;
             case self::m_b2e:
                 $result = 12;
                 break;
