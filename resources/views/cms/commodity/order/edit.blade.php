@@ -1056,7 +1056,7 @@
                 });
             });
 
-            const MIN_PAY_SUM = 10;
+            const MIN_PAY_SUM = 0;
             let addProductModal = new bootstrap.Modal(document.getElementById('addProduct'));
             let setShipmentModal = new bootstrap.Modal(document.getElementById('setShipment'), {
                 backdrop: 'static',
@@ -2538,7 +2538,7 @@
                 $('#Total_price td[data-td="sum"]').text(`$${formatNumber(all_sum)}`);
                 appendDiscountOverview();
 
-                // 總金額 <10 不可訂購
+                // 總金額 < MIN_PAY_SUM 不可訂購
                 if (all_sum < MIN_PAY_SUM) {
                     $('#STEP_1 .-next_step').prop('disabled', true);
                     $('#overminAlert').prop('hidden', false);
