@@ -21,8 +21,8 @@ final class DisCategory extends Helper
     const m_b2c = 'm_b2c';
     const m_b2b = 'm_b2b';
     const m_b2ec = 'm_b2ec';
-    const Employee_gift = 'employee_gift';
-    const Guide = 'guide';
+    const employee_gift = 'employee_gift';
+    const guide = 'guide';
 
     public static function getDescription($value): string
     {
@@ -55,10 +55,10 @@ final class DisCategory extends Helper
             case self::combine:
                 $result = '任選折扣';
                 break;
-            case self::Employee_gift:
+            case self::employee_gift:
                 $result = '旅遊員工購物金';
                 break;
-            case self::Guide:
+            case self::guide:
                 $result = '導遊領隊購物金';
                 break;
             default:
@@ -72,6 +72,12 @@ final class DisCategory extends Helper
     {
         $result = '';
         switch ($value) {
+            case self::employee_gift:
+                $result = 12;
+                break;
+            case self::guide:
+                $result = 12;
+                break;
             case self::m_b2e:
                 $result = 12;
                 break;
