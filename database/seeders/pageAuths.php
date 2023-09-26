@@ -1306,4 +1306,15 @@ return [
             ],
         ],
     ],
+    [
+        "unit" => "一頁式網站",
+        "permissions" => [
+            [
+                "cms.onepage.index",
+                "瀏覽",
+            ],
+        ],
+    ],
+
+    
 ];
