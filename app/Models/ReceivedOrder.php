@@ -1261,7 +1261,9 @@ class ReceivedOrder extends Model
                         $account = DB::table('acc_received_account')->where('id', $value)->first();
 
                         if($account && $account->append_received_order_id){
-                            self::find($account->append_received_order_id)->delete();
+                            if(self::find($account->append_received_order_id)) {
+                                self::find($account->append_received_order_id)->delete();
+                            }
                         }
 
                         DB::table('acc_received_account')->where('id', $value)->update([
