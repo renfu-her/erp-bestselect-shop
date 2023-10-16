@@ -4,6 +4,7 @@
     <a href="{{ Route('cms.user.index', [], true) }}" class="btn btn-primary" role="button">
         <i class="bi bi-arrow-left"></i> 返回上一頁
     </a>
+    <button class="btn btn-success">編輯</button>
 </div>
 
 <form action="" method="post">
@@ -20,8 +21,8 @@
                     <tr>
                         <th>英文名字</th>
                         <td>May</td>
-                        <td colspan="2" rowspan="5" class="w-50">
-                            <img src="" alt="">
+                        <td id="m_photo" colspan="2" rowspan="5" class="w-50">
+                            <img src="{{ Asset('images/NoImg.png') }}" alt="">
                         </td>
                     </tr>
                     <tr>
@@ -161,7 +162,7 @@
                     </tr>
                     <tr>
                         <th>是否打卡</th>
-                        <td>是 / 準時打卡</td>
+                        <td>是</td>
                         <th>服務地區</th>
                         <td>台北</td>
                     </tr>
@@ -182,22 +183,16 @@
                         <td colspan="3">besttour@besttour.com.tw</td>
                     </tr>
                     <tr>
-                        <th>SKYPE 帳號</th>
-                        <td></td>
-                        <th>BLOG網址</th>
-                        <td></td>
-                    </tr>
-                    <tr>
                         <th>DISC類型</th>
                         <td colspan="3">DISC</td>
                     </tr>
                     <tr>
                         <th class="small">特殊證照專長</th>
-                        <td colspan="3">無</td>
+                        <td colspan="3"></td>
                     </tr>
                     <tr>
                         <th>保險證照</th>
-                        <td colspan="3">無</td>
+                        <td colspan="3"></td>
                     </tr>
                     <tr>
                         <th>經 理 證</th>
@@ -255,3 +250,24 @@
     </div>
 </form>
 @endsection
+
+@once
+    @push('sub-styles')
+        <style>
+            #m_photo {
+                text-align: center;
+                vertical-align: middle;
+            }
+            #m_photo img {
+                max-width: 90%;
+                max-height: 80%;
+                width: auto;
+                height: auto;
+            }
+        </style>
+    @endpush
+    @push('sub-scripts')
+        <script>
+        </script>
+    @endpush
+@endonce
