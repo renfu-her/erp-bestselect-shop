@@ -132,7 +132,7 @@
                                 @endcan
                             </td>
                             <td class="text-center">
-                                <a href=""
+                                <a href="{{ Route('cms.user.profile', ['id' => $data->id], true) }}"
                                     data-bs-toggle="tooltip" title="個人資料"
                                     class="icon icon-btn fs-5 text-primary rounded-circle border-0">
                                     <i class="bi bi-person-rolodex"></i>

@@ -273,12 +273,14 @@ class UserCtrl extends Controller
 
     }
 
-    public function profile()
+    public function profile($id)
     {
+        return view('cms.admin.user.profile', [
 
+        ]);
     }
 
-    public function updateProfile()
+    public function updateProfile($id)
     {
 
     }
