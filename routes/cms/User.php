@@ -16,5 +16,6 @@ Route::group(['prefix' => 'user', 'as' => 'user.'], function () {
 
     Route::get('profile/{id}', [UserCtrl::class, 'profile'])->name('profile')->middleware('permission:cms.user.profile');
     Route::post('profile/{id}', [UserCtrl::class, 'updateProfile']);
+    Route::get('editProfile/{id}', [UserCtrl::class, 'editProfile'])->name('editProfile')->middleware('permission:cms.user.editProfile');
 
 });

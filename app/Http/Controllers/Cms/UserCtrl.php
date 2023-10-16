@@ -276,12 +276,21 @@ class UserCtrl extends Controller
     public function profile($id)
     {
         return view('cms.admin.user.profile', [
+            'method' => 'view',
+            'id' => $id
+        ]);
+    }
 
+    public function editProfile($id)
+    {
+        return view('cms.admin.user.profile', [
+            'method' => 'edit',
+            'id' => $id
         ]);
     }
 
     public function updateProfile($id)
     {
-
+        ;
     }
 }

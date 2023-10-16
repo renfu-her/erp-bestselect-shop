@@ -1,16 +1,23 @@
 @extends('layouts.main')
 @section('sub-content')
+@php
+    $editMode = $method == 'edit';
+@endphp
 <div class="pt-2 mb-3">
     <a href="{{ Route('cms.user.index', [], true) }}" class="btn btn-primary" role="button">
         <i class="bi bi-arrow-left"></i> 返回上一頁
     </a>
-    <button class="btn btn-success">編輯</button>
+    @if ($editMode)
+        <a href="{{ Route('cms.user.profile', ['id' => $id], true) }}" class="btn btn-outline-danger">取消編輯</a>
+    @else
+        <a href="{{ Route('cms.user.editProfile', ['id' => $id], true) }}" class="btn btn-success">編輯</a>
+    @endif
 </div>
 
 <form action="" method="post">
     <div class="card mb-4">
         <div class="card-body">
-            <table class="table table-bordered">
+            <table id="profile_table" class="table table-bordered">
                 <tbody>
                     <tr>
                         <th>員工姓名</th>
@@ -20,32 +27,119 @@
                     </tr>
                     <tr>
                         <th>英文名字</th>
-                        <td>May</td>
+                        @if ($editMode)
+                            <td class="p-1">
+                                <input class="form-control form-control-sm" type="text" 
+                                    name="en_name" value="May" placeholder="May">
+                            </td>
+                        @else
+                            <td>
+                                May
+                            </td>
+                        @endif
                         <td id="m_photo" colspan="2" rowspan="5" class="w-50">
                             <img src="{{ Asset('images/NoImg.png') }}" alt="">
+                            @if ($editMode)
+                                <input class="form-control form-control-sm" type="file" name="img">
+                            @endif
                         </td>
                     </tr>
                     <tr>
                         <th>身分證號</th>
-                        <td>A123456789</td>
+                        @if ($editMode)
+                            <td class="p-1">
+                                <input class="form-control form-control-sm" type="text" 
+                                    name="identity" value="A123456789" placeholder="A123456789">
+                            </td>
+                        @else
+                            <td>
+                                A123456789
+                            </td>
+                        @endif
                     </tr>
                     <tr>
                         <th>性　　別</th>
-                        <td>女</td>
+                        <td>
+                            @if ($editMode)
+                                <div class="form-check form-check-inline">
+                                    <label class="form-check-label">
+                                        <input class="form-check-input" name="gender" type="radio" 
+                                            value="男" @if (false) checked @endif>
+                                        男
+                                    </label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <label class="form-check-label">
+                                        <input class="form-check-input" name="gender" type="radio" 
+                                            value="女" @if (true) checked @endif>
+                                        女
+                                    </label>
+                                </div>
+                            @else
+                                女
+                            @endif
+                        </td>
                     </tr>
                     <tr>
                         <th>家人同住</th>
-                        <td>否</td>
+                        <td>
+                            @if ($editMode)
+                                <div class="form-check form-check-inline">
+                                    <label class="form-check-label">
+                                        <input class="form-check-input" name="live_with_family" type="radio" 
+                                            value="1" @if (false) checked @endif>
+                                        是
+                                    </label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <label class="form-check-label">
+                                        <input class="form-check-input" name="live_with_family" type="radio" 
+                                            value="0" @if (true) checked @endif>
+                                        否
+                                    </label>
+                                </div>
+                            @else
+                                否
+                            @endif
+                        </td>
                     </tr>
                     <tr>
                         <th>業績統計</th>
-                        <td>否</td>
+                        <td>
+                            @if ($editMode)
+                                <div class="form-check form-check-inline">
+                                    <label class="form-check-label">
+                                        <input class="form-check-input" name="performance_statistics" type="radio" 
+                                            value="1" @if (false) checked @endif>
+                                        是
+                                    </label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <label class="form-check-label">
+                                        <input class="form-check-input" name="performance_statistics" type="radio" 
+                                            value="0" @if (true) checked @endif>
+                                        否
+                                    </label>
+                                </div>
+                            @else
+                                否
+                            @endif
+                        </td>
                     </tr>
                     <tr>
                         <th>部　　門</th>
-                        <td>喜鴻-資訊部-資訊二組</td>
+                        <td>資訊部-資訊二組</td>
                         <th>職　　稱</th>
-                        <td>軟體工程師</td>
+                        @if ($editMode)
+                            <td class="p-1">
+                                <input class="form-control form-control-sm" type="text"
+                                    name="job_title" value="軟體工程師" placeholder="軟體工程師" >
+                            </td>
+                        @else
+                            <td>
+                                軟體工程師
+                            </td>
+                        @endif
                     </tr>
                     <tr>
                         <th>到 職 日</th>
@@ -254,15 +348,17 @@
 @once
     @push('sub-styles')
         <style>
+            #profile_table {
+                vertical-align: middle;
+            }
             #m_photo {
                 text-align: center;
-                vertical-align: middle;
             }
             #m_photo img {
                 max-width: 90%;
                 max-height: 80%;
-                width: auto;
-                height: auto;
+                width: 135px;
+                height: 180px;
             }
         </style>
     @endpush
