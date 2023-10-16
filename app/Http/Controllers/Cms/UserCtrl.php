@@ -12,7 +12,6 @@ use App\Models\UserSalechannel;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
@@ -236,7 +235,6 @@ class UserCtrl extends Controller
     {
         //
 
-        
         User::where('id', $id)->delete();
 
         wToast('資料刪除完成');
@@ -272,6 +270,16 @@ class UserCtrl extends Controller
         UserSalechannel::updateSalechannel($id, $d);
         wToast('儲存完成');
         return redirect(Route('cms.user.index'));
+
+    }
+
+    public function profile()
+    {
+
+    }
+
+    public function updateProfile()
+    {
 
     }
 }
