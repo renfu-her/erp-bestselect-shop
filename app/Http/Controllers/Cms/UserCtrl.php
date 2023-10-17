@@ -285,7 +285,7 @@ class UserCtrl extends Controller
         }
         $profile = UsrProfile::dataList()->where('user_id', $id)->get()->first();
 
-       // dd($profile);
+        // dd($profile);
         return view('cms.admin.user.profile', [
             'method' => 'view',
             'id' => $id,
@@ -295,9 +295,17 @@ class UserCtrl extends Controller
 
     public function editProfile($id)
     {
+        $profile = UsrProfile::where('user_id', $id)->get()->first();
+        if (!$profile) {
+            UsrProfile::create(['user_id' => $id]);
+           
+        }
+        $profile = UsrProfile::dataList()->where('user_id', $id)->get()->first();
+
         return view('cms.admin.user.profile', [
             'method' => 'edit',
             'id' => $id,
+            'data' => $profile,
         ]);
     }
 

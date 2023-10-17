@@ -22,7 +22,7 @@ class CreateUsrProfileTable extends Migration
             $table->date('date_of_job_leave')->nullable()->comment('離職日');
             $table->string('live_with_family', 20)->nullable()->comment('與家人同住');
             $table->string('performance_statistics', 20)->nullable()->comment('業績統計');
-            $table->text('certificates')->nullable()->comment('證照專長');
+            $table->text('certificates')->nullable()->comment('特殊證照專長');
             $table->string('disc_category', 100)->nullable()->comment('disc類型');
             $table->string('insurance_certification', 20)->nullable()->comment('保險證照');
             $table->string('ability_english')->nullable()->comment('英文能力');
@@ -57,7 +57,7 @@ class CreateUsrProfileTable extends Migration
             $table->string('education_department')->nullable()->comment('科系');
             $table->string('punch_in', 20)->nullable()->comment('上班打卡');
             $table->string('note')->nullable()->comment('備註');
-            $table->text('history')->nullable()->comment('資歷');
+            $table->text('history')->nullable()->comment('資歷簡介');
             $table->string('img')->nullable()->comment('照片');
             $table->timestamps();
         });
