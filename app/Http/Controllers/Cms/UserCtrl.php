@@ -9,6 +9,7 @@ use App\Models\SaleChannel;
 use App\Models\User;
 use App\Models\UserProjLogistics;
 use App\Models\UserSalechannel;
+use App\Models\UsrProfile;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
@@ -275,9 +276,20 @@ class UserCtrl extends Controller
 
     public function profile($id)
     {
+        // dd('aa');
+
+        $profile = UsrProfile::where('user_id', $id)->get()->first();
+        if (!$profile) {
+            UsrProfile::create(['user_id' => $id]);
+           
+        }
+        $profile = UsrProfile::dataList()->where('user_id', $id)->get()->first();
+
+        dd($profile);
         return view('cms.admin.user.profile', [
             'method' => 'view',
-            'id' => $id
+            'id' => $id,
+            'data' => $profile,
         ]);
     }
 
@@ -285,7 +297,7 @@ class UserCtrl extends Controller
     {
         return view('cms.admin.user.profile', [
             'method' => 'edit',
-            'id' => $id
+            'id' => $id,
         ]);
     }
 
