@@ -164,10 +164,10 @@
                         </tr>
                         <tr>
                             <th>服務時間</th>
-                            <td>3年1個月</td>
+                            <td>{{ $data->year_of_service }}</td>
                             <th>特休天數</th>
                             {{-- https://www.hsihung.com.tw/intranet/employee/vday2B.asp?n1=%A4%FD%AF%F8%AC%DC --}}
-                            <td>15</td>
+                            <td>{{ $data->annual_leave }}</td>
                         </tr>
                         <tr>
                             <th>英文能力</th>

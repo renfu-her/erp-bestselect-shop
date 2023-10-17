@@ -285,7 +285,6 @@ class UserCtrl extends Controller
         }
         $profile = UsrProfile::dataList()->where('user_id', $id)->get()->first();
 
-        // dd($profile);
         return view('cms.admin.user.profile', [
             'method' => 'view',
             'id' => $id,
