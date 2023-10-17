@@ -281,7 +281,7 @@ class UserCtrl extends Controller
         $profile = UsrProfile::where('user_id', $id)->get()->first();
         if (!$profile) {
             UsrProfile::create(['user_id' => $id]);
-           
+
         }
         $profile = UsrProfile::dataList()->where('user_id', $id)->get()->first();
 
@@ -297,7 +297,7 @@ class UserCtrl extends Controller
         $profile = UsrProfile::where('user_id', $id)->get()->first();
         if (!$profile) {
             UsrProfile::create(['user_id' => $id]);
-           
+
         }
         $profile = UsrProfile::dataList()->where('user_id', $id)->get()->first();
 
@@ -308,8 +308,56 @@ class UserCtrl extends Controller
         ]);
     }
 
-    public function updateProfile($id)
+    public function updateProfile(Request $request, $id)
     {
-        ;
+        $d = $request->all();
+
+        UsrProfile::where('user_id', $id)->update([
+            'en_name' => $d['en_name'],
+            'identity' => $d['identity'],
+        //    'gender' => $d['gender'],
+            'live_with_family' => $d['live_with_family'],
+            'performance_statistics' => $d['performance_statistics'],
+            'job_title' => $d['job_title'],
+            'date_of_job_entry' => $d['date_of_job_entry'],
+            'date_of_job_leave' => $d['date_of_job_leave'],
+            'ability_english' => $d['ability_english'],
+            'english_certification' => $d['english_certification'],
+            'ability_japanese' => $d['ability_japanese'],
+            'japanese_certification' => $d['japanese_certification'],
+            'date_of_insurance_entry' => $d['date_of_insurance_entry'],
+            'date_of_insurance_leave' => $d['date_of_insurance_leave'],
+            'labor_insurance' => $d['labor_insurance'],
+            'labor_insurance_oop' => $d['labor_insurance_oop'],
+            'health_insurance' => $d['health_insurance'],
+            'health_insurance_oop' => $d['health_insurance_oop'],
+            'health_insurance_dependents' => $d['health_insurance_dependents'],
+            'tel' => $d['tel'],
+            'household_tel' => $d['household_tel'],
+            'phone' => $d['phone'],
+            'office_tel' => $d['office_tel'],
+            'office_tel_ext' => $d['office_tel_ext'],
+            'office_fax' => $d['office_fax'],
+            'contact_person' => $d['contact_person'],
+            'contact_person_tel' => $d['contact_person_tel'],
+            'birthday' => $d['birthday'],
+            'blood_type' => $d['blood_type'],
+            'education' => $d['education'],
+            'education_department' => $d['education_department'],
+            'service_area' => $d['service_area'],
+            'office_address' => $d['office_address'],
+            'address' => $d['address'],
+            'household_address' => $d['household_address'],
+            'email' => $d['email'],
+            'disc_category' => $d['disc_category'],
+            'certificates' => $d['certificates'],
+            'insurance_certification' => $d['insurance_certification'],
+            'history' => $d['history'],
+            'note' => $d['note'],
+        ]);
+
+        wToast('修改完成');
+        return redirect(Route('cms.user.profile', ['id' => $id]));
+
     }
 }

@@ -15,7 +15,8 @@
         @endif
     </div>
 
-    <form action="" method="post">
+    <form action="{{ Route('cms.user.profile', ['id' => $id], true) }}" method="POST">
+        @csrf
         <div class="card mb-4">
             <div class="card-body">
                 <table id="profile_table" class="table table-bordered mb-0">
@@ -54,7 +55,7 @@
                                 <td>{{ $data->identity }}</td>
                             @endif
                         </tr>
-                        
+
                         <tr>
                             <th>性　　別</th>
                             <td>
@@ -74,11 +75,11 @@
                                         </label>
                                     </div>
                                 @else
-                                     男
+                                    男
                                 @endif
                             </td>
                         </tr>
-                        
+
                         <tr>
                             <th>家人同住</th>
                             <td>
@@ -185,7 +186,8 @@
                             @if ($editMode)
                                 <td class="p-1">
                                     <input class="form-control form-control-sm" type="text" name="english_certification"
-                                        value="{{ $data->english_certification }}" placeholder="{{ $data->english_certification }}">
+                                        value="{{ $data->english_certification }}"
+                                        placeholder="{{ $data->english_certification }}">
                                 </td>
                             @else
                                 <td>
@@ -198,22 +200,24 @@
                             @if ($editMode)
                                 <td class="p-1">
                                     <input class="form-control form-control-sm" type="text" name="ability_japanese"
-                                        value="{{ $data->ability_japanese }}" placeholder="{{ $data->ability_japanese }}">
+                                        value="{{ $data->ability_japanese }}"
+                                        placeholder="{{ $data->ability_japanese }}">
                                 </td>
                             @else
                                 <td>
-                                    {{  $data->ability_japanese ?  $data->ability_japanese : '無' }}
+                                    {{ $data->ability_japanese ? $data->ability_japanese : '無' }}
                                 </td>
                             @endif
                             <th>日文證照</th>
                             @if ($editMode)
                                 <td class="p-1">
-                                    <input class="form-control form-control-sm" type="text" name="japanese_certification"
-                                        value="{{ $data->japanese_certification }}" placeholder="{{ $data->japanese_certification }}">
+                                    <input class="form-control form-control-sm" type="text"
+                                        name="japanese_certification" value="{{ $data->japanese_certification }}"
+                                        placeholder="{{ $data->japanese_certification }}">
                                 </td>
                             @else
                                 <td>
-                                    {{  $data->japanese_certification ?  $data->japanese_certification : '無' }}
+                                    {{ $data->japanese_certification ? $data->japanese_certification : '無' }}
                                 </td>
                             @endif
                         </tr>
@@ -286,8 +290,12 @@
                             <th>異動狀態</th>
                             <td colspan="3">
                                 <div class="d-flex">
-                                    <div>加入：{{ $data->date_of_job_entry ? date('Y/m/d', strtotime($data->date_of_job_entry)) : '' }}</div>
-                                    <div class="ms-5">退出：{{ $data->date_of_job_leave ? date('Y/m/d', strtotime($data->date_of_job_leave)) : '' }}</div>
+                                    <div>
+                                        加入：{{ $data->date_of_job_entry ? date('Y/m/d', strtotime($data->date_of_job_entry)) : '' }}
+                                    </div>
+                                    <div class="ms-5">
+                                        退出：{{ $data->date_of_job_leave ? date('Y/m/d', strtotime($data->date_of_job_leave)) : '' }}
+                                    </div>
                                 </div>
                             </td>
                         </tr>
@@ -307,8 +315,12 @@
                             @else
                                 <td colspan="3">
                                     <div class="d-flex">
-                                        <div>加入：{{ $data->date_of_insurance_entry ? date('Y/m/d', strtotime($data->date_of_insurance_entry)) : '' }}</div>
-                                        <div class="ms-5">退出：{{ $data->date_of_insurance_leave ? date('Y/m/d', strtotime($data->date_of_insurance_leave)) : '' }}</div>
+                                        <div>
+                                            加入：{{ $data->date_of_insurance_entry ? date('Y/m/d', strtotime($data->date_of_insurance_entry)) : '' }}
+                                        </div>
+                                        <div class="ms-5">
+                                            退出：{{ $data->date_of_insurance_leave ? date('Y/m/d', strtotime($data->date_of_insurance_leave)) : '' }}
+                                        </div>
                                     </div>
                                 </td>
                             @endif
@@ -329,7 +341,8 @@
                             @if ($editMode)
                                 <td class="p-1">
                                     <input class="form-control form-control-sm" type="number" name="labor_insurance_oop"
-                                        value="{{ $data->labor_insurance_oop }}" placeholder="{{ $data->labor_insurance_oop }}">
+                                        value="{{ $data->labor_insurance_oop }}"
+                                        placeholder="{{ $data->labor_insurance_oop }}">
                                 </td>
                             @else
                                 <td>
@@ -342,7 +355,8 @@
                             @if ($editMode)
                                 <td class="p-1">
                                     <input class="form-control form-control-sm" type="number" name="health_insurance"
-                                        value="{{ $data->health_insurance }}" placeholder="{{ $data->health_insurance }}">
+                                        value="{{ $data->health_insurance }}"
+                                        placeholder="{{ $data->health_insurance }}">
                                 </td>
                             @else
                                 <td>
@@ -352,8 +366,9 @@
                             <th class="small">健保自付額</th>
                             @if ($editMode)
                                 <td class="p-1">
-                                    <input class="form-control form-control-sm" type="number" name="health_insurance_oop" 
-                                        value="{{ $data->health_insurance_oop }}" placeholder="{{ $data->health_insurance_oop }}">
+                                    <input class="form-control form-control-sm" type="number"
+                                        name="health_insurance_oop" value="{{ $data->health_insurance_oop }}"
+                                        placeholder="{{ $data->health_insurance_oop }}">
                                 </td>
                             @else
                                 <td>
@@ -377,8 +392,10 @@
                             @if ($editMode)
                                 <td class="p-1">
                                     <div class="d-flex">
-                                        <input class="form-control form-control-sm" type="number" name="health_insurance_dependents"
-                                            value="{{ $data->health_insurance_dependents }}" placeholder="{{ $data->health_insurance_dependents }}">
+                                        <input class="form-control form-control-sm" type="number"
+                                            name="health_insurance_dependents"
+                                            value="{{ $data->health_insurance_dependents }}"
+                                            placeholder="{{ $data->health_insurance_dependents }}">
                                         <span class="ms-1">人</span>
                                     </div>
                                 </td>
@@ -452,13 +469,15 @@
                                             value="{{ $data->office_tel }}" placeholder="{{ $data->office_tel }}">
                                         <label class="ms-1">#</label>
                                         <input class="form-control form-control-sm" type="tel"
-                                            style="max-width: 50px;" name="office_tel_ext" value="{{ $data->office_tel_ext }}"
+                                            style="max-width: 50px;" name="office_tel_ext"
+                                            value="{{ $data->office_tel_ext }}"
                                             placeholder="{{ $data->office_tel_ext }}">
                                     </div>
                                 </td>
                             @else
                                 <td>
-                                    {{ $data->office_tel }} {{ $data->office_tel_ext ? '分機'.$data->office_tel_ext : '' }}
+                                    {{ $data->office_tel }}
+                                    {{ $data->office_tel_ext ? '分機' . $data->office_tel_ext : '' }}
                                 </td>
                             @endif
                             <th>公司傳真</th>
@@ -485,7 +504,8 @@
                             @if ($editMode)
                                 <td class="p-1">
                                     <input class="form-control form-control-sm" type="tel" name="contact_person_tel"
-                                        value="{{ $data->contact_person_tel }}" placeholder="{{ $data->contact_person_tel }}">
+                                        value="{{ $data->contact_person_tel }}"
+                                        placeholder="{{ $data->contact_person_tel }}">
                                 </td>
                             @else
                                 <td>{{ $data->contact_person_tel }}</td>
@@ -507,10 +527,14 @@
                             @if ($editMode)
                                 <td class="p-1">
                                     <select class="form-select form-select-sm" name="blood_type">
-                                        <option value="A" @if ($data->blood_type == 'A')selected @endif>A</option>
-                                        <option value="B" @if ($data->blood_type == 'B')selected @endif>B</option>
-                                        <option value="O" @if ($data->blood_type == 'O')selected @endif>O</option>
-                                        <option value="AB" @if ($data->blood_type == 'AB')selected @endif>AB</option>
+                                        <option value="A" @if ($data->blood_type == 'A') selected @endif>A
+                                        </option>
+                                        <option value="B" @if ($data->blood_type == 'B') selected @endif>B
+                                        </option>
+                                        <option value="O" @if ($data->blood_type == 'O') selected @endif>O
+                                        </option>
+                                        <option value="AB" @if ($data->blood_type == 'AB') selected @endif>AB
+                                        </option>
                                     </select>
                                 </td>
                             @else
@@ -530,8 +554,9 @@
                             <th>科　　系</th>
                             @if ($editMode)
                                 <td class="p-1">
-                                    <input class="form-control form-control-sm" type="text" name="education_department" 
-                                        value="{{ $data->education_department }}" placeholder="{{ $data->education_department }}">
+                                    <input class="form-control form-control-sm" type="text"
+                                        name="education_department" value="{{ $data->education_department }}"
+                                        placeholder="{{ $data->education_department }}">
                                 </td>
                             @else
                                 <td>{{ $data->education_department }}</td>
@@ -564,19 +589,32 @@
                                 <td class="p-1">
                                     <select class="form-select form-select-sm" name="service_area">
                                         <option value=""></option>
-                                        <option value="企業專案" @if ($data->service_area == '企業專案')selected @endif>企業專案</option>
-                                        <option value="國內旅遊" @if ($data->service_area == '國內旅遊')selected @endif>國內旅遊</option>
-                                        <option value="台北" @if ($data->service_area == '台北')selected @endif>台北</option>
-                                        <option value="中壢" @if ($data->service_area == '中壢')selected @endif>中壢</option>
-                                        <option value="桃園" @if ($data->service_area == '桃園')selected @endif>桃園</option>
-                                        <option value="苗栗" @if ($data->service_area == '苗栗')selected @endif>苗栗</option>
-                                        <option value="新竹" @if ($data->service_area == '新竹')selected @endif>新竹</option>
-                                        <option value="豐原" @if ($data->service_area == '豐原')selected @endif>豐原</option>
-                                        <option value="台中" @if ($data->service_area == '台中')selected @endif>台中</option>
-                                        <option value="台南" @if ($data->service_area == '台南')selected @endif>台南</option>
-                                        <option value="嘉義" @if ($data->service_area == '嘉義')selected @endif>嘉義</option>
-                                        <option value="高雄" @if ($data->service_area == '高雄')selected @endif>高雄</option>
-                                        <option value="獎勵旅遊" @if ($data->service_area == '獎勵旅遊')selected @endif>獎勵旅遊</option>
+                                        <option value="企業專案" @if ($data->service_area == '企業專案') selected @endif>企業專案
+                                        </option>
+                                        <option value="國內旅遊" @if ($data->service_area == '國內旅遊') selected @endif>國內旅遊
+                                        </option>
+                                        <option value="台北" @if ($data->service_area == '台北') selected @endif>台北
+                                        </option>
+                                        <option value="中壢" @if ($data->service_area == '中壢') selected @endif>中壢
+                                        </option>
+                                        <option value="桃園" @if ($data->service_area == '桃園') selected @endif>桃園
+                                        </option>
+                                        <option value="苗栗" @if ($data->service_area == '苗栗') selected @endif>苗栗
+                                        </option>
+                                        <option value="新竹" @if ($data->service_area == '新竹') selected @endif>新竹
+                                        </option>
+                                        <option value="豐原" @if ($data->service_area == '豐原') selected @endif>豐原
+                                        </option>
+                                        <option value="台中" @if ($data->service_area == '台中') selected @endif>台中
+                                        </option>
+                                        <option value="台南" @if ($data->service_area == '台南') selected @endif>台南
+                                        </option>
+                                        <option value="嘉義" @if ($data->service_area == '嘉義') selected @endif>嘉義
+                                        </option>
+                                        <option value="高雄" @if ($data->service_area == '高雄') selected @endif>高雄
+                                        </option>
+                                        <option value="獎勵旅遊" @if ($data->service_area == '獎勵旅遊') selected @endif>獎勵旅遊
+                                        </option>
                                     </select>
                                 </td>
                             @else
@@ -610,7 +648,8 @@
                             @if ($editMode)
                                 <td colspan="3" class="p-1">
                                     <input class="form-control form-control-sm" type="text" name="household_address"
-                                        value="{{ $data->household_address }}" placeholder="{{ $data->household_address }}">
+                                        value="{{ $data->household_address }}"
+                                        placeholder="{{ $data->household_address }}">
                                 </td>
                             @else
                                 <td colspan="3">{{ $data->household_address }}</td>
@@ -653,8 +692,9 @@
                             <th>保險證照</th>
                             @if ($editMode)
                                 <td colspan="3" class="p-1">
-                                    <input class="form-control form-control-sm" type="text" name="insurance_certification" 
-                                        value="{{ $data->insurance_certification }}" placeholder="{{ $data->insurance_certification }}">
+                                    <input class="form-control form-control-sm" type="text"
+                                        name="insurance_certification" value="{{ $data->insurance_certification }}"
+                                        placeholder="{{ $data->insurance_certification }}">
                                 </td>
                             @else
                                 <td colspan="3">{{ $data->insurance_certification }}</td>
