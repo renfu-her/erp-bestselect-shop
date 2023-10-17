@@ -14,8 +14,24 @@ class UsrProfile extends Model
 
     public static function dataList()
     {
-        return DB::table('usr_profile as profile')
+        $dateDiff = "DATEDIFF(now(),date_of_job_entry) DIV 30";
+       // $dateDiff = 12 * 0.4;
+        $re = DB::table('usr_profile as profile')
             ->leftJoin('usr_users as user', 'profile.user_id', '=', 'user.id')
-            ->select('profile.*', 'user.name', 'user.account');
+            ->select('profile.*', 'user.name', 'user.account')
+            ->selectRaw('TRUNCATE(' . $dateDiff . ' / 12,1) as years_of_service')
+
+            ->selectRaw('CASE
+                            WHEN  ' . $dateDiff . ' < 6 OR '.$dateDiff.' IS NULL THEN 0
+                            WHEN  ' . $dateDiff . ' >= 6 AND ' . $dateDiff . ' < 12 THEN 3
+                            WHEN ' . $dateDiff . ' >= 12 AND ' . $dateDiff . ' < 12*2 THEN 7
+                            WHEN ' . $dateDiff . ' >= 12*2 AND ' . $dateDiff . ' < 12*3 THEN 10
+                            WHEN ' . $dateDiff . ' >= 12*3 AND ' . $dateDiff . ' < 12*5 THEN 14
+                            WHEN ' . $dateDiff . ' >= 12*5 AND ' . $dateDiff . ' < 12*10 THEN 15
+                            WHEN ' . $dateDiff . ' >= 12*10 AND ' . $dateDiff . ' < 12*24 THEN FLOOR((' . $dateDiff . ' - 120) / 12)+1+15
+                             ELSE 30  END  as annual_leave');
+
+       // dd($re->get()->toArray()[0]);
+        return $re;
     }
 }
