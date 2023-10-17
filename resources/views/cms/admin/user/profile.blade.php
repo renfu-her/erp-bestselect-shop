@@ -58,7 +58,7 @@
                                 </td>
                             @endif
                         </tr>
-                        {{--  
+                        
                         <tr>
                             <th>性　　別</th>
                             <td>
@@ -66,23 +66,23 @@
                                     <div class="form-check form-check-inline">
                                         <label class="form-check-label">
                                             <input class="form-check-input" name="gender" type="radio" value="男"
-                                                @if ($data->gender == '男') checked @endif>
+                                                @if ('男' == '男') checked @endif>
                                             男
                                         </label>
                                     </div>
                                     <div class="form-check form-check-inline">
                                         <label class="form-check-label">
                                             <input class="form-check-input" name="gender" type="radio" value="女"
-                                                @if ($data->gender == '女') checked @endif>
+                                                @if (false == '女') checked @endif>
                                             女
                                         </label>
                                     </div>
                                 @else
-                                    {{ $data->gender }}
+                                     男
                                 @endif
                             </td>
                         </tr>
-                        --}}
+                        
                         <tr>
                             <th>家人同住</th>
                             <td>
