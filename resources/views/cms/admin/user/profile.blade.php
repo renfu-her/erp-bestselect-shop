@@ -893,9 +893,11 @@
             </div>
         </div>
 
+        @if ($editMode)
         <div class="d-flex justify-content-end">
             <button type="submit" class="btn btn-primary px-4">儲存</button>
         </div>
+        @endif
     </form>
 @endsection
 
