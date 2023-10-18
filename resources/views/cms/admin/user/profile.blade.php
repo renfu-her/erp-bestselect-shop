@@ -37,7 +37,7 @@
                             @else
                                 <td>{{ $data->en_name }}</td>
                             @endif
-                            <td id="m_photo" colspan="2" rowspan="5" class="w-50">
+                            <td id="m_photo" colspan="2" rowspan="5">
                                 <img src="{{ $data->img ?? Asset('images/NoImg.png') }}" alt="大頭照">
                                 @if ($editMode)
                                     <input class="form-control form-control-sm" type="file" name="img">
@@ -913,8 +913,7 @@
             }
 
             #m_photo img {
-                max-width: 90%;
-                max-height: 80%;
+                max-width: 100%;
                 width: 135px;
                 height: 180px;
             }
