@@ -311,11 +311,11 @@ class UserCtrl extends Controller
     public function updateProfile(Request $request, $id)
     {
         $d = $request->all();
-        dd($d);
+       // dd($d);
         UsrProfile::where('user_id', $id)->update([
             'en_name' => $d['en_name'],
             'identity' => $d['identity'],
-        //    'gender' => $d['gender'],
+            'gender' => $d['gender'],
             'live_with_family' => $d['live_with_family'],
             'performance_statistics' => $d['performance_statistics'],
             'job_title' => $d['job_title'],
@@ -354,6 +354,24 @@ class UserCtrl extends Controller
             'insurance_certification' => $d['insurance_certification'],
             'history' => $d['history'],
             'note' => $d['note'],
+            'education_training' => $d['education_training'],
+            'labor_contract' => $d['labor_contract'],
+
+            'undertake_contract' => $d['undertake_contract'],
+            'labor_insurance_retire' => $d['labor_insurance_retire'],
+            'labor_insurance_self' => $d['labor_insurance_self'],
+            'jp_phone' => $d['jp_phone'],
+            'manager_certificate' => $d['manager_certificate'],
+            'leader_certificate' => $d['leader_certificate'],
+            'leader_certificate_start' => $d['leader_certificate_start'],
+            'leader_certificate_end' => $d['leader_certificate_end'],
+            'leader_certificate_correction' => $d['leader_certificate_correction'],
+            'leader_language' => $d['leader_language'],
+            'special_person' => $d['special_person'],
+            'disability_certificate' => $d['disability_certificate'],
+            'travel_service_year' => $d['travel_service_year'],
+            'non_travel_service_year' => $d['non_travel_service_year'],
+
         ]);
 
         wToast('修改完成');
