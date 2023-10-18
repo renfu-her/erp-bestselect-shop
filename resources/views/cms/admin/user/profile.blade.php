@@ -67,14 +67,14 @@
                                     <div class="form-check form-check-inline">
                                         <label class="form-check-label">
                                             <input class="form-check-input" name="gender" type="radio" value="男"
-                                                @if ($data->gender == '男') checked @endif>
+                                                @if ($data->gender == '男') checked @endif required>
                                             男
                                         </label>
                                     </div>
                                     <div class="form-check form-check-inline">
                                         <label class="form-check-label">
                                             <input class="form-check-input" name="gender" type="radio" value="女"
-                                                @if ($data->gender == '女') checked @endif>
+                                                @if ($data->gender == '女') checked @endif required>
                                             女
                                         </label>
                                     </div>
@@ -90,14 +90,14 @@
                                 @if ($editMode)
                                     <div class="form-check form-check-inline">
                                         <label class="form-check-label">
-                                            <input class="form-check-input" name="live_with_family" type="radio"
+                                            <input class="form-check-input" name="live_with_family" type="radio" required
                                                 value="是" @if ($data->live_with_family == '是') checked @endif>
                                             是
                                         </label>
                                     </div>
                                     <div class="form-check form-check-inline">
                                         <label class="form-check-label">
-                                            <input class="form-check-input" name="live_with_family" type="radio"
+                                            <input class="form-check-input" name="live_with_family" type="radio" required
                                                 value="否" @if ($data->live_with_family == '否') checked @endif>
                                             否
                                         </label>
@@ -113,14 +113,14 @@
                                 @if ($editMode)
                                     <div class="form-check form-check-inline">
                                         <label class="form-check-label">
-                                            <input class="form-check-input" name="performance_statistics" type="radio"
+                                            <input class="form-check-input" name="performance_statistics" type="radio" required
                                                 value="是" @if ($data->performance_statistics == '是') checked @endif>
                                             是
                                         </label>
                                     </div>
                                     <div class="form-check form-check-inline">
                                         <label class="form-check-label">
-                                            <input class="form-check-input" name="performance_statistics" type="radio"
+                                            <input class="form-check-input" name="performance_statistics" type="radio" required
                                                 value="否" @if ($data->performance_statistics == '否') checked @endif>
                                             否
                                         </label>
@@ -245,14 +245,14 @@
                                 @if ($editMode)
                                     <div class="form-check form-check-inline">
                                         <label class="form-check-label">
-                                            <input class="form-check-input" name="labor_contract" type="radio"
+                                            <input class="form-check-input" name="labor_contract" type="radio" required
                                                 value="有" @if ($data->labor_contract == '有') checked @endif>
                                             已繳
                                         </label>
                                     </div>
                                     <div class="form-check form-check-inline">
                                         <label class="form-check-label">
-                                            <input class="form-check-input" name="labor_contract" type="radio"
+                                            <input class="form-check-input" name="labor_contract" type="radio" required
                                                 value="無" @if ($data->labor_contract == '無') checked @endif>
                                             未繳
                                         </label>
@@ -270,14 +270,14 @@
                                 @if ($editMode)
                                     <div class="form-check form-check-inline">
                                         <label class="form-check-label">
-                                            <input class="form-check-input" name="undertake_contract" type="radio"
+                                            <input class="form-check-input" name="undertake_contract" type="radio" required
                                                 value="有" @if ($data->undertake_contract == '有') checked @endif>
                                             已繳
                                         </label>
                                     </div>
                                     <div class="form-check form-check-inline">
                                         <label class="form-check-label">
-                                            <input class="form-check-input" name="undertake_contract" type="radio"
+                                            <input class="form-check-input" name="undertake_contract" type="radio" required
                                                 value="無" @if ($data->undertake_contract == '無') checked @endif>
                                             未繳
                                         </label>
@@ -575,14 +575,14 @@
                                 @if ($editMode)
                                     <div class="form-check form-check-inline">
                                         <label class="form-check-label">
-                                            <input class="form-check-input" name="punch_in" type="radio"
+                                            <input class="form-check-input" name="punch_in" type="radio" required
                                                 value="是" @if ($data->punch_in == '是') checked @endif>
                                             是
                                         </label>
                                     </div>
                                     <div class="form-check form-check-inline">
                                         <label class="form-check-label">
-                                            <input class="form-check-input" name="punch_in" type="radio"
+                                            <input class="form-check-input" name="punch_in" type="radio" required
                                                 value="否" @if ($data->punch_in == '否') checked @endif>
                                             否
                                         </label>
@@ -713,14 +713,14 @@
                                 @if ($editMode)
                                     <div class="form-check form-check-inline">
                                         <label class="form-check-label">
-                                            <input class="form-check-input" name="manager_certificate" type="radio"
+                                            <input class="form-check-input" name="manager_certificate" type="radio" required
                                                 value="有" @if ($data->manager_certificate == '有') checked @endif>
                                             有
                                         </label>
                                     </div>
                                     <div class="form-check form-check-inline">
                                         <label class="form-check-label">
-                                            <input class="form-check-input" name="manager_certificate" type="radio"
+                                            <input class="form-check-input" name="manager_certificate" type="radio" required
                                                 value="無" @if ($data->manager_certificate == '無') checked @endif>
                                             無
                                         </label>
@@ -734,14 +734,14 @@
                                 @if ($editMode)
                                     <div class="form-check form-check-inline">
                                         <label class="form-check-label">
-                                            <input class="form-check-input" name="leader_certificate" type="radio"
+                                            <input class="form-check-input" name="leader_certificate" type="radio" required
                                                 value="有" @if ($data->leader_certificate == '有') checked @endif>
                                             有
                                         </label>
                                     </div>
                                     <div class="form-check form-check-inline">
                                         <label class="form-check-label">
-                                            <input class="form-check-input" name="leader_certificate" type="radio"
+                                            <input class="form-check-input" name="leader_certificate" type="radio" required
                                                 value="無" @if ($data->leader_certificate == '無') checked @endif>
                                             無
                                         </label>
@@ -810,14 +810,14 @@
                                         <label>特殊人士：</label>
                                         <div class="form-check form-check-inline">
                                             <label class="form-check-label">
-                                                <input class="form-check-input" name="special_person" type="radio"
+                                                <input class="form-check-input" name="special_person" type="radio" required
                                                     value="是" @if ($data->special_person == '是') checked @endif>
                                                 是
                                             </label>
                                         </div>
                                         <div class="form-check form-check-inline">
                                             <label class="form-check-label">
-                                                <input class="form-check-input" name="special_person" type="radio"
+                                                <input class="form-check-input" name="special_person" type="radio" required
                                                     value="否" @if ($data->special_person == '否') checked @endif>
                                                 否
                                             </label>
@@ -828,7 +828,7 @@
                                         <div class="form-check form-check-inline">
                                             <label class="form-check-label">
                                                 <input class="form-check-input" name="disability_certificate"
-                                                    type="radio" value="是"
+                                                    type="radio" value="是" required
                                                     @if ($data->disability_certificate == '是') checked @endif>
                                                 是
                                             </label>
@@ -836,7 +836,7 @@
                                         <div class="form-check form-check-inline">
                                             <label class="form-check-label">
                                                 <input class="form-check-input" name="disability_certificate"
-                                                    type="radio" value="否"
+                                                    type="radio" value="否" required
                                                     @if ($data->disability_certificate == '否') checked @endif>
                                                 否
                                             </label>

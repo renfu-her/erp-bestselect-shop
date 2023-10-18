@@ -346,6 +346,7 @@ class UserCtrl extends Controller
             'blood_type' => $d['blood_type'],
             'education' => $d['education'],
             'education_department' => $d['education_department'],
+            'punch_in' => $d['punch_in'],
             'service_area' => $d['service_area'],
             'office_address' => $d['office_address'],
             'address' => $d['address'],
@@ -365,16 +366,18 @@ class UserCtrl extends Controller
             'jp_phone' => $d['jp_phone'],
             'manager_certificate' => $d['manager_certificate'],
             'leader_certificate' => $d['leader_certificate'],
-            'leader_certificate_start' => $d['leader_certificate_start'],
-            'leader_certificate_end' => $d['leader_certificate_end'],
-            'leader_certificate_correction' => $d['leader_certificate_correction'],
-            'leader_language' => $d['leader_language'],
             'special_person' => $d['special_person'],
             'disability_certificate' => $d['disability_certificate'],
             'travel_service_year' => $d['travel_service_year'],
             'non_travel_service_year' => $d['non_travel_service_year'],
-
         ];
+
+        if ($d['leader_certificate'] != '無') { // 領隊證
+            $updateData['leader_certificate_start'] = $d['leader_certificate_start'];
+            $updateData['leader_certificate_end'] = $d['leader_certificate_end'];
+            $updateData['leader_certificate_correction'] = $d['leader_certificate_correction'];
+            $updateData['leader_language'] = $d['leader_language'];
+        }
 
         if ($request->hasfile('img')) {
             $img = self::imgResize($request->file('img')->path());
