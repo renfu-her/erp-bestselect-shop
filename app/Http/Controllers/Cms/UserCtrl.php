@@ -311,7 +311,7 @@ class UserCtrl extends Controller
     public function updateProfile(Request $request, $id)
     {
         $d = $request->all();
-
+        dd($d);
         UsrProfile::where('user_id', $id)->update([
             'en_name' => $d['en_name'],
             'identity' => $d['identity'],
