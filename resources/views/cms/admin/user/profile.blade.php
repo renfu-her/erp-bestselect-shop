@@ -38,7 +38,11 @@
                                 <td>{{ $data->en_name }}</td>
                             @endif
                             <td id="m_photo" colspan="2" rowspan="5">
-                                <img src="{{ $data->img ?? Asset('images/NoImg.png') }}" alt="大頭照">
+                                @php
+                                    $img = $data->img ? Asset($data->img) : Asset('images/NoImg.png');
+
+                                @endphp
+                                <img src="{{ $img }}" alt="大頭照">
                                 @if ($editMode)
                                     <input class="form-control form-control-sm" type="file" name="img">
                                 @endif
@@ -226,7 +230,8 @@
                             @if ($editMode)
                                 <td colspan="3" class="p-1">
                                     <input class="form-control form-control-sm" type="text" name="education_training"
-                                        value="{{ $data->education_training }}" placeholder="{{ $data->education_training }}">
+                                        value="{{ $data->education_training }}"
+                                        placeholder="{{ $data->education_training }}">
                                 </td>
                             @else
                                 <td colspan="3">
@@ -240,15 +245,15 @@
                                 @if ($editMode)
                                     <div class="form-check form-check-inline">
                                         <label class="form-check-label">
-                                            <input class="form-check-input" name="labor_contract" type="radio" value="有"
-                                                @if ($data->labor_contract == '有') checked @endif>
+                                            <input class="form-check-input" name="labor_contract" type="radio"
+                                                value="有" @if ($data->labor_contract == '有') checked @endif>
                                             已繳
                                         </label>
                                     </div>
                                     <div class="form-check form-check-inline">
                                         <label class="form-check-label">
-                                            <input class="form-check-input" name="labor_contract" type="radio" value="無"
-                                                @if ($data->labor_contract == '無') checked @endif>
+                                            <input class="form-check-input" name="labor_contract" type="radio"
+                                                value="無" @if ($data->labor_contract == '無') checked @endif>
                                             未繳
                                         </label>
                                     </div>
@@ -265,15 +270,15 @@
                                 @if ($editMode)
                                     <div class="form-check form-check-inline">
                                         <label class="form-check-label">
-                                            <input class="form-check-input" name="undertake_contract" type="radio" value="有"
-                                                @if ($data->undertake_contract == '有') checked @endif>
+                                            <input class="form-check-input" name="undertake_contract" type="radio"
+                                                value="有" @if ($data->undertake_contract == '有') checked @endif>
                                             已繳
                                         </label>
                                     </div>
                                     <div class="form-check form-check-inline">
                                         <label class="form-check-label">
-                                            <input class="form-check-input" name="undertake_contract" type="radio" value="無"
-                                                @if ($data->undertake_contract == '無') checked @endif>
+                                            <input class="form-check-input" name="undertake_contract" type="radio"
+                                                value="無" @if ($data->undertake_contract == '無') checked @endif>
                                             未繳
                                         </label>
                                     </div>
@@ -380,8 +385,9 @@
                             <th class="small">勞退投保金額</th>
                             @if ($editMode)
                                 <td class="p-1">
-                                    <input class="form-control form-control-sm" type="number" name="labor_insurance_retire"
-                                        value="{{ $data->labor_insurance_retire }}" placeholder="{{ $data->labor_insurance_retire }}">
+                                    <input class="form-control form-control-sm" type="number"
+                                        name="labor_insurance_retire" value="{{ $data->labor_insurance_retire }}"
+                                        placeholder="{{ $data->labor_insurance_retire }}">
                                 </td>
                             @else
                                 <td>
@@ -411,8 +417,9 @@
                             <th>自行提撥</th>
                             @if ($editMode)
                                 <td class="p-1">
-                                    <input class="form-control form-control-sm" type="number" name="labor_insurance_self"
-                                        value="{{ $data->labor_insurance_self }}" placeholder="{{ $data->labor_insurance_self }}">
+                                    <input class="form-control form-control-sm" type="number"
+                                        name="labor_insurance_self" value="{{ $data->labor_insurance_self }}"
+                                        placeholder="{{ $data->labor_insurance_self }}">
                                 </td>
                             @else
                                 <td>
@@ -706,15 +713,15 @@
                                 @if ($editMode)
                                     <div class="form-check form-check-inline">
                                         <label class="form-check-label">
-                                            <input class="form-check-input" name="manager_certificate" type="radio" value="有"
-                                                @if ($data->manager_certificate == '有') checked @endif>
+                                            <input class="form-check-input" name="manager_certificate" type="radio"
+                                                value="有" @if ($data->manager_certificate == '有') checked @endif>
                                             有
                                         </label>
                                     </div>
                                     <div class="form-check form-check-inline">
                                         <label class="form-check-label">
-                                            <input class="form-check-input" name="manager_certificate" type="radio" value="無"
-                                                @if ($data->manager_certificate == '無') checked @endif>
+                                            <input class="form-check-input" name="manager_certificate" type="radio"
+                                                value="無" @if ($data->manager_certificate == '無') checked @endif>
                                             無
                                         </label>
                                     </div>
@@ -727,15 +734,15 @@
                                 @if ($editMode)
                                     <div class="form-check form-check-inline">
                                         <label class="form-check-label">
-                                            <input class="form-check-input" name="leader_certificate" type="radio" value="有"
-                                                @if ($data->leader_certificate == '有') checked @endif>
+                                            <input class="form-check-input" name="leader_certificate" type="radio"
+                                                value="有" @if ($data->leader_certificate == '有') checked @endif>
                                             有
                                         </label>
                                     </div>
                                     <div class="form-check form-check-inline">
                                         <label class="form-check-label">
-                                            <input class="form-check-input" name="leader_certificate" type="radio" value="無"
-                                                @if ($data->leader_certificate == '無') checked @endif>
+                                            <input class="form-check-input" name="leader_certificate" type="radio"
+                                                value="無" @if ($data->leader_certificate == '無') checked @endif>
                                             無
                                         </label>
                                     </div>
@@ -745,50 +752,55 @@
                             </td>
                         </tr>
                         @if ($editMode)
-                        <tr>
-                            <th class="small">領隊證領取日</th>
-                            <td class="p-1">
-                                <input class="form-control form-control-sm" type="date" name="leader_certificate_start"
-                                    value="{{ $data->leader_certificate_start }}" @if ($data->leader_certificate == '無') disabled @endif>
-                            </td>
-                            <th class="small">領隊證有效日</th>
-                            <td class="p-1">
-                                <input class="form-control form-control-sm" type="date" name="leader_certificate_end"
-                                    value="{{ $data->leader_certificate_end }}" @if ($data->leader_certificate == '無') disabled @endif>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th class="small">領隊證校正日</th>
-                            <td class="p-1">
-                                <input class="form-control form-control-sm" type="date" name="leader_certificate_correction"
-                                    value="{{ $data->leader_certificate_correction }}" @if ($data->leader_certificate == '無') disabled @endif>
-                            </td>
-                            <th class="small">領隊語言別</th>
-                            <td class="p-1">
-                                <input class="form-control form-control-sm" type="text" name="leader_language"
-                                    value="{{ $data->leader_language }}" placeholder="{{ $data->leader_language }}" 
-                                    @if ($data->leader_certificate == '無') disabled @endif>
-                            </td>
-                        </tr>
+                            <tr>
+                                <th class="small">領隊證領取日</th>
+                                <td class="p-1">
+                                    <input class="form-control form-control-sm" type="date"
+                                        name="leader_certificate_start" value="{{ $data->leader_certificate_start }}"
+                                        @if ($data->leader_certificate == '無') disabled @endif>
+                                </td>
+                                <th class="small">領隊證有效日</th>
+                                <td class="p-1">
+                                    <input class="form-control form-control-sm" type="date"
+                                        name="leader_certificate_end" value="{{ $data->leader_certificate_end }}"
+                                        @if ($data->leader_certificate == '無') disabled @endif>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="small">領隊證校正日</th>
+                                <td class="p-1">
+                                    <input class="form-control form-control-sm" type="date"
+                                        name="leader_certificate_correction"
+                                        value="{{ $data->leader_certificate_correction }}"
+                                        @if ($data->leader_certificate == '無') disabled @endif>
+                                </td>
+                                <th class="small">領隊語言別</th>
+                                <td class="p-1">
+                                    <input class="form-control form-control-sm" type="text" name="leader_language"
+                                        value="{{ $data->leader_language }}"
+                                        placeholder="{{ $data->leader_language }}"
+                                        @if ($data->leader_certificate == '無') disabled @endif>
+                                </td>
+                            </tr>
                         @elseif ($data->leader_certificate == '有')
-                        <tr>
-                            <th class="small">領隊證領取日</th>
-                            <td>
-                                {{ $data->leader_certificate_start ? date('Y/m/d', strtotime($data->leader_certificate_start)) : '' }}
-                            </td>
-                            <th class="small">領隊證有效日</th>
-                            <td>
-                                {{ $data->leader_certificate_end ? date('Y/m/d', strtotime($data->leader_certificate_end)) : '' }}
-                            </td>
-                        </tr>
-                        <tr>
-                            <th class="small">領隊證校正日</th>
-                            <td>
-                                {{ $data->leader_certificate_correction ? date('Y/m/d', strtotime($data->leader_certificate_correction)) : '' }}
-                            </td>
-                            <th class="small">領隊語言別</th>
-                            <td>{{ $data->leader_language }}</td>
-                        </tr>
+                            <tr>
+                                <th class="small">領隊證領取日</th>
+                                <td>
+                                    {{ $data->leader_certificate_start ? date('Y/m/d', strtotime($data->leader_certificate_start)) : '' }}
+                                </td>
+                                <th class="small">領隊證有效日</th>
+                                <td>
+                                    {{ $data->leader_certificate_end ? date('Y/m/d', strtotime($data->leader_certificate_end)) : '' }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="small">領隊證校正日</th>
+                                <td>
+                                    {{ $data->leader_certificate_correction ? date('Y/m/d', strtotime($data->leader_certificate_correction)) : '' }}
+                                </td>
+                                <th class="small">領隊語言別</th>
+                                <td>{{ $data->leader_language }}</td>
+                            </tr>
                         @endif
                         <tr>
                             <th>其他項目</th>
@@ -815,15 +827,17 @@
                                         <label>領有身心障礙手冊：</label>
                                         <div class="form-check form-check-inline">
                                             <label class="form-check-label">
-                                                <input class="form-check-input" name="disability_certificate" type="radio"
-                                                    value="是" @if ($data->disability_certificate == '是') checked @endif>
+                                                <input class="form-check-input" name="disability_certificate"
+                                                    type="radio" value="是"
+                                                    @if ($data->disability_certificate == '是') checked @endif>
                                                 是
                                             </label>
                                         </div>
                                         <div class="form-check form-check-inline">
                                             <label class="form-check-label">
-                                                <input class="form-check-input" name="disability_certificate" type="radio"
-                                                    value="否" @if ($data->disability_certificate == '否') checked @endif>
+                                                <input class="form-check-input" name="disability_certificate"
+                                                    type="radio" value="否"
+                                                    @if ($data->disability_certificate == '否') checked @endif>
                                                 否
                                             </label>
                                         </div>
@@ -856,14 +870,16 @@
                                 <td colspan="3" class="py-1">
                                     <div class="d-flex">
                                         <label class="text-nowrap">旅行社服務年資合計：</label>
-                                        <input class="form-control form-control-sm" type="number" name="travel_service_year"
-                                            value="{{ $data->travel_service_year }}" placeholder="{{ $data->travel_service_year }}">
+                                        <input class="form-control form-control-sm" type="number"
+                                            name="travel_service_year" value="{{ $data->travel_service_year }}"
+                                            placeholder="{{ $data->travel_service_year }}">
                                         <span class="ms-1">年</span>
                                     </div>
                                     <div class="d-flex">
                                         <label class="text-nowrap">非旅行社服務年資合計：</label>
-                                        <input class="form-control form-control-sm" type="number" name="non_travel_service_year"
-                                            value="{{ $data->non_travel_service_year }}" placeholder="{{ $data->non_travel_service_year }}">
+                                        <input class="form-control form-control-sm" type="number"
+                                            name="non_travel_service_year" value="{{ $data->non_travel_service_year }}"
+                                            placeholder="{{ $data->non_travel_service_year }}">
                                         <span class="ms-1">年</span>
                                     </div>
                                 </td>
@@ -894,9 +910,9 @@
         </div>
 
         @if ($editMode)
-        <div class="d-flex justify-content-end">
-            <button type="submit" class="btn btn-primary px-4">儲存</button>
-        </div>
+            <div class="d-flex justify-content-end">
+                <button type="submit" class="btn btn-primary px-4">儲存</button>
+            </div>
         @endif
     </form>
 @endsection
@@ -925,7 +941,7 @@
     @endpush
     @push('sub-scripts')
         <script>
-            $('input[name="leader_certificate"]').on('change', function () {
+            $('input[name="leader_certificate"]').on('change', function() {
                 if ($(this).val() === '無') {
                     $(`input[name="leader_certificate_start"],
                        input[name="leader_certificate_end"],

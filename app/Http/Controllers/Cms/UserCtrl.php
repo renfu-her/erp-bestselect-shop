@@ -14,7 +14,9 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
+use Intervention\Image\Facades\Image;
 
 class UserCtrl extends Controller
 {
@@ -311,8 +313,8 @@ class UserCtrl extends Controller
     public function updateProfile(Request $request, $id)
     {
         $d = $request->all();
-       // dd($d);
-        UsrProfile::where('user_id', $id)->update([
+        // dd($d);
+        $updateData = [
             'en_name' => $d['en_name'],
             'identity' => $d['identity'],
             'gender' => $d['gender'],
@@ -372,10 +374,43 @@ class UserCtrl extends Controller
             'travel_service_year' => $d['travel_service_year'],
             'non_travel_service_year' => $d['non_travel_service_year'],
 
-        ]);
+        ];
+
+        if ($request->hasfile('img')) {
+            $img = self::imgResize($request->file('img')->path());
+
+            $filename = self::imgFilename($id, $request->file('img')->hashName());
+            if (Storage::disk('local')->put($filename, $img)) {
+                //  $collection->where('id', $id)->update(['img_path' => $filename]);
+                $updateData['img'] = $filename;
+            }
+        }
+
+        UsrProfile::where('user_id', $id)->update($updateData);
 
         wToast('修改完成');
         return redirect(Route('cms.user.profile', ['id' => $id]));
+
+    }
+
+    private static function imgResize($path)
+    {
+        try {
+            $asdf = Image::make($path)
+                ->resize(640, 640, function ($constraint) {
+                    $constraint->aspectRatio();
+                    $constraint->upsize();
+                })->encode('webp', 90);
+        } catch (\Exception $e) {
+            dd($e);
+            return false;
+        }
+        return $asdf;
+    }
+
+    private static function imgFilename($product_id, $fileHashName)
+    {
+        return 'employee_imgs/' . $product_id . '/' . explode('.', $fileHashName)[0] . ".webp";
 
     }
 }
