@@ -39,7 +39,7 @@
                             @endif
                             <td id="m_photo" colspan="2" rowspan="5">
                                 @php
-                                    $img = $data->img ? Asset($data->img) : Asset('images/NoImg.png');
+                                    $img = $data->img ? Asset('storage/'.$data->img) : Asset('images/NoImg.png');
 
                                 @endphp
                                 <img src="{{ $img }}" alt="大頭照">

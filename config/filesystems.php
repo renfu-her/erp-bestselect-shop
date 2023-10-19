@@ -85,7 +85,7 @@ return [
         public_path('idx_banner') => storage_path('app/idx_banner'),
         public_path('profit_data') => storage_path('app/profit_data'),
         public_path('edm') => storage_path('app/edm'),
-        public_path('employee_imgs') => storage_path('app/employee_imgs'),
+        public_path('storage/employee_imgs') => storage_path('app/employee_imgs'),
         
     ],
 
