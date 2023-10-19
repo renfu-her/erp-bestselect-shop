@@ -79,6 +79,7 @@
                         <th scope="col" class="wrap lh-sm">角色設定狀況</th>
 
                         <th scope="col" class="text-center" style="width:40px;">編輯</th>
+                        <th scope="col" class="text-center wrap lh-sm" style="width:40px;">個人<br>資料</th>
                         <th scope="col" class="text-center wrap lh-sm" style="width:40px;">通路<br>權限</th>
                         <th scope="col" class="text-center" style="width:40px;">刪除</th>
                     </tr>
@@ -128,6 +129,15 @@
                                         class="icon icon-btn fs-5 text-primary rounded-circle border-0">
                                         <i class="bi bi-pencil-square"></i>
                                     </a>
+                                @endcan
+                            </td>
+                            <td class="text-center">
+                                @can('cms.user.profile')
+                                <a href="{{ Route('cms.user.profile', ['id' => $data->id], true) }}"
+                                    data-bs-toggle="tooltip" title="個人資料"
+                                    class="icon icon-btn fs-5 text-primary rounded-circle border-0">
+                                    <i class="bi bi-person-rolodex"></i>
+                                </a>
                                 @endcan
                             </td>
                             <td class="text-center">

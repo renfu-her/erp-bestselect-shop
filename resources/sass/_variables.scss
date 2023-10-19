@@ -44,3 +44,15 @@ $toast-color: #004085;
 $toast-background-color: #cce5ff;
 $toast-border-color: #b8daff;
 $toast-header-color: #004085;
+
+/* 補 bootstrap/scss/grid */
+$spacer: 1rem;
+$grid-gutter-width: 1.5rem;
+$gutters: (
+  0: 0,
+  1: $spacer * .25,
+  2: $spacer * .5,
+  3: $spacer,
+  4: $spacer * 1.5,
+  5: $spacer * 3,
+);

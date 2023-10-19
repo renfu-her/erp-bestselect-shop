@@ -9,12 +9,14 @@ use App\Models\SaleChannel;
 use App\Models\User;
 use App\Models\UserProjLogistics;
 use App\Models\UserSalechannel;
+use App\Models\UsrProfile;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
+use Intervention\Image\Facades\Image;
 
 class UserCtrl extends Controller
 {
@@ -236,7 +238,6 @@ class UserCtrl extends Controller
     {
         //
 
-        
         User::where('id', $id)->delete();
 
         wToast('資料刪除完成');
@@ -272,6 +273,147 @@ class UserCtrl extends Controller
         UserSalechannel::updateSalechannel($id, $d);
         wToast('儲存完成');
         return redirect(Route('cms.user.index'));
+
+    }
+
+    public function profile($id)
+    {
+        // dd('aa');
+
+        $profile = UsrProfile::where('user_id', $id)->get()->first();
+        if (!$profile) {
+            UsrProfile::create(['user_id' => $id]);
+
+        }
+        $profile = UsrProfile::dataList()->where('user_id', $id)->get()->first();
+
+        return view('cms.admin.user.profile', [
+            'method' => 'view',
+            'id' => $id,
+            'data' => $profile,
+        ]);
+    }
+
+    public function editProfile($id)
+    {
+        $profile = UsrProfile::where('user_id', $id)->get()->first();
+        if (!$profile) {
+            UsrProfile::create(['user_id' => $id]);
+
+        }
+        $profile = UsrProfile::dataList()->where('user_id', $id)->get()->first();
+
+        return view('cms.admin.user.profile', [
+            'method' => 'edit',
+            'id' => $id,
+            'data' => $profile,
+        ]);
+    }
+
+    public function updateProfile(Request $request, $id)
+    {
+        $d = $request->all();
+        // dd($d);
+        $updateData = [
+            'en_name' => $d['en_name'],
+            'identity' => $d['identity'],
+            'gender' => $d['gender'],
+            'live_with_family' => $d['live_with_family'],
+            'performance_statistics' => $d['performance_statistics'],
+            'job_title' => $d['job_title'],
+            'date_of_job_entry' => $d['date_of_job_entry'],
+            'date_of_job_leave' => $d['date_of_job_leave'],
+            'ability_english' => $d['ability_english'],
+            'english_certification' => $d['english_certification'],
+            'ability_japanese' => $d['ability_japanese'],
+            'japanese_certification' => $d['japanese_certification'],
+            'date_of_insurance_entry' => $d['date_of_insurance_entry'],
+            'date_of_insurance_leave' => $d['date_of_insurance_leave'],
+            'labor_insurance' => $d['labor_insurance'],
+            'labor_insurance_oop' => $d['labor_insurance_oop'],
+            'health_insurance' => $d['health_insurance'],
+            'health_insurance_oop' => $d['health_insurance_oop'],
+            'health_insurance_dependents' => $d['health_insurance_dependents'],
+            'tel' => $d['tel'],
+            'household_tel' => $d['household_tel'],
+            'phone' => $d['phone'],
+            'office_tel' => $d['office_tel'],
+            'office_tel_ext' => $d['office_tel_ext'],
+            'office_fax' => $d['office_fax'],
+            'contact_person' => $d['contact_person'],
+            'contact_person_tel' => $d['contact_person_tel'],
+            'birthday' => $d['birthday'],
+            'blood_type' => $d['blood_type'],
+            'education' => $d['education'],
+            'education_department' => $d['education_department'],
+            'punch_in' => $d['punch_in'],
+            'service_area' => $d['service_area'],
+            'office_address' => $d['office_address'],
+            'address' => $d['address'],
+            'household_address' => $d['household_address'],
+            'email' => $d['email'],
+            'disc_category' => $d['disc_category'],
+            'certificates' => $d['certificates'],
+            'insurance_certification' => $d['insurance_certification'],
+            'history' => $d['history'],
+            'note' => $d['note'],
+            'education_training' => $d['education_training'],
+            'labor_contract' => $d['labor_contract'],
+
+            'undertake_contract' => $d['undertake_contract'],
+            'labor_insurance_retire' => $d['labor_insurance_retire'],
+            'labor_insurance_self' => $d['labor_insurance_self'],
+            'jp_phone' => $d['jp_phone'],
+            'manager_certificate' => $d['manager_certificate'],
+            'leader_certificate' => $d['leader_certificate'],
+            'special_person' => $d['special_person'],
+            'disability_certificate' => $d['disability_certificate'],
+            'travel_service_year' => $d['travel_service_year'],
+            'non_travel_service_year' => $d['non_travel_service_year'],
+        ];
+
+        if ($d['leader_certificate'] != '無') { // 領隊證
+            $updateData['leader_certificate_start'] = $d['leader_certificate_start'];
+            $updateData['leader_certificate_end'] = $d['leader_certificate_end'];
+            $updateData['leader_certificate_correction'] = $d['leader_certificate_correction'];
+            $updateData['leader_language'] = $d['leader_language'];
+        }
+
+        if ($request->hasfile('img')) {
+            $img = self::imgResize($request->file('img')->path());
+
+            $filename = self::imgFilename($id, $request->file('img')->hashName());
+            if (Storage::disk('local')->put($filename, $img)) {
+                //  $collection->where('id', $id)->update(['img_path' => $filename]);
+                $updateData['img'] = $filename;
+            }
+        }
+
+        UsrProfile::where('user_id', $id)->update($updateData);
+
+        wToast('修改完成');
+        return redirect(Route('cms.user.profile', ['id' => $id]));
+
+    }
+
+    private static function imgResize($path)
+    {
+        try {
+            $asdf = Image::make($path)
+                ->resize(640, 640, function ($constraint) {
+                    $constraint->aspectRatio();
+                    $constraint->upsize();
+                })->encode('webp', 90);
+        } catch (\Exception $e) {
+            dd($e);
+            return false;
+        }
+        return $asdf;
+    }
+
+    private static function imgFilename($product_id, $fileHashName)
+    {
+        return 'employee_imgs/' . $product_id . '/' . explode('.', $fileHashName)[0] . ".webp";
 
     }
 }

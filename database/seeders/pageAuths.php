@@ -820,6 +820,10 @@ return [
                 'cms.user.salechannel',
                 '通路權限',
             ],
+            [
+                'cms.user.profile',
+                '基本資料編輯',
+            ],
         ],
     ],
     [
