@@ -1485,6 +1485,14 @@ Breadcrumbs::for('cms.user.salechannel', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.user.index');
     $trail->push('通路權限');
 });
+Breadcrumbs::for('cms.user.profile', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.user.index');
+    $trail->push('個人資料');
+});
+Breadcrumbs::for('cms.user.editProfile', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.user.index');
+    $trail->push('編輯 個人資料');
+});
 
 // 消費者帳號管理
 Breadcrumbs::for('cms.customer.index', function (BreadcrumbTrail $trail) {

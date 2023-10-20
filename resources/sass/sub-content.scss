@@ -1,10 +1,6 @@
-/* Variables */
-// @import 'variables';
+@use 'sass:math';
+
 /* Bootstrap */
-// @import '~bootstrap/scss/functions';
-// @import '~bootstrap/scss/variables';
-// @import '~bootstrap/scss/mixins';
-// @import '~bootstrap/scss/grid';
 @import 'dashboard';
 
 html,
@@ -488,7 +484,7 @@ input.form-control[type="month"] {
   $toast-border: shift-color($value, $alert-border-scale);
   $toast-color: shift-color($value, $alert-color-scale);
   @if (contrast-ratio($toast-background, $toast-color) < $min-contrast-ratio) {
-    $toast-color: mix($value, color-contrast($toast-background), abs($alert-color-scale));
+    $toast-color: mix($value, color-contrast($toast-background), math.abs($alert-color-scale));
   }
 
   .toast-#{$state} {
