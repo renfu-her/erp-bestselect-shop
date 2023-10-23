@@ -36,8 +36,13 @@
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="memberMenu">
                     <li>
+                        <a class="dropdown-item" href="{{ route('cms.usermnt.profile') }}">
+                            <i class="bi bi-person-circle me-1"></i>個人資料
+                        </a>
+                    </li>
+                    <li>
                         <a class="dropdown-item" href="{{ route('cms.usermnt.edit') }}">
-                            <i class="bi bi-person me-1"></i>資料維護
+                            <i class="bi bi-key me-1"></i>修改密碼
                         </a>
                     </li>
                     @if (!is_null($customer))

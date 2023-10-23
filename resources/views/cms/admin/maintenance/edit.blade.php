@@ -12,7 +12,7 @@
 
         <div class="card mb-4">
             <div class="card-header">
-                資料維護
+                修改密碼
             </div>
             <div class="card-body">
                 <x-b-form-group name="name" title="姓名">

@@ -291,6 +291,7 @@ class UserCtrl extends Controller
             'method' => 'view',
             'id' => $id,
             'data' => $profile,
+            'edit' => true,
         ]);
     }
 
@@ -307,6 +308,7 @@ class UserCtrl extends Controller
             'method' => 'edit',
             'id' => $id,
             'data' => $profile,
+            'edit' => true,
         ]);
     }
 
