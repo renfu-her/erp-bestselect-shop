@@ -7,7 +7,7 @@ use App\Models\Customer;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-
+use App\Models\UsrProfile;
 class UserMntCtrl extends Controller
 {
     /**
@@ -90,5 +90,20 @@ class UserMntCtrl extends Controller
 
         }
 
+    }
+
+    public function profile(Request $request){
+        $profile = UsrProfile::where('user_id', $request->user()->id)->get()->first();
+        if (!$profile) {
+            UsrProfile::create(['user_id' => $request->user()->id]);
+        }
+
+        $profile = UsrProfile::dataList()->where('user_id', $request->user()->id)->get()->first();
+
+        return view('cms.admin.user.profile', [
+            'method' => 'view',
+            'id' => $request->user()->id,
+            'data' => $profile,
+        ]);
     }
 }
