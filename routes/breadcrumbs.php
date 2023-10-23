@@ -15,10 +15,16 @@ Breadcrumbs::for('cms.dashboard', function (BreadcrumbTrail $trail) {
  * Topbar
  **/
 
-// 資料維護
+// 個人資料
+Breadcrumbs::for('cms.usermnt.profile', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('個人資料');
+});
+
+// 修改密碼
 Breadcrumbs::for('cms.usermnt.edit', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
-    $trail->push('資料維護');
+    $trail->push('修改密碼');
 });
 
 // 會員綁定

@@ -14,7 +14,7 @@
         @endif
     </title>
     <link rel="stylesheet" href="{{ Asset('dist/css/app.css') }}?2.0">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     @stack('styles')
 
     {{-- icon --}}
