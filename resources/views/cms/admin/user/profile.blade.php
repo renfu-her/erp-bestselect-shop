@@ -134,7 +134,7 @@
                         </tr>
                         <tr>
                             <th>部　　門</th>
-                            <td>資訊部-資訊二組</td>
+                            <td>{{ $data->department }}</td>
                             <th>職　　稱</th>
                             @if ($editMode)
                                 <td class="p-1">

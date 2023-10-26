@@ -20,6 +20,7 @@ class UsrProfile extends Model
             ->leftJoin('usr_users as user', 'profile.user_id', '=', 'user.id')
             ->select('profile.*', 'user.name', 'user.account')
             ->selectRaw($dateDiff . ' as month_of_service')
+            ->selectRaw('CONCAT(user.company," ",user.department," ",user.group) as department')
             ->selectRaw('CONCAT(FLOOR(' . $dateDiff . ' / 12),"年",MOD(' . $dateDiff . ',12),"個月") as year_of_service')
             ->selectRaw('CASE
                             WHEN  ' . $dateDiff . ' < 6 OR ' . $dateDiff . ' IS NULL THEN 0
