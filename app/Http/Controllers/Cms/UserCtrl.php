@@ -278,7 +278,7 @@ class UserCtrl extends Controller
 
     public function profile($id)
     {
-        // dd('aa');
+       //  dd('aa');
 
         $profile = UsrProfile::where('user_id', $id)->get()->first();
         if (!$profile) {
