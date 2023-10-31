@@ -158,7 +158,8 @@
             function sumBonus($target) {
                 const price = Number($target.closest('tr').find('input[name="price[]"]').val()) || 0;
                 const dealer_price = $target.closest('tr').find('input[name="dealer_price[]"]').val() || 0;
-                $target.closest('tr').find('input[name="bonus[]"]').val(Math.floor((price - dealer_price) * BonusRate));
+                const bonus = Math.floor((price - dealer_price) * BonusRate);
+                $target.closest('tr').find('input[name="bonus[]"]').val(bonus > 0 ? bonus : 0);
             }
             // 計算 購物金
             function sumPoints($target) {
