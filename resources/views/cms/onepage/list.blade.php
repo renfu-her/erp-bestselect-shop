@@ -22,7 +22,7 @@
     <div class="card shadow p-4 mb-4">
         <div class="row mb-4">
             <div class="col-auto">
-                @can('cms.onepage.create')
+                @can('cms.onepage.index')
                     <a href="{{ Route('cms.onepage.create', null, true) }}" class="btn btn-primary">
                         <i class="bi bi-plus-lg"></i> 新增一頁式
                     </a>
@@ -57,7 +57,7 @@
                                     <input class="form-check-input" name="active" value="{{ $data->active }}"
                                         type="checkbox" @if ($data->active) checked @endif
                                         data-bs-toggle="tooltip" title="啟用"
-                                        @cannot('cms.onepage.edit') disabled @endcannot>
+                                        @cannot('cms.onepage.index') disabled @endcannot>
                                     <input type="hidden" value="{{ $data->id }}">
                                 </div>
                                 <div class="form-check form-switch form-switch-lg form-switch-success mt-2">
@@ -65,12 +65,12 @@
                                         name="active-app" value="{{ $data->app }}"
                                         type="checkbox" @if ($data->app) checked @endif
                                         data-bs-toggle="tooltip" title="APP啟用"
-                                        @cannot('cms.onepage.edit') disabled @endcannot>
+                                        @cannot('cms.onepage.index') disabled @endcannot>
                                     <input type="hidden" value="{{ $data->id }}">
                                 </div>
                             </td>
                             <td class="text-center">
-                                @can('cms.onepage.edit')
+                                @can('cms.onepage.index')
                                     <a href="{{ Route('cms.onepage.edit', ['id' => $data->id], true) }}"
                                         data-bs-toggle="tooltip" title="編輯"
                                         class="icon icon-btn fs-5 text-primary rounded-circle border-0">
@@ -103,7 +103,7 @@
                                 @endif
                             </td>
                             <td class="text-center">
-                                @can('cms.onepage.delete')
+                                @can('cms.onepage.index')
                                     <a href="javascript:void(0)"
                                         data-href="{{ Route('cms.onepage.delete', ['id' => $data->id], true) }}"
                                         data-bs-toggle="modal" data-bs-target="#confirm-delete"
