@@ -247,7 +247,7 @@ class OrderCart extends Model
         if ($re['success'] == '0') {
             return $re;
         }
-
+      
         self::getDividendStage($order, $_tempProducts);
         self::shipmentStage($order);
 
@@ -563,9 +563,10 @@ class OrderCart extends Model
         } else {
             $rate = $salechannel->dividend_rate;
         }
-
+       
         foreach ($_tempProducts as $value) {
-            $order['get_dividend'] += round($value['total_price'] * $rate / 100);
+            
+            $order['get_dividend'] += floor($value['total_price'] * $rate / 100);
         }
 
     }
