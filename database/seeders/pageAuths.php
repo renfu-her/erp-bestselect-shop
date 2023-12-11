@@ -848,6 +848,15 @@ return [
         ],
     ],
     [
+        "unit" => "消費者紅利點數",
+        "permissions" => [
+            [
+                "cms.customer-dividend.index",
+                "瀏覽",
+            ],
+        ],
+    ],
+    [
         "unit" => "角色管理",
         "permissions" => [
             [

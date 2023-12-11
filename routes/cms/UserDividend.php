@@ -6,7 +6,7 @@ use App\Http\Controllers\Cms\User\DividendCtrl;
 
 Route::group(['prefix' => 'customer-dividend', 'as' => 'customer-dividend.'], function () {
     Route::get('', [DividendCtrl::class, 'index'])->name('index')->middleware('permission:cms.customer-dividend.index');
-    Route::get('log/{id}', [DividendCtrl::class, 'log'])->name('log');
+    Route::get('log/{id}', [DividendCtrl::class, 'log'])->name('log')->middleware('permission:cms.customer-dividend.index');
 
     /*Route::get('create', [DiscountCtrl::class, 'create'])->name('create')->middleware('permission:cms.discount.create');
     Route::post('create', [DiscountCtrl::class, 'store']);
