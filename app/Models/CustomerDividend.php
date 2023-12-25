@@ -456,49 +456,24 @@ class CustomerDividend extends Model
 
     public static function getByCategory()
     {
+
+        $dividendCategory = DividendCategory::getValueWithDesc();
+        $categoryCase = 'CASE ';
+        foreach ($dividendCategory as $key => $value) {
+            $categoryCase .= ' WHEN category = "' . $key . '" THEN "' . $value . '"';
+        }
+        $categoryCase .= ' END as category_ch';
+
         $re = self::select(['type', 'category'])
             ->selectRaw('SUM(dividend) as dividend')
+            ->selectRaw($categoryCase)
             ->where('flag', "<>", DividendFlag::NonActive())
             ->groupBy('type')
             ->groupBy('category')
             ->get()
             ->toArray();
-        $output = [
-            'normal_get' => 0,
-            'm_b2b_get' => 0,
-            'm_b2c_get' => 0,
-            'm_b2e_get' => 0,
-            'used' => 0,
-        ];
-        foreach ($re as $value) {
-            if ($value['type'] == 'get') {
-                switch ($value['category']) {
-                    case 'order':
-                        $output['normal_get'] += $value['dividend'];
-                        break;
-                    case 'cyberbiz':
-                        $output['normal_get'] += $value['dividend'];
-                        break;
-                    case 'm_b2e':
-                        $output['m_b2e_get'] += $value['dividend'];
-                        break;
-                    case 'm_b2ec':
-                        $output['m_b2e_get'] += $value['dividend'];
-                        break;
-                    case 'm_b2c':
-                        $output['m_b2c_get'] += $value['dividend'];
-                        break;
-                    case 'm_b2b':
-                        $output['m_b2b_get'] += $value['dividend'];
-                        break;
 
-                }
-            } else {
-                $output['used'] += abs($value['dividend']);
-            }
-        }
-
-        return $output;
+        return $re;
 
     }
 
