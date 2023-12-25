@@ -470,6 +470,7 @@ class CustomerDividend extends Model
             ->where('flag', "<>", DividendFlag::NonActive())
             ->groupBy('type')
             ->groupBy('category')
+            ->orderBy('type')
             ->get()
             ->toArray();
 
