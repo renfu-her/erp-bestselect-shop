@@ -267,6 +267,8 @@ class Delivery extends Model
                 , 'delivery.updated_at'
                 , 'delivery.deleted_at'
                 , 'shi_method.method'
+                , 'ord_items.product_title'
+                , 'ord_items.qty'
                 , 'query_order.order_id'
                 , 'query_order.order_status'
                 , 'query_order.order_created_at'

@@ -143,7 +143,9 @@ class DeliveryCtrl extends Controller
                     $item->rec_name,
                     $item->rec_address,
                     $back_sn,
-                    $back_status
+                    $back_status,
+                    $item->product_title,
+                    $item->qty,
                 ];
             }
         }
@@ -163,6 +165,8 @@ class DeliveryCtrl extends Controller
             '收件人地址',
             '退貨單號',
             '退貨狀態',
+            '產品名稱',
+            '數量',
         ];
 
         $export= new DeliveryListExport([
