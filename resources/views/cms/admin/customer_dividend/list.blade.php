@@ -20,26 +20,26 @@
         <h6 class="mb-2">統計總覽</h6>
         <table class="table table-sm table-bordered text-center mb-0">
             <thead class="small align-middle">
-                <td class="table-primary lh-sm">購物訂單<span class="d-inline-block">發放總數</span><br>
-                    (購物訂單 + 喜鴻購物2.0<span class="d-inline-block">取得)</span>
-                </td>
-                <td class="table-primary lh-sm">旅遊企業<span class="d-inline-block">領取總數</span></td>
-                <td class="table-primary lh-sm">旅遊會員<span class="d-inline-block">領取總數</span></td>
-                <td class="table-primary lh-sm">旅遊同業<span class="d-inline-block">領取總數</span></td>
-                <td class="table-danger lh-sm">已使用<span class="d-inline-block">總數</span></td>
+                @foreach ($total as $key => $value)
+                    @php
+                        $danger = '';
+                        $title = '領取';
+                        if ($value['type'] == 'used') {
+                            $danger = 'table-danger';
+                            $title = '使用';
+                        }
+                    @endphp
+                    <td class="table-primary lh-sm {{ $danger }}">{{ $value['category_ch'] }}<span
+                            class="d-inline-block">
+                            {{ $title }}總數
+                        </span></td>
+                @endforeach
             </thead>
             <tbody>
-                <td>{{ number_format($total['normal_get']) }}</td>
-                <td>
-                    <a href="#">{{ number_format($total['m_b2e_get']) }}</a>
-                </td>
-                <td>
-                    <a href="#">{{ number_format($total['m_b2c_get']) }}</a>
-                </td>
-                <td>
-                    <a href="#">{{ number_format($total['m_b2b_get']) }}</a>
-                </td>
-                <td>{{ number_format($total['used']) }}</td>
+                @foreach ($total as $key => $value)
+                    <td>{{ number_format($value['dividend']) }}</td>
+                @endforeach
+
             </tbody>
         </table>
     </div>
@@ -67,9 +67,9 @@
                         <tr>
                             <td class="pt-0 small lh-sm text-center">
                                 <div>點數明細</div>
-                                <a href="{{ route('cms.customer-dividend.log', ['id' => $data->id]) }}" 
-                                    class="icon icon-btn fs-5 text-primary rounded-circle border-0"
-                                    data-bs-toggle="tooltip" title="Log">
+                                <a href="{{ route('cms.customer-dividend.log', ['id' => $data->id]) }}"
+                                    class="icon icon-btn fs-5 text-primary rounded-circle border-0" data-bs-toggle="tooltip"
+                                    title="Log">
                                     <i class="bi bi-card-list"></i>
                                 </a>
                             </td>
