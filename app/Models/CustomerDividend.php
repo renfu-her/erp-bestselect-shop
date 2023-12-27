@@ -464,7 +464,22 @@ class CustomerDividend extends Model
         }
         $categoryCase .= ' END as category_ch';
 
+        //get訂單返還的訂單編號, 例：由O202312060004訂單返還
+        $canceled_orders = self::where('note', 'LIKE','由O%')
+                                ->where('note', 'LIKE','%返還')
+                                ->get();
+        $canceled_orders_ids = $canceled_orders->groupBy('id')->toArray();
+        $canceled_orders_notes = $canceled_orders->groupBy('note')->toArray();
+
+        $canceledOrders = [];
+        foreach (array_keys($canceled_orders_notes) as $canceledOrder) {
+            //substr 例：由O202312060004訂單返還
+            $canceledOrders[] = mb_substr( $canceledOrder, 1, -4, 'utf-8');
+        }
+
         $re = self::select(['type', 'category'])
+            ->whereNotIn('id', array_keys($canceled_orders_ids))
+            ->whereNotIn('category_sn', $canceledOrders)
             ->selectRaw('SUM(dividend) as dividend')
             ->selectRaw($categoryCase)
             ->where('flag', "<>", DividendFlag::NonActive())
