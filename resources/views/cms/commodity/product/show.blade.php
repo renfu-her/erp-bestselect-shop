@@ -68,6 +68,9 @@
             </h3>
             <div id="collapse2" class="accordion-collapse collapse show">
                 <div class="accordion-body p-2">
+                    <div class="text-danger text-end fw-bold fs-4">
+                        <i class="bi bi-exclamation-triangle-fill"></i> 2024年1月1日起停止發放獎金
+                    </div>
                     <div class="table-responsive">
                         <table class="table table-bordered table-sm align-middle mb-1">
                             <thead class="table-secondary small">
@@ -77,8 +80,9 @@
                                 <th class="text-end">經銷價</th>
                                 <th class="text-end">定價</th>
                                 <th class="text-end">獎金
-                                    <i class="bi bi-info-circle" data-bs-toggle="tooltip"
-                                        title="預設：(售價-經銷價) × {{ App\Enums\Customer\Bonus::bonus()->value }}"></i>
+                                    <i class="bi bi-exclamation-triangle" data-bs-toggle="tooltip"
+                                        title="2024年1月1日起停止發放獎金"></i>
+                                    {{-- 預設：(售價-經銷價) × {{ App\Enums\Customer\Bonus::bonus()->value }} --}}
                                 </th>
                                 <th class="text-end">購物金抵扣
                                     <i class="bi bi-info-circle" data-bs-toggle="tooltip"
