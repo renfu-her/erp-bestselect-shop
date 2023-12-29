@@ -509,7 +509,17 @@ class CustomerDividend extends Model
             ->toArray();
         foreach ($re as $key => $items) {
             if ($items['type'] === 'get') {
-                $used_dividend = intval($items['used_dividend']) + $canceledUsedDividendArray[$items['category_ch']] - $canceledDividendArray[$items['category_ch']];
+                if (array_key_exists($items['category_ch'], $canceledUsedDividendArray)) {
+                    $canceledUsedDividend = $canceledUsedDividendArray[$items['category_ch']];
+                } else {
+                    $canceledUsedDividend = 0;
+                }
+                if (array_key_exists($items['category_ch'], $canceledDividendArray)) {
+                    $canceledDividend = $canceledDividendArray[$items['category_ch']];
+                } else {
+                    $canceledDividend = 0;
+                }
+                $used_dividend = intval($items['used_dividend']) + $canceledUsedDividend - $canceledDividend;
                 $re[$key]['used_dividend'] = strval($used_dividend);
                 $re[$key]['remain_dividend'] = $re[$key]['dividend'] - $re[$key]['used_dividend'];
                 $re[$key]['usage_rate'] = $used_dividend * 100 / $re[$key]['dividend'];
