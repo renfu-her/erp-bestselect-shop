@@ -459,17 +459,35 @@ class CustomerDividend extends Model
 
         $dividendCategory = DividendCategory::getValueWithDesc();
         $categoryCase = 'CASE ';
+        $categoryNames = [];
         foreach ($dividendCategory as $key => $value) {
             $categoryCase .= ' WHEN category = "' . $key . '" THEN "' . $value . '"';
+            $categoryNames[$key] = $value;
         }
         $categoryCase .= ' END as category_ch';
 
         //get訂單返還的訂單編號, 例：由O202312060004訂單返還
         $canceled_orders = self::where('note', 'LIKE','由O%')
                                 ->where('note', 'LIKE','%返還')
+                                ->select([
+                                    'id',
+                                    'category',
+                                    'note',
+                                    'dividend',
+                                    'used_dividend',
+                                ])
                                 ->get();
         $canceled_orders_ids = $canceled_orders->groupBy('id')->toArray();
         $canceled_orders_notes = $canceled_orders->groupBy('note')->toArray();
+        $canceled_orders_categories = $canceled_orders->groupBy('category')->toArray();
+
+        //訂單返回要退回的購物金
+        $canceledDividendArray = [];
+        $canceledUsedDividendArray = [];
+        foreach ($canceled_orders_categories as $category => $data) {
+            $canceledDividendArray[$categoryNames[$category]] = collect($data)->sum('dividend');
+            $canceledUsedDividendArray[$categoryNames[$category]] = collect($data)->sum('used_dividend');
+        }
 
         $canceledOrders = [];
         foreach (array_keys($canceled_orders_notes) as $canceledOrder) {
@@ -481,6 +499,7 @@ class CustomerDividend extends Model
             ->whereNotIn('id', array_keys($canceled_orders_ids))
             ->whereNotIn('category_sn', $canceledOrders)
             ->selectRaw('SUM(dividend) as dividend')
+            ->selectRaw('SUM(used_dividend) as used_dividend')
             ->selectRaw($categoryCase)
             ->where('flag', "<>", DividendFlag::NonActive())
             ->groupBy('type')
@@ -488,6 +507,16 @@ class CustomerDividend extends Model
             ->orderBy('type')
             ->get()
             ->toArray();
+        foreach ($re as $key => $items) {
+            if ($items['type'] === 'get') {
+                $used_dividend = intval($items['used_dividend']) + $canceledUsedDividendArray[$items['category_ch']] - $canceledDividendArray[$items['category_ch']];
+                $re[$key]['used_dividend'] = strval($used_dividend);
+                $re[$key]['remain_dividend'] = $re[$key]['dividend'] - $re[$key]['used_dividend'];
+                $re[$key]['usage_rate'] = $used_dividend * 100 / $re[$key]['dividend'];
+            } else {
+                unset($re[$key]);
+            }
+        }
 
         return $re;
 
