@@ -20,25 +20,42 @@
         <h6 class="mb-2">統計總覽</h6>
         <table class="table table-sm table-bordered text-center mb-0">
             <thead class="small align-middle">
+                <td></td>
                 @foreach ($total as $key => $value)
-                    @php
-                        $danger = '';
-                        $title = '領取';
-                        if ($value['type'] == 'used') {
-                            $danger = 'table-danger';
-                            $title = '使用';
-                        }
-                    @endphp
-                    <td class="table-primary lh-sm {{ $danger }}">{{ $value['category_ch'] }}<span
+                    <td class="table-primary lh-sm">
+                        {{ $value['category_ch'] }}
+                        <span
                             class="d-inline-block">
-                            {{ $title }}總數
                         </span></td>
                 @endforeach
             </thead>
             <tbody>
-                @foreach ($total as $key => $value)
-                    <td>{{ number_format($value['dividend']) }}</td>
-                @endforeach
+                <tr>
+                    <td>發放</td>
+                    @foreach ($total as $key => $value)
+                        <td>{{ number_format($value['dividend']) }}</td>
+                    @endforeach
+                </tr>
+                <tr>
+                    <td>使用</td>
+                    @foreach ($total as $key => $value)
+                        <td>{{ number_format($value['used_dividend']) }}</td>
+                    @endforeach
+                </tr>
+                <tr>
+                    <td>剩餘</td>
+                    @foreach ($total as $key => $value)
+                        <td>{{ number_format($value['remain_dividend']) }}</td>
+                    @endforeach
+                </tr>
+                <tr>
+                    <td>使用率</td>
+                    @foreach ($total as $key => $value)
+                        <td>
+                            {{ number_format($value['usage_rate']) }}%
+                        </td>
+                    @endforeach
+                </tr>
 
             </tbody>
         </table>
