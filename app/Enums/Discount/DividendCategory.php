@@ -27,7 +27,7 @@ final class DividendCategory extends Helper
                 $result = '購物訂單';
                 break;
             case self::Cyberbiz:
-                $result = '喜鴻購物2.0';
+                $result = 'CYBERBIZ';
                 break;
             case self::M_b2e:
                 $result = '旅遊企業紅利折扣';
