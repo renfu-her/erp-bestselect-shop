@@ -28,6 +28,7 @@
                             class="d-inline-block">
                         </span></td>
                 @endforeach
+                <td>總數</td>
             </thead>
             <tbody>
                 <tr>
@@ -35,18 +36,21 @@
                     @foreach ($total as $key => $value)
                         <td>{{ number_format($value['dividend']) }}</td>
                     @endforeach
+                    <td>{{ number_format(collect($total)->sum('dividend')) }}</td>
                 </tr>
                 <tr>
                     <td>使用</td>
                     @foreach ($total as $key => $value)
                         <td>{{ number_format($value['used_dividend']) }}</td>
                     @endforeach
+                    <td>{{ number_format(collect($total)->sum('used_dividend')) }}</td>
                 </tr>
                 <tr>
                     <td>剩餘</td>
                     @foreach ($total as $key => $value)
                         <td>{{ number_format($value['remain_dividend']) }}</td>
                     @endforeach
+                    <td>{{ number_format(collect($total)->sum('remain_dividend')) }}</td>
                 </tr>
                 <tr>
                     <td>使用率</td>
@@ -55,8 +59,8 @@
                             {{ number_format($value['usage_rate']) }}%
                         </td>
                     @endforeach
+                    <td>{{ number_format(collect($total)->sum('used_dividend') * 100 / collect($total)->sum('dividend')) }}</td>
                 </tr>
-
             </tbody>
         </table>
     </div>
