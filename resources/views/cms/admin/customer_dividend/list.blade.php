@@ -59,7 +59,7 @@
                             {{ number_format($value['usage_rate']) }}%
                         </td>
                     @endforeach
-                    <td>{{ number_format(collect($total)->sum('used_dividend') * 100 / collect($total)->sum('dividend')) }}</td>
+                    <td>{{ number_format(collect($total)->sum('used_dividend') * 100 / collect($total)->sum('dividend')) }}%</td>
                 </tr>
             </tbody>
         </table>
