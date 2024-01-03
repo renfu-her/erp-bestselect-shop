@@ -1,6 +1,10 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h2 class="mb-4">點數剩餘紀錄</h2>
+    @php
+        $categories = \Illuminate\Support\Facades\Request::segments();
+        $categoryName = end($categories);
+    @endphp
+    <h2 class="mb-4">{{ \App\Enums\Discount\DividendCategory::fromValue($categoryName)->description }}點數剩餘紀錄</h2>
     <div class="card shadow p-4 mb-4">
         <div class="table-responsive tableOverBox">
             <table class="table table-striped tableList mb-1">
