@@ -500,6 +500,8 @@ class CustomerDividend extends Model
 
         if ($property === 'remain') {
             $step2->selectRaw('(base.dividend - base.used_dividend) as result');
+        } elseif ($property === 'used') {
+            $step2->selectRaw('(base.used_dividend - base.refund) as result');
         }
 
         $step2->groupBy('base.customer_id');
