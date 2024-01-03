@@ -1610,6 +1610,10 @@ Breadcrumbs::for('cms.customer-dividend.used', function (BreadcrumbTrail $trail)
     $trail->parent('cms.customer-dividend.index');
     $trail->push('點數使用紀錄');
 });
+Breadcrumbs::for('cms.customer-dividend.dividend', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.customer-dividend.index');
+    $trail->push('點數發放紀錄');
+});
 
 /**
  * 共用頁
