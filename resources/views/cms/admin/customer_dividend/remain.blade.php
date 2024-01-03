@@ -22,7 +22,7 @@
                         <tr>
                             <th scope="row">{{ $key + 1 }}</th>
                             <td>
-                                <a href="{{ Route('cms.customer.order', ['id' => $value->id], true) }}" target="_blank" >
+                                <a href="{{ Route('cms.customer.dividend', ['id' => $value->id], true) }}" target="_blank" >
                                     <span class="label">
                                         {{ $value->name }}
                                     </span>
