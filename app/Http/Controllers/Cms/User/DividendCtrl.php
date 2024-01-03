@@ -139,4 +139,17 @@ class DividendCtrl extends Controller
             'dataList' => $dataList,
         ]);
     }
+
+    /**
+     * @param $category
+     * 使用點數
+     */
+    public function used($category)
+    {
+        $dataList = CustomerDividend::queryDividendByCategory($category, 'used')->paginate(100);
+
+        return view('cms.admin.customer_dividend.used', [
+            'dataList' => $dataList,
+        ]);
+    }
 }
