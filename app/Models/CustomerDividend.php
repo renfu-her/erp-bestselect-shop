@@ -84,7 +84,6 @@ class CustomerDividend extends Model
         if ($deadline == 1) {
             $sdate = now();
             $edate = date('Y-m-d 23:59:59', strtotime($date . " + $order->dividend_lifecycle days"));
-
         } else {
             $sdate = now();
             $edate = date('Y-m-d 23:59:59', strtotime($date . ' + 50 years'));
@@ -117,10 +116,9 @@ class CustomerDividend extends Model
             ->selectRaw("SUM(dividend) as dividend")
             ->groupBy('customer_id')
             ->where('customer_id', $customer_id);
-
     }
 
-// decrease
+    // decrease
 
     public static function decrease($customer_id, DividendFlag $flag, $point, $note = null)
     {
@@ -150,20 +148,24 @@ class CustomerDividend extends Model
 
         if (!$dividend || !$dividend->dividend) {
             DB::rollBack();
-            return ['success' => '0',
+            return [
+                'success' => '0',
                 'event' => 'dividend',
                 'error_msg' => '無鴻利餘額',
-                'error_status' => 'dividend'];
+                'error_status' => 'dividend'
+            ];
         }
 
         $dividend = $dividend->dividend;
 
         if ($order['use_dividend'] > $dividend) {
             DB::rollBack();
-            return ['success' => '0',
+            return [
+                'success' => '0',
                 'event' => 'dividend',
                 'error_msg' => '鴻利餘額不足',
-                'error_status' => 'dividend'];
+                'error_status' => 'dividend'
+            ];
         }
 
         /*
@@ -242,7 +244,6 @@ class CustomerDividend extends Model
                 $remain_dividend -= $can_use_point;
                 //   echo $remain_dividend;
             }
-
         }
 
         foreach ($arrDividend as $key => $value) {
@@ -285,19 +286,24 @@ class CustomerDividend extends Model
         return ['success' => '1', 'id' => $id];
     }
 
-    public static function checkExpired($customer_id)
+    public static function checkExpired($customer_id, $onlyInvalid = null)
     {
         $concatString = concatStr([
             'id' => 'id',
         ]);
 
+        $condition = DividendFlag::Active();
+        if ($onlyInvalid) {
+            $condition = DividendFlag::Invalid();
+        }
+
         $exp = self::where('active_edate', '<', DB::raw("NOW()"))
-            ->where('flag', DividendFlag::Active())
-            ->selectRaw('SUM(dividend) as dividend')
+            ->where('flag', $condition)
+            ->selectRaw('SUM(dividend-used_dividend) as dividend')
             ->selectRaw($concatString . ' as dividends')
             ->where('customer_id', $customer_id)
             ->groupBy('customer_id')->get()->first();
-
+      
         if (!$exp) {
             return;
         }
@@ -305,29 +311,16 @@ class CustomerDividend extends Model
 
         $exp->dividends = json_decode($exp->dividends);
 
-        $canDescPoint = self::whereNotIn('flag', [DividendFlag::NonActive(), DividendFlag::Invalid()])
-            ->where('deadline', '=', 1)
-            ->selectRaw('SUM(dividend) as dividend')
-            ->where('customer_id', $customer_id)
-            ->groupBy('customer_id')->get()->first()->dividend;
-
-        //   dd($canDescPoint, $expPoint);
-
-        if ($canDescPoint > $expPoint) {
-            $expPoint = $expPoint * -1;
-        } else {
-            $expPoint = $canDescPoint * -1;
-        }
-
         if ($expPoint !== 0) {
-            self::decrease($customer_id, DividendFlag::Expired(), $expPoint);
+            self::decrease($customer_id, DividendFlag::Expired(), $expPoint * -1, date('Ymd') . '失效');
         }
 
         array_map(function ($n) {
-            self::where('id', $n->id)->update(['flag' => DividendFlag::Invalid(),
-                'flag_title' => DividendFlag::Invalid()->description]);
+            self::where('id', $n->id)->update([
+                'flag' => DividendFlag::Invalid(),
+                'flag_title' => DividendFlag::Invalid()->description
+            ]);
         }, $exp->dividends);
-
     }
 
     public static function checkDividendFromErp($customer_sn, $password)
@@ -352,7 +345,6 @@ class CustomerDividend extends Model
 
             return $response;
         }
-
     }
 
     public static function getDividendFromErp($customer_id, $edword, $point, $type, $requestid)
@@ -389,7 +381,6 @@ class CustomerDividend extends Model
                     'type' => 'get',
                     'note' => "由" . DividendCategory::fromKey($type)->description . "取得",
                 ])->id;
-
             }
             return ['status' => '0'];
         }
@@ -400,7 +391,7 @@ class CustomerDividend extends Model
         $getDividendSub = self::select(['customer_id', 'category', 'type'])
             ->selectRaw('SUM(dividend) as dividend')
             ->where('flag', "<>", DividendFlag::NonActive())
-        //  ->where('type', 'get')
+            //  ->where('type', 'get')
             ->groupBy('customer_id')
             ->groupBy('category')
             ->groupBy('type');
@@ -412,7 +403,8 @@ class CustomerDividend extends Model
             ->groupBy('base.customer_id');
 
         $re = DB::table('usr_customers as customer')
-            ->select(['customer.id', 'customer.name',
+            ->select([
+                'customer.id', 'customer.name',
                 'customer.email',
                 'customer.sn',
             ])
@@ -428,7 +420,6 @@ class CustomerDividend extends Model
             });
         }
         return $re;
-
     }
 
     public static function format(&$data)
@@ -475,7 +466,5 @@ class CustomerDividend extends Model
             ->toArray();
 
         return $re;
-
     }
-
 }
