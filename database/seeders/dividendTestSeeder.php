@@ -3,8 +3,11 @@
 namespace Database\Seeders;
 
 use App\Enums\Discount\DividendFlag;
+use App\Models\Customer;
 use App\Models\CustomerDividend;
 use Illuminate\Database\Seeder;
+
+
 
 class dividendTestSeeder extends Seeder
 {
@@ -15,6 +18,15 @@ class dividendTestSeeder extends Seeder
      */
     public function run()
     {
+
+        CustomerDividend::where('flag', 'expired')->delete();
+
+        foreach (Customer::get() as $value) {
+            CustomerDividend::checkExpired($value->id, true);
+            CustomerDividend::checkExpired($value->id);
+        }
+
+        // CustomerDividend::checkExpired(5805,true);
         //
         /*
         $re = CustomerDividend::select(['*'])
