@@ -34,7 +34,11 @@
                 <tr>
                     <td class="table-primary lh-sm">發放</td>
                     @foreach ($total as $key => $value)
-                        <td>{{ number_format($value['dividend']) }}</td>
+                        <td>
+                            <a href="{{ route('cms.customer-dividend.dividend', ['category' => $value['category']]) }}">
+                                {{ number_format($value['dividend']) }}
+                            </a>
+                        </td>
                     @endforeach
                     <td>{{ number_format(collect($total)->sum('dividend')) }}</td>
                 </tr>

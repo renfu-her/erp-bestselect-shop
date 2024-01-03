@@ -152,4 +152,19 @@ class DividendCtrl extends Controller
             'dataList' => $dataList,
         ]);
     }
+
+    /**
+     * @param $category
+     * 發放點數
+     */
+    public function dividend($category)
+    {
+        {
+            $dataList = CustomerDividend::queryDividendByCategory($category, 'dividend')->paginate(100);
+
+            return view('cms.admin.customer_dividend.dividend', [
+                'dataList' => $dataList,
+            ]);
+        }
+    }
 }
