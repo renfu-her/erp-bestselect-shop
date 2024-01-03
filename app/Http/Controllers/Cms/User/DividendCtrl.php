@@ -127,4 +127,16 @@ class DividendCtrl extends Controller
             'dataList' => $dataList,
         ]);
     }
+
+    /*
+     * 剩餘點數
+     */
+    public function remain($category)
+    {
+        $dataList = CustomerDividend::queryDividendByCategory($category, 'remain')->paginate(100);
+
+        return view('cms.admin.customer_dividend.remain', [
+            'dataList' => $dataList,
+        ]);
+    }
 }

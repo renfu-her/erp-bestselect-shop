@@ -1602,6 +1602,10 @@ Breadcrumbs::for('cms.customer-dividend.log', function (BreadcrumbTrail $trail) 
     $trail->parent('cms.customer-dividend.index');
     $trail->push('點數提領紀錄');
 });
+Breadcrumbs::for('cms.customer-dividend.remain', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.customer-dividend.index');
+    $trail->push('點數剩餘紀錄');
+});
 
 /**
  * 共用頁

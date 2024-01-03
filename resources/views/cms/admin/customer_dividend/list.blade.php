@@ -48,7 +48,11 @@
                 <tr>
                     <td class="table-primary lh-sm">剩餘</td>
                     @foreach ($total as $key => $value)
-                        <td>{{ number_format($value['remain_dividend']) }}</td>
+                        <td>
+                            <a href="{{ route('cms.customer-dividend.remain', ['category' => $value['category']]) }}">
+                                {{ number_format($value['remain_dividend']) }}
+                            </a>
+                        </td>
                     @endforeach
                     <td>{{ number_format(collect($total)->sum('remain_dividend')) }}</td>
                 </tr>
