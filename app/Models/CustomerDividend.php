@@ -469,6 +469,63 @@ class CustomerDividend extends Model
         }
     }
 
+    /**
+     * @param $category
+     * @param string $property 查詢這些：發放、使用、剩餘的點數
+     * 依照分類查詢點數
+     * @return \Illuminate\Database\Query\Builder
+     */
+    public static function queryDividendByCategory($category, $property)
+    {
+        $getDividendSub = self::select(['customer_id', 'category', 'type', 'note'])
+            ->selectRaw('SUM(dividend) as dividend')
+            ->selectRaw('SUM(used_dividend) as used_dividend')
+            ->selectRaw('SUM(IF(note LIKE "%返還", dividend, 0)) as refund')
+            ->where('category', $category)
+            ->where('type', 'get')
+            ->where('flag', "<>", DividendFlag::NonActive())
+            ->groupBy('customer_id')
+            ->groupBy('category')
+            ->groupBy('type');
+        //TODO 已使用total used_dividend= used_dividend(non-back-order + back-order) - dividend(back only)
+        //TODO 發放 dividend(non-back-order + back-order) - dividend(back only)
+        //類別/姓名/點數/使用備註/使用日期
+        //取得來源/取得日期
+
+        $step2 = DB::query()->fromSub($getDividendSub, 'base')
+            ->select([
+                'base.customer_id',
+            ])
+            ->selectRaw(concatStr([
+                    'category' => 'base.category',
+                    'type' => 'base.type',
+                    'dividend' => 'base.dividend',
+                    'ori_used_dividend' => 'base.used_dividend',
+                    'refund' => 'base.refund',
+                    'real_used_dividend' => 'base.used_dividend - base.refund',
+                    'real_dividend' => 'base.dividend - base.refund',
+                    'remain_dividend' => 'base.dividend - base.used_dividend',
+                ]) . " as data");
+
+        if ($property === 'remain') {
+            $step2->selectRaw('(base.dividend - base.used_dividend) as result');
+        }
+
+        $step2->groupBy('base.customer_id');
+
+        $re = DB::table('usr_customers as customer')
+            ->select([
+                'customer.id',
+                'customer.name',
+                'customer.sn',
+            ])
+            ->selectRaw('IF(data.data IS NULL,"[]",data.data) as data')
+            ->where('data.result', '>', 0)
+            ->leftJoinSub($step2, 'data', 'customer.id', '=', 'data.customer_id');
+
+        return $re;
+    }
+
     public static function getByCategory()
     {
 
