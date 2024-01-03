@@ -1606,6 +1606,10 @@ Breadcrumbs::for('cms.customer-dividend.remain', function (BreadcrumbTrail $trai
     $trail->parent('cms.customer-dividend.index');
     $trail->push('點數剩餘紀錄');
 });
+Breadcrumbs::for('cms.customer-dividend.used', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.customer-dividend.index');
+    $trail->push('點數使用紀錄');
+});
 
 /**
  * 共用頁
