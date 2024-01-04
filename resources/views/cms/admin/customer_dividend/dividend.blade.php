@@ -13,7 +13,7 @@
                         <th scope="col" style="width:10px">#</th>
                         <th scope="col">姓名</th>
                         <th scope="col">會員編號</th>
-                        <th scope="col">剩餘點數</th>
+                        <th scope="col">發放點數</th>
                     </tr>
                 </thead>
                 <tbody>
