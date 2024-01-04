@@ -14,15 +14,19 @@
                         <th scope="col">姓名</th>
                         <th scope="col">會員編號</th>
                         <th scope="col">發放點數</th>
+                        @if($categoryName === 'cyberbiz')
+                            <th></th>
+                        @else
+                            <th scope="col">發放時間</th>
+                        @endif
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($dataList as $key => $value)
-{{--                        {{ dd($value->data) }}--}}
                         <tr>
                             <th scope="row">{{ $key + 1 }}</th>
                             <td>
-                                <a href="{{ Route('cms.customer.dividend', ['id' => $value->id], true) }}" target="_blank" >
+                                <a href="{{ Route('cms.customer.dividend', ['id' => $value->customer_id], true) }}" target="_blank" >
                                     <span class="label">
                                         {{ $value->name }}
                                     </span>
@@ -30,7 +34,12 @@
                                 </a>
                             </td>
                             <td>{{ $value->sn }}</td>
-                            <td>{{ json_decode($value->data)[0]->real_dividend }}</td>
+                            <td>{{ $value->dividend }}</td>
+                            @if($categoryName === 'cyberbiz')
+                                <td></td>
+                            @else
+                                <td>{{ $value->created_at }}</td>
+                            @endif
                         </tr>
                     @endforeach
                 </tbody>
