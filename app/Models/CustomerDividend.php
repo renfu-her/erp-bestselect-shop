@@ -462,6 +462,99 @@ class CustomerDividend extends Model
 
     /**
      * @param $category
+     * @return mixed
+     * 取得點數 點數明細：類別/姓名/點數/取得來源/取得日期
+     */
+    public static function dividencByCategory($category)
+    {
+        $getDividendSub = self::select([
+            'customer_id',
+            'category',
+            'type',
+        ])
+            ->selectRaw('SUM(dividend) as dividend')
+            ->selectRaw('SUM(IF(note LIKE "%返還", dividend, 0)) as refund')
+            ->where('category', $category)
+            ->where('type', 'get')
+            ->where('flag', "<>", DividendFlag::NonActive())
+            ->groupBy('customer_id')
+            ->groupBy('category')
+            ->groupBy('type');
+
+        $step2 = DB::query()->fromSub($getDividendSub, 'base')
+            ->select([
+                'base.customer_id',
+            ])
+            ->selectRaw(concatStr([
+                    'category' => 'base.category',
+                ]) . " as data")
+            ->selectRaw('(base.dividend - base.refund) as result')
+            ->groupBy('base.customer_id');
+
+        $re = DB::table('usr_customers as customer')
+            ->select([
+                'customer.id',
+                'customer.name',
+                'customer.sn',
+                'result',
+            ])
+            ->selectRaw('IF(data.data IS NULL,"[]",data.data) as data')
+            ->where('data.result', '>', 0)
+            ->leftJoinSub($step2, 'data', 'customer.id', '=', 'data.customer_id')
+            ->get();
+
+        $customerIds = [];
+        foreach ($re as $items) {
+            $customerIds[] = $items->id;
+        }
+        $canceled_orders =
+            self::whereIn('customer_id', $customerIds)
+                ->where('type', 'get')
+                ->where('note', 'LIKE','由O%')
+                ->where('note', 'LIKE','%返還')
+                ->select([
+                    'id',
+                    'category',
+                    'customer_id',
+                    'note',
+                    'dividend',
+                    'used_dividend',
+                ])
+                ->groupBy('id')
+                ->get();
+
+        $canceledOrderIds = [];
+        foreach ($canceled_orders as $canceledOrderId) {
+            $canceledOrderIds[] = $canceledOrderId->id;
+        }
+
+        $result =
+            self::select([
+            'usr_cusotmer_dividend.id',
+            'customer_id',
+            'sn',
+            'category',
+            'dividend',
+            'usr_cusotmer_dividend.created_at',
+            'name',
+        ])
+        ->where('category', $category)
+        ->where('type', 'get')
+        ->whereNotIn('usr_cusotmer_dividend.id', $canceledOrderIds)
+        ->where('flag', "<>", DividendFlag::NonActive())
+        ->leftJoin('usr_customers', 'customer_id', '=', 'usr_customers.id')
+        ->groupBy('customer_id')
+        ->groupBy('id')
+//        ->groupBy('category')
+//        ->groupBy('type')
+        ->orderBy('customer_id')
+        ->paginate(100);
+
+        return $result;
+    }
+
+    /**
+     * @param $category
      * @param string $property 查詢這些：發放、使用、剩餘的點數
      * 依照分類查詢點數
      * @return \Illuminate\Database\Query\Builder
