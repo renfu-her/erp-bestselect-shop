@@ -501,7 +501,7 @@ class CustomerDividend extends Model
             ->selectRaw('IF(data.data IS NULL,"[]",data.data) as data')
             ->where('data.result', '>', 0)
             ->leftJoinSub($step2, 'data', 'customer.id', '=', 'data.customer_id')
-            ->paginate(100);
+            ->get();
 
         $customerIds = [];
         foreach ($re as $items) {
@@ -544,8 +544,10 @@ class CustomerDividend extends Model
         ->where('flag', "<>", DividendFlag::NonActive())
         ->leftJoin('usr_customers', 'customer_id', '=', 'usr_customers.id')
         ->groupBy('customer_id')
-        ->groupBy('category')
-        ->groupBy('type')
+        ->groupBy('id')
+//        ->groupBy('category')
+//        ->groupBy('type')
+        ->orderBy('customer_id')
         ->paginate(100);
 
         return $result;
