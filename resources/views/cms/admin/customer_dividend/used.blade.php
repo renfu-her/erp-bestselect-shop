@@ -6,8 +6,8 @@
     @endphp
     <h2 class="mb-4">{{ \App\Enums\Discount\DividendCategory::fromValue($categoryName)->description }}點數使用紀錄</h2>
     <div class="card shadow p-4 mb-4">
-        <div class="table-responsive tableOverBox">
-            <table class="table table-striped tableList mb-1">
+        <div class="table-responsive tableOverBox mb-3">
+            <table class="table tableList border-bottom">
                 <thead class="">
                     <tr>
                         <th scope="col" style="width:10px">#</th>
@@ -20,9 +20,14 @@
                 <tbody>
                     @foreach ($dataList as $key => $value)
 {{--                        {{ dd($value->data) }}--}}
-                        <tr>
-                            <th scope="row">{{ $key + 1 }}</th>
-                            <td>
+                        @php
+                            $dataGroup = json_decode($value->data);
+                            $rows = count($dataGroup) > 0 ? count($dataGroup) + 1 : 2;
+                            $striped = $key % 2 === 0 ? 'table-light' : '';
+                        @endphp
+                        <tr class="{{ $striped }}">
+                            <th rowspan="{{ $rows }}" scope="row" class="fs-6">{{ $key + 1 }}</th>
+                            <td rowspan="{{ $rows }}">
                                 <a href="{{ Route('cms.customer.dividend', ['id' => $value->customer_id], true) }}" target="_blank" >
                                     <span class="label">
                                         {{ $value->name }}
@@ -30,9 +35,22 @@
                                     <span class="icon"><i class="bi bi-box-arrow-up-right"></i></span>
                                 </a>
                             </td>
-                            <td>{{ $value->sn }}</td>
-                            <td> {{ $value->dividend }}</td>
-                            <td> {{ $value->updated_at }}</td>
+                            <td rowspan="{{ $rows }}">{{ $value->sn }}</td>
+                            <td class="p-0 border-bottom-0" height="0"></td>
+                            <td class="p-0 border-bottom-0" height="0"></td>
+
+                            @if (count($dataGroup) > 0)
+                                @foreach($dataGroup as $group)
+                                    <tr class="{{ $striped }} -rowspan">
+                                        <td>
+                                            {{ $group->dividend }}
+                                        </td>
+                                        <td>
+                                            {{ $group->updated_at }}
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            @endif
                         </tr>
                     @endforeach
                 </tbody>

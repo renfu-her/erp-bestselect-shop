@@ -558,19 +558,39 @@ class CustomerDividend extends Model
      */
     public static function usedDividendByCategory($category)
     {
-        $query = DB::table('ord_dividend')
-            ->select([
-                'ord_dividend.dividend',
-                'category',
-                'usr_cusotmer_dividend.id',
-                'usr_cusotmer_dividend.customer_id',
-                'usr_cusotmer_dividend.updated_at',
-                'usr_customers.sn',
-                'usr_customers.name',
-            ])
+        $getDividendSub = DB::table('ord_dividend')
+                ->select([
+                    'usr_cusotmer_dividend.customer_id',
+                    'usr_cusotmer_dividend.id as dividend_id',
+                    'usr_cusotmer_dividend.updated_at',
+                    'usr_cusotmer_dividend.category',
+                    'ord_dividend.dividend',
+                ])
             ->leftJoin('usr_cusotmer_dividend', 'ord_dividend.customer_dividend_id', 'usr_cusotmer_dividend.id')
-            ->leftJoin('usr_customers', 'usr_cusotmer_dividend.customer_id', 'usr_customers.id')
-            ->where('category', $category)
+            ->where('category', $category);
+
+        $step2 = DB::query()->fromSub($getDividendSub, 'base')
+            ->select([
+                'base.customer_id',
+                'base.category',
+            ])
+            ->selectRaw(concatStr([
+                'dividend' => 'base.dividend',
+                'dividend_id' => 'base.dividend_id',
+                'updated_at' => 'base.updated_at',
+                ]) . " as data")
+            ->groupBy('base.customer_id');
+
+        $query = DB::table('usr_customers as customers')
+            ->select([
+                'customers.id as customer_id',
+                'customers.sn',
+                'customers.name',
+                'category',
+            ])
+            ->selectRaw('IF(data.data IS NULL,"[]",data.data) as data')
+            ->where('data.data', '<>', "[]")
+            ->leftJoinSub($step2, 'data', 'customers.id', 'data.customer_id')
             ->orderBy('customer_id')
             ->paginate(100);
 
