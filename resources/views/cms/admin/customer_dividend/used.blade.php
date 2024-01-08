@@ -14,6 +14,7 @@
                         <th scope="col">姓名</th>
                         <th scope="col">會員編號</th>
                         <th scope="col">使用點數</th>
+                        <th scope="col">使用時間</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -22,7 +23,7 @@
                         <tr>
                             <th scope="row">{{ $key + 1 }}</th>
                             <td>
-                                <a href="{{ Route('cms.customer.dividend', ['id' => $value->id], true) }}" target="_blank" >
+                                <a href="{{ Route('cms.customer.dividend', ['id' => $value->customer_id], true) }}" target="_blank" >
                                     <span class="label">
                                         {{ $value->name }}
                                     </span>
@@ -30,7 +31,8 @@
                                 </a>
                             </td>
                             <td>{{ $value->sn }}</td>
-                            <td>{{ json_decode($value->data)[0]->real_used_dividend }}</td>
+                            <td> {{ $value->dividend }}</td>
+                            <td> {{ $value->updated_at }}</td>
                         </tr>
                     @endforeach
                 </tbody>

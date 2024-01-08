@@ -553,6 +553,30 @@ class CustomerDividend extends Model
         return $result;
     }
 
+    /*
+     * 使用點數
+     */
+    public static function usedDividendByCategory($category)
+    {
+        $query = DB::table('ord_dividend')
+            ->select([
+                'ord_dividend.dividend',
+                'category',
+                'usr_cusotmer_dividend.id',
+                'usr_cusotmer_dividend.customer_id',
+                'usr_cusotmer_dividend.updated_at',
+                'usr_customers.sn',
+                'usr_customers.name',
+            ])
+            ->leftJoin('usr_cusotmer_dividend', 'ord_dividend.customer_dividend_id', 'usr_cusotmer_dividend.id')
+            ->leftJoin('usr_customers', 'usr_cusotmer_dividend.customer_id', 'usr_customers.id')
+            ->where('category', $category)
+            ->orderBy('customer_id')
+            ->paginate(100);
+
+        return $query;
+    }
+
     /**
      * @param $category
      * @param string $property 查詢這些：發放、使用、剩餘的點數
