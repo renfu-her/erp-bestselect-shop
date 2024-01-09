@@ -468,89 +468,91 @@ class CustomerDividend extends Model
     public static function dividencByCategory($category)
     {
         $getDividendSub = self::select([
-            'customer_id',
-            'category',
-            'type',
-        ])
-            ->selectRaw('SUM(dividend) as dividend')
-            ->selectRaw('SUM(IF(note LIKE "%返還", dividend, 0)) as refund')
+                'customer_id',
+                'category',
+                'dividend',
+                'note',
+                'id as dividend_id',
+                'created_at',
+            ])
+            ->where('note', 'NOT LIKE', "%返還")
             ->where('category', $category)
             ->where('type', 'get')
             ->where('flag', "<>", DividendFlag::NonActive())
-            ->groupBy('customer_id')
+            ->groupBy('dividend_id')
             ->groupBy('category')
             ->groupBy('type');
 
         $step2 = DB::query()->fromSub($getDividendSub, 'base')
             ->select([
                 'base.customer_id',
+                'note',
             ])
             ->selectRaw(concatStr([
+                    'dividend_id' => 'base.dividend_id',
                     'category' => 'base.category',
+                    'note' => 'base.note',
+                    'dividend' => 'base.dividend',
+                    'created_at' => 'base.created_at',
                 ]) . " as data")
-            ->selectRaw('(base.dividend - base.refund) as result')
             ->groupBy('base.customer_id');
 
-        $re = DB::table('usr_customers as customer')
+        $result = DB::table('usr_customers as customer')
             ->select([
-                'customer.id',
+                'customer.id as customer_id',
                 'customer.name',
                 'customer.sn',
-                'result',
             ])
             ->selectRaw('IF(data.data IS NULL,"[]",data.data) as data')
-            ->where('data.result', '>', 0)
+            ->where('data.data', 'NOT LIKE', "[]")
             ->leftJoinSub($step2, 'data', 'customer.id', '=', 'data.customer_id')
-            ->get();
-
-        $customerIds = [];
-        foreach ($re as $items) {
-            $customerIds[] = $items->id;
-        }
-        $canceled_orders =
-            self::whereIn('customer_id', $customerIds)
-                ->where('type', 'get')
-                ->where('note', 'LIKE','由O%')
-                ->where('note', 'LIKE','%返還')
-                ->select([
-                    'id',
-                    'category',
-                    'customer_id',
-                    'note',
-                    'dividend',
-                    'used_dividend',
-                ])
-                ->groupBy('id')
-                ->get();
-
-        $canceledOrderIds = [];
-        foreach ($canceled_orders as $canceledOrderId) {
-            $canceledOrderIds[] = $canceledOrderId->id;
-        }
-
-        $result =
-            self::select([
-            'usr_cusotmer_dividend.id',
-            'customer_id',
-            'sn',
-            'category',
-            'dividend',
-            'usr_cusotmer_dividend.created_at',
-            'name',
-        ])
-        ->where('category', $category)
-        ->where('type', 'get')
-        ->whereNotIn('usr_cusotmer_dividend.id', $canceledOrderIds)
-        ->where('flag', "<>", DividendFlag::NonActive())
-        ->leftJoin('usr_customers', 'customer_id', '=', 'usr_customers.id')
-        ->groupBy('customer_id')
-        ->groupBy('id')
-//        ->groupBy('category')
-//        ->groupBy('type')
-        ->orderBy('customer_id')
-        ->paginate(100);
+            ->paginate(100);
 
         return $result;
+    }
+
+    /*
+     * 使用點數
+     */
+    public static function usedDividendByCategory($category)
+    {
+        $getDividendSub = DB::table('ord_dividend')
+                ->select([
+                    'usr_cusotmer_dividend.customer_id',
+                    'usr_cusotmer_dividend.id as dividend_id',
+                    'usr_cusotmer_dividend.updated_at',
+                    'usr_cusotmer_dividend.category',
+                    'ord_dividend.dividend',
+                ])
+            ->leftJoin('usr_cusotmer_dividend', 'ord_dividend.customer_dividend_id', 'usr_cusotmer_dividend.id')
+            ->where('category', $category);
+
+        $step2 = DB::query()->fromSub($getDividendSub, 'base')
+            ->select([
+                'base.customer_id',
+                'base.category',
+            ])
+            ->selectRaw(concatStr([
+                'dividend' => 'base.dividend',
+                'dividend_id' => 'base.dividend_id',
+                'updated_at' => 'base.updated_at',
+                ]) . " as data")
+            ->groupBy('base.customer_id');
+
+        $query = DB::table('usr_customers as customers')
+            ->select([
+                'customers.id as customer_id',
+                'customers.sn',
+                'customers.name',
+                'category',
+            ])
+            ->selectRaw('IF(data.data IS NULL,"[]",data.data) as data')
+            ->where('data.data', '<>', "[]")
+            ->leftJoinSub($step2, 'data', 'customers.id', 'data.customer_id')
+            ->orderBy('customer_id')
+            ->paginate(100);
+
+        return $query;
     }
 
     /**

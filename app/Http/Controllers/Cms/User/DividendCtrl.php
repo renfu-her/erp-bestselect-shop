@@ -146,7 +146,7 @@ class DividendCtrl extends Controller
      */
     public function used($category)
     {
-        $dataList = CustomerDividend::queryDividendByCategory($category, 'used')->paginate(100);
+        $dataList = CustomerDividend::usedDividendByCategory($category);
 
         return view('cms.admin.customer_dividend.used', [
             'dataList' => $dataList,
