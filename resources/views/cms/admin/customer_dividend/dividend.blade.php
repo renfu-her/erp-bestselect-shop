@@ -13,9 +13,9 @@
                         <th scope="col" style="width:10px">#</th>
                         <th scope="col">姓名</th>
                         <th scope="col">會員編號</th>
-                        <th scope="col">總發放點數</th>
+{{--                        <th scope="col">總發放點數</th>--}}
                         @if($categoryName === 'cyberbiz')
-                            <th scope="col"></th>
+                            <th scope="col">發放點數</th>
                             <th scope="col"></th>
                             <th scope="col"></th>
                         @else
@@ -44,7 +44,7 @@
                                 </a>
                             </td>
                             <td rowspan="{{ $rows }}">{{ $value->sn }}</td>
-                            <td rowspan="{{ $rows }}">{{ $value->result }}</td>
+{{--                            <td rowspan="{{ $rows }}">{{ $value->result }}</td>--}}
                             <td class="p-0 border-bottom-0" height="0"></td>
                             <td class="p-0 border-bottom-0" height="0"></td>
                             <td class="p-0 border-bottom-0" height="0"></td>
@@ -53,7 +53,9 @@
                                 @foreach($dataGroup as $group)
                                     @if($categoryName === 'cyberbiz')
                                         <tr class="{{ $striped }} -rowspan">
-                                            <td></td>
+                                            <td>
+                                                {{ $group->dividend }}
+                                            </td>
                                             <td></td>
                                             <td></td>
                                         </tr>

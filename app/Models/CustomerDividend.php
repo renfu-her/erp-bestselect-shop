@@ -475,12 +475,11 @@ class CustomerDividend extends Model
                 'id as dividend_id',
                 'created_at',
             ])
-            ->selectRaw('SUM(dividend) as total_dividend')
-            ->selectRaw('SUM(IF(note LIKE "%返還", dividend, 0)) as refund')
+            ->where('note', 'NOT LIKE', "%返還")
             ->where('category', $category)
             ->where('type', 'get')
             ->where('flag', "<>", DividendFlag::NonActive())
-            ->groupBy('customer_id')
+            ->groupBy('dividend_id')
             ->groupBy('category')
             ->groupBy('type');
 
@@ -496,7 +495,6 @@ class CustomerDividend extends Model
                     'dividend' => 'base.dividend',
                     'created_at' => 'base.created_at',
                 ]) . " as data")
-            ->selectRaw('(base.total_dividend - base.refund) as result')
             ->groupBy('base.customer_id');
 
         $result = DB::table('usr_customers as customer')
@@ -504,12 +502,9 @@ class CustomerDividend extends Model
                 'customer.id as customer_id',
                 'customer.name',
                 'customer.sn',
-                'result',
-                'note',
             ])
             ->selectRaw('IF(data.data IS NULL,"[]",data.data) as data')
-            ->where('data.note', 'NOT LIKE', "%返還")
-            ->where('data.result', '>', 0)
+            ->where('data.data', 'NOT LIKE', "[]")
             ->leftJoinSub($step2, 'data', 'customer.id', '=', 'data.customer_id')
             ->paginate(100);
 
