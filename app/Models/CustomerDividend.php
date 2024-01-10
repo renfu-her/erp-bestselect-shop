@@ -516,16 +516,36 @@ class CustomerDividend extends Model
      */
     public static function usedDividendByCategory($category)
     {
-        $getDividendSub = DB::table('ord_dividend')
+        $dividendIds = DB::table('ord_dividend')
                 ->select([
-                    'usr_cusotmer_dividend.customer_id',
                     'usr_cusotmer_dividend.id as dividend_id',
-                    'usr_cusotmer_dividend.updated_at',
-                    'usr_cusotmer_dividend.category',
-                    'ord_dividend.dividend',
                 ])
-            ->leftJoin('usr_cusotmer_dividend', 'ord_dividend.customer_dividend_id', 'usr_cusotmer_dividend.id')
-            ->where('category', $category);
+                ->leftJoin('usr_cusotmer_dividend', 'ord_dividend.customer_dividend_id', 'usr_cusotmer_dividend.id')
+                ->where('category', $category)
+                ->orderBy('dividend_id')
+                ->groupBy('dividend_id')
+                ->get()
+                ->toArray();
+        $ids = [];
+        foreach ($dividendIds as $item) {
+            $ids[] = $item->dividend_id;
+        }
+
+       $orderSns = DB::table('ord_dividend')
+           ->select([
+               'order_sn',
+           ])
+           ->whereIn('customer_dividend_id', $ids)
+            ->get()
+            ->toArray();
+        $snArray = [];
+        foreach ($orderSns as $orderSn) {
+            $snArray[] = $orderSn->order_sn;
+        }
+        $getDividendSub = DB::table('usr_cusotmer_dividend')
+                        ->where('type', 'used')
+                        ->whereIn('category_sn', $snArray)
+                        ->orderBy('customer_id');
 
         $step2 = DB::query()->fromSub($getDividendSub, 'base')
             ->select([
@@ -534,7 +554,8 @@ class CustomerDividend extends Model
             ])
             ->selectRaw(concatStr([
                 'dividend' => 'base.dividend',
-                'dividend_id' => 'base.dividend_id',
+                'dividend_id' => 'base.id',
+                'note' => 'base.note',
                 'updated_at' => 'base.updated_at',
                 ]) . " as data")
             ->groupBy('base.customer_id');

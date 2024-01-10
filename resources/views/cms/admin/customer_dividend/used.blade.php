@@ -15,6 +15,7 @@
                         <th scope="col">會員編號</th>
                         <th scope="col">使用點數</th>
                         <th scope="col">使用時間</th>
+                        <th scope="col">備註</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -47,6 +48,9 @@
                                         </td>
                                         <td>
                                             {{ $group->updated_at }}
+                                        </td>
+                                        <td>
+                                            {{ $group->note }}
                                         </td>
                                     </tr>
                                 @endforeach
