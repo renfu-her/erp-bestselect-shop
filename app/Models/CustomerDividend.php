@@ -533,18 +533,32 @@ class CustomerDividend extends Model
 
        $orderSns = DB::table('ord_dividend')
            ->select([
+               'id as ord_dividend_id',
                'order_sn',
            ])
            ->whereIn('customer_dividend_id', $ids)
             ->get()
             ->toArray();
+        $idArray = [];
         $snArray = [];
         foreach ($orderSns as $orderSn) {
+            $idArray[] = $orderSn->ord_dividend_id;
             $snArray[] = $orderSn->order_sn;
         }
         $getDividendSub = DB::table('usr_cusotmer_dividend')
+                        ->select([
+                           'usr_cusotmer_dividend.id',
+                           'usr_cusotmer_dividend.note',
+                           'usr_cusotmer_dividend.customer_id',
+                           'usr_cusotmer_dividend.category',
+                           'usr_cusotmer_dividend.updated_at',
+                           'ord_dividend.id as divid_id',
+                           'ord_dividend.dividend',
+                        ])
                         ->where('type', 'used')
                         ->whereIn('category_sn', $snArray)
+                        ->leftJoin('ord_dividend', 'ord_dividend.order_sn', 'usr_cusotmer_dividend.category_sn')
+                        ->whereIn('ord_dividend.id', $idArray)
                         ->orderBy('customer_id');
 
         $step2 = DB::query()->fromSub($getDividendSub, 'base')
