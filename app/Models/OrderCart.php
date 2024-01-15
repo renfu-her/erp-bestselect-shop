@@ -57,7 +57,6 @@ class OrderCart extends Model
 
         // dd($cart->get()->toArray());
         return $cart;
-
     }
     /**
      * @param array $coupon_obj ["type"=>"code/sn","value"=>"string"]
@@ -229,7 +228,6 @@ class OrderCart extends Model
                         }
 
                         $currentCoupon->user_coupon_id = $coupon_obj[1];
-
                     }
                     break;
             }
@@ -247,16 +245,17 @@ class OrderCart extends Model
         if ($re['success'] == '0') {
             return $re;
         }
-      
-        self::getDividendStage($order, $_tempProducts);
+
         self::shipmentStage($order);
 
         if ($order['discounted_price'] < 0) {
             $order['discounted_price'] = 0;
         }
 
+        self::getDividendStage($order, $_tempProducts);
+
         $order['total_price'] = $order['discounted_price'] + $order['dlv_fee'];
-        if($order['total_price'] < 10){
+        if ($order['total_price'] < 10) {
             return [
                 'success' => '0',
                 'error_msg' => '總金額不能低於10',
@@ -266,7 +265,6 @@ class OrderCart extends Model
         $order['success'] = 1;
 
         return $order;
-
     }
 
     private static function globalStage(&$order, &$_tempProducts)
@@ -289,15 +287,12 @@ class OrderCart extends Model
 
                                 $cash->currentDiscount = intval(floor($order['origin_price'] / $cash->min_consume) * $cash->discount_value);
                                 $cash->title = $cash->title . "(累計)";
-
                             } else {
                                 $cash->currentDiscount = $cash->discount_value;
                             }
 
                             $dis[] = $cash;
-
                         }
-
                     }
 
                     break;
@@ -331,7 +326,6 @@ class OrderCart extends Model
                         }
                     }
                     break;
-
             }
         }
 
@@ -350,7 +344,6 @@ class OrderCart extends Model
         foreach ($coupons as $coupon) {
             $order['discounts'][] = $coupon;
         }
-
     }
 
     private static function _discountReturnToProducts($discount, &$order, &$_tempProducts)
@@ -388,7 +381,6 @@ class OrderCart extends Model
             }
 
             $_tempProducts[$key]['total_price'] = $order['shipments'][$p['groupIdx']]->products[$p['productIdx']]->discounted_price;
-
         }
 
         $fix = $discount->currentDiscount - $calc;
@@ -408,7 +400,6 @@ class OrderCart extends Model
         }
 
         $order['shipments'][$p['groupIdx']]->products[$p['productIdx']]->discounts[count($order['shipments'][$p['groupIdx']]->products[$p['productIdx']]->discounts) - 1]->currentDiscount += $fix;
-
     }
 
     private static function couponStage(&$order, $currentCoupon, $_tempProducts)
@@ -439,9 +430,11 @@ class OrderCart extends Model
             }
         } else {
 
-            $couponTargetProducts = ['styles' => [],
+            $couponTargetProducts = [
+                'styles' => [],
                 'total_price' => 0,
-                'discount' => 0];
+                'discount' => 0
+            ];
             //  dd($currentCoupon);
             foreach ($_tempProducts as $value) {
                 if (in_array($value['product_id'], $currentCoupon->product_ids)) {
@@ -465,19 +458,15 @@ class OrderCart extends Model
 
                         break;
                     default:
-
                 }
                 self::_discountReturnToProducts($currentCoupon, $order, $couponTargetProducts['styles']);
 
                 $order['discounts'][] = $currentCoupon;
-
             }
-
         }
 
         $order['discounted_price'] -= $discount_value;
         $order['discount_value'] += $discount_value;
-
     }
 
     private static function useDividendStage(&$order, $customer)
@@ -538,16 +527,16 @@ class OrderCart extends Model
                         $order['shipments'][$idx]->discounts[] = $sub_discountObj;
                     }
                 }
-
             } else {
-                return ['success' => '0',
+                return [
+                    'success' => '0',
                     'error_msg' => '超過鴻利折抵額度',
-                    'error_status' => 'dividend'];
+                    'error_status' => 'dividend'
+                ];
             }
         }
 
         return ['success' => '1'];
-
     }
 
     private static function getDividendStage(&$order, $_tempProducts)
@@ -555,7 +544,8 @@ class OrderCart extends Model
         $salechannel = SaleChannel::where('id', $order['salechannel_id'])->get()->first();
         $today = date('Y-m-d H:i:s');
 
-        if ($salechannel->event_sdate && $salechannel->event_edate &&
+        if (
+            $salechannel->event_sdate && $salechannel->event_edate &&
             ($today >= date('Y-m-d H:i:s', strtotime($salechannel->event_sdate)) &&
                 $today <= strtotime($salechannel->event_edate))
         ) {
@@ -563,11 +553,13 @@ class OrderCart extends Model
         } else {
             $rate = $salechannel->dividend_rate;
         }
-       
-        foreach ($_tempProducts as $value) {
-            
-            $order['get_dividend'] += floor($value['total_price'] * $rate / 100);
-        }
+
+        $order['get_dividend'] = floor($order['discounted_price'] * $rate / 100);
+
+        // foreach ($_tempProducts as $value) {
+
+        //     $order['get_dividend'] += floor($value['total_price'] * $rate / 100);
+        // }
 
     }
 
@@ -590,7 +582,6 @@ class OrderCart extends Model
                             if ($discounted_price >= $rule->max_price) {
                                 $order['shipments'][$key]->dlv_fee = $rule->dlv_fee;
                                 $use_rule = $rule;
-
                             }
                         }
 
@@ -602,12 +593,9 @@ class OrderCart extends Model
                     break;
                 default:
                     $order['shipments'][$key]->dlv_fee = 0;
-
             }
 
             $order['dlv_fee'] += $order['shipments'][$key]->dlv_fee;
-
         }
     }
-
 }
