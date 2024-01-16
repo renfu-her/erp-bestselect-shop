@@ -303,7 +303,7 @@ class CustomerDividend extends Model
             ->selectRaw($concatString . ' as dividends')
             ->where('customer_id', $customer_id)
             ->groupBy('customer_id')->get()->first();
-      
+
         if (!$exp) {
             return;
         }
@@ -609,12 +609,15 @@ class CustomerDividend extends Model
         $getDividendSub = self::select(['customer_id', 'category', 'type', 'note'])
             ->selectRaw('SUM(dividend) as dividend')
             ->selectRaw('SUM(used_dividend) as used_dividend')
-            ->selectRaw('SUM(IF(note LIKE "%返還", dividend, 0)) as refund')
-            ->where('category', $category)
-            ->where('type', 'get')
+            ->selectRaw('SUM(IF(note LIKE "%返還", dividend, 0)) as refund');
+
+        if ($category !== 'all') {
+            $getDividendSub->where('category', $category);
+        }
+
+        $getDividendSub->where('type', 'get')
             ->where('flag', "<>", DividendFlag::NonActive())
             ->groupBy('customer_id')
-            ->groupBy('category')
             ->groupBy('type');
         //TODO 已使用total used_dividend= used_dividend(non-back-order + back-order) - dividend(back only)
         //TODO 發放 dividend(non-back-order + back-order) - dividend(back only)
