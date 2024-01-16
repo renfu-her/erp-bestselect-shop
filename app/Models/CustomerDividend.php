@@ -303,7 +303,7 @@ class CustomerDividend extends Model
             ->selectRaw($concatString . ' as dividends')
             ->where('customer_id', $customer_id)
             ->groupBy('customer_id')->get()->first();
-      
+
         if (!$exp) {
             return;
         }
@@ -475,9 +475,13 @@ class CustomerDividend extends Model
                 'id as dividend_id',
                 'created_at',
             ])
-            ->where('note', 'NOT LIKE', "%返還")
-            ->where('category', $category)
-            ->where('type', 'get')
+            ->where('note', 'NOT LIKE', "%返還");
+
+        if ($category !== 'all') {
+            $getDividendSub->where('category', $category);
+        }
+
+        $getDividendSub->where('type', 'get')
             ->where('flag', "<>", DividendFlag::NonActive())
             ->groupBy('dividend_id')
             ->groupBy('category')
@@ -520,9 +524,13 @@ class CustomerDividend extends Model
                 ->select([
                     'usr_cusotmer_dividend.id as dividend_id',
                 ])
-                ->leftJoin('usr_cusotmer_dividend', 'ord_dividend.customer_dividend_id', 'usr_cusotmer_dividend.id')
-                ->where('category', $category)
-                ->orderBy('dividend_id')
+                ->leftJoin('usr_cusotmer_dividend', 'ord_dividend.customer_dividend_id', 'usr_cusotmer_dividend.id');
+
+        if ($category !== 'all'){
+            $dividendIds->where('category', $category);
+        }
+
+        $dividendIds = $dividendIds->orderBy('dividend_id')
                 ->groupBy('dividend_id')
                 ->get()
                 ->toArray();
@@ -592,8 +600,7 @@ class CustomerDividend extends Model
 
     /**
      * @param $category
-     * @param string $property 查詢這些：發放、使用、剩餘的點數
-     * 依照分類查詢點數
+     * @param string $property 查詢剩餘的點數
      * @return \Illuminate\Database\Query\Builder
      */
     public static function queryDividendByCategory($category, $property)
@@ -601,15 +608,18 @@ class CustomerDividend extends Model
         $getDividendSub = self::select(['customer_id', 'category', 'type', 'note'])
             ->selectRaw('SUM(dividend) as dividend')
             ->selectRaw('SUM(used_dividend) as used_dividend')
-            ->selectRaw('SUM(IF(note LIKE "%返還", dividend, 0)) as refund')
-            ->where('category', $category)
-            ->where('type', 'get')
+            ->selectRaw('SUM(IF(note LIKE "%返還", dividend, 0)) as refund');
+
+        if ($category !== 'all') {
+            $getDividendSub->where('category', $category);
+        }
+
+        $getDividendSub->where('type', 'get')
             ->where('flag', "<>", DividendFlag::NonActive())
             ->groupBy('customer_id')
-            ->groupBy('category')
             ->groupBy('type');
-        //TODO 已使用total used_dividend= used_dividend(non-back-order + back-order) - dividend(back only)
-        //TODO 發放 dividend(non-back-order + back-order) - dividend(back only)
+        // 已使用total used_dividend= used_dividend(non-back-order + back-order) - dividend(back only)
+        // 發放 dividend(non-back-order + back-order) - dividend(back only)
         //類別/姓名/點數/使用備註/使用日期
         //取得來源/取得日期
 
@@ -630,10 +640,6 @@ class CustomerDividend extends Model
 
         if ($property === 'remain') {
             $step2->selectRaw('(base.dividend - base.used_dividend) as result');
-        } elseif ($property === 'used') {
-            $step2->selectRaw('(base.used_dividend - base.refund) as result');
-        } elseif ($property === 'dividend') {
-            $step2->selectRaw('(base.dividend - base.refund) as result');
         }
 
         $step2->groupBy('base.customer_id');

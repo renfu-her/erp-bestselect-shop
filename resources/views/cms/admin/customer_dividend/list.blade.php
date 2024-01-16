@@ -40,7 +40,11 @@
                             </a>
                         </td>
                     @endforeach
-                    <td>{{ number_format(collect($total)->sum('dividend')) }}</td>
+                    <td>
+                        <a href="{{ route('cms.customer-dividend.dividend', ['category' => 'all']) }}">
+                            {{ number_format(collect($total)->sum('dividend')) }}
+                        </a>
+                    </td>
                 </tr>
                 <tr>
                     <td class="table-primary lh-sm">使用</td>
@@ -51,7 +55,11 @@
                             </a>
                         </td>
                     @endforeach
-                    <td>{{ number_format(collect($total)->sum('used_dividend')) }}</td>
+                    <td>
+                        <a href="{{ route('cms.customer-dividend.used', ['category' => 'all']) }}">
+                            {{ number_format(collect($total)->sum('used_dividend')) }}
+                        </a>
+                    </td>
                 </tr>
                 <tr>
                     <td class="table-primary lh-sm">剩餘</td>
@@ -62,7 +70,11 @@
                             </a>
                         </td>
                     @endforeach
-                    <td>{{ number_format(collect($total)->sum('remain_dividend')) }}</td>
+                    <td>
+                        <a href="{{ route('cms.customer-dividend.remain', ['category' => 'all']) }}">
+                            {{ number_format(collect($total)->sum('remain_dividend')) }}
+                        </a>
+                    </td>
                 </tr>
                 <tr>
                     <td class="table-primary lh-sm">使用率</td>
