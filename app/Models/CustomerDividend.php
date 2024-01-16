@@ -475,9 +475,13 @@ class CustomerDividend extends Model
                 'id as dividend_id',
                 'created_at',
             ])
-            ->where('note', 'NOT LIKE', "%返還")
-            ->where('category', $category)
-            ->where('type', 'get')
+            ->where('note', 'NOT LIKE', "%返還");
+
+        if ($category !== 'all') {
+            $getDividendSub->where('category', $category);
+        }
+
+        $getDividendSub->where('type', 'get')
             ->where('flag', "<>", DividendFlag::NonActive())
             ->groupBy('dividend_id')
             ->groupBy('category')

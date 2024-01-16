@@ -4,7 +4,12 @@
         $categories = \Illuminate\Support\Facades\Request::segments();
         $categoryName = end($categories);
     @endphp
-    <h2 class="mb-4">{{ \App\Enums\Discount\DividendCategory::fromValue($categoryName)->description }}點數發放紀錄</h2>
+    <h2 class="mb-4">
+        @if(\App\Enums\Discount\DividendCategory::hasValue($categoryName))
+            {{ \App\Enums\Discount\DividendCategory::fromValue($categoryName)->description }}
+        @endif
+        點數發放紀錄
+    </h2>
     <div class="card shadow p-4 mb-4">
         <div class="table-responsive tableOverBox mb-3">
             <table class="table tableList border-bottom">
