@@ -55,7 +55,11 @@
                             </a>
                         </td>
                     @endforeach
-                    <td>{{ number_format(collect($total)->sum('used_dividend')) }}</td>
+                    <td>
+                        <a href="{{ route('cms.customer-dividend.used', ['category' => 'all']) }}">
+                            {{ number_format(collect($total)->sum('used_dividend')) }}
+                        </a>
+                    </td>
                 </tr>
                 <tr>
                     <td class="table-primary lh-sm">剩餘</td>

@@ -524,9 +524,13 @@ class CustomerDividend extends Model
                 ->select([
                     'usr_cusotmer_dividend.id as dividend_id',
                 ])
-                ->leftJoin('usr_cusotmer_dividend', 'ord_dividend.customer_dividend_id', 'usr_cusotmer_dividend.id')
-                ->where('category', $category)
-                ->orderBy('dividend_id')
+                ->leftJoin('usr_cusotmer_dividend', 'ord_dividend.customer_dividend_id', 'usr_cusotmer_dividend.id');
+
+        if ($category !== 'all'){
+            $dividendIds->where('category', $category);
+        }
+
+        $dividendIds = $dividendIds->orderBy('dividend_id')
                 ->groupBy('dividend_id')
                 ->get()
                 ->toArray();
