@@ -600,8 +600,7 @@ class CustomerDividend extends Model
 
     /**
      * @param $category
-     * @param string $property 查詢這些：發放、使用、剩餘的點數
-     * 依照分類查詢點數
+     * @param string $property 查詢剩餘的點數
      * @return \Illuminate\Database\Query\Builder
      */
     public static function queryDividendByCategory($category, $property)
@@ -619,8 +618,8 @@ class CustomerDividend extends Model
             ->where('flag', "<>", DividendFlag::NonActive())
             ->groupBy('customer_id')
             ->groupBy('type');
-        //TODO 已使用total used_dividend= used_dividend(non-back-order + back-order) - dividend(back only)
-        //TODO 發放 dividend(non-back-order + back-order) - dividend(back only)
+        // 已使用total used_dividend= used_dividend(non-back-order + back-order) - dividend(back only)
+        // 發放 dividend(non-back-order + back-order) - dividend(back only)
         //類別/姓名/點數/使用備註/使用日期
         //取得來源/取得日期
 
@@ -641,10 +640,6 @@ class CustomerDividend extends Model
 
         if ($property === 'remain') {
             $step2->selectRaw('(base.dividend - base.used_dividend) as result');
-        } elseif ($property === 'used') {
-            $step2->selectRaw('(base.used_dividend - base.refund) as result');
-        } elseif ($property === 'dividend') {
-            $step2->selectRaw('(base.dividend - base.refund) as result');
         }
 
         $step2->groupBy('base.customer_id');
