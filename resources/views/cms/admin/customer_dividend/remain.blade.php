@@ -8,7 +8,7 @@
         @if(\App\Enums\Discount\DividendCategory::hasValue($categoryName))
             {{ \App\Enums\Discount\DividendCategory::fromValue($categoryName)->description }}
         @endif
-        點數使用紀錄
+        剩餘點數
     </h2>
     <div class="card shadow p-4 mb-4">
         <div class="table-responsive tableOverBox">
