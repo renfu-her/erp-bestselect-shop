@@ -646,10 +646,10 @@ Breadcrumbs::for('cms.coupon-event.create', function (BreadcrumbTrail $trail) {
     $trail->push('新增');
 });
 
-//縮短網址產生器
+//網址優化產生器
 Breadcrumbs::for('cms.utm-url.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
-    $trail->push('縮短網址產生器', route('cms.utm-url.index'));
+    $trail->push('網址優化產生器', route('cms.utm-url.index'));
 });
 
 // EDM

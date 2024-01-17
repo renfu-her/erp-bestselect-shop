@@ -133,7 +133,7 @@ return
                 "route_name" => "cms.coupon-event.index",
             ],
             [
-                "title" => "縮短網址產生器",
+                "title" => "網址優化產生器",
                 "controller_name" => "UtmUrlCtrl",
                 "route_name" => "cms.utm-url.index",
             ],

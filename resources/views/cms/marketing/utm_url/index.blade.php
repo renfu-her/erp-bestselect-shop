@@ -1,6 +1,6 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h2 class="mb-4">縮短網址產生器</h2>
+    <h2 class="mb-4">網址優化產生器</h2>
 
     <div class="card shadow p-4 mb-4">
         <form id="form">
