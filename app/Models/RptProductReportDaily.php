@@ -74,6 +74,7 @@ class RptProductReportDaily extends Model
             ->whereNotNull('ro.receipt_date')
             ->whereBetween('ro.receipt_date', [$sdate, $edate])
             ->where('ro.source_type', 'ord_orders')
+            ->where('order.status_code','received')
             ->groupBy('date')
             ->groupBy('product.id')
             ->groupBy('style.id')
