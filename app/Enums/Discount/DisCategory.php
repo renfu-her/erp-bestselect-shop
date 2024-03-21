@@ -87,6 +87,9 @@ final class DisCategory extends Helper
             case self::m_b2b:
                 $result = 12;
                 break;
+            case self::m_b2ec:
+                $result = 12;
+                break;
             case self::dividend:
                 $result = 12;
                 break;
@@ -108,5 +111,4 @@ final class DisCategory extends Helper
         }
         return $result;
     }
-
 }
