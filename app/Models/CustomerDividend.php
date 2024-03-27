@@ -122,7 +122,7 @@ class CustomerDividend extends Model
 
     public static function decrease($customer_id, DividendFlag $flag, $point, $note = null)
     {
-       
+
         $id = self::create([
             'customer_id' => $customer_id,
             'dividend' => $point,
@@ -131,8 +131,6 @@ class CustomerDividend extends Model
             'weight' => 0,
             'type' => 'used',
             'note' => $note,
-            'category' => $flag,
-            'category_sn' => DividendFlag::fromValue($flag)->description
         ])->id;
 
         return $id;
@@ -522,6 +520,8 @@ class CustomerDividend extends Model
      */
     public static function usedDividendByCategory($category)
     {
+
+
         $dividendIds = DB::table('ord_dividend')
             ->select([
                 'usr_cusotmer_dividend.id as dividend_id',
@@ -607,54 +607,26 @@ class CustomerDividend extends Model
      */
     public static function queryDividendByCategory($category, $property)
     {
-        $getDividendSub = self::select(['customer_id', 'category', 'type', 'note'])
-            ->selectRaw('SUM(dividend) as dividend')
-            ->selectRaw('SUM(used_dividend) as used_dividend')
-            ->selectRaw('SUM(IF(note LIKE "%返還", dividend, 0)) as refund');
+        $getDividendSub = self::select(['customer_id'])
+            ->selectRaw('SUM(dividend-used_dividend) as dividend')
+            ->where('flag', DividendFlag::Active())
+            ->groupBy('customer_id');
 
+        // dd($getDividendSub->get()->toArray());
         if ($category !== 'all') {
             $getDividendSub->where('category', $category);
         }
 
-        $getDividendSub->where('type', 'get')
-            ->where('flag', "<>", DividendFlag::NonActive())
-            ->groupBy('customer_id')
-            ->groupBy('type');
-        // 已使用total used_dividend= used_dividend(non-back-order + back-order) - dividend(back only)
-        // 發放 dividend(non-back-order + back-order) - dividend(back only)
-        //類別/姓名/點數/使用備註/使用日期
-        //取得來源/取得日期
-
-        $step2 = DB::query()->fromSub($getDividendSub, 'base')
-            ->select([
-                'base.customer_id',
-            ])
-            ->selectRaw(concatStr([
-                'category' => 'base.category',
-                'type' => 'base.type',
-                'dividend' => 'base.dividend',
-                'ori_used_dividend' => 'base.used_dividend',
-                'refund' => 'base.refund',
-                'real_used_dividend' => 'base.used_dividend - base.refund',
-                'real_dividend' => 'base.dividend - base.refund',
-                'remain_dividend' => 'base.dividend - base.used_dividend',
-            ]) . " as data");
-
-        if ($property === 'remain') {
-            $step2->selectRaw('(base.dividend - base.used_dividend) as result');
-        }
-
-        $step2->groupBy('base.customer_id');
-
         $re = DB::table('usr_customers as customer')
+            ->leftJoinSub($getDividendSub, 'data', 'customer.id', '=', 'data.customer_id')
             ->select([
                 'customer.id',
                 'customer.name',
                 'customer.sn',
+                'data.dividend'
             ])
-            ->selectRaw('IF(data.data IS NULL,"[]",data.data) as data')
-            ->where('data.result', '>', 0)
-            ->leftJoinSub($step2, 'data', 'customer.id', '=', 'data.customer_id');
+            ->whereNotNull('data.dividend')
+            ->where('data.dividend', '>', 0);
 
         return $re;
     }

@@ -35,7 +35,7 @@
                                 </a>
                             </td>
                             <td>{{ $value->sn }}</td>
-                            <td>{{ json_decode($value->data)[0]->remain_dividend }}</td>
+                            <td>{{  $value->dividend }}</td>
                         </tr>
                     @endforeach
                 </tbody>

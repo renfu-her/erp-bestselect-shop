@@ -39,11 +39,12 @@ class DividendCtrl extends Controller
 
         $keyword = Arr::get($query, 'keyword');
 
+      //  dd($dataList = CustomerDividend::totalList($keyword)->get()->toArray());
         $dataList = CustomerDividend::totalList($keyword)->paginate(100)->appends($query);
         CustomerDividend::format($dataList);
 
         $total = CustomerDividend::getByCategory();
-     
+       
         //  dd( CustomerDividend::totalList($keyword)->limit(10)->get()->toArray());
         return view('cms.admin.customer_dividend.list', [
             'dataList' => $dataList,
