@@ -122,7 +122,7 @@ class CustomerDividend extends Model
 
     public static function decrease($customer_id, DividendFlag $flag, $point, $note = null)
     {
-
+       
         $id = self::create([
             'customer_id' => $customer_id,
             'dividend' => $point,
@@ -131,6 +131,8 @@ class CustomerDividend extends Model
             'weight' => 0,
             'type' => 'used',
             'note' => $note,
+            'category' => $flag,
+            'category_sn' => DividendFlag::fromValue($flag)->description
         ])->id;
 
         return $id;
@@ -389,8 +391,8 @@ class CustomerDividend extends Model
     public static function totalList($keyword = null)
     {
         //get訂單返還的訂單編號, 例：由O202312060004訂單返還
-        $canceled_orders = self::where('note', 'LIKE','由O%')
-            ->where('note', 'LIKE','%返還')
+        $canceled_orders = self::where('note', 'LIKE', '由O%')
+            ->where('note', 'LIKE', '%返還')
             ->get();
         $canceled_orders_ids = $canceled_orders->groupBy('id')->toArray();
         $canceled_orders_notes = $canceled_orders->groupBy('note')->toArray();
@@ -398,7 +400,7 @@ class CustomerDividend extends Model
         $canceledOrders = [];
         foreach (array_keys($canceled_orders_notes) as $canceledOrder) {
             //substr 例：由O202312060004訂單返還
-            $canceledOrders[] = mb_substr( $canceledOrder, 1, -4, 'utf-8');
+            $canceledOrders[] = mb_substr($canceledOrder, 1, -4, 'utf-8');
         }
 
         $getDividendSub = self::select(['customer_id', 'category', 'type'])
@@ -468,13 +470,13 @@ class CustomerDividend extends Model
     public static function dividencByCategory($category)
     {
         $getDividendSub = self::select([
-                'customer_id',
-                'category',
-                'dividend',
-                'note',
-                'id as dividend_id',
-                'created_at',
-            ])
+            'customer_id',
+            'category',
+            'dividend',
+            'note',
+            'id as dividend_id',
+            'created_at',
+        ])
             ->where('note', 'NOT LIKE', "%返還");
 
         if ($category !== 'all') {
@@ -493,12 +495,12 @@ class CustomerDividend extends Model
                 'note',
             ])
             ->selectRaw(concatStr([
-                    'dividend_id' => 'base.dividend_id',
-                    'category' => 'base.category',
-                    'note' => 'base.note',
-                    'dividend' => 'base.dividend',
-                    'created_at' => 'base.created_at',
-                ]) . " as data")
+                'dividend_id' => 'base.dividend_id',
+                'category' => 'base.category',
+                'note' => 'base.note',
+                'dividend' => 'base.dividend',
+                'created_at' => 'base.created_at',
+            ]) . " as data")
             ->groupBy('base.customer_id');
 
         $result = DB::table('usr_customers as customer')
@@ -521,30 +523,30 @@ class CustomerDividend extends Model
     public static function usedDividendByCategory($category)
     {
         $dividendIds = DB::table('ord_dividend')
-                ->select([
-                    'usr_cusotmer_dividend.id as dividend_id',
-                ])
-                ->leftJoin('usr_cusotmer_dividend', 'ord_dividend.customer_dividend_id', 'usr_cusotmer_dividend.id');
+            ->select([
+                'usr_cusotmer_dividend.id as dividend_id',
+            ])
+            ->leftJoin('usr_cusotmer_dividend', 'ord_dividend.customer_dividend_id', 'usr_cusotmer_dividend.id');
 
-        if ($category !== 'all'){
+        if ($category !== 'all') {
             $dividendIds->where('category', $category);
         }
 
         $dividendIds = $dividendIds->orderBy('dividend_id')
-                ->groupBy('dividend_id')
-                ->get()
-                ->toArray();
+            ->groupBy('dividend_id')
+            ->get()
+            ->toArray();
         $ids = [];
         foreach ($dividendIds as $item) {
             $ids[] = $item->dividend_id;
         }
 
-       $orderSns = DB::table('ord_dividend')
-           ->select([
-               'id as ord_dividend_id',
-               'order_sn',
-           ])
-           ->whereIn('customer_dividend_id', $ids)
+        $orderSns = DB::table('ord_dividend')
+            ->select([
+                'id as ord_dividend_id',
+                'order_sn',
+            ])
+            ->whereIn('customer_dividend_id', $ids)
             ->get()
             ->toArray();
         $idArray = [];
@@ -554,20 +556,20 @@ class CustomerDividend extends Model
             $snArray[] = $orderSn->order_sn;
         }
         $getDividendSub = DB::table('usr_cusotmer_dividend')
-                        ->select([
-                           'usr_cusotmer_dividend.id',
-                           'usr_cusotmer_dividend.note',
-                           'usr_cusotmer_dividend.customer_id',
-                           'usr_cusotmer_dividend.category',
-                           'usr_cusotmer_dividend.updated_at',
-                           'ord_dividend.id as divid_id',
-                           'ord_dividend.dividend',
-                        ])
-                        ->where('type', 'used')
-                        ->whereIn('category_sn', $snArray)
-                        ->leftJoin('ord_dividend', 'ord_dividend.order_sn', 'usr_cusotmer_dividend.category_sn')
-                        ->whereIn('ord_dividend.id', $idArray)
-                        ->orderBy('customer_id');
+            ->select([
+                'usr_cusotmer_dividend.id',
+                'usr_cusotmer_dividend.note',
+                'usr_cusotmer_dividend.customer_id',
+                'usr_cusotmer_dividend.category',
+                'usr_cusotmer_dividend.updated_at',
+                'ord_dividend.id as divid_id',
+                'ord_dividend.dividend',
+            ])
+            ->where('type', 'used')
+            ->whereIn('category_sn', $snArray)
+            ->leftJoin('ord_dividend', 'ord_dividend.order_sn', 'usr_cusotmer_dividend.category_sn')
+            ->whereIn('ord_dividend.id', $idArray)
+            ->orderBy('customer_id');
 
         $step2 = DB::query()->fromSub($getDividendSub, 'base')
             ->select([
@@ -579,7 +581,7 @@ class CustomerDividend extends Model
                 'dividend_id' => 'base.id',
                 'note' => 'base.note',
                 'updated_at' => 'base.updated_at',
-                ]) . " as data")
+            ]) . " as data")
             ->groupBy('base.customer_id');
 
         $query = DB::table('usr_customers as customers')
@@ -628,15 +630,15 @@ class CustomerDividend extends Model
                 'base.customer_id',
             ])
             ->selectRaw(concatStr([
-                    'category' => 'base.category',
-                    'type' => 'base.type',
-                    'dividend' => 'base.dividend',
-                    'ori_used_dividend' => 'base.used_dividend',
-                    'refund' => 'base.refund',
-                    'real_used_dividend' => 'base.used_dividend - base.refund',
-                    'real_dividend' => 'base.dividend - base.refund',
-                    'remain_dividend' => 'base.dividend - base.used_dividend',
-                ]) . " as data");
+                'category' => 'base.category',
+                'type' => 'base.type',
+                'dividend' => 'base.dividend',
+                'ori_used_dividend' => 'base.used_dividend',
+                'refund' => 'base.refund',
+                'real_used_dividend' => 'base.used_dividend - base.refund',
+                'real_dividend' => 'base.dividend - base.refund',
+                'remain_dividend' => 'base.dividend - base.used_dividend',
+            ]) . " as data");
 
         if ($property === 'remain') {
             $step2->selectRaw('(base.dividend - base.used_dividend) as result');
@@ -670,16 +672,16 @@ class CustomerDividend extends Model
         $categoryCase .= ' END as category_ch';
 
         //get訂單返還的訂單編號, 例：由O202312060004訂單返還
-        $canceled_orders = self::where('note', 'LIKE','由O%')
-                                ->where('note', 'LIKE','%返還')
-                                ->select([
-                                    'id',
-                                    'category',
-                                    'note',
-                                    'dividend',
-                                    'used_dividend',
-                                ])
-                                ->get();
+        $canceled_orders = self::where('note', 'LIKE', '由O%')
+            ->where('note', 'LIKE', '%返還')
+            ->select([
+                'id',
+                'category',
+                'note',
+                'dividend',
+                'used_dividend',
+            ])
+            ->get();
         $canceled_orders_ids = $canceled_orders->groupBy('id')->toArray();
         $canceled_orders_notes = $canceled_orders->groupBy('note')->toArray();
         $canceled_orders_categories = $canceled_orders->groupBy('category')->toArray();
@@ -695,7 +697,7 @@ class CustomerDividend extends Model
         $canceledOrders = [];
         foreach (array_keys($canceled_orders_notes) as $canceledOrder) {
             //substr 例：由O202312060004訂單返還
-            $canceledOrders[] = mb_substr( $canceledOrder, 1, -4, 'utf-8');
+            $canceledOrders[] = mb_substr($canceledOrder, 1, -4, 'utf-8');
         }
 
         $re = self::select(['type', 'category'])
