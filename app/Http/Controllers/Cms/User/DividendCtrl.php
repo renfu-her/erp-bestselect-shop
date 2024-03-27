@@ -19,6 +19,7 @@ class DividendCtrl extends Controller
     public function index(Request $request)
     {
         //
+       // dd('aa');
 
         $titleGet = [];
         $titleUse = [];
