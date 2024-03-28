@@ -164,6 +164,7 @@ class DividendCtrl extends Controller
     public function dividend($category)
     {
         {
+
             $dataList = CustomerDividend::dividencByCategory($category);
 
             return view('cms.admin.customer_dividend.dividend', [
