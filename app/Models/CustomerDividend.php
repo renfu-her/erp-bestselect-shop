@@ -25,7 +25,7 @@ class CustomerDividend extends Model
             ->get();
         $canceled_orders_ids = $canceled_orders->groupBy('id')->toArray();
         $canceled_orders_notes = $canceled_orders->groupBy('note')->toArray();
-      
+
         $canceledOrders = [];
         foreach (array_keys($canceled_orders_notes) as $canceledOrder) {
             //substr 例：由O202312060004訂單返還
@@ -37,8 +37,8 @@ class CustomerDividend extends Model
             ->select('dividend.*')
             ->selectRaw('IF(active_sdate IS NULL,"",active_sdate) as active_sdate')
             ->selectRaw('IF(active_edate IS NULL,"",active_edate) as active_edate')
-           ->whereNotIn('dividend.id', array_keys($canceled_orders_ids))
-           ->whereNotIn('dividend.category_sn', $canceledOrders)
+            ->whereNotIn('dividend.id', array_keys($canceled_orders_ids))
+            ->whereNotIn('dividend.category_sn', $canceledOrders)
             ->orderBy('created_at', 'DESC');
 
         if ($type) {
@@ -643,7 +643,8 @@ class CustomerDividend extends Model
                 'data.dividend'
             ])
             ->whereNotNull('data.dividend')
-            ->where('data.dividend', '>', 0);
+            ->where('data.dividend', '>', 0)
+            ->orderBy("customer.sn");
 
         return $re;
     }
@@ -722,15 +723,17 @@ class CustomerDividend extends Model
     public static function getRemainList($customer_id)
     {
 
-        $remain = self::select(['category'])
+        $remain = self::select(['deadline', 'category'])
+            ->selectRaw("DATE_FORMAT(active_edate, '%Y-%m-%d') as active_edate")
             ->selectRaw('SUM(dividend-used_dividend) as dividend')
             ->where('type', 'get')
             ->where('flag', DividendFlag::Active())
             ->where('customer_id', $customer_id)
-            //   ->groupBy('deadline')
-            //  ->groupBy('category')
+            ->groupBy('deadline')
+            ->groupBy('category')
+            ->groupByRaw("DATE_FORMAT(active_edate, '%Y-%m-%d')")
             ->get()->toArray();
 
-        // dd($remain);
+       // dd($remain);
     }
 }
