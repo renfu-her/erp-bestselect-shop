@@ -24,9 +24,9 @@
                 @foreach ($total as $key => $value)
                     <td class="table-primary lh-sm">
                         {{ $value['category_ch'] }}
-                        <span
-                            class="d-inline-block">
-                        </span></td>
+                        <span class="d-inline-block">
+                        </span>
+                    </td>
                 @endforeach
                 <td class="table-primary lh-sm table-danger">總數</td>
             </thead>
@@ -50,15 +50,15 @@
                     <td class="table-primary lh-sm">使用</td>
                     @foreach ($total as $key => $value)
                         <td>
-                            <a href="{{ route('cms.customer-dividend.used', ['category' => $value['category']]) }}">
-                                {{ number_format($value['used_dividend']) }}
-                            </a>
+
+                            {{ number_format($value['used_dividend']) }}
+
                         </td>
                     @endforeach
                     <td>
-                        <a href="{{ route('cms.customer-dividend.used', ['category' => 'all']) }}">
-                            {{ number_format(collect($total)->sum('used_dividend')) }}
-                        </a>
+
+                        {{ number_format(collect($total)->sum('used_dividend')) }}
+
                     </td>
                 </tr>
                 <tr>
@@ -83,7 +83,8 @@
                             {{ number_format($value['usage_rate']) }}%
                         </td>
                     @endforeach
-                    <td>{{ number_format(collect($total)->sum('used_dividend') * 100 / collect($total)->sum('dividend')) }}%</td>
+                    <td>{{ number_format((collect($total)->sum('used_dividend') * 100) / collect($total)->sum('dividend')) }}%
+                    </td>
                 </tr>
             </tbody>
         </table>
