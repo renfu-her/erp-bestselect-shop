@@ -137,6 +137,7 @@ class DividendCtrl extends Controller
      */
     public function remain($category)
     {
+       
         $dataList = CustomerDividend::queryDividendByCategory($category, 'remain')->paginate(100);
 
         return view('cms.admin.customer_dividend.remain', [
