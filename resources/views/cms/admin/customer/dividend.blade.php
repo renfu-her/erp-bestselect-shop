@@ -77,10 +77,20 @@
                         <td></td>
                         <td></td>
                         <td>總計：{{ $usedTotal }}</td>
-                        
+
                     </tr>
                 </tbody>
             </table>
+        </div>
+    </div>
+    <div class="card shadow p-4 mb-4">
+        <div class="table-responsive tableOverBox">
+            <table class="table table-striped tableList">
+                <tr>
+                    <td>剩餘點數: {{ $getTotal + $usedTotal }}</td>
+                </tr>
+            </table>
+
         </div>
     </div>
 @endsection
