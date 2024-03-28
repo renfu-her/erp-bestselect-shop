@@ -17,22 +17,33 @@
                     </tr>
                 </thead>
                 <tbody>
-                @php
-                    use App\Enums\Discount\DividendCategory;
-                @endphp
-                @foreach ($get_record as $key => $data)
+                    @php
+                        use App\Enums\Discount\DividendCategory;
+                        $getTotal = 0;
+                    @endphp
+                    @foreach ($get_record as $key => $data)
+                        @php
+                            $getTotal += $data->dividend;
+                        @endphp
+                        <tr>
+                            <td>{{ $data->category_sn }}</td>
+                            <td class="wrap">
+                                @if ($data->category !== DividendCategory::Cyberbiz)
+                                    {{ date('Y/m/d H:i:s', strtotime($data->created_at)) }}
+                                @endif
+                            </td>
+                            <td>{{ number_format($data->dividend) }}</td>
+                            <td class="wrap">
+                                {{ $data->active_edate ? date('Y/m/d H:i:s', strtotime($data->active_edate)) : '-' }}</td>
+                            <td>{{ DividendCategory::getDescription($data->category) }}</td>
+                        </tr>
+                    @endforeach
                     <tr>
-                        <td>{{ $data->category_sn }}</td>
-                        <td class="wrap">
-                            @if($data->category !== DividendCategory::Cyberbiz)
-                                {{ date('Y/m/d H:i:s', strtotime($data->created_at)) }}
-                            @endif
-                        </td>
-                        <td>{{ number_format($data->dividend) }}</td>
-                        <td class="wrap">{{ $data->active_edate ? date('Y/m/d H:i:s', strtotime($data->active_edate)) : '-' }}</td>
-                        <td>{{ DividendCategory::getDescription($data->category) }}</td>
+                        <td></td>
+                        <td></td>
+                        <td>總計：{{ number_format($getTotal) }}</td>
+                        <td></td>
                     </tr>
-                @endforeach
                 </tbody>
             </table>
         </div>
@@ -49,13 +60,25 @@
                     </tr>
                 </thead>
                 <tbody>
-                @foreach ($use_record as $key => $data)
+                    @php
+                        $usedTotal = 0;
+                    @endphp
+                    @foreach ($use_record as $key => $data)
+                        @php
+                            $usedTotal += $data->dividend;
+                        @endphp
+                        <tr>
+                            <td>{{ $data->category_sn }}</td>
+                            <td>{{ date('Y/m/d H:i:s', strtotime($data->created_at)) }}</td>
+                            <td>{{ $data->dividend }}</td>
+                        </tr>
+                    @endforeach
                     <tr>
-                        <td>{{ $data->category_sn }}</td>
-                        <td>{{ date('Y/m/d H:i:s', strtotime($data->created_at)) }}</td>
-                        <td>{{ $data->dividend }}</td>
+                        <td></td>
+                        <td></td>
+                        <td>總計：{{ $usedTotal }}</td>
+                        
                     </tr>
-                @endforeach
                 </tbody>
             </table>
         </div>
