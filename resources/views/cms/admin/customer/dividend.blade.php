@@ -43,6 +43,7 @@
                         <td></td>
                         <td>總計：{{ number_format($getTotal) }}</td>
                         <td></td>
+                        <td></td>
                     </tr>
                 </tbody>
             </table>
