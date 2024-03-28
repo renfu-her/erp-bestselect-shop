@@ -633,17 +633,6 @@ class CustomerDividend extends Model
 
     public static function getByCategory()
     {
-
-        $dividendCategory = DividendCategory::getValueWithDesc();
-        $categoryCase = 'CASE ';
-        $categoryNames = [];
-        foreach ($dividendCategory as $key => $value) {
-            $categoryCase .= ' WHEN category = "' . $key . '" THEN "' . $value . '"';
-            $categoryNames[$key] = $value;
-        }
-        $categoryCase .= ' END as category_ch';
-
-        //get訂單返還的訂單編號, 例：由O202312060004訂單返還
         $canceled_orders = self::where('note', 'LIKE', '由O%')
             ->where('note', 'LIKE', '%返還')
             ->select([
@@ -654,17 +643,10 @@ class CustomerDividend extends Model
                 'used_dividend',
             ])
             ->get();
+
         $canceled_orders_ids = $canceled_orders->groupBy('id')->toArray();
         $canceled_orders_notes = $canceled_orders->groupBy('note')->toArray();
         $canceled_orders_categories = $canceled_orders->groupBy('category')->toArray();
-
-        //訂單返回要退回的購物金
-        $canceledDividendArray = [];
-        $canceledUsedDividendArray = [];
-        foreach ($canceled_orders_categories as $category => $data) {
-            $canceledDividendArray[$categoryNames[$category]] = collect($data)->sum('dividend');
-            $canceledUsedDividendArray[$categoryNames[$category]] = collect($data)->sum('used_dividend');
-        }
 
         $canceledOrders = [];
         foreach (array_keys($canceled_orders_notes) as $canceledOrder) {
@@ -672,39 +654,126 @@ class CustomerDividend extends Model
             $canceledOrders[] = mb_substr($canceledOrder, 1, -4, 'utf-8');
         }
 
-        $re = self::select(['type', 'category'])
+        $dividendCategory = DividendCategory::getValueWithDesc();
+
+        $categoryCase = 'CASE ';
+        $categoryNames = [];
+        foreach ($dividendCategory as $key => $value) {
+            $categoryCase .= ' WHEN category = "' . $key . '" THEN "' . $value . '"';
+            $categoryNames[$key] = $value;
+        }
+        $categoryCase .= ' END as category_ch';
+
+
+        $sended = self::select(['category'])
+            ->selectRaw('SUM(dividend) as dividend')
+            ->selectRaw($categoryCase)
+            ->where('type', 'get')
+            ->whereIn('flag', [DividendFlag::Active(), DividendFlag::Consume()])
             ->whereNotIn('id', array_keys($canceled_orders_ids))
             ->whereNotIn('category_sn', $canceledOrders)
-            ->selectRaw('SUM(dividend) as dividend')
-            ->selectRaw('SUM(used_dividend) as used_dividend')
-            ->selectRaw($categoryCase)
-            ->where('flag', "<>", DividendFlag::NonActive())
-            ->groupBy('type')
-            ->groupBy('category')
-            ->orderBy('type')
-            ->get()
-            ->toArray();
-        foreach ($re as $key => $items) {
-            if ($items['type'] === 'get') {
-                if (array_key_exists($items['category_ch'], $canceledUsedDividendArray)) {
-                    $canceledUsedDividend = $canceledUsedDividendArray[$items['category_ch']];
-                } else {
-                    $canceledUsedDividend = 0;
-                }
-                if (array_key_exists($items['category_ch'], $canceledDividendArray)) {
-                    $canceledDividend = $canceledDividendArray[$items['category_ch']];
-                } else {
-                    $canceledDividend = 0;
-                }
-                $used_dividend = intval($items['used_dividend']) + $canceledUsedDividend - $canceledDividend;
-                $re[$key]['used_dividend'] = strval($used_dividend);
-                $re[$key]['remain_dividend'] = $re[$key]['dividend'] - $re[$key]['used_dividend'];
-                $re[$key]['usage_rate'] = $used_dividend * 100 / $re[$key]['dividend'];
-            } else {
-                unset($re[$key]);
+            ->groupBy('category')->get()->toArray();
+
+        $remain = self::select(['category'])
+            ->selectRaw('SUM(dividend-used_dividend) as dividend')
+            ->where('type', 'get')
+            ->where('flag', DividendFlag::Active())
+
+            ->groupBy('category')->get()->toArray();
+
+        //  dd($sended,$remain);
+
+        foreach ($sended as $key => $value) {
+            // $idx = array_search(,$value['category']);
+
+            $idx = array_search($value['category'], array_map(function ($n) {
+                return $n['category'];
+            }, $remain));
+            $sended[$key]['remain_dividend'] = 0;
+            if ($idx > -1) {
+                $sended[$key]['remain_dividend'] = $remain[$idx]['dividend'];
             }
+
+            $sended[$key]['used_dividend'] =  $sended[$key]['dividend'] - $sended[$key]['remain_dividend'];
+            $sended[$key]['type'] = "get";
+            $sended[$key]['usage_rate'] = number_format($sended[$key]['used_dividend'] / $sended[$key]['dividend'] * 100, 2);
         }
 
-        return $re;
+      
+
+        // $dividendCategory = DividendCategory::getValueWithDesc();
+
+        // $categoryCase = 'CASE ';
+        // $categoryNames = [];
+        // foreach ($dividendCategory as $key => $value) {
+        //     $categoryCase .= ' WHEN category = "' . $key . '" THEN "' . $value . '"';
+        //     $categoryNames[$key] = $value;
+        // }
+        // $categoryCase .= ' END as category_ch';
+
+        // //get訂單返還的訂單編號, 例：由O202312060004訂單返還
+        // $canceled_orders = self::where('note', 'LIKE', '由O%')
+        //     ->where('note', 'LIKE', '%返還')
+        //     ->select([
+        //         'id',
+        //         'category',
+        //         'note',
+        //         'dividend',
+        //         'used_dividend',
+        //     ])
+        //     ->get();
+        // $canceled_orders_ids = $canceled_orders->groupBy('id')->toArray();
+        // $canceled_orders_notes = $canceled_orders->groupBy('note')->toArray();
+        // $canceled_orders_categories = $canceled_orders->groupBy('category')->toArray();
+
+        // //訂單返回要退回的購物金
+        // $canceledDividendArray = [];
+        // $canceledUsedDividendArray = [];
+        // foreach ($canceled_orders_categories as $category => $data) {
+        //     $canceledDividendArray[$categoryNames[$category]] = collect($data)->sum('dividend');
+        //     $canceledUsedDividendArray[$categoryNames[$category]] = collect($data)->sum('used_dividend');
+        // }
+
+        // $canceledOrders = [];
+        // foreach (array_keys($canceled_orders_notes) as $canceledOrder) {
+        //     //substr 例：由O202312060004訂單返還
+        //     $canceledOrders[] = mb_substr($canceledOrder, 1, -4, 'utf-8');
+        // }
+
+        // $re = self::select(['type', 'category'])
+        //     ->whereNotIn('id', array_keys($canceled_orders_ids))
+        //     ->whereNotIn('category_sn', $canceledOrders)
+        //     ->selectRaw('SUM(dividend) as dividend')
+        //     ->selectRaw('SUM(used_dividend) as used_dividend')
+        //     ->selectRaw($categoryCase)
+        //     ->where('flag', "<>", DividendFlag::NonActive())
+        //     ->groupBy('type')
+        //     ->groupBy('category')
+        //     ->orderBy('type')
+        //     ->get()
+        //     ->toArray();
+        // foreach ($re as $key => $items) {
+        //     if ($items['type'] === 'get') {
+        //         if (array_key_exists($items['category_ch'], $canceledUsedDividendArray)) {
+        //             $canceledUsedDividend = $canceledUsedDividendArray[$items['category_ch']];
+        //         } else {
+        //             $canceledUsedDividend = 0;
+        //         }
+        //         if (array_key_exists($items['category_ch'], $canceledDividendArray)) {
+        //             $canceledDividend = $canceledDividendArray[$items['category_ch']];
+        //         } else {
+        //             $canceledDividend = 0;
+        //         }
+        //         $used_dividend = intval($items['used_dividend']) + $canceledUsedDividend - $canceledDividend;
+        //         $re[$key]['used_dividend'] = strval($used_dividend);
+        //         $re[$key]['remain_dividend'] = $re[$key]['dividend'] - $re[$key]['used_dividend'];
+        //         $re[$key]['usage_rate'] = $used_dividend * 100 / $re[$key]['dividend'];
+        //     } else {
+        //         unset($re[$key]);
+        //     }
+        // }
+        // dd($re);
+
+        return $sended;
     }
 }
