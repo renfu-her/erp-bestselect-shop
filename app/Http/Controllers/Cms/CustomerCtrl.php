@@ -100,17 +100,24 @@ class CustomerCtrl extends Controller
             'email' => ['required', 'email:rfc,dns', 'unique:App\Models\Customer'],
         ]);
 
-        $uData = $request->only('email', 'name', 'password'
-            , 'phone', 'birthday', 'sex', 'acount_status'
+        $uData = $request->only(
+            'email',
+            'name',
+            'password',
+            'phone',
+            'birthday',
+            'sex',
+            'acount_status'
         );
 
-        Customer::createCustomer($uData['name']
-            , $uData['email']
-            , $uData['password']
-            , $uData['phone'] ?? null
-            , $uData['birthday'] ?? null
-            , $uData['sex'] ?? null
-            , $uData['acount_status'] ?? AccountStatus::close()->value
+        Customer::createCustomer(
+            $uData['name'],
+            $uData['email'],
+            $uData['password'],
+            $uData['phone'] ?? null,
+            $uData['birthday'] ?? null,
+            $uData['sex'] ?? null,
+            $uData['acount_status'] ?? AccountStatus::close()->value
         );
 
         if ($request->input('bind') == '1') {
@@ -180,8 +187,14 @@ class CustomerCtrl extends Controller
      */
     public function update(Request $request, $id)
     {
-        $uData = $request->only('email', 'name', 'sex'
-            , 'phone', 'birthday', 'acount_status', 'newsletter'
+        $uData = $request->only(
+            'email',
+            'name',
+            'sex',
+            'phone',
+            'birthday',
+            'acount_status',
+            'newsletter'
         );
 
         $updateArr = [
@@ -199,7 +212,9 @@ class CustomerCtrl extends Controller
         if (0 == $acount_status || 1 == $acount_status) {
             $updateArr['acount_status'] = $acount_status;
         }
-        IttmsDBB::transaction(function () use ($id, $updateArr
+        IttmsDBB::transaction(function () use (
+            $id,
+            $updateArr
         ) {
             Customer::where('id', $id)->update($updateArr);
             return ['success' => 1, 'error_msg' => "", 'id' => $id];
@@ -261,7 +276,6 @@ class CustomerCtrl extends Controller
             'defaultAddress' => $defaultAddress,
             'otherAddress' => $otherAddress,
         ]);
-
     }
 
     /**
@@ -282,7 +296,6 @@ class CustomerCtrl extends Controller
             'dataList' => $dataList,
             'customer' => $id,
         ]);
-
     }
 
     /**
@@ -292,17 +305,19 @@ class CustomerCtrl extends Controller
      */
     public function dividend(Request $request, $id)
     {
+
+        $remain = CustomerDividend::getRemainList($id);
      
-        CustomerDividend::getRemainList($id);
-//        $dividend = CustomerDividend::getDividend($id)->get()->first()->dividend;
+        //        $dividend = CustomerDividend::getDividend($id)->get()->first()->dividend;
         $typeGet = CustomerDividend::getList($id, 'get')->get();
         $typeUsed = CustomerDividend::getList($id, 'used')->get();
 
         return view('cms.admin.customer.dividend', [
             'customer' => $id,
-//            'dividend' => $dividend,
+            //            'dividend' => $dividend,
             'get_record' => $typeGet,
             'use_record' => $typeUsed,
+            'remain' => $remain
         ]);
     }
 

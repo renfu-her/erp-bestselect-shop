@@ -91,7 +91,26 @@
                     <td>剩餘點數: {{ $getTotal + $usedTotal }}</td>
                 </tr>
             </table>
+            <table class="table table-striped tableList">
+                <thead class="small">
+                    <tr>
+                        <th scope="col">類型</th>
+                        <th scope="col">點數</th>
+                        <th scope="col">截止日</th>
+                    </tr>
+                </thead>
+                <tbody>
 
+                    @foreach ($remain as $key => $data)
+                        <tr>
+                            <td>{{ $data['category_ch'] }}</td>
+                            <td>{{ $data['dividend'] }}</td>
+                            <td>{{ $data['active_edate'] }}</td>
+                        </tr>
+                    @endforeach
+
+                </tbody>
+            </table>
         </div>
     </div>
 @endsection

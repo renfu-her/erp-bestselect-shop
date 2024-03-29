@@ -723,9 +723,20 @@ class CustomerDividend extends Model
     public static function getRemainList($customer_id)
     {
 
+        $dividendCategory = DividendCategory::getValueWithDesc();
+
+        $categoryCase = 'CASE ';
+        $categoryNames = [];
+        foreach ($dividendCategory as $key => $value) {
+            $categoryCase .= ' WHEN category = "' . $key . '" THEN "' . $value . '"';
+            $categoryNames[$key] = $value;
+        }
+        $categoryCase .= ' END as category_ch';
+
         $remain = self::select(['deadline', 'category'])
             ->selectRaw("DATE_FORMAT(active_edate, '%Y-%m-%d') as active_edate")
             ->selectRaw('SUM(dividend-used_dividend) as dividend')
+            ->selectRaw($categoryCase)
             ->where('type', 'get')
             ->where('flag', DividendFlag::Active())
             ->where('customer_id', $customer_id)
@@ -734,6 +745,6 @@ class CustomerDividend extends Model
             ->groupByRaw("DATE_FORMAT(active_edate, '%Y-%m-%d')")
             ->get()->toArray();
 
-       // dd($remain);
+        return $remain;
     }
 }
