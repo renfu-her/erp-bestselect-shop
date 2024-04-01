@@ -11,6 +11,8 @@ Route::group(['prefix' => 'customer-dividend', 'as' => 'customer-dividend.'], fu
     Route::get('used/{category}', [DividendCtrl::class, 'used'])->name('used')->middleware('permission:cms.customer-dividend.index');
     Route::get('dividend/{category}', [DividendCtrl::class, 'dividend'])->name('dividend')->middleware('permission:cms.customer-dividend.index');
 
+    Route::get('export-supplier', [DividendCtrl::class, 'exportRemain'])->name('export-remain');
+
     /*Route::get('create', [DiscountCtrl::class, 'create'])->name('create')->middleware('permission:cms.discount.create');
     Route::post('create', [DiscountCtrl::class, 'store']);
     Route::get('edit/{id}', [DiscountCtrl::class, 'edit'])->name('edit')->middleware('permission:cms.discount.edit');
