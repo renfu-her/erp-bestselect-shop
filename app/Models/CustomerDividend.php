@@ -720,7 +720,7 @@ class CustomerDividend extends Model
         return $sended;
     }
 
-    public static function getRemainList($customer_id)
+    public static function getRemainList($customer_id = null)
     {
 
         $dividendCategory = DividendCategory::getValueWithDesc();
@@ -739,12 +739,17 @@ class CustomerDividend extends Model
             ->selectRaw($categoryCase)
             ->where('type', 'get')
             ->where('flag', DividendFlag::Active())
-            ->where('customer_id', $customer_id)
+            //  ->where('customer_id', $customer_id)
             ->groupBy('deadline')
-            ->groupBy('category')
+            ->groupBy('category')  
             ->groupByRaw("DATE_FORMAT(active_edate, '%Y-%m-%d')")
-            ->get()->toArray();
+            ->orderByRaw("DATE_FORMAT(active_edate, '%Y-%m-%d')");
 
-        return $remain;
+        if ($customer_id) {
+            $remain->where('customer_id', $customer_id);
+        }
+
+
+        return $remain->get()->toArray();
     }
 }

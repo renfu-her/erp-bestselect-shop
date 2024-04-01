@@ -18,7 +18,8 @@
     </form>
     <div class="card shadow p-4 mb-4">
         <h6 class="mb-2">統計總覽</h6>
-        <table class="table table-sm table-bordered text-center mb-0">
+
+        <table class="table table-sm table-bordered text-center mb-1">
             <thead class="small align-middle">
                 <td></td>
                 @foreach ($total as $key => $value)
@@ -88,6 +89,7 @@
                 </tr>
             </tbody>
         </table>
+        <a href="{{ route('cms.customer-dividend.export-remain') }}" class="btn btn-outline-success px-2 py-1">匯出剩餘點數清單</a>
     </div>
     <div class="card shadow p-4 mb-4">
         <div class="table-responsive tableOverBox">

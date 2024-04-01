@@ -8,6 +8,8 @@ use App\Models\CustomerDividend;
 use App\Models\DividendErpLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\Report\RemainDividend;
 
 class DividendCtrl extends Controller
 {
@@ -19,7 +21,7 @@ class DividendCtrl extends Controller
     public function index(Request $request)
     {
         //
-       // dd('aa');
+    
 
         $titleGet = [];
         $titleUse = [];
@@ -172,5 +174,12 @@ class DividendCtrl extends Controller
                 'dataList' => $dataList,
             ]);
         }
+    }
+
+    public static function exportRemain(Request $request)
+    {
+
+        return Excel::download(new RemainDividend(), 'remain_'.date('YmdHis').'.xlsx');
+   
     }
 }
