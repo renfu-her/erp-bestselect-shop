@@ -129,10 +129,17 @@ class CustomerDividend extends Model
     public static function getDividend($customer_id)
     {
 
-        return self::where('flag', "<>", DividendFlag::NonActive())
-            ->selectRaw("SUM(dividend) as dividend")
-            ->groupBy('customer_id')
-            ->where('customer_id', $customer_id);
+        return self::select(['customer_id'])
+            ->selectRaw('SUM(dividend-used_dividend) as dividend')
+            ->where('type', 'get')
+            ->where('flag', DividendFlag::Active())
+            ->where('customer_id', $customer_id)
+            ->groupBy('customer_id');
+
+        // return self::where('flag', "<>", DividendFlag::NonActive())
+        //     ->selectRaw("SUM(dividend) as dividend")
+        //     ->groupBy('customer_id')
+        //     ->where('customer_id', $customer_id);
     }
 
     // decrease
@@ -741,7 +748,7 @@ class CustomerDividend extends Model
             ->where('flag', DividendFlag::Active())
             //  ->where('customer_id', $customer_id)
             ->groupBy('deadline')
-            ->groupBy('category')  
+            ->groupBy('category')
             ->groupByRaw("DATE_FORMAT(active_edate, '%Y-%m-%d')")
             ->orderByRaw("DATE_FORMAT(active_edate, '%Y-%m-%d')");
 
