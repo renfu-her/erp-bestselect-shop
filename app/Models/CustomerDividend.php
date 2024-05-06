@@ -132,7 +132,7 @@ class CustomerDividend extends Model
         return self::select(['customer_id'])
             ->selectRaw('SUM(dividend-used_dividend) as dividend')
             ->where('type', 'get')
-            ->where('flag', DividendFlag::Active())
+            ->whereIn('flag', [DividendFlag::Active(), DividendFlag::Back()])
             ->where('customer_id', $customer_id)
             ->groupBy('customer_id');
 
