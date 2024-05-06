@@ -745,7 +745,7 @@ class CustomerDividend extends Model
             ->selectRaw('SUM(dividend-used_dividend) as dividend')
             ->selectRaw($categoryCase)
             ->where('type', 'get')
-            ->where('flag', DividendFlag::Active())
+            ->whereIn('flag', [DividendFlag::Active(), DividendFlag::Back()])
             //  ->where('customer_id', $customer_id)
             ->groupBy('deadline')
             ->groupBy('category')
