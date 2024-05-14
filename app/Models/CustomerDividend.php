@@ -45,6 +45,10 @@ class CustomerDividend extends Model
             $re->where('type', $type);
         }
 
+        if ($type == 'get') {
+            $re->where("flag", DividendFlag::Active());
+        }
+
         if ($customer_id) {
             $re->where('dividend.customer_id', $customer_id);
         }

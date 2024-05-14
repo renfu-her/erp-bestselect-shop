@@ -22,6 +22,16 @@
                     備註：{{ $data->note ?? '' }}
                 </h6>
             </div>
+            <div class="col-12 col-md-6 mb-3">
+                <h6 class="m-0">
+                   起：{{ $data->sdate ?? '' }}
+                </h6>
+            </div>
+            <div class="col-12 col-md-6 mb-3">
+                <h6 class="m-0">
+                    迄：{{ $data->edate ?? '' }}
+                </h6>
+            </div>
         </div>
 
         <div class="table-responsive tableOverBox">
