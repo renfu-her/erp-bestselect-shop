@@ -10,8 +10,8 @@
         <div class="card shadow p-4 mb-4">
             <div class="row">
                 <x-b-form-group name="category" title="會計科目" required="true">
-                    <select class="form-select -select" name="category" aria-label="會計科目"
-                        data-placeholder="請選擇會計科目" required>
+                    <select class="form-select -select" name="category" aria-label="會計科目" data-placeholder="請選擇會計科目"
+                        required>
                         <option value="" selected disabled>請選擇</option>
                         @foreach ($dividendCategory as $key => $value)
                             <option value="{{ $key }}">{{ $value }} </option>
@@ -20,8 +20,17 @@
                 </x-b-form-group>
                 <div class="col-12 mb-3">
                     <label class="form-label">備註 <span class="text-danger">*</span></label>
-                    <input class="form-control" name="note" type="text" placeholder="備註"
-                        value="{{ old('note', '') }}" required aria-label="備註" required>
+                    <input class="form-control" name="note" type="text" placeholder="備註" value="{{ old('note', '') }}"
+                        required aria-label="備註" required>
+                </div>
+                <div class="col-12 mb-3">
+                    <label class="form-label">有效期限 </label>
+                    <div class="input-group">
+                        <input class="form-control" name="sdate" type="date" placeholder="起始"
+                            value="{{ old('sdate', date("Y-m-d")) }}" required aria-label="起始" required>
+                        <input class="form-control" name="edate" type="date" placeholder="結束"
+                            value="{{ old('edate', '') }}" aria-label="結束">
+                    </div>
                 </div>
                 <div class="col-12">
                     <label class="form-label">匯入Excel（.xls, .xlsx）<span class="text-danger">*</span></label>
@@ -46,14 +55,15 @@
                     </fieldset>
                     <div class="input-group has-validation">
                         <input type="file" class="form-control @error('file') is-invalid @enderror" name="file"
-                            aria-label="匯入Excel" required 
-                            accept="application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"/>
-                        <a id="Sample" href="{{ Route('cms.manual-dividend.sample', [], true) }}" class="btn btn-success">
+                            aria-label="匯入Excel" required
+                            accept="application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
+                        <a id="Sample" href="{{ Route('cms.manual-dividend.sample', [], true) }}"
+                            class="btn btn-success">
                             範本
                         </a>
                         <div class="invalid-feedback">
                             @error('file')
-                            {{ $message }}
+                                {{ $message }}
                             @enderror
                         </div>
                     </div>

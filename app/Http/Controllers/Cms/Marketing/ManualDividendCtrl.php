@@ -43,7 +43,6 @@ class ManualDividendCtrl extends Controller
             'formAction' => Route('cms.manual-dividend.create'),
             'dividendCategory' => DividendCategory::getValueWithDesc(),
         ]);
-
     }
 
     /**
@@ -59,6 +58,8 @@ class ManualDividendCtrl extends Controller
             'file' => 'max:5000000|mimes:xls,xlsx|required',
             'category' => 'required',
             'file_type' => 'required|in:sn,email',
+            'sdate' => 'required|date',
+            'edate' => 'nullable|date'
         ]);
 
         $d = $request->all();
@@ -70,9 +71,11 @@ class ManualDividendCtrl extends Controller
             'category' => $d['category'],
             'note' => $d['note'],
             'category_title' => DividendCategory::fromValue($d['category'])->description,
+            'sdate' => $d['sdate'],
+            'edate' => $d['edate']
         ])->id;
 
-        Excel::import(new DividendImport($id, $d['category'], $d['file_type']), $request->file('file'));
+        Excel::import(new DividendImport($id, $d['category'], $d['file_type'],$d['sdate'],$d['edate']), $request->file('file'));
 
         DB::commit();
 
@@ -91,7 +94,7 @@ class ManualDividendCtrl extends Controller
         if (!$data) {
             return abort(404);
         }
-       
+
         $log = DB::table('dis_manual_dividend_log as log')
             ->leftJoin('usr_customers as customer', 'log.account', '=', 'customer.' . $data->file_type)
             ->select(['log.*', 'customer.name'])
