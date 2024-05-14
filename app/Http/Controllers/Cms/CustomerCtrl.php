@@ -305,7 +305,7 @@ class CustomerCtrl extends Controller
      */
     public function dividend(Request $request, $id)
     {
-
+       
         $remain = CustomerDividend::getRemainList($id);
      
         //        $dividend = CustomerDividend::getDividend($id)->get()->first()->dividend;

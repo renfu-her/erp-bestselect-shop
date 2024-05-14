@@ -16,12 +16,16 @@ class DividendImport implements ToCollection
     protected $order_id;
     protected $category;
     protected $file_type;
+    protected $sdate;
+    protected $edate;
 
-    public function __construct($order_id, $category, $file_type)
+    public function __construct($order_id, $category, $file_type, $sdate, $edate)
     {
         $this->order_id = $order_id;
         $this->category = $category;
         $this->file_type = $file_type;
+        $this->sdate = $sdate;
+        $this->edate = $edate;
     }
     /**
      * @param Collection $collection
@@ -37,6 +41,17 @@ class DividendImport implements ToCollection
         //  dd($this->file_type);
 
         $mm = ManualDividend::where('id', $this->order_id)->get()->first();
+        $deadline = 0;
+        if ($this->edate) {
+            $deadline = 1;
+        }
+
+        $DividendFlag = DividendFlag::NonActive();
+
+        if (date("Y-m-d") >= $this->sdate) {
+            $DividendFlag = DividendFlag::Active();
+        }
+
 
         foreach ($collection as $key => $value) {
             if ($key != 0) {
@@ -57,9 +72,13 @@ class DividendImport implements ToCollection
                                     'category' => $this->category,
                                     'category_sn' => '',
                                     'dividend' => $value[1],
-                                    'deadline' => 0,
-                                    'flag' => DividendFlag::Active(),
-                                    'flag_title' => DividendFlag::Active()->description,
+                                    'deadline' => $deadline,
+                                    // 'flag' => DividendFlag::Active(),
+                                    // 'flag_title' => DividendFlag::Active()->description,
+                                    'flag' => $DividendFlag,
+                                    'flag_title' => $DividendFlag->description,
+                                    'active_sdate' => $this->sdate,
+                                    'active_edate' => $this->edate,
                                     'weight' => 0,
                                     'type' => 'get',
                                     'note' => "手動匯入 " . $mm->note . " " . $note,
@@ -84,11 +103,8 @@ class DividendImport implements ToCollection
                     }
 
                     DB::table('dis_manual_dividend_log')->insert($log);
-
                 }
-
             }
-
         }
 
         // dd($this->param1, $collection);
