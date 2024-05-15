@@ -1088,7 +1088,7 @@ class Order extends Model
             ->leftJoin('usr_cusotmer_dividend as cd', 'd.customer_dividend_id', '=', 'cd.id')
             ->select(['cd.*', 'd.dividend as new_dividend'])
             ->where('d.order_sn', $order->sn)->get();
-
+        dd($dividend);
         foreach ($dividend as $value) {
             CustomerDividend::create([
                 'category' => $value->category,
