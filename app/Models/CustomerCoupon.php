@@ -23,10 +23,10 @@ class CustomerCoupon extends Model
 
         $re = DB::table('usr_customer_coupon as cc')
             ->leftJoin('dis_discounts as discount', 'discount.id', '=', 'cc.discount_id')
-            ->leftJoinSub($dis_discount_collection, 'dis_dc', function($join) {
+            ->leftJoinSub($dis_discount_collection, 'dis_dc', function ($join) {
                 $join->on('dis_dc.discount_id', '=', 'discount.id');
             })
-            ->select('discount.*', 'discount.id as discount_id', 'cc.id as id','cc.used')
+            ->select('discount.*', 'discount.id as discount_id', 'cc.id as id', 'cc.used')
             ->selectRaw('ifnull(dis_dc.collection_ids, null) as collection_ids')
             ->selectRaw('IF(active_sdate IS NULL,"",active_sdate) as active_sdate')
             ->selectRaw('IF(active_edate IS NULL,"",active_edate) as active_edate')
@@ -39,11 +39,13 @@ class CustomerCoupon extends Model
         if ($active) {
             $n = now();
             $re->where('cc.active_sdate', '<=', $n)
-                ->where('cc.active_edate', '>=', $n);
+                ->where('cc.active_edate', '>=', $n)
+                ->where('cc.discount', 1);
         }
 
-        return $re;
+        
 
+        return $re;
     }
 
     public static function activeCoupon($order_id, $date = null)
@@ -70,7 +72,6 @@ class CustomerCoupon extends Model
                 'active_edate' => $edate,
             ]);
         }
-
     }
     public static function getCouponByCustomerCouponId($id)
     {
@@ -116,7 +117,7 @@ class CustomerCoupon extends Model
 
         $query = DB::table('usr_customer_coupon as u_coupon')
             ->leftJoin('usr_customers as customer', 'customer.id', '=', 'u_coupon.customer_id')
-            ->leftJoinSub("{$sub->toSql()}", 'discount', function($join) {
+            ->leftJoinSub("{$sub->toSql()}", 'discount', function ($join) {
                 $join->on('discount.id', 'u_coupon.discount_id');
             })
             ->leftJoin('ord_orders as used_orders', 'used_orders.id', '=', 'u_coupon.order_id')
@@ -193,12 +194,12 @@ class CustomerCoupon extends Model
             }
         }
 
-        if (! is_null($is_global)) {
+        if (!is_null($is_global)) {
             $query->where('discount.is_global', $is_global);
         }
 
         if ($mail_sended != 'all') {
-            if ($mail_sended == 0){
+            if ($mail_sended == 0) {
                 $query->whereNull('u_coupon.mail_sended_at');
             } else if ($mail_sended == 1) {
                 $query->whereNotNull('u_coupon.mail_sended_at');
