@@ -43,6 +43,8 @@ class CustomerCoupon extends Model
                 ->where('cc.discount', 1);
         }
 
+        
+
         return $re;
     }
 
