@@ -40,7 +40,7 @@ class CustomerCoupon extends Model
             $n = now();
             $re->where('cc.active_sdate', '<=', $n)
                 ->where('cc.active_edate', '>=', $n)
-                ->where('cc.discount', 1);
+                ->where('discount.active', 1);
         }
 
         
