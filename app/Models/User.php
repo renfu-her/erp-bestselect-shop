@@ -212,20 +212,20 @@ class User extends Authenticatable
                     ]);
                 }
 
-                if (App::environment(AppEnvClass::Release)) {
-                    $NoBonusSaleChannel = SaleChannel::where('title', '經銷價販售(無獎金)')->get()->first();
-                    if (
-                        DB::table('usr_user_salechannel')->where([
-                            'user_id' => $user_id,
-                            'salechannel_id' => $NoBonusSaleChannel->id,
-                        ])->doesntExist()
-                    ) {
-                        UserSalechannel::create([
-                            'user_id' => $user_id,
-                            'salechannel_id' => $NoBonusSaleChannel->id,
-                        ]);
-                    }
-                }
+                // if (App::environment(AppEnvClass::Release)) {
+                //     $NoBonusSaleChannel = SaleChannel::where('title', '經銷價販售(無獎金)')->get()->first();
+                //     if (
+                //         DB::table('usr_user_salechannel')->where([
+                //             'user_id' => $user_id,
+                //             'salechannel_id' => $NoBonusSaleChannel->id,
+                //         ])->doesntExist()
+                //     ) {
+                //         UserSalechannel::create([
+                //             'user_id' => $user_id,
+                //             'salechannel_id' => $NoBonusSaleChannel->id,
+                //         ]);
+                //     }
+                // }
             }
 
             DB::commit();
