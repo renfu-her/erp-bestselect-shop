@@ -132,11 +132,11 @@ return
                 "controller_name" => "CouponEventCtrl",
                 "route_name" => "cms.coupon-event.index",
             ],
-            [
-                "title" => "網址優化產生器",
-                "controller_name" => "UtmUrlCtrl",
-                "route_name" => "cms.utm-url.index",
-            ],
+            // [
+            //     "title" => "網址優化產生器",
+            //     "controller_name" => "UtmUrlCtrl",
+            //     "route_name" => "cms.utm-url.index",
+            // ],
             [
                 "title" => "EDM",
                 "controller_name" => "EdmCtrl",
