@@ -570,11 +570,15 @@ class OrderCart extends Model
             //  dd($ship);
             switch ($ship->category) {
                 case "deliver":
+
                     foreach ($ship->rules as $rule) {
                         $use_rule = false;
                         $usedDividend = $ship->dividend ?  $ship->dividend : 0;
-                        $discounted_price = ($ship->discounted_price > 0) ? $ship->discounted_price + $usedDividend : 0;
+
+                        $discounted_price = ($ship->discounted_price > 0) ? $ship->discounted_price : 0;
                         // dd($ship->discounted_price,$ship->dividend);
+                        $discounted_price += $usedDividend;
+
                         if ($rule->is_above == 'false') {
                             if ($discounted_price >= $rule->min_price && $discounted_price < $rule->max_price) {
                                 $order['shipments'][$key]->dlv_fee = $rule->dlv_fee;
@@ -596,7 +600,6 @@ class OrderCart extends Model
                 default:
                     $order['shipments'][$key]->dlv_fee = 0;
             }
-
             $order['dlv_fee'] += $order['shipments'][$key]->dlv_fee;
         }
     }
