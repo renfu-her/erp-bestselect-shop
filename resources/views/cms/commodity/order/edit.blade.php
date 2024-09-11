@@ -70,7 +70,7 @@
                                 </thead>
                                 <tbody class="-appendClone --selectedP">
                                     <tr class="-cloneElem --selectedP">
-                                        <th>
+                                        <th class="text-center">
                                             <button type="button"
                                                 class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
                                                 <i class="bi bi-trash"></i>
@@ -1182,7 +1182,7 @@
                 //_____total: 此物流商品金額小計(不折扣、含運),
                 //     dis_total: 此物流商品折扣總金額,
                 //     dised_total: 此物流商品折扣後金額小計(total-dis_total-point),
-                //     dlv_fee: 運費(以dised_total判斷),
+                //     dlv_fee: 運費(以dised_total+購物金判斷),
                 // }
             };
             // 已使用優惠
@@ -2438,14 +2438,19 @@
             }
 
             // #計算運費dlv_fee by ship_key
+            // 9/11 運費判斷改為 實付金額+購物金折抵
             function calc_OneDlvFeeByShipKey(ship_key) {
                 let dlv_fee = 0;
                 switch (myCart[ship_key].type) {
                     case 'deliver':
                         const total = myCart[ship_key].dised_total;
+                        const point = myCart[ship_key].point;
                         for (const rule of myCart[ship_key].rules) {
-                            if ((rule.is_above === 'false' && total >= rule.min_price && total < rule.max_price) ||
-                                (rule.is_above === 'true' && total >= rule.max_price)) {
+                            if ((rule.is_above === 'false' 
+                                && total + point >= rule.min_price 
+                                && total + point < rule.max_price) ||
+                                (rule.is_above === 'true' 
+                                && total + point >= rule.max_price)) {
                                 dlv_fee = Number(rule.dlv_fee);
                                 break;
                             }
