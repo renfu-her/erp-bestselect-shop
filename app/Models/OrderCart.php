@@ -565,14 +565,16 @@ class OrderCart extends Model
 
     private static function shipmentStage(&$order)
     {
+        //     dd($order);
         foreach ($order['shipments'] as $key => $ship) {
             //  dd($ship);
             switch ($ship->category) {
                 case "deliver":
                     foreach ($ship->rules as $rule) {
                         $use_rule = false;
-                        $discounted_price = ($ship->discounted_price > 0) ? $ship->discounted_price : 0;
-
+                        $usedDividend = $ship->dividend ?  $ship->dividend : 0;
+                        $discounted_price = ($ship->discounted_price > 0) ? $ship->discounted_price + $usedDividend : 0;
+                        // dd($ship->discounted_price,$ship->dividend);
                         if ($rule->is_above == 'false') {
                             if ($discounted_price >= $rule->min_price && $discounted_price < $rule->max_price) {
                                 $order['shipments'][$key]->dlv_fee = $rule->dlv_fee;
