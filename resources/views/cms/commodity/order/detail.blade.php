@@ -757,7 +757,7 @@
                         <tbody class="border-top-0">
                             <tr class="table-light">
                                 <td class="col-2">來源名稱</td>
-                                <td class="col-2">來源</td>
+                                <td class="col">來源</td>
                                 <td class="col-2">購物金</td>
                             </tr>
                             @foreach ($dividendList as $key => $value)
