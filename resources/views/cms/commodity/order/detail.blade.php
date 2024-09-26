@@ -752,12 +752,12 @@
 
                 <h6>購物金使用明細</h6>
                 <div class="table-responsive">
-                    <table class="table table-bordered text-center align-middle d-sm-table d-none text-nowrap">
+                    <table class="table table-bordered text-center align-middle d-sm-table d-none">
 
                         <tbody class="border-top-0">
                             <tr class="table-light">
                                 <td class="col-2">來源名稱</td>
-                                <td class="col-2">來源</td>
+                                <td class="col">來源</td>
                                 <td class="col-2">購物金</td>
                             </tr>
                             @foreach ($dividendList as $key => $value)
