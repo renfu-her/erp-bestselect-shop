@@ -46,7 +46,7 @@ class CustomerDividend extends Model
         }
 
         if ($type == 'get') {
-             $re->where("flag","<>", DividendFlag::NonActive());
+            $re->where("flag", "<>", DividendFlag::NonActive());
         }
 
         if ($customer_id) {
@@ -378,16 +378,12 @@ class CustomerDividend extends Model
     public static function getDividendFromErp($customer_id, $edword, $point, $type, $requestid)
     {
 
-        // https://www.besttour.com.tw/api/b2X_points.asp?id=2%20&edword=HSI-HUNG33A1653DDE95A4266A6D0F4400B071E0E81ECFE817FB53CD0E1283EC2CEC2BE0&point=10
-        // https://www.besttour.com.tw/api/b2X_points.asp?id=2&edword=HSI-HUNG216A5FFEE7E03345ED7664D52E893A5F4519C5EC096D9E80F8211F300F11DF36&points=10
         $url = 'https://www.besttour.com.tw/api/b2X_points.asp';
         $response = Http::withoutVerifying()->get($url, [
             'id' => 2,
             'edword' => $edword,
             'point' => $point,
         ]);
-
-        // dd($response);
 
         if ($response->successful()) {
             $response = ($response->json())[0];
@@ -396,17 +392,22 @@ class CustomerDividend extends Model
                 return $response;
             }
 
+            $currentDate = now();
+            $nextYearDate = now()->addYear();
+
             if ($point > 0) {
                 $id = self::create([
                     'customer_id' => $customer_id,
                     'category' => DividendCategory::fromKey($type),
                     'category_sn' => $requestid,
                     'dividend' => $point,
-                    'deadline' => 0,
+                    'deadline' => 1,
                     'flag' => DividendFlag::Active(),
                     'flag_title' => DividendFlag::Active()->description,
                     'weight' => 0,
                     'type' => 'get',
+                    'active_sdate' => $currentDate->toDateTimeString(),
+                    'active_edate' => $nextYearDate->toDateTimeString(),
                     'note' => "由" . DividendCategory::fromKey($type)->description . "取得",
                 ])->id;
             }
@@ -447,7 +448,8 @@ class CustomerDividend extends Model
 
         $re = DB::table('usr_customers as customer')
             ->select([
-                'customer.id', 'customer.name',
+                'customer.id',
+                'customer.name',
                 'customer.email',
                 'customer.sn',
             ])
