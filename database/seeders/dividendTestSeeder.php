@@ -21,8 +21,8 @@ class dividendTestSeeder extends Seeder
         $user = Customer::find(1);
         $token = $user->createToken('My Token')->plainTextToken;
 
-// 输出令牌
-echo $token;
+        // 输出令牌
+        dd($token);
 
         // CustomerDividend::getDividendFromErp(1,'aa',1,'M_b2c',1);
         // CustomerDividend::where('flag', 'expired')->delete();

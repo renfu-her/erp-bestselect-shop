@@ -23,6 +23,12 @@ class ApiLog
             'method' => $request->method(),
             'headers' => $request->headers->all(),
             'body' => $request->all(),
+            'user' => [
+                'id' => $request->user()->id,
+                'name' => $request->user()->name,
+                'email' => $request->user()->email,
+                'sn' => $request->user()->sn
+            ]
         ]);
 
         // 获取响应
