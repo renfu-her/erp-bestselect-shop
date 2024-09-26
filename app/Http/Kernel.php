@@ -47,6 +47,7 @@ class Kernel extends HttpKernel
             \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
             'throttle:10000,1',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            // \App\Http\Middleware\ApiLog::class
 
         ],
     ];
@@ -77,5 +78,6 @@ class Kernel extends HttpKernel
         'whole.order' => \App\Http\Middleware\WholeOrder::class,
         'identity.api.customer' => \App\Http\Middleware\AuthIdentityApiCustomer::class,
         'checksum' => \App\Http\Middleware\CheckSum::class,
+        'apilog' => \App\Http\Middleware\ApiLog::class
     ];
 }
