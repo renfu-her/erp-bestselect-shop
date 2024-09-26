@@ -18,13 +18,19 @@ class dividendTestSeeder extends Seeder
      */
     public function run()
     {
+        $user = Customer::find(1);
+        $token = $user->createToken('My Token')->plainTextToken;
 
-        CustomerDividend::where('flag', 'expired')->delete();
+        // 输出令牌
+        dd($token);
 
-        foreach (Customer::get() as $value) {
-            CustomerDividend::checkExpired($value->id, true);
-            CustomerDividend::checkExpired($value->id);
-        }
+        // CustomerDividend::getDividendFromErp(1,'aa',1,'M_b2c',1);
+        // CustomerDividend::where('flag', 'expired')->delete();
+
+        // foreach (Customer::get() as $value) {
+        //     CustomerDividend::checkExpired($value->id, true);
+        //     CustomerDividend::checkExpired($value->id);
+        // }
 
         // CustomerDividend::checkExpired(5805,true);
         //
