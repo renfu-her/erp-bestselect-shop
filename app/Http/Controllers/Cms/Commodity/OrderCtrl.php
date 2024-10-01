@@ -897,9 +897,9 @@ class OrderCtrl extends Controller
             $tw_price = $received_order_data->sum('price') - $received_data->sum('tw_price');
         }
 
-        if ($tw_price == 0) {
-            return redirect()->back();
-        }
+        // if ($tw_price == 0) {
+        //     return redirect()->back();
+        // }
 
         $defaultData = [];
         foreach (ReceivedMethod::asArray() as $receivedMethod) {
