@@ -255,10 +255,10 @@ class OrderCart extends Model
         self::getDividendStage($order, $_tempProducts);
 
         $order['total_price'] = $order['discounted_price'] + $order['dlv_fee'];
-        if ($order['total_price'] < 10) {
+        if ($order['total_price'] < 0) {
             return [
                 'success' => '0',
-                'error_msg' => '總金額不能低於10',
+                'error_msg' => '總金額不能低於0',
                 'event' => 'total_price',
             ];
         }
