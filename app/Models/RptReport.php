@@ -29,11 +29,11 @@ class RptReport extends Model
                 'item.price',
                 'item.product_style_id',
                 'ro.receipt_date',
-                'style.estimated_cost',
+                'item.unit_cost',
             ])
-            ->selectRaw("item.price * item.qty - style.estimated_cost * item.qty as gross_profit")
+            ->selectRaw("item.price * item.qty - item.unit_cost * item.qty as gross_profit")
             ->selectRaw("item.price * item.qty as total_price")
-            ->whereNotNull('style.estimated_cost')
+            ->whereNotNull('item.unit_cost')
         //    ->whereNotNull('order.mcode') 
             ->where('ro.source_type', 'ord_orders')
             ->where('order.payment_status', PaymentStatus::Received())
