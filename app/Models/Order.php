@@ -27,7 +27,8 @@ class Order extends Model
     protected $table = 'ord_orders';
     protected $guarded = [];
 
-    public static function orderList($keyword = null,
+    public static function orderList(
+        $keyword = null,
         $order_status = null,
         $sale_channel_id = null,
         $order_date = null,
@@ -41,7 +42,8 @@ class Order extends Model
         $has_back_sn = null
     ) {
         $order = DB::table('ord_orders as order')
-            ->select(['order.id as id',
+            ->select([
+                'order.id as id',
                 'order.sn as main_order_sn',
                 'order.status as order_status',
                 'order.payment_method',
@@ -58,7 +60,7 @@ class Order extends Model
                 'ord_received_orders.sn as or_sn',
                 'so.projlgt_order_sn',
                 'so.dlv_audit_date',
-//                'so.package_sn',
+                //                'so.package_sn',
                 'ord_items.product_title',
                 'ord_items.sub_order_id',
             ])
@@ -89,8 +91,7 @@ class Order extends Model
                     'ord_received_orders.source_type' => app(Order::class)->getTable(),
                     'ord_received_orders.deleted_at' => null,
                 ]);
-            })
-        ;
+            });
 
         if ($keyword) {
             $order->where(function ($query) use ($keyword) {
@@ -125,7 +126,6 @@ class Order extends Model
                 foreach ($received_method as $k) {
                     $order->orWhere('order.payment_method', 'like', '%' . $k . '%');
                 }
-
             } else {
                 $order->where('order.payment_method', 'like', '%' . $received_method . '%');
             }
@@ -185,7 +185,6 @@ class Order extends Model
             $order->where(function ($query) use ($purchase_sn) {
                 $query->Where('inbound.pcs_sn', '=', "$purchase_sn");
             });
-
         }
 
         if ($has_back_sn) {
@@ -197,7 +196,7 @@ class Order extends Model
         return [
             'dataList' => $order,
         ];
-//           dd($order->get()->toArray());
+        //           dd($order->get()->toArray());
     }
     // 簡易版
     public static function orderListSimple(
@@ -205,7 +204,8 @@ class Order extends Model
         $mcode = null
     ) {
         $order = DB::table('ord_orders as order')
-            ->select(['order.id as id',
+            ->select([
+                'order.id as id',
                 'order.sn as main_order_sn',
                 'order.status as order_status',
                 'order.payment_method',
@@ -263,7 +263,6 @@ class Order extends Model
         $order->orderByDesc('order.id');
 
         return $order;
-
     }
 
     public static function orderDetail($order_id, $email = null)
@@ -312,7 +311,8 @@ class Order extends Model
                 'customer_m.name as name_m',
                 'customer_m.sn as sn_m',
                 'order.dividend_active_at',
-                'sale.title as sale_title'])
+                'sale.title as sale_title'
+            ])
             ->selectRaw("IF(order.inv_title IS NULL,'',order.inv_title) as inv_title")
             ->selectRaw("IF(order.buyer_ubn IS NULL,'',order.buyer_ubn) as buyer_ubn")
             ->selectRaw("IF(order.buyer_email IS NULL,'',order.buyer_email) as buyer_email")
@@ -377,7 +377,8 @@ class Order extends Model
             'sku' => 'dlv_consum.sku',
             'product_title' => 'dlv_consum.product_title',
             'qty' => 'dlv_consum.qty',
-            'back_qty' => 'dlv_consum.back_qty']);
+            'back_qty' => 'dlv_consum.back_qty'
+        ]);
 
         $itemConsumeQuery = DB::table('dlv_logistic')
             ->leftJoin('dlv_consum', 'dlv_consum.logistic_id', '=', 'dlv_logistic.id')
@@ -394,7 +395,7 @@ class Order extends Model
             ->leftJoinSub($itemQuery, 'i', function ($join) {
                 $join->on('sub_order.id', '=', 'i.sub_order_id');
             })
-//->mergeBindings($itemQuery) ;
+            //->mergeBindings($itemQuery) ;
 
             ->leftJoin('dlv_delivery', function ($join) {
                 $join->on('dlv_delivery.event_id', '=', 'sub_order.id');
@@ -424,13 +425,15 @@ class Order extends Model
                     'ord_received_orders.deleted_at' => null,
                 ]);
             })
-            ->select('sub_order.*', 'i.items'
-                , 'dlv_delivery.sn as delivery_sn'
-                , 'dlv_delivery.logistic_status as logistic_status'
-                , 'dlv_delivery.audit_date as delivery_audit_date'
-                , 'consume_items.consume_items'
-                , 'ord_received_orders.sn as received_sn'
-                , 'sub_order.projlgt_order_sn'
+            ->select(
+                'sub_order.*',
+                'i.items',
+                'dlv_delivery.sn as delivery_sn',
+                'dlv_delivery.logistic_status as logistic_status',
+                'dlv_delivery.audit_date as delivery_audit_date',
+                'consume_items.consume_items',
+                'ord_received_orders.sn as received_sn',
+                'sub_order.projlgt_order_sn'
 
             )
             ->selectRaw("IF(sub_order.ship_sn IS NULL,'',sub_order.ship_sn) as ship_sn")
@@ -445,7 +448,7 @@ class Order extends Model
             ->selectRaw("IF(dlv_logistic.cost IS NULL,'',dlv_logistic.cost) as logistic_cost")
             ->selectRaw("IF(dlv_logistic.memo IS NULL,'',dlv_logistic.memo) as logistic_memo")
             ->selectRaw("IF(dlv_logistic.po_note IS NULL,'',dlv_logistic.po_note) as logistic_po_note")
-        // ->selectRaw("IF(dlv_logistic.projlgt_order_sn IS NULL,'',dlv_logistic.projlgt_order_sn) as projlgt_order_sn")
+            // ->selectRaw("IF(dlv_logistic.projlgt_order_sn IS NULL,'',dlv_logistic.projlgt_order_sn) as projlgt_order_sn")
             ->selectRaw("IF(shi_group.name IS NULL,'',shi_group.name) as ship_group_name")
             ->selectRaw("IF(shi_group.note IS NULL,'',shi_group.note) as ship_group_note")
             ->selectRaw("IF(shi_method.method IS NULL,'',shi_method.method) as ship_method")
@@ -470,14 +473,13 @@ class Order extends Model
                     'po.deleted_at' => null,
                 ]);
             })
-            // ->selectRaw("('" . app(Order::class)->getTable() . "') as payable_source_type")
+                // ->selectRaw("('" . app(Order::class)->getTable() . "') as payable_source_type")
                 ->selectRaw("IF(po.sn IS NULL, NULL, po.sn) as logistic_po_sn")
                 ->selectRaw("IF(po.balance_date IS NULL, NULL, po.balance_date) as logistic_po_balance_date")
                 ->selectRaw("IF(po.created_at IS NULL, NULL, po.created_at) as logistic_po_created_at");
         }
 
         return $orderQuery;
-
     }
 
     public static function orderAddress(&$query, $joinTable = 'order', $joinKey = 'order_id')
@@ -507,7 +509,6 @@ class Order extends Model
             $query->selectRaw($_address);
             $query->selectRaw($_phone);
             $query->selectRaw($_zipcode);
-
         }
     }
 
@@ -616,8 +617,8 @@ class Order extends Model
         //   dd($order);
         foreach ($order['shipments'] as $key => $value) {
             $sub_order_sn = $order_sn . "-" . str_pad((DB::table('ord_sub_orders')->where('order_id', $order_id)
-                    ->get()
-                    ->count()) + 1, 2, '0', STR_PAD_LEFT);
+                ->get()
+                ->count()) + 1, 2, '0', STR_PAD_LEFT);
 
             $order['shipments'][$key]->sub_order_sn = $sub_order_sn;
 
@@ -647,7 +648,6 @@ class Order extends Model
                     $insertData['ship_event_id'] = $value->id;
                     $insertData['ship_event'] = $value->depot_name;
                     break;
-
             }
 
             $subOrderId = DB::table('ord_sub_orders')->insertGetId($insertData);
@@ -655,15 +655,15 @@ class Order extends Model
             Discount::createOrderDiscount('sub', $order_id, $customer, $value->discounts, $subOrderId);
             //TODO 目前做DEMO 在新增訂單時，就新增出貨單，若未來串好付款，則在付款完畢後才新增出貨單
             $reDelivery = Delivery::createData(
-                $operator_user
-                , Event::order()->value
-                , $subOrderId
-                , $insertData['sn']
-                , $insertData['ship_temp_id'] ?? null
-                , $insertData['ship_temp'] ?? null
-                , $insertData['ship_category'] ?? null
-                , $insertData['ship_category_name'] ?? null
-                , $insertData['ship_event_id'] ?? null
+                $operator_user,
+                Event::order()->value,
+                $subOrderId,
+                $insertData['sn'],
+                $insertData['ship_temp_id'] ?? null,
+                $insertData['ship_temp'] ?? null,
+                $insertData['ship_category'] ?? null,
+                $insertData['ship_category_name'] ?? null,
+                $insertData['ship_event_id'] ?? null
             );
             if ($reDelivery['success'] == 0) {
                 DB::rollBack();
@@ -691,13 +691,13 @@ class Order extends Model
                     'discount_value' => $product->discount_value,
                     'origin_price' => $product->origin_price,
                     'img_url' => $product->img_url,
+                    'unit_cost' => $product->estimated_cost
+
                 ]);
                 ProductStyle::willBeShipped($product->product_style_id, $product->qty);
 
                 Discount::createOrderDiscount('item', $order_id, $customer, $product->discounts, $subOrderId, $pid);
-
             }
-
         }
 
         //付款資訊
@@ -751,7 +751,6 @@ class Order extends Model
         Order::sendMail_OrderEstablished($order_id);
         DB::commit();
         return ['success' => '1', 'order_id' => $order_id];
-
     }
 
     //付款資訊
@@ -828,13 +827,11 @@ class Order extends Model
                         DB::rollBack();
                         return ['success' => '0', 'error_msg' => '手機條碼載具格式錯誤'];
                     }
-
                 } else if ($carrier_type == 1) {
                     if (preg_match('/^[A-Z]{2}[0-9]{14}$/', $carrier_num) == 0 || strlen($carrier_num) != 16) {
                         DB::rollBack();
                         return ['success' => '0', 'error_msg' => '自然人憑證條碼載具格式錯誤'];
                     }
-
                 } else if ($carrier_type == 2) {
                     $pattern = "/^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,})$/i";
                     if (preg_match($pattern, $carrier_num) == 0) {
@@ -842,7 +839,6 @@ class Order extends Model
                         return ['success' => '0', 'error_msg' => '會員電子發票載具格式錯誤'];
                     }
                 }
-
             } else {
                 $carrier_type = null;
                 $carrier_num = null;
@@ -852,7 +848,6 @@ class Order extends Model
             if (false == empty($carrier_type)) {
                 $love_code = null;
                 $print_flag = 'Y';
-
             } else {
                 if ($love_code != '' && preg_match('/^[0-9]{3,7}$/', $love_code) !== 1) {
                     DB::rollBack();
@@ -861,14 +856,14 @@ class Order extends Model
             }
         }
         self::where('id', $order_id)->update([
-            'category' => $category
-            , 'invoice_category' => $invoice_category
-            , 'inv_title' => $inv_title
-            , 'buyer_ubn' => $buyer_ubn
-            , 'buyer_email' => $buyer_email
-            , 'carrier_type' => $carrier_type
-            , 'carrier_num' => $carrier_num
-            , 'love_code' => $love_code,
+            'category' => $category,
+            'invoice_category' => $invoice_category,
+            'inv_title' => $inv_title,
+            'buyer_ubn' => $buyer_ubn,
+            'buyer_email' => $buyer_email,
+            'carrier_type' => $carrier_type,
+            'carrier_num' => $carrier_num,
+            'love_code' => $love_code,
         ]);
         return ['success' => '1', 'error_msg' => ''];
     }
@@ -921,7 +916,6 @@ class Order extends Model
         self::where('id', $order_id)->update([
             'dividend_active_at' => $date,
         ]);
-
     }
 
     public static function update_dlv_taxation($parm)
@@ -979,12 +973,14 @@ class Order extends Model
                 $pBonus = $bonus - $cBonus;
                 // dd($bonus, $cBonus,$pBonus);
 
-                $updateData = ['order_id' => $order['order_id'],
+                $updateData = [
+                    'order_id' => $order['order_id'],
                     'order_sn' => $order['order_sn'],
                     'sub_order_sn' => $shipment->sub_order_sn,
                     'sub_order_id' => $shipment->sub_order_id,
                     'style_id' => $product->product_style_id,
-                    'total_bonus' => $bonus];
+                    'total_bonus' => $bonus
+                ];
                 //    dd($updateData);
 
                 $pid = OrderProfit::create(array_merge($updateData, [
@@ -999,11 +995,10 @@ class Order extends Model
                         'parent_id' => $pid,
                     ]));
                 }
-
             }
         }
 
-//        exit;
+        //        exit;
 
     }
     // 是否可取消訂單
@@ -1033,7 +1028,6 @@ class Order extends Model
                 return false;
             }
         }
-
     }
     // 取消訂單
     public static function cancelOrder($order_id, $type)
@@ -1063,11 +1057,11 @@ class Order extends Model
                 $delivery = Delivery::where('event_id', '=', $sub_ord->id)->where('event', '=', Event::order()->value)->first();
                 //判斷未出貨 才須計算可售數量，否則是在退貨入庫時 才需計算可售數量
                 if (null != $delivery) {
-//                    $out_prd = DlvOutStock::where('delivery_id', $delivery->id)->get();
-//                    if (null != $out_prd && 0 < count($out_prd)) {
-//                        DB::rollBack();
-//                        return ['success' => 0, 'error_msg' => '請先刪除子訂單缺貨 ' . $delivery->event_sn];
-//                    }
+                    //                    $out_prd = DlvOutStock::where('delivery_id', $delivery->id)->get();
+                    //                    if (null != $out_prd && 0 < count($out_prd)) {
+                    //                        DB::rollBack();
+                    //                        return ['success' => 0, 'error_msg' => '請先刪除子訂單缺貨 ' . $delivery->event_sn];
+                    //                    }
                     if (null != $delivery->audit_date) {
                         $is_calc_in_stock = false;
                     }
@@ -1093,8 +1087,13 @@ class Order extends Model
                             }
                         }
 
-                        ProductStock::stockChange($item->product_style_id,
-                            $calc_qty, 'order', $order_id, $item->sku . "取消訂單");
+                        ProductStock::stockChange(
+                            $item->product_style_id,
+                            $calc_qty,
+                            'order',
+                            $order_id,
+                            $item->sku . "取消訂單"
+                        );
 
                         ProductStyle::willBeShipped($item->product_style_id, $calc_qty * -1);
                     }
@@ -1133,9 +1132,8 @@ class Order extends Model
                 'deadline' => $value->deadline,
                 'active_sdate' => $value->active_sdate,
                 'active_edate' => $value->active_edate,
-                'note' => $value->note.' 由' . $order->sn . "訂單返還。",
+                'note' => $value->note . ' 由' . $order->sn . "訂單返還。",
             ]);
-
         }
         DB::table('ord_dividend')->where('order_sn', $order->sn)->delete();
         // 刪除分潤
@@ -1145,7 +1143,6 @@ class Order extends Model
 
         return ['success' => 1, 'error_msg' => ""];
         return;
-
     }
     // 分割訂單
     public static function splitOrder($order_id, $items, $operator_user)
@@ -1216,7 +1213,6 @@ class Order extends Model
             $_suborder->discounted_price += $n_price;
 
             $nSubOrders[$_suborder->sn]->items[] = $_item;
-
         }
 
         /*
@@ -1304,15 +1300,15 @@ class Order extends Model
             ])->id;
 
             Delivery::createData(
-                $operator_user
-                , Event::order()->value
-                , $soid
-                , $ssn
-                , $sorder->ship_temp_id ?? null
-                , $sorder->ship_temp ?? null
-                , $sorder->ship_category ?? null
-                , $sorder->ship_category_name ?? null
-                , $sorder->ship_event_id ?? null
+                $operator_user,
+                Event::order()->value,
+                $soid,
+                $ssn,
+                $sorder->ship_temp_id ?? null,
+                $sorder->ship_temp ?? null,
+                $sorder->ship_category ?? null,
+                $sorder->ship_category_name ?? null,
+                $sorder->ship_event_id ?? null
             );
 
             foreach ($sorder->items as $item) {
@@ -1338,7 +1334,6 @@ class Order extends Model
         }
 
         DB::commit();
-
     }
 
     // 是否可取消訂單
@@ -1396,14 +1391,14 @@ class Order extends Model
 
             $email = $order->email;
             $data = [
-                'order_name' => $orderer->name ?? ''
-                , 'sn' => $order->sn ?? ''
-                , 'link_url' => $link_url,
+                'order_name' => $orderer->name ?? '',
+                'sn' => $order->sn ?? '',
+                'link_url' => $link_url,
             ];
             try {
                 Mail::to($email)->queue(new OrderEstablished($data));
             } catch (\Exception $e) {
-                echo '信件未寄出 '. $e->getMessage();
+                echo '信件未寄出 ' . $e->getMessage();
             }
         }
     }
@@ -1425,13 +1420,13 @@ class Order extends Model
 
             $email = $order->email;
             $data = [
-                'order_name' => $orderer->name ?? ''
-                , 'sn' => $order->sn ?? '',
+                'order_name' => $orderer->name ?? '',
+                'sn' => $order->sn ?? '',
             ];
             try {
                 Mail::to($email)->queue(new OrderPaid($data));
             } catch (\Exception $e) {
-                echo '信件未寄出 '. $e->getMessage();
+                echo '信件未寄出 ' . $e->getMessage();
             }
         }
     }
@@ -1460,18 +1455,18 @@ class Order extends Model
 
             $email = $order->email;
             $data = [
-                'order_name' => $orderer->name ?? ''
-                , 'sn' => $order->sn ?? ''
-                , 'receive_name' => $receiver->name ?? ''
-                , 'receive_address' => $receiver->address ?? ''
-                , 'receive_phone' => $receiver->phone ?? ''
-                , 'order_items' => $order_items ?? null
-                , 'sub_order' => $sub_order ?? null
+                'order_name' => $orderer->name ?? '',
+                'sn' => $order->sn ?? '',
+                'receive_name' => $receiver->name ?? '',
+                'receive_address' => $receiver->address ?? '',
+                'receive_phone' => $receiver->phone ?? '',
+                'order_items' => $order_items ?? null,
+                'sub_order' => $sub_order ?? null
             ];
             try {
                 Mail::to($email)->queue(new OrderShipped($data));
             } catch (\Exception $e) {
-                echo '信件未寄出 '. $e->getMessage();
+                echo '信件未寄出 ' . $e->getMessage();
             }
         }
     }
@@ -1508,7 +1503,6 @@ class Order extends Model
             ])
             ->selectRaw($titles)
             ->where('order.id', '=', $order_id);
-
     }
 
     /**
@@ -1541,8 +1535,7 @@ class Order extends Model
         }
 
         //直接權限(direct permission)
-        if (User::find($user->id)->hasPermissionTo('cms.order.whole')
-        ) {
+        if (User::find($user->id)->hasPermissionTo('cms.order.whole')) {
             return true;
         } else {
             //檢查：角色的權限(role permission)是否只可以瀏覽自己,這裡別用Spatie套件的function，會有問題
