@@ -717,6 +717,37 @@ class Order extends Model
         // CustomerDividend::activeDividend(DividendCategory::Order(), $order_sn);
         //  CustomerCoupon::activeCoupon($order_id);
 
+        if ($order['total_price'] == 0) {
+            $source_id = $order_id;
+            $source_type = app(Order::class)->getTable();
+
+            $received_order_collection = ReceivedOrder::where([
+                'source_type' => $source_type,
+                'source_id' => $source_id,
+            ]);
+            if (!$received_order_collection->first()) {
+                ReceivedOrder::create_received_order($source_type, $source_id);
+            }
+
+            $received_order_id = $received_order_collection->first()->id;
+
+            $data = [];
+            $data['acc_transact_type_fk'] = ReceivedMethod::Cash;
+            $data['tw_price'] = $order['total_price'];
+            $result_id = ReceivedOrder::store_received_method($data);
+
+            $parm = [];
+            $parm['received_order_id'] = $received_order_id;
+            $parm['received_method'] = $data['acc_transact_type_fk'];
+            $parm['received_method_id'] = $result_id;
+            $parm['grade_id'] = ReceivedDefault::where('name', ReceivedMethod::Cash)->first()->default_grade_id;
+            $parm['price'] = $data['tw_price'];
+            // $parm['accountant_id_fk'] = auth('user')->user()->id;
+            // $parm['summary'] = $data['summary'];
+            // $parm['note'] = $data['note'];
+            ReceivedOrder::store_received($parm);
+        }
+
         Order::sendMail_OrderEstablished($order_id);
         DB::commit();
         return ['success' => '1', 'order_id' => $order_id];

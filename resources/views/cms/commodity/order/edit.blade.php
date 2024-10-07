@@ -1056,7 +1056,7 @@
                 });
             });
 
-            const MIN_PAY_SUM = 10;
+            const MIN_PAY_SUM = 0; // 最小付款金額
             let addProductModal = new bootstrap.Modal(document.getElementById('addProduct'));
             let setShipmentModal = new bootstrap.Modal(document.getElementById('setShipment'), {
                 backdrop: 'static',
