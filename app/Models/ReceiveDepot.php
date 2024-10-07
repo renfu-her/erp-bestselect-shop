@@ -390,8 +390,9 @@ class ReceiveDepot extends Model
                         foreach ($query_unit_cost as $item) {
                             if (Event::order()->value == $delivery->event) {
                                 //判斷若為訂單 則將成本回寫到 ord_items.unit_cost
-                                OrderItem::where('id', '=', $item->event_item_id)->update([
-                                    'unit_cost' => $item->unit_cost,]);
+                                // 取消寫入，依據 20241007 hans 口述:不再回寫，由他處理
+//                                OrderItem::where('id', '=', $item->event_item_id)->update([
+//                                    'unit_cost' => $item->unit_cost,]);
                             }
                             else if (Event::consignment()->value == $delivery->event) {
                                 //判斷若為寄倉單 則將成本回寫到 csn_consignment_items.unit_cost
