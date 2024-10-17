@@ -163,15 +163,18 @@ class OrderInvoice extends Model
                 $item_tax_type_arr[] = $parm['o_taxation'][$key] == 1 ? 1 : 3;
 
                 if($parm['o_taxation'][$key] == 1){
-                    $amt_sales += round($parm['o_total_price'][$key]/1.05);
-                    $amt += round($parm['o_total_price'][$key]/1.05);
+                    $amt_sales += $parm['o_total_price'][$key] /1.05;
+                    $amt += $parm['o_total_price'][$key] / 1.05;
                 } else if($parm['o_taxation'][$key] == 0){
-                    $amt_free += round($parm['o_total_price'][$key]/1);
-                    $amt += round($parm['o_total_price'][$key]/1);
+                    $amt_free += $parm['o_total_price'][$key] / 1;
+                    $amt += $parm['o_total_price'][$key] / 1;
                 }
             }
         }
 
+        $amt_sales = round($amt_sales);
+        $amt_free = round($amt_free);
+        $amt = round($amt);
 
         $invoice_id = null;
         $user_id = auth('user')->user() ? auth('user')->user()->id : null;
@@ -424,13 +427,17 @@ class OrderInvoice extends Model
             $item_tax_type_arr[] = $parm['o_taxation'][$key] == 1 ? 1 : 3;
 
             if($parm['o_taxation'][$key] == 1){
-                $amt_sales += round($parm['o_total_price'][$key]/1.05);
-                $amt += round($parm['o_total_price'][$key]/1.05);
+                $amt_sales += $parm['o_total_price'][$key] /1.05;
+                $amt += $parm['o_total_price'][$key] / 1.05;
             } else if($parm['o_taxation'][$key] == 0){
-                $amt_free += round($parm['o_total_price'][$key]/1);
-                $amt += round($parm['o_total_price'][$key]/1);
+                $amt_free += $parm['o_total_price'][$key] / 1;
+                $amt += $parm['o_total_price'][$key] / 1;
             }
         }
+
+        $amt_sales = round($amt_sales);
+        $amt_free = round($amt_free);
+        $amt = round($amt);
 
         $user_id = auth('user')->user() ? auth('user')->user()->id : null;
         $merchant_order_no = isset($parm['merchant_order_no']) ? $parm['merchant_order_no'] : $invoice->merchant_order_no ;
