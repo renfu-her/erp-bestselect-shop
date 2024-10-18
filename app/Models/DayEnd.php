@@ -481,6 +481,25 @@ class DayEnd extends Model
                         }
                     }
 
+                    foreach($data_list as $card_value){
+                        if($card_value->tw_price > 0){
+                            $data = [
+                                'day_end_id' => $day_end_id,
+                                'closing_date' => $closing_date,
+                                'source_type' => $real_value->getTable(),
+                                'source_id' => $real_value->id,
+                                'source_sn' => $real_value->sn,
+                                'source_summary' => '信用卡 ' . $card_value->credit_card_number,
+                                'debit_price' => null,
+                                'credit_price' => $card_value->tw_price,
+                                'grade_id' => $card_value->ro_received_grade_id,
+                                'grade_code' => $card_value->ro_received_grade_code,
+                                'grade_name' => $card_value->ro_received_grade_name,
+                            ];
+                            DayEndLog::create_day_end_log($data);
+                        }
+                    }
+
                 } else if($real_value->getTable() == 'acc_note_receivable_orders'){
                     $data_list = NoteReceivableOrder::get_cheque_received_list(null, 'cashed', null, null, null, null, null, null, null, null, null, [$closing_date, $closing_date])->whereNotNull('_cheque.sn')->get();
 
