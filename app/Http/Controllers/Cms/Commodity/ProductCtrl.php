@@ -617,6 +617,7 @@ class ProductCtrl extends Controller
         // dd('aa');
 
         $product = Product::productList(null, $id, ['user' => true, 'supplier' => true])->get()->first();
+      
         $style = ProductStyle::where('id', $sid)->get()->first();
         if (!$product || !$style) {
             return abort(404);
