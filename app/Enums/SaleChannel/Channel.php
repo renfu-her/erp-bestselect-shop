@@ -26,6 +26,7 @@ final class Channel extends Enum
     const Besttour = 9;
     const DealerPriceNoBonus = 10;
     const MultipleOrders = 16;
+    const TourGuide = 18;
 
     public static function getDescription($value): string
     {

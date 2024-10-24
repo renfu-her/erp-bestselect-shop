@@ -112,7 +112,9 @@ class SaleChannel extends Model
                     ->orWhere('c.id', '=', Channel::DepartureLounge)
                     ->orWhere('c.id', '=', Channel::Besttour)
                     ->orWhere('c.id', '=', Channel::DealerPriceNoBonus)
-                    ->orWhere('c.id', '=', Channel::MultipleOrders);
+                    ->orWhere('c.id', '=', Channel::MultipleOrders)
+                    ->orWhere('c.id', '=', Channel::TourGuide);
+                    
             })
             ->orderBy('c.is_master', 'DESC');
     }
