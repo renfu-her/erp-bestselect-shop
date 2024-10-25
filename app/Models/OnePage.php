@@ -77,8 +77,8 @@ class OnePage extends Model
             ->selectRaw('IF(product.logistic_desc IS NULL,"",product.logistic_desc) as logistic_desc')
             ->selectRaw('IF(product.slogan IS NULL,"",product.slogan) as slogan')
             ->where('product.public', 1)
-            ->where('online', '1')
-            ->where('product.online', 1)
+            // ->where('online', '1')
+            // ->where('product.online', 1)
             ->where(function ($query) {
                 $now = date('Y-m-d H:i:s');
                 $query->where(function ($query) use ($now) {
