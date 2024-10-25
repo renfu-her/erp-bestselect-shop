@@ -733,7 +733,7 @@ class Product extends Model
                     ->orWhereNull('p.active_edate');
             })
             ->where('p.public', '1')
-            ->where($sales_type, 1)
+           // ->where($sales_type, 1)
             ->get()->first();
 
         if (!$re) {
