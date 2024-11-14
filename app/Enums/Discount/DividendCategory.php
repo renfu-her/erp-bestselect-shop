@@ -19,6 +19,7 @@ final class DividendCategory extends Helper
     const M_b2ec = 'm_b2ec';
     const Employee_gift = 'employee_gift';
     const Guide = 'guide';
+    const Other = 'other';
 
     public static function getDescription($value): string
     {
@@ -47,10 +48,12 @@ final class DividendCategory extends Helper
             case self::Guide:
                 $result = '導遊領隊購物金';
                 break;
+            case self::Other:
+                $result = '其他';
+                break;
             default:
                 return parent::getDescription($value);
         }
         return $result;
     }
-
 }
