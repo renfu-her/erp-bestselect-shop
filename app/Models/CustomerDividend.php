@@ -325,7 +325,7 @@ class CustomerDividend extends Model
             $condition = DividendFlag::Invalid();
         }
 
-        $exp = self::where('active_edate', '<', DB::raw("DATE_ADD(NOW(), INTERVAL 1 DAY)"))
+        $exp = self::where(DB::raw('DATE(active_edate)'), '<', DB::raw('CURRENT_DATE'))
             ->where('flag', $condition)
             ->selectRaw('SUM(dividend-used_dividend) as dividend')
             ->selectRaw($concatString . ' as dividends')
@@ -335,6 +335,9 @@ class CustomerDividend extends Model
         if (!$exp) {
             return;
         }
+
+        // dd($exp);
+
         $expPoint = $exp->dividend;
 
         $exp->dividends = json_decode($exp->dividends);
