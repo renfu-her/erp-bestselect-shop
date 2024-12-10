@@ -531,6 +531,7 @@ class OrderCtrl extends Controller
      */
     public function detail($id, $subOrderId = null)
     {
+        // dd('aa');
         list($order, $subOrder) = $this->getOrderAndSubOrders($id, $subOrderId);
 
         if (!$order) {
@@ -634,7 +635,7 @@ class OrderCtrl extends Controller
                 'previous' => 1,
             ]);
         }
-
+        
         return view('cms.commodity.order.detail', [
             'sn' => $sn,
             'order' => $order,
@@ -659,16 +660,22 @@ class OrderCtrl extends Controller
             'relation_invoice' => $relation_invoice,
         ]);
     }
-
+    private function json_process($str){
+        return preg_replace('/[\x00-\x1F\x7F]/u', '', $str);
+    }
     //取得訂單和子訂單(可選)
     public function getOrderAndSubOrders(int $id, int $subOrderId = null): array
     {
         $order = Order::orderDetail($id)->get()->first();
         $subOrder = Order::subOrderDetail($id, $subOrderId, true)->get()->toArray();
-
+       
         foreach ($subOrder as $key => $value) {
-            $subOrder[$key]->items = json_decode($value->items);
-            $subOrder[$key]->consume_items = json_decode($value->consume_items);
+           
+        
+            $subOrder[$key]->items = json_decode($this->json_process($value->items));
+          
+            $subOrder[$key]->consume_items = json_decode($this->json_process($value->consume_items));
+           
         }
         return array($order, $subOrder);
     }
