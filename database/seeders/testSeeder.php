@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\CustomerDividend;
 use App\Models\User;
 use App\Models\UserSalechannel;
 use Illuminate\Database\Seeder;
@@ -16,6 +17,9 @@ class testSeeder extends Seeder
      */
     public function run()
     {
+        CustomerDividend::checkExpired(1131);
+
+        return 
         $salesId = DB::table('prd_sale_channels')
             ->where('prd_sale_channels.title', '喜鴻購物2.0官網')
             ->select('id')
