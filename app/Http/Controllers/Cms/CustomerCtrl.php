@@ -96,7 +96,8 @@ class CustomerCtrl extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'password' => 'confirmed|min:4', 'name' => 'required|string',
+            'password' => 'confirmed|min:4',
+            'name' => 'required|string',
             'email' => ['required', 'email:rfc,dns', 'unique:App\Models\Customer'],
         ]);
 
@@ -167,7 +168,8 @@ class CustomerCtrl extends Controller
         }
 
         return view('cms.admin.customer.edit', [
-            'method' => 'edit', 'id' => $id,
+            'method' => 'edit',
+            'id' => $id,
             'formAction' => Route('cms.customer.edit', ['id' => $id]),
             'data' => $data,
             'customer_list' => Customer::all(),
@@ -305,15 +307,17 @@ class CustomerCtrl extends Controller
      */
     public function dividend(Request $request, $id)
     {
-       
+
         $remain = CustomerDividend::getRemainList($id);
-     
+
         //        $dividend = CustomerDividend::getDividend($id)->get()->first()->dividend;
         $typeGet = CustomerDividend::getList($id, 'get')->get();
         $typeUsed = CustomerDividend::getList($id, 'used')->get();
+        $expired  = CustomerDividend::getExpired($id)->get();
 
         return view('cms.admin.customer.dividend', [
             'customer' => $id,
+            'expired' => $expired,
             //            'dividend' => $dividend,
             'get_record' => $typeGet,
             'use_record' => $typeUsed,

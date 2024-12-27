@@ -55,6 +55,17 @@ class CustomerDividend extends Model
 
         return $re;
     }
+
+    public static function getExpired($customer_id)
+    {
+        return  DB::table('usr_cusotmer_dividend as dividend')
+            ->select('dividend.*')
+            ->where("flag", DividendFlag::Expired())
+            ->where('dividend.customer_id', $customer_id)
+            ->orderBy('created_at', 'DESC');
+    }
+
+
     // 從訂單取得點數
     public static function fromOrder($customer_id, $order_sn, $point, $deadline = 1)
     {
