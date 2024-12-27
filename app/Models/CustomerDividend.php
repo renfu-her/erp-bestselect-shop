@@ -22,7 +22,10 @@ class CustomerDividend extends Model
         //get訂單返還的訂單編號, 例：由O202312060004訂單返還
         $canceled_orders = self::where('note', 'LIKE', '由O%')
             ->where('note', 'LIKE', '%返還')
+            ->where('customer_id', 1)
             ->get();
+
+
         $canceled_orders_ids = $canceled_orders->groupBy('id')->toArray();
         $canceled_orders_notes = $canceled_orders->groupBy('note')->toArray();
 
@@ -32,7 +35,6 @@ class CustomerDividend extends Model
             $canceledOrders[] = mb_substr($canceledOrder, 1, -4, 'utf-8');
         }
 
-
         $re = DB::table('usr_cusotmer_dividend as dividend')
             ->select('dividend.*')
             ->selectRaw('IF(active_sdate IS NULL,"",active_sdate) as active_sdate')
@@ -41,12 +43,14 @@ class CustomerDividend extends Model
             ->whereNotIn('dividend.category_sn', $canceledOrders)
             ->orderBy('created_at', 'DESC');
 
+
         if ($type) {
             $re->where('type', $type);
         }
 
         if ($type == 'get') {
             $re->where("flag", "<>", DividendFlag::NonActive());
+            // $re->whereNotIn("flag", [DividendFlag::NonActive(),DividendFlag::Back()]);
         }
 
         if ($customer_id) {
@@ -765,7 +769,8 @@ class CustomerDividend extends Model
             ->selectRaw('SUM(dividend-used_dividend) as dividend')
             ->selectRaw($categoryCase)
             ->where('type', 'get')
-            ->whereIn('flag', [DividendFlag::Active(), DividendFlag::Back()])
+            // ->whereIn('flag', [DividendFlag::Active(), DividendFlag::Back()])
+            ->whereIn('flag', [DividendFlag::Active()])
             //  ->where('customer_id', $customer_id)
             ->groupBy('deadline')
             ->groupBy('category')
