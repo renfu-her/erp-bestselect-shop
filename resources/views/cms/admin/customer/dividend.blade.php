@@ -122,7 +122,7 @@
         <div class="table-responsive tableOverBox">
             <table class="table table-striped tableList">
                 <tr>
-                    <td>剩餘點數: {{ $getTotal + $usedTotal - $expiredTotal }}</td>
+                    <td>剩餘點數: {{ $getTotal + $usedTotal + $expiredTotal }}</td>
                 </tr>
             </table>
             <table class="table table-striped tableList">
