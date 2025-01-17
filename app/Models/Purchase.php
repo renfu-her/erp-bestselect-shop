@@ -221,6 +221,7 @@ class Purchase extends Model
     {
         if (null != $purchase && null != $purchasePayReq) {
             $purchase->supplier_sn = $purchaseReq['supplier_sn'] ?? null;
+            $purchase->note = $purchasePayReq['note'] ?? null;
             $purchase->scheduled_date = $purchaseReq['scheduled_date'];
             $purchase->has_tax = $tax;
             $purchase->invoice_num = $purchasePayReq['invoice_num'] ?? null;
