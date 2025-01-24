@@ -81,6 +81,7 @@ class DepotProduct extends Model
     public static function productExistInboundList($send_depot_id = null, $receive_depot_id = null, $type = null, $keyword = null)
     {
         $extPrdStyleList_send = PurchaseInbound::getExistInboundProductStyleList([$send_depot_id]);
+        $tik_type_general_id = TikType::where('code', 'general')->value('id');
 
         $querySelectList = DB::table('prd_product_depot_select as select_list')
             ->leftJoin('prd_salechannel_style_price as p', 'select_list.product_style_id', '=', 'p.style_id')
@@ -103,6 +104,7 @@ class DepotProduct extends Model
             )
             ->whereNull('select_list.deleted_at')
             ->where('p.sale_channel_id', 1)
+            ->where('product.tik_type_id', $tik_type_general_id) // 只找一般商品
         ;
         if ($receive_depot_id) {
             $querySelectList->where('select_list.depot_id', $receive_depot_id);

@@ -66,6 +66,10 @@ class ProductStyle extends Model
         $data['is_active'] = $is_active;
         $data['title'] = trim($title);
         $data['estimated_cost'] = $estimated_cost;
+        if(isset($item_ids['ticket_number'])) {
+            $data['ticket_number'] = $item_ids['ticket_number'];
+        }
+
 
         return self::create($data)->id;
 

@@ -1471,6 +1471,18 @@
                                     </div>
                                 `);
                             }
+                            // 電子票券
+                            if (shipData.eTicket) {
+                                $('#setShipment fieldset > div').append(`
+                                    <div class="form-check mb-3">
+                                        <label class="form-check-label w-100">
+                                            <input class="form-check-input" name="temp_type" type="radio" value="${shipData.eTicket.category}">
+                                            ${shipData.eTicket.category_name}
+                                            <div class="form-control" readonly>${shipData.eTicket.group_name}</div>
+                                        </label>
+                                    </div>
+                                `);
+                            }
                             // 自取
                             if (shipData.pickup) {
                                 $('#setShipment fieldset > div').append(`
@@ -1506,6 +1518,9 @@
                                 switch (type) {
                                     case 'deliver':
                                         selectShip = shipData.deliver;
+                                        break;
+                                    case 'eTicket':
+                                        selectShip = shipData.eTicket;
                                         break;
                                     case 'pickup':
                                         if (!$('select[name="temp_depots"]').val()) {

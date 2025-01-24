@@ -18,6 +18,7 @@ use App\Models\ProductStyleCombo;
 use App\Models\SaleChannel;
 use App\Models\ShipmentCategory;
 use App\Models\Supplier;
+use App\Models\TikType;
 use App\Models\User;
 use Illuminate\Http\Request;
 // use Illuminate\Routing\Route;
@@ -121,6 +122,7 @@ class ProductCtrl extends Controller
             'users' => User::get(),
             'suppliers' => Supplier::get(),
             'categorys' => Category::get(),
+            'tikTypes' => TikType::where('is_active', 1)->get(),
             'current_user' => $request->user()->id,
             'images' => [],
             'page' => $this->currentPage,
@@ -147,6 +149,7 @@ class ProductCtrl extends Controller
             'supplier' => 'required|array',
             'type' => 'required|in:c,p',
             // 'url'=>'unique:App\Models\Product'
+            'tik_type_id' => 'required',
         ]);
 
         // $path = $request->file('file')->store('excel');
@@ -168,7 +171,13 @@ class ProductCtrl extends Controller
             isset($d['online']) ? $d['online'] : '0',
             isset($d['offline']) ? $d['offline'] : '0',
             $d['purchase_note'],
-            $d['meta']);
+            $d['meta'],
+            $d['tik_type_id']);
+        // 判斷若為電子票券，則自動建立運送方式
+        $tikType = TikType::where('code', 'eYoubon')->first();
+        if ($tikType && $d['tik_type_id'] == $tikType->id) {
+            Product::updateETicketProductShipment($re['id']);
+        }
 
         if ($request->hasfile('files')) {
             foreach (array_reverse($request->file('files')) as $file) {
@@ -242,6 +251,7 @@ class ProductCtrl extends Controller
             'current_supplier' => $current_supplier,
             'categorys' => Category::get(),
             'images' => ProductImg::where('product_id', $id)->get(),
+            'tikTypes' => TikType::where('is_active', 1)->get(),
             'breadcrumb_data' => $product,
             'page' => $this->currentPage,
         ]);
@@ -287,7 +297,9 @@ class ProductCtrl extends Controller
             isset($d['online']) ? $d['online'] : '0',
             isset($d['offline']) ? $d['offline'] : '0',
             $d['purchase_note'],
-            $d['meta']);
+            $d['meta'],
+            $d['tik_type_id']
+        );
 
         if ($request->hasfile('files')) {
             foreach (array_reverse($request->file('files')) as $file) {
@@ -341,8 +353,19 @@ class ProductCtrl extends Controller
 
         $salechannel = SaleChannel::where('is_master', 1)->get()->first();
 
+        $product = Product::where('id', $id)->get()->first();
+        $tiktype = TikType::where('code', '!=', 'general')->get();
+        // 判斷 $product.tikt_type_id 是否在 $tiktype->id 裡，有的話設定 isTik = ture，否則 false
+        $product->isTicket = false;
+        foreach ($tiktype as $tik) {
+            if ($product->tik_type_id == $tik->id) {
+                $product->isTicket = true;
+            }
+        }
+
+        // dd($product, $styles, $specList);
         return view('cms.commodity.product.styles', [
-            'data' => Product::where('id', $id)->get()->first(),
+            'data' => $product,
             'specList' => $specList,
             'styles' => $styles,
             'initStyles' => $init_styles,
@@ -396,6 +419,7 @@ class ProductCtrl extends Controller
                 for ($i = 1; $i <= $specCount; $i++) {
                     if (isset($d["nsk_spec$i"][$key])) {
                         $updateData["estimated_cost"] = $d['nsk_estimated_cost'][$key];
+                        $updateData["ticket_number"] = $d['nsk_ticket_number'][$key] ?? null;
                         $itemIds[] = $d['nsk_spec' . $i][$key];
                     }
                 }
@@ -411,6 +435,7 @@ class ProductCtrl extends Controller
             foreach ($d['sk_style_id'] as $key => $value) {
                 $updateData = [];
                 $updateData['estimated_cost'] = $d['sk_estimated_cost'][$key];
+                $updateData['ticket_number'] = $d['sk_ticket_number'][$key] ?? null;
                 ProductStyle::where('id', $value)->whereNotNull('sku')->update($updateData);
                 SaleChannel::changePrice($sale_id, $value, $d['sk_dealer_price'][$key], $d['sk_price'][$key], $d['sk_origin_price'][$key], $d['sk_bonus'][$key], $d['sk_dividend'][$key]);
 
@@ -428,6 +453,7 @@ class ProductCtrl extends Controller
                 for ($j = 1; $j <= $specCount; $j++) {
                     if (isset($d["n_spec$j"][$i])) {
                         $updateData["spec_item" . $j . "_id"] = $d['n_spec' . $j][$i];
+                        $updateData["ticket_number"] = $d['n_ticket_number'][$i] ?? null;
 
                     }
                 }
@@ -617,7 +643,7 @@ class ProductCtrl extends Controller
         // dd('aa');
 
         $product = Product::productList(null, $id, ['user' => true, 'supplier' => true])->get()->first();
-      
+
         $style = ProductStyle::where('id', $sid)->get()->first();
         if (!$product || !$style) {
             return abort(404);
@@ -825,6 +851,30 @@ class ProductCtrl extends Controller
 
     public function updateSetting(Request $request, $id)
     {
+        // 檢查商品類型
+        $product = Product::find($id);
+        $tikType = TikType::find($product->tik_type_id);
+        $tikTypeCode = $tikType ? $tikType->code : '';
+
+        // 電子票券不可修改物流綁定
+        if ($tikTypeCode != 'general') {
+            // 取得商品目前 prd_product_shipment 的 group_id
+            $currentShipment = Product::shipmentList($id)->pluck('group_id')->toArray();
+            // 取得商品目前的物流綁定資料
+            $currentPickup = Product::pickupList($id)->pluck('depot_id_fk')->toArray();
+
+            // 比對前端傳入的新物流資料
+            $newGroup_ids = $request->input('group_id');
+            $newGroup_ids = array_map('intval', array_filter($newGroup_ids));
+            $shipmentDiff = array_diff($currentShipment, $newGroup_ids) || array_diff($newGroup_ids, $currentShipment);
+            $newDepotIds = $request->input('depot_id', []);
+
+
+            if ($shipmentDiff || $currentPickup != $newDepotIds) {
+                wToast('電子票券不可修改物流綁定', ['type' => 'danger']);
+                return redirect()->back()->withErrors(['error' => '電子票券不可修改物流綁定']);
+            }
+        }
 
         $d = $request->all();
         $collection = isset($d['collection']) ? $d['collection'] : [];

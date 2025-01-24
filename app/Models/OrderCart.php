@@ -136,6 +136,18 @@ class OrderCart extends Model
                         }
 
                         break;
+                    case 'eTicket':
+                        $shipment = Product::getShipment($value['product_id'], 'eTicket')->where('g.id', $value['shipment_event_id'])->get()->first();
+                        if (!$shipment) {
+                            $errors[$value['product_style_id']][] = [
+                                'error_msg' => '無運送方式(電子票券)',
+                                'error_status' => 'shipment',
+                            ];
+                        } else {
+                            $shipment->rules = json_decode($shipment->rules);
+                        }
+
+                        break;
                     default:
                         $errors[$value['product_style_id']][] = [
                             'error_msg' => '無運送方式',

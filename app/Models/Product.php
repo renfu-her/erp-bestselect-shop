@@ -299,11 +299,13 @@ class Product extends Model
     public static function createProduct($title,
         $user_id, $category_id, $type = 'p',
         $feature = null, $url = null, $slogan = null, $active_sdate = null,
-        $active_edate = null, $supplier = null, $has_tax = 0, $consume = 0, $public = 1, $online = 0, $offline = 0, $purchase_note = null, $meta = null) {
+        $active_edate = null, $supplier = null, $has_tax = 0, $consume = 0, $public = 1, $online = 0, $offline = 0, $purchase_note = null, $meta = null,
+        $tik_type_id = 1) {
         return IttmsDBB::transaction(function () use ($title,
             $user_id,
             $category_id,
             $type,
+            $tik_type_id,
             $feature,
             $url,
             $slogan,
@@ -357,6 +359,7 @@ class Product extends Model
                 'offline' => $offline,
                 'purchase_note' => $purchase_note,
                 'meta' => $meta,
+                'tik_type_id' => $tik_type_id
             ])->id;
 
             if ($supplier) {
@@ -384,7 +387,9 @@ class Product extends Model
         $online = null,
         $offline = null,
         $purchase_note = null,
-        $meta = null) {
+        $meta = null,
+        $tik_type_id = null
+    ) {
 
         $url = $url ? $url : $title;
 
@@ -410,6 +415,7 @@ class Product extends Model
             'offline' => $offline,
             'purchase_note' => $purchase_note,
             'meta' => $meta,
+            'tik_type_id' => $tik_type_id
         ]);
 
         Supplier::updateProductSupplier($id, $supplier);
@@ -773,6 +779,23 @@ class Product extends Model
         return $output;
     }
 
+    // 更新電子票券商品的運送方式
+    public static function updateETicketProductShipment($productId)
+    {
+        $shipmentQuery = DB::table(app(ShipmentGroup::class)->getTable() . ' as shipment_groups')
+            ->leftJoin(app(ShipmentCategory::class)->getTable() . ' as shipment_categories', 'shipment_groups.category_fk', '=', 'shipment_categories.id')
+            ->where('shipment_categories.code', 'eTicket')
+            ->select([
+                'shipment_categories.id as category_id',
+                'shipment_groups.id as group_id'
+            ])
+            ->first();
+
+        if ($shipmentQuery) {
+            Product::changeShipment($productId, $shipmentQuery->category_id, $shipmentQuery->group_id);
+        }
+    }
+
     public static function changeShipment($product_id, $category_id, $group_id)
     {
 
@@ -889,6 +912,11 @@ class Product extends Model
         if ($delivery) {
             $delivery->rules = json_decode($delivery->rules);
             $arr[$delivery->category] = $delivery;
+        }
+        $deliveryETicket = self::getShipment($product_id, 'eTicket')->get()->first();
+        if ($deliveryETicket) {
+            $deliveryETicket->rules = json_decode($deliveryETicket->rules);
+            $arr[$deliveryETicket->category] = $deliveryETicket;
         }
 
         $pickup = self::getPickup($product_id)->get()->toArray();
