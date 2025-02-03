@@ -41,7 +41,7 @@ class CreateYoubonTable extends Migration
             $table->text('response')->nullable()->comment('回應內容');
             $table->timestamps();
         });
-        Schema::create('tik_youbon_log', function (Blueprint $table) {
+        Schema::create('tik_youbon_tickets', function (Blueprint $table) {
             $table->id()->comment('星全安票券紀錄');
             $table->unsignedBigInteger('delivery_id')->comment('出貨單id');
             $table->unsignedBigInteger('event_item_id')->comment('事件物品ID');
@@ -77,6 +77,6 @@ class CreateYoubonTable extends Migration
             });
         }
         Schema::dropIfExists('tik_youbon_api_logs');
-        Schema::dropIfExists('tik_youbon_log');
+        Schema::dropIfExists('tik_youbon_tickets');
     }
 }
