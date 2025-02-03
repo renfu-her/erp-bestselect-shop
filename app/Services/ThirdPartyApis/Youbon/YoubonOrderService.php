@@ -14,6 +14,7 @@ class YoubonOrderService
     private const API_URL = 'https://b2b.youbon.com/api/orders.php';
     private $code = "5001star"; // API 交易密碼
     private $departId = "5001"; // 部門代碼
+    private $listnumbertype = "1"; // 商品清單編號
 
     // 付款方式列舉
     private const PAYMENT_TYPE = [
@@ -145,7 +146,7 @@ class YoubonOrderService
         $xml->addChild('email', $data['email']);
 
         $xml->addChild('paymenttype', '003');
-        $xml->addChild('listnumbertype', '1');
+        $xml->addChild('listnumbertype', $this->listnumbertype);
 
         // 加入商品資料
         $items = $xml->addChild('items');
@@ -155,9 +156,11 @@ class YoubonOrderService
             $itemNode->addChild('quantity', $item['quantity']);
             $itemNode->addChild('price', $item['price']);
         }
-        // 移除 XML 宣告
-        $xmlString = $xml->asXML();
-        return preg_replace('/<\?xml.*\?>\n*/', '', $xmlString);
+
+        $dom = dom_import_simplexml($xml)->ownerDocument;
+        $dom->encoding = 'UTF-8';
+        $xmlString = $dom->saveXML($dom->documentElement);
+        return $xmlString;
     }
 
     /**
@@ -166,7 +169,7 @@ class YoubonOrderService
      * @param string $response XML回應內容
      * @return array 解析結果
      */
-    private function parseResponse(string $response): array
+    public function parseResponse(string $response): array
     {
         $xml = simplexml_load_string(urldecode($response));
         $result = [];
@@ -184,8 +187,8 @@ class YoubonOrderService
 
             // 解析商品資料
             $result['items'] = [];
-            if (isset($xml->items)) {
-                foreach ($xml->items->item as $item) {
+            if (isset($xml->item)) {
+                foreach ($xml->item as $item) {
                     $result['items'][] = $this->parseItemByListNumberType($item);
                 }
             }
@@ -233,8 +236,14 @@ class YoubonOrderService
         }
 
         // 根據不同類型解析不同欄位
-        switch ($item->listnumbertype) {
+        switch ($this->listnumbertype) {
             case '1':
+                $result['prodid'] = (string)$item->prodid;
+                $result['batchid'] = (string)$item->batchid;
+                $result['ordernumber'] = (string)$item->ordernumber;
+                $result['price'] = (string)$item->price;
+                break;
+
             case '2':
                 $result['prodid'] = (string)$item->prodid;
                 $result['batchid'] = (string)$item->batchid;
