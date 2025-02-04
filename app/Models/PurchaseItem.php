@@ -294,6 +294,7 @@ class PurchaseItem extends Model
         if ($purchase_id) {
             $result->where('purchase.id', '=', $purchase_id);
         }
+        $result->orderBy('items.id', 'asc');
 
         return $result;
     }
@@ -447,7 +448,7 @@ class PurchaseItem extends Model
             , 'single_price' => DB::raw('ifnull(concat_items.single_price, "")')
             , 'error_num' => DB::raw('ifnull(concat_items.error_num, "")')
             , 'inbound_status' => DB::raw('ifnull(concat_items.inbound_status, "")')
-        ]);
+        ], 'ORDER BY concat_items.id asc');
 
         $queryConcatItem = DB::query()->fromSub($tempPurchaseItemSql, 'concat_items')
             ->select(
