@@ -51,8 +51,6 @@ class CreateYoubonTable extends Migration
             $table->string('batchid', 20)->comment('批號');
             $table->string('ordernumber', 30)->comment('票券號碼');
             $table->string('price', 12)->comment('售價');
-            $table->dateTime('start_time')->nullable()->comment('啟用時間');
-            $table->dateTime('exp_time')->nullable()->comment('過期時間');
             $table->dateTime('use_time')->nullable()->comment('使用時間');
             $table->dateTime('back_time')->nullable()->comment('退貨時間');
             $table->timestamps();
