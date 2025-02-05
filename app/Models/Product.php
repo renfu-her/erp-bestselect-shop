@@ -277,6 +277,19 @@ class Product extends Model
 
     }
 
+    public static function createProduct($title,
+        $user_id, $category_id, $type = 'p',
+        $feature = null, $url = null, $slogan = null, $active_sdate = null,
+        $active_edate = null, $supplier = null, $has_tax = 0, $consume = 0, $public = 1, $online = 0, $offline = 0, $purchase_note = null, $meta = null) {
+        // 使用預設的 tik_type_id = 1
+        return self::createProductWithTicket(
+            $title, $user_id, $category_id, $type,
+            $feature, $url, $slogan, $active_sdate,
+            $active_edate, $supplier, $has_tax, $consume, $public, $online, $offline, $purchase_note, $meta,
+            1
+        );
+    }
+
     /**
      * @param string $title 商品名稱
      * @param int $user_id
@@ -293,10 +306,13 @@ class Product extends Model
      * @param  int $public 公開
      * @param  int $online 開放通路 *線上 (對外網站)
      * @param  int $offline 開放通路 *線下 (ERP)
+     * @param  string $purchase_note 購買說明
+     * @param  string $meta 商品meta
+     * @param  int $tik_type_id 電子票券類型
      *
      * @return string[]
      */
-    public static function createProduct($title,
+    public static function createProductWithTicket($title,
         $user_id, $category_id, $type = 'p',
         $feature = null, $url = null, $slogan = null, $active_sdate = null,
         $active_edate = null, $supplier = null, $has_tax = 0, $consume = 0, $public = 1, $online = 0, $offline = 0, $purchase_note = null, $meta = null,
