@@ -8,13 +8,25 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use SimpleXMLElement;
 use App\Models\TikYoubonApiLog;
+use App\Enums\Globals\ResponseParam;
+use App\Enums\eTicket\YoubonErrorCode;
+use App\Enums\Globals\ApiStatusMessage;
 
 class YoubonOrderService
 {
     private const API_URL = 'https://b2b.youbon.com/api/orders.php';
-    private $code = "5001star"; // API 交易密碼
+
     private $departId = "5001"; // 部門代碼
+    private $userid = "627"; // API 交易帳號
+    private $username = "張若心"; // API 交易帳號
     private $listnumbertype = "1"; // 商品清單編號
+
+    private $code = "5001star"; // API 交易密碼
+
+    private const SELE_TYPE = [
+        'B2C' => 'B2C',
+        'B2B2C' => 'B2B2C'
+    ];
 
     // 付款方式列舉
     private const PAYMENT_TYPE = [
@@ -28,28 +40,6 @@ class YoubonOrderService
         'B2B2C' => [
             'OTHER' => '003' // 其他
         ]
-    ];
-
-    // 錯誤代碼常數
-    private const ERROR_CODES = [
-        '0000' => '成功',
-        '9900' => '訂單重複發送會回傳成功',
-        '0001' => '出貨有狀況，請洽我方人員',
-        '0002' => '此筆訂單已經出貨過，請勿重複送資料',
-        '0003' => '查無此訂單',
-        '0004' => '付款方式錯誤',
-        '0005' => '部門編號錯誤',
-        '0006' => '售出金額有誤，請洽我方人員',
-        '0007' => '額度不足無法出貨，請補充額度後再送資料出貨',
-        '0008' => '此訂單已退貨',
-        '0009' => '交易類型錯誤',
-        '0010' => '網購平臺編號錯誤',
-        '0011' => '操作人員編號錯誤',
-        '0012' => '操作人員姓名錯誤',
-        '0013' => '訂單編號空白',
-        '0014' => '有商品編號查詢不到資料',
-        '0015' => 'E-mail空白',
-        '9999' => '訂單異常'
     ];
 
     /**
@@ -86,28 +76,9 @@ class YoubonOrderService
         return $this->parseResponse($responseBody);
     }
 
-    /**
-     * 驗證必填欄位
-     *
-     * @param array $data 訂單資料
-     * @throws \InvalidArgumentException
-     */
-    private function validateRequiredFields(array $data): void
+    public function validInputValue(array $data)
     {
-        $requiredFields = [
-           'custbillno', 'fullname', 'telephone', 'email', 'items'
-        ];
-
-        foreach ($requiredFields as $field) {
-            if (empty($data[$field])) {
-                throw new \InvalidArgumentException("Missing required field: {$field}");
-            }
-        }
-    }
-
-    public function validInputValue(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
+        $validator = Validator::make($data, [
             'custbillno' => 'required|string|max:20',
             'fullname' => 'required|string|max:50',
             'telephone' => 'required|string|max:20',
@@ -131,9 +102,9 @@ class YoubonOrderService
         $xml = new SimpleXMLElement('<saleorder/>');
         // 加入基本資料
         $xml->addChild('departid', $this->departId);
-        $xml->addChild('userid', '627');
-        $xml->addChild('username', '張若心');
-        $xml->addChild('saletype', 'B2B2C');
+        $xml->addChild('userid', $this->userid);
+        $xml->addChild('username', $this->username);
+        $xml->addChild('saletype', self::SELE_TYPE['B2B2C']);
 
         // $xml->addChild('departid', $data['departid']);
         // $xml->addChild('userid', $data['userid']);
@@ -145,7 +116,7 @@ class YoubonOrderService
         $xml->addChild('telephone', $data['telephone']);
         $xml->addChild('email', $data['email']);
 
-        $xml->addChild('paymenttype', '003');
+        $xml->addChild('paymenttype', self::PAYMENT_TYPE['B2B2C']['OTHER']);
         $xml->addChild('listnumbertype', $this->listnumbertype);
 
         // 加入商品資料
@@ -179,7 +150,20 @@ class YoubonOrderService
         $result['statdesc'] = (string)$xml->statdesc;
 
         // 如果成功才解析其他資料
-        if ($result['statcode'] === '0000') {
+        if ($result['statcode'] === YoubonErrorCode::SUCCESS) {
+            $result['billno'] = (string)$xml->billno;
+            $result['borrowno'] = (string)$xml->borrowno;
+            $result['billdate'] = (string)$xml->billdate;
+            $result['weburl'] = (string)$xml->weburl;
+
+            // 解析商品資料
+            $result['items'] = [];
+            if (isset($xml->item)) {
+                foreach ($xml->item as $item) {
+                    $result['items'][] = $this->parseItemByListNumberType($item);
+                }
+            }
+        } else if($result['statcode'] === YoubonErrorCode::ORDER_DUPLICATE) {
             $result['billno'] = (string)$xml->billno;
             $result['borrowno'] = (string)$xml->borrowno;
             $result['billdate'] = (string)$xml->billdate;
@@ -278,6 +262,72 @@ class YoubonOrderService
      */
     private function getErrorMessage(string $code): string
     {
-        return self::ERROR_CODES[$code] ?? '未知錯誤';
+        return YoubonErrorCode::getDescription($code);
+    }
+
+    /**
+     * 處理訂單
+     *
+     * @param int $delivery_id 出貨單號
+     * @param array $orderData 訂單資料
+     * @return array 處理結果
+     */
+    public function processOrder($delivery_id, array $orderData): array
+    {
+        // 資料驗證
+        $validator = $this->validInputValue($orderData);
+        if ($validator->fails()) {
+            return [
+                ResponseParam::status => ApiStatusMessage::Fail,
+                ResponseParam::msg => implode('；', $validator->errors()->all()),
+                ResponseParam::data   => [],
+            ];
+        }
+        return [
+            ResponseParam::status => ApiStatusMessage::Fail(),
+            ResponseParam::msg    => '測試',
+            ResponseParam::data   => [],
+        ];
+
+        try {
+            // 送出訂單
+            $result = $this->sendOrder($delivery_id, $orderData);
+
+            // 檢查結果
+            if ($result['statcode'] === YoubonErrorCode::SUCCESS) {
+                return [
+                    ResponseParam::status => ApiStatusMessage::Succeed,
+                    ResponseParam::msg    => YoubonErrorCode::getDescription($result['statcode']),
+                    ResponseParam::data   => ['billno' => $result['billno'], 'result' => $result],
+                ];
+            } elseif ($result['statcode'] === YoubonErrorCode::ORDER_DUPLICATE) {
+                return [
+                    ResponseParam::status => ApiStatusMessage::Succeed,
+                    ResponseParam::msg    => YoubonErrorCode::getDescription($result['statcode']),
+                    ResponseParam::data   => ['billno' => $result['billno'], 'result' => $result],
+                ];
+            } else {
+                $errMsg = '錯誤：' . $result['error'] .
+                    (isset($result['statcode']) ? ' ' . $result['statcode'] : '') .
+                    (isset($result['statdesc']) ? ' ' . $result['statdesc'] : '');
+                return [
+                    ResponseParam::status => ApiStatusMessage::Fail,
+                    ResponseParam::msg    => $errMsg,
+                    ResponseParam::data   => $result,
+                ];
+            }
+        } catch (\InvalidArgumentException $e) {
+            return [
+                ResponseParam::status => ApiStatusMessage::Fail,
+                ResponseParam::msg    => '資料驗證錯誤：' . $e->getMessage(),
+                ResponseParam::data   => [],
+            ];
+        } catch (\Exception $e) {
+            return [
+                ResponseParam::status => ApiStatusMessage::Fail,
+                ResponseParam::msg    => '系統錯誤：' . $e->getMessage(),
+                ResponseParam::data   => [],
+            ];
+        }
     }
 }
