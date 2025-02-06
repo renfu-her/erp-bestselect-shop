@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Cms;
 
 use App\Enums\Consignment\AuditStatus;
 use App\Enums\Delivery\Event;
+use App\Enums\Purchase\LogEventFeature;
+use App\Enums\StockEvent;
 use App\Enums\Supplier\Payment;
 use App\Enums\Payable\ChequeStatus;
 use App\Enums\Purchase\ReturnStatus;
@@ -19,6 +21,7 @@ use App\Models\Depot;
 use App\Models\PayingOrder;
 use App\Models\PcsStatisInbound;
 use App\Models\Petition;
+use App\Models\ProductStock;
 use App\Models\Purchase;
 use App\Models\PayableAccount;
 use App\Models\PayableCash;
@@ -1487,7 +1490,6 @@ class PurchaseCtrl extends Controller
 
                 $time = date('Y-m-d H:i:s');
                 $items = [];
-                $log_items = [];
                 foreach($data['inbound_id'] as $key => $value){
                     $items[] = [
                         'inbound_id' => $data['inbound_id'][$key],
@@ -1501,34 +1503,21 @@ class PurchaseCtrl extends Controller
                         'updated_at' => $time
                     ];
 
-                    $log_items[] = [
-                        'event_parent_id' => $data['purchase_id'][$key],
-                        'product_style_id' => $data['product_style_id'][$key],
-                        'event' => 'purchase',
-                        'event_id' => $data['purchase_item_id'][$key],
-                        'extra_id' => 0,
-                        'feature' => ReturnStatus::add_return_inbound()->value,
-                        'inbound_id' => $data['inbound_id'][$key],
-                        'product_title' => $data['product_title'][$key],
-                        'prd_type' => 'p',
-                        'qty' => $data['return_qty'][$key] * -1,
-                        'user_id' => Auth::user()->id,
-                        'user_name' => Auth::user()->name,
-                        'note' => $data['memo'][$key],
-                        'created_at' => $time,
-                        'updated_at' => $time
-                    ];
-
-                    // PurchaseInbound::where('id', $data['inbound_id'][$key])->update([
-                    //     'scrap_num' => DB::raw('scrap_num + ' . $data['return_qty'][$key])
-                    // ]);
+                    $user = Auth::user();
                     $inbound_item = PurchaseInbound::where('id', $data['inbound_id'][$key])->first();
                     PurchaseInbound::where('id', $data['inbound_id'][$key])->increment('scrap_num', $data['return_qty'][$key]);
                     PcsStatisInbound::updateData($inbound_item->event, $data['product_style_id'][$key], $inbound_item->depot_id, $data['return_qty'][$key] * -1);
+
+                    $can_tally = true;
+                    $updateLog = PurchaseInbound::addLogAndUpdateStock(LogEventFeature::add_return_inbound()->value, $inbound_item->id, $inbound_item->event, $inbound_item->event_id, $inbound_item->event_item_id, $inbound_item->product_style_id
+                        , $inbound_item->prd_type, $inbound_item->title, $data['return_qty'][$key] * -1, $can_tally, $data['memo'][$key], StockEvent::inbound()->value, LogEventFeature::getDescription(LogEventFeature::add_return_inbound()), $user->id, $user->name);
+                    if ($updateLog['success'] == 0) {
+                        DB::rollBack();
+                        return $updateLog;
+                    }
                 }
 
                 $i_res = PurchaseElementReturn::insert($items);
-
                 if($i_res){
                     $u_res = PurchaseReturn::where('id', '=', $return_id)->update([
                         'inbound_user_id' => Auth::user()->id,
@@ -1538,12 +1527,7 @@ class PurchaseCtrl extends Controller
                     ]);
 
                     if($u_res){
-                        //寫入LOG
-                        $i_log_res = PurchaseLog::insert($log_items);
-
-                        if($i_log_res){
-                            return ['success' => 1];
-                        }
+                        return ['success' => 1];
                     }
                 }
 
@@ -1611,29 +1595,21 @@ class PurchaseCtrl extends Controller
                 $time = date('Y-m-d H:i:s');
                 $log_items = [];
                 foreach($audited_items as $key => $value){
-                    $log_items[] = [
-                        'event_parent_id' => $value->purchase_id,
-                        'product_style_id' => $value->product_style_id,
-                        'event' => 'purchase',
-                        'event_id' => $value->purchase_item_id,
-                        'extra_id' => 0,
-                        'feature' => ReturnStatus::del_return_inbound()->value,
-                        'inbound_id' => $value->inbound_id,
-                        'product_title' => $value->product_title,
-                        'prd_type' => 'p',
-                        'qty' => $value->qty,
-                        'user_id' => Auth::user()->id,
-                        'user_name' => Auth::user()->name,
-                        'note' => null,
-                        'created_at' => $time,
-                        'updated_at' => $time
-                    ];
-
+                    $user = Auth::user();
+                    $inbound_item = PurchaseInbound::where('id', $value->inbound_id)->first();
                     PurchaseInbound::where('id', $value->inbound_id)->decrement('scrap_num', $value->qty);
+                    PcsStatisInbound::updateData($inbound_item->event, $value->product_style_id, $inbound_item->depot_id, $value->qty);
+
+                    $can_tally = true;
+                    $updateLog = PurchaseInbound::addLogAndUpdateStock(LogEventFeature::del_return_inbound()->value, $inbound_item->id, $inbound_item->event, $inbound_item->event_id, $inbound_item->event_item_id, $inbound_item->product_style_id
+                        , $inbound_item->prd_type, $inbound_item->title, $value->qty, $can_tally, '', StockEvent::inbound_del()->value, LogEventFeature::getDescription(LogEventFeature::del_return_inbound()), $user->id, $user->name);
+                    if ($updateLog['success'] == 0) {
+                        DB::rollBack();
+                        return $updateLog;
+                    }
                 }
 
                 $d_res = PurchaseElementReturn::where('return_id', $return_id)->delete();
-
                 if($d_res){
                     $u_res = PurchaseReturn::where('id', '=', $return_id)->update([
                         'inbound_user_id' => null,
@@ -1643,12 +1619,7 @@ class PurchaseCtrl extends Controller
                     ]);
 
                     if($u_res){
-                        //寫入LOG
-                        $i_log_res = PurchaseLog::insert($log_items);
-
-                        if($i_log_res){
-                            return ['success' => 1];
-                        }
+                        return ['success' => 1];
                     }
                 }
 
