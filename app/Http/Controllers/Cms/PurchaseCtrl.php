@@ -17,6 +17,7 @@ use App\Models\AllGrade;
 use App\Models\DayEnd;
 use App\Models\Depot;
 use App\Models\PayingOrder;
+use App\Models\PcsStatisInbound;
 use App\Models\Petition;
 use App\Models\Purchase;
 use App\Models\PayableAccount;
@@ -1510,7 +1511,7 @@ class PurchaseCtrl extends Controller
                         'inbound_id' => $data['inbound_id'][$key],
                         'product_title' => $data['product_title'][$key],
                         'prd_type' => 'p',
-                        'qty' => $data['return_qty'][$key],
+                        'qty' => $data['return_qty'][$key] * -1,
                         'user_id' => Auth::user()->id,
                         'user_name' => Auth::user()->name,
                         'note' => $data['memo'][$key],
@@ -1521,7 +1522,9 @@ class PurchaseCtrl extends Controller
                     // PurchaseInbound::where('id', $data['inbound_id'][$key])->update([
                     //     'scrap_num' => DB::raw('scrap_num + ' . $data['return_qty'][$key])
                     // ]);
+                    $inbound_item = PurchaseInbound::where('id', $data['inbound_id'][$key])->first();
                     PurchaseInbound::where('id', $data['inbound_id'][$key])->increment('scrap_num', $data['return_qty'][$key]);
+                    PcsStatisInbound::updateData($inbound_item->event, $data['product_style_id'][$key], $inbound_item->depot_id, $data['return_qty'][$key] * -1);
                 }
 
                 $i_res = PurchaseElementReturn::insert($items);
