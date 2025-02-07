@@ -8,6 +8,8 @@ use App\Enums\Delivery\LogisticStatus;
 use App\Enums\DlvBack\DlvBackPapaType;
 use App\Enums\DlvBack\DlvBackType;
 use App\Enums\DlvOutStock\DlvOutStockType;
+use App\Enums\Globals\ApiStatusMessage;
+use App\Enums\Globals\ResponseParam;
 use App\Enums\Order\OrderStatus;
 use App\Enums\Purchase\LogEventFeature;
 use App\Enums\Payable\ChequeStatus;
@@ -56,7 +58,9 @@ use App\Models\ShipmentCategory;
 use App\Models\ShipmentGroup;
 use App\Models\SubOrders;
 use App\Models\Temps;
+use App\Models\TikYoubonOrder;
 use App\Models\User;
+use App\Services\ThirdPartyApis\Youbon\YoubonOrderService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -265,7 +269,24 @@ class DeliveryCtrl extends Controller
         } else {
             $re = ReceiveDepot::setUpShippingData($delivery->event, $delivery->event_id, $delivery_id, $can_diff_depot, $request->user()->id, $request->user()->name);
             if ($re['success'] == '1') {
-                wToast('儲存成功');
+                $youbonOrderService = new YoubonOrderService();
+                $isYoubonOrder = $youbonOrderService->isYoubonOrder($delivery_id);
+                if (true == $isYoubonOrder['result']) {
+                    $sub_order = $isYoubonOrder['sub_order'];
+                    $order_id = $sub_order->order_id;
+                    $sub_order_id = $sub_order->id;
+                    $orderData = $youbonOrderService->getOrderData($order_id, $sub_order_id);
+
+                    $processYoubonOrder = $youbonOrderService->processOrder($delivery_id, $orderData);
+                    if (ApiStatusMessage::Succeed == $processYoubonOrder['status']) {
+                        wToast('儲存成功，並下單電子票券成功');
+                    } else {
+                        wToast($processYoubonOrder[ResponseParam::msg]. ' 下單電子票券失敗，記錄此訊息後，請洽工程師');
+                    }
+                } else {
+                        wToast('儲存成功');
+                }
+
                 return redirect(Route('cms.delivery.create', [
                     'event' => $delivery->event,
                     'eventId' => $delivery->event_id,

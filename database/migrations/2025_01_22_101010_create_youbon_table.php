@@ -41,7 +41,22 @@ class CreateYoubonTable extends Migration
             $table->text('response')->nullable()->comment('回應內容');
             $table->timestamps();
         });
-        Schema::create('tik_youbon_tickets', function (Blueprint $table) {
+
+        Schema::create('tik_youbon_orders', function (Blueprint $table) {
+            $table->id()->comment('星全安訂單紀錄');
+            $table->unsignedBigInteger('delivery_id')->comment('出貨單id');
+            $table->string('custbillno', 20)->comment('訂單編號');
+            $table->string('billno', 20)->comment('外掛借出單號、批次借出單號');
+            $table->string('borrowno', 20)->nullable()->comment('正航借出單號');
+            $table->date('billdate')->comment('訂單日期');
+            $table->string('statcode', 10)->default(null)->nullable()->comment('狀態回覆碼');
+            $table->text('weburl')->comment('網址');
+            $table->timestamps();
+
+            $table->index('delivery_id', 'idx_delivery_id');
+        });
+
+        Schema::create('tik_youbon_items', function (Blueprint $table) {
             $table->id()->comment('星全安票券紀錄');
             $table->unsignedBigInteger('delivery_id')->comment('出貨單id');
             $table->unsignedBigInteger('event_item_id')->comment('事件物品ID');
@@ -75,6 +90,7 @@ class CreateYoubonTable extends Migration
             });
         }
         Schema::dropIfExists('tik_youbon_api_logs');
-        Schema::dropIfExists('tik_youbon_tickets');
+        Schema::dropIfExists('tik_youbon_orders');
+        Schema::dropIfExists('tik_youbon_items');
     }
 }

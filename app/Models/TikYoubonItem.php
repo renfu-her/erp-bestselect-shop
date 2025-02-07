@@ -4,9 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class TikYoubonTicket extends Model
+class TikYoubonItem extends Model
 {
-    protected $table = 'tik_youbon_tickets';
+    protected $table = 'tik_youbon_items';
 
     protected $fillable = [
         'delivery_id',
@@ -17,15 +17,11 @@ class TikYoubonTicket extends Model
         'batchid',
         'ordernumber',
         'price',
-        'start_time',
-        'exp_time',
         'use_time',
         'back_time'
     ];
 
     protected $casts = [
-        'start_time' => 'datetime',
-        'exp_time' => 'datetime',
         'use_time' => 'datetime',
         'back_time' => 'datetime'
     ];
@@ -40,5 +36,19 @@ class TikYoubonTicket extends Model
     public function rcvDepot()
     {
         return $this->belongsTo(ReceiveDepot::class, 'rcv_depot_id');
+    }
+
+    public static function createData($delivery_id, $event_item_id, $rcv_depot_id, $productnumber, $prodid, $batchid, $ordernumber, $price)
+    {
+        return self::create([
+            'delivery_id' => $delivery_id,
+            'event_item_id' => $event_item_id,
+            'rcv_depot_id' => $rcv_depot_id,
+            'productnumber' => $productnumber,
+            'prodid' => $prodid,
+            'batchid' => $batchid,
+            'ordernumber' => $ordernumber,
+            'price' => $price,
+        ]);
     }
 }

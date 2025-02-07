@@ -30,6 +30,8 @@ class OrderItem extends Model
                 , 'prd_product_styles.title'
                 , 'prd_product_styles.sku'
                 , 'prd_product_styles.type'
+                , 'prd_product_styles.ticket_number'
+                , 'prd_product_styles.estimated_cost'
             );
 
         //取得子訂單商品內 組合包拆解內容
@@ -54,6 +56,8 @@ class OrderItem extends Model
                 , 'tb_combo.id AS product_style_id'
                 , 'tb_combo.product_id'
                 , 'tb_combo.sku'
+                , 'tb_combo.ticket_number'
+                , 'tb_combo.estimated_cost'
             )
             ->selectRaw(DB::raw('( (ord_items.qty - ifnull(outs.qty, 0)) * tb_combo.qty ) AS qty'))
             ->mergeBindings($query_combo);
@@ -77,6 +81,8 @@ class OrderItem extends Model
                 , 'prd_product_styles.id  AS product_style_id'
                 , 'prd_product_styles.product_id'
                 , 'prd_product_styles.sku'
+                , 'prd_product_styles.ticket_number'
+                , 'prd_product_styles.estimated_cost'
             )
             ->selectRaw(DB::raw('( (ord_items.qty - ifnull(outs.qty, 0)) ) AS qty'));
 
