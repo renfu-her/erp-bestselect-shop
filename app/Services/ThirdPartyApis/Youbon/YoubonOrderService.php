@@ -320,26 +320,16 @@ class YoubonOrderService
         }
     }
 
-    // 檢查是否可下單
-    public function isYoubonOrder($delivery_id)
+    public function isETicketOrder($delivery_id)
     {
         $delivery = Delivery::find($delivery_id);
         if (null != $delivery && 'order' == $delivery->event) {
             $sub_order = SubOrders::where('id', '=', $delivery->event_id)->first();
             if ('eTicket' == $sub_order->ship_category) {
-                $latestTikYoubonOrder = TikYoubonOrder::where('delivery_id', $delivery_id)->orderBy('id', 'desc')->first();
-                if (null == $latestTikYoubonOrder) {
-                    return [
-                        'result'               => true,
-                        'sub_order'            => $sub_order,
-                    ];
-                }
+                return true;
             }
         }
-        return [
-            'result'               => false,
-            'sub_order'            => null,
-        ];
+        return false;
     }
 
     /**
@@ -358,7 +348,7 @@ class YoubonOrderService
         Order::orderAddress($orderQuery);
         $order = $orderQuery->first();
 
-        $ship_items = ReceiveDepot::getDataListForYoubonOrder($delivery_id)->get()->toArray();
+        $ship_items = ReceiveDepot::getDataListForYoubonOrder($delivery_id, 'eYoubon')->get()->toArray();
 
         $ord_items = [];
         foreach ($ship_items as $item) {

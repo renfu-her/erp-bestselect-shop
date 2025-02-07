@@ -64,8 +64,10 @@ use App\Models\ShipmentCategory;
 use App\Models\ShipmentGroup;
 use App\Models\SubOrders;
 use App\Models\Supplier;
+use App\Models\TikYoubonOrder;
 use App\Models\User;
 use App\Models\UserSalechannel;
+use App\Services\ThirdPartyApis\Youbon\YoubonOrderService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
@@ -555,6 +557,21 @@ class OrderCtrl extends Controller
             $delivery = Delivery::where('event', Event::order()->value)->where('event_id', $subOrderId)->first();
         }
 
+        // 判斷票券是否都已經下單
+        $youbonOrderService = new YoubonOrderService();
+        $isETicketOrder = $youbonOrderService->isETicketOrder($delivery->id);
+        $hasPendingETickets = false;
+        if ($isETicketOrder) {
+            // youbon
+            $youbon_items = ReceiveDepot::getDataListForYoubonOrder($delivery->id, 'eYoubon')->get()->toArray();
+            if (0 < count($youbon_items)) {
+                $latestTikYoubonOrder = TikYoubonOrder::where('delivery_id', $delivery->id)->orderBy('id', 'desc')->first();
+                if (null == $latestTikYoubonOrder) {
+                    $hasPendingETickets = true;
+                }
+            }
+        }
+
         $sn = $order->sn;
 
         $receivable = false;
@@ -605,7 +622,7 @@ class OrderCtrl extends Controller
 
         // 使用紅利詳細
         $dividendList = Order::orderDividendList($id)->get();
-        
+
         $po_check = true;
         if (count($subOrder) > 0) {
             foreach ($subOrder as $so_value) {
@@ -635,7 +652,7 @@ class OrderCtrl extends Controller
                 'previous' => 1,
             ]);
         }
-        
+
         return view('cms.commodity.order.detail', [
             'sn' => $sn,
             'order' => $order,
@@ -653,6 +670,7 @@ class OrderCtrl extends Controller
             'dividend' => $dividend,
             'canCancel' => Order::checkCanCancel($id, 'backend'),
             'delivery' => $delivery,
+            'hasPendingETickets' => $hasPendingETickets,
             'canSplit' => Order::checkCanSplit($id),
             'po_check' => $po_check,
             'dividendList' => $dividendList,
@@ -668,14 +686,14 @@ class OrderCtrl extends Controller
     {
         $order = Order::orderDetail($id)->get()->first();
         $subOrder = Order::subOrderDetail($id, $subOrderId, true)->get()->toArray();
-       
+
         foreach ($subOrder as $key => $value) {
-           
-        
+
+
             $subOrder[$key]->items = json_decode($this->json_process($value->items));
-          
+
             $subOrder[$key]->consume_items = json_decode($this->json_process($value->consume_items));
-           
+
         }
         return array($order, $subOrder);
     }

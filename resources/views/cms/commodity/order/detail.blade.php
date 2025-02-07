@@ -322,8 +322,13 @@
                                     @endif
                                 @endif
 
-                                <a class="btn btn-sm btn-success -in-header mb-1"
-                                    href="{{ Route('cms.delivery.create', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">出貨審核</a>
+                                    <a class="btn btn-sm btn-success -in-header mb-1"
+                                       href="{{ Route('cms.delivery.create', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">出貨審核</a>
+
+                                @if (true == $hasPendingETickets)
+                                    <a class="btn btn-sm btn-success -in-header mb-1"
+                                       href="{{ Route('cms.delivery.eticket', ['deliveryId' => $delivery->id], true) }}">電子票券出貨</a>
+                                @endif
                             @endcan
                             {{-- @if ('pickup' == $subOrder->ship_category) --}}
                             {{-- <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.order.inbound', ['subOrderId' => $subOrderId], true) }}">入庫審核</a> --}}

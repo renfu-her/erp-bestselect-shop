@@ -270,22 +270,32 @@ class DeliveryCtrl extends Controller
             $re = ReceiveDepot::setUpShippingData($delivery->event, $delivery->event_id, $delivery_id, $can_diff_depot, $request->user()->id, $request->user()->name);
             if ($re['success'] == '1') {
                 $youbonOrderService = new YoubonOrderService();
-                $isYoubonOrder = $youbonOrderService->isYoubonOrder($delivery_id);
-                if (true == $isYoubonOrder['result']) {
-                    $sub_order = $isYoubonOrder['sub_order'];
-                    $order_id = $sub_order->order_id;
-                    $orderData = $youbonOrderService->getOrderData($delivery_id, $order_id);
-                    $orderDataToReq = $orderData['orderData'];
-                    $ship_items = $orderData['ship_items'];
+                $isETicketOrder = $youbonOrderService->isETicketOrder($delivery->id);
+                $isAlreadyToast = false;
+                if ($isETicketOrder) {
+                    // youbon
+                    $youbon_items = ReceiveDepot::getDataListForYoubonOrder($delivery->id, 'eYoubon')->get()->toArray();
+                    if (0 < count($youbon_items)) {
+                        $latestTikYoubonOrder = TikYoubonOrder::where('delivery_id', $delivery->id)->orderBy('id', 'desc')->first();
+                        if (null == $latestTikYoubonOrder) {
+                            $sub_order = SubOrders::where('id', '=', $delivery->event_id)->first();
+                            $order_id = $sub_order->order_id;
+                            $orderData = $youbonOrderService->getOrderData($delivery_id, $order_id);
+                            $orderDataToReq = $orderData['orderData'];
+                            $ship_items = $orderData['ship_items'];
 
-                    $processYoubonOrder = $youbonOrderService->processOrder($delivery_id, $orderDataToReq, $ship_items);
-                    if (ApiStatusMessage::Succeed == $processYoubonOrder['status']) {
-                        wToast('儲存成功，並下單電子票券成功');
-                    } else {
-                        wToast($processYoubonOrder[ResponseParam::msg]. ' 下單電子票券失敗，記錄此訊息後，請洽工程師');
+                            $processYoubonOrder = $youbonOrderService->processOrder($delivery_id, $orderDataToReq, $ship_items);
+                            if (ApiStatusMessage::Succeed == $processYoubonOrder['status']) {
+                                wToast('儲存成功，並下單電子票券成功');
+                            } else {
+                                wToast($processYoubonOrder[ResponseParam::msg]. ' 下單電子票券失敗，記錄此訊息後，請洽工程師', ['type' => 'danger']);
+                            }
+                            $isAlreadyToast = true;
+                        }
                     }
-                } else {
-                        wToast('儲存成功');
+                }
+                if (false == $isAlreadyToast) {
+                    wToast('儲存成功');
                 }
 
                 return redirect(Route('cms.delivery.create', [
@@ -297,6 +307,39 @@ class DeliveryCtrl extends Controller
         }
 
         return redirect()->back()->withInput()->withErrors($errors);
+    }
+
+    public function eticket(Request $request, int $delivery_id)
+    {
+        $delivery = Delivery::where('id', '=', $delivery_id)->get()->first();
+        $sub_order = SubOrders::where('id', '=', $delivery->event_id)->first();
+
+        $youbonOrderService = new YoubonOrderService();
+        $isETicketOrder = $youbonOrderService->isETicketOrder($delivery->id);
+        if ($isETicketOrder) {
+            // youbon
+            $youbon_items = ReceiveDepot::getDataListForYoubonOrder($delivery->id, 'eYoubon')->get()->toArray();
+            if (0 < count($youbon_items)) {
+                $latestTikYoubonOrder = TikYoubonOrder::where('delivery_id', $delivery->id)->orderBy('id', 'desc')->first();
+                if (null == $latestTikYoubonOrder) {
+                    $order_id = $sub_order->order_id;
+                    $orderData = $youbonOrderService->getOrderData($delivery_id, $order_id);
+                    $orderDataToReq = $orderData['orderData'];
+                    $ship_items = $orderData['ship_items'];
+
+                    $processYoubonOrder = $youbonOrderService->processOrder($delivery_id, $orderDataToReq, $ship_items);
+                    if (ApiStatusMessage::Succeed == $processYoubonOrder['status']) {
+                        wToast('下單電子票券成功');
+                    } else {
+                        wToast($processYoubonOrder[ResponseParam::msg]. ' 下單電子票券失敗，記錄此訊息後，請洽工程師', ['type' => 'danger']);
+                    }
+                }
+            }
+        } else {
+            wToast('未下單電子票券', ['type' => 'danger']);
+        }
+
+        return redirect(Route('cms.order.detail', ['id' => $sub_order->order_id, 'subOrderId' => $sub_order->id ], true));
     }
 
     public function store_cancle(Request $request, int $delivery_id)
