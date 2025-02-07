@@ -2,7 +2,14 @@
 
 namespace App\Services\ThirdPartyApis\Youbon;
 
+use App\Models\Delivery;
+use App\Models\Order;
+use App\Models\OrderItem;
+use App\Models\SubOrders;
+use App\Models\TikYoubonItem;
+use App\Models\TikYoubonOrder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
@@ -142,32 +149,27 @@ class YoubonOrderService
      */
     public function parseResponse(string $response): array
     {
-        $xml = simplexml_load_string(urldecode($response));
+        $decodedResponse = urldecode($response);
+        $xml = simplexml_load_string($decodedResponse);
+
+        if ($xml === false) {
+            return [
+                'error' => '無效的 XML 內容'
+            ];
+        }
+
         $result = [];
-
         // 基本資料
-        $result['statcode'] = (string)$xml->statcode;
-        $result['statdesc'] = (string)$xml->statdesc;
+        $result['statcode'] = isset($xml->statcode) ? (string)$xml->statcode : '';
+        $result['statdesc'] = isset($xml->statdesc) ? (string)$xml->statdesc : '';
 
-        // 如果成功才解析其他資料
-        if ($result['statcode'] === YoubonErrorCode::SUCCESS) {
-            $result['billno'] = (string)$xml->billno;
-            $result['borrowno'] = (string)$xml->borrowno;
-            $result['billdate'] = (string)$xml->billdate;
-            $result['weburl'] = (string)$xml->weburl;
-
-            // 解析商品資料
-            $result['items'] = [];
-            if (isset($xml->item)) {
-                foreach ($xml->item as $item) {
-                    $result['items'][] = $this->parseItemByListNumberType($item);
-                }
-            }
-        } else if($result['statcode'] === YoubonErrorCode::ORDER_DUPLICATE) {
-            $result['billno'] = (string)$xml->billno;
-            $result['borrowno'] = (string)$xml->borrowno;
-            $result['billdate'] = (string)$xml->billdate;
-            $result['weburl'] = (string)$xml->weburl;
+        if ($result['statcode'] === YoubonErrorCode::SUCCESS || $result['statcode'] === YoubonErrorCode::ORDER_DUPLICATE) {
+            // 解析主要資料
+            $result['custbillno'] = isset($xml->custbillno) ? (string)$xml->custbillno : '';
+            $result['billno']     = isset($xml->billno) ? (string)$xml->billno : '';
+            $result['borrowno']   = isset($xml->borrowno) ? (string)$xml->borrowno : '';
+            $result['billdate']   = isset($xml->billdate) ? (string)$xml->billdate : '';
+            $result['weburl']     = isset($xml->weburl) ? (string)$xml->weburl : '';
 
             // 解析商品資料
             $result['items'] = [];
@@ -177,30 +179,14 @@ class YoubonOrderService
                 }
             }
         } else {
-            // 處理錯誤情況
+            // 處理錯誤
             $result['error'] = $this->getErrorMessage($result['statcode']);
 
-            // 額外錯誤資訊
-            if(isset($xml->departid)) {
-                $result['departid'] = (string)$xml->departid;
-            }
-            if(isset($xml->userid)) {
-                $result['userid'] = (string)$xml->userid;
-            }
-            if(isset($xml->username)) {
-                $result['username'] = (string)$xml->username;
-            }
-            if(isset($xml->saletype)) {
-                $result['saletype'] = (string)$xml->saletype;
-            }
-            if(isset($xml->custbillno)) {
-                $result['custbillno'] = (string)$xml->custbillno;
-            }
-            if(isset($xml->paymenttype)) {
-                $result['paymenttype'] = (string)$xml->paymenttype;
-            }
-            if(isset($xml->statdesc)) {
-                $result['statdesc'] = (string)$xml->statdesc;
+            $errorFields = ['departid', 'userid', 'username', 'saletype', 'custbillno', 'paymenttype', 'statdesc'];
+            foreach ($errorFields as $field) {
+                if (isset($xml->$field) && strlen(trim((string)$xml->$field)) > 0) {
+                    $result[$field] = (string)$xml->$field;
+                }
             }
         }
 
@@ -283,11 +269,6 @@ class YoubonOrderService
                 ResponseParam::data   => [],
             ];
         }
-        return [
-            ResponseParam::status => ApiStatusMessage::Fail(),
-            ResponseParam::msg    => '測試',
-            ResponseParam::data   => [],
-        ];
 
         try {
             // 送出訂單
@@ -295,6 +276,15 @@ class YoubonOrderService
 
             // 檢查結果
             if ($result['statcode'] === YoubonErrorCode::SUCCESS) {
+                TikYoubonOrder::createData($delivery_id, $result['custbillno'], $result['billno'], $result['borrowno'], $result['billdate'], $result['statcode'], $result['weburl']);
+                // 判斷是否有商品資料
+                if (isset($result['items'])) {
+                    foreach ($result['items'] as $item) {
+                        TikYoubonItem::createData($delivery_id
+                            , 0, 0
+                            , $item['productnumber'], $item['prodid'], $item['batchid'], $item['ordernumber'], $item['price']);
+                    }
+                }
                 return [
                     ResponseParam::status => ApiStatusMessage::Succeed,
                     ResponseParam::msg    => YoubonErrorCode::getDescription($result['statcode']),
@@ -329,5 +319,64 @@ class YoubonOrderService
                 ResponseParam::data   => [],
             ];
         }
+    }
+
+    // 檢查是否可下單
+    public function isYoubonOrder($delivery_id)
+    {
+        $delivery = Delivery::find($delivery_id);
+        if (null != $delivery && 'order' == $delivery->event) {
+            $sub_order = SubOrders::where('id', '=', $delivery->event_id)->first();
+            if ('eTicket' == $sub_order->ship_category) {
+                $latestTikYoubonOrder = TikYoubonOrder::where('delivery_id', $delivery_id)->orderBy('id', 'desc')->first();
+                if (null == $latestTikYoubonOrder) {
+                    return [
+                        'result'               => true,
+                        'sub_order'            => $sub_order,
+                    ];
+                }
+            }
+        }
+        return [
+            'result'               => false,
+            'sub_order'            => null,
+        ];
+    }
+
+    /**
+     * 取得訂單資料
+     *
+     * @param int $order_id 訂單編號
+     * @param int $sub_order_id 子訂單編號
+     * @return array 訂單資料
+     */
+    public function getOrderData($order_id, $sub_order_id): array
+    {
+        $orderQuery = DB::table('ord_orders as order')
+            ->leftJoin('usr_customers as buyer', 'buyer.email', '=', 'order.email')
+            ->where('order.id', '=', $order_id)
+            ->select('order.id as order_id', 'order.sn as order_sn', 'buyer.email as buyer_email', 'buyer.phone as buyer_phone');
+        Order::orderAddress($orderQuery);
+        $order = $orderQuery->first();
+
+        $ship_items = OrderItem::getShipItem($sub_order_id)->get();
+        $ord_items = [];
+        foreach ($ship_items as $item) {
+            $ord_items[] = [
+                'productnumber' => $item->ticket_number,
+                'price' => $item->estimated_cost,
+                'quantity' => (string)$item->qty,
+            ];
+        }
+
+        $orderData = [
+            'custbillno' => $order->order_sn,
+            'fullname'    => $order->ord_name,
+            'telephone'   => $order->buyer_phone,
+            'email'       => $order->buyer_email,
+            'items'       => $ord_items,
+        ];
+
+        return $orderData;
     }
 }
