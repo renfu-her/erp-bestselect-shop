@@ -15,6 +15,7 @@ class TikYoubonOrder extends Model
         'borrowno',
         'billdate',
         'batchid',
+        'statcode',
         'weburl',
     ];
 

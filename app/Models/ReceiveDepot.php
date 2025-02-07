@@ -622,6 +622,25 @@ class ReceiveDepot extends Model
         return $query;
     }
 
+    public static function getDataListForYoubonOrder($delivery_id) {
+        $query = DB::table(app(ReceiveDepot::class)->getTable(). ' as rcv_depot')
+            ->leftJoin(app(ProductStyle::class)->getTable() . ' as style', 'rcv_depot.product_style_id', '=', 'style.id')
+            ->whereNull('rcv_depot.deleted_at')
+            ->select('rcv_depot.id as id'
+                , 'rcv_depot.delivery_id as delivery_id'
+                , 'rcv_depot.event_item_id as event_item_id'
+                , 'rcv_depot.depot_id as depot_id'
+                , 'rcv_depot.product_style_id as product_style_id'
+                , 'rcv_depot.qty as qty'
+                , 'style.ticket_number'
+                , 'style.estimated_cost'
+            )
+            ->where('rcv_depot.delivery_id', '=', $delivery_id)
+            ->where('prd_type', '=', 'p')
+        ;
+        return $query;
+    }
+
     //取得寄倉入庫商品應進數量
     public static function getShouldEnterNumDataList($event, $event_id) {
         $raw = '( COALESCE(rcv_depot.qty, 0) - COALESCE(rcv_depot.csn_arrived_qty, 0) )';

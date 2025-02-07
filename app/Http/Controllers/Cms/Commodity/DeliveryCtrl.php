@@ -274,10 +274,11 @@ class DeliveryCtrl extends Controller
                 if (true == $isYoubonOrder['result']) {
                     $sub_order = $isYoubonOrder['sub_order'];
                     $order_id = $sub_order->order_id;
-                    $sub_order_id = $sub_order->id;
-                    $orderData = $youbonOrderService->getOrderData($order_id, $sub_order_id);
+                    $orderData = $youbonOrderService->getOrderData($delivery_id, $order_id);
+                    $orderDataToReq = $orderData['orderData'];
+                    $ship_items = $orderData['ship_items'];
 
-                    $processYoubonOrder = $youbonOrderService->processOrder($delivery_id, $orderData);
+                    $processYoubonOrder = $youbonOrderService->processOrder($delivery_id, $orderDataToReq, $ship_items);
                     if (ApiStatusMessage::Succeed == $processYoubonOrder['status']) {
                         wToast('儲存成功，並下單電子票券成功');
                     } else {

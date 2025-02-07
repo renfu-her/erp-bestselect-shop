@@ -5,6 +5,7 @@ namespace App\Services\ThirdPartyApis\Youbon;
 use App\Models\Delivery;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\ReceiveDepot;
 use App\Models\SubOrders;
 use App\Models\TikYoubonItem;
 use App\Models\TikYoubonOrder;
@@ -258,7 +259,7 @@ class YoubonOrderService
      * @param array $orderData 訂單資料
      * @return array 處理結果
      */
-    public function processOrder($delivery_id, array $orderData): array
+    public function processOrder($delivery_id, array $orderData, array $ship_items): array
     {
         // 資料驗證
         $validator = $this->validInputValue($orderData);
@@ -275,22 +276,20 @@ class YoubonOrderService
             $result = $this->sendOrder($delivery_id, $orderData);
 
             // 檢查結果
-            if ($result['statcode'] === YoubonErrorCode::SUCCESS) {
+            if ($result['statcode'] === YoubonErrorCode::SUCCESS || $result['statcode'] === YoubonErrorCode::ORDER_DUPLICATE) {
                 TikYoubonOrder::createData($delivery_id, $result['custbillno'], $result['billno'], $result['borrowno'], $result['billdate'], $result['statcode'], $result['weburl']);
                 // 判斷是否有商品資料
                 if (isset($result['items'])) {
                     foreach ($result['items'] as $item) {
+                        // 使用 ticket_number 找到對應 $ship_items 的 event_item_id、depot_id
+                        $ship_item = collect($ship_items)->where('ticket_number', $item['productnumber'])->first();
+                        $event_item_id = $ship_item->event_item_id;
+                        $depot_id = $ship_item->depot_id;
                         TikYoubonItem::createData($delivery_id
-                            , 0, 0
+                            , $event_item_id, $depot_id
                             , $item['productnumber'], $item['prodid'], $item['batchid'], $item['ordernumber'], $item['price']);
                     }
                 }
-                return [
-                    ResponseParam::status => ApiStatusMessage::Succeed,
-                    ResponseParam::msg    => YoubonErrorCode::getDescription($result['statcode']),
-                    ResponseParam::data   => ['billno' => $result['billno'], 'result' => $result],
-                ];
-            } elseif ($result['statcode'] === YoubonErrorCode::ORDER_DUPLICATE) {
                 return [
                     ResponseParam::status => ApiStatusMessage::Succeed,
                     ResponseParam::msg    => YoubonErrorCode::getDescription($result['statcode']),
@@ -346,11 +345,11 @@ class YoubonOrderService
     /**
      * 取得訂單資料
      *
+     * @param int $delivery_id 出貨單號
      * @param int $order_id 訂單編號
-     * @param int $sub_order_id 子訂單編號
      * @return array 訂單資料
      */
-    public function getOrderData($order_id, $sub_order_id): array
+    public function getOrderData($delivery_id, $order_id): array
     {
         $orderQuery = DB::table('ord_orders as order')
             ->leftJoin('usr_customers as buyer', 'buyer.email', '=', 'order.email')
@@ -359,7 +358,8 @@ class YoubonOrderService
         Order::orderAddress($orderQuery);
         $order = $orderQuery->first();
 
-        $ship_items = OrderItem::getShipItem($sub_order_id)->get();
+        $ship_items = ReceiveDepot::getDataListForYoubonOrder($delivery_id)->get()->toArray();
+
         $ord_items = [];
         foreach ($ship_items as $item) {
             $ord_items[] = [
@@ -377,6 +377,9 @@ class YoubonOrderService
             'items'       => $ord_items,
         ];
 
-        return $orderData;
+        return [
+            'orderData' => $orderData,
+            'ship_items' => $ship_items,
+        ];
     }
 }
