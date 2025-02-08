@@ -61,6 +61,7 @@ class CreateYoubonTable extends Migration
             $table->unsignedBigInteger('delivery_id')->comment('出貨單id');
             $table->unsignedBigInteger('event_item_id')->comment('事件物品ID');
             $table->unsignedBigInteger('rcv_depot_id')->comment('收貨倉ID');
+            $table->unsignedBigInteger('order_youbon_id')->comment('星全安訂單ID');
             $table->string('productnumber', 20)->comment('產品編號');
             $table->string('prodid', 40)->comment('票券編號');
             $table->string('batchid', 20)->comment('批號');

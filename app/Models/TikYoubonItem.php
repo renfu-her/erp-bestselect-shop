@@ -12,6 +12,7 @@ class TikYoubonItem extends Model
         'delivery_id',
         'event_item_id',
         'rcv_depot_id',
+        'order_youbon_id',
         'productnumber',
         'prodid',
         'batchid',
@@ -38,12 +39,19 @@ class TikYoubonItem extends Model
         return $this->belongsTo(ReceiveDepot::class, 'rcv_depot_id');
     }
 
-    public static function createData($delivery_id, $event_item_id, $rcv_depot_id, $productnumber, $prodid, $batchid, $ordernumber, $price)
+    // 與星全安訂單的關聯
+    public function youbonOrder()
+    {
+        return $this->belongsTo(TikYoubonOrder::class, 'order_youbon_id');
+    }
+
+    public static function createData($delivery_id, $event_item_id, $rcv_depot_id, $order_youbon_id, $productnumber, $prodid, $batchid, $ordernumber, $price)
     {
         return self::create([
             'delivery_id' => $delivery_id,
             'event_item_id' => $event_item_id,
             'rcv_depot_id' => $rcv_depot_id,
+            'order_youbon_id' => $order_youbon_id,
             'productnumber' => $productnumber,
             'prodid' => $prodid,
             'batchid' => $batchid,

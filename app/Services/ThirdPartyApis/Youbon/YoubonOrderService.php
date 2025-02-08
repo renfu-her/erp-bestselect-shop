@@ -269,7 +269,8 @@ class YoubonOrderService
 
             // 檢查結果
             if ($result['statcode'] === YoubonErrorCode::SUCCESS || $result['statcode'] === YoubonErrorCode::ORDER_DUPLICATE) {
-                TikYoubonOrder::createData($delivery_id, $result['custbillno'], $result['billno'], $result['borrowno'], $result['billdate'], $result['statcode'], $result['weburl']);
+                $order_youbon = TikYoubonOrder::createData($delivery_id, $result['custbillno'], $result['billno'], $result['borrowno'], $result['billdate'], $result['statcode'], $result['weburl']);
+                $order_youbon_id = $order_youbon->id;
                 // 判斷是否有商品資料
                 if (isset($result['items'])) {
                     foreach ($result['items'] as $item) {
@@ -278,7 +279,7 @@ class YoubonOrderService
                         $event_item_id = $ship_item->event_item_id;
                         $depot_id = $ship_item->depot_id;
                         TikYoubonItem::createData($delivery_id
-                            , $event_item_id, $depot_id
+                            , $event_item_id, $depot_id, $order_youbon_id
                             , $item['productnumber'], $item['prodid'], $item['batchid'], $item['ordernumber'], $item['price']);
                     }
                 }
