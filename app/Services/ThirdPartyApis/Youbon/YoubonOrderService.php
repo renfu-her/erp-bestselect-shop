@@ -4,21 +4,17 @@ namespace App\Services\ThirdPartyApis\Youbon;
 
 use App\Models\Delivery;
 use App\Models\Order;
-use App\Models\OrderItem;
 use App\Models\ReceiveDepot;
 use App\Models\SubOrders;
 use App\Models\TikYoubonItem;
 use App\Models\TikYoubonOrder;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use SimpleXMLElement;
 use App\Models\TikYoubonApiLog;
-use App\Enums\Globals\ResponseParam;
 use App\Enums\eTicket\YoubonErrorCode;
-use App\Enums\Globals\ApiStatusMessage;
 
 class YoubonOrderService
 {
@@ -264,11 +260,7 @@ class YoubonOrderService
         // 資料驗證
         $validator = $this->validInputValue($orderData);
         if ($validator->fails()) {
-            return [
-                ResponseParam::status => ApiStatusMessage::Fail,
-                ResponseParam::msg => implode('；', $validator->errors()->all()),
-                ResponseParam::data   => [],
-            ];
+            return ['success' => 0, 'error_msg' => implode('；', $validator->errors()->all())];
         }
 
         try {
@@ -290,33 +282,17 @@ class YoubonOrderService
                             , $item['productnumber'], $item['prodid'], $item['batchid'], $item['ordernumber'], $item['price']);
                     }
                 }
-                return [
-                    ResponseParam::status => ApiStatusMessage::Succeed,
-                    ResponseParam::msg    => YoubonErrorCode::getDescription($result['statcode']),
-                    ResponseParam::data   => ['billno' => $result['billno'], 'result' => $result],
-                ];
+                return ['success' => 1, 'error_msg' => YoubonErrorCode::getDescription($result['statcode']), 'data' => $result];
             } else {
                 $errMsg = '錯誤：' . $result['error'] .
                     (isset($result['statcode']) ? ' ' . $result['statcode'] : '') .
                     (isset($result['statdesc']) ? ' ' . $result['statdesc'] : '');
-                return [
-                    ResponseParam::status => ApiStatusMessage::Fail,
-                    ResponseParam::msg    => $errMsg,
-                    ResponseParam::data   => $result,
-                ];
+                return ['success' => 0, 'error_msg' => $errMsg, 'data' => $result];
             }
         } catch (\InvalidArgumentException $e) {
-            return [
-                ResponseParam::status => ApiStatusMessage::Fail,
-                ResponseParam::msg    => '資料驗證錯誤：' . $e->getMessage(),
-                ResponseParam::data   => [],
-            ];
+            return ['success' => 0, 'error_msg' => '資料驗證錯誤：' . $e->getMessage()];
         } catch (\Exception $e) {
-            return [
-                ResponseParam::status => ApiStatusMessage::Fail,
-                ResponseParam::msg    => '系統錯誤：' . $e->getMessage(),
-                ResponseParam::data   => [],
-            ];
+            return ['success' => 0, 'error_msg' => '系統錯誤：' . $e->getMessage()];
         }
     }
 
@@ -335,11 +311,11 @@ class YoubonOrderService
     /**
      * 取得訂單資料
      *
-     * @param int $delivery_id 出貨單號
      * @param int $order_id 訂單編號
+     * @param array $youbon_items 電子票券商品資料
      * @return array 訂單資料
      */
-    public function getOrderData($delivery_id, $order_id): array
+    public function getOrderData($order_id, $youbon_items): array
     {
         $orderQuery = DB::table('ord_orders as order')
             ->leftJoin('usr_customers as buyer', 'buyer.email', '=', 'order.email')
@@ -348,10 +324,8 @@ class YoubonOrderService
         Order::orderAddress($orderQuery);
         $order = $orderQuery->first();
 
-        $ship_items = ReceiveDepot::getDataListForYoubonOrder($delivery_id, 'eYoubon')->get()->toArray();
-
         $ord_items = [];
-        foreach ($ship_items as $item) {
+        foreach ($youbon_items as $item) {
             $ord_items[] = [
                 'productnumber' => $item->ticket_number,
                 'price' => $item->estimated_cost,
@@ -367,9 +341,30 @@ class YoubonOrderService
             'items'       => $ord_items,
         ];
 
-        return [
-            'orderData' => $orderData,
-            'ship_items' => $ship_items,
-        ];
+        return $orderData;
+    }
+
+    public function handleMultiETicketOrder($delivery_id, $order_id): array
+    {
+        // 從這裡判斷是哪家電子票券，下對應訂單
+        $eticketDatalist = ReceiveDepot::getETicketOrderList($delivery_id)->get()->toArray();
+
+        foreach ($eticketDatalist as $eticketData) {
+            if ('eYoubon' == $eticketData->tik_type_code) {
+                $youbon_items[] = $eticketData;
+            }
+        }
+
+        if (0 < count($youbon_items)) {
+            $latestTikYoubonOrder = TikYoubonOrder::where('delivery_id', $delivery_id)->orderBy('id', 'desc')->first();
+            if (null == $latestTikYoubonOrder) {
+                $orderData = $this->getOrderData($order_id, $youbon_items);
+                $result = $this->processOrder($delivery_id, $orderData, $youbon_items);
+            } else {
+                return ['success' => '1', 'error_msg' => '電子票券已下單'];
+            }
+        }
+
+        return $result;
     }
 }

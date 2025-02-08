@@ -562,8 +562,13 @@ class OrderCtrl extends Controller
         $isETicketOrder = $youbonOrderService->isETicketOrder($delivery->id);
         $hasPendingETickets = false;
         if ($isETicketOrder) {
-            // youbon
-            $youbon_items = ReceiveDepot::getDataListForYoubonOrder($delivery->id, 'eYoubon')->get()->toArray();
+            $eticketList = ReceiveDepot::getETicketOrderList($delivery->id)->get()->toArray();
+
+            foreach ($eticketList as $eticketData) {
+                if ('eYoubon' == $eticketData->tik_type_code) {
+                    $youbon_items[] = $eticketData;
+                }
+            }
             if (0 < count($youbon_items)) {
                 $latestTikYoubonOrder = TikYoubonOrder::where('delivery_id', $delivery->id)->orderBy('id', 'desc')->first();
                 if (null == $latestTikYoubonOrder) {
@@ -571,6 +576,7 @@ class OrderCtrl extends Controller
                 }
             }
         }
+
 
         $sn = $order->sn;
 

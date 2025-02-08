@@ -273,24 +273,15 @@ class DeliveryCtrl extends Controller
                 $isETicketOrder = $youbonOrderService->isETicketOrder($delivery->id);
                 $isAlreadyToast = false;
                 if ($isETicketOrder) {
-                    // youbon
-                    $youbon_items = ReceiveDepot::getDataListForYoubonOrder($delivery->id, 'eYoubon')->get()->toArray();
-                    if (0 < count($youbon_items)) {
-                        $latestTikYoubonOrder = TikYoubonOrder::where('delivery_id', $delivery->id)->orderBy('id', 'desc')->first();
-                        if (null == $latestTikYoubonOrder) {
-                            $sub_order = SubOrders::where('id', '=', $delivery->event_id)->first();
-                            $order_id = $sub_order->order_id;
-                            $orderData = $youbonOrderService->getOrderData($delivery_id, $order_id);
-                            $orderDataToReq = $orderData['orderData'];
-                            $ship_items = $orderData['ship_items'];
-
-                            $processYoubonOrder = $youbonOrderService->processOrder($delivery_id, $orderDataToReq, $ship_items);
-                            if (ApiStatusMessage::Succeed == $processYoubonOrder['status']) {
-                                wToast('儲存成功，並下單電子票券成功');
-                            } else {
-                                wToast($processYoubonOrder[ResponseParam::msg]. ' 下單電子票券失敗，記錄此訊息後，請洽工程師', ['type' => 'danger']);
-                            }
+                    $sub_order = SubOrders::where('id', '=', $delivery->event_id)->first();
+                    $processResult = $youbonOrderService->handleMultiETicketOrder($delivery->id, $sub_order->order_id);
+                    if (isset($processResult['success']) && $processResult['success'] == '0') {
+                        $isAlreadyToast = true;
+                        wToast($processResult['error_msg'] . ' 下單電子票券失敗，記錄此訊息後，請洽工程師', ['type' => 'danger']);
+                    } elseif (!isset($processResult['success']) || $processResult['success'] == '1') {
+                        if (isset($processResult['error_msg'])) {
                             $isAlreadyToast = true;
+                            wToast($processResult['error_msg']);
                         }
                     }
                 }
@@ -317,22 +308,13 @@ class DeliveryCtrl extends Controller
         $youbonOrderService = new YoubonOrderService();
         $isETicketOrder = $youbonOrderService->isETicketOrder($delivery->id);
         if ($isETicketOrder) {
-            // youbon
-            $youbon_items = ReceiveDepot::getDataListForYoubonOrder($delivery->id, 'eYoubon')->get()->toArray();
-            if (0 < count($youbon_items)) {
-                $latestTikYoubonOrder = TikYoubonOrder::where('delivery_id', $delivery->id)->orderBy('id', 'desc')->first();
-                if (null == $latestTikYoubonOrder) {
-                    $order_id = $sub_order->order_id;
-                    $orderData = $youbonOrderService->getOrderData($delivery_id, $order_id);
-                    $orderDataToReq = $orderData['orderData'];
-                    $ship_items = $orderData['ship_items'];
-
-                    $processYoubonOrder = $youbonOrderService->processOrder($delivery_id, $orderDataToReq, $ship_items);
-                    if (ApiStatusMessage::Succeed == $processYoubonOrder['status']) {
-                        wToast('下單電子票券成功');
-                    } else {
-                        wToast($processYoubonOrder[ResponseParam::msg]. ' 下單電子票券失敗，記錄此訊息後，請洽工程師', ['type' => 'danger']);
-                    }
+            $sub_order = SubOrders::where('id', '=', $delivery->event_id)->first();
+            $processResult = $youbonOrderService->handleMultiETicketOrder($delivery->id, $sub_order->order_id);
+            if (isset($processResult['success']) && $processResult['success'] == '0') {
+                wToast($processResult['error_msg'] . ' 下單電子票券失敗，記錄此訊息後，請洽工程師', ['type' => 'danger']);
+            } elseif (!isset($processResult['success']) || $processResult['success'] == '1') {
+                if (isset($processResult['error_msg'])) {
+                    wToast($processResult['error_msg']);
                 }
             }
         } else {

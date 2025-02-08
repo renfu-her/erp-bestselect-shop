@@ -622,7 +622,7 @@ class ReceiveDepot extends Model
         return $query;
     }
 
-    public static function getDataListForYoubonOrder($delivery_id, $code) {
+    public static function getETicketOrderList($delivery_id) {
         $query = DB::table(app(ReceiveDepot::class)->getTable(). ' as rcv_depot')
             ->leftJoin(app(ProductStyle::class)->getTable() . ' as style', 'rcv_depot.product_style_id', '=', 'style.id')
             ->leftJoin(app(Product::class)->getTable() . ' as product', 'product.id', '=', 'style.product_id')
@@ -636,10 +636,10 @@ class ReceiveDepot extends Model
                 , 'rcv_depot.qty as qty'
                 , 'style.ticket_number'
                 , 'style.estimated_cost'
+                , 'tikType.code as tik_type_code'
             )
             ->where('rcv_depot.delivery_id', '=', $delivery_id)
             ->where('prd_type', '=', 'p')
-            ->where('tikType.code', '=', $code)
         ;
         return $query;
     }
