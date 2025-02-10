@@ -557,27 +557,6 @@ class OrderCtrl extends Controller
             $delivery = Delivery::where('event', Event::order()->value)->where('event_id', $subOrderId)->first();
         }
 
-        // 判斷票券是否都已經下單
-        $youbonOrderService = new YoubonOrderService();
-        $isETicketOrder = $youbonOrderService->isETicketOrder($delivery->id);
-        $hasPendingETickets = false;
-        if ($isETicketOrder) {
-            $eticketList = ReceiveDepot::getETicketOrderList($delivery->id)->get()->toArray();
-
-            foreach ($eticketList as $eticketData) {
-                if ('eYoubon' == $eticketData->tik_type_code) {
-                    $youbon_items[] = $eticketData;
-                }
-            }
-            if (0 < count($youbon_items)) {
-                $latestTikYoubonOrder = TikYoubonOrder::where('delivery_id', $delivery->id)->orderBy('id', 'desc')->first();
-                if (null == $latestTikYoubonOrder) {
-                    $hasPendingETickets = true;
-                }
-            }
-        }
-
-
         $sn = $order->sn;
 
         $receivable = false;
@@ -638,6 +617,31 @@ class OrderCtrl extends Controller
                     break;
                 }
 
+                // 判斷票券是否都已經下單
+                $youbonOrderService = new YoubonOrderService();
+                $isETicketOrder = $youbonOrderService->isETicketOrder($delivery->id);
+
+                if ($isETicketOrder) {
+                    $ticketExchangeUrl = [];
+                    $eticketList = ReceiveDepot::getETicketOrderList($delivery->id)->get()->toArray();
+
+                    foreach ($eticketList as $eticketData) {
+                        if ('eYoubon' == $eticketData->tik_type_code) {
+                            $youbon_items[] = $eticketData;
+                        }
+                    }
+                    if (0 < count($youbon_items)) {
+                        $latestTikYoubonOrder = TikYoubonOrder::where('delivery_id', $delivery->id)->orderBy('id', 'desc')->first();
+                        if (null == $latestTikYoubonOrder) {
+                            $hasPendingETickets = true;
+                            $so_value->hasPendingETickets = $hasPendingETickets;
+                        } else {
+                            // 取得電子票券兌換網址
+                            $ticketExchangeUrl[] = $latestTikYoubonOrder->weburl;
+                            $so_value->ticketExchangeUrl = $ticketExchangeUrl;
+                        }
+                    }
+                }
             }
         }
 
@@ -676,7 +680,6 @@ class OrderCtrl extends Controller
             'dividend' => $dividend,
             'canCancel' => Order::checkCanCancel($id, 'backend'),
             'delivery' => $delivery,
-            'hasPendingETickets' => $hasPendingETickets,
             'canSplit' => Order::checkCanSplit($id),
             'po_check' => $po_check,
             'dividendList' => $dividendList,

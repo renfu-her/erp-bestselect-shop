@@ -223,6 +223,7 @@ class DeliveryCtrl extends Controller
                 return abort(404);
             }
             $rsp_arr['order_id'] = $sub_order->order_id;
+            $rsp_arr['eTicketTips'] = '電子票券出貨即產生票券編號，取消出貨也不會取消電子票券編號';
 
             // 出貨單號ID
             $delivery = Delivery::getData($event, $sub_order->id)->get()->first();

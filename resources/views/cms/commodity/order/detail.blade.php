@@ -325,7 +325,7 @@
                                     <a class="btn btn-sm btn-success -in-header mb-1"
                                        href="{{ Route('cms.delivery.create', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">出貨審核</a>
 
-                                @if (true == $hasPendingETickets)
+                                @if (isset($subOrder->hasPendingETickets) && true == $subOrder->hasPendingETickets)
                                     <a class="btn btn-sm btn-success -in-header mb-1"
                                        href="{{ Route('cms.delivery.eticket', ['deliveryId' => $delivery->id], true) }}">電子票券出貨</a>
                                 @endif
@@ -396,6 +396,16 @@
                                         <td class="wrap lh-sm">{{ $item->note }}</td>
                                     </tr>
                                 @endforeach
+                                    @if (!empty($subOrder->ticketExchangeUrl) && is_array($subOrder->ticketExchangeUrl))
+                                        <tr>
+                                            <td colspan="6">
+                                                @foreach ($subOrder->ticketExchangeUrl as $itemUrl)
+                                                    <a href="{{ $itemUrl }}" target="_blank"
+                                                    class="btn btn-sm btn-primary">電子票券內容</a>
+                                                @endforeach
+                                            </td>
+                                        </tr>
+                                    @endif
                                 @endif
                             </tbody>
                         </table>

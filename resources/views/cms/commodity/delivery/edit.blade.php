@@ -112,6 +112,11 @@
             </label>
         </div>
         @endif
+        @if (isset($eTicketTips))
+            <div class="alert alert-info" role="alert">
+                {{ $eTicketTips }}
+            </div>
+        @endif
 
         @error('error_msg')
             <div class="alert alert-danger" role="alert">
