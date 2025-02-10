@@ -56,62 +56,7 @@ class SupplierCtrl extends Controller
                 return redirect()->back()->withInput()->withErrors(['vat_no' => '重複的統一編號']);
             }
         }
-
-        $id = Supplier::create([
-            'name' => $paramReq_supplier['name'],
-            'nickname' => $paramReq_supplier['nickname'],
-            'vat_no' => $paramReq_supplier['vat_no'],
-            'postal_code' => $paramReq_supplier['postal_code'],
-            'contact_address' => $paramReq_supplier['contact_address'],
-            'contact_person' => $paramReq_supplier['contact_person'],
-            'job' => $paramReq_supplier['job'],
-            'contact_tel' => $paramReq_supplier['contact_tel'],
-            'extension' => $paramReq_supplier['extension'],
-            'fax' => $paramReq_supplier['fax'],
-            'mobile_line' => $paramReq_supplier['mobile_line'],
-            'email' => $paramReq_supplier['email'],
-            'invoice_address' => $paramReq_supplier['invoice_address'],
-            'invoice_postal_code' => $paramReq_supplier['invoice_postal_code'],
-            'invoice_recipient' => $paramReq_supplier['invoice_recipient'],
-            'invoice_email' => $paramReq_supplier['invoice_email'],
-            'invoice_phone' => $paramReq_supplier['invoice_phone'],
-            'invoice_date' => $paramReq_supplier['invoice_date'],
-            'invoice_date_other' => $paramReq_supplier['invoice_date_other'],
-            'invoice_ship_fk' => $paramReq_supplier['invoice_ship_fk'],
-            'invoice_date_fk' => $paramReq_supplier['invoice_date_fk'],
-            'shipping_address' => $paramReq_supplier['shipping_address'],
-            'shipping_postal_code' => $paramReq_supplier['shipping_postal_code'],
-            'shipping_recipient' => $paramReq_supplier['shipping_recipient'],
-            'shipping_phone' => $paramReq_supplier['shipping_phone'],
-            'shipping_method_fk' => $paramReq_supplier['shipping_method_fk'],
-            'pay_date' => $paramReq_supplier['pay_date'],
-            'account_fk' => $paramReq_supplier['account_fk'],
-            'account_date' => $paramReq_supplier['account_date'],
-            'account_date_other' => $paramReq_supplier['account_date_other'],
-            'request_data' => $paramReq_supplier['request_data'],
-            'memo' => $paramReq_supplier['memo'],
-            'def_paytype' => $paramReq_supplier['def_paytype'],
-        ])->id;
-        if (isset($paramReq_supplier['paytype'])) {
-            foreach ($paramReq_supplier['paytype'] as $key => $val) {
-                if (Payment::Cheque()->value == $val) {
-                    SupplierPayment::createData($id, $val, ['cheque_payable' => $paramReq_supplier['cheque_payable'] ?? null]);
-                } else if (Payment::Remittance()->value == $val) {
-                    SupplierPayment::createData($id, $val, [
-                        'bank_cname' => $paramReq_supplier['bank_cname'] ?? null
-                        , 'bank_code' => $paramReq_supplier['bank_code'] ?? null
-                        , 'bank_acount' => $paramReq_supplier['bank_acount'] ?? null
-                        , 'bank_numer' => $paramReq_supplier['bank_numer'] ?? null
-                    ]);
-                } else if (Payment::Other()->value == $val) {
-                    SupplierPayment::createData($id, $val, [
-                        'other' => $paramReq_supplier['other'] ?? null,
-                    ]);
-                } else {
-                    SupplierPayment::createData($id, $val, []);
-                }
-            }
-        }
+        $id = Supplier::createData($paramReq_supplier);
         wToast(__('Add finished.'));
         return redirect(Route('cms.supplier.index', [
             'id' => $id,
