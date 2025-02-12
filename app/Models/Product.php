@@ -321,7 +321,6 @@ class Product extends Model
             $user_id,
             $category_id,
             $type,
-            $tik_type_id,
             $feature,
             $url,
             $slogan,
@@ -334,7 +333,8 @@ class Product extends Model
             $online,
             $offline,
             $purchase_note,
-            $meta) {
+            $meta,
+            $tik_type_id) {
 
             switch ($type) {
                 case 'p':

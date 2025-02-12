@@ -155,7 +155,7 @@ class ProductCtrl extends Controller
         // $path = $request->file('file')->store('excel');
 
         $d = $request->all();
-        $re = Product::createProduct($d['title'],
+        $re = Product::createProductWithTicket($d['title'],
             $d['user_id'],
             $d['category_id'],
             $d['type'],
