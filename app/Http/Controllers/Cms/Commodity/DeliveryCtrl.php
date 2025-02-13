@@ -372,6 +372,12 @@ class DeliveryCtrl extends Controller
     //刪除出貨單收貨倉數量
     public function destroyItem(Request $request, $event, $eventId, int $receiveDepotId)
     {
+        $rcv_depot = ReceiveDepot::where('id', '=', $receiveDepotId)->first();
+        $delivery = Delivery::where('id', '=', $rcv_depot->delivery_id)->first();
+        if (null != $delivery->audit_date) {
+            wToast('已送出審核 無法刪除', ['type' => 'danger']);
+            return redirect()->back();
+        }
         ReceiveDepot::deleteById($receiveDepotId);
         wToast('刪除成功');
 

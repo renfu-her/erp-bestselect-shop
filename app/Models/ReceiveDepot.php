@@ -121,6 +121,12 @@ class ReceiveDepot extends Model
                             $rcv_depot_type = 'c';
                         }
                     }
+                    // 取得在 ReceiveDepot 相同 delivery_id event_item_id、prd_type 的資料，加總 qty
+                    $rcv_depot_qty = ReceiveDepot::where('delivery_id', $delivery_id)->where('event_item_id', $itemId)->where('prd_type', $rcv_depot_type)->sum('qty');
+                    // 判斷是否超過訂單數量
+                    if ($item->qty < $rcv_depot_qty + $val) {
+                        return ['success' => 0, 'error_msg' => "當前選擇已超過訂單數量"];
+                    }
                     $inbound = PurchaseInbound::getSelectInboundList(['inbound_id' => $input_arr['inbound_id'][$key], 'select_consignment' => $select_consignment])->get()->first();
                     if (null != $inbound) {
                         if (0 > $inbound->qty - $val) {
