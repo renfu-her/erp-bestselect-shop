@@ -3276,22 +3276,26 @@ class OrderCtrl extends Controller
                 $ship_event = null;
                 $ship_temp = null;
                 $ship_temp_id = null;
-
-                switch ($d['ship_category'][$key]) {
-                    case "deliver":
-                        $ship_group = DB::table(app(ShipmentGroup::class)->getTable() . ' as sg')
-                            ->where('sg.id', $d['ship_event_id'][$key])
-                            ->leftJoin('shi_temps', 'shi_temps.id', '=', 'sg.temps_fk')
-                            ->get()->first();
-                        $ship_event = $ship_group->name;
-                        $ship_temp = $ship_group->temps;
-                        $ship_temp_id = $ship_group->temps_fk;
-                        break;
-                    case "pickup":
-                        $ship_event = Depot::where('id', $d['ship_event_id'][$key])->get()->first()->name;
-                        break;
-                    default:
-                        $ship_event = '全家';
+                if (isset($d['ship_event_id'][$key])) {
+                    switch ($d['ship_category'][$key]) {
+                        case "deliver":
+                            $ship_group = DB::table(app(ShipmentGroup::class)->getTable() . ' as sg')
+                                ->where('sg.id', $d['ship_event_id'][$key])
+                                ->leftJoin('shi_temps', 'shi_temps.id', '=', 'sg.temps_fk')
+                                ->get()->first();
+                            $ship_event = $ship_group->name;
+                            $ship_temp = $ship_group->temps;
+                            $ship_temp_id = $ship_group->temps_fk;
+                            break;
+                        case "pickup":
+                            $ship_event = Depot::where('id', $d['ship_event_id'][$key])->get()->first()->name;
+                            break;
+                        case "eTicket":
+                            $ship_event = null;
+                            break;
+                        default:
+                            $ship_event = '全家';
+                    }
                 }
 
                 SubOrders::where('id', $value)->update([
