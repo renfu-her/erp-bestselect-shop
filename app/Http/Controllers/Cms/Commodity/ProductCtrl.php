@@ -1102,10 +1102,28 @@ class ProductCtrl extends Controller
         // 合併兩者，並去除重複值
         $mergedStyleIds = array_unique(array_merge($inputStyleIds, $queryStyleChildIds));
         // 若合併後款式數量超過 1，但款式類型不一致，即提示錯誤並返回
-        if (count($mergedStyleIds) > 1 && !ProductStyle::isSameTikTypeWithStyleIds($mergedStyleIds)) {
-            wToast('組合包內的商品類型需一致', ['type' => 'danger']);
-            return redirect()->back();
+        if (count($mergedStyleIds) > 1) {
+            if (!ProductStyle::isSameTikTypeWithStyleIds($mergedStyleIds)) {
+                wToast('組合包內的商品類型需一致', ['type' => 'danger']);
+                return redirect()->back();
+            }
+            $queryTikTypeIds = ProductStyle::whereIn('prd_product_styles.id', $mergedStyleIds)
+            ->leftJoin('prd_products', 'prd_products.id', '=', 'prd_product_styles.product_id')
+            ->select('prd_products.tik_type_id')
+            ->distinct()
+            ->get()
+            ->pluck('tik_type_id')
+            ->toArray();
+            if (1 <= count($queryTikTypeIds)) {
+                $product = Product::find($id);
+                // 判斷 $product.tikt_type_id 是否和 $queryTikTypeIds 裡的值完全一致
+                if (!in_array($product->tik_type_id, $queryTikTypeIds)) {
+                    wToast('組合包商品類型與組合包內的商品類型需一致', ['type' => 'danger']);
+                    return redirect()->back();
+                }
+            }
         }
+
 
         $sid = ProductStyle::createComboStyle($id, $d['title'], 1);
         if (isset($d['style_id'])) {
