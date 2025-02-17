@@ -952,6 +952,22 @@ class ProductCtrl extends Controller
 
         //  dd('aaa');
         if (isset($d['active_id'])) {
+            $queryStyleChildIds = Product::where('prd_products.id', $id)
+                ->whereNull('prd_product_styles.deleted_at')
+                ->leftJoin('prd_product_styles', 'prd_products.id', '=', 'prd_product_styles.product_id')
+                ->leftJoin('prd_style_combos', 'prd_style_combos.product_style_id', '=', 'prd_product_styles.id')
+                ->select('prd_style_combos.product_style_child_id')
+                ->get()
+                ->pluck('product_style_child_id')
+                ->toArray();
+            // $queryStyleChildIds 組合包內的商品類型需一致
+            if (1 < count($queryStyleChildIds)) {
+                $isSameTikType = ProductStyle::isSameTikTypeWithStyleIds($queryStyleChildIds);
+                if (!$isSameTikType) {
+                    wToast('組合包內的商品類型需一致', ['type' => 'danger']);
+                    return redirect()->back();
+                }
+            }
             ProductStyle::activeStyle($id, $d['active_id']);
         }
 
@@ -1072,6 +1088,24 @@ class ProductCtrl extends Controller
             'ps_qty' => 'array',
         ]);
         $d = request()->all();
+
+        $inputStyleIds = isset($d['style_id']) ? array_map('intval', $d['style_id']) : [];
+
+        $queryStyleChildIds = Product::where('prd_products.id', $id)
+            ->whereNull('prd_product_styles.deleted_at')
+            ->leftJoin('prd_product_styles', 'prd_products.id', '=', 'prd_product_styles.product_id')
+            ->leftJoin('prd_style_combos', 'prd_style_combos.product_style_id', '=', 'prd_product_styles.id')
+            ->select('prd_style_combos.product_style_child_id')
+            ->get()
+            ->pluck('product_style_child_id')
+            ->toArray();
+        // 合併兩者，並去除重複值
+        $mergedStyleIds = array_unique(array_merge($inputStyleIds, $queryStyleChildIds));
+        // 若合併後款式數量超過 1，但款式類型不一致，即提示錯誤並返回
+        if (count($mergedStyleIds) > 1 && !ProductStyle::isSameTikTypeWithStyleIds($mergedStyleIds)) {
+            wToast('組合包內的商品類型需一致', ['type' => 'danger']);
+            return redirect()->back();
+        }
 
         $sid = ProductStyle::createComboStyle($id, $d['title'], 1);
         if (isset($d['style_id'])) {

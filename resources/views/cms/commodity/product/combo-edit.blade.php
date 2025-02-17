@@ -260,6 +260,7 @@
                         <th class="text-center">
                             <input class="form-check-input" type="checkbox" ${checked}
                                 value="${p.id}" data-td="p_id" aria-label="選取商品">
+                            <input type="hidden" name="tik_type_id" value="${p.tik_type_id || ''}">
                         </th>
                         <td data-td="name">${p.product_title}</td>
                         <td data-td="spec">${p.spec || ''}</td>
@@ -282,7 +283,8 @@
                                 id: $(element).val(),
                                 name: $(element).parent('th').siblings('[data-td="name"]').text(),
                                 sku: sku,
-                                spec: $(element).parent('th').siblings('[data-td="spec"]').text()
+                                spec: $(element).parent('th').siblings('[data-td="spec"]').text(),
+                                tik_type_id: $(element).siblings('input[name="tik_type_id"]').val() || ''
                             });
                         }
                     } else {

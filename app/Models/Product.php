@@ -462,7 +462,8 @@ class Product extends Model
     {
         $re = DB::table('prd_products as p')
             ->leftJoin('prd_product_styles as s', 'p.id', '=', 's.product_id')
-            ->select('s.id', 's.sku', 's.estimated_cost', 'p.title as product_title', 'p.id as product_id', 's.title as spec', 's.safety_stock', 's.total_inbound', 's.in_stock as current_stock', 's.overbought')
+            ->select('s.id', 's.sku', 's.estimated_cost', 'p.title as product_title', 'p.id as product_id', 'p.tik_type_id'
+                , 's.title as spec', 's.safety_stock', 's.total_inbound', 's.in_stock as current_stock', 's.overbought')
             ->selectRaw('CASE p.type WHEN "p" THEN "一般商品" WHEN "c" THEN "組合包商品" END as type_title')
             ->selectRaw('s.in_stock as in_stock_original')
             ->selectRaw('s.in_stock + s.overbought as in_stock')
