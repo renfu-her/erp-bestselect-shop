@@ -276,7 +276,7 @@ class YoubonOrderService
                     foreach ($result['items'] as $item) {
                         // 使用 ticket_number 找到對應 $ship_items 的 event_item_id、depot_id
                         $ship_item = collect($ship_items)->where('ticket_number', $item['productnumber'])->first();
-                        $event_item_id = $ship_item->event_item_id;
+                        $event_item_id = $ship_item->event_item_id; // 在有同款式的一般商品+組合包下，則會記不準
                         $depot_id = $ship_item->depot_id;
                         TikYoubonItem::createData($delivery_id
                             , $event_item_id, $depot_id, $order_youbon_id
@@ -350,6 +350,7 @@ class YoubonOrderService
         // 從這裡判斷是哪家電子票券，下對應訂單
         $eticketDatalist = ReceiveDepot::getETicketOrderList($delivery_id)->get()->toArray();
 
+        // 只取星全安的電子票券
         foreach ($eticketDatalist as $eticketData) {
             if ('eYoubon' == $eticketData->tik_type_code) {
                 $youbon_items[] = $eticketData;
