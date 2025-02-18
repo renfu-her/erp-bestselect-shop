@@ -20,6 +20,7 @@ use App\Models\ShipmentCategory;
 use App\Models\Supplier;
 use App\Models\TikType;
 use App\Models\User;
+use App\Services\ETickets\AutoEticketPurchaseDeliveryServices;
 use Illuminate\Http\Request;
 // use Illuminate\Routing\Route;
 use Illuminate\Support\Arr;
@@ -280,6 +281,18 @@ class ProductCtrl extends Controller
         ]);
 
         $d = $request->all();
+
+        $tikType = TikType::where('code', 'eYoubon')->first();
+        // 判斷若為電子票券，則廠商必須為星全安
+        if ($tikType && $d['tik_type_id'] == $tikType->id) {
+            $autoPurchaseDeliveryServices = new AutoEticketPurchaseDeliveryServices();
+            $youbonSupplier = $autoPurchaseDeliveryServices->getYoubonSupplier();
+            // 檢查供應商 $d['supplier'] 只能是星全安供應商
+            if (!in_array($youbonSupplier, $d['supplier']) || 1 != count($d['supplier'])) {
+                wToast('若選擇商品類型是星全安電子票券，則廠商必須為星全安', ['type' => 'danger']);
+                return redirect()->back();
+            }
+        }
 
         Product::updateProduct($id,
             $d['title'],
