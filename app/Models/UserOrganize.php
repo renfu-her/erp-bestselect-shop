@@ -120,6 +120,10 @@ class UserOrganize extends Model
         if ($user_id == $no2->id) {
             return $audid;
         }
+
+        $user_DaiSer = user::where('account', '15036')->select('id as user_id', 'name', 'title')->get()->first(); // 戴聖祥
+        $user_LiChaYin = user::where('account', '07051')->select('id as user_id', 'name', 'title')->get()->first(); // 李佳穎
+
         $arr = [[2, $user->department], [3, $user->group]];
         foreach ($arr as $v) {
             $group_admin = self::getDepartmentAdmin($v[0], $v[1]);
@@ -133,8 +137,22 @@ class UserOrganize extends Model
                     }
 
                     if ($admin->user_id != $user->id && !in_array($admin->user_id, $ids)) {
-                        $audid[] = $admin;
-                        $ids[] = $admin->user_id;
+                        // 20250227 口述 小姜:戴去泰國，單子轉給李
+                        // 判斷 $admin->name 若為 $no_戴聖祥->name，則改為加入 $no_李佳穎 資料
+                        if ($admin->name == $user_DaiSer->name) {
+                            // 判斷沒有 李佳穎 資料才加入避免重複
+                            if (!in_array($user_LiChaYin->user_id, $ids)) {
+                                $audid[] = (object)[
+                                    'user_id' => $user_LiChaYin->user_id,
+                                    'title' => $user_LiChaYin->title,
+                                    'name' => $user_LiChaYin->name
+                                ];
+                                $ids[] = $user_LiChaYin->user_id;
+                            }
+                        } else {
+                            $audid[] = $admin;
+                            $ids[] = $admin->user_id;
+                        }
                     }
                 }
             }
@@ -171,11 +189,13 @@ class UserOrganize extends Model
             ->where('org.title', $group_title)->get()->first();
 
         $output = [];
-        for ($i = 1; $i < 3; $i++) {
-            if ($re->{"name" . $i}) {
-                $output[] = (object) ['user_id' => $re->{"user_id" . $i},
-                    'title' => $re->{"title" . $i},
-                    'name' => $re->{"name" . $i}];
+        if ($re) {
+            for ($i = 1; $i < 3; $i++) {
+                if ($re->{"name" . $i}) {
+                    $output[] = (object) ['user_id' => $re->{"user_id" . $i},
+                        'title' => $re->{"title" . $i},
+                        'name' => $re->{"name" . $i}];
+                }
             }
         }
 
