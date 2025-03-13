@@ -14,6 +14,8 @@
                         <th scope="col">獲得點數</th>
                         <th scope="col">使用期限</th>
                         <th scope="col">來源類型</th>
+                        <th scope="col">行為</th>
+                        <th scope="col">備註</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -36,12 +38,16 @@
                             <td class="wrap">
                                 {{ $data->active_edate ? date('Y/m/d H:i:s', strtotime($data->active_edate)) : '-' }}</td>
                             <td>{{ DividendCategory::getDescription($data->category) }}</td>
+                            <td class="wrap">{{ $data->flag_title }}</td>
+                            <td class="wrap">{{ $data->note }}</td>
                         </tr>
                     @endforeach
                     <tr>
                         <td></td>
                         <td></td>
                         <td>總計：{{ number_format($getTotal) }}</td>
+                        <td></td>
+                        <td></td>
                         <td></td>
                         <td></td>
                     </tr>
@@ -58,6 +64,8 @@
                         <th scope="col">訂單編號</th>
                         <th scope="col">訂單日期</th>
                         <th scope="col">使用點數</th>
+                        <th scope="col">行為</th>
+                        <th scope="col">備註</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -72,12 +80,16 @@
                             <td>{{ $data->category_sn }}</td>
                             <td>{{ date('Y/m/d H:i:s', strtotime($data->created_at)) }}</td>
                             <td>{{ $data->dividend }}</td>
+                            <td class="wrap">{{ $data->flag_title }}</td>
+                            <td class="wrap">{{ $data->note }}</td>
                         </tr>
                     @endforeach
                     <tr>
                         <td></td>
                         <td></td>
                         <td>總計：{{ $usedTotal }}</td>
+                        <td></td>
+                        <td></td>
 
                     </tr>
                 </tbody>
@@ -93,6 +105,8 @@
                         <th scope="col">原因</th>
                         <th scope="col">訂單日期</th>
                         <th scope="col">點數</th>
+                        <th scope="col">行為</th>
+                        <th scope="col">備註</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -107,12 +121,16 @@
                             <td>{{ $data->note }}</td>
                             <td>{{ date('Y/m/d H:i:s', strtotime($data->created_at)) }}</td>
                             <td>{{ $data->dividend }}</td>
+                            <td class="wrap">{{ $data->flag_title }}</td>
+                            <td class="wrap">{{ $data->note }}</td>
                         </tr>
                     @endforeach
                     <tr>
                         <td></td>
                         <td></td>
                         <td>總計：{{ $expiredTotal }}</td>
+                        <td></td>
+                        <td></td>
                     </tr>
                 </tbody>
             </table>
