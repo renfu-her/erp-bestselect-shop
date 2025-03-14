@@ -138,8 +138,9 @@ class UserOrganize extends Model
 
                     if ($admin->user_id != $user->id && !in_array($admin->user_id, $ids)) {
                         // 20250227 口述 小姜:戴去泰國，單子轉給李
-                        // 判斷 $admin->name 若為 $no_戴聖祥->name，則改為加入 $no_李佳穎 資料
-                        if ($admin->name == $user_DaiSer->name) {
+                        // 判斷 $admin->name 若為 $no_戴聖祥->name，且使用者屬於行政部，則改為加入 $no_李佳穎 資料
+                        // 20250313 電話 名月: 使用者屬於行政部才改
+                        if ($admin->name == $user_DaiSer->name && $user->department == '行政部') {
                             // 判斷沒有 李佳穎 資料才加入避免重複
                             if (!in_array($user_LiChaYin->user_id, $ids)) {
                                 $audid[] = (object)[
