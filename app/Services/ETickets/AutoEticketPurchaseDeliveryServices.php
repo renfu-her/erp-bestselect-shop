@@ -277,7 +277,7 @@ class AutoEticketPurchaseDeliveryServices
         $user_name = '採購服務系統';
         $user = User::where('name', $user_name)->first();
         if (null == $user) {
-            $id = User::createUser($user_name, $user_name, null, 'qwer6789');
+            $id = User::createUser($user_name, $user_name, null, '!a123456A');
             $user = User::where('id', '=', $id)->first();
         }
         return $user;

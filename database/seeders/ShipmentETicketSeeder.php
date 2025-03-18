@@ -10,6 +10,7 @@ use App\Models\ShipmentGroup;
 use App\Models\ShipmentMethod;
 use App\Models\Temps;
 use App\Models\TikType;
+use App\Services\ETickets\AutoEticketPurchaseDeliveryServices;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -17,6 +18,12 @@ class ShipmentETicketSeeder extends Seeder
 {
     public function run()
     {
+        // 取得或建立 youbon 相關資料
+        $autoPurchaseDeliveryServices = new AutoEticketPurchaseDeliveryServices();
+        $supplier = $autoPurchaseDeliveryServices->getYoubonSupplier();
+        $user = $autoPurchaseDeliveryServices->getPurchaseServiceUser();
+        $depot = $autoPurchaseDeliveryServices->getETicketDepot();
+
         // 取得或建立 eTicket 類別
         $shipmentCategoryETicket = ShipmentCategory::firstOrCreate(
             ['code' => 'eTicket'],
