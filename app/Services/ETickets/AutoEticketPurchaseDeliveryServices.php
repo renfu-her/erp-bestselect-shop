@@ -80,9 +80,9 @@ class AutoEticketPurchaseDeliveryServices
     }
 
     public function autoEticketCreatePurchase($order_id, $ord_sub_order_id) {
-        $supplier = self::getYoubonSupplier();
-        $user = self::getPurchaseServiceUser();
-        $depot = self::getETicketDepot();
+        $supplier = $this->getYoubonSupplier();
+        $user = $this->getPurchaseServiceUser();
+        $depot = $this->getETicketDepot();
 
         $query_order = $this->getETicketOrderItems($order_id, $ord_sub_order_id);
 
@@ -228,7 +228,7 @@ class AutoEticketPurchaseDeliveryServices
         return $msg;
     }
 
-    public static function getYoubonSupplier() {
+    public function getYoubonSupplier() {
         $supplier = Supplier::getSupplierList('16776078')->first();
         if (null == $supplier) {
             $paramReq_supplier = [
@@ -273,7 +273,7 @@ class AutoEticketPurchaseDeliveryServices
         return $supplier;
     }
 
-    public static function getPurchaseServiceUser() {
+    public function getPurchaseServiceUser() {
         $user_name = '採購服務系統';
         $user = User::where('name', $user_name)->first();
         if (null == $user) {
@@ -283,7 +283,7 @@ class AutoEticketPurchaseDeliveryServices
         return $user;
     }
 
-    public static function getETicketDepot() {
+    public function getETicketDepot() {
         $name = '電子票券出貨倉';
         $depot = Depot::where('name', '=', $name)->first();
         if (null == $depot) {

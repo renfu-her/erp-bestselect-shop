@@ -157,7 +157,7 @@ class ProductCtrl extends Controller
 
         $d = $request->all();
         $validationResult = $this->validateYoubonEticket($d['tik_type_id'], $d);
-        if ($validationResult['success'] != '1' ) {
+        if ($validationResult['success'] != 1 ) {
             wToast($validationResult['message'], ['type' => 'danger']);
             return redirect()->back();
         }
@@ -229,13 +229,13 @@ class ProductCtrl extends Controller
 
         // 如果不是星全安電子票券，直接通過檢查
         if (!$tikType || $tikTypeId != $tikType->id) {
-            return ['success' => '1', 'message' => ''];
+            return ['success' => 1, 'message' => ''];
         }
 
         // 檢查商品類型不可以為組合包
         if ($data['type'] == 'c') {
             return [
-                'success' => '0',
+                'success' => 0,
                 'message' => '若選擇商品類型是星全安電子票券，則商品類型不可以為組合包'
             ];
         }
@@ -244,15 +244,15 @@ class ProductCtrl extends Controller
         $autoPurchaseDeliveryServices = new AutoEticketPurchaseDeliveryServices();
         $youbonSupplier = $autoPurchaseDeliveryServices->getYoubonSupplier();
 
-        if (!in_array($youbonSupplier, $data['supplier']) || 1 != count($data['supplier'])) {
+        if (!in_array($youbonSupplier->id, $data['supplier']) || 1 != count($data['supplier'])) {
             return [
-                'success' => '0',
-                'message' => '若選擇商品類型是星全安電子票券，則廠商必須為星全安'
+                'success' => 0,
+                'message' => '若選擇商品類型是星全安電子票券，則廠商必須為星全安旅行社有限公司'
             ];
         }
 
         // 所有檢查都通過
-        return ['success' => '1', 'message' => ''];
+        return ['success' => 1, 'message' => ''];
     }
 
     /**
@@ -328,7 +328,7 @@ class ProductCtrl extends Controller
         $d = $request->all();
 
         $validationResult = $this->validateYoubonEticket($d['tik_type_id'], $d);
-        if ($validationResult['success'] != '1') {
+        if ($validationResult['success'] != 1) {
             wToast($validationResult['message'], ['type' => 'danger']);
             return redirect()->back();
         }
