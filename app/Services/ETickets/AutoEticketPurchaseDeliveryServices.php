@@ -29,31 +29,47 @@ class AutoEticketPurchaseDeliveryServices
 
         $sub_order_with_eticket = SubOrders::where('order_id', '=', $order_id)
             ->where('ship_category', '=', 'eTicket')
-            ->get()->toArray();
+            ->get();
+
+        if ($sub_order_with_eticket->isEmpty()) {
+            return ['success' => 1, 'error_msg' => ''];
+        }
         if (0 < count($sub_order_with_eticket)) {
             foreach ($sub_order_with_eticket as $sub_order_item) {
                 $delivery = Delivery::where('event_id', '=', $sub_order_item->id)
                     ->where('event', '=', 'order')
                     ->first();
+
+                if (!$delivery) {
+                    continue;
+                }
                 if ($delivery) {
                     $latestTikYoubonOrder = TikYoubonOrder::where('delivery_id', $delivery->id)->orderBy('id', 'desc')->first();
                     if ($latestTikYoubonOrder) {
                         continue;
                     }
 
-                    $autoEticketCreatePurchase = $this->autoEticketCreatePurchase($order_id);
+                    $autoEticketCreatePurchase = $this->autoEticketCreatePurchase($order_id, $sub_order_item->id);
                     if ($autoEticketCreatePurchase['success'] == '1') {
                         $youbonOrderService = new YoubonOrderService();
                         $sub_order = SubOrders::where('id', '=', $delivery->event_id)->first();
+
+                        if (!$sub_order) {
+                            return [
+                                'success' => 0,
+                                'error_msg' => '找不到子訂單資料 ID:'. $delivery->event_id,
+                                'delivery_id' => $delivery->id
+                            ];
+                        }
                         $processResult = $youbonOrderService->handleMultiETicketOrder($delivery->id, $sub_order->order_id);
                         if (isset($processResult['success']) && $processResult['success'] == '0') {
                             // log error $delivery->id、error_msg、process:handleMultiETicketOrder
-                            dd('handleMultiETicketOrder', $delivery->id, $processResult['error_msg']);
+                            // dd('handleMultiETicketOrder', $delivery->id, $processResult['error_msg']);
                             return ['success' => 0, 'error_msg' => $processResult['error_msg'], 'delivery_id' => $delivery->id];
                         }
                     } else {
                         // log error $delivery->id、error_msg、process:autoEticketCreatePurchase
-                        dd('autoEticketCreatePurchase', $delivery->id, $autoEticketCreatePurchase['error_msg']);
+                        // dd('autoEticketCreatePurchase', $delivery->id, $autoEticketCreatePurchase['error_msg']);
                         return ['success' => 0, 'error_msg' => $autoEticketCreatePurchase['error_msg'], 'delivery_id' => $delivery->id];
                     }
                 }
@@ -63,12 +79,17 @@ class AutoEticketPurchaseDeliveryServices
         return ['success' => 1, 'error_msg' => ''];
     }
 
-    public function autoEticketCreatePurchase($order_id) {
+    public function autoEticketCreatePurchase($order_id, $ord_sub_order_id) {
         $supplier = self::getYoubonSupplier();
         $user = self::getPurchaseServiceUser();
         $depot = self::getETicketDepot();
 
-        $query_order = $this->getETicketOrderItems($order_id);
+        $query_order = $this->getETicketOrderItems($order_id, $ord_sub_order_id);
+
+        // 如果查詢結果為空，提前返回
+        if ($query_order->isEmpty()) {
+            return ['success' => 0, 'error_msg' => '找不到符合條件的訂單商品'];
+        }
         // 找出全部商品共有那些廠商，區分出廠商->商品
         $delivery_ids = [];
         $supplier_items = [];
@@ -88,7 +109,8 @@ class AutoEticketPurchaseDeliveryServices
             ];
             $delivery_ids[] = $order->delivery_id;
         }
-        $eYoubon_items = $supplier_items['eYoubon'];
+        $delivery_ids = array_unique($delivery_ids); // 去除重複的出貨單ID
+        $eYoubon_items = $supplier_items['eYoubon'] ?? [];
 
         $msg = IttmsDBB::transaction(function () use (
             $delivery_ids, $supplier, $user, $depot, $eYoubon_items
@@ -110,10 +132,9 @@ class AutoEticketPurchaseDeliveryServices
                     DB::rollBack();
                     return $purchase1;
                 }
-                $purchaseID1 = null;
-                if (isset($purchase1['id'])) {
-                    $purchaseID1 = $purchase1['id'];
-                }
+
+                $purchaseID1 = $purchase1['id'] ?? null;
+
                 foreach ($eYoubon_items as $item) {
                     // 建立採購單商品款式
                     $purchaseItem1 = PurchaseItem::createPurchase(
@@ -134,10 +155,8 @@ class AutoEticketPurchaseDeliveryServices
                         DB::rollBack();
                         return $purchaseItem1;
                     }
-                    $purchaseItemID1 = null;
-                    if (isset($purchaseItem1['id'])) {
-                        $purchaseItemID1 = $purchaseItem1['id'];
-                    }
+
+                    $purchaseItemID1 = $purchaseItem1['id'] ?? null;
 
                     // 建立採購單入庫
                     $purchaseInbound1 = PurchaseInbound::createInbound(
@@ -161,10 +180,8 @@ class AutoEticketPurchaseDeliveryServices
                         DB::rollBack();
                         return $purchaseInbound1;
                     }
-                    $purchaseInboundID1 = null;
-                    if (isset($purchaseInbound1['id'])) {
-                        $purchaseInboundID1 = $purchaseInbound1['id'];
-                    }
+
+                    $purchaseInboundID1 = $purchaseInbound1['id'] ?? null;
 
                     $input = [
                         'delivery_id' => $item['delivery_id'],
@@ -185,7 +202,11 @@ class AutoEticketPurchaseDeliveryServices
             if (0 < count($delivery_ids)) {
                 foreach ($delivery_ids as $delivery_id) {
                     $delivery = Delivery::where('id', '=', $delivery_id)->first();
-
+                    if (null == $delivery) {
+                        DB::rollBack();
+                        return ['success' => 0, 'error_msg' => "找不到出貨單資料 ID:". $delivery_id];
+                    }
+                    // 如果出貨單已經審核過，則不再重複審核
                     if (null != $delivery->audit_date)
                     {
                         DB::rollBack();
@@ -288,7 +309,7 @@ class AutoEticketPurchaseDeliveryServices
      * @param $order_id
      * @return \Illuminate\Support\Collection
      */
-    public function getETicketOrderItems($order_id): \Illuminate\Support\Collection
+    public function getETicketOrderItems($order_id, $ord_sub_order_id): \Illuminate\Support\Collection
     {
         $query_order = DB::table('ord_orders as order')
             ->leftJoin(app(SubOrders::class)->getTable() . ' as ord_sub_orders', 'ord_sub_orders.order_id', '=', 'order.id')
@@ -318,6 +339,7 @@ class AutoEticketPurchaseDeliveryServices
             )
             ->whereIn('ord_sub_orders.ship_category', ['eTicket'])
             ->where('order.id', '=', $order_id)
+            ->where('ord_sub_orders.id', '=', $ord_sub_order_id)
             ->get();
         return $query_order;
     }
