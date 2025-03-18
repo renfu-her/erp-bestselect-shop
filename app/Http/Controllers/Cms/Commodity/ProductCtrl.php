@@ -156,6 +156,11 @@ class ProductCtrl extends Controller
         // $path = $request->file('file')->store('excel');
 
         $d = $request->all();
+        $validationResult = $this->validateYoubonEticket($d['tik_type_id'], $d);
+        if ($validationResult['success'] != '1' ) {
+            wToast($validationResult['message'], ['type' => 'danger']);
+            return redirect()->back();
+        }
         $re = Product::createProductWithTicket($d['title'],
             $d['user_id'],
             $d['category_id'],
@@ -208,6 +213,46 @@ class ProductCtrl extends Controller
 
         wToast('新增完畢');
         return redirect(route($url, ['id' => $re['id']]));
+    }
+
+    /**
+     * 檢查星全安電子票券相關規則
+     *
+     * @param int $tikTypeId 票券類型 ID
+     * @param array $data 送出的資料
+     * @return array ['success' => bool, 'message' => string] 檢查結果
+     */
+    private function validateYoubonEticket($tikTypeId, $data)
+    {
+        // 檢查是否為星全安電子票券
+        $tikType = TikType::where('code', 'eYoubon')->first();
+
+        // 如果不是星全安電子票券，直接通過檢查
+        if (!$tikType || $tikTypeId != $tikType->id) {
+            return ['success' => '1', 'message' => ''];
+        }
+
+        // 檢查商品類型不可以為組合包
+        if ($data['type'] == 'c') {
+            return [
+                'success' => '0',
+                'message' => '若選擇商品類型是星全安電子票券，則商品類型不可以為組合包'
+            ];
+        }
+
+        // 檢查廠商只能選擇星全安旅行社有限公司
+        $autoPurchaseDeliveryServices = new AutoEticketPurchaseDeliveryServices();
+        $youbonSupplier = $autoPurchaseDeliveryServices->getYoubonSupplier();
+
+        if (!in_array($youbonSupplier, $data['supplier']) || 1 != count($data['supplier'])) {
+            return [
+                'success' => '0',
+                'message' => '若選擇商品類型是星全安電子票券，則廠商必須為星全安'
+            ];
+        }
+
+        // 所有檢查都通過
+        return ['success' => '1', 'message' => ''];
     }
 
     /**
@@ -282,16 +327,10 @@ class ProductCtrl extends Controller
 
         $d = $request->all();
 
-        $tikType = TikType::where('code', 'eYoubon')->first();
-        // 判斷若為電子票券，則廠商必須為星全安
-        if ($tikType && $d['tik_type_id'] == $tikType->id) {
-            $autoPurchaseDeliveryServices = new AutoEticketPurchaseDeliveryServices();
-            $youbonSupplier = $autoPurchaseDeliveryServices->getYoubonSupplier();
-            // 檢查供應商 $d['supplier'] 只能是星全安供應商
-            if (!in_array($youbonSupplier, $d['supplier']) || 1 != count($d['supplier'])) {
-                wToast('若選擇商品類型是星全安電子票券，則廠商必須為星全安', ['type' => 'danger']);
-                return redirect()->back();
-            }
+        $validationResult = $this->validateYoubonEticket($d['tik_type_id'], $d);
+        if ($validationResult['success'] != '1') {
+            wToast($validationResult['message'], ['type' => 'danger']);
+            return redirect()->back();
         }
 
         Product::updateProduct($id,
