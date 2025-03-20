@@ -450,6 +450,11 @@ return
                 "route_name" => "cms.img-storage.index",
                 "target" => "_blank",
             ],
+            [
+                "title" => "電子票券訂票錯誤紀錄",
+                "controller_name" => "TikAutoOrderErrorLogCtrl",
+                "route_name" => "cms.tik_auto_order_error_log.index",
+            ],
         ],
     ],
 ];
