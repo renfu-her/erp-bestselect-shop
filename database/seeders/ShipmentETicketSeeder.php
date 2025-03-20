@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-
+use App\Enums\eTicket\ETicketVendor;
 use App\Models\Product;
 use App\Models\Shipment;
 use App\Models\ShipmentCategory;
@@ -55,7 +55,7 @@ class ShipmentETicketSeeder extends Seeder
         }
 
         // 找到資料表 Product.tik_type_id 等於 $shipmentCategoryETicketId
-        $tikTypeEYoubon = TikType::where('code', 'eYoubon')->first();
+        $tikTypeEYoubon = TikType::where('code', ETicketVendor::YOUBON_CODE)->first();
         $products = Product::where('tik_type_id', $tikTypeEYoubon->id)->get();
         if ($products->count() > 0) {
             foreach ($products as $product) {

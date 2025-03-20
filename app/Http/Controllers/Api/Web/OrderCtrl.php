@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Web;
 
 use App\Enums\Delivery\Event;
+use App\Enums\eTicket\ETicketVendor;
 use App\Enums\Globals\ApiStatusMessage;
 use App\Enums\Globals\ResponseParam;
 use App\Enums\Order\InvoiceMethod;
@@ -373,7 +374,7 @@ class OrderCtrl extends Controller
                 $ticketExchangeUrl = [];
                 $eticketList = ReceiveDepot::getETicketOrderList($delivery->id)->get()->toArray();
                 foreach ($eticketList as $eticketData) {
-                    if ('eYoubon' == $eticketData->tik_type_code) {
+                    if (ETicketVendor::YOUBON_CODE == $eticketData->tik_type_code) {
                         $youbon_items[] = $eticketData;
                     }
                 }

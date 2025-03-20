@@ -2,6 +2,7 @@
 
 namespace App\Services\ThirdPartyApis\Youbon;
 
+use App\Enums\eTicket\ETicketVendor;
 use App\Models\Delivery;
 use App\Models\Order;
 use App\Models\ReceiveDepot;
@@ -352,7 +353,7 @@ class YoubonOrderService
 
         // 只取星全安的電子票券
         foreach ($eticketDatalist as $eticketData) {
-            if ('eYoubon' == $eticketData->tik_type_code) {
+            if (ETicketVendor::YOUBON_CODE == $eticketData->tik_type_code) {
                 $youbon_items[] = $eticketData;
             }
         }

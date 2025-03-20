@@ -1,7 +1,9 @@
 <?php
 
+use App\Enums\eTicket\ETicketVendor;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 class CreateYoubonTable extends Migration
@@ -18,7 +20,7 @@ class CreateYoubonTable extends Migration
         // 建立商品類型
         DB::table('tik_types')->insert([
             ['name' => '一般實體商品', 'code' => 'general', 'is_active' => true],
-            ['name' => '星全安電子票', 'code' => 'eYoubon', 'is_active' => true],
+            ['name' => '星全安電子票', 'code' => ETicketVendor::YOUBON_CODE, 'is_active' => true],
         ]);
         Schema::table('prd_products', function (Blueprint $table) {
             $table->after('purchase_note', function ($tb) {

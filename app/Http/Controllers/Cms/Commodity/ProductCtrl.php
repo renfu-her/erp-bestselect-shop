@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Cms\Commodity;
 
+use App\Enums\eTicket\ETicketVendor;
 use App\Enums\Globals\AppEnvClass;
 use App\Exports\Product\ProductInforExport;
 use App\Http\Controllers\Controller;
@@ -180,7 +181,7 @@ class ProductCtrl extends Controller
             $d['meta'],
             $d['tik_type_id']);
         // 判斷若為電子票券，則自動建立運送方式
-        $tikType = TikType::where('code', 'eYoubon')->first();
+        $tikType = TikType::where('code', ETicketVendor::YOUBON_CODE)->first();
         if ($tikType && $d['tik_type_id'] == $tikType->id) {
             Product::updateETicketProductShipment($re['id']);
         }
@@ -225,7 +226,7 @@ class ProductCtrl extends Controller
     private function validateYoubonEticket($tikTypeId, $data)
     {
         // 檢查是否為星全安電子票券
-        $tikType = TikType::where('code', 'eYoubon')->first();
+        $tikType = TikType::where('code', ETicketVendor::YOUBON_CODE)->first();
 
         // 如果不是星全安電子票券，直接通過檢查
         if (!$tikType || $tikTypeId != $tikType->id) {
