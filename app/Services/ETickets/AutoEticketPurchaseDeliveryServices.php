@@ -3,6 +3,7 @@
 namespace App\Services\ETickets;
 
 use App\Enums\Delivery\Event;
+use App\Enums\eTicket\ETicketVendor;
 use App\Helpers\IttmsDBB;
 use App\Models\Delivery;
 use App\Models\Depot;
@@ -15,6 +16,7 @@ use App\Models\PurchaseItem;
 use App\Models\ReceiveDepot;
 use App\Models\SubOrders;
 use App\Models\Supplier;
+use App\Models\TikAutoOrderErrorLog;
 use App\Models\TikType;
 use App\Models\TikYoubonOrder;
 use App\Models\User;
@@ -44,39 +46,36 @@ class AutoEticketPurchaseDeliveryServices
                 if (!$delivery) {
                     continue;
                 }
-                if ($delivery) {
-                    $latestTikYoubonOrder = TikYoubonOrder::where('delivery_id', $delivery->id)->orderBy('id', 'desc')->first();
-                    if ($latestTikYoubonOrder) {
-                        continue;
-                    }
+                $latestTikYoubonOrder = TikYoubonOrder::where('delivery_id', $delivery->id)->orderBy('id', 'desc')->first();
+                if ($latestTikYoubonOrder) {
+                    continue;
+                }
 
-                    $autoEticketCreatePurchase = $this->autoEticketCreatePurchase($order_id, $sub_order_item->id);
-                    if ($autoEticketCreatePurchase['success'] == '1') {
-                        $youbonOrderService = new YoubonOrderService();
-                        $sub_order = SubOrders::where('id', '=', $delivery->event_id)->first();
+                $sub_order = SubOrders::where('id', '=', $delivery->event_id)->first();
+                if (!$sub_order) {
+                    return [
+                        'success' => 0,
+                        'error_msg' => '找不到子訂單資料 ID:'. $delivery->event_id,
+                        'delivery_id' => $delivery->id
+                    ];
+                }
 
-                        if (!$sub_order) {
-                            return [
-                                'success' => 0,
-                                'error_msg' => '找不到子訂單資料 ID:'. $delivery->event_id,
-                                'delivery_id' => $delivery->id
-                            ];
-                        }
-                        $processResult = $youbonOrderService->handleMultiETicketOrder($delivery->id, $sub_order->order_id);
-                        if (isset($processResult['success']) && $processResult['success'] == '0') {
-                            // log error $delivery->id、error_msg、process:handleMultiETicketOrder
-                            // dd('handleMultiETicketOrder', $delivery->id, $processResult['error_msg']);
-                            return ['success' => 0, 'error_msg' => $processResult['error_msg'], 'delivery_id' => $delivery->id];
-                        }
-                    } else {
-                        // log error $delivery->id、error_msg、process:autoEticketCreatePurchase
-                        // dd('autoEticketCreatePurchase', $delivery->id, $autoEticketCreatePurchase['error_msg']);
-                        return ['success' => 0, 'error_msg' => $autoEticketCreatePurchase['error_msg'], 'delivery_id' => $delivery->id];
+                $autoEticketCreatePurchase = $this->autoEticketCreatePurchase($order_id, $sub_order_item->id);
+                if ($autoEticketCreatePurchase['success'] == '1') {
+                    $youbonOrderService = new YoubonOrderService();
+                    $processResult = $youbonOrderService->handleMultiETicketOrder($delivery->id, $sub_order->order_id);
+                    if (isset($processResult['success']) && $processResult['success'] == '0') {
+                        // log error $delivery->id、error_msg、process:handleMultiETicketOrder
+                        TikAutoOrderErrorLog::createLog($sub_order->id, $sub_order->sn, 'handleMultiETicketOrder', $processResult['error_msg']);
+                        return ['success' => 0, 'error_msg' => $processResult['error_msg'], 'delivery_id' => $delivery->id];
                     }
+                } else {
+                    // log error $delivery->id、error_msg、process:autoEticketCreatePurchase
+                        TikAutoOrderErrorLog::createLog($sub_order->id, $sub_order->sn, 'autoEticketCreatePurchase', $autoEticketCreatePurchase['error_msg']);
+                    return ['success' => 0, 'error_msg' => $autoEticketCreatePurchase['error_msg'], 'delivery_id' => $delivery->id];
                 }
             }
         }
-
         return ['success' => 1, 'error_msg' => ''];
     }
 
@@ -111,7 +110,7 @@ class AutoEticketPurchaseDeliveryServices
             $delivery_ids[] = $order->delivery_id;
         }
         $delivery_ids = array_unique($delivery_ids); // 去除重複的出貨單ID
-        $eYoubon_items = $supplier_items['eYoubon'] ?? [];
+        $eYoubon_items = $supplier_items[ETicketVendor::YOUBON_CODE] ?? [];
 
         $msg = IttmsDBB::transaction(function () use (
             $delivery_ids, $supplier, $user, $depot, $eYoubon_items
