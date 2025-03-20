@@ -8,6 +8,7 @@ use App\Enums\Delivery\Event;
 use App\Enums\Delivery\LogisticStatus;
 use App\Enums\Discount\DividendCategory;
 use App\Enums\DlvBack\DlvBackType;
+use App\Enums\eTicket\ETicketVendor;
 use App\Enums\Order\OrderStatus;
 use App\Enums\Order\UserAddrType;
 use App\Enums\Payable\ChequeStatus as PayableChequeStatus;
@@ -64,9 +65,11 @@ use App\Models\ShipmentCategory;
 use App\Models\ShipmentGroup;
 use App\Models\SubOrders;
 use App\Models\Supplier;
+use App\Models\TikAutoOrderErrorLog;
 use App\Models\TikYoubonOrder;
 use App\Models\User;
 use App\Models\UserSalechannel;
+use App\Services\ETickets\AutoEticketPurchaseDeliveryServices;
 use App\Services\ThirdPartyApis\Youbon\YoubonOrderService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -626,7 +629,7 @@ class OrderCtrl extends Controller
                     $eticketList = ReceiveDepot::getETicketOrderList($delivery->id)->get()->toArray();
                     $youbon_items = [];
                     foreach ($eticketList as $eticketData) {
-                        if ('eYoubon' == $eticketData->tik_type_code) {
+                        if (ETicketVendor::YOUBON_CODE == $eticketData->tik_type_code) {
                             $youbon_items[] = $eticketData;
                         }
                     }
@@ -1258,7 +1261,7 @@ class OrderCtrl extends Controller
             ]);
 
             DB::beginTransaction();
-
+            $toDoFromPcsToOrderAndDlv = null;
             try {
                 $update = [];
                 $update['accountant_id'] = auth('user')->user()->id;
@@ -1308,6 +1311,12 @@ class OrderCtrl extends Controller
                 }
 
                 DayEnd::match_day_end_status(request('receipt_date'), $received_order->sn);
+                // 判斷不是linepay、信用卡的確認付款，進行電子票券下單
+                $autoPurchaseDeliveryServices = new AutoEticketPurchaseDeliveryServices();
+                $toDoFromPcsToOrderAndDlv = $autoPurchaseDeliveryServices->toDoFromPcsToOrderAndDlv($id);
+                if ($toDoFromPcsToOrderAndDlv['success'] == 0) {
+                    throw new \Exception($toDoFromPcsToOrderAndDlv['error_msg']);
+                }
 
                 DB::commit();
                 wToast(__('入帳日期更新成功'));
@@ -1316,7 +1325,11 @@ class OrderCtrl extends Controller
 
             } catch (\Exception $e) {
                 DB::rollback();
-                wToast(__('入帳日期更新失敗'), ['type' => 'danger']);
+                $extraMsg = '';
+                if ($toDoFromPcsToOrderAndDlv) {
+                    $extraMsg = '下單電子票券失敗於 OrderCtrl re_review';
+                }
+                wToast(__('入帳日期更新失敗') . $extraMsg, ['type' => 'danger']);
 
                 return redirect()->back();
             }
