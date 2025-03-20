@@ -172,10 +172,10 @@ class PurchaseCtrl extends Controller
         $supplier = Supplier::where('id', '=', $purchaseReq['supplier'])->get()->first();
         $rePcs = Purchase::createPurchase(
             null,
-            $purchaseReq['supplier'],
+            $supplier->id,
             $supplier->name,
             $supplier->nickname,
-            $purchaseReq['supplier_sn'] ?? null,
+            $supplier->vat_no ?? null,
             $request->user()->id,
             $request->user()->name,
             $purchaseReq['scheduled_date'],

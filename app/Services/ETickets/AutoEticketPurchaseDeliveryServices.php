@@ -123,7 +123,7 @@ class AutoEticketPurchaseDeliveryServices
                     $supplier->id,
                     $supplier->name,
                     $supplier->nickname,
-                    null,
+                    $supplier->vat_no ?? null,
                     $user->id,
                     $user->name,
                     now(),
