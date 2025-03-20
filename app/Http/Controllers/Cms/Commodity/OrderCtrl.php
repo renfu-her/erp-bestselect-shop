@@ -1328,6 +1328,7 @@ class OrderCtrl extends Controller
                 $extraMsg = '';
                 if ($toDoFromPcsToOrderAndDlv) {
                     $extraMsg = '下單電子票券失敗於 OrderCtrl re_review';
+                    TikAutoOrderErrorLog::createLog($sub_order->id, $sub_order->sn, $extraMsg, ['error_msg' => $e->getMessage()]);
                 }
                 wToast(__('入帳日期更新失敗') . $extraMsg, ['type' => 'danger']);
 
