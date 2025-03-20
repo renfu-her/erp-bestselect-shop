@@ -274,7 +274,7 @@ class AutoEticketPurchaseDeliveryServices
     }
 
     public function getPurchaseServiceUser() {
-        $user_name = '採購服務系統';
+        $user_name = '電子票券採購服務系統';
         $user = User::where('name', $user_name)->first();
         if (null == $user) {
             $id = User::createUser($user_name, $user_name, null, '!a123456A');
