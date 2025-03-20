@@ -287,33 +287,13 @@ class PurchaseCtrl extends Controller
             $inbound_names = implode(',', $inbound_name_arr);
         }
 
-        $hasCreatedDepositPayment = false;  // 是否已有訂金單
-        $hasCreatedFinalPayment = false;  // 是否已有尾款單
-        //TODO Design Enum Type 訂金、尾款單（建立與否、付款與否)
-        $hasReceivedDepositPayment = false;
-        $hasReceivedFinalPayment = false;
-        $payingOrderList = PayingOrder::getPayingOrdersWithPurchaseID($id)->get();
-
-        $depositPayData = null;
-        $finalPayData = null;
-        if (0 < count($payingOrderList)) {
-            foreach ($payingOrderList as $payingOrderItem) {
-                $payingOrderId = $payingOrderItem->id;
-                if ($payingOrderItem->type === 0) {
-                    $hasCreatedDepositPayment = true;
-                    $depositPayData = $payingOrderItem;
-                    if ($payingOrderItem->payment_date) {
-                        $hasReceivedDepositPayment = true;
-                    }
-                } elseif ($payingOrderItem->type === 1) {
-                    $hasCreatedFinalPayment = true;
-                    $finalPayData = $payingOrderItem;
-                    if ($payingOrderItem->payment_date) {
-                        $hasReceivedFinalPayment = true;
-                    }
-                }
-            }
-        }
+        $paymentStatus = $this->getPaymentStatus($id);
+        $hasCreatedDepositPayment = $paymentStatus['hasCreatedDepositPayment']; // 是否已有訂金單
+        $hasCreatedFinalPayment = $paymentStatus['hasCreatedFinalPayment']; // 是否已有尾款單
+        $hasReceivedDepositPayment = $paymentStatus['hasReceivedDepositPayment']; // 是否已收到訂金
+        $hasReceivedFinalPayment = $paymentStatus['hasReceivedFinalPayment']; // 是否已收到尾款
+        $depositPayData = $paymentStatus['depositPayData']; // 訂金單資料
+        $finalPayData = $paymentStatus['finalPayData']; // 尾款單資料
 
         $supplierList = Supplier::getSupplierList()->get();
 
@@ -340,6 +320,59 @@ class PurchaseCtrl extends Controller
     }
 
     /**
+     * 取得付款狀態資訊
+     *
+     * @param int $purchaseId 採購單ID
+     * @return array 付款狀態資訊，包含：
+     *               - hasCreatedDepositPayment: 是否已有訂金單
+     *               - hasCreatedFinalPayment: 是否已有尾款單
+     *               - hasReceivedDepositPayment: 是否已收到訂金
+     *               - hasReceivedFinalPayment: 是否已收到尾款
+     *               - depositPayData: 訂金單資料
+     *               - finalPayData: 尾款單資料
+     */
+    private function getPaymentStatus(int $purchaseId): array
+    {
+        $hasCreatedDepositPayment = false;  // 是否已有訂金單
+        $hasCreatedFinalPayment = false;    // 是否已有尾款單
+        $hasReceivedDepositPayment = false; // 是否已收到訂金
+        $hasReceivedFinalPayment = false;   // 是否已收到尾款
+
+        $payingOrderList = PayingOrder::getPayingOrdersWithPurchaseID($purchaseId)->get();
+
+        $depositPayData = null;
+        $finalPayData = null;
+
+        if (0 < count($payingOrderList)) {
+            foreach ($payingOrderList as $payingOrderItem) {
+                $payingOrderId = $payingOrderItem->id;
+                if ($payingOrderItem->type === 0) {
+                    $hasCreatedDepositPayment = true;
+                    $depositPayData = $payingOrderItem;
+                    if ($payingOrderItem->payment_date) {
+                        $hasReceivedDepositPayment = true;
+                    }
+                } elseif ($payingOrderItem->type === 1) {
+                    $hasCreatedFinalPayment = true;
+                    $finalPayData = $payingOrderItem;
+                    if ($payingOrderItem->payment_date) {
+                        $hasReceivedFinalPayment = true;
+                    }
+                }
+            }
+        }
+
+        return [
+            'hasCreatedDepositPayment' => $hasCreatedDepositPayment,
+            'hasCreatedFinalPayment' => $hasCreatedFinalPayment,
+            'hasReceivedDepositPayment' => $hasReceivedDepositPayment,
+            'hasReceivedFinalPayment' => $hasReceivedFinalPayment,
+            'depositPayData' => $depositPayData,
+            'finalPayData' => $finalPayData,
+        ];
+    }
+
+    /**
      * @throws ValidationException
      */
     public function update(Request $request, $id)
@@ -355,6 +388,17 @@ class PurchaseCtrl extends Controller
         //判斷是否有付款單，有則不可新增刪除商品款式
         $purchaseGet = Purchase::where('id', '=', $id)->get()->first();
 
+        $paymentStatus = $this->getPaymentStatus($id);
+        $hasCreatedFinalPayment = $paymentStatus['hasCreatedFinalPayment']; // 是否已有尾款單
+        // 若已有尾款單，檢查是否修改了物流費用或物流備註
+        if ($hasCreatedFinalPayment) {
+            if (
+                (isset($purchasePayReq['logistics_price']) && $purchaseGet->logistics_price != $purchasePayReq['logistics_price']) ||
+                (isset($purchasePayReq['logistics_memo']) && $purchaseGet->logistics_memo != $purchasePayReq['logistics_memo'])
+            ) {
+                throw ValidationException::withMessages(['item_error' => '已有尾款單，無法修改物流費用與物流備註']);
+            }
+        }
         //判斷原採購單已審核
         if (null != $purchaseGet && AuditStatus::unreviewed()->value != $purchaseGet->audit_status) {
             $purchase = Purchase::checkInputApprovedDataDirty($id, $taxReq, $purchaseReq, $purchasePayReq);
@@ -2283,4 +2327,3 @@ class PurchaseCtrl extends Controller
         }
     }
 }
-

@@ -312,7 +312,6 @@
                             <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
                             <input class="form-control" name="logistics_price" type="number" min="0" placeholder="請輸入運費"
                                    value="{{ old('logistics_price', $purchaseData->logistics_price  ?? '') }}"
-                                   @if ($hasCreatedFinalPayment) readonly @endif
                                    @if ($hasLogistics) required @endif/>
                         </div>
                     </div>
@@ -320,14 +319,13 @@
                         <label class="form-label">物流備註</label>
                         <input class="form-control" name="logistics_memo" type="text" placeholder="請輸入物流備註" aria-label="物流備註"
                                value="{{ old('logistics_memo', $purchaseData->logistics_memo  ?? '') }}"
-                               @if ($hasCreatedFinalPayment) readonly @endif>
+                               >
                     </div>
                 </div>
                 <div class="col-auto">
-                    @if(false == $audit_approved)
                         <button class="btn btn-primary -add" type="button" role="button"
                                 @if ($hasLogistics) hidden @endif>
-                            <i class="bi bi-plus-lg"></i> 新增物流 {{$audit_approved}}
+                            <i class="bi bi-plus-lg"></i> 新增物流
                         </button>
                         <button class="btn btn-outline-danger -del" type="button"
                                 @if (!$hasLogistics) hidden @endif>
@@ -336,11 +334,6 @@
                         <mark class="fw-light small">
                             <i class="bi bi-exclamation-diamond-fill mx-2 text-warning"></i>有修改需要<b>儲存</b>才會生效呦！
                         </mark>
-                    @else
-                        @if (!$hasLogistics)
-                            <label class="text-secondary">無</label>
-                        @endif
-                    @endif
                 </div>
             </div>
 
@@ -449,7 +442,7 @@
                         @if($hasReceivedFinalPayment)
                             <button type="submit" class="btn btn-primary px-4">儲存發票</button>
                         @else
-                            <button type="submit" class="btn btn-primary px-4">儲存發票/採購備註</button>
+                            <button type="submit" class="btn btn-primary px-4">儲存發票/物流/採購備註</button>
                         @endif
                     @endif
                     <a href="{{ Route('cms.purchase.index', [], true) }}" class="btn btn-outline-primary px-4"
@@ -851,4 +844,3 @@
         </script>
     @endpush
 @endonce
-
