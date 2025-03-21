@@ -234,10 +234,17 @@ class ProductCtrl extends Controller
         }
 
         // 檢查商品類型不可以為組合包
-        if ($data['type'] == 'c') {
+        if (isset($data['type']) && $data['type'] == 'c') {
             return [
                 'success' => 0,
                 'message' => '若選擇商品類型是星全安電子票券，則商品類型不可以為組合包'
+            ];
+        }
+        // 檢查 consume 不可以為耗材
+        if (isset($data['consume']) && $data['consume'] == '1') {
+            return [
+                'success' => 0,
+                'message' => '若選擇商品類型是星全安電子票券，則商品不可以為耗材'
             ];
         }
 
