@@ -27,7 +27,7 @@ class AutoEticketPurchaseDeliveryServices
 {
 
     public function toDoFromPcsToOrderAndDlv($order_id) {
-        set_time_limit(60); // 做緩衝，打很多隻API，避免timeout
+        set_time_limit(120); // 做緩衝，星全安1隻API就要50秒，避免timeout
         // 找到訂單→子訂單→商品，判斷若為電子票券，則自動採購→核可→入庫→出貨→打星全安API
 
         $sub_order_with_eticket = SubOrders::where('order_id', '=', $order_id)
@@ -127,6 +127,8 @@ class AutoEticketPurchaseDeliveryServices
                     $user->id,
                     $user->name,
                     now(),
+                    $depot->id,
+                    $depot->name,
                 );
                 if ($purchase1['success'] == 0) {
                     DB::rollBack();
@@ -143,7 +145,7 @@ class AutoEticketPurchaseDeliveryServices
                             'product_style_id' => $item['style_id'],
                             'title' => $item['style_title'],
                             'sku' => $item['style_sku'],
-                            'price' => $item['style_estimated_cost'],
+                            'price' => $item['style_estimated_cost'] * $item['qty'],
                             'num' => $item['qty'],
                             'temp_id' => null,
                             'memo' => ''

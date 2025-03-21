@@ -104,7 +104,7 @@ class YoubonOrderService
      */
     private function generateOrderXml(array $data): string
     {
-        $xml = new SimpleXMLElement('<saleorder/>');
+        $xml = new \SimpleXMLElement('<saleorder/>');
         // 加入基本資料
         $xml->addChild('departid', $this->departId);
         $xml->addChild('userid', $this->userid);
@@ -194,8 +194,12 @@ class YoubonOrderService
     /**
      * 根據listnumbertype解析商品資料
      */
-    private function parseItemByListNumberType(\SimpleXMLElement $item): array
+    private function parseItemByListNumberType($item): array
     {
+        // 確保 $item 是 SimpleXMLElement 物件
+        if (!($item instanceof \SimpleXMLElement)) {
+            throw new \InvalidArgumentException('必須提供 SimpleXMLElement 物件');
+        }
         $result = [];
 
         // 基本欄位
@@ -348,8 +352,15 @@ class YoubonOrderService
 
     public function handleMultiETicketOrder($delivery_id, $order_id): array
     {
+        Log::info('handleMultiETicketOrder start time:'. date('Y-m-d H:i:s'), ['delivery_id' => $delivery_id, 'order_id' => $order_id]);
         // 從這裡判斷是哪家電子票券，下對應訂單
         $eticketDatalist = ReceiveDepot::getETicketOrderList($delivery_id)->get()->toArray();
+
+        // 初始化結果變數
+        $result = ['success' => '0', 'error_msg' => '找不到星全安電子票券資料'];
+
+        // 初始化星全安電子票券陣列
+        $youbon_items = [];
 
         // 只取星全安的電子票券
         foreach ($eticketDatalist as $eticketData) {
@@ -367,6 +378,7 @@ class YoubonOrderService
                 return ['success' => '1', 'error_msg' => '電子票券已下單'];
             }
         }
+        Log::info('handleMultiETicketOrder end time:'. date('Y-m-d H:i:s'), ['delivery_id' => $delivery_id, 'order_id' => $order_id]);
 
         return $result;
     }
