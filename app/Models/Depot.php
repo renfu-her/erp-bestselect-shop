@@ -36,7 +36,8 @@ class Depot extends Model
         $re = DB::table('depot')
             ->select(['depot.*', 'temp.temp'])
             ->leftJoin('depot_temp as dt', 'depot.id', '=', 'dt.depot_id')
-            ->leftJoinSub($sub, 'temp', 'depot.id', '=', 'temp.depot_id');
+            ->leftJoinSub($sub, 'temp', 'depot.id', '=', 'temp.depot_id')
+            ->whereNull('deleted_at');
 
         return $re;
 
