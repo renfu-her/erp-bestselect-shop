@@ -79,6 +79,19 @@ class AutoEticketPurchaseDeliveryServices
         return ['success' => 1, 'error_msg' => ''];
     }
 
+    /**
+     * 處理電子票券自動採購流程
+     *
+     * @param int $orderId 訂單編號
+     * @return array 處理結果，包含狀態和訊息
+     *
+     * 流程說明：
+     * 1. 驗證訂單資料完整性
+     * 2. 檢查是否符合電子票券處理條件
+     * 3. 建立星全安系統訂單
+     * 4. 處理API回應並記錄結果
+     * 5. 自動建立採購單、入庫單與出貨單
+     */
     public function autoEticketCreatePurchase($order_id, $ord_sub_order_id) {
         $supplier = $this->getYoubonSupplier();
         $user = $this->getPurchaseServiceUser();
@@ -302,6 +315,13 @@ class AutoEticketPurchaseDeliveryServices
                     'address' => '',
                 ]
             );
+            // depot_id int 
+            //temp_id int
+            $NORMAL_TEMP_ID = 1;
+            DB::table('depot_temp')->insert([
+                'depot_id' => $depot->id,
+                'temp_id' => $NORMAL_TEMP_ID,
+            ]);
         }
         return $depot;
     }

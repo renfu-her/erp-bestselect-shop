@@ -17,6 +17,21 @@ use SimpleXMLElement;
 use App\Models\TikYoubonApiLog;
 use App\Enums\eTicket\YoubonErrorCode;
 
+/**
+ * 星全安電子票券訂單服務
+ *
+ * 本服務負責與星全安電子票券系統進行整合，處理電子票券的訂購功能。
+ *
+ * 系統整合說明：
+ * - 使用XML格式進行資料交換
+ * - 所有API呼叫都經過加密處理
+ * - 需處理多種錯誤情況，詳見 YoubonErrorCode 常數類別
+ *
+ * 業務流程決策：
+ * - 當訂單包含電子票券時，系統自動觸發採購流程
+ * - 電子票券訂單成功後自動生成採購單、入庫單與出貨單
+ * - 錯誤情況下會進行記錄
+ */
 class YoubonOrderService
 {
     private const API_URL = 'https://b2b.youbon.com/api/orders.php';
@@ -352,7 +367,7 @@ class YoubonOrderService
 
     public function handleMultiETicketOrder($delivery_id, $order_id): array
     {
-        Log::info('handleMultiETicketOrder start time:'. date('Y-m-d H:i:s'), ['delivery_id' => $delivery_id, 'order_id' => $order_id]);
+        Log::channel('daily')->info('handleMultiETicketOrder start time:'. date('Y-m-d H:i:s'), ['delivery_id' => $delivery_id, 'order_id' => $order_id]);
         // 從這裡判斷是哪家電子票券，下對應訂單
         $eticketDatalist = ReceiveDepot::getETicketOrderList($delivery_id)->get()->toArray();
 
@@ -378,7 +393,7 @@ class YoubonOrderService
                 return ['success' => '1', 'error_msg' => '電子票券已下單'];
             }
         }
-        Log::info('handleMultiETicketOrder end time:'. date('Y-m-d H:i:s'), ['delivery_id' => $delivery_id, 'order_id' => $order_id]);
+        Log::channel('daily')->info('handleMultiETicketOrder end time:'. date('Y-m-d H:i:s'), ['delivery_id' => $delivery_id, 'order_id' => $order_id]);
 
         return $result;
     }
