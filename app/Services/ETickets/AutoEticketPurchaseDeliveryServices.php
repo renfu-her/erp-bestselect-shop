@@ -112,6 +112,7 @@ class AutoEticketPurchaseDeliveryServices
                 'item_id' => $order->item_id,
                 'sub_order_id' => $order->sub_order_id,
                 'product_id' => $order->product_id,
+                'product_title' => $order->product_title,
                 'style_id' => $order->style_id,
                 'style_title' => $order->style_title,
                 'style_sku' => $order->style_sku,
@@ -156,7 +157,7 @@ class AutoEticketPurchaseDeliveryServices
                         [
                             'purchase_id' => $purchaseID1,
                             'product_style_id' => $item['style_id'],
-                            'title' => $item['style_title'],
+                            'title' => $item['product_title']. '_'. $item['style_title'],
                             'sku' => $item['style_sku'],
                             'price' => $item['style_estimated_cost'] * $item['qty'],
                             'num' => $item['qty'],
@@ -179,7 +180,7 @@ class AutoEticketPurchaseDeliveryServices
                         $purchaseID1,
                         $purchaseItemID1,
                         $item['style_id'],
-                        $item['style_title'],
+                        $item['product_title']. '_'. $item['style_title'],
                         $item['style_sku'],
                         $item['style_estimated_cost'],
                         null,
@@ -356,6 +357,7 @@ class AutoEticketPurchaseDeliveryServices
                 , 'styles.sku as style_sku'
                 , 'styles.estimated_cost as style_estimated_cost'
                 , 'products.id as product_id'
+                , 'products.title as product_title'
                 , 'tik_types.code as tik_type_code'
                 , 'dlv_delivery.id as delivery_id'
             )
