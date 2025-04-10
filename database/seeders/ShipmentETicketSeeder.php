@@ -33,7 +33,7 @@ class ShipmentETicketSeeder extends Seeder
 
         // 如果是新建立的，則建立相關資料
         if ($shipmentCategoryETicket->wasRecentlyCreated) {
-            $bestMethodId = ShipmentMethod::where('method', '喜鴻出貨')->first()->id;
+            $bestMethodId = ShipmentMethod::where('method', '廠商出貨')->first()->id;
 
             $bestETicketGroupId = ShipmentGroup::create([
                 'category_fk' => $shipmentCategoryETicketId,
