@@ -8,6 +8,7 @@ use App\Enums\Delivery\Event;
 use App\Enums\Delivery\LogisticStatus;
 use App\Enums\Discount\DividendCategory;
 use App\Enums\DlvBack\DlvBackType;
+use App\Enums\eTicket\ETicketVendor;
 use App\Enums\Order\OrderStatus;
 use App\Enums\Order\UserAddrType;
 use App\Enums\Payable\ChequeStatus as PayableChequeStatus;
@@ -64,8 +65,12 @@ use App\Models\ShipmentCategory;
 use App\Models\ShipmentGroup;
 use App\Models\SubOrders;
 use App\Models\Supplier;
+use App\Models\TikAutoOrderErrorLog;
+use App\Models\TikYoubonOrder;
 use App\Models\User;
 use App\Models\UserSalechannel;
+use App\Services\ETickets\AutoEticketPurchaseDeliveryServices;
+use App\Services\ThirdPartyApis\Youbon\YoubonOrderService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
@@ -605,7 +610,7 @@ class OrderCtrl extends Controller
 
         // 使用紅利詳細
         $dividendList = Order::orderDividendList($id)->get();
-        
+
         $po_check = true;
         if (count($subOrder) > 0) {
             foreach ($subOrder as $so_value) {
@@ -615,6 +620,31 @@ class OrderCtrl extends Controller
                     break;
                 }
 
+                // 判斷票券是否都已經下單
+                $youbonOrderService = new YoubonOrderService();
+                $isETicketOrder = $youbonOrderService->isETicketOrder($delivery->id);
+
+                if ($isETicketOrder) {
+                    $ticketExchangeUrl = [];
+                    $eticketList = ReceiveDepot::getETicketOrderList($delivery->id)->get()->toArray();
+                    $youbon_items = [];
+                    foreach ($eticketList as $eticketData) {
+                        if (ETicketVendor::YOUBON_CODE == $eticketData->tik_type_code) {
+                            $youbon_items[] = $eticketData;
+                        }
+                    }
+                    if (0 < count($youbon_items)) {
+                        $latestTikYoubonOrder = TikYoubonOrder::where('delivery_id', $delivery->id)->orderBy('id', 'desc')->first();
+                        if (null == $latestTikYoubonOrder) {
+                            $hasPendingETickets = true;
+                            $so_value->hasPendingETickets = $hasPendingETickets;
+                        } else {
+                            // 取得電子票券兌換網址
+                            $ticketExchangeUrl[] = $latestTikYoubonOrder->weburl;
+                            $so_value->ticketExchangeUrl = $ticketExchangeUrl;
+                        }
+                    }
+                }
             }
         }
 
@@ -635,7 +665,7 @@ class OrderCtrl extends Controller
                 'previous' => 1,
             ]);
         }
-        
+
         return view('cms.commodity.order.detail', [
             'sn' => $sn,
             'order' => $order,
@@ -668,14 +698,14 @@ class OrderCtrl extends Controller
     {
         $order = Order::orderDetail($id)->get()->first();
         $subOrder = Order::subOrderDetail($id, $subOrderId, true)->get()->toArray();
-       
+
         foreach ($subOrder as $key => $value) {
-           
-        
+
+
             $subOrder[$key]->items = json_decode($this->json_process($value->items));
-          
+
             $subOrder[$key]->consume_items = json_decode($this->json_process($value->consume_items));
-           
+
         }
         return array($order, $subOrder);
     }
@@ -1231,7 +1261,7 @@ class OrderCtrl extends Controller
             ]);
 
             DB::beginTransaction();
-
+            $toDoFromPcsToOrderAndDlv = null;
             try {
                 $update = [];
                 $update['accountant_id'] = auth('user')->user()->id;
@@ -1281,6 +1311,12 @@ class OrderCtrl extends Controller
                 }
 
                 DayEnd::match_day_end_status(request('receipt_date'), $received_order->sn);
+                // 判斷不是linepay、信用卡的確認付款，進行電子票券下單
+                $autoPurchaseDeliveryServices = new AutoEticketPurchaseDeliveryServices();
+                $toDoFromPcsToOrderAndDlv = $autoPurchaseDeliveryServices->toDoFromPcsToOrderAndDlv($id);
+                if ($toDoFromPcsToOrderAndDlv['success'] == 0) {
+                    throw new \Exception($toDoFromPcsToOrderAndDlv['error_msg']);
+                }
 
                 DB::commit();
                 wToast(__('入帳日期更新成功'));
@@ -1289,7 +1325,12 @@ class OrderCtrl extends Controller
 
             } catch (\Exception $e) {
                 DB::rollback();
-                wToast(__('入帳日期更新失敗'), ['type' => 'danger']);
+                $extraMsg = '';
+                if ($toDoFromPcsToOrderAndDlv) {
+                    $extraMsg = '下單電子票券失敗於 OrderCtrl re_review';
+                    TikAutoOrderErrorLog::createLog($sub_order->id, $sub_order->sn, $extraMsg, ['error_msg' => $e->getMessage()]);
+                }
+                wToast(__('入帳日期更新失敗') . $extraMsg, ['type' => 'danger']);
 
                 return redirect()->back();
             }
@@ -3154,7 +3195,7 @@ class OrderCtrl extends Controller
             $address[$value->type]->default_region = Addr::getRegions($value->city_id);
         }
 
-        $shipmentCategory = ShipmentCategory::whereIn('code', ['deliver', 'pickup'])->get();
+        $shipmentCategory = ShipmentCategory::whereIn('code', ['deliver', 'pickup', 'eTicket'])->get();
 
         $shipEvent = [];
 
@@ -3166,6 +3207,9 @@ class OrderCtrl extends Controller
                     break;
                 case "pickup":
                     $arr = Depot::select('id', 'name')->get();
+                    break;
+                case "eTicket":
+                    $arr = [];
                     break;
                 case "family":
                     $arr = [];
@@ -3246,22 +3290,26 @@ class OrderCtrl extends Controller
                 $ship_event = null;
                 $ship_temp = null;
                 $ship_temp_id = null;
-
-                switch ($d['ship_category'][$key]) {
-                    case "deliver":
-                        $ship_group = DB::table(app(ShipmentGroup::class)->getTable() . ' as sg')
-                            ->where('sg.id', $d['ship_event_id'][$key])
-                            ->leftJoin('shi_temps', 'shi_temps.id', '=', 'sg.temps_fk')
-                            ->get()->first();
-                        $ship_event = $ship_group->name;
-                        $ship_temp = $ship_group->temps;
-                        $ship_temp_id = $ship_group->temps_fk;
-                        break;
-                    case "pickup":
-                        $ship_event = Depot::where('id', $d['ship_event_id'][$key])->get()->first()->name;
-                        break;
-                    default:
-                        $ship_event = '全家';
+                if (isset($d['ship_event_id'][$key])) {
+                    switch ($d['ship_category'][$key]) {
+                        case "deliver":
+                            $ship_group = DB::table(app(ShipmentGroup::class)->getTable() . ' as sg')
+                                ->where('sg.id', $d['ship_event_id'][$key])
+                                ->leftJoin('shi_temps', 'shi_temps.id', '=', 'sg.temps_fk')
+                                ->get()->first();
+                            $ship_event = $ship_group->name;
+                            $ship_temp = $ship_group->temps;
+                            $ship_temp_id = $ship_group->temps_fk;
+                            break;
+                        case "pickup":
+                            $ship_event = Depot::where('id', $d['ship_event_id'][$key])->get()->first()->name;
+                            break;
+                        case "eTicket":
+                            $ship_event = null;
+                            break;
+                        default:
+                            $ship_event = '全家';
+                    }
                 }
 
                 SubOrders::where('id', $value)->update([

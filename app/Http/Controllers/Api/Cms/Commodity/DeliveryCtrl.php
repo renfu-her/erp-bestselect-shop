@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Cms\Commodity;
 
 use App\Enums\Globals\ResponseParam;
 use App\Http\Controllers\Controller;
+use App\Models\Delivery;
 use App\Models\PurchaseInbound;
 use App\Models\ReceiveDepot;
 use Illuminate\Http\Request;
@@ -72,10 +73,17 @@ class DeliveryCtrl extends Controller
 
     public function destroy(Request $request, int $receiveDepotId)
     {
-        ReceiveDepot::deleteById($receiveDepotId);
+        $rcv_depot = ReceiveDepot::where('id', '=', $receiveDepotId)->first();
+        $delivery = Delivery::where('id', '=', $rcv_depot->delivery_id)->first();
         $re = [];
-        $re[ResponseParam::status()->key] = '0';
-        $re[ResponseParam::msg()->key] = '';
+        if (null != $delivery->audit_date) {
+            $re[ResponseParam::status()->key] = '1';
+            $re[ResponseParam::msg()->key] = '已送出審核 無法刪除';
+        } else {
+            ReceiveDepot::deleteById($receiveDepotId);
+            $re[ResponseParam::status()->key] = '0';
+            $re[ResponseParam::msg()->key] = '';
+        }
         return response()->json($re);
     }
 }

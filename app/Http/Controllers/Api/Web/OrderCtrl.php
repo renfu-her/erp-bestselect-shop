@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Web;
 
 use App\Enums\Delivery\Event;
+use App\Enums\eTicket\ETicketVendor;
 use App\Enums\Globals\ApiStatusMessage;
 use App\Enums\Globals\ResponseParam;
 use App\Enums\Order\InvoiceMethod;
@@ -17,6 +18,9 @@ use App\Models\LogisticFlow;
 use App\Models\Order;
 use App\Models\OrderCreateLog;
 use App\Models\OrderRemit;
+use App\Models\ReceiveDepot;
+use App\Models\TikYoubonOrder;
+use App\Services\ThirdPartyApis\Youbon\YoubonOrderService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -362,8 +366,27 @@ class OrderCtrl extends Controller
 
         $subOrder = Order::subOrderDetail($d['order_id'])->get()->toArray();
 
-        $order->sub_order = array_map(function ($n) {
+        $youbonOrderService = new YoubonOrderService();
+        $order->sub_order = array_map(function ($n) use ($youbonOrderService) {
             $delivery = Delivery::getDeliveryWithEventWithSn(Event::order()->value, $n->id)->get()->first();
+            $isETicketOrder = $youbonOrderService->isETicketOrder($delivery->id);
+            if ($isETicketOrder) {
+                $ticketExchangeUrl = [];
+                $eticketList = ReceiveDepot::getETicketOrderList($delivery->id)->get()->toArray();
+                foreach ($eticketList as $eticketData) {
+                    if (ETicketVendor::YOUBON_CODE == $eticketData->tik_type_code) {
+                        $youbon_items[] = $eticketData;
+                    }
+                }
+                if (0 < count($youbon_items)) {
+                    $latestTikYoubonOrder = TikYoubonOrder::where('delivery_id', $delivery->id)->orderBy('id', 'desc')->first();
+                    if (null != $latestTikYoubonOrder) {
+                        // 取得電子票券兌換網址
+                        $ticketExchangeUrl[] = $latestTikYoubonOrder->weburl;
+                    }
+                }
+                $n->ticketExchangeUrl = $ticketExchangeUrl;
+            }
             $n->shipment_flow = LogisticFlow::getListByDeliveryId($delivery->id)->select('status', 'created_at')->get()->toArray();
 
             $n->items = json_decode($n->items);

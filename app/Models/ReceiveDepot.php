@@ -121,6 +121,12 @@ class ReceiveDepot extends Model
                             $rcv_depot_type = 'c';
                         }
                     }
+                    // 取得在 ReceiveDepot 相同 delivery_id event_item_id、prd_type 的資料，加總 qty
+                    $rcv_depot_qty = ReceiveDepot::where('delivery_id', $delivery_id)->where('event_item_id', $itemId)->where('prd_type', $rcv_depot_type)->sum('qty');
+                    // 判斷是否超過訂單數量
+                    if ($item->qty < $rcv_depot_qty + $val) {
+                        return ['success' => 0, 'error_msg' => "當前選擇已超過訂單數量"];
+                    }
                     $inbound = PurchaseInbound::getSelectInboundList(['inbound_id' => $input_arr['inbound_id'][$key], 'select_consignment' => $select_consignment])->get()->first();
                     if (null != $inbound) {
                         if (0 > $inbound->qty - $val) {
@@ -619,6 +625,28 @@ class ReceiveDepot extends Model
         if (isset($param['delivery_id'])) {
             $query->where('rcv_depot.delivery_id', '=', $param['delivery_id']);
         }
+        return $query;
+    }
+
+    public static function getETicketOrderList($delivery_id) {
+        $query = DB::table(app(ReceiveDepot::class)->getTable(). ' as rcv_depot')
+            ->leftJoin(app(ProductStyle::class)->getTable() . ' as style', 'rcv_depot.product_style_id', '=', 'style.id')
+            ->leftJoin(app(Product::class)->getTable() . ' as product', 'product.id', '=', 'style.product_id')
+            ->leftJoin(app(TikType::class)->getTable() . ' as tikType', 'tikType.id', '=', 'product.tik_type_id')
+            ->whereNull('rcv_depot.deleted_at')
+            ->select('rcv_depot.id as id'
+                , 'rcv_depot.delivery_id as delivery_id'
+                , 'rcv_depot.event_item_id as event_item_id'
+                , 'rcv_depot.depot_id as depot_id'
+                , 'rcv_depot.product_style_id as product_style_id'
+                , 'rcv_depot.qty as qty'
+                , 'style.ticket_number'
+                , 'style.estimated_cost'
+                , 'tikType.code as tik_type_code'
+            )
+            ->where('rcv_depot.delivery_id', '=', $delivery_id)
+            ->where('prd_type', '=', 'p')
+        ;
         return $query;
     }
 

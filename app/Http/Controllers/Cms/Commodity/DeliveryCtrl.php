@@ -8,6 +8,8 @@ use App\Enums\Delivery\LogisticStatus;
 use App\Enums\DlvBack\DlvBackPapaType;
 use App\Enums\DlvBack\DlvBackType;
 use App\Enums\DlvOutStock\DlvOutStockType;
+use App\Enums\Globals\ApiStatusMessage;
+use App\Enums\Globals\ResponseParam;
 use App\Enums\Order\OrderStatus;
 use App\Enums\Purchase\LogEventFeature;
 use App\Enums\Payable\ChequeStatus;
@@ -56,7 +58,9 @@ use App\Models\ShipmentCategory;
 use App\Models\ShipmentGroup;
 use App\Models\SubOrders;
 use App\Models\Temps;
+use App\Models\TikYoubonOrder;
 use App\Models\User;
+use App\Services\ThirdPartyApis\Youbon\YoubonOrderService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -219,6 +223,7 @@ class DeliveryCtrl extends Controller
                 return abort(404);
             }
             $rsp_arr['order_id'] = $sub_order->order_id;
+            $rsp_arr['eTicketTips'] = '電子票券出貨即產生票券編號，取消出貨也不會取消電子票券編號，需在廠商後台進行取消';
 
             // 出貨單號ID
             $delivery = Delivery::getData($event, $sub_order->id)->get()->first();
@@ -265,7 +270,26 @@ class DeliveryCtrl extends Controller
         } else {
             $re = ReceiveDepot::setUpShippingData($delivery->event, $delivery->event_id, $delivery_id, $can_diff_depot, $request->user()->id, $request->user()->name);
             if ($re['success'] == '1') {
-                wToast('儲存成功');
+                $youbonOrderService = new YoubonOrderService();
+                $isETicketOrder = $youbonOrderService->isETicketOrder($delivery->id);
+                $isAlreadyToast = false;
+                if ($isETicketOrder) {
+                    $sub_order = SubOrders::where('id', '=', $delivery->event_id)->first();
+                    $processResult = $youbonOrderService->handleMultiETicketOrder($delivery->id, $sub_order->order_id);
+                    if (isset($processResult['success']) && $processResult['success'] == '0') {
+                        $isAlreadyToast = true;
+                        wToast($processResult['error_msg'] . ' 下單電子票券失敗，記錄此訊息後，請洽工程師', ['type' => 'danger']);
+                    } elseif (!isset($processResult['success']) || $processResult['success'] == '1') {
+                        if (isset($processResult['error_msg'])) {
+                            $isAlreadyToast = true;
+                            wToast($processResult['error_msg']);
+                        }
+                    }
+                }
+                if (false == $isAlreadyToast) {
+                    wToast('儲存成功');
+                }
+
                 return redirect(Route('cms.delivery.create', [
                     'event' => $delivery->event,
                     'eventId' => $delivery->event_id,
@@ -275,6 +299,30 @@ class DeliveryCtrl extends Controller
         }
 
         return redirect()->back()->withInput()->withErrors($errors);
+    }
+
+    public function eticket(Request $request, int $delivery_id)
+    {
+        $delivery = Delivery::where('id', '=', $delivery_id)->get()->first();
+        $sub_order = SubOrders::where('id', '=', $delivery->event_id)->first();
+
+        $youbonOrderService = new YoubonOrderService();
+        $isETicketOrder = $youbonOrderService->isETicketOrder($delivery->id);
+        if ($isETicketOrder) {
+            $sub_order = SubOrders::where('id', '=', $delivery->event_id)->first();
+            $processResult = $youbonOrderService->handleMultiETicketOrder($delivery->id, $sub_order->order_id);
+            if (isset($processResult['success']) && $processResult['success'] == '0') {
+                wToast($processResult['error_msg'] . ' 下單電子票券失敗，記錄此訊息後，請洽工程師', ['type' => 'danger']);
+            } elseif (!isset($processResult['success']) || $processResult['success'] == '1') {
+                if (isset($processResult['error_msg'])) {
+                    wToast($processResult['error_msg']);
+                }
+            }
+        } else {
+            wToast('未下單電子票券', ['type' => 'danger']);
+        }
+
+        return redirect(Route('cms.order.detail', ['id' => $sub_order->order_id, 'subOrderId' => $sub_order->id ], true));
     }
 
     public function store_cancle(Request $request, int $delivery_id)
@@ -324,6 +372,12 @@ class DeliveryCtrl extends Controller
     //刪除出貨單收貨倉數量
     public function destroyItem(Request $request, $event, $eventId, int $receiveDepotId)
     {
+        $rcv_depot = ReceiveDepot::where('id', '=', $receiveDepotId)->first();
+        $delivery = Delivery::where('id', '=', $rcv_depot->delivery_id)->first();
+        if (null != $delivery->audit_date) {
+            wToast('已送出審核 無法刪除', ['type' => 'danger']);
+            return redirect()->back();
+        }
         ReceiveDepot::deleteById($receiveDepotId);
         wToast('刪除成功');
 

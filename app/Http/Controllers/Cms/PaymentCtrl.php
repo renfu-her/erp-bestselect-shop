@@ -16,7 +16,7 @@ use App\Models\OrderPayCreditCard;
 use App\Models\OrderPayLinePay;
 use App\Models\ReceivedDefault;
 use App\Models\ReceivedOrder;
-
+use App\Services\ETickets\AutoEticketPurchaseDeliveryServices;
 
 class PaymentCtrl extends Controller
 {
@@ -89,6 +89,9 @@ class PaymentCtrl extends Controller
                         $parm['grade_id'] = $grade_id;
                         $parm['price'] = $authAmt;
                         ReceivedOrder::store_received($parm);
+                        // 收到 信用卡 已付款通知，進行電子票券下單
+                        $autoPurchaseDeliveryServices = new AutoEticketPurchaseDeliveryServices();
+                        $toDoFromPcsToOrderAndDlv = $autoPurchaseDeliveryServices->toDoFromPcsToOrderAndDlv($id);
                     }
 
                     OrderPayCreditCard::create_log($source_type, $id, (object) $EncArray);
@@ -587,7 +590,9 @@ class PaymentCtrl extends Controller
                     $parm['grade_id'] = $grade->id;
                     $parm['price'] = $order->total_price;
                     ReceivedOrder::store_received($parm);
-
+                    // 收到 line pay 已付款通知，進行電子票券下單
+                    $autoPurchaseDeliveryServices = new AutoEticketPurchaseDeliveryServices();
+                    $toDoFromPcsToOrderAndDlv = $autoPurchaseDeliveryServices->toDoFromPcsToOrderAndDlv($source_id);
                 } else {
                     $result->more_info = [
                         'action' => 'confirm',

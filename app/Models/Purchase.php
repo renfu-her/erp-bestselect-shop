@@ -194,7 +194,7 @@ class Purchase extends Model
                         $updArr['audit_date'] = $curr_date;
                         $updArr['audit_user_id'] = $operator_user_id;
                         $updArr['audit_user_name'] = $operator_user_name;
-                        $updArr['audit_status'] = $purchaseReq['audit_status'] ?? App\Enums\Consignment\AuditStatus::unreviewed()->value;
+                        $updArr['audit_status'] = $purchaseReq['audit_status'] ?? AuditStatus::unreviewed()->value;
                     }
                 } else {
                     $updArr = [
