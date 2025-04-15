@@ -15,6 +15,7 @@ use App\Enums\Received\ReceivedMethod;
 use App\Mail\OrderEstablished;
 use App\Mail\OrderPaid;
 use App\Mail\OrderShipped;
+use App\Services\ETickets\AutoEticketPurchaseDeliveryServices;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
@@ -647,6 +648,12 @@ class Order extends Model
                 case 'pickup':
                     $insertData['ship_event_id'] = $value->id;
                     $insertData['ship_event'] = $value->depot_name;
+                    break;
+                case 'eTicket':
+                    $autoPurchaseDeliveryServices = new AutoEticketPurchaseDeliveryServices();
+                    $depot = $autoPurchaseDeliveryServices->getETicketDepot();
+                    $insertData['ship_event_id'] = $depot->id;
+                    $insertData['ship_event'] = $depot->name;
                     break;
             }
 

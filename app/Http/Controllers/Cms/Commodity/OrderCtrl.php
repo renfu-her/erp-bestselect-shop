@@ -3213,7 +3213,7 @@ class OrderCtrl extends Controller
                     $arr = Depot::select('id', 'name')->get();
                     break;
                 case "eTicket":
-                    $arr = [];
+                    $arr = Depot::select('id', 'name')->get();
                     break;
                 case "family":
                     $arr = [];
@@ -3309,7 +3309,7 @@ class OrderCtrl extends Controller
                             $ship_event = Depot::where('id', $d['ship_event_id'][$key])->get()->first()->name;
                             break;
                         case "eTicket":
-                            $ship_event = null;
+                            $ship_event = Depot::where('id', $d['ship_event_id'][$key])->get()->first()->name;
                             break;
                         default:
                             $ship_event = '全家';

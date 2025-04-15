@@ -2477,6 +2477,7 @@
                         }
                         break;
 
+                    case 'eTicket':
                     case 'pickup':
                     default:
                         dlv_fee = 0;
