@@ -1315,7 +1315,11 @@ class OrderCtrl extends Controller
                 $autoPurchaseDeliveryServices = new AutoEticketPurchaseDeliveryServices();
                 $toDoFromPcsToOrderAndDlv = $autoPurchaseDeliveryServices->toDoFromPcsToOrderAndDlv($id);
                 if ($toDoFromPcsToOrderAndDlv['success'] == 0) {
-                    throw new \Exception($toDoFromPcsToOrderAndDlv['error_msg']);
+                    if ('當前選擇已超過訂單數量' == $toDoFromPcsToOrderAndDlv['error_msg']) {
+                        // 不做任何事，防止取消又重下
+                    } else {
+                        throw new \Exception($toDoFromPcsToOrderAndDlv['error_msg']);   
+                    }
                 }
 
                 DB::commit();
@@ -1328,7 +1332,7 @@ class OrderCtrl extends Controller
                 $extraMsg = '';
                 if ($toDoFromPcsToOrderAndDlv) {
                     $extraMsg = '下單電子票券失敗於 OrderCtrl re_review';
-                    TikAutoOrderErrorLog::createLog($sub_order->id, $sub_order->sn, $extraMsg, ['error_msg' => $e->getMessage()]);
+                    TikAutoOrderErrorLog::createLog($sub_order->id, $sub_order->sn, $extraMsg, $e->getMessage());
                 }
                 wToast(__('入帳日期更新失敗') . $extraMsg, ['type' => 'danger']);
 
