@@ -90,8 +90,8 @@ class PaymentCtrl extends Controller
                         $parm['price'] = $authAmt;
                         ReceivedOrder::store_received($parm);
                         // 收到 信用卡 已付款通知，進行電子票券下單
-                        $autoPurchaseDeliveryServices = new AutoEticketPurchaseDeliveryServices();
-                        $toDoFromPcsToOrderAndDlv = $autoPurchaseDeliveryServices->toDoFromPcsToOrderAndDlv($id);
+                        // $autoPurchaseDeliveryServices = new AutoEticketPurchaseDeliveryServices();
+                        // $toDoFromPcsToOrderAndDlv = $autoPurchaseDeliveryServices->toDoFromPcsToOrderAndDlv($id);
                     }
 
                     OrderPayCreditCard::create_log($source_type, $id, (object) $EncArray);
@@ -591,8 +591,8 @@ class PaymentCtrl extends Controller
                     $parm['price'] = $order->total_price;
                     ReceivedOrder::store_received($parm);
                     // 收到 line pay 已付款通知，進行電子票券下單
-                    $autoPurchaseDeliveryServices = new AutoEticketPurchaseDeliveryServices();
-                    $toDoFromPcsToOrderAndDlv = $autoPurchaseDeliveryServices->toDoFromPcsToOrderAndDlv($source_id);
+                    // $autoPurchaseDeliveryServices = new AutoEticketPurchaseDeliveryServices();
+                    // $toDoFromPcsToOrderAndDlv = $autoPurchaseDeliveryServices->toDoFromPcsToOrderAndDlv($source_id);
                 } else {
                     $result->more_info = [
                         'action' => 'confirm',
