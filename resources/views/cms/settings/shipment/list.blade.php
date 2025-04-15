@@ -118,6 +118,7 @@
                         </a>
                     </li>
                 @elseif($category->category === '自取')
+                @elseif($category->category === '電子票券')
                 @else
                     <li class="nav-item">
                         <a class="nav-link {{ isActive($category->id, $currentCategoryId) }} "
