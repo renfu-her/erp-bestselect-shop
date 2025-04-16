@@ -1311,19 +1311,31 @@ class OrderCtrl extends Controller
                 }
 
                 DayEnd::match_day_end_status(request('receipt_date'), $received_order->sn);
-                // 判斷不是linepay、信用卡的確認付款，進行電子票券下單
-                $autoPurchaseDeliveryServices = new AutoEticketPurchaseDeliveryServices();
-                $toDoFromPcsToOrderAndDlv = $autoPurchaseDeliveryServices->toDoFromPcsToOrderAndDlv($id);
-                if ($toDoFromPcsToOrderAndDlv['success'] == 0) {
-                    if ('當前選擇已超過訂單數量' == $toDoFromPcsToOrderAndDlv['error_msg']) {
-                        // 不做任何事，防止取消又重下
-                    } else {
-                        throw new \Exception($toDoFromPcsToOrderAndDlv['error_msg']);   
+
+                $order = Order::where('id', '=', $id)->first();
+                $extraMsg = '';
+                if ($order) {
+                    // if ($order->payment_method == ReceivedMethod::CreditCard || $order->payment_method == 'line_pay') {
+                    //     // 不做任何事，在收到款項時就已經下單
+                    // } else 
+                    {
+                        // 判斷不是linepay、信用卡的確認付款，進行電子票券下單
+                        $autoPurchaseDeliveryServices = new AutoEticketPurchaseDeliveryServices();
+                        $toDoFromPcsToOrderAndDlv = $autoPurchaseDeliveryServices->toDoFromPcsToOrderAndDlv($id);
+                        if ($toDoFromPcsToOrderAndDlv['success'] == 0) {
+                            if ('當前選擇已超過訂單數量' == $toDoFromPcsToOrderAndDlv['error_msg']) {
+                                // 不做任何事，防止取消又重下
+                                $extraMsg .= ' 判斷可能為取消又重下，不下訂電子票券，若有需要請人工處理';
+                            } else {
+                                throw new \Exception($extraMsg. ' '. $toDoFromPcsToOrderAndDlv['error_msg']);
+                            }
+                        }
                     }
                 }
 
                 DB::commit();
                 wToast(__('入帳日期更新成功'));
+                wToast(__('入帳日期更新成功'). $extraMsg);
 
                 return redirect()->route('cms.order.ro-receipt', ['id' => request('id')]);
 

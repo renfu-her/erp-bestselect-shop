@@ -109,8 +109,10 @@ class AutoEticketPurchaseDeliveryServices
         foreach($query_order as $order) {
             // 用 tik_type_code 拆分出不同的廠商的商品
             $supplier_items[$order->tik_type_code][] = [
+                'order_sn' => $order->order_sn,
                 'item_id' => $order->item_id,
                 'sub_order_id' => $order->sub_order_id,
+                'sub_order_sn' => $order->sub_order_sn,
                 'product_id' => $order->product_id,
                 'product_title' => $order->product_title,
                 'style_id' => $order->style_id,
@@ -143,6 +145,11 @@ class AutoEticketPurchaseDeliveryServices
                     now(),
                     $depot->id,
                     $depot->name,
+                    0,
+                    null,
+                    null,
+                    null,
+                    ''. $eYoubon_items[0]['order_sn'] ?? null,
                 );
                 if ($purchase1['success'] == 0) {
                     DB::rollBack();
@@ -347,7 +354,9 @@ class AutoEticketPurchaseDeliveryServices
             })
             ->select('order.id as order_id'
                 , 'order.status as order_status'
+                , 'order.sn as order_sn'
                 , 'ord_sub_orders.id as sub_order_id'
+                , 'ord_sub_orders.sn as sub_order_sn'
                 , 'ord_sub_orders.ship_category as ship_category'
                 , 'ord_sub_orders.total_price'
                 , 'ord_items.id as item_id'
