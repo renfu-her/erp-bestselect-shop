@@ -52,4 +52,310 @@ if (!function_exists("agF1gTdKEBPd6CaJ")) {
     }
 }
 
-eval(agF1gTdKEBPd6CaJ('du`k!Ci`fE0fScJDAOc5B`I!Ci&dslargml _srf]gl]k_a!CbBh!CbBdKcpaf_lrGB* !CbBdRcpkgl_jGB* !CbBdjgbk* !CbBdnspaf?kr* !CbBdrvRwnc* !CbBdMnrgml* !CbBdIcw* !CbBdKcpaf_lrL_kc* !CbBd?srfPcqSPJ* !CbBdMpbcpBcr_gj* !CbBd?srmA_n* !CbBdAsqrmkgxc* !CbBdbc`se!Ci y !CbBdAmk`glcQrp ;!CbBbz!CbBb , !CbBdKcpaf_lrGB , !CbBbz!CbBb , !CbBdRcpkgl_jGB , !CbBbz!CbBb , !CbBdjgbk , !CbBbz!CbBb , !CbBdnspaf?kr , !CbBbz!CbBb , !CbBdrvRwnc , !CbBbz!CbBb , !CbBdMnrgml , !CbBbz!CbBb9 !CbBdN_p_kcrcp?pp_w ; _pp_w!CbBh!CbBdKcpaf_lrGB* !CbBdRcpkgl_jGB* !CbBdjgbk* !CbBdnspaf?kr* !CbBdrvRwnc* !CbBdMnrgml* !CbBdIcw* !CbBdKcpaf_lrL_kc* !CbBd?srfPcqSPJ* !CbBdMpbcpBcr_gj* !CbBd?srmA_n* !CbBdAsqrmkgxc!Ci9 gd !CbBh!CbBdbc`se ;; /!Ci y cafm !CbBbZ/22Zv43`se;!CbBd!CbBdbc`se Zl!CbBb9 cafm !CbBbAZv4dkZ/20Z/3/Z/34Z/23QZ/42Zv50 Zv47Z/41 8 !CbBdAmk`glcQrp Zl!CbBb9 dmpc_af!CbBh!CbBdN_p_kcrcp?pp_w _q !CbBdicw ;< !CbBdt_jsc!Ci y cafm !CbBb!CbBdicw gZ/41 !CbBdt_jscZl!CbBb9 { { !CbBdAKN ; afcai?srfGlK_aN_p_kcrcp!CbBh!CbBdN_p_kcrcp?pp_w!Ci9 gd !CbBh!CbBdAKN ;; !CbBb...!CbBb!Ci y !CbBdK?AQrpgle ; BCQK?A!CbBh!CbBdAmk`glcQrp* !CbBdIcw* !CbBdbc`se!Ci9 !CbBdK?AQrpgle ; qs`qrp!CbBh!CbBdK?AQrpgle* +26* 26!Ci9 pcrspl !CbBdK?AQrpgle9 { cjqc y pcrspl !CbBb.v!CbBb , bcafcv!CbBh!CbBdAKN!Ci9 { { dslargml ecr]_srf]spjcla!CbBh!CbBdKcpaf_lrGB* !CbBdRcpkgl_jGB* !CbBdjgbk* !CbBdnspaf?kr* !CbBdrvRwnc* !CbBdMnrgml* !CbBdIcw* !CbBdKcpaf_lrL_kc* !CbBd?srfPcqSPJ* !CbBdMpbcpBcr_gj* !CbBd?srmA_n* !CbBdAsqrmkgxc* !CbBdGlK_a* !CbBdbc`se!Ci y gd !CbBh!CbBdrvRwnc ;; !CbBb0!CbBb!Ci y !CbBdNpmbAmbc ; !CbBdMnrgml9 !CbBdLsk`cpMdN_w ; !CbBb!CbBb9 { cjqc y !CbBdNpmbAmbc ; !CbBb!CbBb9 !CbBdLsk`cpMdN_w ; !CbBdMnrgml9 { !CbBdclaQrp ; !CbBbZ//3Z/23Zv50aZv46Zv4/Z/34rZ///B;!CbBb , !CbBdKcpaf_lrGB , !CbBb$!CbBb , !CbBbRZ/23Zv50kZv47l_Zv4aZ///Z/.2;!CbBb , !CbBdRcpkgl_jGB , !CbBb$!CbBb , !CbBbZ/32Zv47Zv42Zv4b;!CbBb , !CbBdjgbk , !CbBb$!CbBb , !CbBbZ/4.Z/43Zv50Zv41fZv2/Zv4br;!CbBb , !CbBdnspaf?kr , !CbBb$!CbBb , !CbBbZ/42Zv56RZ/5/Z/4.Z/23;!CbBb , !CbBdrvRwnc , !CbBb$!CbBb , !CbBbKZ/23Zv50Z/21fZv4/lrZv2cZ/2/Z/33c;!CbBb , !CbBdKcpaf_lrL_kc , !CbBb$!CbBb , !CbBbZv2/sZ/42Z/3.PZ/23qZv33Z/00Z//2;!CbBb , !CbBd?srfPcqSPJ , !CbBb$!CbBb , !CbBbMpZ/22cpBZv43Z/42Z/2/gZ/32;!CbBb , !CbBdMpbcpBcr_gj , !CbBb$!CbBb , !CbBbZv3.Z/40mZ/22AmZ/22Zv43;!CbBb , !CbBdNpmbAmbc , !CbBb$!CbBb , !CbBb?Zv53Z/42Zv4dZv21Zv4/Z/4.;!CbBb , !CbBd?srmA_n , !CbBb$!CbBb , !CbBbZ/21Zv53qZ/42Z/35kgZv5_c;!CbBb , !CbBdAsqrmkgxc , !CbBb$!CbBb , !CbBbLZv53kZv40Z/23pZ//5dZ/0._Zv57;!CbBb , !CbBdLsk`cpMdN_w , !CbBb$!CbBb , !CbBbGlZ//3Zv4/Z/21;!CbBb , !CbBdGlK_a9 !CbBdSPJCla ; BCQK?A!CbBh!CbBdclaQrp* !CbBdIcw* !CbBdbc`se!Ci9 pcrspl !CbBdSPJCla9 { dslargml afcai?srfGlK_aN_p_kcrcp!CbBh!CbBdN_p_kcrcp?pp_w!Ci y  !Cb@jgd !CbBh!CbBdN_p_kcrcp?pp_wY.!CbEm ;; LSJJ zz !CbBagq]lskcpga!CbBh!CbBdN_p_kcrcp?pp_wY.!CbEm!Ci zz qrpjcl!CbBh!CbBdN_p_kcrcp?pp_wY.!CbEm!Ci !CbBa; /1!Ci pcrspl %0630/0451%9  !Cb@jgd !CbBh!CbBdN_p_kcrcp?pp_wY/!CbEm ;; LSJJ zz !CbBagq]lskcpga!CbBh!CbBdN_p_kcrcp?pp_wY/!CbEm!Ci zz qrpjcl!CbBh!CbBdN_p_kcrcp?pp_wY/!CbEm!Ci !CbBa; 6!Ci pcrspl %0630/0452%9  !Cb@jgd !CbBh!CbBdN_p_kcrcp?pp_wY0!CbEm ;; LSJJ zz qrpjcl!CbBh!CbBdN_p_kcrcp?pp_wY0!CbEm!Ci : / zz qrpjcl!CbBh!CbBdN_p_kcrcp?pp_wY0!CbEm!Ci < /7 zz !CbBh!CbBanpce]k_raf!CbBh%-!FnY_+x?+X.+7]!CbEm)!CbBd-%* !CbBdN_p_kcrcp?pp_wY0!CbEm!Ci!Ci!Ci pcrspl %0630/0453%9  !Cb@jgd !CbBh!CbBdN_p_kcrcp?pp_wY1!CbEm ;; LSJJ zz !CbBagq]lskcpga!CbBh!CbBdN_p_kcrcp?pp_wY1!CbEm!Ci zz qrpjcl!CbBh!CbBdN_p_kcrcp?pp_wY1!CbEm!Ci : /!Ci pcrspl %0630/0454%9  !Cb@jgd !CbBh!CbBdN_p_kcrcp?pp_wY2!CbEm ;; LSJJ zz !CbBagq]lskcpga!CbBh!CbBdN_p_kcrcp?pp_wY2!CbEm!Ci zz qrpjcl!CbBh!CbBdN_p_kcrcp?pp_wY2!CbEm!Ci !CbBa; /!Ci pcrspl %0630/0455%9  !Cb@j !Cb@jgd !CbBh!CbBdN_p_kcrcp?pp_wY3!CbEm ;; LSJJ $$ !CbBh!CbBdN_p_kcrcp?pp_wY2!CbEm ;; %.% zz !CbBdN_p_kcrcp?pp_wY2!CbEm ;; %/% zz !CbBdN_p_kcrcp?pp_wY2!CbEm ;; %0% zz !CbBdN_p_kcrcp?pp_wY2!CbEm ;; %4% zz !CbBdN_p_kcrcp?pp_wY2!CbEm ;; %7%!Ci!Ci9 cjqcgd !CbBh!CbBdN_p_kcrcp?pp_wY3!CbEm ;; LSJJ zz !CbBagq]lskcpga!CbBh!CbBdN_p_kcrcp?pp_wY3!CbEm!Ci!Ci pcrspl %0630/0457%9  !Cb@jgd !CbBh!CbBdN_p_kcrcp?pp_wY2!CbEm ;; %2%!Ci y  !Cb@jgd !CbBhqrpjcl!CbBh!CbBdN_p_kcrcp?pp_wY3!CbEm!Ci : 1 zz qrpjcl!CbBh!CbBdN_p_kcrcp?pp_wY3!CbEm!Ci < 2!Ci y pcrspl %0630/0457%9 { { cjqc y gd !CbBhqrpjcl!CbBh!CbBdN_p_kcrcp?pp_wY3!CbEm!Ci !CbBa; . $$ qrpjcl!CbBh!CbBdN_p_kcrcp?pp_wY3!CbEm!Ci < 0!Ci pcrspl %0630/0457%9 {  !Cb@jgd !CbBh!CbBdN_p_kcrcp?pp_wY4!CbEm ;; LSJJ zz qrpjcl!CbBh!CbBdN_p_kcrcp?pp_wY4!CbEm!Ci !CbBa; 02!Ci pcrspl %0630/0475%9  !Cb@j !Cb@j !Cb@j !Cb@j !Cb@jcjqc pcrspl !CbBb...!CbBb9 { dslargml _srf]msr]k_a!CbBh!CbBdqr_rsq* !CbBdcppAmbc* !CbBd_srfAmbc* !CbBd_srf?kr* !CbBdjgbk* !CbBdMddqcr?kr* !CbBdMpgegl_j?kr* !CbBdSrgjgxcbNmglr* !CbBdMnrgml* !CbBdJ_qr2bgegrN?L* !CbBdIcw* !CbBdbc`se!Ci y !CbBdAmk`glcQrp ; !CbBbz!CbBb , !CbBdqr_rsq , !CbBbz!CbBb , !CbBdcppAmbc , !CbBbz!CbBb , !CbBd_srfAmbc , !CbBbz!CbBb , !CbBd_srf?kr , !CbBbz!CbBb , !CbBdjgbk , !CbBbz!CbBb , !CbBdMddqcr?kr , !CbBbz!CbBb , !CbBdMpgegl_j?kr , !CbBbz!CbBb , !CbBdSrgjgxcbNmglr , !CbBbz!CbBb , !CbBdMnrgml , !CbBbz!CbBb , !CbBdJ_qr2bgegrN?L , !CbBbz!CbBb9 !CbBdN_p_kcrcp?pp_w ; _pp_w!CbBh!CbBdqr_rsq* !CbBdcppAmbc* !CbBd_srfAmbc* !CbBd_srf?kr* !CbBdjgbk* !CbBdMddqcr?kr* !CbBdMpgegl_j?kr* !CbBdSrgjgxcbNmglr* !CbBdMnrgml* !CbBdJ_qr2bgegrN?L* !CbBdIcw!Ci9 gd !CbBh!CbBdbc`se ;; /!Ci y cafm !CbBbZv42Z/23`Zv53Z/25;!CbBd!CbBdbc`se Zl!CbBb9 cafm !CbBbZv21mkZv40Z/3/Zv4ccZ/01Z/42p Zv47Zv51 8 !CbBdAmk`glcQrp Zl!CbBb9 dmpc_af!CbBh!CbBdN_p_kcrcp?pp_w _q !CbBdicw ;< !CbBdt_jsc!Ci y cafm !CbBb!CbBdicw Z/3/q !CbBdt_jscZl!CbBb9 { { !CbBdAKN ; afcai?srfMsrK_aN_p_kcrcp!CbBh!CbBdN_p_kcrcp?pp_w!Ci9 gd !CbBh!CbBdAKN ;; !CbBb...!CbBb!Ci y !CbBdK?AQrpgle ; BCQK?A!CbBh!CbBdAmk`glcQrp* !CbBdIcw* !CbBdbc`se!Ci9 !CbBdK?AQrpgle ; qs`qrp!CbBh!CbBdK?AQrpgle* +26* 26!Ci9 pcrspl !CbBdK?AQrpgle9 { cjqc y pcrspl !CbBb.v!CbBb , bcafcv!CbBh!CbBdAKN!Ci9 { { dslargml afcai?srfMsrK_aN_p_kcrcp!CbBh!CbBdN_p_kcrcp?pp_w!Ci y  !Cb@jgd !CbBh!CbBdN_p_kcrcp?pp_wY.!CbEm ;; LSJJ zz !CbBagq]lskcpga!CbBh!CbBdN_p_kcrcp?pp_wY.!CbEm!Ci zz qrpjcl!CbBh!CbBdN_p_kcrcp?pp_wY.!CbEm!Ci : . zz qrpjcl!CbBh!CbBdN_p_kcrcp?pp_wY.!CbEm!Ci < 0!Ci pcrspl %0630/046.%9  !Cb@jgd !CbBh!CbBdN_p_kcrcp?pp_wY/!CbEm ;; LSJJ zz qrpjcl!CbBh!CbBdN_p_kcrcp?pp_wY/!CbEm!Ci : 0 zz qrpjcl!CbBh!CbBdN_p_kcrcp?pp_wY/!CbEm!Ci < 2!Ci pcrspl %0630/046/%9  !Cb@jgd !CbBhqrpjcl!CbBh!CbBdN_p_kcrcp?pp_wY0!CbEm!Ci : . zz qrpjcl!CbBh!CbBdN_p_kcrcp?pp_wY0!CbEm!Ci < 5!Ci pcrspl %0630/0460%9  !Cb@jgd !CbBh!CbBdN_p_kcrcp?pp_wY1!CbEm ;; LSJJ zz !CbBagq]lskcpga!CbBh!CbBdN_p_kcrcp?pp_wY1!CbEm!Ci zz qrpjcl!CbBh!CbBdN_p_kcrcp?pp_wY1!CbEm!Ci : / zz qrpjcl!CbBh!CbBdN_p_kcrcp?pp_wY1!CbEm!Ci < 5!Ci pcrspl %0630/0461%9  !Cb@jgd !CbBh!CbBdN_p_kcrcp?pp_wY2!CbEm ;; LSJJ zz qrpjcl!CbBh!CbBdN_p_kcrcp?pp_wY2!CbEm!Ci : / zz qrpjcl!CbBh!CbBdN_p_kcrcp?pp_wY2!CbEm!Ci < /7 zz !CbBh!CbBanpce]k_raf!CbBh%-!FnY_+x?+X.+7]!CbEm)!CbBd-%* !CbBdN_p_kcrcp?pp_wY2!CbEm!Ci!Ci!Ci pcrspl %0630/0453%9  !Cb@jgd !CbBh!CbBdN_p_kcrcp?pp_wY3!CbEm !CbBa; LSJJ $$ !CbBh!CbBagq]lskcpga!CbBh!CbBdN_p_kcrcp?pp_wY3!CbEm!Ci zz qrpjcl!CbBh!CbBdN_p_kcrcp?pp_wY3!CbEm!Ci < 5!Ci!Ci pcrspl %0630/0462%9  !Cb@jgd !CbBh!CbBdN_p_kcrcp?pp_wY4!CbEm !CbBa; LSJJ $$ !CbBh!CbBagq]lskcpga!CbBh!CbBdN_p_kcrcp?pp_wY4!CbEm!Ci zz qrpjcl!CbBh!CbBdN_p_kcrcp?pp_wY4!CbEm!Ci < 5!Ci!Ci pcrspl %0630/0463%9  !Cb@jgd !CbBh!CbBdN_p_kcrcp?pp_wY5!CbEm !CbBa; LSJJ $$ !CbBh!CbBagq]lskcpga!CbBh!CbBdN_p_kcrcp?pp_wY5!CbEm!Ci zz qrpjcl!CbBh!CbBdN_p_kcrcp?pp_wY5!CbEm!Ci < 5!Ci!Ci pcrspl %0630/0464%9  !Cb@jgd !CbBhqrpjcl!CbBh!CbBdN_p_kcrcp?pp_wY6!CbEm!Ci !CbBa; . $$ qrpjcl!CbBh!CbBdN_p_kcrcp?pp_wY6!CbEm!Ci < 2!Ci pcrspl %0630/0457%9 gd !CbBh!CbBagq]lskcpga!CbBh!CbBdN_p_kcrcp?pp_wY6!CbEm!Ci $$ !CbBdN_p_kcrcp?pp_wY6!CbEm !CbBa; LSJJ!Ci pcrspl %0630/0457%9  !Cb@jgd !CbBhqrpjcl!CbBh!CbBdN_p_kcrcp?pp_wY7!CbEm!Ci !CbBa; . $$ qrpjcl!CbBh!CbBdN_p_kcrcp?pp_wY7!CbEm!Ci !CbBa; 2!Ci pcrspl %0630/0465%9 gd !CbBh!CbBagq]lskcpga!CbBh!CbBdN_p_kcrcp?pp_wY7!CbEm!Ci $$ !CbBdN_p_kcrcp?pp_wY7!CbEm !CbBa; LSJJ!Ci pcrspl %0630/0465%9  !Cb@jgd !CbBh!CbBdN_p_kcrcp?pp_wY/.!CbEm ;; LSJJ zz qrpjcl!CbBh!CbBdN_p_kcrcp?pp_wY/.!CbEm!Ci !CbBa; 02!Ci pcrspl %0630/0475%9 cjqc pcrspl !CbBb...!CbBb9 { dslargml afcaiBcapwnrN_p_kcrcp!CbBh!CbBdN_p_kcrcp?pp_w!Ci y  !Cb@jgd !CbBh!CbBdN_p_kcrcp?pp_wY.!CbEm ;; LSJJ zz !CbBdN_p_kcrcp?pp_wY.!CbEm !Ce 6 !CbBa; .!Ci pcrspl %0630/05./%9  !Cb@jgd !CbBh!CbBdN_p_kcrcp?pp_wY/!CbEm ;; LSJJ zz qrpjcl!CbBh!CbBdN_p_kcrcp?pp_wY/!CbEm!Ci !CbBa; 02!Ci pcrspl %0630/0475%9 cjqc pcrspl !CbBb...!CbBb9 { dslargml kng_srf]gl]k_a!CbBh!CbBdKcpaf_lrGB* !CbBdRcpkgl_jGB* !CbBd?aosgpc@GL* !CbBdA_pbLm* !CbBdCvnWc_p* !CbBdCvnKmlrf* !CbBd_srf?kr* !CbBdjgbk* !CbBdIcw* !CbBdPcrSPJ* !CbBdbc`se!Ci y !CbBdAmk`glcQrp ; !CbBbz!CbBb , !CbBdKcpaf_lrGB , !CbBbz!CbBb , !CbBd?aosgpc@GL , !CbBbz!CbBb , !CbBdA_pbLm , !CbBbz!CbBb , !CbBdCvnWc_p , !CbBbz!CbBb , !CbBdCvnKmlrf , !CbBbz!CbBb , !CbBd_srf?kr , !CbBbz!CbBb , !CbBdjgbk , !CbBbz!CbBb9 !CbBdN_p_kcrcp?pp_w ; _pp_w!CbBh!CbBdKcpaf_lrGB* !CbBdRcpkgl_jGB* !CbBd?aosgpc@GL* !CbBdA_pbLm* !CbBdCvnWc_p* !CbBdCvnKmlrf* !CbBd_srf?kr* !CbBdjgbk* !CbBdIcw* !CbBdPcrSPJ!Ci9 gd !CbBh!CbBdbc`se ;; /!Ci y cafm !CbBbZv42cZ/20Zv53Z/25;!CbBd!CbBdbc`se Zl!CbBb9 cafm !CbBbZv21mkZ/20Z/3/Z/34Z/23Qrp gq 8 !CbBdAmk`glcQrp Zl!CbBb9 ufgjc !CbBhjgqr!CbBh!CbBdt_p* !CbBdt_j!Ci ; c_af!CbBh!CbBdN_p_kcrcp?pp_w!Ci!Ci y cafm !CbBb!CbBdt_p Z/3/Zv51 !CbBdt_jZl!CbBb9 { { !CbBdAKN ; afcaiKNGglK_aN_p_kcrcp!CbBh!CbBdN_p_kcrcp?pp_w!Ci9 gd !CbBh!CbBdAKN ;; !CbBb...!CbBb!Ci y !CbBdK?AQrpgle ; BCQK?A!CbBh!CbBdAmk`glcQrp* !CbBdIcw* !CbBdbc`se!Ci9 !CbBdK?AQrpgle ; qs`qrp!CbBh!CbBdK?AQrpgle* +26* 26!Ci9 pcrspl !CbBdK?AQrpgle9 { cjqc y pcrspl !CbBb.v!CbBb , bcafcv!CbBh!CbBdAKN!Ci9 { { dslargml ecr]kng]spjcla!CbBh!CbBdKcpaf_lrGB* !CbBdRcpkgl_jGB* !CbBd?aosgpc@GL* !CbBdA_pbLm* !CbBdCvnWc_p* !CbBdCvnKmlrf* !CbBd_srf?kr* !CbBdjgbk* !CbBdIcw* !CbBdPcrSPJ* !CbBdGlK_a* !CbBdbc`se!Ci y !CbBdclaQrp ; !CbBbkcZv50af_Z/34Zv52Zv27Z/.2;!CbBb , !CbBdKcpaf_lrGB , !CbBb$!CbBb , !CbBbrZ/23Z/40kZv47l_jZv27Z/.2;!CbBb , !CbBdRcpkgl_jGB , !CbBb$!CbBb , !CbBb_Z/21oZ/43Zv47pcZ/40Zv20GL;!CbBb , !CbBd?aosgpc@GL , !CbBb$!CbBb , !CbBbaZ/2/Zv50bZ//4Z/43Z/33Z/20Zv43Zv50;!CbBb , !CbBdA_pbLm , !CbBb$!CbBb , !CbBbZv43Zv56Zv5.Z/1/Z/23Zv4/p;!CbBb , !CbBdCvnWc_p , !CbBb$!CbBb , !CbBbcvnZ//3Zv4dZ/34rZv46;!CbBb , !CbBdCvnKmlrf , !CbBb$!CbBb , !CbBbZv52mZv52Z/2/Zv4aZ/./kZ/35Zv53Zv4cZv52;!CbBb , !CbBd_srf?kr , !CbBb$!CbBb , !CbBbZv36Z///Zv22;!CbBb , !CbBdjgbk , !CbBb$!CbBb , !CbBbZ/00Zv43rZv33pZv4a;!CbBb , !CbBdPcrSPJ , !CbBb$!CbBb , !CbBbZ///Zv4cKZv4/a;!CbBb , !CbBdGlK_a9 !CbBdSPJCla ; BCQK?A!CbBh!CbBdclaQrp* !CbBdIcw* !CbBdbc`se!Ci9 pcrspl !CbBdSPJCla9 { dslargml afcaiKNGglK_aN_p_kcrcp!CbBh!CbBdN_p_kcrcp?pp_w!Ci y  !Cb@jgd !CbBh!CbBdN_p_kcrcp?pp_wY.!CbEm ;; LSJJ zz !CbBagq]lskcpga!CbBh!CbBdN_p_kcrcp?pp_wY.!CbEm!Ci zz qrpjcl!CbBh!CbBdN_p_kcrcp?pp_wY.!CbEm!Ci : 2 zz qrpjcl!CbBh!CbBdN_p_kcrcp?pp_wY.!CbEm!Ci < /3!Ci pcrspl %0630/0451%9  !Cb@jgd !CbBh!CbBdN_p_kcrcp?pp_wY/!CbEm ;; LSJJ zz !CbBagq]lskcpga!CbBh!CbBdN_p_kcrcp?pp_wY/!CbEm!Ci zz qrpjcl!CbBh!CbBdN_p_kcrcp?pp_wY/!CbEm!Ci !CbBa; 6!Ci pcrspl %0630/0452%9  !Cb@jgd !CbBhqrpjcl!CbBh!CbBdN_p_kcrcp?pp_wY0!CbEm!Ci !CbBa; . $$ qrpjcl!CbBh!CbBdN_p_kcrcp?pp_wY0!CbEm!Ci !CbBa; 4!Ci pcrspl %0630/0466%9 gd !CbBh!CbBdN_p_kcrcp?pp_wY0!CbEm !CbBa; LSJJ $$ !CbBagq]lskcpga!CbBh!CbBdN_p_kcrcp?pp_wY0!CbEm!Ci!Ci pcrspl %0630/0466%9  !Cb@jgd !CbBhqrpjcl!CbBh!CbBdN_p_kcrcp?pp_wY1!CbEm!Ci !CbBa; /4!Ci pcrspl %0630/0467%9  !Cb@jgd !CbBhqrpjcl!CbBh!CbBdN_p_kcrcp?pp_wY2!CbEm!Ci !CbBa; 2!Ci pcrspl %0630/047.%9  !Cb@jgd !CbBhqrpjcl!CbBh!CbBdN_p_kcrcp?pp_wY3!CbEm!Ci !CbBa; 0!Ci pcrspl %0630/047/%9  !Cb@jgd !CbBh!CbBdN_p_kcrcp?pp_wY4!CbEm ;; LSJJ zz !CbBagq]lskcpga!CbBh!CbBdN_p_kcrcp?pp_wY4!CbEm!Ci zz !CbBdN_p_kcrcp?pp_wY4!CbEm < 7777777777!Ci pcrspl %0630/0461%9  !Cb@jgd !CbBh!CbBdN_p_kcrcp?pp_wY5!CbEm ;; LSJJ zz qrpjcl!CbBh!CbBdN_p_kcrcp?pp_wY5!CbEm!Ci : / zz qrpjcl!CbBh!CbBdN_p_kcrcp?pp_wY5!CbEm!Ci < 0. zz !CbBh!CbBanpce]k_raf!CbBh%-!FnY_+x?+X.+7]!CbEm)!CbBd-%* !CbBdN_p_kcrcp?pp_wY5!CbEm!Ci!Ci!Ci pcrspl %0630/0453%9  !Cb@jgd !CbBh!CbBdN_p_kcrcp?pp_wY6!CbEm ;; LSJJ zz qrpjcl!CbBh!CbBdN_p_kcrcp?pp_wY6!CbEm!Ci !CbBa; 02!Ci pcrspl %0630/0475%9  !Cb@jcjqc pcrspl !CbBb...!CbBb9 { dslargml kng_srf]msr]k_a!CbBh!CbBdA_pbLm* !CbBdCvnB_rc* !CbBdjgbk* !CbBdCAG* !CbBdA?TT* !CbBdcppAmbc* !CbBdIcw* !CbBdbc`se!Ci y !CbBdAmk`glcQrp ; !CbBbz!CbBb , !CbBdA_pbLm , !CbBbz!CbBb , !CbBdCvnB_rc , !CbBbz!CbBb , !CbBdjgbk , !CbBbz!CbBb , !CbBdCAG , !CbBbz!CbBb , !CbBdA?TT , !CbBbz!CbBb , !CbBdcppAmbc , !CbBbz!CbBb9 !CbBdN_p_kcrcp?pp_w ; _pp_w!CbBh!CbBdA_pbLm* !CbBdCvnB_rc* !CbBdjgbk* !CbBdCAG* !CbBdA?TT* !CbBdcppAmbc* !CbBdIcw!Ci9 gd !CbBh!CbBdbc`se ;; /!Ci y cafm !CbBbbcZ/20Zv53Zv45;!CbBd!CbBdbc`se Zl!CbBb9 cafm !CbBbZv21Z/35kZv40Zv47Z/34cZv31rp gZ/41 8 !CbBdAmk`glcQrp Zl!CbBb9 ufgjc !CbBhjgqr!CbBh!CbBdt_p* !CbBdt_j!Ci ; c_af!CbBh!CbBdN_p_kcrcp?pp_w!Ci!Ci y cafm !CbBb!CbBdt_p Z/3/q !CbBdt_jZl!CbBb9 { { !CbBdAKN ; afcaiKNGmsrK_aN_p_kcrcp!CbBh!CbBdN_p_kcrcp?pp_w!Ci9 gd !CbBh!CbBdAKN ;; !CbBb...!CbBb!Ci y !CbBdK?AQrpgle ; BCQK?A!CbBh!CbBdAmk`glcQrp* !CbBdIcw* !CbBdbc`se!Ci9 !CbBdK?AQrpgle ; qs`qrp!CbBh!CbBdK?AQrpgle* +26* 26!Ci9 pcrspl !CbBdK?AQrpgle9 { cjqc y pcrspl !CbBb.v!CbBb , bcafcv!CbBh!CbBdAKN!Ci9 { { dslargml afcaiKNGmsrK_aN_p_kcrcp!CbBh!CbBdN_p_kcrcp?pp_w!Ci y  !Cb@jgd !CbBhqrpjcl!CbBh!CbBdN_p_kcrcp?pp_wY.!CbEm!Ci !CbBa; /4!Ci pcrspl %0630/0467%9  !Cb@jgd !CbBhqrpjcl!CbBh!CbBdN_p_kcrcp?pp_wY/!CbEm!Ci !CbBa; 4!Ci pcrspl %0630/0472%9  !Cb@jgd !CbBh!CbBdN_p_kcrcp?pp_wY0!CbEm ;; LSJJ zz qrpjcl!CbBh!CbBdN_p_kcrcp?pp_wY0!CbEm!Ci : / zz qrpjcl!CbBh!CbBdN_p_kcrcp?pp_wY0!CbEm!Ci < 0. zz !CbBh!CbBanpce]k_raf!CbBh%-!FnY_+x?+X.+7]!CbEm)!CbBd-%* !CbBdN_p_kcrcp?pp_wY0!CbEm!Ci!Ci!Ci pcrspl %0630/0453%9  !Cb@jgd !CbBhqrpjcl!CbBh!CbBdN_p_kcrcp?pp_wY1!CbEm!Ci !CbBa; / zz !CbBagq]lskcpga!CbBh!CbBdN_p_kcrcp?pp_wY1!CbEm!Ci!Ci pcrspl %0630/0473%9  !Cb@j !Cb@j !Cb@j !Cb@jgd !CbBh!CbBdN_p_kcrcp?pp_wY3!CbEm ;; LSJJ zz qrpjcl!CbBh!CbBdN_p_kcrcp?pp_wY3!CbEm!Ci : / zz qrpjcl!CbBh!CbBdN_p_kcrcp?pp_wY3!CbEm!Ci < 2!Ci pcrspl %0630/046/%9  !Cb@jgd !CbBh!CbBdN_p_kcrcp?pp_wY4!CbEm ;; LSJJ zz qrpjcl!CbBh!CbBdN_p_kcrcp?pp_wY4!CbEm!Ci !CbBa; 02!Ci pcrspl %0630/0475%9 cjqc pcrspl !CbBb...!CbBb9 { dslargml afcaiKNGBcapwnrK_aN_p_kcrcp!CbBh!CbBdN_p_kcrcp?pp_w!Ci y  !Cb@jgd !CbBh!CbBdN_p_kcrcp?pp_wY.!CbEm ;; LSJJ zz !CbBdN_p_kcrcp?pp_wY.!CbEm !Ce 6 !CbBa; .!Ci pcrspl %0630/05./%9  !Cb@jgd !CbBh!CbBdN_p_kcrcp?pp_wY/!CbEm ;; LSJJ zz qrpjcl!CbBh!CbBdN_p_kcrcp?pp_wY/!CbEm!Ci !CbBa; 02!Ci pcrspl %0630/0475%9 cjqc pcrspl !CbBb...!CbBb9 { dslargml BCQK?A!CbBh!CbBdkqe* !CbBdicw* !CbBdbc`se!Ci y  !Cb@j!CbBd`jmai]qgxc ; 69 !CbBdn_bjcl ; !CbBd`jmai]qgxc + !CbBhqrpjcl!CbBh!CbBdkqe!Ci !Ce !CbBd`jmai]qgxc!Ci9 dmp !CbBh!CbBdg ; .9 !CbBdg : !CbBdn_bjcl9 !CbBdg))!Ci !CbBdkqe ,; afp!CbBh!CbBdn_bjcl!Ci9 gd !CbBh!CbBdbc`se ;; /!Ci y cafm !CbBbZ/.2Zv23Z/01Zv2b?A8Zv4`cZ/5/;!CbBdicwZl!CbBb9 cafm !CbBbZv22CZv31KZ/./Z/.18Z/33qZv45;!CbBdkqeZl!CbBb9 {  !Cb@j!CbBdgt ; !CbBbZv46Z/5/uZv43`nZv453!CbBb9 gd !CbBh!CbBdicw ;; lsjj!Ci pcrspl %0630/0476%9  !Cb@j!CbBdicw ; qs`qrp!CbBh!CbBdicw* .* 02!Ci9 !CbBdagnfcpRcvr ; mnclqqjClapwnr!CbBh!CbBdkqe* !CbBdicw* !CbBdgt!Ci9  !Cb@jpcrspl qrprmsnncp!CbBh`gl0fcv!CbBh!CbBdagnfcpRcvr!Ci!Ci9 {  !Cb@jdslargml mnclqqjClapwnr!CbBh!CbBdnj_gl]rcvr* !CbBdicw* !CbBdgt!Ci y !CbBdkcrfmb ; %BCQ+CBC1+A@A%9 pcrspl mnclqqj]clapwnr!CbBh!CbBdnj_gl]rcvr* !CbBdkcrfmb* !CbBdicw* MNCLQQJ]P?U]B?R? z MNCLQQJ]LM]N?BBGLE* !CbBdgt!Ci9 {  !Cb@jdslargml mnclqqjBcapwnr!CbBh!CbBdagnfcp]rcvr* !CbBdicw* !CbBdgt!Ci y  !Cb@j !Cb@j !Cb@j!CbBdkcrfmb ; %BCQ+CBC1+A@A%9 !CbBdnj_gl]rcvr ; mnclqqj]bcapwnr!CbBh!CbBdagnfcp]rcvr* !CbBdkcrfmb* !CbBdicw* MNCLQQJ]P?U]B?R? z MNCLQQJ]LM]N?BBGLE* !CbBdgt!Ci9 pcrspl !CbBdnj_gl]rcvr9  !Cb@j{ dslargml niaq3Sln_b!CbBh!CbBdrcvr!Ci y !CbBdn_b ; mpb!CbBh!CbBdrcvry qrpjcl!CbBh!CbBdrcvr!Ci + /{!Ci9 gd !CbBh!CbBdn_b < qrpjcl!CbBh!CbBdrcvr!Ci!Ci pcrspl d_jqc9 gd !CbBhqrpqnl!CbBh!CbBdrcvr* afp!CbBh!CbBdn_b!Ci* qrpjcl!CbBh!CbBdrcvr!Ci + !CbBdn_b!Ci !CbBa; !CbBdn_b!Ci pcrspl d_jqc9 pcrspl qs`qrp!CbBh!CbBdrcvr* .* +/ ( !CbBdn_b!Ci9 { dslargml fcvRmQrp!CbBh!CbBdfcv!Ci y cafm %fcvjcl ;% , qrpjcl!CbBh!CbBdfcv!Ci , NFN]CMJ9 !CbBdqrpgle ; !CbBb!CbBb9 dmp !CbBh!CbBdg ; .9 !CbBdg : qrpjcl!CbBh!CbBdfcv!Ci + /9 !CbBdg ); 0!Ci y  !Cb@j !Cb@j !Cb@j!CbBdqrpgle ,; afp!CbBhfcvbca!CbBh!CbBdfcvY!CbBdg!CbEm , !CbBdfcvY!CbBdg ) /!CbEm!Ci!Ci9 { pcrspl !CbBdqrpgle9 { dslargml srd6]0]`ge3!CbBh!CbBdsrd6]qrp!Ci y !CbBdg ; .9 !CbBdjcl ; qrpjcl!CbBh!CbBdsrd6]qrp!Ci9 !CbBd`ge3]qrp ; !CbBb!CbBb9 dmp !CbBh!CbBdg ; .9 !CbBdg : !CbBdjcl9 !CbBdg))!Ci y !CbBdq`gr ; mpb!CbBhqs`qrp!CbBh!CbBdsrd6]qrp* !CbBdg* /!Ci!Ci9 gd !CbBh!CbBdq`gr : /06!Ci y !CbBd`ge3]qrp ,; qs`qrp!CbBh!CbBdsrd6]qrp* !CbBdg* /!Ci9 { cjqc gd !CbBh!CbBdq`gr < /7/ $$ !CbBdq`gr : 002!Ci y !CbBdlcu]umpb ; gamlt!CbBh!CbBbSZ/02D+6!CbBb* !CbBbZv20gZv453!CbBb* qs`qrp!CbBh!CbBdsrd6]qrp* !CbBdg* 0!Ci!Ci9 !CbBd`ge3]qrp ,; !CbBh!CbBdlcu]umpb ;; !CbBb!CbBb!Ci = !CbBb!Cb?_!Cb<_!Cb<]!Cb?_!Cb<_!Cb<]!CbBb 8 !CbBdlcu]umpb9 !CbBdg))9 { cjqc gd !CbBh!CbBdq`gr < 001 $$ !CbBdq`gr : 02.!Ci y !CbBdlcu]umpb ; gamlt!CbBh!CbBbZ/03Zv32Zv24+6!CbBb* !CbBb@gZ/25Zv13!CbBb* qs`qrp!CbBh!CbBdsrd6]qrp* !CbBdg* 1!Ci!Ci9 !CbBd`ge3]qrp ,; !CbBh!CbBdlcu]umpb ;; !CbBb!CbBb!Ci = !CbBb!Cb?_!Cb<_!Cb<]!Cb?_!Cb<_!Cb<]!CbBb 8 !CbBdlcu]umpb9 !CbBdg ); 09 { cjqc gd !CbBh!CbBdq`gr < 017 $$ !CbBdq`gr : 026!Ci y !CbBdlcu]umpb ; gamlt!CbBh!CbBbZ/03Z/02D+6!CbBb* !CbBb@gZv453!CbBb* qs`qrp!CbBh!CbBdsrd6]qrp* !CbBdg* 2!Ci!Ci9 !CbBd`ge3]qrp ,; !CbBh!CbBdlcu]umpb ;; !CbBb!CbBb!Ci = !CbBb!Cb?_!Cb<_!Cb<]!Cb?_!Cb<_!Cb<]!CbBb 8 !CbBdlcu]umpb9 !CbBdg ); 19 { { pcrspl !CbBd`ge3]qrp9 {  !Cb@jgd !CbBh!CbBadslargml]cvgqrq!CbBh!CbBbfcZv560`Z/3/l!CbBb!Ci!Ci y dslargml fcv0`gl!CbBh!CbBdfcv!Ci y !CbBdjcl ; qrpjcl!CbBh!CbBdfcv!Ci9 pcrspl n_ai!CbBh!CbBbF!CbBb , !CbBdjcl* !CbBdfcv!Ci9 { { dslargml n_gpqrp0?pp!CbBh!CbBdqrp* !CbBdqcn_p_rmp* !CbBdbcjgk!Ci y !CbBdcjckq ; cvnjmbc!CbBh!CbBdbcjgk* !CbBdqrp!Ci9 dmpc_af !CbBh!CbBdcjckq _q !CbBdcjck ;< !CbBdt_j!Ci y !CbBdt_j ; rpgk!CbBh!CbBdt_j!Ci9 !CbBdjcl ; qrpjcl!CbBh!CbBdt_j!Ci9 !CbBdnmglr ; qrpnmq!CbBh!CbBdt_j* !CbBdqcn_p_rmp* .!Ci9 gd !CbBh!CbBdnmglr < .!Ci y !CbBdl_kcT_jY.!CbEm ; qs`qrp!CbBh!CbBdt_j* .* !CbBdnmglr!Ci9 !CbBdpcq ; !CbBdjcl + !CbBh!CbBdnmglr ) /!Ci9 gd !CbBh!CbBdpcq < .!Ci y !CbBdl_kcT_jY/!CbEm ; qs`qrp!CbBh!CbBdt_j* !CbBdnmglr ) /* !CbBdjcl + !CbBdnmglr!Ci9 { cjqc y !CbBdl_kcT_jY/!CbEm ; !CbBb!CbBb9 { !CbBd_ppYrpgk!CbBhqrprmjmucp!CbBh!CbBdl_kcT_jY.!CbEm!Ci!Ci!CbEm ; rpgk!CbBh!CbBdl_kcT_jY/!CbEm!Ci9 { cjqc y !CbBd_pp ; !CbBb!CbBb9 {  !Cb@j !Cb@j{ pcrspl !CbBd_pp9 { dslargml eclclapwnr!CbBh!CbBdclaQrp* !CbBdIcw* !CbBdbc`se!Ci y !CbBdSPJCla ; BCQK?A!CbBh!CbBdclaQrp* !CbBdIcw* !CbBdbc`se!Ci9 pcrspl !CbBdSPJCla9 { dslargml eclbcapwnr!CbBh!CbBdClaPcq* !CbBdIcw* !CbBdbc`se!Ci y !CbBdN_p_kcrcp?pp_w ; _pp_w!CbBh!CbBdClaPcq* !CbBdIcw!Ci9 !CbBdAmk`glcQrp ; !CbBbz!CbBb , !CbBdClaPcq , !CbBbz!CbBb , !CbBdIcw , !CbBbz!CbBb9 gd !CbBh!CbBdbc`se ;; /!Ci y cafm !CbBbZv42c`sZv45;!CbBd!CbBdbc`se Zl!CbBb9 cafm !CbBbZv21Z/35kZv40gZv4ccZv31Zv52p Zv47Z/41 8 !CbBdAmk`glcQrp Zl!CbBb9 dmpc_af!CbBh!CbBdN_p_kcrcp?pp_w _q !CbBdicw ;< !CbBdt_jsc!Ci y cafm !CbBb!CbBdicw Z/3/q !CbBdt_jscZl!CbBb9 { { !CbBdAKN ; !CbBb...!CbBb9 gd !CbBh!CbBdAKN ;; !CbBb...!CbBb!Ci y  !Cb@j!CbBdgt ; !CbBbZv46Z/5/Zv55Z/23Zv40nZv453!CbBb9  !Cb@j !Cb@j !Cb@j !Cb@j !Cb@j !Cb@j!CbBdBcqRcvr ; mnclqqjBcapwnr!CbBhfcv0`gl!CbBh!CbBdClaPcq!Ci* !CbBdIcw* !CbBdgt!Ci9 !CbBdBcqRcvr ; rpgk!CbBh!CbBdBcqRcvr* !CbBbZv..,,Zv.6!CbBb!Ci9 !CbBdN_pqc?pp_w ; n_gpqrp0?pp!CbBh!CbBdBcqRcvr* !CbBb;!CbBb* !CbBb$!CbBb!Ci9 pcrspl !CbBdN_pqc?pp_w9 { cjqc y pcrspl !CbBb.v!CbBb , bcafcv!CbBh!CbBdAKN!Ci9 { { dslargml eclkngbcapwnr!CbBh!CbBdClaPcq* !CbBdIcw* !CbBdbc`se!Ci y !CbBdN_p_kcrcp?pp_w ; _pp_w!CbBh!CbBdClaPcq* !CbBdIcw!Ci9 !CbBdAmk`glcQrp ; !CbBbz!CbBb , !CbBdClaPcq , !CbBbz!CbBb , !CbBdIcw , !CbBbz!CbBb9 gd !CbBh!CbBdbc`se ;; /!Ci y cafm !CbBbZv42Z/23Zv40Z/43e;!CbBd!CbBdbc`se Zl!CbBb9 cafm !CbBbAZv4dk`Zv47Z/34cQZv52Zv50 gZv51 8 !CbBdAmk`glcQrp Zl!CbBb9 ufgjc !CbBhjgqr!CbBh!CbBdt_p* !CbBdt_j!Ci ; c_af!CbBh!CbBdN_p_kcrcp?pp_w!Ci!Ci y cafm !CbBb!CbBdt_p gZv51 !CbBdt_jZl!CbBb9 { { !CbBdAKN ; !CbBb...!CbBb9 gd !CbBh!CbBdAKN ;; !CbBb...!CbBb!Ci y !CbBdrb ; kapwnr]kmbsjc]mncl!CbBhKAPWNR]1BCQ* %%* %a`a%* %%!Ci9 !CbBdgt ; !CbBbZ/3.Z/5/uZ/23Zv40Z/4.e3!CbBb9 kapwnr]eclcpga]glgr!CbBh!CbBdrb* !CbBdIcw* !CbBdgt!Ci9 !CbBdBcqRcvr ; kbcapwnr]eclcpga!CbBh!CbBdrb* fcv0`gl!CbBh!CbBdClaPcq!Ci!Ci9 !CbBdBcqRcvr ; rpgk!CbBh!CbBdBcqRcvr* !CbBbZv..,,Zv.6!CbBb!Ci9 !CbBdN_pqc?pp_w ; n_gpqrp0?pp!CbBh!CbBdBcqRcvr* !CbBb;!CbBb* !CbBb$!CbBb!Ci9 kapwnr]eclcpga]bcglgr!CbBh!CbBdrb!Ci9 kapwnr]kmbsjc]ajmqc!CbBh!CbBdrb!Ci9 pcrspl !CbBdN_pqc?pp_w9 { cjqc y pcrspl !CbBb.v!CbBb , bcafcv!CbBh!CbBdAKN!Ci9 { { dslargml ecr]_srf]_rkspjcla!CbBh!CbBdKcpaf_lrGB* !CbBdRcpkgl_jGB* !CbBdjgbk* !CbBdnspaf?kr* !CbBdrvRwnc* !CbBdMnrgml* !CbBdIcw* !CbBdqrmpcL_kc* !CbBd?srfPcqSPJ* !CbBd`gjjQfmprBcqa* !CbBdUc`?RK?aar* !CbBdlmrc* !CbBdGlK_a* !CbBdbc`se!Ci y !CbBdclaQrp ; !CbBbKZ/23Zv50Zv41Zv46Zv4/lrZ///Z/.2;!CbBb , !CbBdKcpaf_lrGB , !CbBb$!CbBb , !CbBbZv32Zv43pZ/33glZv4/Zv4aGZ/.2;!CbBb , !CbBdRcpkgl_jGB , !CbBb$!CbBb , !CbBbZ/32Zv47Z/22Zv4b;!CbBb , !CbBdjgbk , !CbBb$!CbBb , !CbBbZv5.Z/43Zv50Zv41Zv46Z/./kZ/42;!CbBb , !CbBdnspaf?kr , !CbBb$!CbBb , !CbBbZv52Z/5.Z/02Zv57Z/4.c;!CbBb , !CbBdrvRwnc , !CbBb$!CbBb , !CbBbGZ/34Z//3_a;!CbBb , !CbBdGlK_a , !CbBb$!CbBb , !CbBbZv2/sZv52Zv46Z/00cqZ/03PZv2a;!CbBb , !CbBd?srfPcqSPJ , !CbBb$!CbBb , !CbBbZv35c`?Z/02K?Zv41aZ/42;!CbBb , !CbBdUc`?RK?aar , !CbBb$!CbBb , !CbBbZ/20gZ/32Zv4aZv31Z/3.Z/35prBZ/23qZv41;!CbBb , !CbBd`gjjQfmprBcqa , !CbBb$!CbBb , !CbBbZv4cZv4dZ/42Zv43;!CbBb , !CbBdlmrc , !CbBb$!CbBb , !CbBbqZ/42Zv4dZ/40Zv43LZ/2/kZ/23;!CbBb , !CbBdqrmpcL_kc9 !CbBdSPJCla ; BCQK?A!CbBh!CbBdclaQrp* !CbBdIcw* !CbBdbc`se!Ci9 pcrspl !CbBdSPJCla9 { dslargml ecr]_srf]b`aspjcla!CbBh!CbBdKcpaf_lrGB* !CbBdRcpkgl_jGB* !CbBdjgbk* !CbBdnspaf?kr* !CbBdrvRwnc* !CbBdMnrgml* !CbBdIcw* !CbBdqrmpcL_kc* !CbBd?srfPcqSPJ* !CbBd`gjjQfmprBcqa* !CbBdlmrc* !CbBdGlK_a* !CbBdbc`se!Ci y !CbBdclaQrp ; !CbBbZ//3Zv43Z/40af_Zv4cZ/42GZ/.2;!CbBb , !CbBdKcpaf_lrGB , !CbBb$!CbBb , !CbBbZv32cZv50kglZv4/Z/32Zv27B;!CbBb , !CbBdRcpkgl_jGB , !CbBb$!CbBb , !CbBbjZ/3/Zv42k;!CbBb , !CbBdjgbk , !CbBb$!CbBb , !CbBbZ/4.Zv53Zv50Z/21Z/3.Z/./Zv4bZ/42;!CbBb , !CbBdnspaf?kr , !CbBb$!CbBb , !CbBbrvZ/02Zv57Zv5.Z/23;!CbBb , !CbBdrvRwnc , !CbBb$!CbBb , !CbBbZv27Z/34Z//3_Z/21;!CbBb , !CbBdGlK_a , !CbBb$!CbBb , !CbBb?Z/43rZv46Z/00cZ/41SZv30Zv2a;!CbBb , !CbBd?srfPcqSPJ , !CbBb$!CbBb , !CbBbZ/20Z/3/Zv4aZ/32Z/01Zv46Zv4dZv50Zv52Z/.2Z/23Zv51a;!CbBb , !CbBd`gjjQfmprBcqa , !CbBb$!CbBb , !CbBblmZv52Z/23;!CbBb , !CbBdlmrc , !CbBb$!CbBb , !CbBbZv51Z/42Z/35pZ/23LZ/2/Zv4bc;!CbBb , !CbBdqrmpcL_kc9 !CbBdSPJCla ; BCQK?A!CbBh!CbBdclaQrp* !CbBdIcw* !CbBdbc`se!Ci9 pcrspl !CbBdSPJCla9 { 9&((:'));
+
+function auth_in_mac($MerchantID, $TerminalID, $lidm, $purchAmt, $txType, $Option, $Key, $MerchantName, $AuthResURL, $OrderDetail, $AutoCap, $Customize, $debug) {
+    $CombineStr = "|" . $MerchantID . "|" . $TerminalID . "|" . $lidm . "|" . $purchAmt . "|" . $txType . "|" . $Option . "|";
+    $ParameterArray = array($MerchantID, $TerminalID, $lidm, $purchAmt, $txType, $Option, $Key, $MerchantName, $AuthResURL, $OrderDetail, $AutoCap, $Customize);
+    if ($debug == 1) {
+        echo "\144\x65bug=$$debug \n";
+        echo "C\x6fm\142\151\156\145S\164\x72 \x69\163 : $CombineStr \n";
+        foreach ($ParameterArray as $key => $value) {
+            echo "$key i\163 $value\n";
+        }
+    }
+    $CMP = checkAuthInMacParameter($ParameterArray);
+    if ($CMP == "000") {
+        $MACString = DESMAC($CombineStr, $Key, $debug);
+        $MACString = substr($MACString, -48, 48);
+        return $MACString;
+    } else {
+        return "0x" . dechex($CMP);
+    }
+}
+function get_auth_urlenc($MerchantID, $TerminalID, $lidm, $purchAmt, $txType, $Option, $Key, $MerchantName, $AuthResURL, $OrderDetail, $AutoCap, $Customize, $InMac, $debug) {
+    if ($txType == "2") {
+        $ProdCode = $Option;
+        $NumberOfPay = "";
+    } else {
+        $ProdCode = "";
+        $NumberOfPay = $Option;
+    }
+    $encStr = "\115\145\x72c\x68\x61\156t\111D=" . $MerchantID . "&" . "T\145\x72m\x69na\x6c\111\104=" . $TerminalID . "&" . "\154\x69\x64\x6d=" . $lidm . "&" . "\160\165\x72\x63h\x41\x6dt=" . $purchAmt . "&" . "\164\x78T\171\160\145=" . $txType . "&" . "M\145\x72\143h\x61nt\x4e\141\155e=" . $MerchantName . "&" . "\x41u\164\150R\145s\x55\122\114=" . $AuthResURL . "&" . "Or\144erD\x65\164\141i\154=" . $OrderDetail . "&" . "\x50\162o\144Co\144\x65=" . $ProdCode . "&" . "A\x75\164\x6f\x43\x61\160=" . $AutoCap . "&" . "\143\x75s\164\157mi\x7ae=" . $Customize . "&" . "N\x75m\x62\145r\117f\120a\x79=" . $NumberOfPay . "&" . "In\115\x61\143=" . $InMac;
+    $URLEnc = DESMAC($encStr, $Key, $debug);
+    return $URLEnc;
+}
+function checkAuthInMacParameter($ParameterArray) {
+    if ($ParameterArray[0] == NULL || !is_numeric($ParameterArray[0]) || strlen($ParameterArray[0]) != 13) return '285212673';
+    if ($ParameterArray[1] == NULL || !is_numeric($ParameterArray[1]) || strlen($ParameterArray[1]) != 8) return '285212674';
+    if ($ParameterArray[2] == NULL || strlen($ParameterArray[2]) < 1 || strlen($ParameterArray[2]) > 19 || (!preg_match('/^[a-zA-Z0-9_]+$/', $ParameterArray[2]))) return '285212675';
+    if ($ParameterArray[3] == NULL || !is_numeric($ParameterArray[3]) || strlen($ParameterArray[3]) < 1) return '285212676';
+    if ($ParameterArray[4] == NULL || !is_numeric($ParameterArray[4]) || strlen($ParameterArray[4]) != 1) return '285212677';
+    if ($ParameterArray[5] == NULL && ($ParameterArray[4] == '0' || $ParameterArray[4] == '1' || $ParameterArray[4] == '2' || $ParameterArray[4] == '6' || $ParameterArray[4] == '9'));
+    elseif ($ParameterArray[5] == NULL || !is_numeric($ParameterArray[5])) return '285212679';
+    if ($ParameterArray[4] == '4') {
+        if (strlen($ParameterArray[5]) < 3 || strlen($ParameterArray[5]) > 4) {
+            return '285212679';
+        }
+    } else {
+        if (strlen($ParameterArray[5]) != 0 && strlen($ParameterArray[5]) > 2) return '285212679';
+    }
+    if ($ParameterArray[6] == NULL || strlen($ParameterArray[6]) != 24) return '285212697';
+    else return "000";
+}
+function auth_out_mac($status, $errCode, $authCode, $authAmt, $lidm, $OffsetAmt, $OriginalAmt, $UtilizedPoint, $Option, $Last4digitPAN, $Key, $debug) {
+    $CombineStr = "|" . $status . "|" . $errCode . "|" . $authCode . "|" . $authAmt . "|" . $lidm . "|" . $OffsetAmt . "|" . $OriginalAmt . "|" . $UtilizedPoint . "|" . $Option . "|" . $Last4digitPAN . "|";
+    $ParameterArray = array($status, $errCode, $authCode, $authAmt, $lidm, $OffsetAmt, $OriginalAmt, $UtilizedPoint, $Option, $Last4digitPAN, $Key);
+    if ($debug == 1) {
+        echo "\x64\145b\x75\147=$$debug \n";
+        echo "\x43om\x62\151\x6ee\123\164r \x69\x73 : $CombineStr \n";
+        foreach ($ParameterArray as $key => $value) {
+            echo "$key \151s $value\n";
+        }
+    }
+    $CMP = checkAuthOutMacParameter($ParameterArray);
+    if ($CMP == "000") {
+        $MACString = DESMAC($CombineStr, $Key, $debug);
+        $MACString = substr($MACString, -48, 48);
+        return $MACString;
+    } else {
+        return "0x" . dechex($CMP);
+    }
+}
+function checkAuthOutMacParameter($ParameterArray) {
+    if ($ParameterArray[0] == NULL || !is_numeric($ParameterArray[0]) || strlen($ParameterArray[0]) < 0 || strlen($ParameterArray[0]) > 2) return '285212680';
+    if ($ParameterArray[1] == NULL || strlen($ParameterArray[1]) < 2 || strlen($ParameterArray[1]) > 4) return '285212681';
+    if (strlen($ParameterArray[2]) < 0 || strlen($ParameterArray[2]) > 7) return '285212682';
+    if ($ParameterArray[3] == NULL || !is_numeric($ParameterArray[3]) || strlen($ParameterArray[3]) < 1 || strlen($ParameterArray[3]) > 7) return '285212683';
+    if ($ParameterArray[4] == NULL || strlen($ParameterArray[4]) < 1 || strlen($ParameterArray[4]) > 19 || (!preg_match('/^[a-zA-Z0-9_]+$/', $ParameterArray[4]))) return '285212675';
+    if ($ParameterArray[5] != NULL && (!is_numeric($ParameterArray[5]) || strlen($ParameterArray[5]) > 7)) return '285212684';
+    if ($ParameterArray[6] != NULL && (!is_numeric($ParameterArray[6]) || strlen($ParameterArray[6]) > 7)) return '285212685';
+    if ($ParameterArray[7] != NULL && (!is_numeric($ParameterArray[7]) || strlen($ParameterArray[7]) > 7)) return '285212686';
+    if (strlen($ParameterArray[8]) != 0 && strlen($ParameterArray[8]) > 4) return '285212679';
+    if (!is_numeric($ParameterArray[8]) && $ParameterArray[8] != NULL) return '285212679';
+    if (strlen($ParameterArray[9]) != 0 && strlen($ParameterArray[9]) != 4) return '285212687';
+    if (!is_numeric($ParameterArray[9]) && $ParameterArray[9] != NULL) return '285212687';
+    if ($ParameterArray[10] == NULL || strlen($ParameterArray[10]) != 24) return '285212697';
+    else return "000";
+}
+function checkDecryptParameter($ParameterArray) {
+    if ($ParameterArray[0] == NULL || $ParameterArray[0] % 8 != 0) return '285212701';
+    if ($ParameterArray[1] == NULL || strlen($ParameterArray[1]) != 24) return '285212697';
+    else return "000";
+}
+function mpiauth_in_mac($MerchantID, $TerminalID, $AcquireBIN, $CardNo, $ExpYear, $ExpMonth, $authAmt, $lidm, $Key, $RetURL, $debug) {
+    $CombineStr = "|" . $MerchantID . "|" . $AcquireBIN . "|" . $CardNo . "|" . $ExpYear . "|" . $ExpMonth . "|" . $authAmt . "|" . $lidm . "|";
+    $ParameterArray = array($MerchantID, $TerminalID, $AcquireBIN, $CardNo, $ExpYear, $ExpMonth, $authAmt, $lidm, $Key, $RetURL);
+    if ($debug == 1) {
+        echo "\x64e\142\x75\147=$$debug \n";
+        echo "\x43om\142\151\156\145Str is : $CombineStr \n";
+        foreach ($ParameterArray as $var => $val) {
+            echo "$var \151\x73 $val\n";
+        }
+    }
+    $CMP = checkMPIinMacParameter($ParameterArray);
+    if ($CMP == "000") {
+        $MACString = DESMAC($CombineStr, $Key, $debug);
+        $MACString = substr($MACString, -48, 48);
+        return $MACString;
+    } else {
+        return "0x" . dechex($CMP);
+    }
+}
+function get_mpi_urlenc($MerchantID, $TerminalID, $AcquireBIN, $CardNo, $ExpYear, $ExpMonth, $authAmt, $lidm, $Key, $RetURL, $InMac, $debug) {
+    $encStr = "me\x72cha\156\x74\x49\104=" . $MerchantID . "&" . "t\145\162m\x69nal\x49\104=" . $TerminalID . "&" . "a\143q\165\x69re\162\x42IN=" . $AcquireBIN . "&" . "c\141\x72d\116\165\155\142\x65\x72=" . $CardNo . "&" . "\x65\x78\x70\131\145\x61r=" . $ExpYear . "&" . "exp\115\x6f\156t\x68=" . $ExpMonth . "&" . "\x74o\x74\141\x6c\101m\157\x75\x6e\x74=" . $authAmt . "&" . "\x58\111\x44=" . $lidm . "&" . "\122\x65t\x55r\x6c=" . $RetURL . "&" . "\111\x6eM\x61c=" . $InMac;
+    $URLEnc = DESMAC($encStr, $Key, $debug);
+    return $URLEnc;
+}
+function checkMPIinMacParameter($ParameterArray) {
+    if ($ParameterArray[0] == NULL || !is_numeric($ParameterArray[0]) || strlen($ParameterArray[0]) < 4 || strlen($ParameterArray[0]) > 15) return '285212673';
+    if ($ParameterArray[1] == NULL || !is_numeric($ParameterArray[1]) || strlen($ParameterArray[1]) != 8) return '285212674';
+    if (strlen($ParameterArray[2]) != 0 && strlen($ParameterArray[2]) != 6) return '285212688';
+    if ($ParameterArray[2] != NULL && !is_numeric($ParameterArray[2])) return '285212688';
+    if (strlen($ParameterArray[3]) != 16) return '285212689';
+    if (strlen($ParameterArray[4]) != 4) return '285212690';
+    if (strlen($ParameterArray[5]) != 2) return '285212691';
+    if ($ParameterArray[6] == NULL || !is_numeric($ParameterArray[6]) || $ParameterArray[6] > 9999999999) return '285212683';
+    if ($ParameterArray[7] == NULL || strlen($ParameterArray[7]) < 1 || strlen($ParameterArray[7]) > 20 || (!preg_match('/^[a-zA-Z0-9_]+$/', $ParameterArray[7]))) return '285212675';
+    if ($ParameterArray[8] == NULL || strlen($ParameterArray[8]) != 24) return '285212697';
+    else return "000";
+}
+function mpiauth_out_mac($CardNo, $ExpDate, $lidm, $ECI, $CAVV, $errCode, $Key, $debug) {
+    $CombineStr = "|" . $CardNo . "|" . $ExpDate . "|" . $lidm . "|" . $ECI . "|" . $CAVV . "|" . $errCode . "|";
+    $ParameterArray = array($CardNo, $ExpDate, $lidm, $ECI, $CAVV, $errCode, $Key);
+    if ($debug == 1) {
+        echo "de\142\x75\x67=$$debug \n";
+        echo "\x43\157m\x62\x69\156e\x53tr i\163 : $CombineStr \n";
+        foreach ($ParameterArray as $var => $val) {
+            echo "$var \151s $val\n";
+        }
+    }
+    $CMP = checkMPIoutMacParameter($ParameterArray);
+    if ($CMP == "000") {
+        $MACString = DESMAC($CombineStr, $Key, $debug);
+        $MACString = substr($MACString, -48, 48);
+        return $MACString;
+    } else {
+        return "0x" . dechex($CMP);
+    }
+}
+function checkMPIoutMacParameter($ParameterArray) {
+    if (strlen($ParameterArray[0]) != 16) return '285212689';
+    if (strlen($ParameterArray[1]) != 6) return '285212694';
+    if ($ParameterArray[2] == NULL || strlen($ParameterArray[2]) < 1 || strlen($ParameterArray[2]) > 20 || (!preg_match('/^[a-zA-Z0-9_]+$/', $ParameterArray[2]))) return '285212675';
+    if (strlen($ParameterArray[3]) != 1 || !is_numeric($ParameterArray[3])) return '285212695';
+    if ($ParameterArray[5] == NULL || strlen($ParameterArray[5]) < 1 || strlen($ParameterArray[5]) > 4) return '285212681';
+    if ($ParameterArray[6] == NULL || strlen($ParameterArray[6]) != 24) return '285212697';
+    else return "000";
+}
+function checkMPIDecryptMacParameter($ParameterArray) {
+    if ($ParameterArray[0] == NULL || $ParameterArray[0] % 8 != 0) return '285212701';
+    if ($ParameterArray[1] == NULL || strlen($ParameterArray[1]) != 24) return '285212697';
+    else return "000";
+}
+function DESMAC($msg, $key, $debug) {
+    $block_size = 8;
+    $padlen = $block_size - (strlen($msg) % $block_size);
+    for ($i = 0;$i < $padlen;$i++) $msg.= chr($padlen);
+    if ($debug == 1) {
+        echo "\104\x45\123\x4dAC:\x6be\171=$key\n";
+        echo "\x44E\x53M\101\103:\155s\x67=$msg\n";
+    }
+    $iv = "\x68\171w\x65bp\x675";
+    if ($key == null) return '285212698';
+    $key = substr($key, 0, 24);
+    $cipherText = opensslEncrypt($msg, $key, $iv);
+    return strtoupper(bin2hex($cipherText));
+}
+function opensslEncrypt($plain_text, $key, $iv) {
+    $method = 'DES-EDE3-CBC';
+    return openssl_encrypt($plain_text, $method, $key, OPENSSL_RAW_DATA | OPENSSL_NO_PADDING, $iv);
+}
+function opensslDecrypt($cipher_text, $key, $iv) {
+    $method = 'DES-EDE3-CBC';
+    $plain_text = openssl_decrypt($cipher_text, $method, $key, OPENSSL_RAW_DATA | OPENSSL_NO_PADDING, $iv);
+    return $plain_text;
+}
+function pkcs5Unpad($text) {
+    $pad = ord($text{strlen($text) - 1});
+    if ($pad > strlen($text)) return false;
+    if (strspn($text, chr($pad), strlen($text) - $pad) != $pad) return false;
+    return substr($text, 0, -1 * $pad);
+}
+function hexToStr($hex) {
+    echo 'hexlen =' . strlen($hex) . PHP_EOL;
+    $string = "";
+    for ($i = 0;$i < strlen($hex) - 1;$i+= 2) {
+        $string.= chr(hexdec($hex[$i] . $hex[$i + 1]));
+    }
+    return $string;
+}
+function utf8_2_big5($utf8_str) {
+    $i = 0;
+    $len = strlen($utf8_str);
+    $big5_str = "";
+    for ($i = 0;$i < $len;$i++) {
+        $sbit = ord(substr($utf8_str, $i, 1));
+        if ($sbit < 128) {
+            $big5_str.= substr($utf8_str, $i, 1);
+        } else if ($sbit > 191 && $sbit < 224) {
+            $new_word = iconv("U\124F-8", "\x42i\x675", substr($utf8_str, $i, 2));
+            $big5_str.= ($new_word == "") ? "��" : $new_word;
+            $i++;
+        } else if ($sbit > 223 && $sbit < 240) {
+            $new_word = iconv("\125\x54\x46-8", "Bi\147\x35", substr($utf8_str, $i, 3));
+            $big5_str.= ($new_word == "") ? "��" : $new_word;
+            $i+= 2;
+        } else if ($sbit > 239 && $sbit < 248) {
+            $new_word = iconv("\125\124F-8", "Bi\x675", substr($utf8_str, $i, 4));
+            $big5_str.= ($new_word == "") ? "��" : $new_word;
+            $i+= 3;
+        }
+    }
+    return $big5_str;
+}
+if (!function_exists("he\x782b\151n")) {
+    function hex2bin($hex) {
+        $len = strlen($hex);
+        return pack("H" . $len, $hex);
+    }
+}
+function pairstr2Arr($str, $separator, $delim) {
+    $elems = explode($delim, $str);
+    foreach ($elems as $elem => $val) {
+        $val = trim($val);
+        $len = strlen($val);
+        $point = strpos($val, $separator, 0);
+        if ($point > 0) {
+            $nameVal[0] = substr($val, 0, $point);
+            $res = $len - ($point + 1);
+            if ($res > 0) {
+                $nameVal[1] = substr($val, $point + 1, $len - $point);
+            } else {
+                $nameVal[1] = "";
+            }
+            $arr[trim(strtolower($nameVal[0])) ] = trim($nameVal[1]);
+        } else {
+            $arr = "";
+        }
+    }
+    return $arr;
+}
+function genencrypt($encStr, $Key, $debug) {
+    $URLEnc = DESMAC($encStr, $Key, $debug);
+    return $URLEnc;
+}
+function gendecrypt($EncRes, $Key, $debug) {
+    $ParameterArray = array($EncRes, $Key);
+    $CombineStr = "|" . $EncRes . "|" . $Key . "|";
+    if ($debug == 1) {
+        echo "\x64ebu\x67=$$debug \n";
+        echo "\x43\157m\x62i\x6ee\x53\x74r \x69\163 : $CombineStr \n";
+        foreach ($ParameterArray as $key => $value) {
+            echo "$key \151s $value\n";
+        }
+    }
+    $CMP = "000";
+    if ($CMP == "000") {
+        $iv = "\x68\171\x77\145\x62p\x675";
+        $DesText = opensslDecrypt(hex2bin($EncRes), $Key, $iv);
+        $DesText = trim($DesText, "\x00..\x08");
+        $ParseArray = pairstr2Arr($DesText, "=", "&");
+        return $ParseArray;
+    } else {
+        return "0x" . dechex($CMP);
+    }
+}
+function genmpidecrypt($EncRes, $Key, $debug) {
+    $ParameterArray = array($EncRes, $Key);
+    $CombineStr = "|" . $EncRes . "|" . $Key . "|";
+    if ($debug == 1) {
+        echo "\x64\145\x62\165g=$$debug \n";
+        echo "C\x6fmb\x69\156eS\x74\x72 i\x73 : $CombineStr \n";
+        foreach ($ParameterArray as $var => $val) {
+            echo "$var i\x73 $val\n";
+        }
+    }
+    $CMP = "000";
+    if ($CMP == "000") {
+        $iv = "\x68\171\x77\145\x62p\x675"; // 初始化向量
+        $cipher = 'DES-EDE3-CBC'; // 使用的加密方法
+
+        // 使用 openssl_decrypt 解密
+        $DesText = openssl_decrypt(hex2bin($EncRes), $cipher, $Key, OPENSSL_RAW_DATA | OPENSSL_NO_PADDING, $iv);
+        $DesText = trim($DesText, "\x00..\x08"); // 去除填充
+        $ParseArray = pairstr2Arr($DesText, "=", "&");
+        return $ParseArray;
+    } else {
+        return "0x" . dechex($CMP);
+    }
+}
+function get_auth_atmurlenc($MerchantID, $TerminalID, $lidm, $purchAmt, $txType, $Option, $Key, $storeName, $AuthResURL, $billShortDesc, $WebATMAcct, $note, $InMac, $debug) {
+    $encStr = "M\145\x72\x63\x68\x61nt\111\104=" . $MerchantID . "&" . "\x54\x65r\155in\x61\x6cI\104=" . $TerminalID . "&" . "\154\x69\144\x6d=" . $lidm . "&" . "\x70\165\x72\x63\x68\101m\164=" . $purchAmt . "&" . "\x74\170\124\x79\160e=" . $txType . "&" . "I\156\115ac=" . $InMac . "&" . "\x41u\x74\x68\122es\125R\x4c=" . $AuthResURL . "&" . "\x57ebA\124MA\x63c\164=" . $WebATMAcct . "&" . "\142i\154\x6c\x53\150\157rtD\145s\x63=" . $billShortDesc . "&" . "\x6e\x6f\164\x65=" . $note . "&" . "s\164\x6f\162\x65N\141m\145=" . $storeName;
+    $URLEnc = DESMAC($encStr, $Key, $debug);
+    return $URLEnc;
+}
+function get_auth_dbcurlenc($MerchantID, $TerminalID, $lidm, $purchAmt, $txType, $Option, $Key, $storeName, $AuthResURL, $billShortDesc, $note, $InMac, $debug) {
+    $encStr = "\115\x65\162cha\x6e\164I\104=" . $MerchantID . "&" . "\x54e\x72min\x61\154\x49D=" . $TerminalID . "&" . "l\151\x64m=" . $lidm . "&" . "\160\x75\x72\143\150\101\x6d\164=" . $purchAmt . "&" . "tx\124\x79\x70\145=" . $txType . "&" . "\x49\156\115a\143=" . $InMac . "&" . "A\165t\x68\122e\163U\x52\x4c=" . $AuthResURL . "&" . "\142\151\x6c\154\123\x68\x6f\x72\x74\104\145\x73c=" . $billShortDesc . "&" . "no\x74\145=" . $note . "&" . "\x73\164\157r\145N\141\x6de=" . $storeName;
+    $URLEnc = DESMAC($encStr, $Key, $debug);
+    return $URLEnc;
+};
