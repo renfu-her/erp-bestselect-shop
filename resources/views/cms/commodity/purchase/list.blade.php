@@ -234,7 +234,9 @@
                                     </a>
                                     @endcan
                                 </td>
-                                <td>{{ $data->sn }}</td>
+                                <td>
+                                    {{ $data->sn }} <br><small class="text-muted">{{$data->purchase_note}}</small>
+                                </td>
                                 <td>{{ date('Y/m/d', strtotime($data->created_at)) }}</td>
                                 <td>{{ $data->estimated_depot_name }}</td>
                                 <td>{{ $data->audit_status }}</td>
