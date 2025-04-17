@@ -372,6 +372,7 @@ class OrderCtrl extends Controller
             $isETicketOrder = $youbonOrderService->isETicketOrder($delivery->id);
             if ($isETicketOrder) {
                 $ticketExchangeUrl = [];
+                $youbon_items = [];
                 $eticketList = ReceiveDepot::getETicketOrderList($delivery->id)->get()->toArray();
                 foreach ($eticketList as $eticketData) {
                     if (ETicketVendor::YOUBON_CODE == $eticketData->tik_type_code) {
