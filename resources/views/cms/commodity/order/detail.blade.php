@@ -399,9 +399,17 @@
                                     @if (!empty($subOrder->ticketExchangeUrl) && is_array($subOrder->ticketExchangeUrl))
                                         <tr>
                                             <td colspan="6">
-                                                @foreach ($subOrder->ticketExchangeUrl as $itemUrl)
+                                                @php
+                                                    $urlCount = count($subOrder->ticketExchangeUrl);
+                                                @endphp
+                                                @foreach ($subOrder->ticketExchangeUrl as $idx => $itemUrl)
                                                     <a href="{{ $itemUrl }}" target="_blank"
-                                                    class="btn btn-sm btn-primary">電子票券內容</a>
+                                                    class="btn btn-sm btn-primary">
+                                                        電子票券內容
+                                                        @if ($urlCount > 1)
+                                                            {{ $idx + 1 }}
+                                                        @endif
+                                                    </a>
                                                 @endforeach
                                             </td>
                                         </tr>
