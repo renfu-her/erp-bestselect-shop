@@ -27,7 +27,7 @@ class AutoEticketPurchaseDeliveryServices
 {
 
     public function toDoFromPcsToOrderAndDlv($order_id) {
-        set_time_limit(120); // 做緩衝，星全安1隻API就要50秒，避免timeout
+        set_time_limit(600); // 做緩衝，星全安1隻API就要50秒，避免timeout
         // 找到訂單→子訂單→商品，判斷若為電子票券，則自動採購→核可→入庫→出貨→打星全安API
 
         $sub_order_with_eticket = SubOrders::where('order_id', '=', $order_id)
@@ -323,7 +323,7 @@ class AutoEticketPurchaseDeliveryServices
                     'address' => '',
                 ]
             );
-            // depot_id int 
+            // depot_id int
             //temp_id int
             $NORMAL_TEMP_ID = 1;
             DB::table('depot_temp')->insert([
