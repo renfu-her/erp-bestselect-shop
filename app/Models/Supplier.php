@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Supplier\Payment;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -12,6 +13,75 @@ class Supplier extends Model
     use HasFactory,SoftDeletes;
     protected $table = 'prd_suppliers';
     protected $guarded = [];
+
+
+    /**
+     * 建立廠商資料並設定付款方式
+     * @param array $data 廠商基本資料
+     * @return int 新建立的廠商 ID
+     */
+    public static function createData(array $data)
+    {
+        $id = self::create([
+            'name' => $data['name'],
+            'nickname' => $data['nickname'],
+            'vat_no' => $data['vat_no'],
+            'postal_code' => $data['postal_code'],
+            'contact_address' => $data['contact_address'],
+            'contact_person' => $data['contact_person'],
+            'job' => $data['job'],
+            'contact_tel' => $data['contact_tel'],
+            'extension' => $data['extension'],
+            'fax' => $data['fax'],
+            'mobile_line' => $data['mobile_line'],
+            'email' => $data['email'],
+            'invoice_address' => $data['invoice_address'],
+            'invoice_postal_code' => $data['invoice_postal_code'],
+            'invoice_recipient' => $data['invoice_recipient'],
+            'invoice_email' => $data['invoice_email'],
+            'invoice_phone' => $data['invoice_phone'],
+            'invoice_date' => $data['invoice_date'],
+            'invoice_date_other' => $data['invoice_date_other'],
+            'invoice_ship_fk' => $data['invoice_ship_fk'],
+            'invoice_date_fk' => $data['invoice_date_fk'],
+            'shipping_address' => $data['shipping_address'],
+            'shipping_postal_code' => $data['shipping_postal_code'],
+            'shipping_recipient' => $data['shipping_recipient'],
+            'shipping_phone' => $data['shipping_phone'],
+            'shipping_method_fk' => $data['shipping_method_fk'],
+            'pay_date' => $data['pay_date'],
+            'account_fk' => $data['account_fk'],
+            'account_date' => $data['account_date'],
+            'account_date_other' => $data['account_date_other'],
+            'request_data' => $data['request_data'],
+            'memo' => $data['memo'],
+            'def_paytype' => $data['def_paytype'],
+        ])->id;
+
+        // 建立付款方式資料
+        if (isset($data['paytype'])) {
+            foreach ($data['paytype'] as $key => $val) {
+                if (Payment::Cheque()->value == $val) {
+                    SupplierPayment::createData($id, $val, ['cheque_payable' => $data['cheque_payable'] ?? null]);
+                } else if (Payment::Remittance()->value == $val) {
+                    SupplierPayment::createData($id, $val, [
+                        'bank_cname' => $data['bank_cname'] ?? null,
+                        'bank_code' => $data['bank_code'] ?? null,
+                        'bank_acount' => $data['bank_acount'] ?? null,
+                        'bank_numer' => $data['bank_numer'] ?? null
+                    ]);
+                } else if (Payment::Other()->value == $val) {
+                    SupplierPayment::createData($id, $val, [
+                        'other' => $data['other'] ?? null,
+                    ]);
+                } else {
+                    SupplierPayment::createData($id, $val, []);
+                }
+            }
+        }
+
+        return $id;
+    }
 
     /**
      * @param $searchVal

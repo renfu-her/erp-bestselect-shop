@@ -427,7 +427,7 @@
                             </div>
                             <div class="form-check form-check-inline other-often-used-addresses">
                                 <label class="form-check-label ord-other-often-used-addresses">
-                                    <input class="form-check-input" name="ord_radio" value="other_often_used_addresses" 
+                                    <input class="form-check-input" name="ord_radio" value="other_often_used_addresses"
                                         type="radio" required>
                                     選擇常用地址
                                 </label>
@@ -517,7 +517,7 @@
                         <div class="px-1 pt-1">
                             <div class="form-check form-check-inline">
                                 <label class="form-check-label">
-                                    <input id="sed_same" name="sed_radio" class="form-check-input mt-0 me-1" 
+                                    <input id="sed_same" name="sed_radio" class="form-check-input mt-0 me-1"
                                         value="same" type="radio" required>同購買人
                                 </label>
                             </div>
@@ -529,7 +529,7 @@
                             </div>
                             <div class="form-check form-check-inline other-often-used-addresses">
                                 <label class="form-check-label sed-other-often-used-addresses">
-                                    <input class="form-check-input" name="sed_radio" value="other_often_used_addresses" 
+                                    <input class="form-check-input" name="sed_radio" value="other_often_used_addresses"
                                         type="radio" required>
                                     選擇常用地址
                                 </label>
@@ -605,7 +605,7 @@
                         <div class="px-1 pt-1">
                             <div class="form-check form-check-inline">
                                 <label class="form-check-label">
-                                    <input id="rec_same" name="rec_radio" class="form-check-input mt-0 me-1" 
+                                    <input id="rec_same" name="rec_radio" class="form-check-input mt-0 me-1"
                                         value="same" type="radio" required>同購買人
                                 </label>
                             </div>
@@ -617,7 +617,7 @@
                             </div>
                             <div class="form-check form-check-inline other-often-used-addresses">
                                 <label class="form-check-label rec-other-often-used-addresses">
-                                    <input class="form-check-input" name="rec_radio" value="other_often_used_addresses" 
+                                    <input class="form-check-input" name="rec_radio" value="other_often_used_addresses"
                                         type="radio" required>
                                     選擇常用地址
                                 </label>
@@ -703,7 +703,7 @@
             </div>
         </div>
     </form>
-    
+
     @if($errors->any())
         <div class="mt-3 mb-0 alert alert-danger" role="alert">
             <ul class="mb-0">
@@ -810,6 +810,10 @@
 
             .-detail-success .badge.-badge::after {
                 content: "超取";
+            }
+
+            .-detail-danger .badge.-badge::after {
+                content: "電子票券";
             }
 
             .-detail input.-bonus_point {
@@ -1074,7 +1078,8 @@
             const EVENT_CLASS = {
                 'deliver': 'primary',
                 'pickup': 'warning',
-                'family': 'success'
+                'family': 'success',
+                'eTicket': 'danger'
             };
             /*** 優惠資料 ***/
             // 全館優惠
@@ -1471,6 +1476,18 @@
                                     </div>
                                 `);
                             }
+                            // 電子票券
+                            if (shipData.eTicket) {
+                                $('#setShipment fieldset > div').append(`
+                                    <div class="form-check mb-3">
+                                        <label class="form-check-label w-100">
+                                            <input class="form-check-input" name="temp_type" type="radio" value="${shipData.eTicket.category}">
+                                            ${shipData.eTicket.category_name}
+                                            <div class="form-control" readonly>${shipData.eTicket.group_name}</div>
+                                        </label>
+                                    </div>
+                                `);
+                            }
                             // 自取
                             if (shipData.pickup) {
                                 $('#setShipment fieldset > div').append(`
@@ -1506,6 +1523,9 @@
                                 switch (type) {
                                     case 'deliver':
                                         selectShip = shipData.deliver;
+                                        break;
+                                    case 'eTicket':
+                                        selectShip = shipData.eTicket;
                                         break;
                                     case 'pickup':
                                         if (!$('select[name="temp_depots"]').val()) {
@@ -2446,10 +2466,10 @@
                         const total = myCart[ship_key].dised_total;
                         const point = myCart[ship_key].point;
                         for (const rule of myCart[ship_key].rules) {
-                            if ((rule.is_above === 'false' 
-                                && total + point >= rule.min_price 
+                            if ((rule.is_above === 'false'
+                                && total + point >= rule.min_price
                                 && total + point < rule.max_price) ||
-                                (rule.is_above === 'true' 
+                                (rule.is_above === 'true'
                                 && total + point >= rule.max_price)) {
                                 dlv_fee = Number(rule.dlv_fee);
                                 break;
@@ -2457,6 +2477,7 @@
                         }
                         break;
 
+                    case 'eTicket':
                     case 'pickup':
                     default:
                         dlv_fee = 0;

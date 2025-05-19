@@ -12,6 +12,7 @@ Route::group(['prefix' => 'delivery','as'=>'delivery.'], function () {
     Route::post('store/{deliveryId}', [DeliveryCtrl::class, 'store'])->name('store')->middleware('permission:cms.delivery.edit');
     Route::get('store_cancle/{deliveryId}', [DeliveryCtrl::class, 'store_cancle'])->name('store_cancle')->middleware('permission:cms.delivery.edit');
     Route::get('delete/{event}/{eventId}/{receiveDepotId}', [DeliveryCtrl::class, 'destroyItem'])->name('delete')->middleware('permission:cms.delivery.edit');
+    Route::get('eticket/{deliveryId}', [DeliveryCtrl::class, 'eticket'])->name('eticket')->middleware('permission:cms.delivery.edit');
 
     //缺貨
     Route::get('out_stock/{event}/{eventId}', [DeliveryCtrl::class, 'out_stock'])->name('out_stock')->middleware('permission:cms.delivery.edit');

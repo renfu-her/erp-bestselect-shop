@@ -66,6 +66,10 @@ class ProductStyle extends Model
         $data['is_active'] = $is_active;
         $data['title'] = trim($title);
         $data['estimated_cost'] = $estimated_cost;
+        if(isset($item_ids['ticket_number'])) {
+            $data['ticket_number'] = $item_ids['ticket_number'];
+        }
+
 
         return self::create($data)->id;
 
@@ -377,7 +381,7 @@ class ProductStyle extends Model
             }else{
                 return [];
             }
-          
+
 
         }, $sub->get()->toArray());
 
@@ -403,6 +407,19 @@ class ProductStyle extends Model
         //    ->where('sc.product_style_child_id', 3694)
         //  ->limit(10)
 
+    }
+
+    // 確認是否同一ticket_type
+    public static function isSameTikTypeWithStyleIds(array $style_ids)
+    {
+        // 在資料表 prd_product_styles 對應回 prd_products on prd_products.id = prd_product_styles.product_id，找出目前 $d 內的 style_id 商品對應的 prd_products.tik_type_id 是否都是一樣，不一樣則返回錯誤訊息
+        $d = self::whereIn('id', $style_ids)->get()->pluck('product_id')->toArray();
+        $tik_type_id = Product::whereIn('id', $d)->get()->pluck('tik_type_id')->toArray();
+        $tik_type_id = array_unique($tik_type_id);
+        if (count($tik_type_id) > 1) {
+            return false;
+        }
+        return true;
     }
 
 }

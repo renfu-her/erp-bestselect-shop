@@ -277,6 +277,19 @@ class Product extends Model
 
     }
 
+    public static function createProduct($title,
+        $user_id, $category_id, $type = 'p',
+        $feature = null, $url = null, $slogan = null, $active_sdate = null,
+        $active_edate = null, $supplier = null, $has_tax = 0, $consume = 0, $public = 1, $online = 0, $offline = 0, $purchase_note = null, $meta = null) {
+        // 使用預設的 tik_type_id = 1
+        return self::createProductWithTicket(
+            $title, $user_id, $category_id, $type,
+            $feature, $url, $slogan, $active_sdate,
+            $active_edate, $supplier, $has_tax, $consume, $public, $online, $offline, $purchase_note, $meta,
+            1
+        );
+    }
+
     /**
      * @param string $title 商品名稱
      * @param int $user_id
@@ -293,13 +306,17 @@ class Product extends Model
      * @param  int $public 公開
      * @param  int $online 開放通路 *線上 (對外網站)
      * @param  int $offline 開放通路 *線下 (ERP)
+     * @param  string $purchase_note 購買說明
+     * @param  string $meta 商品meta
+     * @param  int $tik_type_id 電子票券類型
      *
      * @return string[]
      */
-    public static function createProduct($title,
+    public static function createProductWithTicket($title,
         $user_id, $category_id, $type = 'p',
         $feature = null, $url = null, $slogan = null, $active_sdate = null,
-        $active_edate = null, $supplier = null, $has_tax = 0, $consume = 0, $public = 1, $online = 0, $offline = 0, $purchase_note = null, $meta = null) {
+        $active_edate = null, $supplier = null, $has_tax = 0, $consume = 0, $public = 1, $online = 0, $offline = 0, $purchase_note = null, $meta = null,
+        $tik_type_id = 1) {
         return IttmsDBB::transaction(function () use ($title,
             $user_id,
             $category_id,
@@ -316,7 +333,8 @@ class Product extends Model
             $online,
             $offline,
             $purchase_note,
-            $meta) {
+            $meta,
+            $tik_type_id) {
 
             switch ($type) {
                 case 'p':
@@ -357,6 +375,7 @@ class Product extends Model
                 'offline' => $offline,
                 'purchase_note' => $purchase_note,
                 'meta' => $meta,
+                'tik_type_id' => $tik_type_id
             ])->id;
 
             if ($supplier) {
@@ -384,7 +403,9 @@ class Product extends Model
         $online = null,
         $offline = null,
         $purchase_note = null,
-        $meta = null) {
+        $meta = null,
+        $tik_type_id = null
+    ) {
 
         $url = $url ? $url : $title;
 
@@ -410,6 +431,7 @@ class Product extends Model
             'offline' => $offline,
             'purchase_note' => $purchase_note,
             'meta' => $meta,
+            'tik_type_id' => $tik_type_id
         ]);
 
         Supplier::updateProductSupplier($id, $supplier);
@@ -440,7 +462,8 @@ class Product extends Model
     {
         $re = DB::table('prd_products as p')
             ->leftJoin('prd_product_styles as s', 'p.id', '=', 's.product_id')
-            ->select('s.id', 's.sku', 's.estimated_cost', 'p.title as product_title', 'p.id as product_id', 's.title as spec', 's.safety_stock', 's.total_inbound', 's.in_stock as current_stock', 's.overbought')
+            ->select('s.id', 's.sku', 's.estimated_cost', 'p.title as product_title', 'p.id as product_id', 'p.tik_type_id'
+                , 's.title as spec', 's.safety_stock', 's.total_inbound', 's.in_stock as current_stock', 's.overbought')
             ->selectRaw('CASE p.type WHEN "p" THEN "一般商品" WHEN "c" THEN "組合包商品" END as type_title')
             ->selectRaw('s.in_stock as in_stock_original')
             ->selectRaw('s.in_stock + s.overbought as in_stock')
@@ -773,6 +796,23 @@ class Product extends Model
         return $output;
     }
 
+    // 更新電子票券商品的運送方式
+    public static function updateETicketProductShipment($productId)
+    {
+        $shipmentQuery = DB::table(app(ShipmentGroup::class)->getTable() . ' as shipment_groups')
+            ->leftJoin(app(ShipmentCategory::class)->getTable() . ' as shipment_categories', 'shipment_groups.category_fk', '=', 'shipment_categories.id')
+            ->where('shipment_categories.code', 'eTicket')
+            ->select([
+                'shipment_categories.id as category_id',
+                'shipment_groups.id as group_id'
+            ])
+            ->first();
+
+        if ($shipmentQuery) {
+            Product::changeShipment($productId, $shipmentQuery->category_id, $shipmentQuery->group_id);
+        }
+    }
+
     public static function changeShipment($product_id, $category_id, $group_id)
     {
 
@@ -889,6 +929,11 @@ class Product extends Model
         if ($delivery) {
             $delivery->rules = json_decode($delivery->rules);
             $arr[$delivery->category] = $delivery;
+        }
+        $deliveryETicket = self::getShipment($product_id, 'eTicket')->get()->first();
+        if ($deliveryETicket) {
+            $deliveryETicket->rules = json_decode($deliveryETicket->rules);
+            $arr[$deliveryETicket->category] = $deliveryETicket;
         }
 
         $pickup = self::getPickup($product_id)->get()->toArray();

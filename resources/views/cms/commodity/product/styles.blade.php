@@ -57,6 +57,9 @@
                                 @foreach ($specList as $key => $spec)
                                     <th scope="col">{{ $spec->title }}</th>
                                 @endforeach
+                                <th scope="col" @if(!$data->isTicket) style="display:none" @endif>
+                                    票券編號
+                                </th>
                                 <th scope="col">售價</th>
                                 <th scope="col">經銷價</th>
                                 <th scope="col">定價</th>
@@ -104,6 +107,14 @@
                                         </select>
                                     </td>
                                 @endforeach
+                                <td @if(!$data->isTicket) style="display:none" @endif>
+                                    <input type="text" class="form-control form-control-sm"
+                                           name="n_ticket_number[]"
+                                           value="" />
+                                    @if(!$data->isTicket)
+                                        <input type="hidden" name="n_ticket_number[]" value="">
+                                    @endif
+                                </td>
                                 <td>
                                     <div class="input-group input-group-sm flex-nowrap">
                                         <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
@@ -202,6 +213,14 @@
                                             @endif
                                         </td>
                                     @endforeach
+                                    <td @if(!$data->isTicket) style="display:none" @endif>
+                                        <input type="text" class="form-control form-control-sm"
+                                               name="{{ $prefix }}ticket_number[]"
+                                               value="{{ $style->ticket_number }}" />
+                                        @if(!$data->isTicket)
+                                            <input type="hidden" name="{{ $prefix }}ticket_number[]" value="{{ $style->ticket_number }}">
+                                        @endif
+                                    </td>
                                     <td>
                                         <div class="input-group input-group-sm flex-nowrap">
                                             <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>

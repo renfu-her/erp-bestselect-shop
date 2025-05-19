@@ -491,6 +491,7 @@ class PurchaseItem extends Model
                 ,'purchase.supplier_nickname as supplier_nickname'
                 ,'purchase.estimated_depot_id as estimated_depot_id'
                 ,'purchase.estimated_depot_name as estimated_depot_name'
+                ,'purchase.note as purchase_note'
                 , DB::raw('(case
                     when purchase.audit_status ='. AuditStatus::unreviewed()->value. ' then "'. AuditStatus::getDescription(AuditStatus::unreviewed()->value). '"
                     when purchase.audit_status ='. AuditStatus::approved()->value. ' then "'. AuditStatus::getDescription(AuditStatus::approved()->value). '"

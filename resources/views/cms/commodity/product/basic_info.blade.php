@@ -96,6 +96,21 @@
                     <label class="form-label">採購備註</label>
                     <textarea class="form-control" name="purchase_note">{{ old('purchase_note', $product->purchase_note ?? '') }}</textarea>
                 </div>
+                <div class="col-12 col-sm-6  mb-3">
+                    <label class="form-label">商品類型<span class="text-danger">*</span></label>
+                    <select class="form-select -select2 -single @error('tik_type_id') is-invalid @enderror" required
+                        aria-label="Select" name="tik_type_id">
+                        <option value="" disabled selected>請選擇商品類型</option>
+                        @foreach ($tikTypes as $tikType)
+                            <option value="{{ $tikType->id }}" @if (old('tik_type_id', $product->tik_type_id ?? '') == $tikType->id) selected @endif>
+                                {{ $tikType->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('tik_type_id')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">商品歸類 <span class="text-danger">*</span></label>
                     <select class="form-select -select2 -single @error('category_id') is-invalid @enderror" required

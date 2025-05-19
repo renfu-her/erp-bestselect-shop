@@ -241,9 +241,18 @@ class LogisticCtrl extends Controller
             'inbound_id.*' => 'nullable|integer|min:1',
             'qty.*' => 'nullable|integer|min:1',
         ]);
-
-        $logistic_id = $request->input('logistic_id')?? null;
         $errors = [];
+
+        // 檢查是否為電子票券
+        $logistic_id = $request->input('logistic_id')?? null;
+        $ship_category = Logistic::join('dlv_delivery', 'dlv_logistic.delivery_id', '=', 'dlv_delivery.id')
+            ->where('dlv_logistic.id', $logistic_id)
+            ->value('dlv_delivery.ship_category');
+        if ('eTicket' == $ship_category) {
+            $errors['error_msg'] = '禁止加入電子票券';
+            return redirect()->back()->withInput()->withErrors($errors);
+        }
+
         $input = $request->only('inbound_id', 'qty');
         if (count($input['inbound_id']) != count($input['qty'])) {
             $errors['error_msg'] = '各資料個數不同';

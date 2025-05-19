@@ -193,7 +193,7 @@ class Delivery extends Model
                 , 'ord_sub_orders.ship_temp_id as ship_temp_id'
                 , 'ord_sub_orders.ship_temp as ship_temp_name'
             )
-            ->where('ord_sub_orders.ship_category', '=', 'deliver');
+            ->whereIn('ord_sub_orders.ship_category', ['deliver', 'eTicket']);
 
         $query_order_delivery = $query_order_delivery->union($query_order_pickup);
         $query_order = DB::query()->fromSub($query_order_delivery, 'order')
