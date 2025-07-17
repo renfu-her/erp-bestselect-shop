@@ -296,10 +296,17 @@ class ProductCtrl extends Controller
 
         $current_supplier = Supplier::getProductSupplier($id, true);
 
+        $users = DB::table('per_model_has_roles')
+            ->select('model_id')
+            ->where('role_id', 2)
+            ->get()
+            ->pluck('model_id')
+            ->toArray();
+
         return view('cms.commodity.product.basic_info', [
             'method' => 'edit',
             'formAction' => Route('cms.product.edit', ['id' => $id, 'page' => $this->currentPage]),
-            'users' => User::where('department','商品部')->get(),
+            'users' => User::whereIn('id', $users)->get(),
             'product' => $product,
             'suppliers' => Supplier::get(),
             'current_supplier' => $current_supplier,
